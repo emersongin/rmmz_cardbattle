@@ -1,10 +1,19 @@
-main.js
-plugins.js
-rmmz_core.js
-rmmz_managers.js
-rmmz_objects.js
-rmmz_scenes.js
-rmmz_sprites.js
-rmmz_windows.js
-plugins/
-libs/
+# Ignorar main.js na raiz do projeto
+/main.js
+
+# Ignorar todos os arquivos na pasta "plugins" exceto o especificado
+/plugins/*
+!plugins/rmmz_cardbattle.js
+
+# Outros padrões de ignorar
+/plugins.js
+/rmmz_core.js
+/rmmz_managers.js
+/rmmz_objects.js
+/rmmz_scenes.js
+/rmmz_sprites.js
+/rmmz_windows.js
+
+# Ignorar pastas e arquivos comuns
+/libs/
+/node_modules/

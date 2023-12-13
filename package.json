@@ -1,0 +1,15 @@
+{
+  "name": "rmmz_cardbattle",
+  "version": "1.0.0",
+  "description": "plugin add on cardbattle for rmmz",
+  "main": "main.js",
+  "scripts": {
+    "build": "bundle-js ./src/main.js -o ./plugins/rmmz_cardbattle.js --disable-beautify",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Emerson Andrey",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
