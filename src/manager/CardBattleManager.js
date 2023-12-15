@@ -1,9 +1,15 @@
 class CardBattleManager {
-  constructor() {
-    throw new Error('This is a static class');
+  phase;
+
+  static changePhase(phase) {
+    CardBattleManager.phase = phase;
   }
 
-  static init() {
-    console.log('manager init!');
+  static setup() {
+    CardBattleManager.changePhase(new StartPhase(this));
+  }
+
+  static update() {
+    CardBattleManager.phase.updateStart();
   }
 }

@@ -1,7 +1,8 @@
 (function() {
 'use strict';
-
-// include ./scene/SceneCardBattle.js
+// include ./window/TextWindow.js
+// include ./scene/CardBattleScene.js
+// include ./manager/StartPhase.js
 // include ./manager/CardBattleManager.js
 
 SceneManager.goto = function(sceneClass, params = []) {
@@ -17,7 +18,7 @@ Scene_Boot.prototype.start = function() {
   Scene_Base.prototype.start.call(this);
   SoundManager.preloadImportantSounds();
   DataManager.setupNewGame();
-  SceneManager.goto(SceneCardBattle, [CardBattleManager]);
+  SceneManager.goto(CardBattleScene, [CardBattleManager]);
   this.resizeScreen();
   this.updateDocumentTitle();
 };
