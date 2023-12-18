@@ -7,9 +7,10 @@ class CardBattleManager {
 
   static setup() {
     CardBattleManager.changePhase(new StartPhase(this));
+    CardBattleManager.phase.start();
   }
 
   static update() {
-    CardBattleManager.phase.updateStart();
+    CardBattleManager.phase.update();
   }
 }

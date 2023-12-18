@@ -1,12 +1,6 @@
 
 class CardBattleScene extends Scene_Message {
-  _manager = null;
   _textWindow = null;
-
-  constructor(cardbattleManager) {
-    super();
-    this._manager = cardbattleManager;
-  }
 
   create() {
     super.create();
@@ -39,12 +33,12 @@ class CardBattleScene extends Scene_Message {
 
   start() {
     super.start();
-    this._manager.setup();
+    CardBattleManager.setup();
   }
 
   update() {
-    super.update();
     CardBattleManager.update();
+    super.update();
   }
 
   stop() {

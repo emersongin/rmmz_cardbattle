@@ -5,13 +5,7 @@ class TextWindow extends Window_Base {
 }
 
 class CardBattleScene extends Scene_Message {
-  _manager = null;
   _textWindow = null;
-
-  constructor(cardbattleManager) {
-    super();
-    this._manager = cardbattleManager;
-  }
 
   create() {
     super.create();
@@ -44,12 +38,12 @@ class CardBattleScene extends Scene_Message {
 
   start() {
     super.start();
-    this._manager.setup();
+    CardBattleManager.setup();
   }
 
   update() {
-    super.update();
     CardBattleManager.update();
+    super.update();
   }
 
   stop() {
@@ -67,9 +61,12 @@ class StartPhase {
     this._manager = manager;
   }
 
-  updateStart() {
-    // this._manager.changePhase(new DrawPhase(this._manager));
-    console.log('StartPhase');
+  start() {
+    console.log('Phase started');
+  }
+
+  update() {
+    console.log('Phase updated');
   }
 
 }
@@ -82,27 +79,19 @@ class CardBattleManager {
 
   static setup() {
     CardBattleManager.changePhase(new StartPhase(this));
+    CardBattleManager.phase.start();
   }
 
   static update() {
-    CardBattleManager.phase.updateStart();
+    CardBattleManager.phase.update();
   }
 }
-
-SceneManager.goto = function(sceneClass, params = []) {
-  if (sceneClass) {
-    this._nextScene = new sceneClass(...params);
-  }
-  if (this._scene) {
-    this._scene.stop();
-  }
-};
 
 Scene_Boot.prototype.start = function() {
   Scene_Base.prototype.start.call(this);
   SoundManager.preloadImportantSounds();
   DataManager.setupNewGame();
-  SceneManager.goto(CardBattleScene, [CardBattleManager]);
+  SceneManager.goto(CardBattleScene);
   this.resizeScreen();
   this.updateDocumentTitle();
 };
