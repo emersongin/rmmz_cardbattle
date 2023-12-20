@@ -3,14 +3,11 @@ class StartPhase {
 
   constructor(manager) {
     this._manager = manager;
-  }
-
-  start() {
-    console.log('Phase started');
+    console.log('Start phase started');
   }
 
   update() {
-    console.log('Phase updated');
+    console.log('Start phase updated');
   }
 
 }

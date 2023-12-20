@@ -1,8 +1,9 @@
 (function() {
 'use strict';
 // include ./window/TextWindow.js
-// include ./scene/CardBattleScene.js
+// include ./manager/ChallengerPhase.js
 // include ./manager/StartPhase.js
+// include ./scene/CardBattleScene.js
 // include ./manager/CardBattleManager.js
 
 Scene_Boot.prototype.start = function() {

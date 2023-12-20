@@ -1,6 +1,40 @@
 (function() {
 'use strict';
 class TextWindow extends Window_Base {
+  constructor(rect) {
+    super(rect);
+    this.initClosed();
+    this.drawText('text', 0, 0, 320, 'left');
+  }
+
+  initClosed() {
+    this._openness = 0;
+  }
+}
+class ChallengerPhase {
+  _manager;
+
+  constructor(manager) {
+    this._manager = manager;
+  }
+
+  update() {
+    if (Input.isTriggered('ok')) {
+      this._manager.changePhase(new StartPhase(this._manager));
+    }
+  }
+}
+class StartPhase {
+  _manager;
+
+  constructor(manager) {
+    this._manager = manager;
+    console.log('Start phase started');
+  }
+
+  update() {
+    console.log('Start phase updated');
+  }
 
 }
 
@@ -32,7 +66,7 @@ class CardBattleScene extends Scene_Message {
     const wx = 0;
     const wy = 0;
     const ww = Graphics.boxWidth;
-    const wh = Graphics.boxHeight;
+    const wh = Graphics.boxHeight / 4;
     return new Rectangle(wx, wy, ww, wh);
   }
 
@@ -42,8 +76,17 @@ class CardBattleScene extends Scene_Message {
   }
 
   update() {
+    this.updateWindows();
     CardBattleManager.update();
     super.update();
+  }
+
+  updateWindows() {
+    if (CardBattleManager.isChallengerPhase()) {
+      if (this._textWindow.isClosed()) this._textWindow.open();
+    } else {
+      if (this._textWindow.isOpen()) this._textWindow.close();
+    }
   }
 
   stop() {
@@ -54,22 +97,6 @@ class CardBattleScene extends Scene_Message {
     super.terminate();
   }
 }
-class StartPhase {
-  _manager;
-
-  constructor(manager) {
-    this._manager = manager;
-  }
-
-  start() {
-    console.log('Phase started');
-  }
-
-  update() {
-    console.log('Phase updated');
-  }
-
-}
 class CardBattleManager {
   phase;
 
@@ -78,12 +105,19 @@ class CardBattleManager {
   }
 
   static setup() {
-    CardBattleManager.changePhase(new StartPhase(this));
-    CardBattleManager.phase.start();
+    CardBattleManager.changePhase(new ChallengerPhase(this));
   }
 
   static update() {
     CardBattleManager.phase.update();
+  }
+
+  static isChallengerPhase() {
+    return CardBattleManager.phase instanceof ChallengerPhase;
+  }
+
+  static isStartPhase() {
+    return CardBattleManager.phase instanceof StartPhase;
   }
 }
 

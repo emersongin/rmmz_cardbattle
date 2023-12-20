@@ -6,11 +6,18 @@ class CardBattleManager {
   }
 
   static setup() {
-    CardBattleManager.changePhase(new StartPhase(this));
-    CardBattleManager.phase.start();
+    CardBattleManager.changePhase(new ChallengerPhase(this));
   }
 
   static update() {
     CardBattleManager.phase.update();
+  }
+
+  static isChallengerPhase() {
+    return CardBattleManager.phase instanceof ChallengerPhase;
+  }
+
+  static isStartPhase() {
+    return CardBattleManager.phase instanceof StartPhase;
   }
 }

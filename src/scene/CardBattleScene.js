@@ -27,7 +27,7 @@ class CardBattleScene extends Scene_Message {
     const wx = 0;
     const wy = 0;
     const ww = Graphics.boxWidth;
-    const wh = Graphics.boxHeight;
+    const wh = Graphics.boxHeight / 4;
     return new Rectangle(wx, wy, ww, wh);
   }
 
@@ -37,8 +37,17 @@ class CardBattleScene extends Scene_Message {
   }
 
   update() {
+    this.updateWindows();
     CardBattleManager.update();
     super.update();
+  }
+
+  updateWindows() {
+    if (CardBattleManager.isChallengerPhase()) {
+      if (this._textWindow.isClosed()) this._textWindow.open();
+    } else {
+      if (this._textWindow.isOpen()) this._textWindow.close();
+    }
   }
 
   stop() {
