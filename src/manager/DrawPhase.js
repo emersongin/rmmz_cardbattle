@@ -3,7 +3,7 @@ class DrawPhase {
 
   constructor(manager) {
     this._manager = manager;
-    console.log('Draw phase started');
+    this._manager.phaseChanged();
   }
 
   update() {

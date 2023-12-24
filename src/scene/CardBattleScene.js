@@ -1,6 +1,8 @@
 
 class CardBattleScene extends Scene_Message {
+  _titleWindow = null;
   _textWindow = null;
+  _chooseFolderWindow = null;
 
   create() {
     super.create();
@@ -13,47 +15,33 @@ class CardBattleScene extends Scene_Message {
   };
 
   createAllWindows() {
+    this.createTitleWindow();
     this.createTextWindow();
+    this.createChooseFolderWindow();
     super.createAllWindows();
   };
 
+  createTitleWindow() {
+    const rect = new Rectangle(0, 0, Graphics.boxWidth, Graphics.boxHeight);
+    this._titleWindow = new TextWindow(rect);
+    this.addWindow(this._titleWindow);
+  }
+
   createTextWindow() {
-    const rect = this.textWindowRect();
+    const rect = new Rectangle(0, 0, Graphics.boxWidth, Graphics.boxHeight);
     this._textWindow = new TextWindow(rect);
     this.addWindow(this._textWindow);
   }
 
-  textWindowRect() {
-    const wx = 0;
-    const wy = 0;
-    const ww = Graphics.boxWidth;
-    const wh = Graphics.boxHeight;
-    return new Rectangle(wx, wy, ww, wh);
+  createChooseFolderWindow() {
+    const rect = new Rectangle(0, 0, Graphics.boxWidth, Graphics.boxHeight);
+    this._chooseFolderWindow = new ChooseFolderWindow(rect);
+    this.addWindow(this._chooseFolderWindow);
   }
 
   start() {
     super.start();
     CardBattleManager.setup();
-    this.addWindowChanllengerText();
-  }
-
-  addWindowChanllengerText() {
-    this._textWindow.clearTextContent();
-    this._textWindow.addText('Hello, World!');
-    this._textWindow.addText('Hello, Planet!');
-    this._textWindow.addText('Hello, Solar System!');
-    this._textWindow.addText('Hello, Galaxy!');
-    this._textWindow.addText('Hello, Universe!');
-    this._textWindow.addText('Hello, Multiverse!');
-    this._textWindow.addText('Hello, Parallel Universe!');
-    this._textWindow.addText('Hello, Dimension!');
-    this._textWindow.addText('Hello, Space!');
-    this._textWindow.addText('Hello, Time!');
-    this._textWindow.addText('Hello, Infinity!');
-    this._textWindow.addText('Hello, Eternity!');
-    this._textWindow.addText('Hello, Nothing!');
-    this._textWindow.addText('Hello, Void!');
-    this._textWindow.drawTextContent();
   }
 
   update() {
@@ -62,12 +50,90 @@ class CardBattleScene extends Scene_Message {
     super.update();
   }
 
+  isAnyWindowBusy() {
+    return (
+      this._titleWindow.isOpening() ||
+      this._textWindow.isOpening() ||
+      this._chooseFolderWindow.isOpening()
+  );
+  }
+
   updateWindows() {
+    this.updateChallengePhaseWindows();
+    this.updateChooseFolderPhaseWindows();
+  }
+
+  updateChallengePhaseWindows() {
     if (CardBattleManager.isChallengerPhase()) {
-      if (this._textWindow.isClosed()) this._textWindow.open();
+      setTimeout(() => {
+        if (this._titleWindow.isClosed() && !this.isAnyWindowBusy()) this.showTitleWindowChallengePhase();
+        if (this._textWindow.isClosed() && !this.isAnyWindowBusy()) this.showTextWindowChallenge();
+      }, 100);
     } else {
-      if (this._textWindow.isOpen()) this._textWindow.close();
+      if (CardBattleManager.isPhaseChanged()) {
+        if (this._titleWindow.isOpen()) this._titleWindow.close();
+        if (this._textWindow.isOpen()) this._textWindow.close();
+        CardBattleManager.phaseChangeDone();
+      }
     }
+  }
+
+  showTitleWindowChallengePhase() {
+    const orangeColor = 20;
+    this._titleWindow.clearContent();
+    this._titleWindow.addText('Card Battle Challenge');
+    this._titleWindow.changeContentTextColor(orangeColor);
+    this._titleWindow.alignContentCenter();
+    this._titleWindow.moveWindowOnTopCenter();
+    this._titleWindow.drawContentText();
+    this._titleWindow.open();
+  }
+
+  showTextWindowChallenge() {
+    const enemyName = CardBattleManager.getEnemyName();
+    const enemyLevel = CardBattleManager.getEnemyLevel();
+    this._textWindow.clearContent();
+    this._textWindow.addText(`Lv ${enemyLevel}`);
+    this._textWindow.addText(enemyName);
+    this._textWindow.drawContentText();
+    this._textWindow.moveWindowToCenter();
+    this._textWindow.open();
+  }
+
+  updateChooseFolderPhaseWindows() {
+    if (CardBattleManager.isChooseFolderPhase()) {
+      setTimeout(() => {
+        if (this._titleWindow.isClosed() && !this.isAnyWindowBusy()) this.showTitleWindowChooseFolderPhase();
+        if (this._chooseFolderWindow.isClosed() && !this.isAnyWindowBusy()) this.showChooseFolderWindowChooseFolderPhase();
+      }, 500);
+    } else {
+      if (CardBattleManager.isPhaseChanged()) {
+        if (this._titleWindow.isOpen()) this._titleWindow.close();
+        if (this._chooseFolderWindow.isOpen()) this._chooseFolderWindow.close();
+        CardBattleManager.phaseChangeDone(false);
+      }
+    }
+  }
+
+  showTitleWindowChooseFolderPhase() {
+    this._titleWindow.clearContent();
+    this._titleWindow.addText('Choose a folder');
+    this._titleWindow.alignContentCenter();
+    this._titleWindow.moveWindowToBetweenTopAndCenter();
+    this._titleWindow.drawContentText();
+    this._titleWindow.open();
+  }
+
+  showChooseFolderWindowChooseFolderPhase() {
+    this._chooseFolderWindow.setHandler("folder1", () => { this.execute(1) });
+    this._chooseFolderWindow.setHandler("folder2", () => { this.execute(2) });
+    this._chooseFolderWindow.setHandler("folder3", () => { this.execute(3) });
+    this._chooseFolderWindow.moveWindowToCenter();;
+    this._chooseFolderWindow.open();
+  }
+
+  execute(number) {
+    console.log('action: ' + number);
   }
 
   stop() {
