@@ -17,11 +17,11 @@ class CardBattleManager {
   }
 
   static changePhase(phase) {
-    CardBattleManager._phase = phase;
+    this._phase = phase;
   }
 
   static setup() {
-    CardBattleManager.changePhase(new ChallengePhase(this));
+    this.changePhase(new ChallengePhase(this));
   }
 
   static setPlayer(player) {
@@ -49,18 +49,57 @@ class CardBattleManager {
   }
 
   static update() {
-    CardBattleManager._phase.update();
+    this._phase.update();
+  }
+
+  static getPlayerFolderName(index) {
+    return playerDecksData[index].name;
+  }
+
+  static selectPlayerFolder(index) {
+    const cards = playerDecksData[index].cards;
+    const cardset = this.createCardset(cards);
+    this._player.setDeck(cardset);
+    console.log(cardset);
+  }
+
+  static hasPlayerDeck() {
+    return this._player?.hasDeck();
+  }
+
+  static createCardset(cards) {
+    const cardset = cards.map(card => {
+      return this.createCard(card);
+    });
+    return cardset;
+  }
+
+  static createCard(card) {
+    const type = card.type;
+    const energyData = card.energy;
+    const powerData = card.power;
+    switch (type) {
+      case CardType.LUCK:
+        return Card.makeBattleCard(card);
+        break;
+      case CardType.POWER:
+        return Card.makeBattleCard(card, energyData, powerData);
+        break;
+      default: //CardType.BATTLE
+        return Card.makeBattleCard(card, energyData);
+        break;
+    }
   }
 
   static isChallengerPhase() {
-    return CardBattleManager._phase instanceof ChallengePhase;
+    return this._phase instanceof ChallengePhase;
   }
 
   static isChooseFolderPhase() {
-    return CardBattleManager._phase instanceof ChooseFolderPhase;
+    return this._phase instanceof ChooseFolderPhase;
   }
 
-  // static isStartPhase() {
-  //   return CardBattleManager._phase instanceof StartPhase;
-  // }
+  static isStartPhase() {
+    return this._phase instanceof StartPhase;
+  }
 }

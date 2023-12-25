@@ -11,16 +11,14 @@ class ChallengePhase {
   createCardBattePlayer() {
     const playerName = 'Player';
     const playerLevel = 1;
-    const playerDeck = [];
-    const player = new CardBattlePlayer(playerName, playerLevel, playerDeck);
+    const player = new CardBattlePlayer(playerName, playerLevel);
     this._manager.setPlayer(player);
   }
   
   createCardBatteEnemy() {
     const enemyName = 'Shining Dragon';
     const enemyLevel = 102;
-    const enemyDeck = [];
-    const enemy = new CardBattlePlayer(enemyName, enemyLevel, enemyDeck);
+    const enemy = new CardBattlePlayer(enemyName, enemyLevel);
     this._manager.setEnemy(enemy);
   }
 

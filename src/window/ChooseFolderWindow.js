@@ -8,14 +8,29 @@ class ChooseFolderWindow extends Window_Command {
     this._openness = 0;
   }
 
-  makeCommandList() {
-    this.addCommand('Folder One', "folder1");
-    this.addCommand('Folder Two', "folder2");
-    this.addCommand('Folder Three', "folder3");
+  itemTextAlign() {
+    return 'left';
   }
 
-  refresh() {
-    super.refresh();
+  makeCommandList(commands) {
+    commands = commands || [
+      { name: 'First Folder' },
+      { name: 'Middle Folder' },
+      { name: 'Last Folder' },
+    ];
+    this.addCommand(commands[0].name, 'FIRST_FOLDER', true);
+    this.addCommand(commands[1].name, 'MIDDLE_FOLDER', true);
+    this.addCommand(commands[2].name, 'LAST_FOLDER', true);
+  }
+
+  refresh(commands) {
+    this.clearCommandList();
+    this.makeCommandList(commands);
+    this.paint();
+    this.refreshWindowSize();
+  }
+
+  refreshWindowSize() {
     const windowHeight = this.fittingHeight(this.maxItems());
     this.move(this.x, this.y, this._width, windowHeight);
   }

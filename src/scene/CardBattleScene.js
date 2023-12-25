@@ -1,8 +1,11 @@
 
 class CardBattleScene extends Scene_Message {
-  _titleWindow = null;
-  _textWindow = null;
-  _chooseFolderWindow = null;
+  initialize() {
+    super.initialize();
+    this._titleWindow = null;
+    this._textWindow = null;
+    this._chooseFolderWindow = null;
+  }
 
   create() {
     super.create();
@@ -10,16 +13,22 @@ class CardBattleScene extends Scene_Message {
   }
 
   createDisplayObjects() {
+    this.createSpriteset();
     this.createWindowLayer();
     this.createAllWindows();
-  };
+  }
+
+  createSpriteset() {
+    this._spriteset = new CardBattleSpriteset();
+    this.addChild(this._spriteset);
+  }
 
   createAllWindows() {
     this.createTitleWindow();
     this.createTextWindow();
     this.createChooseFolderWindow();
     super.createAllWindows();
-  };
+  }
 
   createTitleWindow() {
     const rect = new Rectangle(0, 0, Graphics.boxWidth, Graphics.boxHeight);
@@ -45,9 +54,38 @@ class CardBattleScene extends Scene_Message {
   }
 
   update() {
-    this.updateWindows();
-    CardBattleManager.update();
+    if (!this.isBusy()) {
+      this.updateWindows();
+      CardBattleManager.update();
+    }
     super.update();
+  }
+
+  isBusy() {
+    return (
+      this._spriteset.isBusy() ||
+      super.isBusy()
+    );
+  };
+
+  updateWindows() {
+    this.updateChallengePhaseWindows();
+    this.updateChooseFolderPhaseWindows();
+    this.updateStartPhaseWindows();
+    this.updatePhaseChanged();
+  }
+
+  updateChallengePhaseWindows() {
+    if (CardBattleManager.isChallengerPhase() && !CardBattleManager.isPhaseChanged()) {
+      if (this._titleWindow.isClosed() && this.isNoBusyWindows()) 
+        this.showTitleWindowChallengePhase();
+      if (this._textWindow.isClosed() && this.isNoBusyWindows()) 
+        this.showTextWindowChallengePhase();
+    }
+  }
+  
+  isNoBusyWindows() {
+    return !this.isAnyWindowBusy();
   }
 
   isAnyWindowBusy() {
@@ -55,27 +93,7 @@ class CardBattleScene extends Scene_Message {
       this._titleWindow.isOpening() ||
       this._textWindow.isOpening() ||
       this._chooseFolderWindow.isOpening()
-  );
-  }
-
-  updateWindows() {
-    this.updateChallengePhaseWindows();
-    this.updateChooseFolderPhaseWindows();
-  }
-
-  updateChallengePhaseWindows() {
-    if (CardBattleManager.isChallengerPhase()) {
-      setTimeout(() => {
-        if (this._titleWindow.isClosed() && !this.isAnyWindowBusy()) this.showTitleWindowChallengePhase();
-        if (this._textWindow.isClosed() && !this.isAnyWindowBusy()) this.showTextWindowChallenge();
-      }, 100);
-    } else {
-      if (CardBattleManager.isPhaseChanged()) {
-        if (this._titleWindow.isOpen()) this._titleWindow.close();
-        if (this._textWindow.isOpen()) this._textWindow.close();
-        CardBattleManager.phaseChangeDone();
-      }
-    }
+    );
   }
 
   showTitleWindowChallengePhase() {
@@ -89,7 +107,7 @@ class CardBattleScene extends Scene_Message {
     this._titleWindow.open();
   }
 
-  showTextWindowChallenge() {
+  showTextWindowChallengePhase() {
     const enemyName = CardBattleManager.getEnemyName();
     const enemyLevel = CardBattleManager.getEnemyLevel();
     this._textWindow.clearContent();
@@ -101,17 +119,11 @@ class CardBattleScene extends Scene_Message {
   }
 
   updateChooseFolderPhaseWindows() {
-    if (CardBattleManager.isChooseFolderPhase()) {
-      setTimeout(() => {
-        if (this._titleWindow.isClosed() && !this.isAnyWindowBusy()) this.showTitleWindowChooseFolderPhase();
-        if (this._chooseFolderWindow.isClosed() && !this.isAnyWindowBusy()) this.showChooseFolderWindowChooseFolderPhase();
-      }, 500);
-    } else {
-      if (CardBattleManager.isPhaseChanged()) {
-        if (this._titleWindow.isOpen()) this._titleWindow.close();
-        if (this._chooseFolderWindow.isOpen()) this._chooseFolderWindow.close();
-        CardBattleManager.phaseChangeDone(false);
-      }
+    if (CardBattleManager.isChooseFolderPhase() && !CardBattleManager.isPhaseChanged()) {
+      if (this._titleWindow.isClosed() && this.isNoBusyWindows()) 
+        this.showTitleWindowChooseFolderPhase();
+      if (this._chooseFolderWindow.isClosed() && this.isNoBusyWindows()) 
+        this.showChooseFolderWindowChooseFolderPhase();
     }
   }
 
@@ -125,15 +137,60 @@ class CardBattleScene extends Scene_Message {
   }
 
   showChooseFolderWindowChooseFolderPhase() {
-    this._chooseFolderWindow.setHandler("folder1", () => { this.execute(1) });
-    this._chooseFolderWindow.setHandler("folder2", () => { this.execute(2) });
-    this._chooseFolderWindow.setHandler("folder3", () => { this.execute(3) });
+    const firstFolderName = CardBattleManager.getPlayerFolderName(0);
+    const middleFolderName = CardBattleManager.getPlayerFolderName(1);
+    const lastFolderName = CardBattleManager.getPlayerFolderName(2);
+    this._chooseFolderWindow.refresh([
+      { name: firstFolderName },
+      { name: middleFolderName },
+      { name: lastFolderName }
+    ]);
+    this._chooseFolderWindow.setHandler('FIRST_FOLDER', () => { this.selectPlayerFolderCommand(0) });
+    this._chooseFolderWindow.setHandler('MIDDLE_FOLDER', () => { this.selectPlayerFolderCommand(1) });
+    this._chooseFolderWindow.setHandler('LAST_FOLDER', () => { this.selectPlayerFolderCommand(2) });
     this._chooseFolderWindow.moveWindowToCenter();;
     this._chooseFolderWindow.open();
   }
 
-  execute(number) {
-    console.log('action: ' + number);
+  updateStartPhaseWindows() {
+    if (CardBattleManager.isStartPhase() && !CardBattleManager.isPhaseChanged()) {
+      if (this._titleWindow.isClosed() && this.isNoBusyWindows()) 
+        this.showTitleWindowStartPhase();
+      if (this._textWindow.isClosed() && this.isNoBusyWindows()) 
+        this.showTextWindowStartPhase();
+    }
+  }
+
+  showTitleWindowStartPhase() {
+    this._titleWindow.clearContent();
+    this._titleWindow.addText('Start Phase');
+    this._titleWindow.alignContentCenter();
+    this._titleWindow.moveWindowOnTopCenter();
+    this._titleWindow.drawContentText();
+    this._titleWindow.open();
+  }
+
+  showTextWindowStartPhase() {
+    this._textWindow.clearContent();
+    this._textWindow.addText('Draw white card to go first.');
+    this._textWindow.drawContentText();
+    this._textWindow.moveWindowToCenter();
+    this._textWindow.open();
+  }
+
+  updatePhaseChanged() {
+    if (CardBattleManager.isPhaseChanged()) {
+      if (this._titleWindow.isOpen()) this._titleWindow.close();
+      if (this._textWindow.isOpen()) this._textWindow.close();
+      if (this._chooseFolderWindow.isOpen()) this._chooseFolderWindow.close();
+      setTimeout(() => {
+        if (this.isNoBusyWindows()) CardBattleManager.phaseChangeDone();
+      }, 400);
+    }
+  }
+
+  selectPlayerFolderCommand(number) {
+    CardBattleManager.selectPlayerFolder(number);
   }
 
   stop() {

@@ -7,7 +7,9 @@ class ChooseFolderPhase {
   }
 
   update() {
-    // console.log('Draw phase updated');
+    if (this._manager.hasPlayerDeck()) {
+      this._manager.changePhase(new StartPhase(this._manager));
+    }
   }
 
 }
