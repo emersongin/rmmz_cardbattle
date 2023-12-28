@@ -11,7 +11,12 @@ class CardSprite extends Sprite {
     this._attackPoints = 0;
     this._healthPoints = 0;
     this._open = false;
+    this._opening = false;
+    this._closed = true;
+    this._closing = false;
+    this._stopped = true;
     this._moving = false;
+    this._cheering = false;
     this._turnedtoUp = false;
   }
 }
