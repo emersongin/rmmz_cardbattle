@@ -1,16 +1,16 @@
 class Card {
-  _id = '';
-  _number = 0;
-  _name = '';
-  _description = '';
-  _type = 0;
-  _attack = 0;
-  _health = 0;
-  _energy = null;
-  _powerAction = null;
-
   constructor() {
     this._id = uuidv4();
+    this._number = 0;
+    this._name = '';
+    this._description = '';
+    this._type = 0;
+    this._attack = 0;
+    this._health = 0;
+    this._energy = null;
+    this._powerAction = null;
+    this._attackState = 0;
+    this._healthState = 0;
   }
 
   static makeBattleCard(cardData, energyData) {
