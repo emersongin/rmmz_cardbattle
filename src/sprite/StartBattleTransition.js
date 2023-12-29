@@ -6,17 +6,17 @@ class StartBattleTransition extends Sprite {
     this._backgroundLayer = null;
     this._blackLeftSideLayer = null;
     this._blackRightSideLayer = null;
-    this.loadBackgroundBitmap();
-    this.createBackgroundSprite();
-    this.createBlackSideLayers();
-    this.setupTransition();
+    this.loadBackgroundContents();
+    this.createBackground();
+    this.createSideLayers();
+    this.setupTransitions();
   }
 
-  loadBackgroundBitmap() {
+  loadBackgroundContents() {
     this._backgroundBitmap = ImageManager.loadPicture('background1');
   }
 
-  createBackgroundSprite() {
+  createBackground() {
     this._backgroundLayer = new Sprite(this.createEmptyBitmap());
     this.addChild(this._backgroundLayer);
   }
@@ -25,30 +25,29 @@ class StartBattleTransition extends Sprite {
     return new Bitmap(Graphics.width, Graphics.height);
   }
 
-  createBlackSideLayers() { 
+  createSideLayers() { 
     this._blackLeftSideLayer = new Sprite();
-    this._blackLeftSideLayer.bitmap = this.createScreenBlackBitmap();
+    this._blackLeftSideLayer.bitmap = this.createBlackScreenImage();
     this.addChild(this._blackLeftSideLayer);
     this._blackRightSideLayer = new Sprite();
-    this._blackRightSideLayer.bitmap = this.createScreenBlackBitmap();
+    this._blackRightSideLayer.bitmap = this.createBlackScreenImage();
     this.addChild(this._blackRightSideLayer);
   }
 
-  createScreenBlackBitmap() {
+  createBlackScreenImage() {
     const bitmap = new Bitmap(Graphics.width, Graphics.height);
     bitmap.fillRect(0, 0, Graphics.width, Graphics.height, 'black');
     return bitmap;
   }
 
-  setupTransition() {
+  setupTransitions() {
     this.setupBackgroundTransition();
-    this.setupLeftSideTransition();
-    this._started = true;
+    this.setupLayerTransitions();
+    this.startTransition();
   }
 
   setupBackgroundTransition() {
-    const bgWidth = this._backgroundLayer.width;
-    const bgMiddle = this._backgroundLayer.width / 2;
+    const screenMiddle = Graphics.width / 2;
     this._backgroundLayer.target = {
       rect: {
         x: this._backgroundLayer.x, 
@@ -56,45 +55,62 @@ class StartBattleTransition extends Sprite {
         width: this._backgroundLayer.width, 
         height: this._backgroundLayer.height
       },
-      interval: this.calculateInterval(816, 0, 1),
+      interval: this.calculateInterval(screenMiddle, 0, 0.5),
     };
   }
 
-  setupLeftSideTransition() {
+  calculateInterval(origin, target, speedPerSecond) {
+    return Math.floor(Math.abs(origin - target) / (speedPerSecond * 60));
+  }
+
+  setupLayerTransitions() {
+    const screenWidth = Graphics.width;
+    const screenMiddle = Graphics.width / 2;
     this._blackLeftSideLayer.x = -Graphics.width;
     this._blackRightSideLayer.x = Graphics.width;
     this._blackLeftSideLayer.target = {
-      x: 0, y: 0,
-      interval: this.calculateInterval(-Graphics.width, 0, 1)
+      x: 0, 
+      y: 0,
+      interval: this.calculateInterval(-screenWidth, -screenMiddle, 0.5)
     };
     this._blackRightSideLayer.target = {
-      x: 0, y: 0,
-      interval: this.calculateInterval(Graphics.width, 0, 1)
+      x: 0, 
+      y: 0,
+      interval: this.calculateInterval(screenWidth, screenMiddle, 0.5)
     }
+  }
+
+  startTransition() {
+    this.visible = true;
+    this._started = true;
   }
 
   update() {
     super.update();
-    if (this._started) {
-      this.visible = true;
+    if (this.isStartedTransition()) {
       if (this.isBackgroundBusy()) this.updateBackgroundTransition();
-      if (!this.isBackgroundBusy() && this.isLayersBusy()) {
-        this.updateTransition();
-      }
+      if (!this.isBackgroundBusy() && this.isLayersBusy()) this.updateLayerTransitions();
     }
     if (!this.isBackgroundBusy() && !this.isLayersBusy()) {
-      if (!this._started && this.visible) {
-        this.updateOpacityOut();
+      if (this.isEndTransition() && this.isVisibled()) {
+        this.updateOpacity();
       } else {
-        this._started = false;
-        this._backgroundLayer.hide();
+        this.endTransition();
+        this.hideBackground();
       }
     }
   }
 
-  updateOpacityOut() {
-    if (this.opacity >= 0) this.opacity = this.opacity - 8;
-    if (this.opacity <= 0) this.visible = false;
+  isStartedTransition() {
+    return this._started;
+  }
+
+  isBackgroundBusy() {
+    const backgroundLayer = this._backgroundLayer;
+    const { x, y, width, height, target } = backgroundLayer;
+    const { rect } = target;
+    const { x: xRect, y: yRect, width: widthRect, height: heightRect } = rect;
+    return xRect < width || yRect < height || widthRect > x || heightRect > y;
   }
 
   updateBackgroundTransition() { 
@@ -124,7 +140,18 @@ class StartBattleTransition extends Sprite {
     return bitmap;
   }
 
-  updateTransition() {
+  isLayersBusy() {
+    return this.isLayerInMoving(this._blackLeftSideLayer) || 
+      this.isLayerInMoving(this._blackRightSideLayer);
+  }
+
+  isLayerInMoving(layer) {
+    const { x, y, target } = layer;
+    const { x: targetX, y: targetY } = target;
+    return x != targetX || y != targetY;
+  }
+
+  updateLayerTransitions() {
     this.updateLayerTransition(this._blackLeftSideLayer)
     this.updateLayerTransition(this._blackRightSideLayer);
   }
@@ -148,34 +175,37 @@ class StartBattleTransition extends Sprite {
     }
   }
 
+  isEndTransition() {
+    return !this._started;
+  }
+
+  isVisibled() {
+    return this.visible;
+  }
+
+  endTransition() {;
+    this._started = false;
+  }
+
+  hideBackground() {
+    this._backgroundLayer.hide();
+  }
+
+  updateOpacity() {
+    if (this.isStartedTransition()) {
+      if (this.opacity < 255) {
+        this.visible = true;
+        this.opacity = this.opacity + 8;
+      }
+    } else {
+      if (this.opacity > 0) this.opacity = this.opacity - 8;
+      if (this.opacity <= 0) this.visible = false;
+    }
+  }
+
   isBusy() {
     return this.isBackgroundBusy() || 
-      this.isLayersBusy() || this.opacity > 0;
-  }
-
-  isLayersBusy() {
-    return this.isLayerInMoving(this._blackLeftSideLayer) || 
-      this.isLayerInMoving(this._blackRightSideLayer);
-  }
-
-  isBackgroundBusy() {
-    return this.isBackgroundMoving(this._backgroundLayer);
-  }
-
-  isBackgroundMoving(backgroundLayer) {
-    const { x, y, width, height, target } = backgroundLayer;
-    const { rect } = target;
-    const { x: xRect, y: yRect, width: widthRect, height: heightRect } = rect;
-    return xRect < width || yRect < height || widthRect > x || heightRect > y;
-  }
-
-  isLayerInMoving(layer) {
-    const { x, y, target } = layer;
-    const { x: targetX, y: targetY } = target;
-    return x != targetX || y != targetY;
-  }
-
-  calculateInterval(origin, target, speedPerSecond) {
-    return Math.floor(Math.abs(origin - target) / (speedPerSecond * 60));
+      this.isLayersBusy() || 
+      this.opacity > 0;
   }
 }
