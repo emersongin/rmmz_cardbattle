@@ -1,6 +1,6 @@
 (function() {
 'use strict';
-const CardType = {
+const CardTypes = {
   BATTLE: 1,
   POWER: 2,
   LUCK: 3
@@ -21,7 +21,7 @@ const playerDecksData = [
         number: 1,
         name: 'Dodge',
         description: 'Dodge',
-        type: CardType.BATTLE,
+        type: CardTypes.BATTLE,
         attack: 10,
         health: 10,
         energy: { type: 1, amount: 1 }
@@ -30,7 +30,7 @@ const playerDecksData = [
         number: 1,
         name: 'Dodge',
         description: 'Dodge',
-        type: CardType.BATTLE,
+        type: CardTypes.BATTLE,
         attack: 10,
         health: 10,
         energy: { type: 1, amount: 1 }
@@ -39,7 +39,7 @@ const playerDecksData = [
         number: 1,
         name: 'Dodge',
         description: 'Dodge',
-        type: CardType.BATTLE,
+        type: CardTypes.BATTLE,
         attack: 10,
         health: 10,
         energy: { type: 1, amount: 1 }
@@ -238,7 +238,7 @@ class Card {
     battleCard._number = cardData.number;
     battleCard._name = cardData.name;
     battleCard._description = cardData.description;
-    battleCard._type = CardType.BATTLE;
+    battleCard._type = CardTypes.BATTLE;
     battleCard._attack = cardData.attack;
     battleCard._health = cardData.health;
     battleCard._energy = new Energy(energyData.type, energyData.amount);
@@ -250,7 +250,7 @@ class Card {
     powerCard._number = cardData.number;
     powerCard._name = cardData.name;
     powerCard._description = cardData.description;
-    powerCard._type = CardType.POWER;
+    powerCard._type = CardTypes.POWER;
     powerCard._energy = new Energy(energyData.type, energyData.amount);
     powerCard._powerAction = new PowerAction(powerData.command);
     return powerCard;
@@ -261,7 +261,7 @@ class Card {
     luckCard._number = cardData.number;
     luckCard._name = cardData.name;
     luckCard._description = cardData.description;
-    luckCard._type = CardType.LUCK;
+    luckCard._type = CardTypes.LUCK;
     luckCard._energy = new Energy(energyData.energy, energyData.amount);
     return luckCard;
   }
@@ -362,215 +362,218 @@ class DrawPhase {
   }
 
 }
-class StartBattleTransition extends Sprite {
+class CardSprite extends Sprite {
   initialize() {
     super.initialize();
-    this._started = false;
-    this._backgroundBitmap = null;
-    this._backgroundLayer = null;
-    this._blackLeftSideLayer = null;
-    this._blackRightSideLayer = null;
-    this.loadBackgroundContents();
-    this.createBackground();
-    this.createSideLayers();
-    this.setupTransitions();
+    // fixs
+    this._type = 0;
+    this._color = 0;
+    // bitmaps
+    this._figure = null;
+    this._backImage = null;
+    // states
+    this._attackPoints = 0;
+    this._healthPoints = 0;
+    this._open = true;
+    this._opening = false;
+    this._closed = true;
+    this._closing = false;
+    this._stopped = true;
+    this._moving = false;
+    this._animated = false;
+    this._turnedtoUp = true;
+    this.setSize();
   }
 
-  loadBackgroundContents() {
-    this._backgroundBitmap = ImageManager.loadPicture('background1');
+  setSize() {
+    this.width = 96;
+    this.height = 128;
+    this.bitmap = new Bitmap(this.width, this.height);
   }
 
-  createBackground() {
-    this._backgroundLayer = new Sprite(this.createEmptyBitmap());
-    this.addChild(this._backgroundLayer);
+  setCard(card) {
+    this._type = this.setType(card.type);
+    this._color = this.setColor(card.color);
+    this._figure = this.setFigure(card.figureName);
+    this._backImage = this.setBackImage();
+    this._attackPoints = card.attack;
+    this._healthPoints = card.health;
   }
 
-  createEmptyBitmap() {
-    return new Bitmap(Graphics.width, Graphics.height);
+  setType(type) {
+    return type || 1;
   }
 
-  createSideLayers() { 
-    this._blackLeftSideLayer = new Sprite();
-    this._blackLeftSideLayer.bitmap = this.createBlackScreenImage();
-    this.addChild(this._blackLeftSideLayer);
-    this._blackRightSideLayer = new Sprite();
-    this._blackRightSideLayer.bitmap = this.createBlackScreenImage();
-    this.addChild(this._blackRightSideLayer);
+  setColor(color) {
+    return color || 6;
   }
 
-  createBlackScreenImage() {
-    const bitmap = new Bitmap(Graphics.width, Graphics.height);
-    bitmap.fillRect(0, 0, Graphics.width, Graphics.height, 'black');
-    return bitmap;
+  setFigure(figureName) {
+    // this._figure = ImageManager.loadPicture(figureName);
   }
 
-  setupTransitions() {
-    this.setupBackgroundTransition();
-    this.setupLayerTransitions();
-    this.startTransition();
-  }
-
-  setupBackgroundTransition() {
-    const screenMiddle = Graphics.width / 2;
-    this._backgroundLayer.target = {
-      rect: {
-        x: this._backgroundLayer.x, 
-        y: this._backgroundLayer.y,
-        width: this._backgroundLayer.width, 
-        height: this._backgroundLayer.height
-      },
-      interval: this.calculateInterval(screenMiddle, 0, 0.5),
-    };
-  }
-
-  calculateInterval(origin, target, speedPerSecond) {
-    return Math.floor(Math.abs(origin - target) / (speedPerSecond * 60));
-  }
-
-  setupLayerTransitions() {
-    const screenWidth = Graphics.width;
-    const screenMiddle = Graphics.width / 2;
-    this._blackLeftSideLayer.x = -Graphics.width;
-    this._blackRightSideLayer.x = Graphics.width;
-    this._blackLeftSideLayer.target = {
-      x: 0, 
-      y: 0,
-      interval: this.calculateInterval(-screenWidth, -screenMiddle, 0.5)
-    };
-    this._blackRightSideLayer.target = {
-      x: 0, 
-      y: 0,
-      interval: this.calculateInterval(screenWidth, screenMiddle, 0.5)
-    }
-  }
-
-  startTransition() {
-    this.visible = true;
-    this._started = true;
+  setBackImage() {
+    // this._backImage = ImageManager.loadPicture('cardback');
   }
 
   update() {
+    if (this._open) {
+      this.refresh();
+    }
     super.update();
-    if (this.isStartedTransition()) {
-      if (this.isBackgroundBusy()) this.updateBackgroundTransition();
-      if (!this.isBackgroundBusy() && this.isLayersBusy()) this.updateLayerTransitions();
-    }
-    if (!this.isBackgroundBusy() && !this.isLayersBusy()) {
-      if (this.isEndTransition() && this.isVisibled()) {
-        this.updateOpacity();
-      } else {
-        this.endTransition();
-        this.hideBackground();
-      }
-    }
   }
 
-  isStartedTransition() {
-    return this._started;
+  refresh() {
+    // this.bitmap.clear();
+    this.drawCard();
   }
 
-  isBackgroundBusy() {
-    const backgroundLayer = this._backgroundLayer;
-    const { x, y, width, height, target } = backgroundLayer;
-    const { rect } = target;
-    const { x: xRect, y: yRect, width: widthRect, height: heightRect } = rect;
-    return xRect < width || yRect < height || widthRect > x || heightRect > y;
-  }
-
-  updateBackgroundTransition() { 
-    const { x, y, width, height, target } = this._backgroundLayer;
-    const { rect, interval } = target;
-    const { x: xRect, y: yRect, width: widthRect, height: heightRect } = rect;
-    if (xRect < width) {
-      this._backgroundLayer.target.rect.x = xRect + interval;
-    }
-    if (yRect < height) {
-      this._backgroundLayer.target.rect.y = yRect + interval;
-    }
-    if (widthRect > x) {
-      this._backgroundLayer.target.rect.width = widthRect - (interval * 2);
-    }
-    if (heightRect > y) {
-      this._backgroundLayer.target.rect.height = heightRect - (interval * 2);
-    }
-    this._backgroundLayer.bitmap = this.createBackgroundBitmapWithRect(this._backgroundLayer.target.rect);
-  }
-
-  createBackgroundBitmapWithRect(rect) {
-    const bitmap = this.createEmptyBitmap();
-    bitmap.fillAll('red');
-    bitmap.blt(this._backgroundBitmap, 0, 0, Graphics.width, Graphics.height, 0, 0);
-    bitmap.clearRect(rect?.x || 0, rect?.y || 0, rect?.width || 0, rect?.height || 0);
-    return bitmap;
-  }
-
-  isLayersBusy() {
-    return this.isLayerInMoving(this._blackLeftSideLayer) || 
-      this.isLayerInMoving(this._blackRightSideLayer);
-  }
-
-  isLayerInMoving(layer) {
-    const { x, y, target } = layer;
-    const { x: targetX, y: targetY } = target;
-    return x != targetX || y != targetY;
-  }
-
-  updateLayerTransitions() {
-    this.updateLayerTransition(this._blackLeftSideLayer)
-    this.updateLayerTransition(this._blackRightSideLayer);
-  }
-
-  updateLayerTransition(layer) {
-    const { x, target } = layer;
-    const { x: targetX } = target;
-    if(targetX == x) return; 
-    this.moveLayer(layer);
-  }
-
-  moveLayer(layer) {
-    const { x, target } = layer;
-    const { x: targetX, interval } = target;
-    if (targetX > x) {
-      layer.move(x + interval, 0);
-      if (!(targetX > layer.x)) layer.x = targetX;
-    } else if (targetX < x) {
-      layer.move(x - interval, 0);
-      if (!(targetX < layer.x)) layer.x = targetX;
-    }
-  }
-
-  isEndTransition() {
-    return !this._started;
-  }
-
-  isVisibled() {
-    return this.visible;
-  }
-
-  endTransition() {;
-    this._started = false;
-  }
-
-  hideBackground() {
-    this._backgroundLayer.hide();
-  }
-
-  updateOpacity() {
-    if (this.isStartedTransition()) {
-      if (this.opacity < 255) {
-        this.visible = true;
-        this.opacity = this.opacity + 8;
-      }
+  drawCard() {
+    if (this._turnedtoUp) {
+      this.drawBackground();
+      // this.drawFigure();
+      this.drawDisplay();
     } else {
-      if (this.opacity > 0) this.opacity = this.opacity - 8;
-      if (this.opacity <= 0) this.visible = false;
+      this.drawBack();
     }
   }
 
-  isBusy() {
-    return this.isBackgroundBusy() || 
-      this.isLayersBusy() || 
-      this.opacity > 0;
+  drawBackground() {
+    this.bitmap.fillRect(0, 0, this.width, this.height, this.getBackgroundColor());
+  }
+
+  drawFigure() {
+    this.bitmap.blt(this._figure, 0, 0, this._figure.width, this._figure.height, 0, 0);
+  }
+
+  drawDisplay() {
+    switch (this._type) {
+      case CardTypes.BATTLE:
+          this.drawPoints();
+        break;
+      case CardTypes.POWER:
+        this.bitmap.drawText(
+          '( P )', 
+          this.displayXPosition(), 
+          this.displayYPosition(), 
+          this.displayWidth(), 
+          this.displayHeight(), 
+          'center'
+        );
+        break;
+      default:
+        this.bitmap.drawText(
+          '???', 
+          this.displayXPosition(), 
+          this.displayYPosition(), 
+          this.displayWidth(), 
+          this.displayHeight(), 
+          'center'
+        );
+        break;
+    }
+  }
+
+  displayXPosition() {
+    return 0;
+  }
+
+  displayYPosition() {
+    return this.height - 24;
+  }
+
+  displayWidth() {
+    return this.width;
+  }
+
+  displayHeight() {
+    return 24;
+  }
+
+  drawPoints() {
+    this.bitmap.drawText(
+      this._attackPoints, 
+      this.displayXPosition(), 
+      this.displayYPosition(), 
+      this.displayWidth(), 
+      this.displayHeight(),
+      'left'
+    );
+    this.bitmap.drawText(
+      this._healthPoints, 
+      this.displayXPosition(), 
+      this.displayYPosition(), 
+      this.displayWidth(), 
+      this.displayHeight(),
+      'right'
+    );
+  }
+
+  drawBack() {
+    this.bitmap.blt(this._backImage, 0, 0, this.width, this.height, 0, 0);
+  }
+
+  getBackgroundColor() {
+    switch (this._color) {
+      case CardColors.RED:
+        return '#ff0000';
+        break;
+      case CardColors.BLUE:
+        return '#0000ff';
+        break;
+      case CardColors.GREEN:
+        return '#00ff00';
+        break;
+      case CardColors.WHITE:
+        return '#ffffff';
+        break;
+      case CardColors.BLACK:
+        return '#000000';
+        break;
+      default:
+        return '#a52a2a';
+        break;
+    }
+  }
+}
+class CardsetSprite extends Sprite {
+  initialize() { 
+    super.initialize();
+    this._cardSprites = [];
+    this.visible = true;
+    this.bitmap = new Bitmap(576, 128);
+    this.bitmap.fillAll('#567');
+  }
+
+  setCards(cards) {
+    this.clearContents();
+    if (Array.isArray(cards) && cards.length) {
+      cards.forEach(card => this.addCard(card));
+    }
+  }
+
+  clearContents() {
+    this._cardSprites.forEach(cardSprite => cardSprite.destroy());
+    this._cardSprites = [];
+  }
+
+  addCard(card) {
+    const cardSprite = new CardSprite();
+    cardSprite.setCard(card);
+    this.setInitialPosition(cardSprite);
+    this.addChild(cardSprite);
+    this._cardSprites.push(cardSprite);
+  }
+
+  setInitialPosition(cardSprite) {
+    const size = this.getSize();
+    cardSprite.x = cardSprite.width * size;
+    cardSprite.y = 0;
+    return cardSprite;
+  }
+
+  getSize() {
+    return this._cardSprites.length;
   }
 }
 class BackgroundSprite extends Sprite {
@@ -697,7 +700,17 @@ class CardBattleScene extends Scene_Message {
 
   create() {
     super.create();
-    this.createDisplayObjects();
+    // this.createDisplayObjects();
+
+    const cardset = new CardsetSprite();
+    cardset.setCards([
+      { type: 2, color: 3, figureName: 'cardback', attack: 10, health: 10 },
+      { type: 2, color: 3, figureName: 'cardback', attack: 10, health: 10 },
+      { type: 2, color: 3, figureName: 'cardback', attack: 10, health: 10 },
+      { type: 2, color: 3, figureName: 'cardback', attack: 10, health: 10 },
+      { type: 2, color: 3, figureName: 'cardback', attack: 10, health: 10 }
+    ]);
+    this.addChild(cardset);
   }
 
   createDisplayObjects() {
@@ -743,15 +756,15 @@ class CardBattleScene extends Scene_Message {
 
   update() {
     if (!this.isBusy()) {
-      this.updateWindows();
-      CardBattleManager.update();
+      // this.updateWindows();
+      // CardBattleManager.update();
     }
     super.update();
   }
 
   isBusy() {
     return (
-      this._spriteset.isBusy() ||
+      // this._spriteset.isBusy() ||
       super.isBusy()
     );
   };
@@ -970,13 +983,13 @@ class CardBattleManager {
     const energyData = card.energy;
     const powerData = card.power;
     switch (type) {
-      case CardType.LUCK:
+      case CardTypes.LUCK:
         return Card.makeBattleCard(card);
         break;
-      case CardType.POWER:
+      case CardTypes.POWER:
         return Card.makeBattleCard(card, energyData, powerData);
         break;
-      default: //CardType.BATTLE
+      default: //CardTypes.BATTLE
         return Card.makeBattleCard(card, energyData);
         break;
     }

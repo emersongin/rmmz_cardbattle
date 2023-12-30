@@ -1,6 +1,6 @@
 (function() {
 'use strict';
-// include ./constant/CardType.js
+// include ./constant/CardTypes.js
 // include ./constant/CardColors.js
 // include ./data/playerDecksData.js
 // include ./helper/uuidv4.js
@@ -14,7 +14,8 @@
 // include ./manager/ChooseFolderPhase.js
 // include ./manager/StartPhase.js
 // include ./manager/DrawPhase.js
-// include ./sprite/StartBattleTransition.js
+// include ./sprite/CardSprite.js
+// include ./sprite/CardsetSprite.js
 // include ./sprite/BackgroundSprite.js
 // include ./sprite/CardBattleSpriteset.js
 // include ./scene/CardBattleScene.js

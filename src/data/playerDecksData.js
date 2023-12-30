@@ -6,7 +6,7 @@ const playerDecksData = [
         number: 1,
         name: 'Dodge',
         description: 'Dodge',
-        type: CardType.BATTLE,
+        type: CardTypes.BATTLE,
         attack: 10,
         health: 10,
         energy: { type: 1, amount: 1 }
@@ -15,7 +15,7 @@ const playerDecksData = [
         number: 1,
         name: 'Dodge',
         description: 'Dodge',
-        type: CardType.BATTLE,
+        type: CardTypes.BATTLE,
         attack: 10,
         health: 10,
         energy: { type: 1, amount: 1 }
@@ -24,7 +24,7 @@ const playerDecksData = [
         number: 1,
         name: 'Dodge',
         description: 'Dodge',
-        type: CardType.BATTLE,
+        type: CardTypes.BATTLE,
         attack: 10,
         health: 10,
         energy: { type: 1, amount: 1 }

@@ -18,7 +18,7 @@ class Card {
     battleCard._number = cardData.number;
     battleCard._name = cardData.name;
     battleCard._description = cardData.description;
-    battleCard._type = CardType.BATTLE;
+    battleCard._type = CardTypes.BATTLE;
     battleCard._attack = cardData.attack;
     battleCard._health = cardData.health;
     battleCard._energy = new Energy(energyData.type, energyData.amount);
@@ -30,7 +30,7 @@ class Card {
     powerCard._number = cardData.number;
     powerCard._name = cardData.name;
     powerCard._description = cardData.description;
-    powerCard._type = CardType.POWER;
+    powerCard._type = CardTypes.POWER;
     powerCard._energy = new Energy(energyData.type, energyData.amount);
     powerCard._powerAction = new PowerAction(powerData.command);
     return powerCard;
@@ -41,7 +41,7 @@ class Card {
     luckCard._number = cardData.number;
     luckCard._name = cardData.name;
     luckCard._description = cardData.description;
-    luckCard._type = CardType.LUCK;
+    luckCard._type = CardTypes.LUCK;
     luckCard._energy = new Energy(energyData.energy, energyData.amount);
     return luckCard;
   }

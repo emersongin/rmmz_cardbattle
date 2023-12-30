@@ -9,7 +9,17 @@ class CardBattleScene extends Scene_Message {
 
   create() {
     super.create();
-    this.createDisplayObjects();
+    // this.createDisplayObjects();
+
+    const cardset = new CardsetSprite();
+    cardset.setCards([
+      { type: 2, color: 3, figureName: 'cardback', attack: 10, health: 10 },
+      { type: 2, color: 3, figureName: 'cardback', attack: 10, health: 10 },
+      { type: 2, color: 3, figureName: 'cardback', attack: 10, health: 10 },
+      { type: 2, color: 3, figureName: 'cardback', attack: 10, health: 10 },
+      { type: 2, color: 3, figureName: 'cardback', attack: 10, health: 10 }
+    ]);
+    this.addChild(cardset);
   }
 
   createDisplayObjects() {
@@ -55,15 +65,15 @@ class CardBattleScene extends Scene_Message {
 
   update() {
     if (!this.isBusy()) {
-      this.updateWindows();
-      CardBattleManager.update();
+      // this.updateWindows();
+      // CardBattleManager.update();
     }
     super.update();
   }
 
   isBusy() {
     return (
-      this._spriteset.isBusy() ||
+      // this._spriteset.isBusy() ||
       super.isBusy()
     );
   };

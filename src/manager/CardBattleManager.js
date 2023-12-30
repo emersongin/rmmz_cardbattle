@@ -79,13 +79,13 @@ class CardBattleManager {
     const energyData = card.energy;
     const powerData = card.power;
     switch (type) {
-      case CardType.LUCK:
+      case CardTypes.LUCK:
         return Card.makeBattleCard(card);
         break;
-      case CardType.POWER:
+      case CardTypes.POWER:
         return Card.makeBattleCard(card, energyData, powerData);
         break;
-      default: //CardType.BATTLE
+      default: //CardTypes.BATTLE
         return Card.makeBattleCard(card, energyData);
         break;
     }
