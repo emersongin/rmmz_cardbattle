@@ -2,6 +2,7 @@
 'use strict';
 // include ./constant/CardTypes.js
 // include ./constant/CardColors.js
+// include ./constant/CardSpriteStates.js
 // include ./data/playerDecksData.js
 // include ./helper/uuidv4.js
 // include ./window/TextWindow.js

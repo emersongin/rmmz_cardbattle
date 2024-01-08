@@ -10,6 +10,8 @@ class CardSprite extends Sprite {
     // states
     this._attackPoints = 0;
     this._healthPoints = 0;
+    this._x = this.x;
+    this._y = this.y;
     this._open = true;
     this._opening = false;
     this._closed = true;
@@ -18,12 +20,24 @@ class CardSprite extends Sprite {
     this._moving = false;
     this._animated = false;
     this._turnedtoUp = true;
+    // display
+    this.attack = 0;
+    this.health = 0;
+    this.setup();
+  }
+
+  setup() {
+    this.visible = true;
     this.setSize();
+    this.setBitmap();
   }
 
   setSize() {
     this.width = 96;
     this.height = 128;
+  }
+
+  setBitmap() {
     this.bitmap = new Bitmap(this.width, this.height);
   }
 
@@ -45,29 +59,30 @@ class CardSprite extends Sprite {
   }
 
   setFigure(figureName) {
-    // this._figure = ImageManager.loadPicture(figureName);
+    // this._figure = ImageManager.loadCard(figureName);
   }
 
   setBackImage() {
-    // this._backImage = ImageManager.loadPicture('cardback');
+    // this._backImage = ImageManager.loadCard('cardback');
   }
 
   update() {
-    if (this._open) {
+    if (this._open && this.visible) {
       this.refresh();
+      this.updateMoving();
     }
     super.update();
   }
 
   refresh() {
-    // this.bitmap.clear();
+    this.bitmap.clear();
     this.drawCard();
   }
 
   drawCard() {
     if (this._turnedtoUp) {
       this.drawBackground();
-      // this.drawFigure();
+      this.drawFigure();
       this.drawDisplay();
     } else {
       this.drawBack();
@@ -79,7 +94,7 @@ class CardSprite extends Sprite {
   }
 
   drawFigure() {
-    this.bitmap.blt(this._figure, 0, 0, this._figure.width, this._figure.height, 0, 0);
+    // this.bitmap.blt(this._figure, 0, 0, this._figure.width, this._figure.height, 0, 0);
   }
 
   drawDisplay() {
@@ -88,14 +103,7 @@ class CardSprite extends Sprite {
           this.drawPoints();
         break;
       case CardTypes.POWER:
-        this.bitmap.drawText(
-          '( P )', 
-          this.displayXPosition(), 
-          this.displayYPosition(), 
-          this.displayWidth(), 
-          this.displayHeight(), 
-          'center'
-        );
+        this.drawPowerCaption();
         break;
       default:
         this.bitmap.drawText(
@@ -127,21 +135,27 @@ class CardSprite extends Sprite {
   }
 
   drawPoints() {
+    const attack = this._attackPoints.toString().padStart(2, ' ');
+    const health = this._healthPoints.toString().padStart(2, ' ');
+    const points = `${attack} / ${health}`;
     this.bitmap.drawText(
-      this._attackPoints, 
+      points, 
       this.displayXPosition(), 
       this.displayYPosition(), 
       this.displayWidth(), 
       this.displayHeight(),
-      'left'
+      'center'
     );
+  }
+
+  drawPowerCaption() {
     this.bitmap.drawText(
-      this._healthPoints, 
+      '( P )', 
       this.displayXPosition(), 
       this.displayYPosition(), 
       this.displayWidth(), 
-      this.displayHeight(),
-      'right'
+      this.displayHeight(), 
+      'center'
     );
   }
 
@@ -170,5 +184,62 @@ class CardSprite extends Sprite {
         return '#a52a2a';
         break;
     }
+  }
+
+  updateMoving() {
+    if (this._x !== this.x || this._y !== this.y) {
+      this._moving = true;
+      this._stopped = false;
+      this.updateMovingPosition();
+    } else {
+      this._moving = false;
+      this._stopped = true;
+    }
+  }
+
+  updateMovingPosition() {
+    const interval = this.calculateInterval(0, Graphics.boxWidth, 0.5);
+    const reachedX = this.x > this._x;
+    const reachedY = this.y > this._y;
+    if (this._x !== this.x) {
+      this.x = this.x > this._x ? this.x - interval : this.x + interval;
+    }
+    if (reachedX && this.x < this._x) this.x = this._x;
+    if (!reachedX && this.x > this._x) this.x = this._x;
+
+    if (this._y !== this.y) {
+      this.y = this.y > this._y ? this.y - interval : this.y + interval;
+    }
+    if (reachedY && this.y < this._y) this.y = this._y;
+    if (!reachedY && this.y > this._y) this.y = this._y;
+  }
+
+  startMoving(originPosition, destinationPosition) {
+    this._x = destinationPosition.x;
+    this._y = destinationPosition.y;
+    this.x = originPosition.x;
+    this.y = originPosition.y;
+  }
+
+  calculateInterval(origin, target, duration = 1) {
+    return Math.floor(Math.abs(origin - target) / (duration * 60));
+  }
+
+  show() {
+    this.visible = true;
+  }
+
+  hidden() {
+    this.visible = false;
+  }
+
+  setXPosition(xPosition) {
+    this._x = xPosition;
+    this.x = xPosition;
+  }
+
+  setYPosition(yPosition) {
+    this._y = yPosition;
+    this.y = yPosition;
   }
 }
