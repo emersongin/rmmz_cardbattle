@@ -60,7 +60,7 @@ class StartBattleTransition extends Sprite {
   }
 
   calculateInterval(origin, target, duration) {
-    return Math.floor(Math.abs(origin - target) / (duration * 60));
+    return Math.floor(Math.abs(origin - target) / (duration * 60)) || 1;
   }
 
   setupLayerTransitions() {

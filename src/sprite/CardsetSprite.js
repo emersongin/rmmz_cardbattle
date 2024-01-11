@@ -24,7 +24,7 @@ class CardsetSprite extends Sprite {
     this.setInitialPosition(cardSprite);
     this.addChild(cardSprite);
     this._cardSprites.push({
-      state: CardSpriteStates.ADD,
+      state: CardSpriteStates.WAITING,
       sprite: cardSprite
     });
   }
@@ -59,6 +59,16 @@ class CardsetSprite extends Sprite {
   show() {
     this.visible = true;
   }
+  
+  showCards(cardIndexs = false) {
+    this._cardSprites = this._cardSprites.map((card, index) => {
+      if (cardIndexs && cardIndexs.includes(index) || !cardIndexs) {
+        card.sprite.show();
+        card.state = CardSpriteStates.PRESENTED;
+      }
+      return card;
+    });
+  }
 
   startShowCardsMoving(cardIndexs = []) {
     this.hiddenCards(cardIndexs);
@@ -69,11 +79,10 @@ class CardsetSprite extends Sprite {
     });
   }
   
-  showCards(cardIndexs = false) {
+  hiddenCards(cardIndexs = false) {
     this._cardSprites = this._cardSprites.map((card, index) => {
       if (cardIndexs && cardIndexs.includes(index) || !cardIndexs) {
-        card.sprite.show();
-        card.state = CardSpriteStates.SHOW;
+        card.sprite.hide();
       }
       return card;
     });
@@ -89,25 +98,42 @@ class CardsetSprite extends Sprite {
       x: cardSprite.x,
       y: cardSprite.y
     };
-    cardSprite.startMoving(origin, destination);
-    cardSprite.show();
-    this._cardSprites[index].state = CardSpriteStates.SHOW;
+    cardSprite.toMove(origin, destination);
+    this._cardSprites[index].state = CardSpriteStates.PRESENTED;
   }
 
-  hiddenCards(cardIndexs = false) {
-    this._cardSprites = this._cardSprites.map((card, index) => {
-      if (cardIndexs && cardIndexs.includes(index) || !cardIndexs) {
-        card.sprite.hidden();
-        card.state = CardSpriteStates.HIDDEN;
-      }
-      return card;
+  startCloseCards(cardIndexs = []) {
+    cardIndexs.forEach((cardIndex, index) => {
+      setTimeout(() => {
+        this.startCloseCard(cardIndex);
+      }, (index * 300));
     });
   }
 
-  getIndexAddedCardSprites() {
+  startCloseCard(index) {
+    const cardSprite = this._cardSprites[index].sprite;
+    const cardState = this._cardSprites[index].state;
+    if (cardState === CardSpriteStates.PRESENTED) cardSprite.close();
+  }
+
+  startOpenCards(cardIndexs = []) {
+    cardIndexs.forEach((cardIndex, index) => {
+      setTimeout(() => {
+        this.startOpenCard(cardIndex);
+      }, (index * 300));
+    });
+  }
+
+  startOpenCard(index) {
+    const cardSprite = this._cardSprites[index].sprite;
+    const cardState = this._cardSprites[index].state;
+    if (cardState === CardSpriteStates.PRESENTED) cardSprite.open();
+  }
+
+  getWaitingCardSpriteIndexs() {
     const indexs = [];
     this._cardSprites.forEach((card, index) => {
-      if (card.state === CardSpriteStates.ADD) {
+      if (card.state === CardSpriteStates.WAITING) {
         indexs.push(index);
       }
     });

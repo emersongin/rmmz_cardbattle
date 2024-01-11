@@ -1,5 +1,14 @@
 (function() {
 'use strict';
+const CardStates = {
+  OPENED: 1,
+  OPENING: 2,
+  CLOSED: 3,
+  CLOSING: 4,
+  STOPPED: 5,
+  MOVING: 6,
+  ANIMATED: 7
+};
 const CardTypes = {
   BATTLE: 1,
   POWER: 2,
@@ -14,9 +23,8 @@ const CardColors = {
   BROWN: 6
 };
 const CardSpriteStates = {
-  ADD: 1,
-  SHOW: 2,
-  HIDDEN: 3
+  WAITING: 1,
+  PRESENTED: 2
 };
 const playerDecksData = [
   {
@@ -377,70 +385,210 @@ class CardSprite extends Sprite {
     this._figure = null;
     this._backImage = null;
     // states
+    this._state = 0;
     this._attackPoints = 0;
     this._healthPoints = 0;
     this._x = this.x;
     this._y = this.y;
-    this._open = true;
-    this._opening = false;
-    this._closed = true;
-    this._closing = false;
-    this._stopped = true;
-    this._moving = false;
-    this._animated = false;
     this._turnedtoUp = true;
     // display
     this.attack = 0;
     this.health = 0;
+    // 
+    this._actions = [];
     this.setup();
   }
 
   setup() {
-    this.visible = true;
     this.setSize();
     this.setBitmap();
+    this.stop();
+    this.hide();
   }
 
   setSize() {
-    this.width = 96;
-    this.height = 128;
+    this.width = this.cardOriginalWidth();
+    this.height = this.cardOriginalHeight();
+  }
+
+  cardOriginalWidth() {
+    return 96;
+  }
+
+  cardOriginalHeight() {
+    return 128;
   }
 
   setBitmap() {
     this.bitmap = new Bitmap(this.width, this.height);
   }
 
-  setCard(card) {
-    this._type = this.setType(card.type);
-    this._color = this.setColor(card.color);
-    this._figure = this.setFigure(card.figureName);
-    this._backImage = this.setBackImage();
-    this._attackPoints = card.attack;
-    this._healthPoints = card.health;
+  opened() {
+    this._state = CardStates.OPENED;
   }
 
-  setType(type) {
-    return type || 1;
-  }
-
-  setColor(color) {
-    return color || 6;
-  }
-
-  setFigure(figureName) {
-    // this._figure = ImageManager.loadCard(figureName);
-  }
-
-  setBackImage() {
-    // this._backImage = ImageManager.loadCard('cardback');
+  hide() {
+    this.visible = false;
   }
 
   update() {
-    if (this._open && this.visible) {
-      this.refresh();
-      this.updateMoving();
-    }
+    if (this.hasActions() && this.isStopped()) this.executeAction();
+    if (this.isVisibleState() && this.isHidden()) this.show();
+    if (this.isVisible()) this.updateState();
     super.update();
+    console.log(this._state);
+  }
+
+  isVisible() {
+    return this.visible;
+  }
+
+  isHidden() {
+    return !this.isVisible();
+  }
+
+  hasActions() {
+    return this._actions.length > 0;
+  }
+
+  isStopped() {
+    return this._state === CardStates.STOPPED
+  }
+
+  executeAction() {
+    const action = this._actions.shift();
+    action.execute();
+  }
+
+  isVisibleState () {
+    return this.isMoving();
+  }
+
+  isMoving() {
+    return this._state === CardStates.MOVING;
+  }
+
+  updateState() {
+    switch (this._state) {
+      case CardStates.OPENED:
+        this.updateOpen();
+        break;
+      case CardStates.OPENING:
+        this.updateOpening();
+        break;
+      case CardStates.CLOSED:
+        this.updateClosed();
+        break;
+      case CardStates.CLOSING:
+        this.updateClosing();
+        break;
+      case CardStates.STOPPED:
+        // nothing
+        break;
+      case CardStates.MOVING:
+        this.updateMoving();
+        break;
+      case CardStates.ANIMATED:
+        // this.updateAnimated();
+        break;
+      default:
+        break;
+    }
+  }
+
+  updateOpen() {
+    this.refreshAndStop();
+  }
+
+  refreshAndStop() {
+    this.refresh();
+    this.stop();
+  }
+
+  stop() {
+    this._state = CardStates.STOPPED;
+  }
+
+  updateOpening() {
+    if (this._x !== this.x || this.width < this.cardOriginalWidth()) {
+      this.updateOpeningCard();
+      this.refresh();
+    } else {
+      this.opened();
+    }
+  }
+
+  updateOpeningCard() {
+    const interval = this.calculateInterval(0, this.cardOriginalWidth(), 0.5);
+    if (this.width < this.cardOriginalWidth()) {
+      this.width += (interval * 2);
+    }
+    if (this._x !== this.x) {
+      this.x -= interval;
+    }
+    if (this.width > this.cardOriginalWidth()) this.width = this.cardOriginalWidth();
+    if (this._x > this.x) this.x = this._x;
+  }
+
+  calculateInterval(origin, target, duration = 1) {
+    return Math.floor(Math.abs(origin - target) / (duration * 60)) || 1;
+  }
+  
+  updateClosing() {
+    if (this._x !== this.x || this.width > 0) {
+      this.updateClosingCard();
+      this.refresh();
+    } else {
+      this.closed();
+    }
+  }
+
+  closed() {
+    this._state = CardStates.CLOSED;
+  }
+
+  updateClosingCard() {
+    const interval = this.calculateInterval(0, this.cardOriginalWidth(), 0.5);
+    if (this.width > 0) {
+      this.width -= (interval * 2);
+    }
+    if (this._x !== this.x) {
+      this.x += interval;
+    }
+    if (this.width < 0) this.width = 0;
+    if (this._x < this.x) this.x = this._x;
+  }
+
+  updateClosed() {
+    this.refreshAndStop();
+  }
+  
+  updateMoving() {
+    if (this._x !== this.x || this._y !== this.y) {
+      this.updateMovingPosition();
+    } else {
+      this.stop();
+    }
+  }
+
+  moving() {
+    this._state = CardStates.MOVING;
+  }
+
+  updateMovingPosition() {
+    const interval = this.calculateInterval(0, Graphics.boxWidth, 0.5);
+    const reachedX = this.x > this._x;
+    const reachedY = this.y > this._y;
+    if (this._x !== this.x) {
+      this.x = this.x > this._x ? this.x - interval : this.x + interval;
+    }
+    if (reachedX && this.x < this._x) this.x = this._x;
+    if (!reachedX && this.x > this._x) this.x = this._x;
+    if (this._y !== this.y) {
+      this.y = this.y > this._y ? this.y - interval : this.y + interval;
+    }
+    if (reachedY && this.y < this._y) this.y = this._y;
+    if (!reachedY && this.y > this._y) this.y = this._y;
   }
 
   refresh() {
@@ -460,6 +608,29 @@ class CardSprite extends Sprite {
 
   drawBackground() {
     this.bitmap.fillRect(0, 0, this.width, this.height, this.getBackgroundColor());
+  }
+
+  getBackgroundColor() {
+    switch (this._color) {
+      case CardColors.RED:
+        return '#ff0000';
+        break;
+      case CardColors.BLUE:
+        return '#0000ff';
+        break;
+      case CardColors.GREEN:
+        return '#00ff00';
+        break;
+      case CardColors.WHITE:
+        return '#ffffff';
+        break;
+      case CardColors.BLACK:
+        return '#000000';
+        break;
+      default:
+        return '#a52a2a';
+        break;
+    }
   }
 
   drawFigure() {
@@ -487,6 +658,20 @@ class CardSprite extends Sprite {
     }
   }
 
+  drawPoints() {
+    const attack = this._attackPoints.toString().padStart(2, ' ');
+    const health = this._healthPoints.toString().padStart(2, ' ');
+    const points = `${attack} / ${health}`;
+    this.bitmap.drawText(
+      points, 
+      this.displayXPosition(), 
+      this.displayYPosition(), 
+      this.displayWidth(), 
+      this.displayHeight(),
+      'center'
+    );
+  }
+
   displayXPosition() {
     return 0;
   }
@@ -501,20 +686,6 @@ class CardSprite extends Sprite {
 
   displayHeight() {
     return 24;
-  }
-
-  drawPoints() {
-    const attack = this._attackPoints.toString().padStart(2, ' ');
-    const health = this._healthPoints.toString().padStart(2, ' ');
-    const points = `${attack} / ${health}`;
-    this.bitmap.drawText(
-      points, 
-      this.displayXPosition(), 
-      this.displayYPosition(), 
-      this.displayWidth(), 
-      this.displayHeight(),
-      'center'
-    );
   }
 
   drawPowerCaption() {
@@ -532,74 +703,102 @@ class CardSprite extends Sprite {
     this.bitmap.blt(this._backImage, 0, 0, this.width, this.height, 0, 0);
   }
 
-  getBackgroundColor() {
-    switch (this._color) {
-      case CardColors.RED:
-        return '#ff0000';
-        break;
-      case CardColors.BLUE:
-        return '#0000ff';
-        break;
-      case CardColors.GREEN:
-        return '#00ff00';
-        break;
-      case CardColors.WHITE:
-        return '#ffffff';
-        break;
-      case CardColors.BLACK:
-        return '#000000';
-        break;
-      default:
-        return '#a52a2a';
-        break;
-    }
+  setCard(card) {
+    this._type = this.setType(card.type);
+    this._color = this.setColor(card.color);
+    this._figure = this.setFigure(card.figureName);
+    this._backImage = this.setBackImage();
+    this._attackPoints = card.attack;
+    this._healthPoints = card.health;
   }
 
-  updateMoving() {
-    if (this._x !== this.x || this._y !== this.y) {
-      this._moving = true;
-      this._stopped = false;
-      this.updateMovingPosition();
-    } else {
-      this._moving = false;
-      this._stopped = true;
-    }
+  setType(type) {
+    return type || 1;
   }
 
-  updateMovingPosition() {
-    const interval = this.calculateInterval(0, Graphics.boxWidth, 0.5);
-    const reachedX = this.x > this._x;
-    const reachedY = this.y > this._y;
-    if (this._x !== this.x) {
-      this.x = this.x > this._x ? this.x - interval : this.x + interval;
-    }
-    if (reachedX && this.x < this._x) this.x = this._x;
-    if (!reachedX && this.x > this._x) this.x = this._x;
-
-    if (this._y !== this.y) {
-      this.y = this.y > this._y ? this.y - interval : this.y + interval;
-    }
-    if (reachedY && this.y < this._y) this.y = this._y;
-    if (!reachedY && this.y > this._y) this.y = this._y;
+  setColor(color) {
+    return color || 6;
   }
 
-  startMoving(originPosition, destinationPosition) {
-    this._x = destinationPosition.x;
-    this._y = destinationPosition.y;
-    this.x = originPosition.x;
-    this.y = originPosition.y;
+  setFigure(figureName) {
+    // this._figure = ImageManager.loadCard(figureName);
   }
 
-  calculateInterval(origin, target, duration = 1) {
-    return Math.floor(Math.abs(origin - target) / (duration * 60));
+  setBackImage() {
+    // this._backImage = ImageManager.loadCard('cardback');
   }
-
+  
   show() {
+    this.refresh();
     this.visible = true;
   }
 
-  hidden() {
-    this.visible = false;
+  isTurnedToUp() {
+    return this._turnedtoUp;
+  }
+  
+  addAction(action) {
+    this._actions.push(action);
+  }
+
+  open() {
+    this.addAction({
+      execute: () => this.commandOpen()
+    });
+  }
+
+  close() {
+    this.addAction({
+      execute: () => this.commandClose()
+    });
+  }
+  
+  toMove(originPosition, destinationPosition) {
+    this.addAction({
+      execute: () => this.commandMoving(originPosition, destinationPosition)
+    });
+  }
+
+  commandMoving(originPosition, destinationPosition) {
+    if (this.isStopped()) {
+      this._x = destinationPosition.x;
+      this._y = destinationPosition.y;
+      this.x = originPosition.x;
+      this.y = originPosition.y;
+      this.moving();
+    }
+  }
+
+  commandOpen() {
+    if (this.isStopped() && this.isClosed()) {
+      this._x = this.x - (this.cardOriginalWidth() / 2);
+      this.opening();
+    }
+  }
+
+  isClosed() {
+    return this._state === CardStates.CLOSED || 
+      this.width === 0;
+  }
+
+  opening() {
+    this._state = CardStates.OPENING;
+  }
+
+  commandClose() {
+    if (this.isStopped() || this.isOpened()) {
+      this._x = this.x + (this.cardOriginalWidth() / 2);
+      this.closing();
+    }
+  }
+
+  isOpened() {
+    return this._state === CardStates.OPENED || 
+      this.width === this.cardOriginalWidth();
+  }
+
+  closing() {
+    this._state = CardStates.CLOSING;
   }
 
   setXPosition(xPosition) {
@@ -638,7 +837,7 @@ class CardsetSprite extends Sprite {
     this.setInitialPosition(cardSprite);
     this.addChild(cardSprite);
     this._cardSprites.push({
-      state: CardSpriteStates.ADD,
+      state: CardSpriteStates.WAITING,
       sprite: cardSprite
     });
   }
@@ -673,6 +872,16 @@ class CardsetSprite extends Sprite {
   show() {
     this.visible = true;
   }
+  
+  showCards(cardIndexs = false) {
+    this._cardSprites = this._cardSprites.map((card, index) => {
+      if (cardIndexs && cardIndexs.includes(index) || !cardIndexs) {
+        card.sprite.show();
+        card.state = CardSpriteStates.PRESENTED;
+      }
+      return card;
+    });
+  }
 
   startShowCardsMoving(cardIndexs = []) {
     this.hiddenCards(cardIndexs);
@@ -683,11 +892,10 @@ class CardsetSprite extends Sprite {
     });
   }
   
-  showCards(cardIndexs = false) {
+  hiddenCards(cardIndexs = false) {
     this._cardSprites = this._cardSprites.map((card, index) => {
       if (cardIndexs && cardIndexs.includes(index) || !cardIndexs) {
-        card.sprite.show();
-        card.state = CardSpriteStates.SHOW;
+        card.sprite.hide();
       }
       return card;
     });
@@ -703,25 +911,42 @@ class CardsetSprite extends Sprite {
       x: cardSprite.x,
       y: cardSprite.y
     };
-    cardSprite.startMoving(origin, destination);
-    cardSprite.show();
-    this._cardSprites[index].state = CardSpriteStates.SHOW;
+    cardSprite.toMove(origin, destination);
+    this._cardSprites[index].state = CardSpriteStates.PRESENTED;
   }
 
-  hiddenCards(cardIndexs = false) {
-    this._cardSprites = this._cardSprites.map((card, index) => {
-      if (cardIndexs && cardIndexs.includes(index) || !cardIndexs) {
-        card.sprite.hidden();
-        card.state = CardSpriteStates.HIDDEN;
-      }
-      return card;
+  startCloseCards(cardIndexs = []) {
+    cardIndexs.forEach((cardIndex, index) => {
+      setTimeout(() => {
+        this.startCloseCard(cardIndex);
+      }, (index * 300));
     });
   }
 
-  getIndexAddedCardSprites() {
+  startCloseCard(index) {
+    const cardSprite = this._cardSprites[index].sprite;
+    const cardState = this._cardSprites[index].state;
+    if (cardState === CardSpriteStates.PRESENTED) cardSprite.close();
+  }
+
+  startOpenCards(cardIndexs = []) {
+    cardIndexs.forEach((cardIndex, index) => {
+      setTimeout(() => {
+        this.startOpenCard(cardIndex);
+      }, (index * 300));
+    });
+  }
+
+  startOpenCard(index) {
+    const cardSprite = this._cardSprites[index].sprite;
+    const cardState = this._cardSprites[index].state;
+    if (cardState === CardSpriteStates.PRESENTED) cardSprite.open();
+  }
+
+  getWaitingCardSpriteIndexs() {
     const indexs = [];
     this._cardSprites.forEach((card, index) => {
-      if (card.state === CardSpriteStates.ADD) {
+      if (card.state === CardSpriteStates.WAITING) {
         indexs.push(index);
       }
     });
@@ -858,19 +1083,18 @@ class CardBattleScene extends Scene_Message {
     this.addChild(cardset);
 
     cardset.setCards([
-      { type: 1, color: 3, figureName: 'cardback', attack: 0, health: 0 }
-    ]);
-    const cardIndexs1 = cardset.getIndexAddedCardSprites();
-    cardset.showCards(cardIndexs1);
-    cardset.addCards([
+      { type: 1, color: 3, figureName: 'cardback', attack: 0, health: 0 },
       { type: 1, color: 3, figureName: 'cardback', attack: 0, health: 99 },
       { type: 1, color: 3, figureName: 'cardback', attack: 99, health: 0 },
       { type: 1, color: 3, figureName: 'cardback', attack: 99, health: 99 },
       { type: 2, color: 3, figureName: 'cardback', attack: 99, health: 99 },
       { type: 3, color: 3, figureName: 'cardback', attack: 99, health: 99 }
     ]);
-    const cardIndexs2 = cardset.getIndexAddedCardSprites();
-    cardset.startShowCardsMoving(cardIndexs2);
+    const cardIndexs = cardset.getWaitingCardSpriteIndexs();
+    cardset.showCards(cardIndexs);
+    cardset.startShowCardsMoving(cardIndexs);
+    cardset.startCloseCards(cardIndexs);
+    cardset.startOpenCards(cardIndexs);
     
   }
 

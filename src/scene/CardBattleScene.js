@@ -15,19 +15,18 @@ class CardBattleScene extends Scene_Message {
     this.addChild(cardset);
 
     cardset.setCards([
-      { type: 1, color: 3, figureName: 'cardback', attack: 0, health: 0 }
-    ]);
-    const cardIndexs1 = cardset.getIndexAddedCardSprites();
-    cardset.showCards(cardIndexs1);
-    cardset.addCards([
+      { type: 1, color: 3, figureName: 'cardback', attack: 0, health: 0 },
       { type: 1, color: 3, figureName: 'cardback', attack: 0, health: 99 },
       { type: 1, color: 3, figureName: 'cardback', attack: 99, health: 0 },
       { type: 1, color: 3, figureName: 'cardback', attack: 99, health: 99 },
       { type: 2, color: 3, figureName: 'cardback', attack: 99, health: 99 },
       { type: 3, color: 3, figureName: 'cardback', attack: 99, health: 99 }
     ]);
-    const cardIndexs2 = cardset.getIndexAddedCardSprites();
-    cardset.startShowCardsMoving(cardIndexs2);
+    const cardIndexs = cardset.getWaitingCardSpriteIndexs();
+    cardset.showCards(cardIndexs);
+    cardset.startShowCardsMoving(cardIndexs);
+    cardset.startCloseCards(cardIndexs);
+    cardset.startOpenCards(cardIndexs);
     
   }
 

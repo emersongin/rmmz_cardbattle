@@ -1,5 +1,6 @@
 (function() {
 'use strict';
+// include ./constant/CardStates.js
 // include ./constant/CardTypes.js
 // include ./constant/CardColors.js
 // include ./constant/CardSpriteStates.js
