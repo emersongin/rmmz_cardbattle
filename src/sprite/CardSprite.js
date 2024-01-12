@@ -1,3 +1,10 @@
+// include ./state/CardSpriteStoppedState.js
+// include ./state/CardSpriteMovingState.js
+// include ./state/CardSpriteClosedState.js
+// include ./state/CardSpriteOpeningState.js
+// include ./state/CardSpriteOpenState.js
+// include ./state/CardSpriteClosingState.js
+
 class CardSprite extends Sprite {
   initialize() {
     super.initialize();
@@ -8,7 +15,7 @@ class CardSprite extends Sprite {
     this._figure = null;
     this._backImage = null;
     // states
-    this._state = 0;
+    this._state = null;
     this._attackPoints = 0;
     this._healthPoints = 0;
     this._x = this.x;
@@ -46,8 +53,8 @@ class CardSprite extends Sprite {
     this.bitmap = new Bitmap(this.width, this.height);
   }
 
-  opened() {
-    this._state = CardStates.OPENED;
+  stop() {
+    this._state = new CardSpriteStoppedState(this);
   }
 
   hide() {
@@ -59,7 +66,6 @@ class CardSprite extends Sprite {
     if (this.isVisibleState() && this.isHidden()) this.show();
     if (this.isVisible()) this.updateState();
     super.update();
-    console.log(this._state);
   }
 
   isVisible() {
@@ -75,7 +81,7 @@ class CardSprite extends Sprite {
   }
 
   isStopped() {
-    return this._state === CardStates.STOPPED
+    return this._state instanceof CardSpriteStoppedState;
   }
 
   executeAction() {
@@ -88,39 +94,11 @@ class CardSprite extends Sprite {
   }
 
   isMoving() {
-    return this._state === CardStates.MOVING;
+    return this._state instanceof CardSpriteMovingState;
   }
 
   updateState() {
-    switch (this._state) {
-      case CardStates.OPENED:
-        this.updateOpen();
-        break;
-      case CardStates.OPENING:
-        this.updateOpening();
-        break;
-      case CardStates.CLOSED:
-        this.updateClosed();
-        break;
-      case CardStates.CLOSING:
-        this.updateClosing();
-        break;
-      case CardStates.STOPPED:
-        // nothing
-        break;
-      case CardStates.MOVING:
-        this.updateMoving();
-        break;
-      case CardStates.ANIMATED:
-        // this.updateAnimated();
-        break;
-      default:
-        break;
-    }
-  }
-
-  updateOpen() {
-    this.refreshAndStop();
+    if (this._state) this._state.updateState();
   }
 
   refreshAndStop() {
@@ -128,90 +106,16 @@ class CardSprite extends Sprite {
     this.stop();
   }
 
-  stop() {
-    this._state = CardStates.STOPPED;
-  }
-
-  updateOpening() {
-    if (this._x !== this.x || this.width < this.cardOriginalWidth()) {
-      this.updateOpeningCard();
-      this.refresh();
-    } else {
-      this.opened();
-    }
-  }
-
-  updateOpeningCard() {
-    const interval = this.calculateInterval(0, this.cardOriginalWidth(), 0.5);
-    if (this.width < this.cardOriginalWidth()) {
-      this.width += (interval * 2);
-    }
-    if (this._x !== this.x) {
-      this.x -= interval;
-    }
-    if (this.width > this.cardOriginalWidth()) this.width = this.cardOriginalWidth();
-    if (this._x > this.x) this.x = this._x;
-  }
-
   calculateInterval(origin, target, duration = 1) {
     return Math.floor(Math.abs(origin - target) / (duration * 60)) || 1;
   }
   
-  updateClosing() {
-    if (this._x !== this.x || this.width > 0) {
-      this.updateClosingCard();
-      this.refresh();
-    } else {
-      this.closed();
-    }
-  }
-
   closed() {
-    this._state = CardStates.CLOSED;
-  }
-
-  updateClosingCard() {
-    const interval = this.calculateInterval(0, this.cardOriginalWidth(), 0.5);
-    if (this.width > 0) {
-      this.width -= (interval * 2);
-    }
-    if (this._x !== this.x) {
-      this.x += interval;
-    }
-    if (this.width < 0) this.width = 0;
-    if (this._x < this.x) this.x = this._x;
-  }
-
-  updateClosed() {
-    this.refreshAndStop();
+    this._state = new CardSpriteClosedState(this);
   }
   
-  updateMoving() {
-    if (this._x !== this.x || this._y !== this.y) {
-      this.updateMovingPosition();
-    } else {
-      this.stop();
-    }
-  }
-
   moving() {
-    this._state = CardStates.MOVING;
-  }
-
-  updateMovingPosition() {
-    const interval = this.calculateInterval(0, Graphics.boxWidth, 0.5);
-    const reachedX = this.x > this._x;
-    const reachedY = this.y > this._y;
-    if (this._x !== this.x) {
-      this.x = this.x > this._x ? this.x - interval : this.x + interval;
-    }
-    if (reachedX && this.x < this._x) this.x = this._x;
-    if (!reachedX && this.x > this._x) this.x = this._x;
-    if (this._y !== this.y) {
-      this.y = this.y > this._y ? this.y - interval : this.y + interval;
-    }
-    if (reachedY && this.y < this._y) this.y = this._y;
-    if (!reachedY && this.y > this._y) this.y = this._y;
+    this._state = new CardSpriteMovingState(this);
   }
 
   refresh() {
@@ -370,6 +274,10 @@ class CardSprite extends Sprite {
     });
   }
 
+  opened() {
+    this._state = new CardSpriteOpenState(this);
+  }
+
   close() {
     this.addAction({
       execute: () => this.commandClose()
@@ -400,12 +308,12 @@ class CardSprite extends Sprite {
   }
 
   isClosed() {
-    return this._state === CardStates.CLOSED || 
+    return this._state instanceof CardSpriteClosedState || 
       this.width === 0;
   }
 
   opening() {
-    this._state = CardStates.OPENING;
+    this._state = new CardSpriteOpeningState(this);
   }
 
   commandClose() {
@@ -416,12 +324,12 @@ class CardSprite extends Sprite {
   }
 
   isOpened() {
-    return this._state === CardStates.OPENED || 
+    return this._state instanceof CardSpriteOpenState ||
       this.width === this.cardOriginalWidth();
   }
 
   closing() {
-    this._state = CardStates.CLOSING;
+    this._state = new CardSpriteClosingState(this);
   }
 
   setXPosition(xPosition) {

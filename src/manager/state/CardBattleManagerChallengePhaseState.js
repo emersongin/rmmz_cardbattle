@@ -1,4 +1,6 @@
-class ChallengePhase {
+// include ./CardBattleManagerChooseFolderPhaseState.js
+
+class CardBattleManagerChallengePhaseState {
   _manager;
 
   constructor(manager) {
@@ -24,7 +26,7 @@ class ChallengePhase {
 
   update() {
     if (Input.isTriggered('ok')) {
-      this._manager.changePhase(new ChooseFolderPhase(this._manager));
+      this._manager.changePhase(new CardBattleManagerChooseFolderPhaseState(this._manager));
     }
   }
 }

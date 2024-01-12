@@ -1,3 +1,5 @@
+// include ./state/CardBattleManagerChallengePhaseState.js
+
 class CardBattleManager {
   _phase;
   _isPhaseChanged;
@@ -21,7 +23,7 @@ class CardBattleManager {
   }
 
   static setup() {
-    this.changePhase(new ChallengePhase(this));
+    this.changePhase(new CardBattleManagerChallengePhaseState(this));
   }
 
   static setPlayer(player) {

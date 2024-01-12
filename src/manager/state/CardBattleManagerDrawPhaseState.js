@@ -1,4 +1,4 @@
-class StartPhase {
+class CardBattleManagerDrawPhaseState {
   _manager;
 
   constructor(manager) {
@@ -7,9 +7,7 @@ class StartPhase {
   }
 
   update() {
-    if (Input.isTriggered('ok')) {
-      this._manager.changePhase(new DrawPhase(this._manager));
-    }
+    console.log('Draw phase updated');
   }
 
 }
