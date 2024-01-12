@@ -4,6 +4,7 @@ class CardsetSprite extends Sprite {
     this._cardSprites = [];
     this._selectMode = false;
     this._selectedCards = [];
+    this._cursorIndex = 0;
     this.test();
   }
 
@@ -149,7 +150,7 @@ class CardsetSprite extends Sprite {
   }
 
   isBusy() {
-    return this.isCardSpritesStopped();
+    return this._selectMode || this.isCardSpritesStopped();
   }
 
   isCardSpritesStopped() {
@@ -157,7 +158,39 @@ class CardsetSprite extends Sprite {
   }
 
   update() {
+    if (this._selectMode && this.isCardSpritesStopped()) {
+      this.updateSelectMode();
+    }
     super.update();
-    // console.log(this.isBusy());
+    console.log(this._cursorIndex);
+  }
+
+  updateSelectMode() {
+    this.updateCursor();
+  }
+
+  updateCursor() {
+    if (Input.isTriggered('right')) {
+      this.moveCursorRight();
+    } else if (Input.isTriggered('left')) {
+      this.moveCursorLeft();
+    }
+  }
+
+  moveCursorRight() {
+    if (this._cursorIndex < this._cardSprites.length - 1) {
+      this._cursorIndex++;
+    }
+  }
+
+  moveCursorLeft() {
+    if (this._cursorIndex > 0) {
+      this._cursorIndex--;
+    }
+  }
+
+  activeSelectMode() {
+    this._selectMode = true;
+    this._cursorIndex = 0;
   }
 }

@@ -12,6 +12,8 @@ class CardBattleScene extends Scene_Message {
     // this.createDisplayObjects();
 
     const cardset = new CardsetSprite();
+    cardset.x = 100;
+    cardset.y = 100;
     this.addChild(cardset);
 
     cardset.setCards([
@@ -27,6 +29,7 @@ class CardBattleScene extends Scene_Message {
     cardset.startShowCardsMoving(cardIndexs);
     cardset.startCloseCards(cardIndexs);
     cardset.startOpenCards(cardIndexs);
+    cardset.activeSelectMode();
     
   }
 

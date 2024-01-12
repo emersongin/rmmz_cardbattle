@@ -15,7 +15,8 @@ const CardColors = {
 };
 const CardSpriteStates = {
   WAITING: 1,
-  PRESENTED: 2
+  ENABLED: 2,
+  DISABLED: 3
 };
 const playerDecksData = [
   {
@@ -443,6 +444,7 @@ class CardSprite extends Sprite {
     this._x = this.x;
     this._y = this.y;
     this._turnedtoUp = true;
+    this._disabled = false;
     // display
     this.attack = 0;
     this.health = 0;
@@ -770,6 +772,8 @@ class CardsetSprite extends Sprite {
     super.initialize();
     this._cardSprites = [];
     this._selectMode = false;
+    this._selectedCards = [];
+    this._cursorIndex = 0;
     this.test();
   }
 
@@ -793,10 +797,7 @@ class CardsetSprite extends Sprite {
     const cardSprite = this.createCardSprite(card);
     this.setInitialPosition(cardSprite);
     this.addChild(cardSprite);
-    this._cardSprites.push({
-      state: CardSpriteStates.WAITING,
-      sprite: cardSprite
-    });
+    this._cardSprites.push(this.createCardObject(cardSprite));
   }
 
   addCards(cards) {
@@ -826,6 +827,13 @@ class CardsetSprite extends Sprite {
     return size + (width * size);
   }
 
+  createCardObject(cardSprite) {
+    return {
+      state: CardSpriteStates.WAITING,
+      sprite: cardSprite
+    };
+  }
+
   show() {
     this.visible = true;
   }
@@ -834,7 +842,7 @@ class CardsetSprite extends Sprite {
     this._cardSprites = this._cardSprites.map((card, index) => {
       if (cardIndexs && cardIndexs.includes(index) || !cardIndexs) {
         card.sprite.show();
-        card.state = CardSpriteStates.PRESENTED;
+        card.state = CardSpriteStates.ENABLED;
       }
       return card;
     });
@@ -869,7 +877,7 @@ class CardsetSprite extends Sprite {
       y: cardSprite.y
     };
     cardSprite.toMove(origin, destination);
-    this._cardSprites[index].state = CardSpriteStates.PRESENTED;
+    this._cardSprites[index].state = CardSpriteStates.ENABLED;
   }
 
   startCloseCards(cardIndexs = []) {
@@ -883,7 +891,7 @@ class CardsetSprite extends Sprite {
   startCloseCard(index) {
     const cardSprite = this._cardSprites[index].sprite;
     const cardState = this._cardSprites[index].state;
-    if (cardState === CardSpriteStates.PRESENTED) cardSprite.close();
+    if (cardState === CardSpriteStates.ENABLED) cardSprite.close();
   }
 
   startOpenCards(cardIndexs = []) {
@@ -897,7 +905,7 @@ class CardsetSprite extends Sprite {
   startOpenCard(index) {
     const cardSprite = this._cardSprites[index].sprite;
     const cardState = this._cardSprites[index].state;
-    if (cardState === CardSpriteStates.PRESENTED) cardSprite.open();
+    if (cardState === CardSpriteStates.ENABLED) cardSprite.open();
   }
 
   getWaitingCardSpriteIndexs() {
@@ -911,7 +919,7 @@ class CardsetSprite extends Sprite {
   }
 
   isBusy() {
-    return this.isCardSpritesStopped();
+    return this._selectMode || this.isCardSpritesStopped();
   }
 
   isCardSpritesStopped() {
@@ -919,8 +927,40 @@ class CardsetSprite extends Sprite {
   }
 
   update() {
+    if (this._selectMode && this.isCardSpritesStopped()) {
+      this.updateSelectMode();
+    }
     super.update();
-    console.log(this.isBusy());
+    console.log(this._cursorIndex);
+  }
+
+  updateSelectMode() {
+    this.updateCursor();
+  }
+
+  updateCursor() {
+    if (Input.isTriggered('right')) {
+      this.moveCursorRight();
+    } else if (Input.isTriggered('left')) {
+      this.moveCursorLeft();
+    }
+  }
+
+  moveCursorRight() {
+    if (this._cursorIndex < this._cardSprites.length - 1) {
+      this._cursorIndex++;
+    }
+  }
+
+  moveCursorLeft() {
+    if (this._cursorIndex > 0) {
+      this._cursorIndex--;
+    }
+  }
+
+  activeSelectMode() {
+    this._selectMode = true;
+    this._cursorIndex = 0;
   }
 }
 class BackgroundSprite extends Sprite {
@@ -1050,6 +1090,8 @@ class CardBattleScene extends Scene_Message {
     // this.createDisplayObjects();
 
     const cardset = new CardsetSprite();
+    cardset.x = 100;
+    cardset.y = 100;
     this.addChild(cardset);
 
     cardset.setCards([
@@ -1065,6 +1107,7 @@ class CardBattleScene extends Scene_Message {
     cardset.startShowCardsMoving(cardIndexs);
     cardset.startCloseCards(cardIndexs);
     cardset.startOpenCards(cardIndexs);
+    cardset.activeSelectMode();
     
   }
 
