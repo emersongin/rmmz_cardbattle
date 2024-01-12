@@ -293,7 +293,7 @@ class CardBattlePlayer {
     return !!this._deck;
   }
 }
-class CardSpriteOpenState {
+class CardSpriteStoppedState {
   _cardSprite;
   
   constructor(cardSprite) {
@@ -384,7 +384,7 @@ class CardSpriteOpeningState {
     if (that._x > that.x) that.x = that._x;
   }
 }
-class CardSpriteStoppedState {
+class CardSpriteOpenState {
   _cardSprite;
   
   constructor(cardSprite) {
@@ -908,6 +908,19 @@ class CardsetSprite extends Sprite {
       }
     });
     return indexs;
+  }
+
+  isBusy() {
+    return this.isCardSpritesStopped();
+  }
+
+  isCardSpritesStopped() {
+    return this._cardSprites.every(card => card.sprite.isStopped());
+  }
+
+  update() {
+    super.update();
+    console.log(this.isBusy());
   }
 }
 class BackgroundSprite extends Sprite {

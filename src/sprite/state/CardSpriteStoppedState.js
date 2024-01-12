@@ -1,4 +1,4 @@
-class CardSpriteOpenState {
+class CardSpriteStoppedState {
   _cardSprite;
   
   constructor(cardSprite) {

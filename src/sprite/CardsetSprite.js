@@ -3,6 +3,7 @@ class CardsetSprite extends Sprite {
     super.initialize();
     this._cardSprites = [];
     this._selectMode = false;
+    this._selectedCards = [];
     this.test();
   }
 
@@ -26,10 +27,7 @@ class CardsetSprite extends Sprite {
     const cardSprite = this.createCardSprite(card);
     this.setInitialPosition(cardSprite);
     this.addChild(cardSprite);
-    this._cardSprites.push({
-      state: CardSpriteStates.WAITING,
-      sprite: cardSprite
-    });
+    this._cardSprites.push(this.createCardObject(cardSprite));
   }
 
   addCards(cards) {
@@ -59,6 +57,13 @@ class CardsetSprite extends Sprite {
     return size + (width * size);
   }
 
+  createCardObject(cardSprite) {
+    return {
+      state: CardSpriteStates.WAITING,
+      sprite: cardSprite
+    };
+  }
+
   show() {
     this.visible = true;
   }
@@ -67,7 +72,7 @@ class CardsetSprite extends Sprite {
     this._cardSprites = this._cardSprites.map((card, index) => {
       if (cardIndexs && cardIndexs.includes(index) || !cardIndexs) {
         card.sprite.show();
-        card.state = CardSpriteStates.PRESENTED;
+        card.state = CardSpriteStates.ENABLED;
       }
       return card;
     });
@@ -102,7 +107,7 @@ class CardsetSprite extends Sprite {
       y: cardSprite.y
     };
     cardSprite.toMove(origin, destination);
-    this._cardSprites[index].state = CardSpriteStates.PRESENTED;
+    this._cardSprites[index].state = CardSpriteStates.ENABLED;
   }
 
   startCloseCards(cardIndexs = []) {
@@ -116,7 +121,7 @@ class CardsetSprite extends Sprite {
   startCloseCard(index) {
     const cardSprite = this._cardSprites[index].sprite;
     const cardState = this._cardSprites[index].state;
-    if (cardState === CardSpriteStates.PRESENTED) cardSprite.close();
+    if (cardState === CardSpriteStates.ENABLED) cardSprite.close();
   }
 
   startOpenCards(cardIndexs = []) {
@@ -130,7 +135,7 @@ class CardsetSprite extends Sprite {
   startOpenCard(index) {
     const cardSprite = this._cardSprites[index].sprite;
     const cardState = this._cardSprites[index].state;
-    if (cardState === CardSpriteStates.PRESENTED) cardSprite.open();
+    if (cardState === CardSpriteStates.ENABLED) cardSprite.open();
   }
 
   getWaitingCardSpriteIndexs() {
@@ -141,5 +146,18 @@ class CardsetSprite extends Sprite {
       }
     });
     return indexs;
+  }
+
+  isBusy() {
+    return this.isCardSpritesStopped();
+  }
+
+  isCardSpritesStopped() {
+    return this._cardSprites.every(card => card.sprite.isStopped());
+  }
+
+  update() {
+    super.update();
+    // console.log(this.isBusy());
   }
 }

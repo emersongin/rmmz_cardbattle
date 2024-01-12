@@ -21,6 +21,7 @@ class CardSprite extends Sprite {
     this._x = this.x;
     this._y = this.y;
     this._turnedtoUp = true;
+    this._disabled = false;
     // display
     this.attack = 0;
     this.health = 0;

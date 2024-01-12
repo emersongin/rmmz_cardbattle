@@ -1,4 +1,5 @@
 const CardSpriteStates = {
   WAITING: 1,
-  PRESENTED: 2
+  ENABLED: 2,
+  DISABLED: 3
 };
