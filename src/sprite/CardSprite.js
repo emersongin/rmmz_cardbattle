@@ -155,6 +155,7 @@ class CardSprite extends Sprite {
         return '#000000';
         break;
       default:
+        // BRONW
         return '#a52a2a';
         break;
     }

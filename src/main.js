@@ -11,10 +11,6 @@
 // include ./object/Energy.js
 // include ./object/Card.js
 // include ./object/CardBattlePlayer.js
-// include ./manager/ChallengePhase.js
-// include ./manager/ChooseFolderPhase.js
-// include ./manager/StartPhase.js
-// include ./manager/DrawPhase.js
 // include ./sprite/CardSprite.js
 // include ./sprite/CardsetSprite.js
 // include ./sprite/BackgroundSprite.js

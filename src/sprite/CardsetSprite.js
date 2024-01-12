@@ -2,11 +2,14 @@ class CardsetSprite extends Sprite {
   initialize() { 
     super.initialize();
     this._cardSprites = [];
-    this.visible = true;
-    this.bitmap = new Bitmap(576, 128);
-    this.bitmap.fillAll('#555');
+    this._selectMode = false;
+    this.test();
   }
 
+  test() {
+    this.bitmap = new Bitmap(96 * 6, 128);
+    this.bitmap.fillAll('#555');
+  }
   setCards(cards) {
     this.clearContents();
     if (Array.isArray(cards) && cards.length) {
