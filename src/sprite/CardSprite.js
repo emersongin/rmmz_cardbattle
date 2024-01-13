@@ -64,7 +64,7 @@ class CardSprite extends Sprite {
 
   update() {
     if (this.hasActions() && this.isStopped()) this.executeAction();
-    if (this.isVisibleState() && this.isHidden()) this.show();
+    if (this.isMoving() && this.isHidden()) this.show();
     if (this.isVisible()) this.updateState();
     super.update();
   }
@@ -85,13 +85,13 @@ class CardSprite extends Sprite {
     return this._state instanceof CardSpriteStoppedState;
   }
 
-  executeAction() {
-    const action = this._actions.shift();
-    action.execute();
+  isBusy() {
+    return !this.isStopped() || this.hasActions();
   }
 
-  isVisibleState () {
-    return this.isMoving();
+  executeAction() {
+    const action = this._actions.shift();
+    if (action) action.execute();
   }
 
   isMoving() {
@@ -266,14 +266,12 @@ class CardSprite extends Sprite {
     return this._turnedtoUp;
   }
   
-  addAction(action) {
-    this._actions.push(action);
+  addAction(action, ...params) {
+    this._actions.push({ execute: () => action.call(this, ...params) });
   }
 
   open() {
-    this.addAction({
-      execute: () => this.commandOpen()
-    });
+    this.addAction(this.commandOpen);
   }
 
   opened() {
@@ -281,19 +279,15 @@ class CardSprite extends Sprite {
   }
 
   close() {
-    this.addAction({
-      execute: () => this.commandClose()
-    });
+    this.addAction(this.commandClose);
   }
   
   toMove(originPosition, destinationPosition) {
-    this.addAction({
-      execute: () => this.commandMoving(originPosition, destinationPosition)
-    });
+    this.addAction(this.commandMoving, originPosition, destinationPosition);
   }
 
   commandMoving(originPosition, destinationPosition) {
-    if (this.isStopped()) {
+    if (this.isStopped() && this.isVisible()) {
       this._x = destinationPosition.x;
       this._y = destinationPosition.y;
       this.x = originPosition.x;
