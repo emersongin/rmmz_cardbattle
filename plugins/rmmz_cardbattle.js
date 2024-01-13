@@ -294,6 +294,28 @@ class CardBattlePlayer {
     return !!this._deck;
   }
 }
+class ActionSprite extends Sprite {
+  initialize() { 
+    super.initialize();
+    this._actions = [];
+  }
+
+  addAction(fn, ...params) {
+    const action = { 
+      execute: () => fn.call(this, ...params) 
+    };
+    this._actions.push(action);
+  }
+
+  hasActions() {
+    return this._actions.length > 0;
+  }
+
+  executeAction() {
+    const action = this._actions.shift();
+    if (action) action.execute();
+  }
+}
 class CardSpriteStoppedState {
   _cardSprite;
   
@@ -428,7 +450,7 @@ class CardSpriteClosingState {
   }
 }
 
-class CardSprite extends Sprite {
+class CardSprite extends ActionSprite {
   initialize() {
     super.initialize();
     // fixs
@@ -448,8 +470,6 @@ class CardSprite extends Sprite {
     // display
     this.attack = 0;
     this.health = 0;
-    // 
-    this._actions = [];
     this.setup();
   }
 
@@ -500,21 +520,12 @@ class CardSprite extends Sprite {
     return !this.isVisible();
   }
 
-  hasActions() {
-    return this._actions.length > 0;
-  }
-
   isStopped() {
     return this._state instanceof CardSpriteStoppedState;
   }
 
   isBusy() {
     return !this.isStopped() || this.hasActions();
-  }
-
-  executeAction() {
-    const action = this._actions.shift();
-    if (action) action.execute();
   }
 
   isMoving() {
@@ -689,10 +700,6 @@ class CardSprite extends Sprite {
     return this._turnedtoUp;
   }
   
-  addAction(action, ...params) {
-    this._actions.push({ execute: () => action.call(this, ...params) });
-  }
-
   open() {
     this.addAction(this.commandOpen);
   }
@@ -761,7 +768,7 @@ class CardSprite extends Sprite {
     this.y = yPosition;
   }
 }
-class CardsetSprite extends Sprite {
+class CardsetSprite extends ActionSprite {
   initialize() { 
     super.initialize();
     this._cardSprites = [];
@@ -770,18 +777,8 @@ class CardsetSprite extends Sprite {
     this._selectedCards = [];
     this._cursorIndex = 0;
     this._active = false;
-    this._actions = [];
     this.setup();
     this.test();
-  }
-
-  executeAction() {
-    const action = this._actions.shift();
-    if (action) action.execute();
-  }
-
-  addAction(action, ...params) {
-    this._actions.push({ execute: () => action.call(this, ...params) });
   }
 
   setup() {
@@ -1006,10 +1003,6 @@ class CardsetSprite extends Sprite {
 
   isDisabled() {
     return !this._active;
-  }
-
-  hasActions() {
-    return this._actions.length > 0;
   }
 
   isCardSpritesMoving() {
@@ -1685,7 +1678,6 @@ class CardBattleManager {
     return this._phase instanceof StartPhase;
   }
 }
-
 Input.isAnyKeyActive = function() {
   return this._latestButton !== null;
 };

@@ -1,4 +1,4 @@
-class CardsetSprite extends Sprite {
+class CardsetSprite extends ActionSprite {
   initialize() { 
     super.initialize();
     this._cardSprites = [];
@@ -7,18 +7,8 @@ class CardsetSprite extends Sprite {
     this._selectedCards = [];
     this._cursorIndex = 0;
     this._active = false;
-    this._actions = [];
     this.setup();
     this.test();
-  }
-
-  executeAction() {
-    const action = this._actions.shift();
-    if (action) action.execute();
-  }
-
-  addAction(action, ...params) {
-    this._actions.push({ execute: () => action.call(this, ...params) });
   }
 
   setup() {
@@ -243,10 +233,6 @@ class CardsetSprite extends Sprite {
 
   isDisabled() {
     return !this._active;
-  }
-
-  hasActions() {
-    return this._actions.length > 0;
   }
 
   isCardSpritesMoving() {

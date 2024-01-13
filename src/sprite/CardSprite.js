@@ -5,7 +5,7 @@
 // include ./state/CardSpriteOpenState.js
 // include ./state/CardSpriteClosingState.js
 
-class CardSprite extends Sprite {
+class CardSprite extends ActionSprite {
   initialize() {
     super.initialize();
     // fixs
@@ -25,8 +25,6 @@ class CardSprite extends Sprite {
     // display
     this.attack = 0;
     this.health = 0;
-    // 
-    this._actions = [];
     this.setup();
   }
 
@@ -77,21 +75,12 @@ class CardSprite extends Sprite {
     return !this.isVisible();
   }
 
-  hasActions() {
-    return this._actions.length > 0;
-  }
-
   isStopped() {
     return this._state instanceof CardSpriteStoppedState;
   }
 
   isBusy() {
     return !this.isStopped() || this.hasActions();
-  }
-
-  executeAction() {
-    const action = this._actions.shift();
-    if (action) action.execute();
   }
 
   isMoving() {
@@ -266,10 +255,6 @@ class CardSprite extends Sprite {
     return this._turnedtoUp;
   }
   
-  addAction(action, ...params) {
-    this._actions.push({ execute: () => action.call(this, ...params) });
-  }
-
   open() {
     this.addAction(this.commandOpen);
   }

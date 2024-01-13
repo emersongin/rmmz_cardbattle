@@ -11,13 +11,13 @@
 // include ./object/Energy.js
 // include ./object/Card.js
 // include ./object/CardBattlePlayer.js
+// include ./sprite/ActionSprite.js
 // include ./sprite/CardSprite.js
 // include ./sprite/CardsetSprite.js
 // include ./sprite/BackgroundSprite.js
 // include ./sprite/CardBattleSpriteset.js
 // include ./scene/CardBattleScene.js
 // include ./manager/CardBattleManager.js
-
 // include ./core/Input.js
 // include ./core/Scene_Boot.js
 
