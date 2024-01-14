@@ -20,5 +20,6 @@
 // include ./manager/CardBattleManager.js
 // include ./core/Input.js
 // include ./core/Scene_Boot.js
+// include ./core/ImageManager.js
 
 })();

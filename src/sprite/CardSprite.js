@@ -20,19 +20,26 @@ class CardSprite extends ActionSprite {
     this._healthPoints = 0;
     this._x = this.x;
     this._y = this.y;
+    this._highlighted = false;
+    this._selected = false;
     this._turnedtoUp = true;
     this._disabled = false;
     // display
     this.attack = 0;
     this.health = 0;
+    // layers
+    this._backgroundLayer = null;
+    this._contentLayer = null;
+    this._flashLayer = null;
+    this._actionsLayer = null;
     this.setup();
   }
 
   setup() {
     this.setSize();
-    this.setBitmap();
     this.stop();
     this.hide();
+    this.createLayers();
   }
 
   setSize() {
@@ -48,16 +55,51 @@ class CardSprite extends ActionSprite {
     return 128;
   }
 
-  setBitmap() {
-    this.bitmap = new Bitmap(this.width, this.height);
-  }
-
   stop() {
     this._state = new CardSpriteStoppedState(this);
   }
 
   hide() {
     this.visible = false;
+  }
+
+  createLayers() {
+    this.createBackgroundLayer();
+    this.createContentLayer();
+    this.createFlashLayer();
+    this.createActionsLayer();
+  }
+
+  createBackgroundLayer() {
+    this._backgroundLayer = new Sprite();
+    this._backgroundLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
+    this.addChild(this._backgroundLayer);
+  }
+
+  createContentLayer() {
+    const width = this.cardOriginalWidth() - 4;
+    const height = this.cardOriginalHeight() - 4;
+    this._contentLayer = new Sprite();
+    this._contentLayer.x = 2;
+    this._contentLayer.y = 2;
+    this._contentLayer.bitmap = new Bitmap(width, height);
+    this.addChild(this._contentLayer);
+  }
+
+  createFlashLayer() {
+    const width = this._contentLayer.bitmap.width;
+    const height = this._contentLayer.bitmap.height;
+    this._flashLayer = new Sprite();
+    this._flashLayer.bitmap = new Bitmap(width, height);
+    this._contentLayer.addChild(this._flashLayer);
+  }
+
+  createActionsLayer() {
+    const width = this._contentLayer.bitmap.width;
+    const height = this._contentLayer.bitmap.height;
+    this._actionsLayer = new Sprite();
+    this._actionsLayer.bitmap = new Bitmap(width, height);
+    this._contentLayer.addChild(this._actionsLayer);
   }
 
   update() {
@@ -109,11 +151,11 @@ class CardSprite extends ActionSprite {
   }
 
   refresh() {
-    this.bitmap.clear();
     this.drawCard();
   }
 
   drawCard() {
+    this._contentLayer.bitmap.clear();
     if (this._turnedtoUp) {
       this.drawBackground();
       this.drawFigure();
@@ -124,7 +166,7 @@ class CardSprite extends ActionSprite {
   }
 
   drawBackground() {
-    this.bitmap.fillRect(0, 0, this.width, this.height, this.getBackgroundColor());
+    this._contentLayer.bitmap.fillRect(0, 0, this.width, this.height, this.getBackgroundColor());
   }
 
   getBackgroundColor() {
@@ -144,15 +186,26 @@ class CardSprite extends ActionSprite {
       case CardColors.BLACK:
         return '#000000';
         break;
-      default:
-        // BRONW
+      default: // BRONW
         return '#a52a2a';
         break;
     }
   }
 
   drawFigure() {
-    // this.bitmap.blt(this._figure, 0, 0, this._figure.width, this._figure.height, 0, 0);
+    const width = this._contentLayer.bitmap.width;
+    const height = this._contentLayer.bitmap.height;
+    this._contentLayer.bitmap.blt(
+      this._figure, 
+      0, 
+      0, 
+      this._figure.width, 
+      this._figure.height, 
+      4, 
+      4, 
+      width - 8, 
+      height - 24
+    );
   }
 
   drawDisplay() {
@@ -164,7 +217,7 @@ class CardSprite extends ActionSprite {
         this.drawPowerCaption();
         break;
       default:
-        this.bitmap.drawText(
+        this._contentLayer.bitmap.drawText(
           '???', 
           this.displayXPosition(), 
           this.displayYPosition(), 
@@ -180,7 +233,7 @@ class CardSprite extends ActionSprite {
     const attack = this._attackPoints.toString().padStart(2, ' ');
     const health = this._healthPoints.toString().padStart(2, ' ');
     const points = `${attack} / ${health}`;
-    this.bitmap.drawText(
+    this._contentLayer.bitmap.drawText(
       points, 
       this.displayXPosition(), 
       this.displayYPosition(), 
@@ -195,19 +248,19 @@ class CardSprite extends ActionSprite {
   }
 
   displayYPosition() {
-    return this.height - 24;
+    return this._contentLayer.height - 20;
   }
 
   displayWidth() {
-    return this.width;
+    return this._contentLayer.width;
   }
 
   displayHeight() {
-    return 24;
+    return 20;
   }
 
   drawPowerCaption() {
-    this.bitmap.drawText(
+    this._contentLayer.bitmap.drawText(
       '( P )', 
       this.displayXPosition(), 
       this.displayYPosition(), 
@@ -218,32 +271,33 @@ class CardSprite extends ActionSprite {
   }
 
   drawBack() {
-    this.bitmap.blt(this._backImage, 0, 0, this.width, this.height, 0, 0);
+    this._contentLayer.bitmap.blt(this._backImage, 0, 0, this.width, this.height, 0, 0);
   }
 
   setCard(card) {
-    this._type = this.setType(card.type);
-    this._color = this.setColor(card.color);
-    this._figure = this.setFigure(card.figureName);
-    this._backImage = this.setBackImage();
+    this.setType(card.type);
+    this.setColor(card.color);
+    this.setFigure(card.figureName);
+    this.setBackImage();
     this._attackPoints = card.attack;
     this._healthPoints = card.health;
   }
 
   setType(type) {
-    return type || 1;
+    this._type = type || 1;
   }
 
   setColor(color) {
-    return color || 6;
+    this._color = color || 6;
   }
 
   setFigure(figureName) {
-    // this._figure = ImageManager.loadCard(figureName);
+    this._figure = ImageManager.loadCard(figureName);
   }
 
   setBackImage() {
-    // this._backImage = ImageManager.loadCard('cardback');
+    this._backImage = new Bitmap(this.width, this.height);
+    this._backImage.gradientFillRect (0, 0, this.width, this.height, '#555', '#000');
   }
   
   show() {
@@ -321,5 +375,45 @@ class CardSprite extends ActionSprite {
   setYPosition(yPosition) {
     this._y = yPosition;
     this.y = yPosition;
+  }
+
+  highlight() {
+    this.addAction(this.commandHighlight);
+  }
+
+  commandHighlight() {
+    if (this.isStopped()) {
+      this._highlighted = true;
+    }
+  }
+
+  unhighlight() {
+    this.addAction(this.commandUnhighlight);
+  }
+
+  commandUnhighlight() {
+    if (this.isStopped()) {
+      this._highlighted = false;
+    }
+  }
+
+  select() {
+    this.addAction(this.commandSelect);
+  }
+
+  commandSelect() {
+    if (this.isStopped()) {
+      this._selected = true;
+    }
+  }
+
+  unselect() {
+    this.addAction(this.commandUnselect);
+  }
+
+  commandUnselect() {
+    if (this.isStopped()) {
+      this._selected = false;
+    }
   }
 }

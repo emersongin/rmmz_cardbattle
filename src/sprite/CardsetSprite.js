@@ -212,7 +212,10 @@ class CardsetSprite extends ActionSprite {
   }
   
   isBusyCards() {
-    return this._cardSprites.some(card => card.sprite.isBusy());
+    return this._cardSprites.some(card => {
+      // console.log(!card.sprite.isStopped(), card.sprite.hasActions(), card.sprite._state);
+      return card.sprite.isBusy();
+    });
   }
 
   isNotBusyCards() {
@@ -229,6 +232,7 @@ class CardsetSprite extends ActionSprite {
       }
     }
     super.update();
+    console.log(this._actions, this.isNotBusy(), this._selectMode, this.isBusyCards());
   }
 
   isDisabled() {
@@ -314,6 +318,7 @@ class CardsetSprite extends ActionSprite {
       y: cardsetYPosition - 10
     };
     this.startCardMoving(cardSprite, origin, destination);
+    cardSprite.highlight();
   }
 
   clearHighlightedCard(cardSprite) {
@@ -326,6 +331,7 @@ class CardsetSprite extends ActionSprite {
       x: cardSprite.x,
       y: cardsetYPosition
     };
+    cardSprite.unhighlight();
     this.startCardMoving(cardSprite, origin, destination);
   }
 
@@ -351,5 +357,26 @@ class CardsetSprite extends ActionSprite {
 
   activate() {
     this._active = true;
+  }
+
+  showCardCloseds(cardIndexs) {
+    this.addAction(this.commandShowCardCloseds, cardIndexs);
+  }
+
+  commandShowCardCloseds(cardIndexs) {
+    this._cardSprites = this._cardSprites.map((card, index) => {
+      if (cardIndexs && cardIndexs.includes(index) || !cardIndexs) {
+        const sprite = card.sprite;
+        const closedXPosition = sprite.x + (sprite.cardOriginalWidth() / 2);
+        const closedWidth = 0;
+        sprite._x = closedXPosition;
+        sprite.x = closedXPosition;
+        sprite.width = closedWidth;
+        sprite.closed();
+        sprite.show();
+        card.state = CardSpriteStates.ENABLED;
+      }
+      return card;
+    });
   }
 }

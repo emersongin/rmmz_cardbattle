@@ -16,58 +16,56 @@ class CardBattleScene extends Scene_Message {
     cardset.y = 100;
     this.addChild(cardset);
     cardset.setCards([
-      { type: 1, color: 1, figureName: 'cardback', attack: 0, health: 0 },
-      { type: 1, color: 2, figureName: 'cardback', attack: 0, health: 99 },
-      { type: 1, color: 3, figureName: 'cardback', attack: 99, health: 0 },
-      { type: 1, color: 4, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 2, color: 5, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 3, color: 6, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 1, color: 1, figureName: 'cardback', attack: 0, health: 0 },
-      { type: 1, color: 2, figureName: 'cardback', attack: 0, health: 99 },
-      { type: 1, color: 3, figureName: 'cardback', attack: 99, health: 0 },
-      { type: 1, color: 4, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 2, color: 5, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 3, color: 6, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 1, color: 1, figureName: 'cardback', attack: 0, health: 0 },
-      { type: 1, color: 2, figureName: 'cardback', attack: 0, health: 99 },
-      { type: 1, color: 3, figureName: 'cardback', attack: 99, health: 0 },
-      { type: 1, color: 4, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 2, color: 5, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 3, color: 6, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 1, color: 1, figureName: 'cardback', attack: 0, health: 0 },
-      { type: 1, color: 2, figureName: 'cardback', attack: 0, health: 99 },
-      { type: 1, color: 3, figureName: 'cardback', attack: 99, health: 0 },
-      { type: 1, color: 4, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 2, color: 5, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 3, color: 6, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 1, color: 1, figureName: 'cardback', attack: 0, health: 0 },
-      { type: 1, color: 2, figureName: 'cardback', attack: 0, health: 99 },
-      { type: 1, color: 3, figureName: 'cardback', attack: 99, health: 0 },
-      { type: 1, color: 4, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 2, color: 5, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 3, color: 6, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 1, color: 1, figureName: 'cardback', attack: 0, health: 0 },
-      { type: 1, color: 2, figureName: 'cardback', attack: 0, health: 99 },
-      { type: 1, color: 3, figureName: 'cardback', attack: 99, health: 0 },
-      { type: 1, color: 4, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 2, color: 5, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 3, color: 6, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 1, color: 1, figureName: 'cardback', attack: 99, health: 0 },
-      { type: 1, color: 2, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 2, color: 3, figureName: 'cardback', attack: 99, health: 99 },
-      { type: 3, color: 4, figureName: 'cardback', attack: 99, health: 99 }
+      { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
+      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
+      { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
+      { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
+      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
+      { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
+      { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
+      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
+      { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
+      { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
+      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
+      { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
+      { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
+      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
+      { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
+      { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
+      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
+      { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
+      { type: 1, color: 1, figureName: 'default', attack: 99, health: 0 },
+      { type: 1, color: 2, figureName: 'default', attack: 99, health: 99 },
+      { type: 2, color: 3, figureName: 'default', attack: 99, health: 99 },
+      { type: 3, color: 4, figureName: 'default', attack: 99, health: 99 }
     ]);
     const cardIndexs = cardset.getWaitingCardSpriteIndexs();
     // cardset.showCards(cardIndexs);
-    // cardset.showCardCloseds(cardIndexs);
+    cardset.showCardCloseds(cardIndexs);
     // cardset.showCardsAndStartMoving(cardIndexs);
     // cardset.startCloseCards(cardIndexs);
-    // cardset.startOpenCards(cardIndexs);
-    cardset.activeSelectMode();
+    cardset.startOpenCards(cardIndexs);
+    // cardset.activeSelectMode();
     cardset.activate();
     cardset.show();
-    cardset.showCards(cardIndexs);
-    cardset.activeSelectMode();
   }
 
   createDisplayObjects() {

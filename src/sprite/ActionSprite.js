@@ -6,13 +6,15 @@ class ActionSprite extends Sprite {
 
   addAction(fn, ...params) {
     const action = { 
-      execute: () => fn.call(this, ...params) 
+      execute: () => fn.call(this, ...params),
+      fn: fn.name,
     };
     this._actions.push(action);
   }
 
   executeAction() {
     const action = this._actions.shift();
+    if (this instanceof CardsetSprite) console.log(action);
     if (action) action.execute();
   }
 
