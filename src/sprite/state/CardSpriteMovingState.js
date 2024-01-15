@@ -16,7 +16,7 @@ class CardSpriteMovingState {
 
   updateMovingPosition() {
     const that = this._cardSprite;
-    const interval = that.calculateInterval(0, Graphics.boxWidth, 0.5);
+    const interval = that.calculateInterval(0, Graphics.boxWidth, that._duration);
     const reachedX = that.x > that._x;
     const reachedY = that.y > that._y;
     if (that._x !== that.x) {

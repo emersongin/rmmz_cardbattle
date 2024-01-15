@@ -109,19 +109,19 @@ class CardsetSprite extends ActionSprite {
     });
   }
 
-  showCardsAndStartMoving(cardIndexs) {
-    this.addAction(this.commandShowCardsAndStartMoving, cardIndexs);
+  showCardsAndStartMoving(cardIndexs, timeInterval) {
+    this.addAction(this.commandShowCardsAndStartMoving, cardIndexs, timeInterval);
   }
 
-  commandShowCardsAndStartMoving(cardIndexs) {
+  commandShowCardsAndStartMoving(cardIndexs = [], timeInterval = 1) {
     this._cardSprites = this._cardSprites.map((card, index) => {
-      if ((cardIndexs && cardIndexs.includes(index)) || !cardIndexs) {
+      if ((cardIndexs && cardIndexs.includes(index)) || (cardIndexs.length == false)) {
         card.sprite.hide();
         card.state = CardSpriteStates.ENABLED;
         setTimeout(() => {
           this.moveCardToStartPosition(card.sprite);
           card.sprite.show();
-        }, (index * 300));
+        }, (index * (timeInterval * 1000)));
       }
       return card;
     });
@@ -153,11 +153,11 @@ class CardsetSprite extends ActionSprite {
     cardSprite.toMove(origin, destination);
   }
 
-  startCloseCards(cardIndexs) {
-    this.addAction(this.commandStartCloseCards, cardIndexs);
+  startCloseCards(cardIndexs, timeInterval) {
+    this.addAction(this.commandStartCloseCards, cardIndexs, timeInterval);
   }
 
-  commandStartCloseCards(cardIndexs = []) {
+  commandStartCloseCards(cardIndexs = [], timeInterval = 1) {
     cardIndexs.forEach((cardIndex, index) => {
       const cardSprite = this._cardSprites[index].sprite;
       const cardState = this._cardSprites[index].state;
@@ -165,7 +165,7 @@ class CardsetSprite extends ActionSprite {
         if (cardState === CardSpriteStates.ENABLED) {
           this.startCloseCard(cardSprite);
         }
-      }, (index * 300));
+      }, (index * (timeInterval * 1000)));
     });
   }
 
@@ -173,11 +173,11 @@ class CardsetSprite extends ActionSprite {
     cardSprite.close();
   }
 
-  startOpenCards(cardIndexs) {
-    this.addAction(this.commandStartOpenCards, cardIndexs);
+  startOpenCards(cardIndexs, timeInterval) {
+    this.addAction(this.commandStartOpenCards, cardIndexs, timeInterval);
   }
 
-  commandStartOpenCards(cardIndexs = []) {
+  commandStartOpenCards(cardIndexs = [], timeInterval = 1) {
     cardIndexs.forEach((cardIndex, index) => {
       const cardSprite = this._cardSprites[index].sprite;
       const cardState = this._cardSprites[index].state;
@@ -185,7 +185,7 @@ class CardsetSprite extends ActionSprite {
         if (cardState === CardSpriteStates.ENABLED) {
           this.startOpenCard(cardSprite);
         }
-      }, (index * 300));
+      }, (index * (timeInterval * 1000)));
     });
   }
 
@@ -213,7 +213,6 @@ class CardsetSprite extends ActionSprite {
   
   isBusyCards() {
     return this._cardSprites.some(card => {
-      // console.log(!card.sprite.isStopped(), card.sprite.hasActions(), card.sprite._state);
       return card.sprite.isBusy();
     });
   }
@@ -232,7 +231,6 @@ class CardsetSprite extends ActionSprite {
       }
     }
     super.update();
-    console.log(this._actions, this.isNotBusy(), this._selectMode, this.isBusyCards());
   }
 
   isDisabled() {
@@ -302,7 +300,8 @@ class CardsetSprite extends ActionSprite {
       } else {
         this.clearHighlightedCard(sprite);
         this.removeChild(sprite);
-        this.addChildAt(sprite, index);
+        const fixLastCardindex = (index === indexsAmount ? indexsAmount - 1 : index);
+        this.addChildAt(sprite, fixLastCardindex);
       }
     });
   }
@@ -366,6 +365,7 @@ class CardsetSprite extends ActionSprite {
   commandShowCardCloseds(cardIndexs) {
     this._cardSprites = this._cardSprites.map((card, index) => {
       if (cardIndexs && cardIndexs.includes(index) || !cardIndexs) {
+        card.state = CardSpriteStates.ENABLED;
         const sprite = card.sprite;
         const closedXPosition = sprite.x + (sprite.cardOriginalWidth() / 2);
         const closedWidth = 0;
@@ -374,7 +374,6 @@ class CardsetSprite extends ActionSprite {
         sprite.width = closedWidth;
         sprite.closed();
         sprite.show();
-        card.state = CardSpriteStates.ENABLED;
       }
       return card;
     });

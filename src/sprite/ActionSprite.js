@@ -1,6 +1,7 @@
 class ActionSprite extends Sprite {
   initialize() { 
     super.initialize();
+    this._duration = 0.5;
     this._actions = [];
   }
 

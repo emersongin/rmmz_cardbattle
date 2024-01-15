@@ -17,7 +17,7 @@ class CardSpriteClosingState {
 
   updateClosing() {
     const that = this._cardSprite;
-    const interval = that.calculateInterval(0, that.cardOriginalWidth(), 0.5);
+    const interval = that.calculateInterval(0, that.cardOriginalWidth(), that._duration);
     if (that.width > 0) {
       that.width -= (interval * 2);
     }

@@ -1,6 +1,7 @@
 class StartBattleTransition extends Sprite {
   initialize() {
     super.initialize();
+    this._duration = 0.5;
     this._started = false;
     this._backgroundBitmap = null;
     this._backgroundLayer = null;
@@ -55,7 +56,7 @@ class StartBattleTransition extends Sprite {
         width: this._backgroundLayer.width, 
         height: this._backgroundLayer.height
       },
-      interval: this.calculateInterval(screenMiddle, 0, 0.5),
+      interval: this.calculateInterval(screenMiddle, 0, this._duration),
     };
   }
 
@@ -71,12 +72,12 @@ class StartBattleTransition extends Sprite {
     this._blackLeftSideLayer.target = {
       x: 0, 
       y: 0,
-      interval: this.calculateInterval(-screenWidth, -screenMiddle, 0.5)
+      interval: this.calculateInterval(-screenWidth, -screenMiddle, this._duration)
     };
     this._blackRightSideLayer.target = {
       x: 0, 
       y: 0,
-      interval: this.calculateInterval(screenWidth, screenMiddle, 0.5)
+      interval: this.calculateInterval(screenWidth, screenMiddle, this._duration)
     }
   }
 

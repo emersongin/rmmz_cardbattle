@@ -77,28 +77,20 @@ class CardSprite extends ActionSprite {
   }
 
   createContentLayer() {
-    const width = this.cardOriginalWidth() - 4;
-    const height = this.cardOriginalHeight() - 4;
     this._contentLayer = new Sprite();
-    this._contentLayer.x = 2;
-    this._contentLayer.y = 2;
-    this._contentLayer.bitmap = new Bitmap(width, height);
+    this._contentLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
     this.addChild(this._contentLayer);
   }
 
   createFlashLayer() {
-    const width = this._contentLayer.bitmap.width;
-    const height = this._contentLayer.bitmap.height;
     this._flashLayer = new Sprite();
-    this._flashLayer.bitmap = new Bitmap(width, height);
+    this._flashLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
     this._contentLayer.addChild(this._flashLayer);
   }
 
   createActionsLayer() {
-    const width = this._contentLayer.bitmap.width;
-    const height = this._contentLayer.bitmap.height;
     this._actionsLayer = new Sprite();
-    this._actionsLayer.bitmap = new Bitmap(width, height);
+    this._actionsLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
     this._contentLayer.addChild(this._actionsLayer);
   }
 
@@ -107,6 +99,7 @@ class CardSprite extends ActionSprite {
     if (this.isMoving() && this.isHidden()) this.show();
     if (this.isVisible()) this.updateState();
     super.update();
+    // console.log(this._state);
   }
 
   isVisible() {
@@ -166,7 +159,12 @@ class CardSprite extends ActionSprite {
   }
 
   drawBackground() {
-    this._contentLayer.bitmap.fillRect(0, 0, this.width, this.height, this.getBackgroundColor());
+    const xPosition = 2;
+    const yPosition = 2;
+    const width = this.width - 4;
+    const height = this.height - 4;
+    const color = this.getBackgroundColor();
+    this._contentLayer.bitmap.fillRect(xPosition, yPosition, width, height, color);
   }
 
   getBackgroundColor() {
@@ -193,18 +191,22 @@ class CardSprite extends ActionSprite {
   }
 
   drawFigure() {
-    const width = this._contentLayer.bitmap.width;
-    const height = this._contentLayer.bitmap.height;
+    const contentWidth = this.cardOriginalWidth() - 8;
+    const contentHeight = this.cardOriginalHeight() - 28;
+    const openPercent = Math.floor((this.width / this.cardOriginalWidth()) * 100);
+    const openWidth = Math.floor((contentWidth * openPercent) / 100);
+    const figureWidth = openWidth ? this._figure.width : 0;
+    const figureHeight = this._figure.height;
     this._contentLayer.bitmap.blt(
       this._figure, 
       0, 
       0, 
-      this._figure.width, 
-      this._figure.height, 
-      4, 
-      4, 
-      width - 8, 
-      height - 24
+      figureWidth, 
+      figureHeight,
+      4,
+      4,
+      openWidth,
+      contentHeight
     );
   }
 
@@ -248,11 +250,11 @@ class CardSprite extends ActionSprite {
   }
 
   displayYPosition() {
-    return this._contentLayer.height - 20;
+    return this.height - 24;
   }
 
   displayWidth() {
-    return this._contentLayer.width;
+    return this.width;
   }
 
   displayHeight() {
@@ -293,6 +295,8 @@ class CardSprite extends ActionSprite {
 
   setFigure(figureName) {
     this._figure = ImageManager.loadCard(figureName);
+    // this._figure = new Bitmap(this.width, this.height);
+    // this._figure.fillAll('yellow');
   }
 
   setBackImage() {
