@@ -24,6 +24,7 @@ class CardSprite extends ActionSprite {
     this._selected = false;
     this._turnedtoUp = true;
     this._disabled = false;
+    this._flashDuration = 0;
     // display
     this.attack = 0;
     this.health = 0;
@@ -67,7 +68,7 @@ class CardSprite extends ActionSprite {
     this.createBackgroundLayer();
     this.createContentLayer();
     this.createFlashLayer();
-    this.createActionsLayer();
+    // this.createActionsLayer();
   }
 
   createBackgroundLayer() {
@@ -86,12 +87,6 @@ class CardSprite extends ActionSprite {
     this._flashLayer = new Sprite();
     this._flashLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
     this._contentLayer.addChild(this._flashLayer);
-  }
-
-  createActionsLayer() {
-    this._actionsLayer = new Sprite();
-    this._actionsLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
-    this._contentLayer.addChild(this._actionsLayer);
   }
 
   update() {
@@ -149,16 +144,20 @@ class CardSprite extends ActionSprite {
 
   drawCard() {
     this._contentLayer.bitmap.clear();
-    if (this._turnedtoUp) {
-      this.drawBackground();
-      this.drawFigure();
-      this.drawDisplay();
+    if (this.isTurnedToUp()) {
+      this.drawCardBackground();
+      this.drawCardFigure();
+      this.drawCardDisplay();
     } else {
-      this.drawBack();
+      this.drawCardBack();
     }
   }
 
-  drawBackground() {
+  isTurnedToUp() {
+    return this._turnedtoUp;
+  }
+
+  drawCardBackground() {
     const xPosition = 2;
     const yPosition = 2;
     const width = this.width - 4;
@@ -190,7 +189,7 @@ class CardSprite extends ActionSprite {
     }
   }
 
-  drawFigure() {
+  drawCardFigure() {
     const contentWidth = this.cardOriginalWidth() - 8;
     const contentHeight = this.cardOriginalHeight() - 28;
     const openPercent = Math.floor((this.width / this.cardOriginalWidth()) * 100);
@@ -210,7 +209,7 @@ class CardSprite extends ActionSprite {
     );
   }
 
-  drawDisplay() {
+  drawCardDisplay() {
     switch (this._type) {
       case CardTypes.BATTLE:
           this.drawPoints();
@@ -272,7 +271,7 @@ class CardSprite extends ActionSprite {
     );
   }
 
-  drawBack() {
+  drawCardBack() {
     this._contentLayer.bitmap.blt(this._backImage, 0, 0, this.width, this.height, 0, 0);
   }
 
@@ -420,4 +419,25 @@ class CardSprite extends ActionSprite {
       this._selected = false;
     }
   }
+
+  flash(color, duration) {
+    this.addAction(this.commandFlash, color, duration);
+  }
+
+  commandFlash(color, duration = 60) {
+    if (this.isStopped()) {
+      this.drawFlash(color);
+      this._flashDuration = duration;
+    }
+  }
+
+  drawFlash(color = 'white') {
+    const xPosition = 2;
+    const yPosition = 2;
+    const width = this.width - 4;
+    const height = this.height - 4;
+    this._flashLayer.bitmap.clear();
+    this._flashLayer.bitmap.fillRect(xPosition, yPosition, width, height, color);
+  }
+
 }

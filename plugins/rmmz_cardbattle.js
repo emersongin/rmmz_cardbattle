@@ -328,6 +328,7 @@ class CardSpriteStoppedState {
 
   updateState() {
     this.updateBackground();
+    this.updateFlash();
   }
 
   updateBackground() {
@@ -364,6 +365,22 @@ class CardSpriteStoppedState {
     that._backgroundLayer.opacity -= 32;
     if(that._backgroundLayer.opacity <= 0) {
       that._backgroundLayer.opacity = 255;
+    }
+  }
+
+  updateFlash() {
+    const that = this._cardSprite;
+    if (that._flashDuration > 0) {
+      that._flashDuration--;
+      this.updateFlashOpacity();
+    }
+  }
+
+  updateFlashOpacity() {
+    const that = this._cardSprite;
+    that._flashLayer.opacity = (that._flashDuration * 100 / 20);
+    if (that._flashDuration === 0) {
+      that._flashColor = null;
     }
   }
 }
@@ -509,6 +526,7 @@ class CardSprite extends ActionSprite {
     this._selected = false;
     this._turnedtoUp = true;
     this._disabled = false;
+    this._flashDuration = 0;
     // display
     this.attack = 0;
     this.health = 0;
@@ -552,7 +570,7 @@ class CardSprite extends ActionSprite {
     this.createBackgroundLayer();
     this.createContentLayer();
     this.createFlashLayer();
-    this.createActionsLayer();
+    // this.createActionsLayer();
   }
 
   createBackgroundLayer() {
@@ -571,12 +589,6 @@ class CardSprite extends ActionSprite {
     this._flashLayer = new Sprite();
     this._flashLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
     this._contentLayer.addChild(this._flashLayer);
-  }
-
-  createActionsLayer() {
-    this._actionsLayer = new Sprite();
-    this._actionsLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
-    this._contentLayer.addChild(this._actionsLayer);
   }
 
   update() {
@@ -634,16 +646,20 @@ class CardSprite extends ActionSprite {
 
   drawCard() {
     this._contentLayer.bitmap.clear();
-    if (this._turnedtoUp) {
-      this.drawBackground();
-      this.drawFigure();
-      this.drawDisplay();
+    if (this.isTurnedToUp()) {
+      this.drawCardBackground();
+      this.drawCardFigure();
+      this.drawCardDisplay();
     } else {
-      this.drawBack();
+      this.drawCardBack();
     }
   }
 
-  drawBackground() {
+  isTurnedToUp() {
+    return this._turnedtoUp;
+  }
+
+  drawCardBackground() {
     const xPosition = 2;
     const yPosition = 2;
     const width = this.width - 4;
@@ -675,7 +691,7 @@ class CardSprite extends ActionSprite {
     }
   }
 
-  drawFigure() {
+  drawCardFigure() {
     const contentWidth = this.cardOriginalWidth() - 8;
     const contentHeight = this.cardOriginalHeight() - 28;
     const openPercent = Math.floor((this.width / this.cardOriginalWidth()) * 100);
@@ -695,7 +711,7 @@ class CardSprite extends ActionSprite {
     );
   }
 
-  drawDisplay() {
+  drawCardDisplay() {
     switch (this._type) {
       case CardTypes.BATTLE:
           this.drawPoints();
@@ -757,7 +773,7 @@ class CardSprite extends ActionSprite {
     );
   }
 
-  drawBack() {
+  drawCardBack() {
     this._contentLayer.bitmap.blt(this._backImage, 0, 0, this.width, this.height, 0, 0);
   }
 
@@ -905,6 +921,27 @@ class CardSprite extends ActionSprite {
       this._selected = false;
     }
   }
+
+  flash(color, duration) {
+    this.addAction(this.commandFlash, color, duration);
+  }
+
+  commandFlash(color, duration = 60) {
+    if (this.isStopped()) {
+      this.drawFlash(color);
+      this._flashDuration = duration;
+    }
+  }
+
+  drawFlash(color = 'white') {
+    const xPosition = 2;
+    const yPosition = 2;
+    const width = this.width - 4;
+    const height = this.height - 4;
+    this._flashLayer.bitmap.clear();
+    this._flashLayer.bitmap.fillRect(xPosition, yPosition, width, height, color);
+  }
+
 }
 class CardsetSprite extends ActionSprite {
   initialize() { 
@@ -1021,7 +1058,7 @@ class CardsetSprite extends ActionSprite {
     this.addAction(this.commandShowCardsAndStartMoving, cardIndexs, timeInterval);
   }
 
-  commandShowCardsAndStartMoving(cardIndexs = [], timeInterval = 1) {
+  commandShowCardsAndStartMoving(cardIndexs = [], timeInterval = 0) {
     this._cardSprites = this._cardSprites.map((card, index) => {
       if ((cardIndexs && cardIndexs.includes(index)) || (cardIndexs.length == false)) {
         card.sprite.hide();
@@ -1065,7 +1102,7 @@ class CardsetSprite extends ActionSprite {
     this.addAction(this.commandStartCloseCards, cardIndexs, timeInterval);
   }
 
-  commandStartCloseCards(cardIndexs = [], timeInterval = 1) {
+  commandStartCloseCards(cardIndexs = [], timeInterval = 0) {
     cardIndexs.forEach((cardIndex, index) => {
       const cardSprite = this._cardSprites[index].sprite;
       const cardState = this._cardSprites[index].state;
@@ -1085,7 +1122,7 @@ class CardsetSprite extends ActionSprite {
     this.addAction(this.commandStartOpenCards, cardIndexs, timeInterval);
   }
 
-  commandStartOpenCards(cardIndexs = [], timeInterval = 1) {
+  commandStartOpenCards(cardIndexs = [], timeInterval = 0) {
     cardIndexs.forEach((cardIndex, index) => {
       const cardSprite = this._cardSprites[index].sprite;
       const cardState = this._cardSprites[index].state;
@@ -1286,6 +1323,26 @@ class CardsetSprite extends ActionSprite {
       return card;
     });
   }
+
+  startFlashCards(cardIndexs, timeInterval, color, duration) {
+    this.addAction(this.commandStartFlashCards, cardIndexs, timeInterval, color, duration);
+  }
+
+  commandStartFlashCards(cardIndexs = [], timeInterval = 0, color, duration) {
+    cardIndexs.forEach((cardIndex, index) => {
+      const cardSprite = this._cardSprites[index].sprite;
+      const cardState = this._cardSprites[index].state;
+      setTimeout(() => {
+        if (cardState === CardSpriteStates.ENABLED) {
+          this.startFlashCard(cardSprite, color, duration);
+        }
+      }, (index * (timeInterval * 1000)));
+    });
+  }
+
+  startFlashCard(cardSprite, color, duration) {
+    cardSprite.flash(color, duration);
+  }
 }
 class BackgroundSprite extends Sprite {
   initialize() {
@@ -1464,8 +1521,9 @@ class CardBattleScene extends Scene_Message {
     cardset.showCardCloseds(cardIndexs);
     // cardset.showCardsAndStartMoving(cardIndexs);
     // cardset.startCloseCards(cardIndexs);
-    cardset.startOpenCards(cardIndexs, 0.01);
-    cardset.activeSelectMode();
+    cardset.startOpenCards(cardIndexs);
+    // cardset.activeSelectMode();
+    cardset.startFlashCards(cardIndexs);
     cardset.activate();
     cardset.show();
   }

@@ -62,8 +62,9 @@ class CardBattleScene extends Scene_Message {
     cardset.showCardCloseds(cardIndexs);
     // cardset.showCardsAndStartMoving(cardIndexs);
     // cardset.startCloseCards(cardIndexs);
-    cardset.startOpenCards(cardIndexs, 0.01);
-    cardset.activeSelectMode();
+    cardset.startOpenCards(cardIndexs);
+    // cardset.activeSelectMode();
+    cardset.startFlashCards(cardIndexs);
     cardset.activate();
     cardset.show();
   }

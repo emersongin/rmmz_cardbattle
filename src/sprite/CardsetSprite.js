@@ -113,7 +113,7 @@ class CardsetSprite extends ActionSprite {
     this.addAction(this.commandShowCardsAndStartMoving, cardIndexs, timeInterval);
   }
 
-  commandShowCardsAndStartMoving(cardIndexs = [], timeInterval = 1) {
+  commandShowCardsAndStartMoving(cardIndexs = [], timeInterval = 0) {
     this._cardSprites = this._cardSprites.map((card, index) => {
       if ((cardIndexs && cardIndexs.includes(index)) || (cardIndexs.length == false)) {
         card.sprite.hide();
@@ -157,7 +157,7 @@ class CardsetSprite extends ActionSprite {
     this.addAction(this.commandStartCloseCards, cardIndexs, timeInterval);
   }
 
-  commandStartCloseCards(cardIndexs = [], timeInterval = 1) {
+  commandStartCloseCards(cardIndexs = [], timeInterval = 0) {
     cardIndexs.forEach((cardIndex, index) => {
       const cardSprite = this._cardSprites[index].sprite;
       const cardState = this._cardSprites[index].state;
@@ -177,7 +177,7 @@ class CardsetSprite extends ActionSprite {
     this.addAction(this.commandStartOpenCards, cardIndexs, timeInterval);
   }
 
-  commandStartOpenCards(cardIndexs = [], timeInterval = 1) {
+  commandStartOpenCards(cardIndexs = [], timeInterval = 0) {
     cardIndexs.forEach((cardIndex, index) => {
       const cardSprite = this._cardSprites[index].sprite;
       const cardState = this._cardSprites[index].state;
@@ -377,5 +377,25 @@ class CardsetSprite extends ActionSprite {
       }
       return card;
     });
+  }
+
+  startFlashCards(cardIndexs, timeInterval, color, duration) {
+    this.addAction(this.commandStartFlashCards, cardIndexs, timeInterval, color, duration);
+  }
+
+  commandStartFlashCards(cardIndexs = [], timeInterval = 0, color, duration) {
+    cardIndexs.forEach((cardIndex, index) => {
+      const cardSprite = this._cardSprites[index].sprite;
+      const cardState = this._cardSprites[index].state;
+      setTimeout(() => {
+        if (cardState === CardSpriteStates.ENABLED) {
+          this.startFlashCard(cardSprite, color, duration);
+        }
+      }, (index * (timeInterval * 1000)));
+    });
+  }
+
+  startFlashCard(cardSprite, color, duration) {
+    cardSprite.flash(color, duration);
   }
 }
