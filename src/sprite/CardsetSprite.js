@@ -398,4 +398,21 @@ class CardsetSprite extends ActionSprite {
   startFlashCard(cardSprite, color, duration) {
     cardSprite.flash(color, duration);
   }
+
+  startDamageAnimation(cardIndexs, timeInterval) {
+    this.addAction(this.commandStartDamageAnimationCard, cardIndexs, timeInterval);
+  }
+
+  commandStartDamageAnimationCard(cardIndexs = [], timeInterval = 0) {
+    cardIndexs.forEach((cardIndex, index) => {
+      const cardSprite = this._cardSprites[index].sprite;
+      const cardState = this._cardSprites[index].state;
+      setTimeout(() => {
+        if (cardState === CardSpriteStates.ENABLED) {
+          cardSprite.animationDamage();
+        }
+      }, (index * (timeInterval * 1000)));
+    });
+  }
+
 }

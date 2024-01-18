@@ -4,6 +4,8 @@
 // include ./state/CardSpriteOpeningState.js
 // include ./state/CardSpriteOpenState.js
 // include ./state/CardSpriteClosingState.js
+// include ./state/CardSpriteAnimatedState.js
+// include ./CardAnimationSprite.js
 
 class CardSprite extends ActionSprite {
   initialize() {
@@ -32,7 +34,7 @@ class CardSprite extends ActionSprite {
     this._backgroundLayer = null;
     this._contentLayer = null;
     this._flashLayer = null;
-    this._actionsLayer = null;
+    this._animationSprite = null;
     this.setup();
   }
 
@@ -68,7 +70,6 @@ class CardSprite extends ActionSprite {
     this.createBackgroundLayer();
     this.createContentLayer();
     this.createFlashLayer();
-    // this.createActionsLayer();
   }
 
   createBackgroundLayer() {
@@ -91,10 +92,10 @@ class CardSprite extends ActionSprite {
 
   update() {
     if (this.hasActions() && this.isStopped()) this.executeAction();
-    if (this.isMoving() && this.isHidden()) this.show();
+    if ((this.isMoving() || this.isAnimated()) && this.isHidden()) this.show();
     if (this.isVisible()) this.updateState();
     super.update();
-    // console.log(this._state);
+    console.log(this._state);
   }
 
   isVisible() {
@@ -110,11 +111,25 @@ class CardSprite extends ActionSprite {
   }
 
   isBusy() {
-    return !this.isStopped() || this.hasActions();
+    return this.isNotStopped() ||
+      this.isActiveFlash() || 
+      this.hasActions();
+  }
+
+  isNotStopped() {
+    return !this.isStopped();
+  }
+
+  isActiveFlash() {
+    return this._flashDuration > 0;
   }
 
   isMoving() {
     return this._state instanceof CardSpriteMovingState;
+  }
+
+  isAnimated() {
+    return this._state instanceof CardSpriteAnimatedState;
   }
 
   updateState() {
@@ -440,4 +455,49 @@ class CardSprite extends ActionSprite {
     this._flashLayer.bitmap.fillRect(xPosition, yPosition, width, height, color);
   }
 
+  animationDamage() {
+    const animation = this.animationDamager();
+    this.addAction(this.commandAnimation, animation);
+  }
+
+  commandAnimation(animation) {
+    if (this.isStopped()) {
+      this._animationSprite = new CardAnimationSprite();
+      this._animationSprite.setup([this], animation);
+      this.parent.addChild(this._animationSprite);
+      this.animated();
+    }
+  }
+
+  animated() {
+    this._state = new CardSpriteAnimatedState(this);
+  }
+
+  animationDamager() {
+    return {
+      id: 45,
+      displayType: 0,
+      effectName: "CureOne1",
+      flashTimings:  [
+        {frame: 0, duration: 10, color: [0,255,0,102]},
+        {frame: 9, duration: 30, color: [102,255,0,102]},
+        {frame: 19, duration: 30, color: [136,255,0,102]},
+        {frame: 29, duration: 30, color: [136,255,0,102]}
+      ],
+      name: "Curar 1",
+      offsetX: 48,
+      offsetY: 128,
+      rotation:  { x: 0, y: 0, z: 0 },
+      scale: 100,
+      soundTimings:  [
+        {frame: 1, se:  { name: "Ice1", pan: 0, pitch: 100, volume: 90}},
+        {frame: 2, se:  { name: "Recovery", pan: 0, pitch: 70, volume: 90}},
+        {frame: 6, se:  { name: "Ice4", pan: 0, pitch: 100, volume: 90}}
+      ],
+      speed: 100,
+      timings: [],
+      alignBottom: false,
+      quakeEffect: true
+    };
+  }
 }

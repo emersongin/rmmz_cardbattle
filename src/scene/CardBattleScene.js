@@ -1,4 +1,3 @@
-
 class CardBattleScene extends Scene_Message {
   initialize() {
     super.initialize();
@@ -9,7 +8,8 @@ class CardBattleScene extends Scene_Message {
 
   create() {
     super.create();
-    // this.createDisplayObjects();
+    this.createDisplayObjects();
+
 
     const cardset = new CardsetSprite();
     cardset.x = 0;
@@ -17,62 +17,75 @@ class CardBattleScene extends Scene_Message {
     this.addChild(cardset);
     cardset.setCards([
       { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
-      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
-      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
-      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
-      { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
-      { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
-      { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
-      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
-      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
-      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
-      { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
-      { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
-      { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
-      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
-      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
-      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
-      { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
-      { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
-      { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
-      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
-      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
-      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
-      { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
-      { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
-      { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
-      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
-      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
-      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
-      { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
-      { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
-      { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
-      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
-      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
-      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
-      { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
-      { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
-      { type: 1, color: 1, figureName: 'default', attack: 99, health: 0 },
-      { type: 1, color: 2, figureName: 'default', attack: 99, health: 99 },
-      { type: 2, color: 3, figureName: 'default', attack: 99, health: 99 },
-      { type: 3, color: 4, figureName: 'default', attack: 99, health: 99 }
+      // { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      // { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      // { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      // { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
+      // { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
+      // { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
+      // { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      // { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      // { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      // { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
+      // { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
+      // { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
+      // { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      // { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      // { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      // { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
+      // { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
+      // { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
+      // { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      // { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      // { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      // { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
+      // { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
+      // { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
+      // { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      // { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      // { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      // { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
+      // { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
+      // { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
+      // { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      // { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      // { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      // { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
+      // { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
+      // { type: 1, color: 1, figureName: 'default', attack: 99, health: 0 },
+      // { type: 1, color: 2, figureName: 'default', attack: 99, health: 99 },
+      // { type: 2, color: 3, figureName: 'default', attack: 99, health: 99 },
+      // { type: 3, color: 4, figureName: 'default', attack: 99, health: 99 }
     ]);
     const cardIndexs = cardset.getWaitingCardSpriteIndexs();
-    // cardset.showCards(cardIndexs);
-    cardset.showCardCloseds(cardIndexs);
+    cardset.showCards(cardIndexs);
+    // cardset.showCardCloseds(cardIndexs);
     // cardset.showCardsAndStartMoving(cardIndexs);
     // cardset.startCloseCards(cardIndexs);
-    cardset.startOpenCards(cardIndexs);
+    // cardset.startOpenCards(cardIndexs);
     // cardset.activeSelectMode();
-    cardset.startFlashCards(cardIndexs);
+    // cardset.startFlashCards(cardIndexs);
     cardset.activate();
     cardset.show();
+
+    // const sprite = new Sprite_Animation();
+    // const animation = $dataAnimations[45];
+    // sprite.setup([cardset._cardSprites[4].sprite], animation, true);
+    // cardset.addChild(sprite);
+
+    cardset.startDamageAnimation(cardIndexs);
+    cardset.startDamageAnimation(cardIndexs);
+
+    // this._spriteset.createAnimation({
+    //   animationId: 48,
+    //   targets: [cardset]
+    // });
   }
 
   createDisplayObjects() {
     this.createSpriteset();
-    this.createWindowLayer();
-    this.createAllWindows();
+    // this.createWindowLayer();
+    // this.createAllWindows();
   }
 
   createSpriteset() {

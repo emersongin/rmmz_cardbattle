@@ -506,6 +506,100 @@ class CardSpriteClosingState {
     if (that._x < that.x) that.x = that._x;
   }
 }
+class CardSpriteAnimatedState {
+  _cardSprite;
+  
+  constructor(cardSprite) {
+      this._cardSprite = cardSprite;
+  }
+
+  updateState() {
+    const that = this._cardSprite;
+    // console.log(that._animationSprite && !that._animationSprite.isPlaying());
+    if (that._animationSprite && !that._animationSprite.isPlaying()) {
+      that.refreshAndStop();
+    }
+  }
+}
+class CardAnimationSprite extends Sprite_Animation {
+  initMembers() {
+    super.initMembers();
+    this._quakeEffect = false;
+    this._quakeDirection = '';
+  }
+
+  setup(targets, animation, mirror, delay) {
+    super.setup(targets, animation, mirror, delay);
+    this._quakeEffect = animation.quakeEffect;
+    this._quakeDirection = '';
+  }
+
+  update() {
+    super.update();
+    console.log('this._started: ' + this._started + 'and' + this.isPlaying());
+    if (this.isPlaying()) {
+      this.updateQuakeEffect();
+    } else {
+      for (const target of this._targets) {
+        if (this.isNotOriginPosition(target)) {
+          this.returnOriginPosition(target);
+        }
+      }
+      this.destroy();
+    }
+  }
+
+  isNotOriginPosition(target) {
+    return target._x !== target.x || target._y !== target.y;
+  }
+
+  returnOriginPosition(target, time = 3) {
+    if (target._x !== target.x) {
+      target.x = target._x > target.x ? target.x + time : target.x - time;
+    }
+    if (target._y !== target.y) {
+      target.y = target._y > target.y ? target.y + time : target.y - time;
+    }
+  }
+
+  updateQuakeEffect() {
+    if (this.isPlaying() && this.isQuakeEffect()) {
+      const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
+      directions.filter(direction => this._quakeDirection !== direction);
+      const direction = directions[Math.randomInt(3)];
+      for (const target of this._targets) {
+        if (this.isNotOriginPosition(target)) {
+          this.returnOriginPosition(target);
+        } else {
+          this.startQuakeEffect(target, direction);
+        }
+      }
+    }
+  }
+
+  startQuakeEffect(target, direction, time = 3) {
+    switch (direction) {
+      case 'TOP':
+        target.y -= time;
+        break;
+      case 'BOTTOM':
+        target.y += time;
+        break;
+      case 'LEFT':
+        target.x -= time;
+        break;
+      case 'RIGHT':
+        target.x += time;
+        break;
+    }
+  }
+
+  isQuakeEffect() {
+    return this._quakeEffect;
+  }
+}
+
+
 
 class CardSprite extends ActionSprite {
   initialize() {
@@ -534,7 +628,7 @@ class CardSprite extends ActionSprite {
     this._backgroundLayer = null;
     this._contentLayer = null;
     this._flashLayer = null;
-    this._actionsLayer = null;
+    this._animationSprite = null;
     this.setup();
   }
 
@@ -570,7 +664,6 @@ class CardSprite extends ActionSprite {
     this.createBackgroundLayer();
     this.createContentLayer();
     this.createFlashLayer();
-    // this.createActionsLayer();
   }
 
   createBackgroundLayer() {
@@ -593,10 +686,10 @@ class CardSprite extends ActionSprite {
 
   update() {
     if (this.hasActions() && this.isStopped()) this.executeAction();
-    if (this.isMoving() && this.isHidden()) this.show();
+    if ((this.isMoving() || this.isAnimated()) && this.isHidden()) this.show();
     if (this.isVisible()) this.updateState();
     super.update();
-    // console.log(this._state);
+    console.log(this._state);
   }
 
   isVisible() {
@@ -612,11 +705,25 @@ class CardSprite extends ActionSprite {
   }
 
   isBusy() {
-    return !this.isStopped() || this.hasActions();
+    return this.isNotStopped() ||
+      this.isActiveFlash() || 
+      this.hasActions();
+  }
+
+  isNotStopped() {
+    return !this.isStopped();
+  }
+
+  isActiveFlash() {
+    return this._flashDuration > 0;
   }
 
   isMoving() {
     return this._state instanceof CardSpriteMovingState;
+  }
+
+  isAnimated() {
+    return this._state instanceof CardSpriteAnimatedState;
   }
 
   updateState() {
@@ -942,6 +1049,51 @@ class CardSprite extends ActionSprite {
     this._flashLayer.bitmap.fillRect(xPosition, yPosition, width, height, color);
   }
 
+  animationDamage() {
+    const animation = this.animationDamager();
+    this.addAction(this.commandAnimation, animation);
+  }
+
+  commandAnimation(animation) {
+    if (this.isStopped()) {
+      this._animationSprite = new CardAnimationSprite();
+      this._animationSprite.setup([this], animation);
+      this.parent.addChild(this._animationSprite);
+      this.animated();
+    }
+  }
+
+  animated() {
+    this._state = new CardSpriteAnimatedState(this);
+  }
+
+  animationDamager() {
+    return {
+      id: 45,
+      displayType: 0,
+      effectName: "CureOne1",
+      flashTimings:  [
+        {frame: 0, duration: 10, color: [0,255,0,102]},
+        {frame: 9, duration: 30, color: [102,255,0,102]},
+        {frame: 19, duration: 30, color: [136,255,0,102]},
+        {frame: 29, duration: 30, color: [136,255,0,102]}
+      ],
+      name: "Curar 1",
+      offsetX: 48,
+      offsetY: 128,
+      rotation:  { x: 0, y: 0, z: 0 },
+      scale: 100,
+      soundTimings:  [
+        {frame: 1, se:  { name: "Ice1", pan: 0, pitch: 100, volume: 90}},
+        {frame: 2, se:  { name: "Recovery", pan: 0, pitch: 70, volume: 90}},
+        {frame: 6, se:  { name: "Ice4", pan: 0, pitch: 100, volume: 90}}
+      ],
+      speed: 100,
+      timings: [],
+      alignBottom: false,
+      quakeEffect: true
+    };
+  }
 }
 class CardsetSprite extends ActionSprite {
   initialize() { 
@@ -1343,6 +1495,23 @@ class CardsetSprite extends ActionSprite {
   startFlashCard(cardSprite, color, duration) {
     cardSprite.flash(color, duration);
   }
+
+  startDamageAnimation(cardIndexs, timeInterval) {
+    this.addAction(this.commandStartDamageAnimationCard, cardIndexs, timeInterval);
+  }
+
+  commandStartDamageAnimationCard(cardIndexs = [], timeInterval = 0) {
+    cardIndexs.forEach((cardIndex, index) => {
+      const cardSprite = this._cardSprites[index].sprite;
+      const cardState = this._cardSprites[index].state;
+      setTimeout(() => {
+        if (cardState === CardSpriteStates.ENABLED) {
+          cardSprite.animationDamage();
+        }
+      }, (index * (timeInterval * 1000)));
+    });
+  }
+
 }
 class BackgroundSprite extends Sprite {
   initialize() {
@@ -1423,6 +1592,219 @@ class BackgroundSprite extends Sprite {
     });
   }
 }
+class StartBattleTransition extends Sprite {
+  initialize() {
+    super.initialize();
+    this._duration = 0.5;
+    this._started = false;
+    this._backgroundBitmap = null;
+    this._backgroundLayer = null;
+    this._blackLeftSideLayer = null;
+    this._blackRightSideLayer = null;
+    this.loadBackgroundContents();
+    this.createBackground();
+    this.createSideLayers();
+    this.setupTransitions();
+  }
+
+  loadBackgroundContents() {
+    this._backgroundBitmap = ImageManager.loadPicture('background1');
+  }
+
+  createBackground() {
+    this._backgroundLayer = new Sprite(this.createEmptyBitmap());
+    this.addChild(this._backgroundLayer);
+  }
+
+  createEmptyBitmap() {
+    return new Bitmap(Graphics.width, Graphics.height);
+  }
+
+  createSideLayers() { 
+    this._blackLeftSideLayer = new Sprite();
+    this._blackLeftSideLayer.bitmap = this.createBlackScreenImage();
+    this.addChild(this._blackLeftSideLayer);
+    this._blackRightSideLayer = new Sprite();
+    this._blackRightSideLayer.bitmap = this.createBlackScreenImage();
+    this.addChild(this._blackRightSideLayer);
+  }
+
+  createBlackScreenImage() {
+    const bitmap = new Bitmap(Graphics.width, Graphics.height);
+    bitmap.fillRect(0, 0, Graphics.width, Graphics.height, 'black');
+    return bitmap;
+  }
+
+  setupTransitions() {
+    this.setupBackgroundTransition();
+    this.setupLayerTransitions();
+    this.startTransition();
+  }
+
+  setupBackgroundTransition() {
+    const screenMiddle = Graphics.width / 2;
+    this._backgroundLayer.target = {
+      rect: {
+        x: this._backgroundLayer.x, 
+        y: this._backgroundLayer.y,
+        width: this._backgroundLayer.width, 
+        height: this._backgroundLayer.height
+      },
+      interval: this.calculateInterval(screenMiddle, 0, this._duration),
+    };
+  }
+
+  calculateInterval(origin, target, duration) {
+    return Math.floor(Math.abs(origin - target) / (duration * 60)) || 1;
+  }
+
+  setupLayerTransitions() {
+    const screenWidth = Graphics.width;
+    const screenMiddle = Graphics.width / 2;
+    this._blackLeftSideLayer.x = -Graphics.width;
+    this._blackRightSideLayer.x = Graphics.width;
+    this._blackLeftSideLayer.target = {
+      x: 0, 
+      y: 0,
+      interval: this.calculateInterval(-screenWidth, -screenMiddle, this._duration)
+    };
+    this._blackRightSideLayer.target = {
+      x: 0, 
+      y: 0,
+      interval: this.calculateInterval(screenWidth, screenMiddle, this._duration)
+    }
+  }
+
+  startTransition() {
+    this.visible = true;
+    this._started = true;
+  }
+
+  update() {
+    super.update();
+    if (this.isStartedTransition()) {
+      if (this.isBackgroundBusy()) this.updateBackgroundTransition();
+      if (!this.isBackgroundBusy() && this.isLayersBusy()) this.updateLayerTransitions();
+    }
+    if (!this.isBackgroundBusy() && !this.isLayersBusy()) {
+      if (this.isEndTransition() && this.isVisibled()) {
+        this.updateOpacity();
+      } else {
+        this.endTransition();
+        this.hideBackground();
+      }
+    }
+  }
+
+  isStartedTransition() {
+    return this._started;
+  }
+
+  isBackgroundBusy() {
+    const backgroundLayer = this._backgroundLayer;
+    const { x, y, width, height, target } = backgroundLayer;
+    const { rect } = target;
+    const { x: xRect, y: yRect, width: widthRect, height: heightRect } = rect;
+    return xRect < width || yRect < height || widthRect > x || heightRect > y;
+  }
+
+  updateBackgroundTransition() { 
+    const { x, y, width, height, target } = this._backgroundLayer;
+    const { rect, interval } = target;
+    const { x: xRect, y: yRect, width: widthRect, height: heightRect } = rect;
+    if (xRect < width) {
+      this._backgroundLayer.target.rect.x = xRect + interval;
+    }
+    if (yRect < height) {
+      this._backgroundLayer.target.rect.y = yRect + interval;
+    }
+    if (widthRect > x) {
+      this._backgroundLayer.target.rect.width = widthRect - (interval * 2);
+    }
+    if (heightRect > y) {
+      this._backgroundLayer.target.rect.height = heightRect - (interval * 2);
+    }
+    this._backgroundLayer.bitmap = this.createBackgroundBitmapWithRect(this._backgroundLayer.target.rect);
+  }
+
+  createBackgroundBitmapWithRect(rect) {
+    const bitmap = this.createEmptyBitmap();
+    bitmap.fillAll('red');
+    bitmap.blt(this._backgroundBitmap, 0, 0, Graphics.width, Graphics.height, 0, 0);
+    bitmap.clearRect(rect?.x || 0, rect?.y || 0, rect?.width || 0, rect?.height || 0);
+    return bitmap;
+  }
+
+  isLayersBusy() {
+    return this.isLayerInMoving(this._blackLeftSideLayer) || 
+      this.isLayerInMoving(this._blackRightSideLayer);
+  }
+
+  isLayerInMoving(layer) {
+    const { x, y, target } = layer;
+    const { x: targetX, y: targetY } = target;
+    return x != targetX || y != targetY;
+  }
+
+  updateLayerTransitions() {
+    this.updateLayerTransition(this._blackLeftSideLayer)
+    this.updateLayerTransition(this._blackRightSideLayer);
+  }
+
+  updateLayerTransition(layer) {
+    const { x, target } = layer;
+    const { x: targetX } = target;
+    if(targetX == x) return; 
+    this.moveLayer(layer);
+  }
+
+  moveLayer(layer) {
+    const { x, target } = layer;
+    const { x: targetX, interval } = target;
+    if (targetX > x) {
+      layer.move(x + interval, 0);
+      if (!(targetX > layer.x)) layer.x = targetX;
+    } else if (targetX < x) {
+      layer.move(x - interval, 0);
+      if (!(targetX < layer.x)) layer.x = targetX;
+    }
+  }
+
+  isEndTransition() {
+    return !this._started;
+  }
+
+  isVisibled() {
+    return this.visible;
+  }
+
+  endTransition() {;
+    this._started = false;
+  }
+
+  hideBackground() {
+    this._backgroundLayer.hide();
+  }
+
+  updateOpacity() {
+    if (this.isStartedTransition()) {
+      if (this.opacity < 255) {
+        this.visible = true;
+        this.opacity = this.opacity + 8;
+      }
+    } else {
+      if (this.opacity > 0) this.opacity = this.opacity - 8;
+      if (this.opacity <= 0) this.visible = false;
+    }
+  }
+
+  isBusy() {
+    return this.isBackgroundBusy() || 
+      this.isLayersBusy() || 
+      this.opacity > 0;
+  }
+}
+
 class CardBattleSpriteset extends Spriteset_Base {
   initialize() {
     super.initialize();
@@ -1432,10 +1814,10 @@ class CardBattleSpriteset extends Spriteset_Base {
     this._battleFieldSprite;
     this._battlePainelSprite;
 
-    this.createBackground();
-    this.createStartBattleTransition();
+    // this.createBackground();
+    // this.createStartBattleTransition();
     // this.createLuckGame();
-    // this.createBattleField();
+    this.createBattleField();
     // this.createBattlePainel();
   }
 
@@ -1453,11 +1835,20 @@ class CardBattleSpriteset extends Spriteset_Base {
     this.addChild(this._startBattleTransition);
   }
 
+  createBattleField() {
+    this._battleFieldSprite = new Sprite();
+    this._battleFieldSprite.setFrame(0, 0, this.width, this.height);
+    this._effectsContainer = this._battleFieldSprite;
+  }
+
+  findTargetSprite = function(target) {
+    return target;
+  };
+
   isBusy() {
     return this._startBattleTransition.isBusy();
   }
 }
-
 class CardBattleScene extends Scene_Message {
   initialize() {
     super.initialize();
@@ -1468,7 +1859,8 @@ class CardBattleScene extends Scene_Message {
 
   create() {
     super.create();
-    // this.createDisplayObjects();
+    this.createDisplayObjects();
+
 
     const cardset = new CardsetSprite();
     cardset.x = 0;
@@ -1476,62 +1868,75 @@ class CardBattleScene extends Scene_Message {
     this.addChild(cardset);
     cardset.setCards([
       { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
-      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
-      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
-      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
-      { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
-      { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
-      { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
-      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
-      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
-      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
-      { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
-      { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
-      { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
-      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
-      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
-      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
-      { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
-      { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
-      { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
-      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
-      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
-      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
-      { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
-      { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
-      { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
-      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
-      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
-      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
-      { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
-      { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
-      { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
-      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
-      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
-      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
-      { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
-      { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
-      { type: 1, color: 1, figureName: 'default', attack: 99, health: 0 },
-      { type: 1, color: 2, figureName: 'default', attack: 99, health: 99 },
-      { type: 2, color: 3, figureName: 'default', attack: 99, health: 99 },
-      { type: 3, color: 4, figureName: 'default', attack: 99, health: 99 }
+      // { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      // { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      // { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      // { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
+      // { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
+      // { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
+      // { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      // { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      // { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      // { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
+      // { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
+      // { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
+      // { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      // { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      // { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      // { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
+      // { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
+      // { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
+      // { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      // { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      // { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      // { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
+      // { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
+      // { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
+      // { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      // { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      // { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      // { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
+      // { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
+      // { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
+      // { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      // { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      // { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      // { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
+      // { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
+      // { type: 1, color: 1, figureName: 'default', attack: 99, health: 0 },
+      // { type: 1, color: 2, figureName: 'default', attack: 99, health: 99 },
+      // { type: 2, color: 3, figureName: 'default', attack: 99, health: 99 },
+      // { type: 3, color: 4, figureName: 'default', attack: 99, health: 99 }
     ]);
     const cardIndexs = cardset.getWaitingCardSpriteIndexs();
-    // cardset.showCards(cardIndexs);
-    cardset.showCardCloseds(cardIndexs);
+    cardset.showCards(cardIndexs);
+    // cardset.showCardCloseds(cardIndexs);
     // cardset.showCardsAndStartMoving(cardIndexs);
     // cardset.startCloseCards(cardIndexs);
-    cardset.startOpenCards(cardIndexs);
+    // cardset.startOpenCards(cardIndexs);
     // cardset.activeSelectMode();
-    cardset.startFlashCards(cardIndexs);
+    // cardset.startFlashCards(cardIndexs);
     cardset.activate();
     cardset.show();
+
+    // const sprite = new Sprite_Animation();
+    // const animation = $dataAnimations[45];
+    // sprite.setup([cardset._cardSprites[4].sprite], animation, true);
+    // cardset.addChild(sprite);
+
+    cardset.startDamageAnimation(cardIndexs);
+    cardset.startDamageAnimation(cardIndexs);
+
+    // this._spriteset.createAnimation({
+    //   animationId: 48,
+    //   targets: [cardset]
+    // });
   }
 
   createDisplayObjects() {
     this.createSpriteset();
-    this.createWindowLayer();
-    this.createAllWindows();
+    // this.createWindowLayer();
+    // this.createAllWindows();
   }
 
   createSpriteset() {
