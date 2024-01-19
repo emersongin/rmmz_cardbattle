@@ -2,7 +2,7 @@ class CardSpriteMovingState {
   _cardSprite;
   
   constructor(cardSprite) {
-      this._cardSprite = cardSprite;
+    this._cardSprite = cardSprite;
   }
 
   updateState() {

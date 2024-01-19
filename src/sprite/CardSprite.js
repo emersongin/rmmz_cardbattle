@@ -5,6 +5,8 @@
 // include ./state/CardSpriteOpenState.js
 // include ./state/CardSpriteClosingState.js
 // include ./state/CardSpriteAnimatedState.js
+// include ./state/CardSpriteFlashedState.js
+// include ./state/CardSpriteSelectedState.js
 // include ./CardAnimationSprite.js
 
 class CardSprite extends ActionSprite {
@@ -59,7 +61,7 @@ class CardSprite extends ActionSprite {
   }
 
   stop() {
-    this._state = new CardSpriteStoppedState(this);
+    this.changeState(CardSpriteStoppedState);
   }
 
   hide() {
@@ -95,7 +97,7 @@ class CardSprite extends ActionSprite {
     if ((this.isMoving() || this.isAnimated()) && this.isHidden()) this.show();
     if (this.isVisible()) this.updateState();
     super.update();
-    // console.log(this._state);
+    console.log(this._state);
   }
 
   isVisible() {
@@ -111,17 +113,11 @@ class CardSprite extends ActionSprite {
   }
 
   isBusy() {
-    return this.isNotStopped() ||
-      this.isActiveFlash() || 
-      this.hasActions();
+    return this.isNotStopped() || this.hasActions();
   }
 
   isNotStopped() {
     return !this.isStopped();
-  }
-
-  isActiveFlash() {
-    return this._flashDuration > 0;
   }
 
   isMoving() {
@@ -146,11 +142,11 @@ class CardSprite extends ActionSprite {
   }
   
   closed() {
-    this._state = new CardSpriteClosedState(this);
+    this.changeState(CardSpriteClosedState);
   }
   
   moving() {
-    this._state = new CardSpriteMovingState(this);
+    this.changeState(CardSpriteMovingState);
   }
 
   refresh() {
@@ -332,7 +328,7 @@ class CardSprite extends ActionSprite {
   }
 
   opened() {
-    this._state = new CardSpriteOpenState(this);
+    this.changeState(CardSpriteOpenState);
   }
 
   close() {
@@ -366,7 +362,7 @@ class CardSprite extends ActionSprite {
   }
 
   opening() {
-    this._state = new CardSpriteOpeningState(this);
+    this.changeState(CardSpriteOpeningState);
   }
 
   commandClose() {
@@ -382,7 +378,7 @@ class CardSprite extends ActionSprite {
   }
 
   closing() {
-    this._state = new CardSpriteClosingState(this);
+    this.changeState(CardSpriteClosingState);
   }
 
   setXPosition(xPosition) {
@@ -402,6 +398,7 @@ class CardSprite extends ActionSprite {
   commandHighlight() {
     if (this.isStopped()) {
       this._highlighted = true;
+      this.changeState(CardSpriteSelectedState);
     }
   }
 
@@ -422,7 +419,12 @@ class CardSprite extends ActionSprite {
   commandSelect() {
     if (this.isStopped()) {
       this._selected = true;
+      this.selected();
     }
+  }
+
+  selected() {
+    this.changeState(CardSpriteSelectedState);
   }
 
   unselect() {
@@ -443,7 +445,12 @@ class CardSprite extends ActionSprite {
     if (this.isStopped()) {
       this.drawFlash(color);
       this._flashDuration = duration;
+      this.flashed();
     }
+  }
+
+  flashed() {
+    this.changeState(CardSpriteFlashedState);
   }
 
   drawFlash(color = 'white') {
@@ -470,7 +477,7 @@ class CardSprite extends ActionSprite {
   }
 
   animated() {
-    this._state = new CardSpriteAnimatedState(this);
+    this.changeState(CardSpriteAnimatedState);
   }
 
   animationDamager() {
@@ -499,5 +506,31 @@ class CardSprite extends ActionSprite {
       alignBottom: false,
       quakeEffect: true
     };
+  }
+
+  changeAttackPoints(attackPoints) {
+    this.addAction(this.commandChangeAttackPoints, attackPoints);
+  }
+
+  commandChangeAttackPoints(attackPoints = this._attackPoints) {
+    if (this.isStopped() && this.isVisible()) {
+      this._attackPoints = attackPoints;
+      this.animated();
+    }
+  }
+
+  changeHealtPoints(HealtPoints) {
+    this.addAction(this.commandChangeHealtPoints, HealtPoints);
+  }
+
+  commandChangeHealtPoints(HealtPoints = this._HealtPoints) {
+    if (this.isStopped() && this.isVisible()) {
+      this._HealtPoints = HealtPoints;
+      this.animated();
+    }
+  }
+
+  changeState(state) {
+    this._state = new state(this);
   }
 }

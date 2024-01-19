@@ -17,9 +17,9 @@ class CardBattleScene extends Scene_Message {
     this.addChild(cardset);
     cardset.setCards([
       { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
-      // { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
-      // { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
-      // { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
       // { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
       // { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
       // { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
@@ -58,13 +58,13 @@ class CardBattleScene extends Scene_Message {
       // { type: 3, color: 4, figureName: 'default', attack: 99, health: 99 }
     ]);
     const cardIndexs = cardset.getWaitingCardSprites();
-    cardset.showCards(cardIndexs);
-    // cardset.showCardCloseds(cardIndexs);
+    // cardset.showCards(cardIndexs);
+    cardset.showCardCloseds(cardIndexs);
     // cardset.showCardsAndStartMoving(cardIndexs);
     // cardset.startCloseCards(cardIndexs);
-    // cardset.startOpenCards(cardIndexs);
-    // cardset.activeSelectMode();
-    cardset.startFlashCards(cardIndexs);
+    cardset.startOpenCards(cardIndexs);
+    cardset.activeSelectMode();
+    // cardset.startFlashCards(cardIndexs);
     cardset.activate();
     cardset.show();
 
@@ -73,8 +73,8 @@ class CardBattleScene extends Scene_Message {
     // sprite.setup([cardset._cardSprites[4].sprite], animation, true);
     // cardset.addChild(sprite);
 
-    cardset.startDamageAnimation(cardIndexs);
-    cardset.startDamageAnimation(cardIndexs);
+    // cardset.startDamageAnimation(cardIndexs);
+    // cardset.startDamageAnimation(cardIndexs);
 
     // this._spriteset.createAnimation({
     //   animationId: 48,

@@ -13,7 +13,6 @@ class CardAnimationSprite extends Sprite_Animation {
 
   update() {
     super.update();
-    console.log('this._started: ' + this._started + 'and' + this.isPlaying());
     if (this.isPlaying()) {
       this.updateQuakeEffect();
     } else {

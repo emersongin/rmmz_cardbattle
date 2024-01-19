@@ -327,68 +327,18 @@ class CardSpriteStoppedState {
   }
 
   updateState() {
-    this.updateBackground();
-    this.updateFlash();
+    this.updatePoints();
   }
 
-  updateBackground() {
-    const that = this._cardSprite;
-    that._selectLayer.bitmap.clear();
-    if (that._highlighted || that._selected) {
-      this.fillBackground();
-      this.updateBackgroundPulse();
-    }
-  }
-
-  fillBackground() {
-    const that = this._cardSprite;
-    this.fillSelectBackground();
-    this.fillHighlightBackground();
-  }
-
-  fillSelectBackground() {
-    const that = this._cardSprite;
-    if (that._highlighted) {
-      that._selectLayer.bitmap.fillRect(0, 0, that.width, that.height, 'red');
-    }
-  }
-
-  fillHighlightBackground() {
-    const that = this._cardSprite;
-    if (that._highlighted) {
-      that._selectLayer.bitmap.fillRect(0, 0, that.width, that.height, 'yellow');
-    }
-  }
-
-  updateBackgroundPulse() {
-    const that = this._cardSprite;
-    that._selectLayer.opacity -= 32;
-    if(that._selectLayer.opacity <= 0) {
-      that._selectLayer.opacity = 255;
-    }
-  }
-
-  updateFlash() {
-    const that = this._cardSprite;
-    if (that._flashDuration > 0) {
-      that._flashDuration--;
-      this.updateFlashOpacity();
-    }
-  }
-
-  updateFlashOpacity() {
-    const that = this._cardSprite;
-    that._flashLayer.opacity = (that._flashDuration * 100 / 20);
-    if (that._flashDuration === 0) {
-      that._flashColor = null;
-    }
+  updatePoints() {
+    // this._cardSprite._points = this._cardSprite._points + 1;
   }
 }
 class CardSpriteMovingState {
   _cardSprite;
   
   constructor(cardSprite) {
-      this._cardSprite = cardSprite;
+    this._cardSprite = cardSprite;
   }
 
   updateState() {
@@ -426,7 +376,7 @@ class CardSpriteClosedState {
   _cardSprite;
   
   constructor(cardSprite) {
-      this._cardSprite = cardSprite;
+    this._cardSprite = cardSprite;
   }
 
   updateState() {
@@ -438,7 +388,7 @@ class CardSpriteOpeningState {
   _cardSprite;
   
   constructor(cardSprite) {
-      this._cardSprite = cardSprite;
+    this._cardSprite = cardSprite;
   }
 
   updateState() {
@@ -468,7 +418,7 @@ class CardSpriteOpenState {
   _cardSprite;
   
   constructor(cardSprite) {
-      this._cardSprite = cardSprite;
+    this._cardSprite = cardSprite;
   }
 
   updateState() {
@@ -480,7 +430,7 @@ class CardSpriteClosingState {
   _cardSprite;
   
   constructor(cardSprite) {
-      this._cardSprite = cardSprite;
+    this._cardSprite = cardSprite;
   }
 
   updateState() {
@@ -510,14 +460,92 @@ class CardSpriteAnimatedState {
   _cardSprite;
   
   constructor(cardSprite) {
-      this._cardSprite = cardSprite;
+    this._cardSprite = cardSprite;
   }
 
   updateState() {
     const that = this._cardSprite;
-    // console.log(that._animationSprite && !that._animationSprite.isPlaying());
     if (that._animationSprite && !that._animationSprite.isPlaying()) {
       that.refreshAndStop();
+    }
+  }
+}
+class CardSpriteFlashedState {
+  _cardSprite;
+  
+  constructor(cardSprite) {
+    this._cardSprite = cardSprite;
+  }
+
+  updateState() {
+    this.updateFlash();
+  }
+
+  updateFlash() {
+    const that = this._cardSprite;
+    if (that._flashDuration > 0) {
+      that._flashDuration--;
+      this.updateFlashOpacity();
+    } else {
+      that.changeState(CardSpriteStoppedState);
+    }
+  }
+
+  updateFlashOpacity() {
+    const that = this._cardSprite;
+    that._flashLayer.opacity = (that._flashDuration * 100 / 20);
+    if (that._flashDuration === 0) {
+      that._flashColor = null;
+    }
+  }
+}
+class CardSpriteSelectedState {
+  _cardSprite;
+  
+  constructor(cardSprite) {
+    this._cardSprite = cardSprite;
+  }
+
+  updateState() {
+    this.updateSelect();
+  }
+
+  updateSelect() {
+    const that = this._cardSprite;
+    that._selectLayer.bitmap.clear();
+    if (that._highlighted || that._selected) {
+      this.fillBackground();
+      this.updateSelectPulse();
+    } else {
+      that.changeState(CardSpriteStoppedState);
+    }
+  }
+
+  fillBackground() {
+    const that = this._cardSprite;
+    this.fillSelectBackground();
+    this.fillHighlightBackground();
+  }
+
+  fillSelectBackground() {
+    const that = this._cardSprite;
+    if (that._highlighted) {
+      that._selectLayer.bitmap.fillRect(0, 0, that.width, that.height, 'red');
+    }
+  }
+
+  fillHighlightBackground() {
+    const that = this._cardSprite;
+    if (that._highlighted) {
+      that._selectLayer.bitmap.fillRect(0, 0, that.width, that.height, 'yellow');
+    }
+  }
+
+  updateSelectPulse() {
+    const that = this._cardSprite;
+    that._selectLayer.opacity -= 32;
+    if(that._selectLayer.opacity <= 0) {
+      that._selectLayer.opacity = 255;
     }
   }
 }
@@ -536,7 +564,6 @@ class CardAnimationSprite extends Sprite_Animation {
 
   update() {
     super.update();
-    console.log('this._started: ' + this._started + 'and' + this.isPlaying());
     if (this.isPlaying()) {
       this.updateQuakeEffect();
     } else {
@@ -653,7 +680,7 @@ class CardSprite extends ActionSprite {
   }
 
   stop() {
-    this._state = new CardSpriteStoppedState(this);
+    this.changeState(CardSpriteStoppedState);
   }
 
   hide() {
@@ -689,7 +716,7 @@ class CardSprite extends ActionSprite {
     if ((this.isMoving() || this.isAnimated()) && this.isHidden()) this.show();
     if (this.isVisible()) this.updateState();
     super.update();
-    // console.log(this._state);
+    console.log(this._state);
   }
 
   isVisible() {
@@ -705,17 +732,11 @@ class CardSprite extends ActionSprite {
   }
 
   isBusy() {
-    return this.isNotStopped() ||
-      this.isActiveFlash() || 
-      this.hasActions();
+    return this.isNotStopped() || this.hasActions();
   }
 
   isNotStopped() {
     return !this.isStopped();
-  }
-
-  isActiveFlash() {
-    return this._flashDuration > 0;
   }
 
   isMoving() {
@@ -740,11 +761,11 @@ class CardSprite extends ActionSprite {
   }
   
   closed() {
-    this._state = new CardSpriteClosedState(this);
+    this.changeState(CardSpriteClosedState);
   }
   
   moving() {
-    this._state = new CardSpriteMovingState(this);
+    this.changeState(CardSpriteMovingState);
   }
 
   refresh() {
@@ -926,7 +947,7 @@ class CardSprite extends ActionSprite {
   }
 
   opened() {
-    this._state = new CardSpriteOpenState(this);
+    this.changeState(CardSpriteOpenState);
   }
 
   close() {
@@ -960,7 +981,7 @@ class CardSprite extends ActionSprite {
   }
 
   opening() {
-    this._state = new CardSpriteOpeningState(this);
+    this.changeState(CardSpriteOpeningState);
   }
 
   commandClose() {
@@ -976,7 +997,7 @@ class CardSprite extends ActionSprite {
   }
 
   closing() {
-    this._state = new CardSpriteClosingState(this);
+    this.changeState(CardSpriteClosingState);
   }
 
   setXPosition(xPosition) {
@@ -996,6 +1017,7 @@ class CardSprite extends ActionSprite {
   commandHighlight() {
     if (this.isStopped()) {
       this._highlighted = true;
+      this.changeState(CardSpriteSelectedState);
     }
   }
 
@@ -1016,7 +1038,12 @@ class CardSprite extends ActionSprite {
   commandSelect() {
     if (this.isStopped()) {
       this._selected = true;
+      this.selected();
     }
+  }
+
+  selected() {
+    this.changeState(CardSpriteSelectedState);
   }
 
   unselect() {
@@ -1037,7 +1064,12 @@ class CardSprite extends ActionSprite {
     if (this.isStopped()) {
       this.drawFlash(color);
       this._flashDuration = duration;
+      this.flashed();
     }
+  }
+
+  flashed() {
+    this.changeState(CardSpriteFlashedState);
   }
 
   drawFlash(color = 'white') {
@@ -1064,7 +1096,7 @@ class CardSprite extends ActionSprite {
   }
 
   animated() {
-    this._state = new CardSpriteAnimatedState(this);
+    this.changeState(CardSpriteAnimatedState);
   }
 
   animationDamager() {
@@ -1093,6 +1125,32 @@ class CardSprite extends ActionSprite {
       alignBottom: false,
       quakeEffect: true
     };
+  }
+
+  changeAttackPoints(attackPoints) {
+    this.addAction(this.commandChangeAttackPoints, attackPoints);
+  }
+
+  commandChangeAttackPoints(attackPoints = this._attackPoints) {
+    if (this.isStopped() && this.isVisible()) {
+      this._attackPoints = attackPoints;
+      this.animated();
+    }
+  }
+
+  changeHealtPoints(HealtPoints) {
+    this.addAction(this.commandChangeHealtPoints, HealtPoints);
+  }
+
+  commandChangeHealtPoints(HealtPoints = this._HealtPoints) {
+    if (this.isStopped() && this.isVisible()) {
+      this._HealtPoints = HealtPoints;
+      this.animated();
+    }
+  }
+
+  changeState(state) {
+    this._state = new state(this);
   }
 }
 class CardsetSprite extends ActionSprite {
@@ -1316,9 +1374,7 @@ class CardsetSprite extends ActionSprite {
   }
   
   isBusyCards() {
-    return this._cardSprites.some(card => {
-      return card.sprite.isBusy();
-    });
+    return this._cardSprites.some(card => card.sprite.isBusy());
   }
 
   isNotBusyCards() {
@@ -1330,8 +1386,10 @@ class CardsetSprite extends ActionSprite {
     if (this.hasActions() && this.isNotBusy()) this.executeAction();
     if (this.isCardSpritesMoving() && this.isHidden()) this.show();
     if (this.isVisible()) {
+      console.log(this._selectMode, this.isNotBusyCards());
       if (this._selectMode && this.isNotBusyCards()) {
         this.updateSelectMode();
+        console.log('select mode');
       }
     }
     super.update();
@@ -1878,9 +1936,9 @@ class CardBattleScene extends Scene_Message {
     this.addChild(cardset);
     cardset.setCards([
       { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
-      // { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
-      // { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
-      // { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
+      { type: 1, color: 2, figureName: 'default', attack: 0, health: 99 },
+      { type: 1, color: 3, figureName: 'default', attack: 99, health: 0 },
+      { type: 1, color: 4, figureName: 'default', attack: 99, health: 99 },
       // { type: 2, color: 5, figureName: 'default', attack: 99, health: 99 },
       // { type: 3, color: 6, figureName: 'default', attack: 99, health: 99 },
       // { type: 1, color: 1, figureName: 'default', attack: 0, health: 0 },
@@ -1919,13 +1977,13 @@ class CardBattleScene extends Scene_Message {
       // { type: 3, color: 4, figureName: 'default', attack: 99, health: 99 }
     ]);
     const cardIndexs = cardset.getWaitingCardSprites();
-    cardset.showCards(cardIndexs);
-    // cardset.showCardCloseds(cardIndexs);
+    // cardset.showCards(cardIndexs);
+    cardset.showCardCloseds(cardIndexs);
     // cardset.showCardsAndStartMoving(cardIndexs);
     // cardset.startCloseCards(cardIndexs);
-    // cardset.startOpenCards(cardIndexs);
-    // cardset.activeSelectMode();
-    cardset.startFlashCards(cardIndexs);
+    cardset.startOpenCards(cardIndexs);
+    cardset.activeSelectMode();
+    // cardset.startFlashCards(cardIndexs);
     cardset.activate();
     cardset.show();
 
@@ -1934,8 +1992,8 @@ class CardBattleScene extends Scene_Message {
     // sprite.setup([cardset._cardSprites[4].sprite], animation, true);
     // cardset.addChild(sprite);
 
-    cardset.startDamageAnimation(cardIndexs);
-    cardset.startDamageAnimation(cardIndexs);
+    // cardset.startDamageAnimation(cardIndexs);
+    // cardset.startDamageAnimation(cardIndexs);
 
     // this._spriteset.createAnimation({
     //   animationId: 48,

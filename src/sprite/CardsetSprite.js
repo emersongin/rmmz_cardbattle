@@ -219,9 +219,7 @@ class CardsetSprite extends ActionSprite {
   }
   
   isBusyCards() {
-    return this._cardSprites.some(card => {
-      return card.sprite.isBusy();
-    });
+    return this._cardSprites.some(card => card.sprite.isBusy());
   }
 
   isNotBusyCards() {
@@ -233,6 +231,7 @@ class CardsetSprite extends ActionSprite {
     if (this.hasActions() && this.isNotBusy()) this.executeAction();
     if (this.isCardSpritesMoving() && this.isHidden()) this.show();
     if (this.isVisible()) {
+      console.log(this._selectMode, this.isNotBusyCards());
       if (this._selectMode && this.isNotBusyCards()) {
         this.updateSelectMode();
       }
