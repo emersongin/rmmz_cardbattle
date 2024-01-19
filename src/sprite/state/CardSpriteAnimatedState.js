@@ -7,7 +7,6 @@ class CardSpriteAnimatedState {
 
   updateState() {
     const that = this._cardSprite;
-    // console.log(that._animationSprite && !that._animationSprite.isPlaying());
     if (that._animationSprite && !that._animationSprite.isPlaying()) {
       that.refreshAndStop();
     }

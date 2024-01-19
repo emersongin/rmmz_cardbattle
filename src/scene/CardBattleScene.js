@@ -57,14 +57,14 @@ class CardBattleScene extends Scene_Message {
       // { type: 2, color: 3, figureName: 'default', attack: 99, health: 99 },
       // { type: 3, color: 4, figureName: 'default', attack: 99, health: 99 }
     ]);
-    const cardIndexs = cardset.getWaitingCardSpriteIndexs();
+    const cardIndexs = cardset.getWaitingCardSprites();
     cardset.showCards(cardIndexs);
     // cardset.showCardCloseds(cardIndexs);
     // cardset.showCardsAndStartMoving(cardIndexs);
     // cardset.startCloseCards(cardIndexs);
     // cardset.startOpenCards(cardIndexs);
     // cardset.activeSelectMode();
-    // cardset.startFlashCards(cardIndexs);
+    cardset.startFlashCards(cardIndexs);
     cardset.activate();
     cardset.show();
 

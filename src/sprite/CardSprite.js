@@ -31,7 +31,7 @@ class CardSprite extends ActionSprite {
     this.attack = 0;
     this.health = 0;
     // layers
-    this._backgroundLayer = null;
+    this._selectLayer = null;
     this._contentLayer = null;
     this._flashLayer = null;
     this._animationSprite = null;
@@ -67,15 +67,15 @@ class CardSprite extends ActionSprite {
   }
 
   createLayers() {
-    this.createBackgroundLayer();
+    this.createSelectLayer();
     this.createContentLayer();
     this.createFlashLayer();
   }
 
-  createBackgroundLayer() {
-    this._backgroundLayer = new Sprite();
-    this._backgroundLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
-    this.addChild(this._backgroundLayer);
+  createSelectLayer() {
+    this._selectLayer = new Sprite();
+    this._selectLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
+    this.addChild(this._selectLayer);
   }
 
   createContentLayer() {
@@ -95,7 +95,7 @@ class CardSprite extends ActionSprite {
     if ((this.isMoving() || this.isAnimated()) && this.isHidden()) this.show();
     if (this.isVisible()) this.updateState();
     super.update();
-    console.log(this._state);
+    // console.log(this._state);
   }
 
   isVisible() {

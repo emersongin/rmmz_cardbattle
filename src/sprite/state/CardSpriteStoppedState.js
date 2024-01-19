@@ -12,7 +12,7 @@ class CardSpriteStoppedState {
 
   updateBackground() {
     const that = this._cardSprite;
-    that._backgroundLayer.bitmap.clear();
+    that._selectLayer.bitmap.clear();
     if (that._highlighted || that._selected) {
       this.fillBackground();
       this.updateBackgroundPulse();
@@ -28,22 +28,22 @@ class CardSpriteStoppedState {
   fillSelectBackground() {
     const that = this._cardSprite;
     if (that._highlighted) {
-      that._backgroundLayer.bitmap.fillRect(0, 0, that.width, that.height, 'red');
+      that._selectLayer.bitmap.fillRect(0, 0, that.width, that.height, 'red');
     }
   }
 
   fillHighlightBackground() {
     const that = this._cardSprite;
     if (that._highlighted) {
-      that._backgroundLayer.bitmap.fillRect(0, 0, that.width, that.height, 'yellow');
+      that._selectLayer.bitmap.fillRect(0, 0, that.width, that.height, 'yellow');
     }
   }
 
   updateBackgroundPulse() {
     const that = this._cardSprite;
-    that._backgroundLayer.opacity -= 32;
-    if(that._backgroundLayer.opacity <= 0) {
-      that._backgroundLayer.opacity = 255;
+    that._selectLayer.opacity -= 32;
+    if(that._selectLayer.opacity <= 0) {
+      that._selectLayer.opacity = 255;
     }
   }
 
