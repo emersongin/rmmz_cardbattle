@@ -94,4 +94,12 @@ class TextWindow extends Window_Base {
   moveWindowToBottom() {
     this.moveWindow(this.x, Graphics.boxHeight - this.calculeHeight());
   }
+
+  isBusy() {
+    return this.isOpening() || this.isClosing();
+  }
+
+  isAvailable() {
+    return !this.isBusy();
+  }
 }

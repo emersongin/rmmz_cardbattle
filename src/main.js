@@ -16,6 +16,10 @@
 // include ./sprite/CardsetSprite.js
 // include ./sprite/BackgroundSprite.js
 // include ./sprite/CardBattleSpriteset.js
+
+// include ./scene/phase/CardBattleTestPhase.js
+// include ./scene/phase/CardBattlePhase.js
+
 // include ./scene/CardBattleScene.js
 // include ./manager/CardBattleManager.js
 // include ./core/Input.js
