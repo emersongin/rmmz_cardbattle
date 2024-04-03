@@ -1,38 +1,47 @@
 class CardSpriteMovingState {
-  _cardSprite;
+  _card;
+  _xInterval;
+  _yInterval;
   
-  constructor(cardSprite) {
-    this._cardSprite = cardSprite;
+  constructor(sprite) {
+    this._card = sprite;
+    const duration = this._card._duration;
+    const originXPosition = this._card.x;
+    const originYPosition = this._card.y;
+    const destinyXPosition = this._card._x;
+    const destinyYPosition = this._card._y;
+    this._xInterval = this._card.calculateMovingInterval(originXPosition, destinyXPosition, duration);
+    this._yInterval = this._card.calculateMovingInterval(originYPosition, destinyYPosition, duration);
   }
 
   updateState() {
-    const that = this._cardSprite;
+    const that = this._card;
     if (that._x !== that.x || that._y !== that.y) {
-      this.updateMovingPosition();
+      this.updateXPosition();
+      this.updateYPosition();
     } else {
       that.stop();
     }
   }
 
-  updateMovingPosition() {
-    const that = this._cardSprite;
-    const interval = that.calculateInterval(0, Graphics.boxWidth, that._duration);
-    const reachedX = that.x > that._x;
-    const reachedY = that.y > that._y;
+  updateXPosition() {
+    const that = this._card;
+    const reached = that.x > that._x;
     if (that._x !== that.x) {
-      that.x = that.x > that._x 
-        ? that.x - interval 
-        : that.x + interval;
+      that.x = reached ? that.x - this._xInterval : that.x + this._xInterval;
     }
-    const xLimit = (reachedX && that.x < that._x || !reachedX && that.x > that._x);
-    if (xLimit) that.x = that._x;
+    const limit = (reached && that.x < that._x || !reached && that.x > that._x);
+    if (limit) that.x = that._x;
+  }
+
+  updateYPosition() {
+    const that = this._card;
+    const reached = that.y > that._y;
     if (that._y !== that.y) {
-      that.y = that.y > that._y 
-        ? that.y - interval 
-        : that.y + interval;
+      that.y = reached ? that.y - this._yInterval : that.y + this._yInterval;
     }
-    const yLimit = (reachedY && that.y < that._y || !reachedY && that.y > that._y);
-    if (yLimit) that.y = that._y;
+    const limit = (reached && that.y < that._y || !reached && that.y > that._y);
+    if (limit) that.y = that._y;
   }
 
 }

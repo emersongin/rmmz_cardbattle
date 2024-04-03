@@ -22,8 +22,10 @@
 // include ./scene/phase/CardBattlePhase.js
 
 // tests
-// include ./scene/test/ShowCardSpriteTest.js
-// include ./scene/test/OpenCardSpriteTest.js
+// include ./sprite/test/ShowCardSpriteTest.js
+// include ./sprite/test/OpenCardSpriteTest.js
+// include ./sprite/test/CloseCardSpriteTest.js
+// include ./sprite/test/MoveCardSpriteTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./manager/CardBattleManager.js

@@ -34,9 +34,9 @@ class CardSprite extends ActionSprite {
 
   setup() {
     this.setSize();
-    this.stop();
-    this.hide();
     this.createLayers();
+    this.hide();
+    this.stop();
   }
 
   setSize() {
@@ -50,18 +50,6 @@ class CardSprite extends ActionSprite {
 
   cardOriginalHeight() {
     return 128;
-  }
-
-  stop() {
-    this.changeState(CardStates.MAIN, CardSpriteStoppedState);
-  }
-
-  changeState(keyName, state) {
-    this._states[keyName] = new state(this);
-  }
-
-  hide() {
-    this.visible = false;
   }
 
   createLayers() {
@@ -88,8 +76,20 @@ class CardSprite extends ActionSprite {
     this.addChild(this._selectLayer);
   }
 
+  hide() {
+    this.visible = false;
+  }
+
+  stop() {
+    this.changeState(CardStates.MAIN, CardSpriteStoppedState);
+  }
+
+  changeState(keyName, state) {
+    this._states[keyName] = new state(this);
+  }
+
   update() {
-    if (this.hasActions() && (this.isStopped() || this.isMoving())) this.executeAction();
+    if (this.hasActions() && (this.isStopped())) this.executeAction();
     if (this.isMoving() && this.isHidden()) this.show();
     if (this.isVisible()) this.updateStates();
     super.update();
@@ -315,7 +315,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandOpen() {
-    if (this.isStopped() && this.isClosed()) {
+    if (this.isVisible() && this.isStopped() && this.isClosed()) {
       this._x = this.x - (this.cardOriginalWidth() / 2);
       this.opening();
     }
@@ -333,6 +333,60 @@ class CardSprite extends ActionSprite {
     this.width = this.cardOriginalWidth();
     this.stop();
   }
+
+  close() {
+    this.addAction(this.commandClose);
+  }
+
+  commandClose() {
+    if (this.isVisible() && this.isStopped() && this.isOpened()) {
+      this._x = this.x + (this.cardOriginalWidth() / 2);
+      this.closing();
+    }
+  }
+
+  isOpened() {
+    return this.width === this.cardOriginalWidth();
+  }
+
+  closing() {
+    this.changeState(CardStates.MAIN, CardSpriteClosingState);
+  }
+
+  closed() {
+    this.width = 0;
+    this.stop();
+  }
+
+  toMove(destinyXPosition, destinyYPosition, originXPosition, originYPosition) {
+    this.addAction(
+      this.commandMoving, 
+      destinyXPosition, 
+      destinyYPosition,
+      originXPosition || this.x, 
+      originYPosition || this.y
+    );
+  }
+
+  commandMoving(destinyXPosition, destinyYPosition, originXPosition, originYPosition) {
+    if (this.isVisible() && this.isStopped()) {
+      this.x = originXPosition;
+      this.y = originYPosition;
+      this._x = destinyXPosition;
+      this._y = destinyYPosition;
+      this.moving();
+    }
+  }
+
+  moving() {
+    this.changeState(CardStates.MAIN, CardSpriteMovingState);
+  }
+
+
+
+
+
+
 
 
 
@@ -358,51 +412,11 @@ class CardSprite extends ActionSprite {
     this.stop();
   }
 
-  calculateInterval(origin, target, duration = 1) {
-    return Math.floor(Math.abs(origin - target) / (duration * 60)) || 1;
-  }
+
   
-  closed() {
-    this.changeState(CardSpriteClosedState);
-  }
-  
-  moving() {
-    this.changeState(CardSpriteMovingState);
-  }
 
-  close() {
-    this.addAction(this.commandClose);
-  }
-  
-  toMove(originPosition, destinationPosition) {
-    this.addAction(this.commandMoving, originPosition, destinationPosition);
-  }
 
-  commandMoving(originPosition, destinationPosition) {
-    if (this.isStopped() && this.isVisible()) {
-      this._x = destinationPosition.x;
-      this._y = destinationPosition.y;
-      this.x = originPosition.x;
-      this.y = originPosition.y;
-      this.moving();
-    }
-  }
 
-  commandClose() {
-    if (this.isStopped() || this.isOpened()) {
-      this._x = this.x + (this.cardOriginalWidth() / 2);
-      this.closing();
-    }
-  }
-
-  isOpened() {
-    return this._state instanceof CardSpriteOpenState ||
-      this.width === this.cardOriginalWidth();
-  }
-
-  closing() {
-    this.changeState(CardSpriteClosingState);
-  }
 
   setXPosition(xPosition) {
     this._x = xPosition;
@@ -552,6 +566,4 @@ class CardSprite extends ActionSprite {
       this.animated();
     }
   }
-
-
 }

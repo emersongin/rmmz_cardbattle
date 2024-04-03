@@ -1,4 +1,4 @@
-class ShowCardSpriteTest {
+class CloseCardSpriteTest {
   card;
   scene;
 
@@ -16,13 +16,16 @@ class ShowCardSpriteTest {
       1,
       1
     );
+    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
+    this.card.x = centerXPosition;
+    this.card.y = centerYPosition;
     this.scene.addChild(this.card);
   }
 
   startTest() {
-    this.card.x = Graphics.boxWidth / 2 - this.card.width / 2;
-    this.card.y = Graphics.boxHeight / 2 - this.card.height / 2;
     this.card.show();
+    this.card.close();
   } 
 
   update() {

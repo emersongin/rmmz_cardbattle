@@ -1,12 +1,12 @@
 class CardSpriteClosingState {
-  _cardSprite;
+  _card;
   
-  constructor(cardSprite) {
-    this._cardSprite = cardSprite;
+  constructor(sprite) {
+    this._card = sprite;
   }
 
   updateState() {
-    const that = this._cardSprite;
+    const that = this._card;
     if (that._x !== that.x || that.width > 0) {
       this.updateClosing();
       that.refresh();
@@ -16,8 +16,8 @@ class CardSpriteClosingState {
   }
 
   updateClosing() {
-    const that = this._cardSprite;
-    const interval = that.calculateInterval(0, that.cardOriginalWidth(), that._duration);
+    const that = this._card;
+    const interval = that.calculateMovingInterval(0, that.cardOriginalWidth(), that._duration);
     if (that.width > 0) {
       that.width -= (interval * 2);
     }

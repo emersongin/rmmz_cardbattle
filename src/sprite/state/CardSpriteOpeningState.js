@@ -17,7 +17,7 @@ class CardSpriteOpeningState {
 
   updateOpening() {
     const that = this._cardSprite;
-    const interval = that.calculateInterval(0, that.cardOriginalWidth(), that._duration);
+    const interval = that.calculateMovingInterval(0, that.cardOriginalWidth(), that._duration);
     if (that.width < that.cardOriginalWidth()) {
       that.width += (interval * 2);
     }

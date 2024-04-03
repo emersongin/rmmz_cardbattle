@@ -1,7 +1,7 @@
 class ActionSprite extends Sprite {
   initialize() { 
     super.initialize();
-    this._duration = 0.5;
+    this._duration = 0.3;
     this._actions = [];
   }
 
@@ -20,5 +20,11 @@ class ActionSprite extends Sprite {
 
   hasActions() {
     return this._actions.length > 0;
+  }
+
+  calculateMovingInterval(origin, destiny, duration = 1) {
+    const distance = Math.abs(origin - destiny);
+    const time = Math.abs(duration * 60);
+    return Math.floor(distance / time) || 1;
   }
 }
