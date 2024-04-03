@@ -3,7 +3,7 @@
 const CardTypes = {
   BATTLE: 1,
   POWER: 2,
-  LUCK: 3
+  GAME: 3
 };
 const CardColors = {
   RED: 1,
@@ -12,6 +12,9 @@ const CardColors = {
   WHITE: 4,
   BLACK: 5,
   BROWN: 6
+};
+const CardStates = {
+  MAIN: 1,
 };
 const CardSpriteStates = {
   WAITING: 1,
@@ -319,7 +322,6 @@ class ActionSprite extends Sprite {
 
   executeAction() {
     const action = this._actions.shift();
-    if (this instanceof CardsetSprite) console.log(action);
     if (action) action.execute();
   }
 
@@ -639,31 +641,23 @@ class CardAnimationSprite extends Sprite_Animation {
 class CardSprite extends ActionSprite {
   initialize() {
     super.initialize();
-    // fixs
     this._type = 0;
     this._color = 0;
-    // bitmaps
-    this._figure = null;
-    this._backImage = null;
-    // states
-    this._state = null;
+    this._figure = {};
+    this._backImage = {};
+    this._states = [];
+    this._turned = true;
     this._attackPoints = 0;
     this._healthPoints = 0;
     this._x = this.x;
     this._y = this.y;
-    this._highlighted = false;
-    this._selected = false;
-    this._turnedtoUp = true;
-    this._disabled = false;
-    this._flashDuration = 0;
-    // display
-    this.attack = 0;
-    this.health = 0;
-    // layers
-    this._selectLayer = null;
-    this._contentLayer = null;
-    this._flashLayer = null;
-    this._animationSprite = null;
+    this._contentLayer = {};
+    this._flashLayer = {};
+    this._selectLayer = {};
+    this.attackDisplay = 0;
+    this.healthDisplay = 0;
+    // this._flashDuration = 0;
+    // this._animationSprite = null;
     this.setup();
   }
 
@@ -688,7 +682,11 @@ class CardSprite extends ActionSprite {
   }
 
   stop() {
-    this.changeState(CardSpriteStoppedState);
+    this.changeState(CardStates.MAIN, CardSpriteStoppedState);
+  }
+
+  changeState(keyName, state) {
+    this._states[keyName] = new state(this);
   }
 
   hide() {
@@ -696,15 +694,9 @@ class CardSprite extends ActionSprite {
   }
 
   createLayers() {
-    this.createSelectLayer();
     this.createContentLayer();
-    this.createFlashLayer();
-  }
-
-  createSelectLayer() {
-    this._selectLayer = new Sprite();
-    this._selectLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
-    this.addChild(this._selectLayer);
+    // this.createFlashLayer();
+    // this.createSelectLayer();
   }
 
   createContentLayer() {
@@ -719,61 +711,42 @@ class CardSprite extends ActionSprite {
     this._contentLayer.addChild(this._flashLayer);
   }
 
-  update() {
-    if (this.hasActions() && this.isStopped()) this.executeAction();
-    if ((this.isMoving() || this.isAnimated()) && this.isHidden()) this.show();
-    if (this.isVisible()) this.updateState();
-    super.update();
-    console.log(this._state);
+  createSelectLayer() {
+    this._selectLayer = new Sprite();
+    this._selectLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
+    this.addChild(this._selectLayer);
   }
 
-  isVisible() {
-    return this.visible;
+  update() {
+    if (this.hasActions() && (this.isStopped() || this.isMoving())) this.executeAction();
+    if (this.isMoving() && this.isHidden()) this.show();
+    if (this.isVisible()) this.updateStates();
+    super.update();
+  }
+
+  isStopped() {
+    return this.getState(CardStates.MAIN) instanceof CardSpriteStoppedState;
+  }
+
+  getState(keyName) {
+    return this._states[keyName];
+  }
+
+  isMoving() {
+    return this.getState(CardStates.MAIN) instanceof CardSpriteMovingState;
   }
 
   isHidden() {
     return !this.isVisible();
   }
 
-  isStopped() {
-    return this._state instanceof CardSpriteStoppedState;
+  isVisible() {
+    return this.visible;
   }
 
-  isBusy() {
-    return this.isNotStopped() || this.hasActions();
-  }
-
-  isNotStopped() {
-    return !this.isStopped();
-  }
-
-  isMoving() {
-    return this._state instanceof CardSpriteMovingState;
-  }
-
-  isAnimated() {
-    return this._state instanceof CardSpriteAnimatedState;
-  }
-
-  updateState() {
-    if (this._state) this._state.updateState();
-  }
-
-  refreshAndStop() {
+  show() {
     this.refresh();
-    this.stop();
-  }
-
-  calculateInterval(origin, target, duration = 1) {
-    return Math.floor(Math.abs(origin - target) / (duration * 60)) || 1;
-  }
-  
-  closed() {
-    this.changeState(CardSpriteClosedState);
-  }
-  
-  moving() {
-    this.changeState(CardSpriteMovingState);
+    this.visible = true;
   }
 
   refresh() {
@@ -781,7 +754,7 @@ class CardSprite extends ActionSprite {
   }
 
   drawCard() {
-    this._contentLayer.bitmap.clear();
+    this.clearContent();
     if (this.isTurnedToUp()) {
       this.drawCardBackground();
       this.drawCardFigure();
@@ -791,17 +764,19 @@ class CardSprite extends ActionSprite {
     }
   }
 
+  clearContent() {
+    this._contentLayer.bitmap.clear();
+  }
+
   isTurnedToUp() {
-    return this._turnedtoUp;
+    return this._turned;
   }
 
   drawCardBackground() {
-    const xPosition = 2;
-    const yPosition = 2;
-    const width = this.width - 4;
-    const height = this.height - 4;
+    const xPosition = 0;
+    const yPosition = 0;
     const color = this.getBackgroundColor();
-    this._contentLayer.bitmap.fillRect(xPosition, yPosition, width, height, color);
+    this._contentLayer.bitmap.fillRect(xPosition, yPosition, this.width, this.height, color);
   }
 
   getBackgroundColor() {
@@ -809,11 +784,11 @@ class CardSprite extends ActionSprite {
       case CardColors.RED:
         return '#ff0000';
         break;
-      case CardColors.BLUE:
-        return '#0000ff';
-        break;
       case CardColors.GREEN:
         return '#00ff00';
+        break;
+      case CardColors.BLUE:
+        return '#0000ff';
         break;
       case CardColors.WHITE:
         return '#ffffff';
@@ -821,27 +796,31 @@ class CardSprite extends ActionSprite {
       case CardColors.BLACK:
         return '#000000';
         break;
-      default: // BRONW
-        return '#a52a2a';
+      default:
+        return brown = '#a52a2a';
         break;
     }
   }
 
   drawCardFigure() {
+    const contentX = 4;
+    const contentY = 4;
     const contentWidth = this.cardOriginalWidth() - 8;
     const contentHeight = this.cardOriginalHeight() - 28;
     const openPercent = Math.floor((this.width / this.cardOriginalWidth()) * 100);
     const openWidth = Math.floor((contentWidth * openPercent) / 100);
+    const figureX = 0;
+    const figureY = 0;
     const figureWidth = openWidth ? this._figure.width : 0;
     const figureHeight = this._figure.height;
     this._contentLayer.bitmap.blt(
       this._figure, 
-      0, 
-      0, 
+      figureX, 
+      figureY, 
       figureWidth, 
       figureHeight,
-      4,
-      4,
+      contentX,
+      contentY,
       openWidth,
       contentHeight
     );
@@ -913,25 +892,44 @@ class CardSprite extends ActionSprite {
     this._contentLayer.bitmap.blt(this._backImage, 0, 0, this.width, this.height, 0, 0);
   }
 
-  setCard(card) {
-    this.setType(card.type);
-    this.setColor(card.color);
-    this.setFigure(card.figureName);
+  updateStates() {
+    if (Array.isArray(this._states)) {
+      this._states.forEach(state => state.updateState());
+    }
+  }
+
+  static create(type, color, figureName, attack, health) {
+    const card = new CardSprite();
+    card.setCard(
+      type || CardTypes.BATTLE, 
+      color || CardColors.BROWN, 
+      figureName || 'default', 
+      attack || 0, 
+      health || 0
+    );
+    return card;
+  }
+
+  setCard(type, color, figureName, attack, health) {
+    this.setType(type);
+    this.setColor(color);
+    this.setFigure(figureName);
     this.setBackImage();
-    this._attackPoints = card.attack;
-    this._healthPoints = card.health;
+    this._attackPoints = attack;
+    this._healthPoints = health;
   }
 
   setType(type) {
-    this._type = type || 1;
+    this._type = type;
   }
 
   setColor(color) {
-    this._color = color || 6;
+    this._color = color;
   }
 
   setFigure(figureName) {
     this._figure = ImageManager.loadCard(figureName);
+    // test
     // this._figure = new Bitmap(this.width, this.height);
     // this._figure.fillAll('yellow');
   }
@@ -940,22 +938,65 @@ class CardSprite extends ActionSprite {
     this._backImage = new Bitmap(this.width, this.height);
     this._backImage.gradientFillRect (0, 0, this.width, this.height, '#555', '#000');
   }
-  
-  show() {
-    this.refresh();
-    this.visible = true;
-  }
 
-  isTurnedToUp() {
-    return this._turnedtoUp;
-  }
-  
   open() {
     this.addAction(this.commandOpen);
   }
 
+  commandOpen() {
+    if (this.isStopped() && this.isClosed()) {
+      this._x = this.x - (this.cardOriginalWidth() / 2);
+      this.opening();
+    }
+  }
+
+  isClosed() {
+    return this.width === 0;
+  }
+
+  opening() {
+    this.changeState(CardStates.MAIN, CardSpriteOpeningState);
+  }
+
   opened() {
-    this.changeState(CardSpriteOpenState);
+    this.width = this.cardOriginalWidth();
+    this.stop();
+  }
+
+
+
+
+
+
+
+
+  isBusy() {
+    return this.isNotStopped() || this.hasActions();
+  }
+
+  isNotStopped() {
+    return !this.isStopped();
+  }
+
+  isAnimated() {
+    return this._state instanceof CardSpriteAnimatedState;
+  }
+
+  refreshAndStop() {
+    this.refresh();
+    this.stop();
+  }
+
+  calculateInterval(origin, target, duration = 1) {
+    return Math.floor(Math.abs(origin - target) / (duration * 60)) || 1;
+  }
+  
+  closed() {
+    this.changeState(CardSpriteClosedState);
+  }
+  
+  moving() {
+    this.changeState(CardSpriteMovingState);
   }
 
   close() {
@@ -974,22 +1015,6 @@ class CardSprite extends ActionSprite {
       this.y = originPosition.y;
       this.moving();
     }
-  }
-
-  commandOpen() {
-    if (this.isStopped() && this.isClosed()) {
-      this._x = this.x - (this.cardOriginalWidth() / 2);
-      this.opening();
-    }
-  }
-
-  isClosed() {
-    return this._state instanceof CardSpriteClosedState || 
-      this.width === 0;
-  }
-
-  opening() {
-    this.changeState(CardSpriteOpeningState);
   }
 
   commandClose() {
@@ -1157,9 +1182,7 @@ class CardSprite extends ActionSprite {
     }
   }
 
-  changeState(state) {
-    this._state = new state(this);
-  }
+
 }
 class CardsetSprite extends ActionSprite {
   initialize() { 
@@ -1925,37 +1948,7 @@ class CardBattleSpriteset extends Spriteset_Base {
   }
 }
 
-class CardBattleTestPhase {
-  scene;
 
-  constructor(scene) {
-    this.scene = scene;
-    this.setTest();
-    this.startTest();
-  }
-
-  setTest() {
-    this.card = new CardSprite();
-    this.card.setCard({
-      type: CardTypes.BATTLE,
-      color: CardColors.RED,
-      name: 'Test Card',
-      figureName: 'default',
-      attack: 1,
-      health: 1
-    });
-    this.scene.addChild(this.card);
-  }
-
-  startTest() {
-    this.card.show();
-  } 
-
-  update() {
-
-  }
-
-}
 class CardBattlePhase {
   scene;
 
@@ -2001,6 +1994,74 @@ class CardBattlePhase {
   }
 }
 
+// tests
+class ShowCardSpriteTest {
+  card;
+  scene;
+
+  constructor(scene) {
+    this.scene = scene;
+    this.setTest();
+    this.startTest();
+  }
+
+  setTest() {
+    this.card = CardSprite.create(
+      CardTypes.BATTLE,
+      CardColors.BLUE,
+      'default',
+      1,
+      1
+    );
+    this.scene.addChild(this.card);
+  }
+
+  startTest() {
+    this.card.x = Graphics.boxWidth / 2 - this.card.width / 2;
+    this.card.y = Graphics.boxHeight / 2 - this.card.height / 2;
+    this.card.show();
+  } 
+
+  update() {
+
+  }
+
+}
+class OpenCardSpriteTest {
+  card;
+  scene;
+
+  constructor(scene) {
+    this.scene = scene;
+    this.setTest();
+    this.startTest();
+  }
+
+  setTest() {
+    this.card = CardSprite.create(
+      CardTypes.BATTLE,
+      CardColors.BLUE,
+      'default',
+      1,
+      1
+    );
+    this.card.width = 0;
+    this.scene.addChild(this.card);
+  }
+
+  startTest() {
+    this.card.x = Graphics.boxWidth / 2 - this.card.width / 2;
+    this.card.y = Graphics.boxHeight / 2 - this.card.height / 2;
+    this.card.show();
+    this.card.open();
+  } 
+
+  update() {
+
+  }
+
+}
+
 class CardBattleScene extends Scene_Message {
   initialize() {
     super.initialize();
@@ -2010,20 +2071,20 @@ class CardBattleScene extends Scene_Message {
   create() {
     super.create();
     this.createDisplayObjects();
-    this.loadSystemImages();
+    this.loadAssets();
   }
 
   createDisplayObjects() {
     this.createWindowLayer();
   }
 
-  loadSystemImages() {
+  loadAssets() {
     ImageManager.loadCard('default');
   }
 
   start() {
     super.start();
-    this.changePhase(CardBattleTestPhase);
+    this.changePhase(OpenCardSpriteTest);
   }
 
   update() {

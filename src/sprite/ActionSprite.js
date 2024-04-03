@@ -15,7 +15,6 @@ class ActionSprite extends Sprite {
 
   executeAction() {
     const action = this._actions.shift();
-    if (this instanceof CardsetSprite) console.log(action);
     if (action) action.execute();
   }
 

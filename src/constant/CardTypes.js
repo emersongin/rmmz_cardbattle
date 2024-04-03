@@ -1,5 +1,5 @@
 const CardTypes = {
   BATTLE: 1,
   POWER: 2,
-  LUCK: 3
+  GAME: 3
 };

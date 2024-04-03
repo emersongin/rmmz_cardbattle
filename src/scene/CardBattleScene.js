@@ -7,20 +7,20 @@ class CardBattleScene extends Scene_Message {
   create() {
     super.create();
     this.createDisplayObjects();
-    this.loadSystemImages();
+    this.loadAssets();
   }
 
   createDisplayObjects() {
     this.createWindowLayer();
   }
 
-  loadSystemImages() {
+  loadAssets() {
     ImageManager.loadCard('default');
   }
 
   start() {
     super.start();
-    this.changePhase(CardBattleTestPhase);
+    this.changePhase(OpenCardSpriteTest);
   }
 
   update() {
