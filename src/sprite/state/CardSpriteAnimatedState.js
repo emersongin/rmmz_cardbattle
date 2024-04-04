@@ -1,3 +1,5 @@
+// include ../CardAnimationSprite.js
+
 class CardSpriteAnimatedState {
   _card;
   _animation;

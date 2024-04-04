@@ -1,14 +1,11 @@
 // include ./state/CardSpriteStoppedState.js
 // include ./state/CardSpriteMovingState.js
-// include ./state/CardSpriteClosedState.js
 // include ./state/CardSpriteOpeningState.js
-// include ./state/CardSpriteOpenState.js
 // include ./state/CardSpriteClosingState.js
 // include ./state/CardSpriteAnimatedState.js
 // include ./state/CardSpriteFlashedState.js
 // include ./state/CardSpriteSelectedState.js
 // include ./state/CardSpriteHoveredState.js
-// include ./CardAnimationSprite.js
 
 class CardSprite extends ActionSprite {
   initialize() {
@@ -495,10 +492,6 @@ class CardSprite extends ActionSprite {
 
   isNotStopped() {
     return !this.isStopped();
-  }
-
-  isAnimated() {
-    return this._state instanceof CardSpriteAnimatedState;
   }
 
   refreshAndStop() {
