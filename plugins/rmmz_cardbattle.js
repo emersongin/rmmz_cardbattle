@@ -751,9 +751,11 @@ class CardSprite extends ActionSprite {
     this._backImage = {};
     this._states = [];
     this._turned = true;
+    this._disabled = false;
     this._attackPoints = 0;
     this._healthPoints = 0;
     this._contentLayer = {};
+    this._disabledLayer = {};
     this._flashedLayer = {};
     this._hoveredLayer = {};
     this._selectedLayer = {};
@@ -789,8 +791,18 @@ class CardSprite extends ActionSprite {
   createContentLayer() {
     this._contentLayer = new Sprite();
     this._contentLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
+    this.createDisableLayer();
     this.createFlashLayer();
     this.addChild(this._contentLayer);
+  }
+
+  createDisableLayer() {
+    this._disabledLayer = new Sprite();
+    this._disabledLayer.visible = false;
+    this._disabledLayer.opacity = 128;
+    this._disabledLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
+    this._disabledLayer.bitmap.fillAll('black');
+    // this._contentLayer.addChild(this._disabledLayer);
   }
 
   createFlashLayer() {
@@ -809,6 +821,12 @@ class CardSprite extends ActionSprite {
     this._selectedLayer = new Sprite();
     this._selectedLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
     this.addChild(this._selectedLayer);
+  }
+
+  enable() {
+    this._disabled = false;
+    this._disabledLayer.visible = false;
+    this.refresh();
   }
 
   hide() {
@@ -851,8 +869,8 @@ class CardSprite extends ActionSprite {
   }
 
   show() {
-    this.refresh();
     this.visible = true;
+    this.refresh();
   }
 
   refresh() {
@@ -867,6 +885,11 @@ class CardSprite extends ActionSprite {
       this.drawCardDisplay();
     } else {
       this.drawCardBack();
+    }
+    if (this.isDisabled()) {
+      this._contentLayer.setColorTone([0, 0, 0, 255]);
+    } else {
+      this._contentLayer.setColorTone([0, 0, 0, 0]);
     }
   }
 
@@ -996,6 +1019,10 @@ class CardSprite extends ActionSprite {
 
   drawCardBack() {
     this._contentLayer.bitmap.blt(this._backImage, 0, 0, this.width, this.height, 0, 0);
+  }
+
+  isDisabled() {
+    return this._disabled;
   }
 
   updateStates() {
@@ -1216,13 +1243,11 @@ class CardSprite extends ActionSprite {
     }
   }
 
-
-
-
-
-
-
-
+  disable() {
+    this._disabled = true;
+    this._disabledLayer.visible = true;
+    this.refresh();
+  }
 
   isBusy() {
     return this.isNotStopped() || this.hasActions();
@@ -1231,21 +1256,6 @@ class CardSprite extends ActionSprite {
   isNotStopped() {
     return !this.isStopped();
   }
-
-  refreshAndStop() {
-    this.refresh();
-    this.stop();
-  }
-
-  // setXPosition(xPosition) {
-  //   this._x = xPosition;
-  //   this.x = xPosition;
-  // }
-
-  // setYPosition(yPosition) {
-  //   this._y = yPosition;
-  //   this.y = yPosition;
-  // }
 }
 class CardsetSprite extends ActionSprite {
   initialize() { 
@@ -2409,6 +2419,44 @@ class UpdatingPointsCardSpriteTest {
   }
 
 }
+class DisableCardSpriteTest {
+  card;
+  scene;
+
+  constructor(scene) {
+    this.scene = scene;
+    this.setTest();
+    this.startTest();
+  }
+
+  setTest() {
+    this.card = CardSprite.create(
+      CardTypes.BATTLE,
+      CardColors.BLUE,
+      'default',
+      1,
+      1
+    );
+    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
+    this.card.x = centerXPosition;
+    this.card.y = centerYPosition;
+    this.scene.addChild(this.card);
+  }
+
+  startTest() {
+    this.card.show();
+    this.card.disable();
+    setTimeout(() => {
+      this.card.enable();
+    }, 1000);
+  } 
+
+  update() {
+
+  }
+
+}
 
 class CardBattleScene extends Scene_Message {
   initialize() {
@@ -2432,7 +2480,7 @@ class CardBattleScene extends Scene_Message {
 
   start() {
     super.start();
-    this.changePhase(MoveCardSpriteTest);
+    this.changePhase(DisableCardSpriteTest);
   }
 
   update() {
