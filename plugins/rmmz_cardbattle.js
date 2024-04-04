@@ -13,9 +13,6 @@ const CardColors = {
   BLACK: 5,
   BROWN: 6
 };
-const CardStates = {
-  MAIN: 1,
-};
 const CardSpriteStates = {
   WAITING: 1,
   ENABLED: 2,
@@ -1150,25 +1147,25 @@ class CardSprite extends ActionSprite {
 
   hover() {
     if (this.isVisible() && this.isStopped()) {
-      this.addBehavior(CardSpriteHoveredState);
+      this.addBehavior(CardSpriteHoveredBehavior);
     }
   }
 
   unhover() {
     this._hoveredLayer.bitmap.clear();
-    const behavior = this.getBehavior(CardSpriteHoveredState);
+    const behavior = this.getBehavior(CardSpriteHoveredBehavior);
     this.removeBehavior(behavior);
   }
 
   select() {
     if (this.isVisible() && (this.isStopped() || this.isMoving())) {
-      this.addBehavior(CardSpriteSelectedState);
+      this.addBehavior(CardSpriteSelectedBehavior);
     }
   }
 
   unselect() {
     this._selectedLayer.bitmap.clear();
-    const behavior = this.getBehavior(CardSpriteSelectedState);
+    const behavior = this.getBehavior(CardSpriteSelectedBehavior);
     this.removeBehavior(behavior);
   }
 
@@ -1183,7 +1180,7 @@ class CardSprite extends ActionSprite {
   flash(color = 'white', duration = 60, times = 1) {
     if (this.isVisible() && (this.isStopped() || this.isMoving())) {
       this.addBehavior(
-        CardSpriteFlashedState,
+        CardSpriteFlashedBehavior,
         color, 
         duration, 
         times
@@ -1213,9 +1210,9 @@ class CardSprite extends ActionSprite {
       rotation:  { x: 0, y: 0, z: 0 },
       scale: 100,
       soundTimings:  [
-        {frame: 1, se:  { name: "Ice1", pan: 0, pitch: 100, volume: 90}},
-        {frame: 2, se:  { name: "Recovery", pan: 0, pitch: 70, volume: 90}},
-        {frame: 6, se:  { name: "Ice4", pan: 0, pitch: 100, volume: 90}}
+        // {frame: 1, se:  { name: "Ice1", pan: 0, pitch: 100, volume: 90}},
+        // {frame: 2, se:  { name: "Recovery", pan: 0, pitch: 70, volume: 90}},
+        // {frame: 6, se:  { name: "Ice4", pan: 0, pitch: 100, volume: 90}}
       ],
       speed: 100,
       timings: [],
@@ -1227,7 +1224,7 @@ class CardSprite extends ActionSprite {
   animate(animation, times) {
     if (this.isVisible() && (this.isStopped() || this.isMoving())) {
       this.addBehavior(
-        CardSpriteAnimatedState, 
+        CardSpriteAnimatedBehavior, 
         animation,
         times
       );
@@ -1245,7 +1242,7 @@ class CardSprite extends ActionSprite {
   changePoints(attackPoints = this._attackPoints, healtPoints = this._healthPoints) {
     if (this.isVisible() && this.isStopped()) {
       this.addBehavior(
-        CardSpriteRefreshedState, 
+        CardSpriteRefreshedBehavior, 
         attackPoints,
         healtPoints
       );
@@ -2030,7 +2027,6 @@ class CardBattleSpriteset extends Spriteset_Base {
   }
 }
 
-
 class CardBattlePhase {
   scene;
 
@@ -2547,11 +2543,11 @@ class CardBattleScene extends Scene_Message {
       CloseCardSpriteTest,
       MoveCardSpriteTest,
       DisableCardSpriteTest,
-      // HoveredCardSpriteTest,
-      // SelectedCardSpriteTest,
-      // FlashCardSpriteTest,
-      // DamageAnimationCardSpriteTest,
-      // UpdatingPointsCardSpriteTest,
+      HoveredCardSpriteTest,
+      SelectedCardSpriteTest,
+      FlashCardSpriteTest,
+      DamageAnimationCardSpriteTest,
+      UpdatingPointsCardSpriteTest,
     ];
 
     for (const test of list) {
