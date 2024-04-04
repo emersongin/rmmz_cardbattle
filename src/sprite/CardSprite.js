@@ -19,13 +19,10 @@ class CardSprite extends ActionSprite {
     this._turned = true;
     this._attackPoints = 0;
     this._healthPoints = 0;
-    this._x = this.x;
-    this._y = this.y;
     this._contentLayer = {};
     this._flashedLayer = {};
     this._hoveredLayer = {};
     this._selectedLayer = {};
-    // this._animationSprite = null;
     this.setup();
   }
 
@@ -322,17 +319,13 @@ class CardSprite extends ActionSprite {
 
   commandOpen() {
     if (this.isVisible() && this.isStopped() && this.isClosed()) {
-      this._x = this.x - (this.cardOriginalWidth() / 2);
-      this.opening();
+      const xPositionOpening = this.x - (this.cardOriginalWidth() / 2);
+      this.changeState(CardStates.MAIN, CardSpriteOpeningState, xPositionOpening);
     }
   }
 
   isClosed() {
     return this.width === 0;
-  }
-
-  opening() {
-    this.changeState(CardStates.MAIN, CardSpriteOpeningState);
   }
 
   opened() {
@@ -346,17 +339,13 @@ class CardSprite extends ActionSprite {
 
   commandClose() {
     if (this.isVisible() && this.isStopped() && this.isOpened()) {
-      this._x = this.x + (this.cardOriginalWidth() / 2);
-      this.closing();
+      const xPositionClosing = this.x + (this.cardOriginalWidth() / 2);
+      this.changeState(CardStates.MAIN, CardSpriteClosingState, xPositionClosing);
     }
   }
 
   isOpened() {
     return this.width === this.cardOriginalWidth();
-  }
-
-  closing() {
-    this.changeState(CardStates.MAIN, CardSpriteClosingState);
   }
 
   closed() {
@@ -374,18 +363,17 @@ class CardSprite extends ActionSprite {
     );
   }
 
-  commandMoving(destinyXPosition, destinyYPosition, originXPosition, originYPosition) {
+  commandMoving(destinyXPosition, destinyYPosition, originXPosition = this.x, originYPosition = this.y) {
     if (this.isVisible() && this.isStopped()) {
-      this._x = destinyXPosition;
-      this._y = destinyYPosition;
-      this.x = originXPosition || this.x;
-      this.y = originYPosition || this.y;
-      this.moving();
+      this.changeState(
+        CardStates.MAIN, 
+        CardSpriteMovingState,
+        destinyXPosition,
+        destinyYPosition,
+        originXPosition,
+        originYPosition
+      );
     }
-  }
-
-  moving() {
-    this.changeState(CardStates.MAIN, CardSpriteMovingState);
   }
 
   hover() {
@@ -515,13 +503,13 @@ class CardSprite extends ActionSprite {
     this.stop();
   }
 
-  setXPosition(xPosition) {
-    this._x = xPosition;
-    this.x = xPosition;
-  }
+  // setXPosition(xPosition) {
+  //   this._x = xPosition;
+  //   this.x = xPosition;
+  // }
 
-  setYPosition(yPosition) {
-    this._y = yPosition;
-    this.y = yPosition;
-  }
+  // setYPosition(yPosition) {
+  //   this._y = yPosition;
+  //   this.y = yPosition;
+  // }
 }

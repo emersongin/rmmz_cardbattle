@@ -355,21 +355,21 @@ class CardSpriteMovingState {
   _card;
   _xInterval;
   _yInterval;
+  _x;
+  _y;
   
-  constructor(sprite) {
+  constructor(sprite, destinyXPosition, destinyYPosition, originXPosition, originYPosition) {
     this._card = sprite;
+    this._x = destinyXPosition;
+    this._y = destinyYPosition;
     const duration = this._card._duration;
-    const originXPosition = this._card.x;
-    const originYPosition = this._card.y;
-    const destinyXPosition = this._card._x;
-    const destinyYPosition = this._card._y;
     this._xInterval = this._card.calculateMovingInterval(originXPosition, destinyXPosition, duration);
     this._yInterval = this._card.calculateMovingInterval(originYPosition, destinyYPosition, duration);
   }
 
   updateState() {
     const that = this._card;
-    if (that._x !== that.x || that._y !== that.y) {
+    if (this._x !== that.x || this._y !== that.y) {
       this.updateXPosition();
       this.updateYPosition();
     } else {
@@ -379,35 +379,37 @@ class CardSpriteMovingState {
 
   updateXPosition() {
     const that = this._card;
-    const reached = that.x > that._x;
-    if (that._x !== that.x) {
+    const reached = that.x > this._x;
+    if (this._x !== that.x) {
       that.x = reached ? that.x - this._xInterval : that.x + this._xInterval;
     }
-    const limit = (reached && that.x < that._x || !reached && that.x > that._x);
-    if (limit) that.x = that._x;
+    const limit = (reached && that.x < this._x || !reached && that.x > this._x);
+    if (limit) that.x = this._x;
   }
 
   updateYPosition() {
     const that = this._card;
-    const reached = that.y > that._y;
-    if (that._y !== that.y) {
+    const reached = that.y > this._y;
+    if (this._y !== that.y) {
       that.y = reached ? that.y - this._yInterval : that.y + this._yInterval;
     }
-    const limit = (reached && that.y < that._y || !reached && that.y > that._y);
-    if (limit) that.y = that._y;
+    const limit = (reached && that.y < this._y || !reached && that.y > this._y);
+    if (limit) that.y = this._y;
   }
 
 }
 class CardSpriteOpeningState {
   _card;
+  _x;
   
-  constructor(sprite) {
+  constructor(sprite, xPositionOpening) {
     this._card = sprite;
+    this._x = xPositionOpening;
   }
 
   updateState() {
     const that = this._card;
-    if (that._x !== that.x || that.width < that.cardOriginalWidth()) {
+    if (this._x !== that.x || that.width < that.cardOriginalWidth()) {
       this.updateOpening();
       that.refresh();
     } else {
@@ -421,23 +423,25 @@ class CardSpriteOpeningState {
     if (that.width < that.cardOriginalWidth()) {
       that.width += (interval * 2);
     }
-    if (that._x !== that.x) {
+    if (this._x !== that.x) {
       that.x -= interval;
     }
     if (that.width > that.cardOriginalWidth()) that.width = that.cardOriginalWidth();
-    if (that._x > that.x) that.x = that._x;
+    if (this._x > that.x) that.x = this._x;
   }
 }
 class CardSpriteClosingState {
   _card;
+  _x;
   
-  constructor(sprite) {
+  constructor(sprite, xPositionClosing) {
     this._card = sprite;
+    this._x = xPositionClosing;
   }
 
   updateState() {
     const that = this._card;
-    if (that._x !== that.x || that.width > 0) {
+    if (this._x !== that.x || that.width > 0) {
       this.updateClosing();
       that.refresh();
     } else {
@@ -451,11 +455,11 @@ class CardSpriteClosingState {
     if (that.width > 0) {
       that.width -= (interval * 2);
     }
-    if (that._x !== that.x) {
+    if (this._x !== that.x) {
       that.x += interval;
     }
     if (that.width < 0) that.width = 0;
-    if (that._x < that.x) that.x = that._x;
+    if (this._x < that.x) that.x = this._x;
   }
 }
 class CardAnimationSprite extends Sprite_Animation {
@@ -749,13 +753,10 @@ class CardSprite extends ActionSprite {
     this._turned = true;
     this._attackPoints = 0;
     this._healthPoints = 0;
-    this._x = this.x;
-    this._y = this.y;
     this._contentLayer = {};
     this._flashedLayer = {};
     this._hoveredLayer = {};
     this._selectedLayer = {};
-    // this._animationSprite = null;
     this.setup();
   }
 
@@ -1052,17 +1053,13 @@ class CardSprite extends ActionSprite {
 
   commandOpen() {
     if (this.isVisible() && this.isStopped() && this.isClosed()) {
-      this._x = this.x - (this.cardOriginalWidth() / 2);
-      this.opening();
+      const xPositionOpening = this.x - (this.cardOriginalWidth() / 2);
+      this.changeState(CardStates.MAIN, CardSpriteOpeningState, xPositionOpening);
     }
   }
 
   isClosed() {
     return this.width === 0;
-  }
-
-  opening() {
-    this.changeState(CardStates.MAIN, CardSpriteOpeningState);
   }
 
   opened() {
@@ -1076,17 +1073,13 @@ class CardSprite extends ActionSprite {
 
   commandClose() {
     if (this.isVisible() && this.isStopped() && this.isOpened()) {
-      this._x = this.x + (this.cardOriginalWidth() / 2);
-      this.closing();
+      const xPositionClosing = this.x + (this.cardOriginalWidth() / 2);
+      this.changeState(CardStates.MAIN, CardSpriteClosingState, xPositionClosing);
     }
   }
 
   isOpened() {
     return this.width === this.cardOriginalWidth();
-  }
-
-  closing() {
-    this.changeState(CardStates.MAIN, CardSpriteClosingState);
   }
 
   closed() {
@@ -1104,18 +1097,17 @@ class CardSprite extends ActionSprite {
     );
   }
 
-  commandMoving(destinyXPosition, destinyYPosition, originXPosition, originYPosition) {
+  commandMoving(destinyXPosition, destinyYPosition, originXPosition = this.x, originYPosition = this.y) {
     if (this.isVisible() && this.isStopped()) {
-      this._x = destinyXPosition;
-      this._y = destinyYPosition;
-      this.x = originXPosition || this.x;
-      this.y = originYPosition || this.y;
-      this.moving();
+      this.changeState(
+        CardStates.MAIN, 
+        CardSpriteMovingState,
+        destinyXPosition,
+        destinyYPosition,
+        originXPosition,
+        originYPosition
+      );
     }
-  }
-
-  moving() {
-    this.changeState(CardStates.MAIN, CardSpriteMovingState);
   }
 
   hover() {
@@ -1245,15 +1237,15 @@ class CardSprite extends ActionSprite {
     this.stop();
   }
 
-  setXPosition(xPosition) {
-    this._x = xPosition;
-    this.x = xPosition;
-  }
+  // setXPosition(xPosition) {
+  //   this._x = xPosition;
+  //   this.x = xPosition;
+  // }
 
-  setYPosition(yPosition) {
-    this._y = yPosition;
-    this.y = yPosition;
-  }
+  // setYPosition(yPosition) {
+  //   this._y = yPosition;
+  //   this.y = yPosition;
+  // }
 }
 class CardsetSprite extends ActionSprite {
   initialize() { 
@@ -2440,7 +2432,7 @@ class CardBattleScene extends Scene_Message {
 
   start() {
     super.start();
-    this.changePhase(UpdatingPointsCardSpriteTest);
+    this.changePhase(MoveCardSpriteTest);
   }
 
   update() {

@@ -2,21 +2,21 @@ class CardSpriteMovingState {
   _card;
   _xInterval;
   _yInterval;
+  _x;
+  _y;
   
-  constructor(sprite) {
+  constructor(sprite, destinyXPosition, destinyYPosition, originXPosition, originYPosition) {
     this._card = sprite;
+    this._x = destinyXPosition;
+    this._y = destinyYPosition;
     const duration = this._card._duration;
-    const originXPosition = this._card.x;
-    const originYPosition = this._card.y;
-    const destinyXPosition = this._card._x;
-    const destinyYPosition = this._card._y;
     this._xInterval = this._card.calculateMovingInterval(originXPosition, destinyXPosition, duration);
     this._yInterval = this._card.calculateMovingInterval(originYPosition, destinyYPosition, duration);
   }
 
   updateState() {
     const that = this._card;
-    if (that._x !== that.x || that._y !== that.y) {
+    if (this._x !== that.x || this._y !== that.y) {
       this.updateXPosition();
       this.updateYPosition();
     } else {
@@ -26,22 +26,22 @@ class CardSpriteMovingState {
 
   updateXPosition() {
     const that = this._card;
-    const reached = that.x > that._x;
-    if (that._x !== that.x) {
+    const reached = that.x > this._x;
+    if (this._x !== that.x) {
       that.x = reached ? that.x - this._xInterval : that.x + this._xInterval;
     }
-    const limit = (reached && that.x < that._x || !reached && that.x > that._x);
-    if (limit) that.x = that._x;
+    const limit = (reached && that.x < this._x || !reached && that.x > this._x);
+    if (limit) that.x = this._x;
   }
 
   updateYPosition() {
     const that = this._card;
-    const reached = that.y > that._y;
-    if (that._y !== that.y) {
+    const reached = that.y > this._y;
+    if (this._y !== that.y) {
       that.y = reached ? that.y - this._yInterval : that.y + this._yInterval;
     }
-    const limit = (reached && that.y < that._y || !reached && that.y > that._y);
-    if (limit) that.y = that._y;
+    const limit = (reached && that.y < this._y || !reached && that.y > this._y);
+    if (limit) that.y = this._y;
   }
 
 }

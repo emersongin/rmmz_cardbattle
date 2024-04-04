@@ -1,13 +1,15 @@
 class CardSpriteClosingState {
   _card;
+  _x;
   
-  constructor(sprite) {
+  constructor(sprite, xPositionClosing) {
     this._card = sprite;
+    this._x = xPositionClosing;
   }
 
   updateState() {
     const that = this._card;
-    if (that._x !== that.x || that.width > 0) {
+    if (this._x !== that.x || that.width > 0) {
       this.updateClosing();
       that.refresh();
     } else {
@@ -21,10 +23,10 @@ class CardSpriteClosingState {
     if (that.width > 0) {
       that.width -= (interval * 2);
     }
-    if (that._x !== that.x) {
+    if (this._x !== that.x) {
       that.x += interval;
     }
     if (that.width < 0) that.width = 0;
-    if (that._x < that.x) that.x = that._x;
+    if (this._x < that.x) that.x = this._x;
   }
 }

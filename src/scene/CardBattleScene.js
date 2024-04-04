@@ -20,7 +20,7 @@ class CardBattleScene extends Scene_Message {
 
   start() {
     super.start();
-    this.changePhase(UpdatingPointsCardSpriteTest);
+    this.changePhase(MoveCardSpriteTest);
   }
 
   update() {
