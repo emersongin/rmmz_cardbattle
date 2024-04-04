@@ -486,17 +486,51 @@ class CardSpriteClosingState {
   }
 }
 class CardSpriteAnimatedState {
-  _cardSprite;
+  _card;
+  _animation;
+  _animationSprite;
+  _times;
   
-  constructor(cardSprite) {
-    this._cardSprite = cardSprite;
+  constructor(sprite, animation, times) {
+    this._card = sprite;
+    this._animation = animation;
+    this._times = times;
   }
 
   updateState() {
-    const that = this._cardSprite;
-    if (that._animationSprite && !that._animationSprite.isPlaying()) {
-      that.refreshAndStop();
+    const that = this._card;
+    if (this.hasTimes() || this.isPlayingAnimation()) {
+      if (this.noHasAnimationSprite()) {
+        this._animationSprite = new CardAnimationSprite();
+        this._animationSprite.setup([that], this._animation);
+        that.parent.addChild(this._animationSprite);
+        this._times--;
+      } else {
+        if (this.isNoPlayingAnimation()) this._animationSprite = null;
+      }
+    } else {
+      that.removeState(CardStates.ANIMATED);
     }
+  }
+
+  isNoPlayingAnimation() {
+    return !this.isPlayingAnimation();
+  }
+
+  isPlayingAnimation() {
+    return this.hasAnimationSprite() && this._animationSprite.isPlaying();
+  }
+
+  hasAnimationSprite() {
+    return this._animationSprite;
+  }
+
+  noHasAnimationSprite() {
+    return !this.hasAnimationSprite();
+  }
+
+  hasTimes() {
+    return this._times > 0;
   }
 }
 class CardSpriteFlashedState {
@@ -615,77 +649,77 @@ class CardSpriteHoveredState {
 class CardAnimationSprite extends Sprite_Animation {
   initMembers() {
     super.initMembers();
-    this._quakeEffect = false;
-    this._quakeDirection = '';
+    // this._quakeEffect = false;
+    // this._quakeDirection = '';
   }
 
   setup(targets, animation, mirror, delay) {
     super.setup(targets, animation, mirror, delay);
-    this._quakeEffect = animation.quakeEffect || false;
+    // this._quakeEffect = animation.quakeEffect || false;
   }
 
   update() {
     super.update();
     if (this.isPlaying()) {
-      this.updateQuakeEffect();
+      // this.updateQuakeEffect();
     } else {
-      for (const target of this._targets) {
-        if (this.isNotOriginPosition(target)) {
-          this.returnOriginPosition(target);
-        }
-      }
+      // for (const target of this._targets) {
+      //   if (this.isNotOriginPosition(target)) {
+      //     this.returnOriginPosition(target);
+      //   }
+      // }
       this.destroy();
     }
   }
 
-  isNotOriginPosition(target) {
-    return target._x !== target.x || target._y !== target.y;
-  }
+  // isNotOriginPosition(target) {
+  //   return target._x !== target.x || target._y !== target.y;
+  // }
 
-  returnOriginPosition(target, time = 1) {
-    if (target._x !== target.x) {
-      target.x = target._x > target.x ? target.x + time : target.x - time;
-    }
-    if (target._y !== target.y) {
-      target.y = target._y > target.y ? target.y + time : target.y - time;
-    }
-  }
+  // returnOriginPosition(target, time = 1) {
+  //   if (target._x !== target.x) {
+  //     target.x = target._x > target.x ? target.x + time : target.x - time;
+  //   }
+  //   if (target._y !== target.y) {
+  //     target.y = target._y > target.y ? target.y + time : target.y - time;
+  //   }
+  // }
 
-  updateQuakeEffect() {
-    if (this.isPlaying() && this.isQuakeEffect()) {
-      for (const target of this._targets) {
-        if (this.isNotOriginPosition(target)) {
-          this.returnOriginPosition(target);
-        } else {
-          const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
-          directions.filter(direction => this._quakeDirection !== direction);
-          const direction = directions[Math.randomInt(3)];
-          this.startQuakeEffect(target, direction);
-        }
-      }
-    }
-  }
+  // updateQuakeEffect() {
+  //   if (this.isPlaying() && this.isQuakeEffect()) {
+  //     for (const target of this._targets) {
+  //       if (this.isNotOriginPosition(target)) {
+  //         this.returnOriginPosition(target);
+  //       } else {
+  //         const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
+  //         directions.filter(direction => this._quakeDirection !== direction);
+  //         const direction = directions[Math.randomInt(3)];
+  //         this.startQuakeEffect(target, direction);
+  //       }
+  //     }
+  //   }
+  // }
 
-  startQuakeEffect(target, direction, time = 1) {
-    switch (direction) {
-      case 'TOP':
-        target.y -= time;
-        break;
-      case 'BOTTOM':
-        target.y += time;
-        break;
-      case 'LEFT':
-        target.x -= time;
-        break;
-      case 'RIGHT':
-        target.x += time;
-        break;
-    }
-  }
+  // startQuakeEffect(target, direction, time = 1) {
+  //   switch (direction) {
+  //     case 'TOP':
+  //       target.y -= time;
+  //       break;
+  //     case 'BOTTOM':
+  //       target.y += time;
+  //       break;
+  //     case 'LEFT':
+  //       target.x -= time;
+  //       break;
+  //     case 'RIGHT':
+  //       target.x += time;
+  //       break;
+  //   }
+  // }
 
-  isQuakeEffect() {
-    return this._quakeEffect;
-  }
+  // isQuakeEffect() {
+  //   return this._quakeEffect;
+  // }
 }
 
 
@@ -1115,9 +1149,9 @@ class CardSprite extends ActionSprite {
     this.removeState(CardStates.FLASHED);
   }
 
-  damageAnimation() {
+  damageAnimation(times = 1) {
     const animation = this.damage();
-    this.animate(animation);
+    this.animate(animation, times);
   }
 
   damage() {
@@ -1148,11 +1182,14 @@ class CardSprite extends ActionSprite {
     };
   }
 
-  animate(animation) {
+  animate(animation, times) {
     if (this.isVisible() && (this.isStopped() || this.isMoving())) {
-      const sprite = new CardAnimationSprite();
-      sprite.setup([this], animation);
-      this.parent.addChild(sprite);
+      this.changeState(
+        CardStates.ANIMATED, 
+        CardSpriteAnimatedState, 
+        animation,
+        times
+      );
     }
   }
 
@@ -2332,7 +2369,8 @@ class DamageAnimationCardSpriteTest {
   startTest() {
     this.card.show();
     setTimeout(() => {
-      this.card.damageAnimation();
+      const times = 2;
+      this.card.damageAnimation(times);
     }, 300);
   } 
 
@@ -2364,7 +2402,7 @@ class CardBattleScene extends Scene_Message {
 
   start() {
     super.start();
-    this.changePhase(FlashCardSpriteTest);
+    this.changePhase(DamageAnimationCardSpriteTest);
   }
 
   update() {

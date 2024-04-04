@@ -435,9 +435,9 @@ class CardSprite extends ActionSprite {
     this.removeState(CardStates.FLASHED);
   }
 
-  damageAnimation() {
+  damageAnimation(times = 1) {
     const animation = this.damage();
-    this.animate(animation);
+    this.animate(animation, times);
   }
 
   damage() {
@@ -468,11 +468,14 @@ class CardSprite extends ActionSprite {
     };
   }
 
-  animate(animation) {
+  animate(animation, times) {
     if (this.isVisible() && (this.isStopped() || this.isMoving())) {
-      const sprite = new CardAnimationSprite();
-      sprite.setup([this], animation);
-      this.parent.addChild(sprite);
+      this.changeState(
+        CardStates.ANIMATED, 
+        CardSpriteAnimatedState, 
+        animation,
+        times
+      );
     }
   }
 

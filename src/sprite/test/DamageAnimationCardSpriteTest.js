@@ -26,7 +26,8 @@ class DamageAnimationCardSpriteTest {
   startTest() {
     this.card.show();
     setTimeout(() => {
-      this.card.damageAnimation();
+      const times = 2;
+      this.card.damageAnimation(times);
     }, 300);
   } 
 
