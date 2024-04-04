@@ -19,6 +19,7 @@ const CardStates = {
   SELECTED: 3,
   FLASHED: 4,
   ANIMATED: 5,
+  REFRESHED: 6,
 };
 const CardSpriteStates = {
   WAITING: 1,
@@ -340,18 +341,14 @@ class ActionSprite extends Sprite {
   }
 }
 class CardSpriteStoppedState {
-  _cardSprite;
+  _card;
   
-  constructor(cardSprite) {
-    this._cardSprite = cardSprite;
+  constructor(sprite) {
+    this._card = sprite;
   }
 
   updateState() {
-    this.updatePoints();
-  }
-
-  updatePoints() {
-    // this._cardSprite._points = this._cardSprite._points + 1;
+    // nothing
   }
 }
 class CardSpriteMovingState {
@@ -402,14 +399,14 @@ class CardSpriteMovingState {
 
 }
 class CardSpriteOpeningState {
-  _cardSprite;
+  _card;
   
-  constructor(cardSprite) {
-    this._cardSprite = cardSprite;
+  constructor(sprite) {
+    this._card = sprite;
   }
 
   updateState() {
-    const that = this._cardSprite;
+    const that = this._card;
     if (that._x !== that.x || that.width < that.cardOriginalWidth()) {
       this.updateOpening();
       that.refresh();
@@ -419,7 +416,7 @@ class CardSpriteOpeningState {
   }
 
   updateOpening() {
-    const that = this._cardSprite;
+    const that = this._card;
     const interval = that.calculateMovingInterval(0, that.cardOriginalWidth(), that._duration);
     if (that.width < that.cardOriginalWidth()) {
       that.width += (interval * 2);
@@ -700,6 +697,46 @@ class CardSpriteHoveredState {
     }
   }
 }
+class CardSpriteRefreshedState {
+  _card;
+  _attack;
+  _health;
+  _interval;
+  _counter = 0;
+  
+  constructor(sprite, attackPoints, healtPoints) {
+    this._card = sprite;
+    this._attack = attackPoints;
+    this._health = healtPoints;
+    this.calculateInterval();
+  }
+
+  calculateInterval() {
+    const that = this._card;
+    const atk = Math.abs(that._attackPoints - this._attack);
+    const hlt = Math.abs(that._healthPoints - this._health);
+    const points = atk > hlt ? atk : hlt;
+    const fps = 30;
+    this._interval = Math.floor(fps / (points || 1)) || 1;
+  }
+
+  updateState() {
+    const that = this._card;
+    if (this._counter) return this._counter--;
+    if (that._attackPoints !== this._attack || that._healthPoints !== this._health) {
+      if (that._attackPoints !== this._attack) {
+        that._attackPoints = that._attackPoints > this._attack ? that._attackPoints - 1 : that._attackPoints + 1;
+      }
+      if (that._healthPoints !== this._health) {
+        that._healthPoints = that._healthPoints > this._health ? that._healthPoints - 1 : that._healthPoints + 1;
+      }
+      that.refresh();
+      this._counter = this._interval;
+    } else {
+      that.removeState(CardStates.REFRESHED);
+    }
+  }
+}
 
 class CardSprite extends ActionSprite {
   initialize() {
@@ -718,8 +755,6 @@ class CardSprite extends ActionSprite {
     this._flashedLayer = {};
     this._hoveredLayer = {};
     this._selectedLayer = {};
-    this.attackDisplay = 0;
-    this.healthDisplay = 0;
     // this._animationSprite = null;
     this.setup();
   }
@@ -1170,7 +1205,24 @@ class CardSprite extends ActionSprite {
     }
   }
 
+  changeAttackPoints(attackPoints) {
+    this.changePoints(attackPoints);
+  }
 
+  changeHealthPoints(healtPoints) {
+    this.changePoints(this._attackPoints, healtPoints);
+  }
+
+  changePoints(attackPoints = this._attackPoints, healtPoints = this._healthPoints) {
+    if (this.isVisible() && this.isStopped()) {
+      this.changeState(
+        CardStates.REFRESHED, 
+        CardSpriteRefreshedState, 
+        attackPoints,
+        healtPoints
+      );
+    }
+  }
 
 
 
@@ -1201,28 +1253,6 @@ class CardSprite extends ActionSprite {
   setYPosition(yPosition) {
     this._y = yPosition;
     this.y = yPosition;
-  }
-
-  changeAttackPoints(attackPoints) {
-    this.addAction(this.commandChangeAttackPoints, attackPoints);
-  }
-
-  commandChangeAttackPoints(attackPoints = this._attackPoints) {
-    if (this.isStopped() && this.isVisible()) {
-      this._attackPoints = attackPoints;
-      this.animated();
-    }
-  }
-
-  changeHealtPoints(HealtPoints) {
-    this.addAction(this.commandChangeHealtPoints, HealtPoints);
-  }
-
-  commandChangeHealtPoints(HealtPoints = this._HealtPoints) {
-    if (this.isStopped() && this.isVisible()) {
-      this._HealtPoints = HealtPoints;
-      this.animated();
-    }
   }
 }
 class CardsetSprite extends ActionSprite {
@@ -2352,6 +2382,41 @@ class DamageAnimationCardSpriteTest {
   }
 
 }
+class UpdatingPointsCardSpriteTest {
+  card;
+  scene;
+
+  constructor(scene) {
+    this.scene = scene;
+    this.setTest();
+    this.startTest();
+  }
+
+  setTest() {
+    this.card = CardSprite.create(
+      CardTypes.BATTLE,
+      CardColors.BLUE,
+      'default',
+      1,
+      1
+    );
+    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
+    this.card.x = centerXPosition;
+    this.card.y = centerYPosition;
+    this.scene.addChild(this.card);
+  }
+
+  startTest() {
+    this.card.show();
+    this.card.changePoints(10, 10);
+  } 
+
+  update() {
+
+  }
+
+}
 
 class CardBattleScene extends Scene_Message {
   initialize() {
@@ -2375,7 +2440,7 @@ class CardBattleScene extends Scene_Message {
 
   start() {
     super.start();
-    this.changePhase(DamageAnimationCardSpriteTest);
+    this.changePhase(UpdatingPointsCardSpriteTest);
   }
 
   update() {

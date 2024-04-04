@@ -30,6 +30,7 @@
 // include ./sprite/test/SelectedCardSpriteTest.js
 // include ./sprite/test/FlashCardSpriteTest.js
 // include ./sprite/test/DamageAnimationCardSpriteTest.js
+// include ./sprite/test/UpdatingPointsCardSpriteTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./manager/CardBattleManager.js

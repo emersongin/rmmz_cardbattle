@@ -6,6 +6,7 @@
 // include ./state/CardSpriteFlashedState.js
 // include ./state/CardSpriteSelectedState.js
 // include ./state/CardSpriteHoveredState.js
+// include ./state/CardSpriteRefreshedState.js
 
 class CardSprite extends ActionSprite {
   initialize() {
@@ -24,8 +25,6 @@ class CardSprite extends ActionSprite {
     this._flashedLayer = {};
     this._hoveredLayer = {};
     this._selectedLayer = {};
-    this.attackDisplay = 0;
-    this.healthDisplay = 0;
     // this._animationSprite = null;
     this.setup();
   }
@@ -476,7 +475,24 @@ class CardSprite extends ActionSprite {
     }
   }
 
+  changeAttackPoints(attackPoints) {
+    this.changePoints(attackPoints);
+  }
 
+  changeHealthPoints(healtPoints) {
+    this.changePoints(this._attackPoints, healtPoints);
+  }
+
+  changePoints(attackPoints = this._attackPoints, healtPoints = this._healthPoints) {
+    if (this.isVisible() && this.isStopped()) {
+      this.changeState(
+        CardStates.REFRESHED, 
+        CardSpriteRefreshedState, 
+        attackPoints,
+        healtPoints
+      );
+    }
+  }
 
 
 
@@ -507,27 +523,5 @@ class CardSprite extends ActionSprite {
   setYPosition(yPosition) {
     this._y = yPosition;
     this.y = yPosition;
-  }
-
-  changeAttackPoints(attackPoints) {
-    this.addAction(this.commandChangeAttackPoints, attackPoints);
-  }
-
-  commandChangeAttackPoints(attackPoints = this._attackPoints) {
-    if (this.isStopped() && this.isVisible()) {
-      this._attackPoints = attackPoints;
-      this.animated();
-    }
-  }
-
-  changeHealtPoints(HealtPoints) {
-    this.addAction(this.commandChangeHealtPoints, HealtPoints);
-  }
-
-  commandChangeHealtPoints(HealtPoints = this._HealtPoints) {
-    if (this.isStopped() && this.isVisible()) {
-      this._HealtPoints = HealtPoints;
-      this.animated();
-    }
   }
 }

@@ -4,4 +4,5 @@ const CardStates = {
   SELECTED: 3,
   FLASHED: 4,
   ANIMATED: 5,
+  REFRESHED: 6,
 };

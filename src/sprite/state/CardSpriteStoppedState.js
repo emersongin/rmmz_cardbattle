@@ -1,15 +1,11 @@
 class CardSpriteStoppedState {
-  _cardSprite;
+  _card;
   
-  constructor(cardSprite) {
-    this._cardSprite = cardSprite;
+  constructor(sprite) {
+    this._card = sprite;
   }
 
   updateState() {
-    this.updatePoints();
-  }
-
-  updatePoints() {
-    // this._cardSprite._points = this._cardSprite._points + 1;
+    // nothing
   }
 }
