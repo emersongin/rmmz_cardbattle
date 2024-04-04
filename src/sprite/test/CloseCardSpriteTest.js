@@ -5,7 +5,6 @@ class CloseCardSpriteTest {
   constructor(scene) {
     this.scene = scene;
     this.setTest();
-    this.startTest();
   }
 
   setTest() {
@@ -23,10 +22,16 @@ class CloseCardSpriteTest {
     this.scene.addChild(this.card);
   }
 
-  startTest() {
-    this.card.show();
-    this.card.close();
-  } 
+  start() {
+    return new Promise(resolve => {
+      this.card.show();
+      this.card.close();
+      setTimeout(() => {
+        this.scene.removeChild(this.card);
+        resolve(true);
+      }, 300);
+    });
+  }
 
   update() {
 

@@ -5,7 +5,6 @@ class UpdatingPointsCardSpriteTest {
   constructor(scene) {
     this.scene = scene;
     this.setTest();
-    this.startTest();
   }
 
   setTest() {
@@ -23,10 +22,16 @@ class UpdatingPointsCardSpriteTest {
     this.scene.addChild(this.card);
   }
 
-  startTest() {
-    this.card.show();
-    this.card.changePoints(10, 10);
-  } 
+  start() {
+    return new Promise(resolve => {
+      this.card.show();
+      this.card.changePoints(30, 30);
+      setTimeout(() => {
+        this.scene.removeChild(this.card);
+        resolve(true);
+      }, 2000);
+    });
+  }
 
   update() {
 

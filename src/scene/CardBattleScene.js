@@ -20,7 +20,27 @@ class CardBattleScene extends Scene_Message {
 
   start() {
     super.start();
-    this.changePhase(DisableCardSpriteTest);
+    this.startTests();
+  }
+
+  async startTests() {
+    const list = [
+      ShowCardSpriteTest,
+      OpenCardSpriteTest,
+      CloseCardSpriteTest,
+      MoveCardSpriteTest,
+      DisableCardSpriteTest,
+      // HoveredCardSpriteTest,
+      // SelectedCardSpriteTest,
+      // FlashCardSpriteTest,
+      // DamageAnimationCardSpriteTest,
+      // UpdatingPointsCardSpriteTest,
+    ];
+
+    for (const test of list) {
+      this.changePhase(test);
+      await this._phase.start();
+    }
   }
 
   update() {

@@ -2,11 +2,11 @@
 // include ./state/CardSpriteMovingState.js
 // include ./state/CardSpriteOpeningState.js
 // include ./state/CardSpriteClosingState.js
-// include ./state/CardSpriteAnimatedState.js
-// include ./state/CardSpriteFlashedState.js
-// include ./state/CardSpriteSelectedState.js
-// include ./state/CardSpriteHoveredState.js
-// include ./state/CardSpriteRefreshedState.js
+// include ./behavior/CardSpriteAnimatedBehavior.js
+// include ./behavior/CardSpriteFlashedBehavior.js
+// include ./behavior/CardSpriteSelectedBehavior.js
+// include ./behavior/CardSpriteHoveredBehavior.js
+// include ./behavior/CardSpriteRefreshedBehavior.js
 
 class CardSprite extends ActionSprite {
   initialize() {
@@ -15,7 +15,8 @@ class CardSprite extends ActionSprite {
     this._color = 0;
     this._figure = {};
     this._backImage = {};
-    this._states = [];
+    this._status = {};
+    this._behaviors = [];
     this._turned = true;
     this._disabled = false;
     this._attackPoints = 0;
@@ -100,30 +101,33 @@ class CardSprite extends ActionSprite {
   }
 
   stop() {
-    this.changeState(CardStates.MAIN, CardSpriteStoppedState);
+    this.changeStatus(CardSpriteStoppedState);
   }
 
-  changeState(keyName, state, ...params) {
-    this._states[keyName] = new state(this, ...params);
+  changeStatus(status, ...params) {
+    this._status = new status(this, ...params);
   }
 
   update() {
     if (this.hasActions() && (this.isStopped())) this.executeAction();
     if (this.isMoving() && this.isHidden()) this.show();
-    if (this.isVisible()) this.updateStates();
+    if (this.isVisible()) {
+      this.updateStates();
+      this.updateBehaviors();
+    }
     super.update();
   }
 
   isStopped() {
-    return this.getState(CardStates.MAIN) instanceof CardSpriteStoppedState;
+    return this.getStatus() instanceof CardSpriteStoppedState;
   }
 
-  getState(keyName) {
-    return this._states[keyName];
+  getStatus() {
+    return this._status;
   }
 
   isMoving() {
-    return this.getState(CardStates.MAIN) instanceof CardSpriteMovingState;
+    return this.getStatus() instanceof CardSpriteMovingState;
   }
 
   isHidden() {
@@ -292,11 +296,23 @@ class CardSprite extends ActionSprite {
   }
 
   updateStates() {
-    if (Array.isArray(this._states)) {
-      this._states.forEach(state => {
-        if (state) state.updateState();
+    if (this._status) this._status.updateState();
+  }
+
+  updateBehaviors() {
+    if (Array.isArray(this._behaviors)) {
+      this._behaviors.forEach(behavior => {
+        if (behavior) behavior.updateBehavior();
       });
     }
+  }
+
+  addBehavior(behavior, ...params) {
+    this._behaviors.push(new behavior(this, ...params));
+  }
+
+  removeBehavior(behavior) {
+    this._behaviors = this._behaviors.filter(b => b !== behavior);
   }
 
   static create(type, color, figureName, attack, health) {
@@ -347,7 +363,7 @@ class CardSprite extends ActionSprite {
   commandOpen() {
     if (this.isVisible() && this.isStopped() && this.isClosed()) {
       const xPositionOpening = this.x - (this.cardOriginalWidth() / 2);
-      this.changeState(CardStates.MAIN, CardSpriteOpeningState, xPositionOpening);
+      this.changeStatus(CardSpriteOpeningState, xPositionOpening);
     }
   }
 
@@ -367,7 +383,7 @@ class CardSprite extends ActionSprite {
   commandClose() {
     if (this.isVisible() && this.isStopped() && this.isOpened()) {
       const xPositionClosing = this.x + (this.cardOriginalWidth() / 2);
-      this.changeState(CardStates.MAIN, CardSpriteClosingState, xPositionClosing);
+      this.changeStatus(CardSpriteClosingState, xPositionClosing);
     }
   }
 
@@ -392,8 +408,7 @@ class CardSprite extends ActionSprite {
 
   commandMoving(destinyXPosition, destinyYPosition, originXPosition = this.x, originYPosition = this.y) {
     if (this.isVisible() && this.isStopped()) {
-      this.changeState(
-        CardStates.MAIN, 
+      this.changeStatus( 
         CardSpriteMovingState,
         destinyXPosition,
         destinyYPosition,
@@ -405,45 +420,45 @@ class CardSprite extends ActionSprite {
 
   hover() {
     if (this.isVisible() && this.isStopped()) {
-      this.changeState(CardStates.HOVERED, CardSpriteHoveredState);
+      this.addBehavior(CardSpriteHoveredState);
     }
   }
 
   unhover() {
     this._hoveredLayer.bitmap.clear();
-    this.removeState(CardStates.HOVERED);
-  }
-
-  removeState(keyName) {
-    this._states[keyName] = null;
+    const behavior = this.getBehavior(CardSpriteHoveredState);
+    this.removeBehavior(behavior);
   }
 
   select() {
     if (this.isVisible() && (this.isStopped() || this.isMoving())) {
-      this.changeState(CardStates.SELECTED, CardSpriteSelectedState);
+      this.addBehavior(CardSpriteSelectedState);
     }
   }
 
   unselect() {
     this._selectedLayer.bitmap.clear();
-    this.removeState(CardStates.SELECTED);
+    const behavior = this.getBehavior(CardSpriteSelectedState);
+    this.removeBehavior(behavior);
+  }
+
+  getBehavior(behavior) {
+    if (typeof behavior === 'function') {
+        return this._behaviors.find(b => b.constructor === behavior);
+    } else {
+        return this._behaviors.find(b => b === behavior);
+    }
   }
 
   flash(color = 'white', duration = 60, times = 1) {
     if (this.isVisible() && (this.isStopped() || this.isMoving())) {
-      this.changeState(
-        CardStates.FLASHED, 
-        CardSpriteFlashedState, 
+      this.addBehavior(
+        CardSpriteFlashedState,
         color, 
         duration, 
         times
       );
     }
-  }
-
-  stopFlash() {
-    this._flashedLayer.bitmap.clear();
-    this.removeState(CardStates.FLASHED);
   }
 
   damageAnimation(times = 1) {
@@ -481,8 +496,7 @@ class CardSprite extends ActionSprite {
 
   animate(animation, times) {
     if (this.isVisible() && (this.isStopped() || this.isMoving())) {
-      this.changeState(
-        CardStates.ANIMATED, 
+      this.addBehavior(
         CardSpriteAnimatedState, 
         animation,
         times
@@ -500,8 +514,7 @@ class CardSprite extends ActionSprite {
 
   changePoints(attackPoints = this._attackPoints, healtPoints = this._healthPoints) {
     if (this.isVisible() && this.isStopped()) {
-      this.changeState(
-        CardStates.REFRESHED, 
+      this.addBehavior(
         CardSpriteRefreshedState, 
         attackPoints,
         healtPoints

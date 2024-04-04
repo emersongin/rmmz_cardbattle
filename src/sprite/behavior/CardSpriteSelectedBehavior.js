@@ -1,4 +1,4 @@
-class CardSpriteSelectedState {
+class CardSpriteSelectedBehavior {
   _card;
   
   constructor(sprite) {
@@ -14,7 +14,7 @@ class CardSpriteSelectedState {
     layer.bitmap.clearRect(4, 4, that.width - 8, that.height - 8);
   }
 
-  updateState() {
+  updateBehavior() {
     this.updatePulse();
   }
 

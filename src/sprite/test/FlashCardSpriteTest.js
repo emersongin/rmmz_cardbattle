@@ -5,8 +5,6 @@ class FlashCardSpriteTest {
   constructor(scene) {
     this.scene = scene;
     this.setTest();
-    this.startTest();
-    // this.testInfinityFlash();
   }
 
   setTest() {
@@ -24,15 +22,21 @@ class FlashCardSpriteTest {
     this.scene.addChild(this.card);
   }
 
-  startTest() {
-    this.card.show();
-    setTimeout(() => {
-      const color = 'white';
-      const duration = 60;
-      const times = 3;
-      this.card.flash(color, duration, times);
-    }, 300);
-  }
+  start() {
+    return new Promise(resolve => {
+      this.card.show();
+      setTimeout(() => {
+        const color = 'white';
+        const duration = 60;
+        const times = 1;
+        this.card.flash(color, duration, times);
+        setTimeout(() => {
+          this.scene.removeChild(this.card);
+          resolve(true);
+        }, 2000);
+      }, 300);
+    });
+  } 
 
   testInfinityFlash() {
     this.card.show();

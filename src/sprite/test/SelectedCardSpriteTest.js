@@ -5,7 +5,6 @@ class SelectedCardSpriteTest {
   constructor(scene) {
     this.scene = scene;
     this.setTest();
-    this.startTest();
   }
 
   setTest() {
@@ -23,13 +22,19 @@ class SelectedCardSpriteTest {
     this.scene.addChild(this.card);
   }
 
-  startTest() {
-    this.card.show();
-    this.card.select();
-    setTimeout(() => {
-      this.card.unselect();
-    }, 500);
-  } 
+  start() {
+    return new Promise(resolve => {
+      this.card.show();
+      this.card.select();
+      setTimeout(() => {
+        this.card.unselect();
+        setTimeout(() => {
+          this.scene.removeChild(this.card);
+          resolve(true);
+        }, 300);
+      }, 500);
+    });
+  }
 
   update() {
 

@@ -1,6 +1,6 @@
 // include ../CardAnimationSprite.js
 
-class CardSpriteAnimatedState {
+class CardSpriteAnimatedBehavior {
   _card;
   _animation;
   _animationSprite;
@@ -12,7 +12,7 @@ class CardSpriteAnimatedState {
     this._times = times;
   }
 
-  updateState() {
+  updateBehavior() {
     const that = this._card;
     if (this.hasTimes() || this.isPlayingAnimation()) {
       if (this.noHasAnimationSprite()) {
@@ -24,7 +24,7 @@ class CardSpriteAnimatedState {
         if (this.isNoPlayingAnimation()) this._animationSprite = null;
       }
     } else {
-      that.removeState(CardStates.ANIMATED);
+      that.removeBehavior(this);
     }
   }
 

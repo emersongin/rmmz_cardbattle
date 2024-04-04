@@ -5,7 +5,6 @@ class DamageAnimationCardSpriteTest {
   constructor(scene) {
     this.scene = scene;
     this.setTest();
-    this.startTest();
   }
 
   setTest() {
@@ -23,13 +22,17 @@ class DamageAnimationCardSpriteTest {
     this.scene.addChild(this.card);
   }
 
-  startTest() {
-    this.card.show();
-    setTimeout(() => {
-      const times = 2;
+  start() {
+    return new Promise(resolve => {
+      this.card.show();
+      const times = 1;
       this.card.damageAnimation(times);
-    }, 300);
-  } 
+      setTimeout(() => {
+        this.scene.removeChild(this.card);
+        resolve(true);
+      }, 2000);
+    });
+  }
 
   update() {
 

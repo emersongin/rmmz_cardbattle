@@ -1,4 +1,4 @@
-class CardSpriteRefreshedState {
+class CardSpriteRefreshedBehavior {
   _card;
   _attack;
   _health;
@@ -21,7 +21,7 @@ class CardSpriteRefreshedState {
     this._interval = Math.floor(fps / (points || 1)) || 1;
   }
 
-  updateState() {
+  updateBehavior() {
     const that = this._card;
     if (this._counter) return this._counter--;
     if (that._attackPoints !== this._attack || that._healthPoints !== this._health) {
@@ -34,7 +34,7 @@ class CardSpriteRefreshedState {
       that.refresh();
       this._counter = this._interval;
     } else {
-      that.removeState(CardStates.REFRESHED);
+      that.removeBehavior(this);
     }
   }
 }

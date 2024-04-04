@@ -1,4 +1,4 @@
-class CardSpriteFlashedState {
+class CardSpriteFlashedBehavior {
   _card;
   _duration;
   _flashDuration = 0;
@@ -17,7 +17,7 @@ class CardSpriteFlashedState {
     layer.bitmap.fillAll(color);
   }
 
-  updateState() {
+  updateBehavior() {
     if (this.hasTimesOrInfinity() && this.isNoPlaying()) {
       if (this.hasTimes()) this._times--;
       this._flashDuration = this._duration;
@@ -46,7 +46,8 @@ class CardSpriteFlashedState {
       this._flashDuration--;
       this.updateFlashOpacity();
     } else {
-      that.stopFlash();
+      that._flashedLayer.bitmap.clear();
+      that.removeBehavior(this);
     }
   }
 

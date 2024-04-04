@@ -5,7 +5,6 @@ class OpenCardSpriteTest {
   constructor(scene) {
     this.scene = scene;
     this.setTest();
-    this.startTest();
   }
 
   setTest() {
@@ -25,10 +24,16 @@ class OpenCardSpriteTest {
     this.scene.addChild(this.card);
   }
 
-  startTest() {
-    this.card.show();
-    this.card.open();
-  } 
+  start() {
+    return new Promise(resolve => {
+      this.card.show();
+      this.card.open();
+      setTimeout(() => {
+        this.scene.removeChild(this.card);
+        resolve(true);
+      }, 300);
+    });
+  }
 
   update() {
 

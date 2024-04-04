@@ -1,4 +1,4 @@
-class CardSpriteHoveredState {
+class CardSpriteHoveredBehavior {
   _card;
   
   constructor(sprite) {
@@ -14,7 +14,7 @@ class CardSpriteHoveredState {
     layer.bitmap.clearRect(4, 4, that.width - 8, that.height - 8);
   }
 
-  updateState() {
+  updateBehavior() {
     this.updatePulse();
   }
 

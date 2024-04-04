@@ -5,7 +5,6 @@ class HoveredCardSpriteTest {
   constructor(scene) {
     this.scene = scene;
     this.setTest();
-    this.startTest();
   }
 
   setTest() {
@@ -23,12 +22,18 @@ class HoveredCardSpriteTest {
     this.scene.addChild(this.card);
   }
 
-  startTest() {
-    this.card.show();
-    this.card.hover();
-    setTimeout(() => {
-      this.card.unhover();
-    }, 500);
+  start() {
+    return new Promise(resolve => {
+      this.card.show();
+      this.card.hover();
+      setTimeout(() => {
+        this.card.unhover();
+        setTimeout(() => {
+          this.scene.removeChild(this.card);
+          resolve(true);
+        }, 300);
+      }, 500);
+    });
   } 
 
   update() {

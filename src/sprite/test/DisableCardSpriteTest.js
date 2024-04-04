@@ -5,7 +5,6 @@ class DisableCardSpriteTest {
   constructor(scene) {
     this.scene = scene;
     this.setTest();
-    this.startTest();
   }
 
   setTest() {
@@ -23,13 +22,19 @@ class DisableCardSpriteTest {
     this.scene.addChild(this.card);
   }
 
-  startTest() {
-    this.card.show();
-    this.card.disable();
-    setTimeout(() => {
-      this.card.enable();
-    }, 1000);
-  } 
+  start() {
+    return new Promise(resolve => {
+      this.card.show();
+      this.card.disable();
+      setTimeout(() => {
+        this.card.enable();
+        setTimeout(() => {
+          this.scene.removeChild(this.card);
+          resolve(true);
+        }, 300);
+      }, 1000);
+    });
+  }
 
   update() {
 
