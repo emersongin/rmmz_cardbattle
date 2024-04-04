@@ -502,13 +502,14 @@ class CardSpriteAnimatedState {
 class CardSpriteFlashedState {
   _card;
   _duration;
-  _flashDuration;
+  _flashDuration = 0;
+  _times;
   
-  constructor(sprite, color, duration) {
+  constructor(sprite, color, duration, times) {
     this._card = sprite;
     this.drawFlash(color);
     this._duration = duration;
-    this._flashDuration = duration;
+    this._times = times;
   }
 
   drawFlash(color = 'white') {
@@ -518,7 +519,25 @@ class CardSpriteFlashedState {
   }
 
   updateState() {
-    this.updateFlash();
+    if (this.hasTimesOrInfinity() && this.isNoPlaying()) {
+      if (this.hasTimes()) this._times--;
+      this._flashDuration = this._duration;
+    } else {
+      this.updateFlash();
+    }
+  }
+
+  hasTimesOrInfinity() {
+    const infinity = this._times === -1;
+    return this.hasTimes() || infinity;
+  }
+
+  hasTimes() {
+    return this._times > 0;
+  }
+
+  isNoPlaying() {
+    return this._flashDuration === 0;
   }
 
   updateFlash() {
@@ -528,8 +547,7 @@ class CardSpriteFlashedState {
       this._flashDuration--;
       this.updateFlashOpacity();
     } else {
-      layer.bitmap.clear();
-      that.removeState(CardStates.FLASHED);
+      that.stopFlash();
     }
   }
 
@@ -603,8 +621,7 @@ class CardAnimationSprite extends Sprite_Animation {
 
   setup(targets, animation, mirror, delay) {
     super.setup(targets, animation, mirror, delay);
-    this._quakeEffect = animation.quakeEffect;
-    this._quakeDirection = '';
+    this._quakeEffect = animation.quakeEffect || false;
   }
 
   update() {
@@ -636,20 +653,20 @@ class CardAnimationSprite extends Sprite_Animation {
 
   updateQuakeEffect() {
     if (this.isPlaying() && this.isQuakeEffect()) {
-      const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
-      directions.filter(direction => this._quakeDirection !== direction);
-      const direction = directions[Math.randomInt(3)];
       for (const target of this._targets) {
         if (this.isNotOriginPosition(target)) {
           this.returnOriginPosition(target);
         } else {
+          const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
+          directions.filter(direction => this._quakeDirection !== direction);
+          const direction = directions[Math.randomInt(3)];
           this.startQuakeEffect(target, direction);
         }
       }
     }
   }
 
-  startQuakeEffect(target, direction, time = 3) {
+  startQuakeEffect(target, direction, time = 1) {
     switch (direction) {
       case 'TOP':
         target.y -= time;
@@ -1081,10 +1098,21 @@ class CardSprite extends ActionSprite {
     this.removeState(CardStates.SELECTED);
   }
 
-  flash(color = 'white', duration = 60) {
+  flash(color = 'white', duration = 60, times = 1) {
     if (this.isVisible() && (this.isStopped() || this.isMoving())) {
-      this.changeState(CardStates.FLASHED, CardSpriteFlashedState, color, duration);
+      this.changeState(
+        CardStates.FLASHED, 
+        CardSpriteFlashedState, 
+        color, 
+        duration, 
+        times
+      );
     }
+  }
+
+  stopFlash() {
+    this._flashedLayer.bitmap.clear();
+    this.removeState(CardStates.FLASHED);
   }
 
   damageAnimation() {
@@ -1128,13 +1156,12 @@ class CardSprite extends ActionSprite {
     }
   }
 
-  // animate(animation) {
-  //   if (this.isVisible() && (this.isStopped() || this.isMoving())) {
-  //     this._animationSprite = new CardAnimationSprite();
-  //     this._animationSprite.setup([this], animation);
-  //     this.parent.addChild(this._animationSprite);
-  //   }
-  // }
+
+
+
+
+
+
 
 
 
@@ -1165,8 +1192,6 @@ class CardSprite extends ActionSprite {
     this._y = yPosition;
     this.y = yPosition;
   }
-
-
 
   changeAttackPoints(attackPoints) {
     this.addAction(this.commandChangeAttackPoints, attackPoints);
@@ -2233,6 +2258,7 @@ class FlashCardSpriteTest {
     this.scene = scene;
     this.setTest();
     this.startTest();
+    // this.testInfinityFlash();
   }
 
   setTest() {
@@ -2253,9 +2279,25 @@ class FlashCardSpriteTest {
   startTest() {
     this.card.show();
     setTimeout(() => {
-      this.card.flash('white', 60);
+      const color = 'white';
+      const duration = 60;
+      const times = 3;
+      this.card.flash(color, duration, times);
     }, 300);
-  } 
+  }
+
+  testInfinityFlash() {
+    this.card.show();
+    setTimeout(() => {
+      const color = 'white';
+      const duration = 60;
+      const infinity = -1;
+      this.card.flash(color, duration, infinity);
+      setTimeout(() => {
+        this.card.stopFlash();
+      }, 3000);
+    }, 300);
+  }
 
   update() {
 
@@ -2322,7 +2364,7 @@ class CardBattleScene extends Scene_Message {
 
   start() {
     super.start();
-    this.changePhase(DamageAnimationCardSpriteTest);
+    this.changePhase(FlashCardSpriteTest);
   }
 
   update() {

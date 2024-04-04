@@ -6,6 +6,7 @@ class FlashCardSpriteTest {
     this.scene = scene;
     this.setTest();
     this.startTest();
+    // this.testInfinityFlash();
   }
 
   setTest() {
@@ -26,9 +27,25 @@ class FlashCardSpriteTest {
   startTest() {
     this.card.show();
     setTimeout(() => {
-      this.card.flash('white', 60);
+      const color = 'white';
+      const duration = 60;
+      const times = 3;
+      this.card.flash(color, duration, times);
     }, 300);
-  } 
+  }
+
+  testInfinityFlash() {
+    this.card.show();
+    setTimeout(() => {
+      const color = 'white';
+      const duration = 60;
+      const infinity = -1;
+      this.card.flash(color, duration, infinity);
+      setTimeout(() => {
+        this.card.stopFlash();
+      }, 3000);
+    }, 300);
+  }
 
   update() {
 

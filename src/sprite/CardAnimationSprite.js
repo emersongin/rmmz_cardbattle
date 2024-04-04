@@ -7,8 +7,7 @@ class CardAnimationSprite extends Sprite_Animation {
 
   setup(targets, animation, mirror, delay) {
     super.setup(targets, animation, mirror, delay);
-    this._quakeEffect = animation.quakeEffect;
-    this._quakeDirection = '';
+    this._quakeEffect = animation.quakeEffect || false;
   }
 
   update() {
@@ -40,20 +39,20 @@ class CardAnimationSprite extends Sprite_Animation {
 
   updateQuakeEffect() {
     if (this.isPlaying() && this.isQuakeEffect()) {
-      const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
-      directions.filter(direction => this._quakeDirection !== direction);
-      const direction = directions[Math.randomInt(3)];
       for (const target of this._targets) {
         if (this.isNotOriginPosition(target)) {
           this.returnOriginPosition(target);
         } else {
+          const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
+          directions.filter(direction => this._quakeDirection !== direction);
+          const direction = directions[Math.randomInt(3)];
           this.startQuakeEffect(target, direction);
         }
       }
     }
   }
 
-  startQuakeEffect(target, direction, time = 3) {
+  startQuakeEffect(target, direction, time = 1) {
     switch (direction) {
       case 'TOP':
         target.y -= time;

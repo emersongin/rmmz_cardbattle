@@ -418,10 +418,21 @@ class CardSprite extends ActionSprite {
     this.removeState(CardStates.SELECTED);
   }
 
-  flash(color = 'white', duration = 60) {
+  flash(color = 'white', duration = 60, times = 1) {
     if (this.isVisible() && (this.isStopped() || this.isMoving())) {
-      this.changeState(CardStates.FLASHED, CardSpriteFlashedState, color, duration);
+      this.changeState(
+        CardStates.FLASHED, 
+        CardSpriteFlashedState, 
+        color, 
+        duration, 
+        times
+      );
     }
+  }
+
+  stopFlash() {
+    this._flashedLayer.bitmap.clear();
+    this.removeState(CardStates.FLASHED);
   }
 
   damageAnimation() {

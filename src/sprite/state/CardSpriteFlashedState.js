@@ -1,13 +1,14 @@
 class CardSpriteFlashedState {
   _card;
   _duration;
-  _flashDuration;
+  _flashDuration = 0;
+  _times;
   
-  constructor(sprite, color, duration) {
+  constructor(sprite, color, duration, times) {
     this._card = sprite;
     this.drawFlash(color);
     this._duration = duration;
-    this._flashDuration = duration;
+    this._times = times;
   }
 
   drawFlash(color = 'white') {
@@ -17,7 +18,25 @@ class CardSpriteFlashedState {
   }
 
   updateState() {
-    this.updateFlash();
+    if (this.hasTimesOrInfinity() && this.isNoPlaying()) {
+      if (this.hasTimes()) this._times--;
+      this._flashDuration = this._duration;
+    } else {
+      this.updateFlash();
+    }
+  }
+
+  hasTimesOrInfinity() {
+    const infinity = this._times === -1;
+    return this.hasTimes() || infinity;
+  }
+
+  hasTimes() {
+    return this._times > 0;
+  }
+
+  isNoPlaying() {
+    return this._flashDuration === 0;
   }
 
   updateFlash() {
@@ -27,8 +46,7 @@ class CardSpriteFlashedState {
       this._flashDuration--;
       this.updateFlashOpacity();
     } else {
-      layer.bitmap.clear();
-      that.removeState(CardStates.FLASHED);
+      that.stopFlash();
     }
   }
 
