@@ -29,7 +29,7 @@ class CardAnimationSprite extends Sprite_Animation {
     return target._x !== target.x || target._y !== target.y;
   }
 
-  returnOriginPosition(target, time = 3) {
+  returnOriginPosition(target, time = 1) {
     if (target._x !== target.x) {
       target.x = target._x > target.x ? target.x + time : target.x - time;
     }

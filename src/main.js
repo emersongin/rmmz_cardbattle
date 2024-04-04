@@ -26,6 +26,10 @@
 // include ./sprite/test/OpenCardSpriteTest.js
 // include ./sprite/test/CloseCardSpriteTest.js
 // include ./sprite/test/MoveCardSpriteTest.js
+// include ./sprite/test/HoveredCardSpriteTest.js
+// include ./sprite/test/SelectedCardSpriteTest.js
+// include ./sprite/test/FlashCardSpriteTest.js
+// include ./sprite/test/DamageAnimationCardSpriteTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./manager/CardBattleManager.js

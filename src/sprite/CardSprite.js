@@ -7,6 +7,7 @@
 // include ./state/CardSpriteAnimatedState.js
 // include ./state/CardSpriteFlashedState.js
 // include ./state/CardSpriteSelectedState.js
+// include ./state/CardSpriteHoveredState.js
 // include ./CardAnimationSprite.js
 
 class CardSprite extends ActionSprite {
@@ -23,11 +24,11 @@ class CardSprite extends ActionSprite {
     this._x = this.x;
     this._y = this.y;
     this._contentLayer = {};
-    this._flashLayer = {};
-    this._selectLayer = {};
+    this._flashedLayer = {};
+    this._hoveredLayer = {};
+    this._selectedLayer = {};
     this.attackDisplay = 0;
     this.healthDisplay = 0;
-    // this._flashDuration = 0;
     // this._animationSprite = null;
     this.setup();
   }
@@ -54,26 +55,33 @@ class CardSprite extends ActionSprite {
 
   createLayers() {
     this.createContentLayer();
-    // this.createFlashLayer();
-    // this.createSelectLayer();
+    this.createSelectedLayer();
+    this.createHoveredLayer();
   }
 
   createContentLayer() {
     this._contentLayer = new Sprite();
     this._contentLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
+    this.createFlashLayer();
     this.addChild(this._contentLayer);
   }
 
   createFlashLayer() {
-    this._flashLayer = new Sprite();
-    this._flashLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
-    this._contentLayer.addChild(this._flashLayer);
+    this._flashedLayer = new Sprite();
+    this._flashedLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
+    this._contentLayer.addChild(this._flashedLayer);
   }
 
-  createSelectLayer() {
-    this._selectLayer = new Sprite();
-    this._selectLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
-    this.addChild(this._selectLayer);
+  createHoveredLayer() {
+    this._hoveredLayer = new Sprite();
+    this._hoveredLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
+    this.addChild(this._hoveredLayer);
+  }
+
+  createSelectedLayer() {
+    this._selectedLayer = new Sprite();
+    this._selectedLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
+    this.addChild(this._selectedLayer);
   }
 
   hide() {
@@ -84,8 +92,8 @@ class CardSprite extends ActionSprite {
     this.changeState(CardStates.MAIN, CardSpriteStoppedState);
   }
 
-  changeState(keyName, state) {
-    this._states[keyName] = new state(this);
+  changeState(keyName, state, ...params) {
+    this._states[keyName] = new state(this, ...params);
   }
 
   update() {
@@ -265,7 +273,9 @@ class CardSprite extends ActionSprite {
 
   updateStates() {
     if (Array.isArray(this._states)) {
-      this._states.forEach(state => state.updateState());
+      this._states.forEach(state => {
+        if (state) state.updateState();
+      });
     }
   }
 
@@ -363,17 +373,17 @@ class CardSprite extends ActionSprite {
       this.commandMoving, 
       destinyXPosition, 
       destinyYPosition,
-      originXPosition || this.x, 
-      originYPosition || this.y
+      originXPosition, 
+      originYPosition
     );
   }
 
   commandMoving(destinyXPosition, destinyYPosition, originXPosition, originYPosition) {
     if (this.isVisible() && this.isStopped()) {
-      this.x = originXPosition;
-      this.y = originYPosition;
       this._x = destinyXPosition;
       this._y = destinyYPosition;
+      this.x = originXPosition || this.x;
+      this.y = originYPosition || this.y;
       this.moving();
     }
   }
@@ -382,8 +392,78 @@ class CardSprite extends ActionSprite {
     this.changeState(CardStates.MAIN, CardSpriteMovingState);
   }
 
+  hover() {
+    if (this.isVisible() && this.isStopped()) {
+      this.changeState(CardStates.HOVERED, CardSpriteHoveredState);
+    }
+  }
 
+  unhover() {
+    this._hoveredLayer.bitmap.clear();
+    this.removeState(CardStates.HOVERED);
+  }
 
+  removeState(keyName) {
+    this._states[keyName] = null;
+  }
+
+  select() {
+    if (this.isVisible() && (this.isStopped() || this.isMoving())) {
+      this.changeState(CardStates.SELECTED, CardSpriteSelectedState);
+    }
+  }
+
+  unselect() {
+    this._selectedLayer.bitmap.clear();
+    this.removeState(CardStates.SELECTED);
+  }
+
+  flash(color = 'white', duration = 60) {
+    if (this.isVisible() && (this.isStopped() || this.isMoving())) {
+      this.changeState(CardStates.FLASHED, CardSpriteFlashedState, color, duration);
+    }
+  }
+
+  damageAnimation() {
+    const animation = this.damage();
+    this.animate(animation);
+  }
+
+  damage() {
+    return {
+      id: 45,
+      displayType: 0,
+      effectName: "CureOne1",
+      flashTimings:  [
+        {frame: 0, duration: 10, color: [0,255,0,102]},
+        {frame: 9, duration: 30, color: [102,255,0,102]},
+        {frame: 19, duration: 30, color: [136,255,0,102]},
+        {frame: 29, duration: 30, color: [136,255,0,102]}
+      ],
+      name: "Curar 1",
+      offsetX: 48,
+      offsetY: 128,
+      rotation:  { x: 0, y: 0, z: 0 },
+      scale: 100,
+      soundTimings:  [
+        {frame: 1, se:  { name: "Ice1", pan: 0, pitch: 100, volume: 90}},
+        {frame: 2, se:  { name: "Recovery", pan: 0, pitch: 70, volume: 90}},
+        {frame: 6, se:  { name: "Ice4", pan: 0, pitch: 100, volume: 90}}
+      ],
+      speed: 100,
+      timings: [],
+      alignBottom: false,
+      quakeEffect: false
+    };
+  }
+
+  animate(animation) {
+    if (this.isVisible() && (this.isStopped() || this.isMoving())) {
+      const sprite = new CardAnimationSprite();
+      sprite.setup([this], animation);
+      this.parent.addChild(sprite);
+    }
+  }
 
 
 
@@ -412,12 +492,6 @@ class CardSprite extends ActionSprite {
     this.stop();
   }
 
-
-  
-
-
-
-
   setXPosition(xPosition) {
     this._x = xPosition;
     this.x = xPosition;
@@ -426,123 +500,6 @@ class CardSprite extends ActionSprite {
   setYPosition(yPosition) {
     this._y = yPosition;
     this.y = yPosition;
-  }
-
-  highlight() {
-    this.addAction(this.commandHighlight);
-  }
-
-  commandHighlight() {
-    if (this.isStopped()) {
-      this._highlighted = true;
-      this.changeState(CardSpriteSelectedState);
-    }
-  }
-
-  unhighlight() {
-    this.addAction(this.commandUnhighlight);
-  }
-
-  commandUnhighlight() {
-    if (this.isStopped()) {
-      this._highlighted = false;
-    }
-  }
-
-  select() {
-    this.addAction(this.commandSelect);
-  }
-
-  commandSelect() {
-    if (this.isStopped()) {
-      this._selected = true;
-      this.selected();
-    }
-  }
-
-  selected() {
-    this.changeState(CardSpriteSelectedState);
-  }
-
-  unselect() {
-    this.addAction(this.commandUnselect);
-  }
-
-  commandUnselect() {
-    if (this.isStopped()) {
-      this._selected = false;
-    }
-  }
-
-  flash(color, duration) {
-    this.addAction(this.commandFlash, color, duration);
-  }
-
-  commandFlash(color, duration = 60) {
-    if (this.isStopped()) {
-      this.drawFlash(color);
-      this._flashDuration = duration;
-      this.flashed();
-    }
-  }
-
-  flashed() {
-    this.changeState(CardSpriteFlashedState);
-  }
-
-  drawFlash(color = 'white') {
-    const xPosition = 2;
-    const yPosition = 2;
-    const width = this.width - 4;
-    const height = this.height - 4;
-    this._flashLayer.bitmap.clear();
-    this._flashLayer.bitmap.fillRect(xPosition, yPosition, width, height, color);
-  }
-
-  animationDamage() {
-    const animation = this.animationDamager();
-    this.addAction(this.commandAnimation, animation);
-  }
-
-  commandAnimation(animation) {
-    if (this.isStopped()) {
-      this._animationSprite = new CardAnimationSprite();
-      this._animationSprite.setup([this], animation);
-      this.parent.addChild(this._animationSprite);
-      this.animated();
-    }
-  }
-
-  animated() {
-    this.changeState(CardSpriteAnimatedState);
-  }
-
-  animationDamager() {
-    return {
-      id: 45,
-      displayType: 0,
-      effectName: "CureOne1",
-      flashTimings:  [
-        {frame: 0, duration: 10, color: [0,255,0,102]},
-        {frame: 9, duration: 30, color: [102,255,0,102]},
-        {frame: 19, duration: 30, color: [136,255,0,102]},
-        {frame: 29, duration: 30, color: [136,255,0,102]}
-      ],
-      name: "Curar 1",
-      offsetX: 48,
-      offsetY: 128,
-      rotation:  { x: 0, y: 0, z: 0 },
-      scale: 100,
-      soundTimings:  [
-        {frame: 1, se:  { name: "Ice1", pan: 0, pitch: 100, volume: 90}},
-        {frame: 2, se:  { name: "Recovery", pan: 0, pitch: 70, volume: 90}},
-        {frame: 6, se:  { name: "Ice4", pan: 0, pitch: 100, volume: 90}}
-      ],
-      speed: 100,
-      timings: [],
-      alignBottom: false,
-      quakeEffect: true
-    };
   }
 
   changeAttackPoints(attackPoints) {

@@ -1,8 +1,19 @@
 class CardSpriteFlashedState {
-  _cardSprite;
+  _card;
+  _duration;
+  _flashDuration;
   
-  constructor(cardSprite) {
-    this._cardSprite = cardSprite;
+  constructor(sprite, color, duration) {
+    this._card = sprite;
+    this.drawFlash(color);
+    this._duration = duration;
+    this._flashDuration = duration;
+  }
+
+  drawFlash(color = 'white') {
+    const layer = this._card._flashedLayer;
+    layer.bitmap.clear();
+    layer.bitmap.fillAll(color);
   }
 
   updateState() {
@@ -10,20 +21,19 @@ class CardSpriteFlashedState {
   }
 
   updateFlash() {
-    const that = this._cardSprite;
-    if (that._flashDuration > 0) {
-      that._flashDuration--;
+    const that = this._card;
+    const layer = this._card._flashedLayer;
+    if (this._flashDuration > 0) {
+      this._flashDuration--;
       this.updateFlashOpacity();
     } else {
-      that.changeState(CardSpriteStoppedState);
+      layer.bitmap.clear();
+      that.removeState(CardStates.FLASHED);
     }
   }
 
   updateFlashOpacity() {
-    const that = this._cardSprite;
-    that._flashLayer.opacity = (that._flashDuration * 100 / 20);
-    if (that._flashDuration === 0) {
-      that._flashColor = null;
-    }
+    const layer = this._card._flashedLayer;
+    layer.opacity = (this._flashDuration / this._duration) * 255;
   }
 }

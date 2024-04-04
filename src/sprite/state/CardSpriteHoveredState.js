@@ -1,4 +1,4 @@
-class CardSpriteSelectedState {
+class CardSpriteHoveredState {
   _card;
   
   constructor(sprite) {
@@ -8,9 +8,9 @@ class CardSpriteSelectedState {
 
   fillLayer() {
     const that = this._card;
-    const layer = this._card._selectedLayer;
+    const layer = this._card._hoveredLayer;
     layer.bitmap.clear();
-    layer.bitmap.fillAll('orange');
+    layer.bitmap.fillAll('yellow');
     layer.bitmap.clearRect(4, 4, that.width - 8, that.height - 8);
   }
 
@@ -19,7 +19,7 @@ class CardSpriteSelectedState {
   }
 
   updatePulse() {
-    const layer = this._card._selectedLayer;
+    const layer = this._card._hoveredLayer;
     layer.opacity -= 32;
     if (layer.opacity <= 0) {
       layer.opacity = 255;
