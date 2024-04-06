@@ -20,6 +20,7 @@
 // include ./scene/phase/CardBattlePhase.js
 
 // tests
+// include ../test/integration/Test.js
 // include ../test/integration/card/ShowCardSpriteTest.js
 // include ../test/integration/card/OpenCardSpriteTest.js
 // include ../test/integration/card/CloseCardSpriteTest.js

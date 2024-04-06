@@ -2073,7 +2073,50 @@ class CardBattlePhase {
 }
 
 // tests
-class ShowCardSpriteTest {
+class Test {
+  setTest() {
+    // Override this method in the child class
+  }
+
+  start() {
+    // Override this method in the child class
+  }
+
+  assert(value) {
+    this.value = value;
+    return this;
+  }
+
+  toBe(value) {
+    if (this.value !== value) {
+      console.error('Test failed!: os valores não são iguais!');
+      console.error('Expected:', value);
+      console.error('Received:', this.value);
+      return this;
+    }
+    console.info('Test passed!');
+    return this;
+  }
+
+  toBeInstanceof(value) {
+    if (!(this.value instanceof value)) {
+      console.error('Test failed!: os valores não são instâncias!');
+      console.error('Expected:', value);
+      console.error('Received:', this.value);
+      return this;
+    }
+    console.info('Test passed!');
+    return this;
+  }
+
+  update(callback, fps = 60) {
+    if (typeof callback !== 'function') return;
+    for (let i = 0; i < fps; i++) {
+      callback();
+    }
+  }
+}
+class ShowCardSpriteTest extends Test {
   card;
   scene;
 
@@ -2103,16 +2146,12 @@ class ShowCardSpriteTest {
       setTimeout(() => {
         this.scene.removeChild(this.card);
         resolve(true);
-      }, 300);
+      }, 1000);
     });
   }
 
-  update() {
-
-  }
-
 }
-class OpenCardSpriteTest {
+class OpenCardSpriteTest extends Test {
   card;
   scene;
 
@@ -2145,20 +2184,17 @@ class OpenCardSpriteTest {
       setTimeout(() => {
         this.scene.removeChild(this.card);
         resolve(true);
-      }, 300);
+      }, 1000);
     });
   }
 
-  update() {
-
-  }
-
 }
-class CloseCardSpriteTest {
+class CloseCardSpriteTest extends Test {
   card;
   scene;
 
   constructor(scene) {
+    super();
     this.scene = scene;
     this.setTest();
   }
@@ -2185,16 +2221,18 @@ class CloseCardSpriteTest {
       setTimeout(() => {
         this.scene.removeChild(this.card);
         resolve(true);
-      }, 300);
+      }, 1000);
     });
   }
 
-  update() {
-
-  }
-
+  // exemplo de teste de unidade
+  // this.update(() => {
+  //   this.card.update();
+  // });
+  // this.assert(this.card._status).toBeInstanceof(CardSpriteStoppedState);
+  // this.assert(this.card.width).toBe(0);
 }
-class MoveCardSpriteTest {
+class MoveCardSpriteTest extends Test {
   card;
   scene;
 
@@ -2237,12 +2275,8 @@ class MoveCardSpriteTest {
     });
   }
 
-  update() {
-
-  }
-
 }
-class HoveredCardSpriteTest {
+class HoveredCardSpriteTest extends Test {
   card;
   scene;
 
@@ -2276,16 +2310,12 @@ class HoveredCardSpriteTest {
           this.scene.removeChild(this.card);
           resolve(true);
         }, 300);
-      }, 500);
+      }, 1000);
     });
   } 
 
-  update() {
-
-  }
-
 }
-class SelectedCardSpriteTest {
+class SelectedCardSpriteTest extends Test {
   card;
   scene;
 
@@ -2319,16 +2349,12 @@ class SelectedCardSpriteTest {
           this.scene.removeChild(this.card);
           resolve(true);
         }, 300);
-      }, 500);
+      }, 1000);
     });
   }
 
-  update() {
-
-  }
-
 }
-class FlashCardSpriteTest {
+class FlashCardSpriteTest extends Test {
   card;
   scene;
 
@@ -2381,12 +2407,8 @@ class FlashCardSpriteTest {
     }, 300);
   }
 
-  update() {
-
-  }
-
 }
-class DamageAnimationCardSpriteTest {
+class DamageAnimationCardSpriteTest extends Test {
   card;
   scene;
 
@@ -2422,12 +2444,8 @@ class DamageAnimationCardSpriteTest {
     });
   }
 
-  update() {
-
-  }
-
 }
-class UpdatingPointsCardSpriteTest {
+class UpdatingPointsCardSpriteTest extends Test {
   card;
   scene;
 
@@ -2462,12 +2480,8 @@ class UpdatingPointsCardSpriteTest {
     });
   }
 
-  update() {
-
-  }
-
 }
-class DisableCardSpriteTest {
+class DisableCardSpriteTest extends Test {
   card;
   scene;
 
@@ -2505,10 +2519,6 @@ class DisableCardSpriteTest {
     });
   }
 
-  update() {
-
-  }
-
 }
 
 class CardBattleScene extends Scene_Message {
@@ -2538,16 +2548,16 @@ class CardBattleScene extends Scene_Message {
 
   async startTests() {
     const list = [
-      ShowCardSpriteTest,
-      OpenCardSpriteTest,
+      // ShowCardSpriteTest,
+      // OpenCardSpriteTest,
       CloseCardSpriteTest,
-      MoveCardSpriteTest,
-      DisableCardSpriteTest,
-      HoveredCardSpriteTest,
-      SelectedCardSpriteTest,
-      FlashCardSpriteTest,
-      DamageAnimationCardSpriteTest,
-      UpdatingPointsCardSpriteTest,
+      // MoveCardSpriteTest,
+      // DisableCardSpriteTest,
+      // HoveredCardSpriteTest,
+      // SelectedCardSpriteTest,
+      // FlashCardSpriteTest,
+      // DamageAnimationCardSpriteTest,
+      // UpdatingPointsCardSpriteTest,
     ];
 
     for (const test of list) {

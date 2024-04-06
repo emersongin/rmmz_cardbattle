@@ -1,4 +1,4 @@
-class MoveCardSpriteTest {
+class MoveCardSpriteTest extends Test {
   card;
   scene;
 
@@ -39,10 +39,6 @@ class MoveCardSpriteTest {
         resolve(true);
       }, 2000);
     });
-  }
-
-  update() {
-
   }
 
 }

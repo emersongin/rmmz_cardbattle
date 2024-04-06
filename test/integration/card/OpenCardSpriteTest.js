@@ -1,4 +1,4 @@
-class OpenCardSpriteTest {
+class OpenCardSpriteTest extends Test {
   card;
   scene;
 
@@ -31,12 +31,8 @@ class OpenCardSpriteTest {
       setTimeout(() => {
         this.scene.removeChild(this.card);
         resolve(true);
-      }, 300);
+      }, 1000);
     });
-  }
-
-  update() {
-
   }
 
 }

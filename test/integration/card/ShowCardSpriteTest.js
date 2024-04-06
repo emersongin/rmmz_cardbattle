@@ -1,4 +1,4 @@
-class ShowCardSpriteTest {
+class ShowCardSpriteTest extends Test {
   card;
   scene;
 
@@ -28,12 +28,8 @@ class ShowCardSpriteTest {
       setTimeout(() => {
         this.scene.removeChild(this.card);
         resolve(true);
-      }, 300);
+      }, 1000);
     });
-  }
-
-  update() {
-
   }
 
 }

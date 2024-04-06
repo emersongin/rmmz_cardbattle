@@ -1,4 +1,4 @@
-class FlashCardSpriteTest {
+class FlashCardSpriteTest extends Test {
   card;
   scene;
 
@@ -49,10 +49,6 @@ class FlashCardSpriteTest {
         this.card.stopFlash();
       }, 3000);
     }, 300);
-  }
-
-  update() {
-
   }
 
 }

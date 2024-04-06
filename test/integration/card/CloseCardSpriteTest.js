@@ -1,8 +1,9 @@
-class CloseCardSpriteTest {
+class CloseCardSpriteTest extends Test {
   card;
   scene;
 
   constructor(scene) {
+    super();
     this.scene = scene;
     this.setTest();
   }
@@ -29,12 +30,14 @@ class CloseCardSpriteTest {
       setTimeout(() => {
         this.scene.removeChild(this.card);
         resolve(true);
-      }, 300);
+      }, 1000);
     });
   }
 
-  update() {
-
-  }
-
+  // exemplo de teste de unidade
+  // this.update(() => {
+  //   this.card.update();
+  // });
+  // this.assert(this.card._status).toBeInstanceof(CardSpriteStoppedState);
+  // this.assert(this.card.width).toBe(0);
 }

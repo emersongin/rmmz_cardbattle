@@ -1,4 +1,4 @@
-class DamageAnimationCardSpriteTest {
+class DamageAnimationCardSpriteTest extends Test {
   card;
   scene;
 
@@ -32,10 +32,6 @@ class DamageAnimationCardSpriteTest {
         resolve(true);
       }, 2000);
     });
-  }
-
-  update() {
-
   }
 
 }

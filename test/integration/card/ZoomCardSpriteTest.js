@@ -1,4 +1,4 @@
-class DisableCardSpriteTest extends Test {
+class ZoomCardSpriteTest extends Test {
   card;
   scene;
 
@@ -25,13 +25,10 @@ class DisableCardSpriteTest extends Test {
   start() {
     return new Promise(resolve => {
       this.card.show();
-      this.card.disable();
+      this.card.zoom();
       setTimeout(() => {
-        this.card.enable();
-        setTimeout(() => {
-          this.scene.removeChild(this.card);
-          resolve(true);
-        }, 300);
+        this.scene.removeChild(this.card);
+        resolve(true);
       }, 1000);
     });
   }

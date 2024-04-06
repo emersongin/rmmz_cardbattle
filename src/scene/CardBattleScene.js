@@ -35,6 +35,7 @@ class CardBattleScene extends Scene_Message {
       // FlashCardSpriteTest,
       // DamageAnimationCardSpriteTest,
       // UpdatingPointsCardSpriteTest,
+      ZoomCardSpriteTest
     ];
 
     for (const test of list) {

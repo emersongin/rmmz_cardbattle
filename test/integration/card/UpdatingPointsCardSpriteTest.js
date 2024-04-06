@@ -1,4 +1,4 @@
-class UpdatingPointsCardSpriteTest {
+class UpdatingPointsCardSpriteTest extends Test {
   card;
   scene;
 
@@ -31,10 +31,6 @@ class UpdatingPointsCardSpriteTest {
         resolve(true);
       }, 2000);
     });
-  }
-
-  update() {
-
   }
 
 }

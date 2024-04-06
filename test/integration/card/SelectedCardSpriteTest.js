@@ -1,4 +1,4 @@
-class SelectedCardSpriteTest {
+class SelectedCardSpriteTest extends Test {
   card;
   scene;
 
@@ -32,12 +32,8 @@ class SelectedCardSpriteTest {
           this.scene.removeChild(this.card);
           resolve(true);
         }, 300);
-      }, 500);
+      }, 1000);
     });
-  }
-
-  update() {
-
   }
 
 }
