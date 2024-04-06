@@ -20,16 +20,16 @@
 // include ./scene/phase/CardBattlePhase.js
 
 // tests
-// include ./sprite/test/ShowCardSpriteTest.js
-// include ./sprite/test/OpenCardSpriteTest.js
-// include ./sprite/test/CloseCardSpriteTest.js
-// include ./sprite/test/MoveCardSpriteTest.js
-// include ./sprite/test/HoveredCardSpriteTest.js
-// include ./sprite/test/SelectedCardSpriteTest.js
-// include ./sprite/test/FlashCardSpriteTest.js
-// include ./sprite/test/DamageAnimationCardSpriteTest.js
-// include ./sprite/test/UpdatingPointsCardSpriteTest.js
-// include ./sprite/test/DisableCardSpriteTest.js
+// include ../test/sprite/card/ShowCardSpriteTest.js
+// include ../test/sprite/card/OpenCardSpriteTest.js
+// include ../test/sprite/card/CloseCardSpriteTest.js
+// include ../test/sprite/card/MoveCardSpriteTest.js
+// include ../test/sprite/card/HoveredCardSpriteTest.js
+// include ../test/sprite/card/SelectedCardSpriteTest.js
+// include ../test/sprite/card/FlashCardSpriteTest.js
+// include ../test/sprite/card/DamageAnimationCardSpriteTest.js
+// include ../test/sprite/card/UpdatingPointsCardSpriteTest.js
+// include ../test/sprite/card/DisableCardSpriteTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./manager/CardBattleManager.js
