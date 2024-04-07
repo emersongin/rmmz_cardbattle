@@ -21,7 +21,8 @@
 
 // tests
 // include ../test/integration/Test.js
-// include ../test/integration/card/ShowCardSpriteTest.js
+// include ../test/integration/card/StartOpenCardSpriteTest.js
+// include ../test/integration/card/StartClosedCardSpriteTest.js
 // include ../test/integration/card/OpenCardSpriteTest.js
 // include ../test/integration/card/CloseCardSpriteTest.js
 // include ../test/integration/card/MoveCardSpriteTest.js

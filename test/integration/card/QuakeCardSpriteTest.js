@@ -18,18 +18,18 @@ class QuakeCardSpriteTest extends Test {
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.x = centerXPosition;
-    this.card.y = centerYPosition;
+    this.card.startOpen(centerXPosition, centerYPosition);
     this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
-      this.card.show();
       const times = 1;
-      this.card.quake(10);
+      // this.card.damageAnimation(times);
+      this.card.quake(times);
       setTimeout(() => {
-        this.scene.removeChild(this.card);
+        if (!this.card.isAnimationPlaying()) 
+          this.scene.removeChild(this.card);
         resolve(true);
       }, 1000);
     });

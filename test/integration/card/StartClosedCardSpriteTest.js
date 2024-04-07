@@ -1,4 +1,4 @@
-class HoveredCardSpriteTest extends Test {
+class StartClosedCardSpriteTest extends Test {
   card;
   scene;
 
@@ -16,23 +16,22 @@ class HoveredCardSpriteTest extends Test {
       1,
       1
     );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.startOpen(centerXPosition, centerYPosition);
     this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
-      this.card.hover();
+      const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
+      const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
+      this.card.startClosed(centerXPosition, centerYPosition);
       setTimeout(() => {
-        this.card.unhover();
+        this.card.open();
         setTimeout(() => {
           this.scene.removeChild(this.card);
           resolve(true);
-        }, 300);
+        }, 1000);
       }, 1000);
     });
-  } 
+  }
 
 }

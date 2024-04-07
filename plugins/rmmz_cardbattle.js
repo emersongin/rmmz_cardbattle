@@ -1466,7 +1466,7 @@ class CardSprite extends ActionSprite {
       const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
       const moves = [];
       let direction = '';
-      for (let index = 0; index < (times * 4); index++) {
+      for (let index = 0; index < (times * 3); index++) {
         const dirs = directions.filter(dir => dir !== direction);
         direction = dirs[Math.randomInt(3)];
         switch (direction) {
@@ -1493,6 +1493,29 @@ class CardSprite extends ActionSprite {
         this.toMove(xMove, yMove, cardXPosition, cardYPosition, duration);
       });
     }
+  }
+  
+  isAnimationPlaying() {
+    const behavior = this.getBehavior(CardSpriteAnimatedBehavior);
+    if (behavior) return behavior.isPlayingAnimation();
+    return false;
+  }
+
+  startOpen(xPosition, yPosition) {
+    this.x = xPosition || this.x;
+    this.y = yPosition || this.y;
+    this.setSize();
+    this.enable();
+    this.show();
+  }
+
+  startClosed(xPosition, yPosition) {
+    xPosition = xPosition || this.x;
+    const cardWidthHalf = (this.cardOriginalWidth() / 2);
+    this.x = xPosition + cardWidthHalf;
+    this.y = yPosition || this.y;
+    this.width = 0;
+    this.show();
   }
 }
 class CardsetSprite extends ActionSprite {
@@ -2348,7 +2371,7 @@ class Test {
     }
   }
 }
-class ShowCardSpriteTest extends Test {
+class StartOpenCardSpriteTest extends Test {
   card;
   scene;
 
@@ -2366,19 +2389,54 @@ class ShowCardSpriteTest extends Test {
       1,
       1
     );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.x = centerXPosition;
-    this.card.y = centerYPosition;
     this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
-      this.card.show();
+      const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
+      const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
+      this.card.startOpen(centerXPosition, centerYPosition);
       setTimeout(() => {
         this.scene.removeChild(this.card);
         resolve(true);
+      }, 1000);
+    });
+  }
+
+}
+class StartClosedCardSpriteTest extends Test {
+  card;
+  scene;
+
+  constructor(scene) {
+    super();
+    this.scene = scene;
+    this.setTest();
+  }
+
+  setTest() {
+    this.card = CardSprite.create(
+      CardTypes.BATTLE,
+      CardColors.BLUE,
+      'default',
+      1,
+      1
+    );
+    this.scene.addChild(this.card);
+  }
+
+  start() {
+    return new Promise(resolve => {
+      const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
+      const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
+      this.card.startClosed(centerXPosition, centerYPosition);
+      setTimeout(() => {
+        this.card.open();
+        setTimeout(() => {
+          this.scene.removeChild(this.card);
+          resolve(true);
+        }, 1000);
       }, 1000);
     });
   }
@@ -2404,16 +2462,12 @@ class OpenCardSpriteTest extends Test {
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    const cardWidthHalf = (this.card.width / 2);
-    this.card.x = centerXPosition + cardWidthHalf;
-    this.card.y = centerYPosition;
-    this.card.width = 0;
+    this.card.startClosed(centerXPosition, centerYPosition);
     this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
-      this.card.show();
       this.card.open();
       setTimeout(() => {
         this.scene.removeChild(this.card);
@@ -2443,17 +2497,15 @@ class CloseCardSpriteTest extends Test {
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.x = centerXPosition;
-    this.card.y = centerYPosition;
+    this.card.startOpen(centerXPosition, centerYPosition);
     this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
-      this.card.show();
       this.card.close();
       setTimeout(() => {
-        // this.scene.removeChild(this.card);
+        this.scene.removeChild(this.card);
         resolve(true);
       }, 1000);
     });
@@ -2484,8 +2536,7 @@ class MoveCardSpriteTest extends Test {
       1,
       1
     );
-    this.card.x = 0;
-    this.card.y = 0;
+    this.card.startOpen(0, 0);
     this.scene.addChild(this.card);
   }
 
@@ -2493,7 +2544,6 @@ class MoveCardSpriteTest extends Test {
     return new Promise(resolve => {
       const destinyXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
       const destinyYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-      this.card.show();
       this.card.toMove(destinyXPosition, destinyYPosition);
       const avanceXposition = (Graphics.boxWidth - this.card.width);
       this.card.toMove(avanceXposition, destinyYPosition);
@@ -2531,14 +2581,12 @@ class HoveredCardSpriteTest extends Test {
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.x = centerXPosition;
-    this.card.y = centerYPosition;
+    this.card.startOpen(centerXPosition, centerYPosition);
     this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
-      this.card.show();
       this.card.hover();
       setTimeout(() => {
         this.card.unhover();
@@ -2571,14 +2619,12 @@ class SelectedCardSpriteTest extends Test {
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.x = centerXPosition;
-    this.card.y = centerYPosition;
+    this.card.startOpen(centerXPosition, centerYPosition);
     this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
-      this.card.show();
       this.card.select();
       setTimeout(() => {
         this.card.unselect();
@@ -2611,14 +2657,12 @@ class FlashCardSpriteTest extends Test {
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.x = centerXPosition;
-    this.card.y = centerYPosition;
+    this.card.startOpen(centerXPosition, centerYPosition);
     this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
-      this.card.show();
       setTimeout(() => {
         const color = 'white';
         const duration = 60;
@@ -2666,14 +2710,12 @@ class DamageAnimationCardSpriteTest extends Test {
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.x = centerXPosition;
-    this.card.y = centerYPosition;
+    this.card.startOpen(centerXPosition, centerYPosition);
     this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
-      this.card.show();
       const times = 1;
       this.card.damageAnimation(times);
       setTimeout(() => {
@@ -2704,14 +2746,12 @@ class UpdatingPointsCardSpriteTest extends Test {
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.x = centerXPosition;
-    this.card.y = centerYPosition;
+    this.card.startOpen(centerXPosition, centerYPosition);
     this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
-      this.card.show();
       this.card.changePoints(30, 30);
       setTimeout(() => {
         this.scene.removeChild(this.card);
@@ -2741,14 +2781,12 @@ class DisableCardSpriteTest extends Test {
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.x = centerXPosition;
-    this.card.y = centerYPosition;
+    this.card.startOpen(centerXPosition, centerYPosition);
     this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
-      this.card.show();
       this.card.disable();
       setTimeout(() => {
         this.card.enable();
@@ -2781,21 +2819,17 @@ class ZoomInCardSpriteTest extends Test {
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.x = centerXPosition;
-    this.card.y = centerYPosition;
+    this.card.startOpen(centerXPosition, centerYPosition);
     this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
-      this.card.show();
+      this.card.zoom();
       setTimeout(() => {
-        this.card.zoom();
-        setTimeout(() => {
-          this.scene.removeChild(this.card);
-          resolve(true);
-        }, 1000);
-      }, 500);
+        this.scene.removeChild(this.card);
+        resolve(true);
+      }, 1000);
     });
   }
 
@@ -2820,25 +2854,21 @@ class ZoomOutCardSpriteTest extends Test {
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.x = centerXPosition;
-    this.card.y = centerYPosition;
-    this.card.x = this.card.x - ((this.card.width / 2) / 2);
-    this.card.y = this.card.y - ((this.card.height / 2) / 2);
+    this.card.x = centerXPosition - ((this.card.width / 2) / 2);
+    this.card.y = centerYPosition - ((this.card.height / 2) / 2);
     this.card.scale.x = (this.card.scale.x / 2) * 3;
     this.card.scale.y = (this.card.scale.y / 2) * 3;
+    this.card.show();
     this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
-      this.card.show();
+      this.card.zoomOut();
       setTimeout(() => {
-        this.card.zoomOut();
-        setTimeout(() => {
-          this.scene.removeChild(this.card);
-          resolve(true);
-        }, 1000);
-      }, 500);
+        this.scene.removeChild(this.card);
+        resolve(true);
+      }, 1000);
     });
   }
 
@@ -2863,14 +2893,12 @@ class LeaveCardSpriteTest extends Test {
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.x = centerXPosition;
-    this.card.y = centerYPosition;
+    this.card.startOpen(centerXPosition, centerYPosition);
     this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
-      this.card.show();
       this.card.leave();
       setTimeout(() => {
         // this.scene.removeChild(this.card);
@@ -2900,18 +2928,18 @@ class QuakeCardSpriteTest extends Test {
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.x = centerXPosition;
-    this.card.y = centerYPosition;
+    this.card.startOpen(centerXPosition, centerYPosition);
     this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
-      this.card.show();
       const times = 1;
-      this.card.quake(10);
+      // this.card.damageAnimation(times);
+      this.card.quake(times);
       setTimeout(() => {
-        this.scene.removeChild(this.card);
+        if (!this.card.isAnimationPlaying()) 
+          this.scene.removeChild(this.card);
         resolve(true);
       }, 1000);
     });
@@ -2946,19 +2974,20 @@ class CardBattleScene extends Scene_Message {
 
   async startTests() {
     const list = [
-      // ShowCardSpriteTest,
-      // CloseCardSpriteTest,
-      // OpenCardSpriteTest,
-      // MoveCardSpriteTest,
-      // DisableCardSpriteTest,
-      // HoveredCardSpriteTest,
-      // SelectedCardSpriteTest,
-      // FlashCardSpriteTest,
-      // DamageAnimationCardSpriteTest,
-      // UpdatingPointsCardSpriteTest,
-      // ZoomInCardSpriteTest,
-      // ZoomOutCardSpriteTest,
-      // LeaveCardSpriteTest,
+      StartOpenCardSpriteTest,
+      StartClosedCardSpriteTest,
+      CloseCardSpriteTest,
+      OpenCardSpriteTest,
+      MoveCardSpriteTest,
+      DisableCardSpriteTest,
+      HoveredCardSpriteTest,
+      SelectedCardSpriteTest,
+      FlashCardSpriteTest,
+      DamageAnimationCardSpriteTest,
+      UpdatingPointsCardSpriteTest,
+      ZoomInCardSpriteTest,
+      ZoomOutCardSpriteTest,
+      LeaveCardSpriteTest,
       QuakeCardSpriteTest
     ];
 

@@ -617,7 +617,7 @@ class CardSprite extends ActionSprite {
       const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
       const moves = [];
       let direction = '';
-      for (let index = 0; index < (times * 4); index++) {
+      for (let index = 0; index < (times * 3); index++) {
         const dirs = directions.filter(dir => dir !== direction);
         direction = dirs[Math.randomInt(3)];
         switch (direction) {
@@ -644,5 +644,28 @@ class CardSprite extends ActionSprite {
         this.toMove(xMove, yMove, cardXPosition, cardYPosition, duration);
       });
     }
+  }
+  
+  isAnimationPlaying() {
+    const behavior = this.getBehavior(CardSpriteAnimatedBehavior);
+    if (behavior) return behavior.isPlayingAnimation();
+    return false;
+  }
+
+  startOpen(xPosition, yPosition) {
+    this.x = xPosition || this.x;
+    this.y = yPosition || this.y;
+    this.setSize();
+    this.enable();
+    this.show();
+  }
+
+  startClosed(xPosition, yPosition) {
+    xPosition = xPosition || this.x;
+    const cardWidthHalf = (this.cardOriginalWidth() / 2);
+    this.x = xPosition + cardWidthHalf;
+    this.y = yPosition || this.y;
+    this.width = 0;
+    this.show();
   }
 }

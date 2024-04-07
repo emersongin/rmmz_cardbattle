@@ -18,25 +18,21 @@ class ZoomOutCardSpriteTest extends Test {
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.x = centerXPosition;
-    this.card.y = centerYPosition;
-    this.card.x = this.card.x - ((this.card.width / 2) / 2);
-    this.card.y = this.card.y - ((this.card.height / 2) / 2);
+    this.card.x = centerXPosition - ((this.card.width / 2) / 2);
+    this.card.y = centerYPosition - ((this.card.height / 2) / 2);
     this.card.scale.x = (this.card.scale.x / 2) * 3;
     this.card.scale.y = (this.card.scale.y / 2) * 3;
+    this.card.show();
     this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
-      this.card.show();
+      this.card.zoomOut();
       setTimeout(() => {
-        this.card.zoomOut();
-        setTimeout(() => {
-          this.scene.removeChild(this.card);
-          resolve(true);
-        }, 1000);
-      }, 500);
+        this.scene.removeChild(this.card);
+        resolve(true);
+      }, 1000);
     });
   }
 

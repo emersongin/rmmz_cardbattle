@@ -1,4 +1,4 @@
-class ShowCardSpriteTest extends Test {
+class StartOpenCardSpriteTest extends Test {
   card;
   scene;
 
@@ -16,16 +16,14 @@ class ShowCardSpriteTest extends Test {
       1,
       1
     );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.x = centerXPosition;
-    this.card.y = centerYPosition;
     this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
-      this.card.show();
+      const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
+      const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
+      this.card.startOpen(centerXPosition, centerYPosition);
       setTimeout(() => {
         this.scene.removeChild(this.card);
         resolve(true);

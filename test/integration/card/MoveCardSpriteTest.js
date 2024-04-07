@@ -16,8 +16,7 @@ class MoveCardSpriteTest extends Test {
       1,
       1
     );
-    this.card.x = 0;
-    this.card.y = 0;
+    this.card.startOpen(0, 0);
     this.scene.addChild(this.card);
   }
 
@@ -25,7 +24,6 @@ class MoveCardSpriteTest extends Test {
     return new Promise(resolve => {
       const destinyXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
       const destinyYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-      this.card.show();
       this.card.toMove(destinyXPosition, destinyYPosition);
       const avanceXposition = (Graphics.boxWidth - this.card.width);
       this.card.toMove(avanceXposition, destinyYPosition);
