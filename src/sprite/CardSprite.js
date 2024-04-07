@@ -408,24 +408,26 @@ class CardSprite extends ActionSprite {
     this.stop();
   }
 
-  toMove(destinyXPosition, destinyYPosition, originXPosition, originYPosition) {
+  toMove(destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration) {
     this.addAction(
       this.commandMoving, 
       destinyXPosition, 
       destinyYPosition,
       originXPosition, 
-      originYPosition
+      originYPosition,
+      duration
     );
   }
 
-  commandMoving(destinyXPosition, destinyYPosition, originXPosition = this.x, originYPosition = this.y) {
+  commandMoving(destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration) {
     if (this.isVisible() && this.isStopped()) {
       this.changeStatus( 
         CardSpriteMovingState,
         destinyXPosition,
         destinyYPosition,
         originXPosition,
-        originYPosition
+        originYPosition,
+        duration
       );
     }
   }
@@ -442,14 +444,17 @@ class CardSprite extends ActionSprite {
   }
 
   select() {
-    if (this.isVisible() && (this.isStopped() || this.isMoving() || this.isZooming())) {
+    if (this.isVisible() && (this.isStopped() || this.isOpening() || this.isMoving() || this.isZooming())) {
       this.addBehavior(CardSpriteSelectedBehavior);
     }
   }
 
   isZooming() {
-    // return this.getStatus() instanceof CardSpriteZoomingState;
-    return true;
+    return this.getStatus() instanceof CardSpriteZoomState;
+  }
+
+  isOpening() {
+    return this.getStatus() instanceof CardSpriteOpeningState;
   }
 
   unselect() {
@@ -458,7 +463,7 @@ class CardSprite extends ActionSprite {
   }
 
   flash(color = 'white', duration = 60, times = 1) {
-    if (this.isVisible() && (this.isStopped() || this.isMoving() || this.isZooming())) {
+    if (this.isVisible() && (this.isStopped() || this.isOpening() || this.isMoving() || this.isZooming())) {
       this.addBehavior(
         CardSpriteFlashedBehavior,
         color, 
@@ -502,7 +507,7 @@ class CardSprite extends ActionSprite {
   }
 
   animate(animation, times) {
-    if (this.isVisible() && (this.isStopped() || this.isMoving() || this.isZooming())) {
+    if (this.isVisible() && (this.isStopped() || this.isOpening() || this.isMoving() || this.isZooming())) {
       this.addBehavior(
         CardSpriteAnimatedBehavior, 
         animation,
@@ -603,4 +608,41 @@ class CardSprite extends ActionSprite {
     }
   }
 
+  quake(times, distance) {
+    this.addAction(this.commandQuake, times, distance);
+  }
+
+  commandQuake(times = 1, distance = 2) {
+    if (this.isVisible() && this.isStopped() && this.isOpened()) {
+      const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
+      const moves = [];
+      let direction = '';
+      for (let index = 0; index < (times * 4); index++) {
+        const dirs = directions.filter(dir => dir !== direction);
+        direction = dirs[Math.randomInt(3)];
+        switch (direction) {
+          case 'TOP':
+            moves.push({x: 0, y: -distance}, {x: 0, y: 0});
+            break;
+          case 'BOTTOM':
+            moves.push({x: 0, y: distance}, {x: 0, y: 0});
+            break;
+          case 'LEFT':
+            moves.push({x: -distance, y: 0}, {x: 0, y: 0});
+            break;
+          case 'RIGHT':
+            moves.push({x: distance, y: 0}, {x: 0, y: 0});
+            break;
+        }
+      }
+      const cardXPosition = this.x;
+      const cardYPosition = this.y; 
+      moves.forEach((move, index) => {
+        const xMove = cardXPosition + move.x;
+        const yMove = cardYPosition + move.y;
+        const duration = 0.01;
+        this.toMove(xMove, yMove, cardXPosition, cardYPosition, duration);
+      });
+    }
+  }
 }

@@ -34,6 +34,7 @@
 // include ../test/integration/card/ZoomCardSpriteTest.js
 // include ../test/integration/card/ZoomOutCardSpriteTest.js
 // include ../test/integration/card/LeaveCardSpriteTest.js
+// include ../test/integration/card/QuakeCardSpriteTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./manager/CardBattleManager.js

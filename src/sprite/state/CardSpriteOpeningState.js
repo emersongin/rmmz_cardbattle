@@ -7,7 +7,6 @@ class CardSpriteOpeningState {
   _isToOpenHorizontally;
   _isToOpenVertically;
   _interval;
-  _counter = 0;
   
   constructor(sprite, xPosition, yPosition) {
     this._card = sprite;
@@ -23,8 +22,6 @@ class CardSpriteOpeningState {
 
   updateState() {
     const that = this._card;
-    // if (this._counter > 0) return this._counter--;
-    // this._counter = 10;
     if (this.isUpdatingPosition() || this.isUpdatingOpening()) {
       this.updatePosition();
       this.updateOpening();
