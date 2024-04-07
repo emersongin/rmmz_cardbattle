@@ -3,6 +3,7 @@ class DamageAnimationCardSpriteTest extends Test {
   scene;
 
   constructor(scene) {
+    super();
     this.scene = scene;
     this.setTest();
   }

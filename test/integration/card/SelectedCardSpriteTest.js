@@ -3,6 +3,7 @@ class SelectedCardSpriteTest extends Test {
   scene;
 
   constructor(scene) {
+    super();
     this.scene = scene;
     this.setTest();
   }

@@ -25,17 +25,18 @@ class CardBattleScene extends Scene_Message {
 
   async startTests() {
     const list = [
-      // ShowCardSpriteTest,
-      // OpenCardSpriteTest,
-      // CloseCardSpriteTest,
-      // MoveCardSpriteTest,
-      // DisableCardSpriteTest,
-      // HoveredCardSpriteTest,
-      // SelectedCardSpriteTest,
-      // FlashCardSpriteTest,
-      // DamageAnimationCardSpriteTest,
-      // UpdatingPointsCardSpriteTest,
-      ZoomCardSpriteTest
+      ShowCardSpriteTest,
+      CloseCardSpriteTest,
+      OpenCardSpriteTest,
+      MoveCardSpriteTest,
+      DisableCardSpriteTest,
+      HoveredCardSpriteTest,
+      SelectedCardSpriteTest,
+      FlashCardSpriteTest,
+      DamageAnimationCardSpriteTest,
+      UpdatingPointsCardSpriteTest,
+      ZoomInCardSpriteTest,
+      ZoomOutCardSpriteTest
     ];
 
     for (const test of list) {

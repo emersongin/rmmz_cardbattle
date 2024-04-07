@@ -1,8 +1,9 @@
-class ZoomCardSpriteTest extends Test {
+class ZoomInCardSpriteTest extends Test {
   card;
   scene;
 
   constructor(scene) {
+    super();
     this.scene = scene;
     this.setTest();
   }
@@ -25,11 +26,13 @@ class ZoomCardSpriteTest extends Test {
   start() {
     return new Promise(resolve => {
       this.card.show();
-      this.card.zoom();
       setTimeout(() => {
-        this.scene.removeChild(this.card);
-        resolve(true);
-      }, 1000);
+        this.card.zoom();
+        setTimeout(() => {
+          this.scene.removeChild(this.card);
+          resolve(true);
+        }, 1000);
+      }, 500);
     });
   }
 

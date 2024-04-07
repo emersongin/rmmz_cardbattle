@@ -1,7 +1,7 @@
 // include ./state/CardSpriteStoppedState.js
 // include ./state/CardSpriteMovingState.js
 // include ./state/CardSpriteOpeningState.js
-// include ./state/CardSpriteClosingState.js
+// include ./state/CardSpriteZoomState.js
 // include ./behavior/CardSpriteAnimatedBehavior.js
 // include ./behavior/CardSpriteFlashedBehavior.js
 // include ./behavior/CardSpriteSelectedBehavior.js
@@ -312,7 +312,17 @@ class CardSprite extends ActionSprite {
   }
 
   removeBehavior(behavior) {
+    behavior = this.getBehavior(behavior);
+    if (!behavior) return;
     this._behaviors = this._behaviors.filter(b => b !== behavior);
+  }
+
+  getBehavior(behavior) {
+    if (typeof behavior === 'function') {
+      return this._behaviors.find(b => b.constructor === behavior) || false;
+    } else {
+      return this._behaviors.find(b => b === behavior) || false;
+    }
   }
 
   static create(type, color, figureName, attack, health) {
@@ -383,7 +393,7 @@ class CardSprite extends ActionSprite {
   commandClose() {
     if (this.isVisible() && this.isStopped() && this.isOpened()) {
       const xPositionClosing = this.x + (this.cardOriginalWidth() / 2);
-      this.changeStatus(CardSpriteClosingState, xPositionClosing);
+      this.changeStatus(CardSpriteOpeningState, xPositionClosing);
     }
   }
 
@@ -426,32 +436,27 @@ class CardSprite extends ActionSprite {
 
   unhover() {
     this._hoveredLayer.bitmap.clear();
-    const behavior = this.getBehavior(CardSpriteHoveredBehavior);
-    this.removeBehavior(behavior);
+    this.removeBehavior(CardSpriteHoveredBehavior);
   }
 
   select() {
-    if (this.isVisible() && (this.isStopped() || this.isMoving())) {
+    if (this.isVisible() && (this.isStopped() || this.isMoving() || this.isZooming())) {
       this.addBehavior(CardSpriteSelectedBehavior);
     }
   }
 
-  unselect() {
-    this._selectedLayer.bitmap.clear();
-    const behavior = this.getBehavior(CardSpriteSelectedBehavior);
-    this.removeBehavior(behavior);
+  isZooming() {
+    // return this.getStatus() instanceof CardSpriteZoomingState;
+    return true;
   }
 
-  getBehavior(behavior) {
-    if (typeof behavior === 'function') {
-        return this._behaviors.find(b => b.constructor === behavior);
-    } else {
-        return this._behaviors.find(b => b === behavior);
-    }
+  unselect() {
+    this._selectedLayer.bitmap.clear();
+    this.removeBehavior(CardSpriteSelectedBehavior);
   }
 
   flash(color = 'white', duration = 60, times = 1) {
-    if (this.isVisible() && (this.isStopped() || this.isMoving())) {
+    if (this.isVisible() && (this.isStopped() || this.isMoving() || this.isZooming())) {
       this.addBehavior(
         CardSpriteFlashedBehavior,
         color, 
@@ -495,7 +500,7 @@ class CardSprite extends ActionSprite {
   }
 
   animate(animation, times) {
-    if (this.isVisible() && (this.isStopped() || this.isMoving())) {
+    if (this.isVisible() && (this.isStopped() || this.isMoving() || this.isZooming())) {
       this.addBehavior(
         CardSpriteAnimatedBehavior, 
         animation,
@@ -535,4 +540,53 @@ class CardSprite extends ActionSprite {
   isNotStopped() {
     return !this.isStopped();
   }
+
+  zoom() {
+    this.addAction(this.commandZoom);
+  }
+
+  commandZoom() {
+    if (this.isVisible() && this.isStopped() && this.isNoZoom()) {
+      const destinyXPosition = this.x - ((this.width / 2) / 2);
+      const destinyYPosition = this.y - ((this.height / 2) / 2);
+      const destinyXScale = (this.scale.x / 2) * 3;
+      const destinyYScale = (this.scale.y / 2) * 3;
+      this.changeStatus(
+        CardSpriteZoomState,
+        destinyXPosition,
+        destinyYPosition,
+        destinyXScale,
+        destinyYScale
+      );
+    }
+  }
+
+  isNoZoom() {
+    return this.scale.x === 1 && this.scale.y === 1;
+  }
+
+  zoomOut() {
+    this.addAction(this.commandZoomOut);
+  }
+
+  commandZoomOut() {
+    if (this.isVisible() && this.isStopped() && this.isZoom()) {
+      const destinyXPosition = this.x + ((this.width / 2) / 2);
+      const destinyYPosition = this.y + ((this.height / 2) / 2);
+      const destinyXScale = ((this.scale.x / 3) * 2);
+      const destinyYScale = ((this.scale.y / 3) * 2);
+      this.changeStatus(
+        CardSpriteZoomState,
+        destinyXPosition,
+        destinyYPosition, 
+        destinyXScale,
+        destinyYScale        
+      );
+    }
+  }
+
+  isZoom() {
+    return this.scale.x > 1 || this.scale.y > 1;
+  }
+
 }

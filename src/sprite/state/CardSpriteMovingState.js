@@ -10,8 +10,8 @@ class CardSpriteMovingState {
     this._x = destinyXPosition;
     this._y = destinyYPosition;
     const duration = this._card._duration;
-    this._xInterval = this._card.calculateMovingInterval(originXPosition, destinyXPosition, duration);
-    this._yInterval = this._card.calculateMovingInterval(originYPosition, destinyYPosition, duration);
+    this._xInterval = this._card.calculateTimeInterval(originXPosition, destinyXPosition, duration);
+    this._yInterval = this._card.calculateTimeInterval(originYPosition, destinyYPosition, duration);
   }
 
   updateState() {

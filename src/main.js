@@ -31,6 +31,8 @@
 // include ../test/integration/card/DamageAnimationCardSpriteTest.js
 // include ../test/integration/card/UpdatingPointsCardSpriteTest.js
 // include ../test/integration/card/DisableCardSpriteTest.js
+// include ../test/integration/card/ZoomCardSpriteTest.js
+// include ../test/integration/card/ZoomOutCardSpriteTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./manager/CardBattleManager.js

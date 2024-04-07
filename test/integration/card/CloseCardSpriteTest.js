@@ -28,7 +28,7 @@ class CloseCardSpriteTest extends Test {
       this.card.show();
       this.card.close();
       setTimeout(() => {
-        this.scene.removeChild(this.card);
+        // this.scene.removeChild(this.card);
         resolve(true);
       }, 1000);
     });
