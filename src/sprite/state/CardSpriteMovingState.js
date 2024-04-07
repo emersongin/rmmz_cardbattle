@@ -5,13 +5,20 @@ class CardSpriteMovingState {
   _xInterval;
   _yInterval;
   
-  constructor(sprite, destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration) {
+  constructor(
+    sprite, 
+    destinyXPosition, 
+    destinyYPosition, 
+    originXPosition, 
+    originYPosition, 
+    duration
+  ) {
     this._card = sprite;
-    destinyXPosition = destinyXPosition || this._card.x;
-    destinyYPosition = destinyYPosition || this._card.y;
-    originXPosition = originXPosition || this._card.x;
-    originYPosition = originYPosition || this._card.y;
-    duration = duration || this._card._duration;
+    destinyXPosition = destinyXPosition;
+    destinyYPosition = destinyYPosition;
+    originXPosition = originXPosition;
+    originYPosition = originYPosition;
+    duration = duration || this._card._duration || 1;
     this._x = destinyXPosition;
     this._y = destinyYPosition;
     this._xInterval = this._card.calculateTimeInterval(originXPosition, destinyXPosition, duration);

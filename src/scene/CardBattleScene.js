@@ -24,7 +24,7 @@ class CardBattleScene extends Scene_Message {
   }
 
   async startTests() {
-    const list = [
+    const cardSpriteTests = [
       StartOpenCardSpriteTest,
       StartClosedCardSpriteTest,
       CloseCardSpriteTest,
@@ -41,8 +41,15 @@ class CardBattleScene extends Scene_Message {
       LeaveCardSpriteTest,
       QuakeCardSpriteTest
     ];
-
-    for (const test of list) {
+    const cardsetTests = [
+      // StartPositionCardsetSpriteTest,
+      PresentOpenCardsCardsetSpriteTest
+    ];
+    const tests = [
+      // ...cardSpriteTests,
+      ...cardsetTests
+    ];
+    for (const test of tests) {
       this.changePhase(test);
       await this._phase.start();
     }

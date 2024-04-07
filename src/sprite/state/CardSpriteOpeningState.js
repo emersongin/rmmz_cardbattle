@@ -11,8 +11,8 @@ class CardSpriteOpeningState {
   constructor(sprite, xPosition, yPosition) {
     this._card = sprite;
     const that = this._card;
-    this._x = xPosition || that.x;
-    this._y = yPosition || that.y;
+    this._x = xPosition;
+    this._y = yPosition;
     this._isUpdateHorizontally = this._x !== that.x;
     this._isUpdateVertically = this._y !== that.y;
     this._isToOpenHorizontally = this._x < that.x;

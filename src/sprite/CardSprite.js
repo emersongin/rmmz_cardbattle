@@ -196,7 +196,8 @@ class CardSprite extends ActionSprite {
         return '#000000';
         break;
       default:
-        return brown = '#a52a2a';
+        const brown = '#a52a2a';
+        return brown;
         break;
     }
   }
@@ -375,7 +376,8 @@ class CardSprite extends ActionSprite {
   commandOpen() {
     if (this.isVisible() && this.isStopped() && this.isClosed()) {
       const xPositionOpening = this.x - (this.cardOriginalWidth() / 2);
-      this.changeStatus(CardSpriteOpeningState, xPositionOpening);
+      const yPositionOpening = this.y;
+      this.changeStatus(CardSpriteOpeningState, xPositionOpening, yPositionOpening);
     }
   }
 
@@ -395,7 +397,8 @@ class CardSprite extends ActionSprite {
   commandClose() {
     if (this.isVisible() && this.isStopped() && this.isOpened()) {
       const xPositionClosing = this.x + (this.cardOriginalWidth() / 2);
-      this.changeStatus(CardSpriteOpeningState, xPositionClosing);
+      const yPositionOpening = this.y;
+      this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionOpening);
     }
   }
 
@@ -419,7 +422,13 @@ class CardSprite extends ActionSprite {
     );
   }
 
-  commandMoving(destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration) {
+  commandMoving(
+    destinyXPosition = this.x, 
+    destinyYPosition = this.y, 
+    originXPosition = this.x, 
+    originYPosition = this.y, 
+    duration
+  ) {
     if (this.isVisible() && this.isStopped()) {
       this.changeStatus( 
         CardSpriteMovingState,
@@ -660,11 +669,11 @@ class CardSprite extends ActionSprite {
     this.show();
   }
 
-  startClosed(xPosition, yPosition) {
-    xPosition = xPosition || this.x;
+  startClosed(xPosition = this.x, yPosition = this.y) {
+    xPosition = xPosition;
     const cardWidthHalf = (this.cardOriginalWidth() / 2);
     this.x = xPosition + cardWidthHalf;
-    this.y = yPosition || this.y;
+    this.y = yPosition;
     this.width = 0;
     this.show();
   }
