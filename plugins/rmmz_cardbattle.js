@@ -345,10 +345,10 @@ class CardSpriteStoppedState {
 }
 class CardSpriteMovingState {
   _card;
-  _xInterval;
-  _yInterval;
   _x;
   _y;
+  _xInterval;
+  _yInterval;
   
   constructor(sprite, destinyXPosition, destinyYPosition, originXPosition, originYPosition) {
     this._card = sprite;
@@ -814,7 +814,7 @@ class CardSpriteHoveredBehavior {
     }
   }
 }
-class CardSpriteRefreshedBehavior {
+class CardSpriteUpdatedBehavior {
   _card;
   _attack;
   _health;
@@ -1367,7 +1367,7 @@ class CardSprite extends ActionSprite {
   changePoints(attackPoints = this._attackPoints, healtPoints = this._healthPoints) {
     if (this.isVisible() && this.isStopped()) {
       this.addBehavior(
-        CardSpriteRefreshedBehavior, 
+        CardSpriteUpdatedBehavior, 
         attackPoints,
         healtPoints
       );

@@ -1,4 +1,4 @@
-class CardSpriteRefreshedBehavior {
+class CardSpriteUpdatedBehavior {
   _card;
   _attack;
   _health;

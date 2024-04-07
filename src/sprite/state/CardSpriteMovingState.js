@@ -1,9 +1,9 @@
 class CardSpriteMovingState {
   _card;
-  _xInterval;
-  _yInterval;
   _x;
   _y;
+  _xInterval;
+  _yInterval;
   
   constructor(sprite, destinyXPosition, destinyYPosition, originXPosition, originYPosition) {
     this._card = sprite;

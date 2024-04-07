@@ -6,7 +6,7 @@
 // include ./behavior/CardSpriteFlashedBehavior.js
 // include ./behavior/CardSpriteSelectedBehavior.js
 // include ./behavior/CardSpriteHoveredBehavior.js
-// include ./behavior/CardSpriteRefreshedBehavior.js
+// include ./behavior/CardSpriteUpdatedBehavior.js
 
 class CardSprite extends ActionSprite {
   initialize() {
@@ -520,7 +520,7 @@ class CardSprite extends ActionSprite {
   changePoints(attackPoints = this._attackPoints, healtPoints = this._healthPoints) {
     if (this.isVisible() && this.isStopped()) {
       this.addBehavior(
-        CardSpriteRefreshedBehavior, 
+        CardSpriteUpdatedBehavior, 
         attackPoints,
         healtPoints
       );
