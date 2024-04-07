@@ -206,12 +206,14 @@ class CardSprite extends ActionSprite {
     const contentY = 4;
     const contentWidth = this.cardOriginalWidth() - 8;
     const contentHeight = this.cardOriginalHeight() - 28;
-    const openPercent = Math.floor((this.width / this.cardOriginalWidth()) * 100);
-    const openWidth = Math.floor((contentWidth * openPercent) / 100);
+    const openWidthPercent = Math.floor((this.width / this.cardOriginalWidth()) * 100);
+    const openHeightPercent = Math.floor((this.height / this.cardOriginalHeight()) * 100);
+    const openWidth = Math.floor((contentWidth * openWidthPercent) / 100);
+    const openHeight = Math.floor((contentHeight * openHeightPercent) / 100);
     const figureX = 0;
     const figureY = 0;
     const figureWidth = openWidth ? this._figure.width : 0;
-    const figureHeight = this._figure.height;
+    const figureHeight = openHeight ? this._figure.height : 0;
     this._contentLayer.bitmap.blt(
       this._figure, 
       figureX, 
@@ -221,7 +223,7 @@ class CardSprite extends ActionSprite {
       contentX,
       contentY,
       openWidth,
-      contentHeight
+      openHeight
     );
   }
 
@@ -546,7 +548,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandZoom() {
-    if (this.isVisible() && this.isStopped() && this.isNoZoom()) {
+    if (this.isVisible() && this.isStopped() && this.isOpened() && this.isNoZoom()) {
       const destinyXPosition = this.x - ((this.width / 2) / 2);
       const destinyYPosition = this.y - ((this.height / 2) / 2);
       const destinyXScale = (this.scale.x / 2) * 3;
@@ -570,7 +572,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandZoomOut() {
-    if (this.isVisible() && this.isStopped() && this.isZoom()) {
+    if (this.isVisible() && this.isStopped() && this.isOpened() && this.isZoom()) {
       const destinyXPosition = this.x + ((this.width / 2) / 2);
       const destinyYPosition = this.y + ((this.height / 2) / 2);
       const destinyXScale = ((this.scale.x / 3) * 2);
@@ -587,6 +589,18 @@ class CardSprite extends ActionSprite {
 
   isZoom() {
     return this.scale.x > 1 || this.scale.y > 1;
+  }
+
+  leave() {
+    this.addAction(this.commandLeave);
+  }
+
+  commandLeave() {
+    if (this.isVisible() && this.isStopped() && this.isOpened()) {
+      const xPositionClosing = this.x + (this.cardOriginalWidth() / 2);
+      const yPositionClosing = this.y + (this.cardOriginalHeight() / 2);
+      this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionClosing);
+    }
   }
 
 }

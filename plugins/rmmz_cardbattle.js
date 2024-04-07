@@ -393,30 +393,33 @@ class CardSpriteMovingState {
 class CardSpriteOpeningState {
   _card;
   _x;
-  _isToOpen;
+  _y;
+  _isUpdateHorizontally;
+  _isUpdateVertically;
+  _isToOpenHorizontally;
+  _isToOpenVertically;
   _interval;
+  _counter = 0;
   
-  constructor(sprite, xPosition) {
+  constructor(sprite, xPosition, yPosition) {
     this._card = sprite;
     const that = this._card;
-    this._x = xPosition;
-    this._isToOpen = xPosition < that.x;
+    this._x = xPosition || that.x;
+    this._y = yPosition || that.y;
+    this._isUpdateHorizontally = this._x !== that.x;
+    this._isUpdateVertically = this._y !== that.y;
+    this._isToOpenHorizontally = this._x < that.x;
+    this._isToOpenVertically = this._y < that.y;
     this._interval = that.calculateTimeInterval(0, that.cardOriginalWidth(), that._duration);
-  }
-
-  isToOpen() {
-    return this._isToOpen;
-  }
-
-  isToClose() {
-    return !this.isToOpen();
   }
 
   updateState() {
     const that = this._card;
-    if (this.isUpdatingPosition() || this.isUpdatingWidth()) {
+    // if (this._counter > 0) return this._counter--;
+    // this._counter = 10;
+    if (this.isUpdatingPosition() || this.isUpdatingOpening()) {
       this.updatePosition();
-      this.updateWidth();
+      this.updateOpening();
       that.refresh();
     }
     if (that.isOpened()) that.opened();
@@ -424,36 +427,95 @@ class CardSpriteOpeningState {
   }
 
   isUpdatingPosition() {
-    return this._x !== this._card.x;
+    return this._x !== this._card.x || this._y !== this._card.y;
   }
 
   updatePosition() {
-    const that = this._card;
-    if (this.isToOpen()) {
-      that.x = that.x - this._interval;
-      if (that.x < this._x) that.x = this._x;
-    }
-    if (this.isToClose()) {
-      that.x = that.x + this._interval;
-      if (that.x > this._x) that.x = this._x;
-    }
-    console.log(that.x);
+    this.updatePositionHorizontally();
+    this.updatePositionVertically();
   }
 
-  isUpdatingWidth() {
+  updatePositionHorizontally() {
     const that = this._card;
-    return that.width < that.cardOriginalWidth() && that.width > 0;
+    if (this._isUpdateHorizontally) {
+      if (this.isToOpenHorizontally()) {
+        that.x = that.x - this._interval;
+        if (that.x < this._x) that.x = this._x;
+      }
+      if (this.isToCloseHorizontally()) {
+        that.x = that.x + this._interval;
+        if (that.x > this._x) that.x = this._x;
+      }
+    }
   }
 
-  updateWidth() {
+  isToOpenHorizontally() {
+    return this._isToOpenHorizontally;
+  }
+
+  isToCloseHorizontally() {
+    return !this.isToOpenHorizontally();
+  }
+
+  updatePositionVertically() {
     const that = this._card;
-    if (this.isToOpen()) {
-      that.width += (this._interval * 2);
-      if (that.width > that.cardOriginalWidth()) that.width = that.cardOriginalWidth();
+    if (this._isUpdateVertically) {
+      if (this.isToOpenVertically()) {
+        that.y = that.y - this._interval;
+        if (that.y < this._y) that.y = this._y;
+      }
+      if (this.isToCloseVertically()) {
+        that.y = that.y + this._interval;
+        if (that.y > this._y) that.y = this._y;
+      }
     }
-    if (this.isToClose()) {
-      that.width -= (this._interval * 2);
-      if (that.width < 0) that.width = 0;
+  }
+
+  isToOpenVertically() {
+    return this._isToOpenVertically;
+  }
+
+  isToCloseVertically() {
+    return !this.isToOpenVertically();
+  }
+
+  isUpdatingOpening() {
+    const that = this._card;
+    const width = that.width < that.cardOriginalWidth() && that.width > 0;
+    const height = that.height < that.cardOriginalHeight() && that.height > 0;
+    return width || height; 
+  }
+
+  updateOpening() {
+    this.updateOpeningHorizontally();
+    this.updateOpeningVertically();
+  }
+
+  updateOpeningHorizontally() {
+    const that = this._card;
+    if (this._isUpdateHorizontally) {
+      if (this.isToOpenHorizontally()) {
+        that.width += (this._interval * 2);
+        if (that.width > that.cardOriginalWidth()) that.width = that.cardOriginalWidth();
+      }
+      if (this.isToCloseHorizontally()) {
+        that.width -= (this._interval * 2);
+        if (that.width < 0) that.width = 0;
+      }
+    }
+  }
+
+  updateOpeningVertically() {
+    const that = this._card;
+    if (this._isUpdateVertically) {
+      if (this.isToOpenVertically()) {
+        that.height += (this._interval * 2);
+        if (that.height > that.cardOriginalHeight()) that.height = that.cardOriginalHeight();
+      }
+      if (this.isToCloseVertically()) {
+        that.height -= (this._interval * 2);
+        if (that.height < 0) that.height = 0;
+      }
     }
   }
 }
@@ -1053,12 +1115,14 @@ class CardSprite extends ActionSprite {
     const contentY = 4;
     const contentWidth = this.cardOriginalWidth() - 8;
     const contentHeight = this.cardOriginalHeight() - 28;
-    const openPercent = Math.floor((this.width / this.cardOriginalWidth()) * 100);
-    const openWidth = Math.floor((contentWidth * openPercent) / 100);
+    const openWidthPercent = Math.floor((this.width / this.cardOriginalWidth()) * 100);
+    const openHeightPercent = Math.floor((this.height / this.cardOriginalHeight()) * 100);
+    const openWidth = Math.floor((contentWidth * openWidthPercent) / 100);
+    const openHeight = Math.floor((contentHeight * openHeightPercent) / 100);
     const figureX = 0;
     const figureY = 0;
     const figureWidth = openWidth ? this._figure.width : 0;
-    const figureHeight = this._figure.height;
+    const figureHeight = openHeight ? this._figure.height : 0;
     this._contentLayer.bitmap.blt(
       this._figure, 
       figureX, 
@@ -1068,7 +1132,7 @@ class CardSprite extends ActionSprite {
       contentX,
       contentY,
       openWidth,
-      contentHeight
+      openHeight
     );
   }
 
@@ -1393,7 +1457,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandZoom() {
-    if (this.isVisible() && this.isStopped() && this.isNoZoom()) {
+    if (this.isVisible() && this.isStopped() && this.isOpened() && this.isNoZoom()) {
       const destinyXPosition = this.x - ((this.width / 2) / 2);
       const destinyYPosition = this.y - ((this.height / 2) / 2);
       const destinyXScale = (this.scale.x / 2) * 3;
@@ -1417,7 +1481,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandZoomOut() {
-    if (this.isVisible() && this.isStopped() && this.isZoom()) {
+    if (this.isVisible() && this.isStopped() && this.isOpened() && this.isZoom()) {
       const destinyXPosition = this.x + ((this.width / 2) / 2);
       const destinyYPosition = this.y + ((this.height / 2) / 2);
       const destinyXScale = ((this.scale.x / 3) * 2);
@@ -1434,6 +1498,18 @@ class CardSprite extends ActionSprite {
 
   isZoom() {
     return this.scale.x > 1 || this.scale.y > 1;
+  }
+
+  leave() {
+    this.addAction(this.commandLeave);
+  }
+
+  commandLeave() {
+    if (this.isVisible() && this.isStopped() && this.isOpened()) {
+      const xPositionClosing = this.x + (this.cardOriginalWidth() / 2);
+      const yPositionClosing = this.y + (this.cardOriginalHeight() / 2);
+      this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionClosing);
+    }
   }
 
 }
@@ -2785,6 +2861,43 @@ class ZoomOutCardSpriteTest extends Test {
   }
 
 }
+class LeaveCardSpriteTest extends Test {
+  card;
+  scene;
+
+  constructor(scene) {
+    super();
+    this.scene = scene;
+    this.setTest();
+  }
+
+  setTest() {
+    this.card = CardSprite.create(
+      CardTypes.BATTLE,
+      CardColors.BLUE,
+      'default',
+      1,
+      1
+    );
+    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
+    this.card.x = centerXPosition;
+    this.card.y = centerYPosition;
+    this.scene.addChild(this.card);
+  }
+
+  start() {
+    return new Promise(resolve => {
+      this.card.show();
+      this.card.leave();
+      setTimeout(() => {
+        // this.scene.removeChild(this.card);
+        resolve(true);
+      }, 1000);
+    });
+  }
+
+}
 
 class CardBattleScene extends Scene_Message {
   initialize() {
@@ -2824,7 +2937,8 @@ class CardBattleScene extends Scene_Message {
       DamageAnimationCardSpriteTest,
       UpdatingPointsCardSpriteTest,
       ZoomInCardSpriteTest,
-      ZoomOutCardSpriteTest
+      ZoomOutCardSpriteTest,
+      LeaveCardSpriteTest
     ];
 
     for (const test of list) {

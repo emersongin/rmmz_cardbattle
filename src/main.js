@@ -33,6 +33,7 @@
 // include ../test/integration/card/DisableCardSpriteTest.js
 // include ../test/integration/card/ZoomCardSpriteTest.js
 // include ../test/integration/card/ZoomOutCardSpriteTest.js
+// include ../test/integration/card/LeaveCardSpriteTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./manager/CardBattleManager.js
