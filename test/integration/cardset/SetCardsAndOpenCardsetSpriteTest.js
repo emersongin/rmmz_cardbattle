@@ -1,4 +1,4 @@
-class PresentOpenCardsCardsetSpriteTest extends Test {
+class SetCardsAndOpenCardsetSpriteTest extends Test {
   cardset;
   card;
   scene;
@@ -27,24 +27,32 @@ class PresentOpenCardsCardsetSpriteTest extends Test {
 
   async start() {
     let times = 1;
-    for (let index = 0; index < 40; index++) {
+    for (let index = 0; index < 6; index++) {
       const cards = [];
-      this.cardset.clearContent();
       for (let i = 0; i < times; i++) {
         cards.push(this.card);
       }
-      await this.testCards(cards);
+      await this.testCardsNoTime(cards);
       times++;
     }
   }
 
-  testCards(cards) {
+  testCardsNoTime(cards) {
     return new Promise(resolve => {
-      this.cardset.setCards(cards);
-      this.cardset.presentOpenCards();
+      this.cardset.setCardsAndOpen(cards);
       setTimeout(() => {
         resolve(true);
-      }, 100 * cards.length);
+      }, 300);
+    });
+  }
+
+  testCardsTimeToOpen(cards) {
+    return new Promise(resolve => {
+      const times = 300;
+      this.cardset.setCardsAndOpen(cards, times);
+      setTimeout(() => {
+        resolve(true);
+      }, cards.length * times);
     });
   }
 

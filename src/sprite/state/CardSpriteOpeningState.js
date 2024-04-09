@@ -17,7 +17,7 @@ class CardSpriteOpeningState {
     this._isUpdateVertically = this._y !== that.y;
     this._isToOpenHorizontally = this._x < that.x;
     this._isToOpenVertically = this._y < that.y;
-    this._interval = that.calculateTimeInterval(0, that.cardOriginalWidth(), that._duration);
+    this._interval = that.calculateTimeInterval(0, that.contentOriginalWidth(), that._duration);
   }
 
   updateState() {
@@ -86,8 +86,8 @@ class CardSpriteOpeningState {
 
   isUpdatingOpening() {
     const that = this._card;
-    const width = that.width < that.cardOriginalWidth() && that.width > 0;
-    const height = that.height < that.cardOriginalHeight() && that.height > 0;
+    const width = that.width < that.contentOriginalWidth() && that.width > 0;
+    const height = that.height < that.contentOriginalHeight() && that.height > 0;
     return width || height; 
   }
 
@@ -101,7 +101,7 @@ class CardSpriteOpeningState {
     if (this._isUpdateHorizontally) {
       if (this.isToOpenHorizontally()) {
         that.width += (this._interval * 2);
-        if (that.width > that.cardOriginalWidth()) that.width = that.cardOriginalWidth();
+        if (that.width > that.contentOriginalWidth()) that.width = that.contentOriginalWidth();
       }
       if (this.isToCloseHorizontally()) {
         that.width -= (this._interval * 2);
@@ -115,7 +115,7 @@ class CardSpriteOpeningState {
     if (this._isUpdateVertically) {
       if (this.isToOpenVertically()) {
         that.height += (this._interval * 2);
-        if (that.height > that.cardOriginalHeight()) that.height = that.cardOriginalHeight();
+        if (that.height > that.contentOriginalHeight()) that.height = that.contentOriginalHeight();
       }
       if (this.isToCloseVertically()) {
         that.height -= (this._interval * 2);

@@ -37,15 +37,15 @@ class CardSprite extends ActionSprite {
   }
 
   setSize() {
-    this.width = this.cardOriginalWidth();
-    this.height = this.cardOriginalHeight();
+    this.width = this.contentOriginalWidth();
+    this.height = this.contentOriginalHeight();
   }
 
-  cardOriginalWidth() {
+  contentOriginalWidth() {
     return 96;
   }
 
-  cardOriginalHeight() {
+  contentOriginalHeight() {
     return 128;
   }
 
@@ -57,7 +57,7 @@ class CardSprite extends ActionSprite {
 
   createContentLayer() {
     this._contentLayer = new Sprite();
-    this._contentLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
+    this._contentLayer.bitmap = new Bitmap(this.contentOriginalWidth(), this.contentOriginalHeight());
     this.createDisableLayer();
     this.createFlashLayer();
     this.addChild(this._contentLayer);
@@ -67,26 +67,26 @@ class CardSprite extends ActionSprite {
     this._disabledLayer = new Sprite();
     this._disabledLayer.visible = false;
     this._disabledLayer.opacity = 128;
-    this._disabledLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
+    this._disabledLayer.bitmap = new Bitmap(this.contentOriginalWidth(), this.contentOriginalHeight());
     this._disabledLayer.bitmap.fillAll('black');
     this._contentLayer.addChild(this._disabledLayer);
   }
 
   createFlashLayer() {
     this._flashedLayer = new Sprite();
-    this._flashedLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
+    this._flashedLayer.bitmap = new Bitmap(this.contentOriginalWidth(), this.contentOriginalHeight());
     this._contentLayer.addChild(this._flashedLayer);
   }
 
   createHoveredLayer() {
     this._hoveredLayer = new Sprite();
-    this._hoveredLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
+    this._hoveredLayer.bitmap = new Bitmap(this.contentOriginalWidth(), this.contentOriginalHeight());
     this.addChild(this._hoveredLayer);
   }
 
   createSelectedLayer() {
     this._selectedLayer = new Sprite();
-    this._selectedLayer.bitmap = new Bitmap(this.cardOriginalWidth(), this.cardOriginalHeight());
+    this._selectedLayer.bitmap = new Bitmap(this.contentOriginalWidth(), this.contentOriginalHeight());
     this.addChild(this._selectedLayer);
   }
 
@@ -205,10 +205,10 @@ class CardSprite extends ActionSprite {
   drawCardFigure() {
     const contentX = 4;
     const contentY = 4;
-    const contentWidth = this.cardOriginalWidth() - 8;
-    const contentHeight = this.cardOriginalHeight() - 28;
-    const openWidthPercent = Math.floor((this.width / this.cardOriginalWidth()) * 100);
-    const openHeightPercent = Math.floor((this.height / this.cardOriginalHeight()) * 100);
+    const contentWidth = this.contentOriginalWidth() - 8;
+    const contentHeight = this.contentOriginalHeight() - 28;
+    const openWidthPercent = Math.floor((this.width / this.contentOriginalWidth()) * 100);
+    const openHeightPercent = Math.floor((this.height / this.contentOriginalHeight()) * 100);
     const openWidth = Math.floor((contentWidth * openWidthPercent) / 100);
     const openHeight = Math.floor((contentHeight * openHeightPercent) / 100);
     const figureX = 0;
@@ -375,7 +375,7 @@ class CardSprite extends ActionSprite {
 
   commandOpen() {
     if (this.isVisible() && this.isStopped() && this.isClosed()) {
-      const xPositionOpening = this.x - (this.cardOriginalWidth() / 2);
+      const xPositionOpening = this.x - (this.contentOriginalWidth() / 2);
       const yPositionOpening = this.y;
       this.changeStatus(CardSpriteOpeningState, xPositionOpening, yPositionOpening);
     }
@@ -386,7 +386,7 @@ class CardSprite extends ActionSprite {
   }
 
   opened() {
-    this.width = this.cardOriginalWidth();
+    this.width = this.contentOriginalWidth();
     this.stop();
   }
 
@@ -396,14 +396,14 @@ class CardSprite extends ActionSprite {
 
   commandClose() {
     if (this.isVisible() && this.isStopped() && this.isOpened()) {
-      const xPositionClosing = this.x + (this.cardOriginalWidth() / 2);
+      const xPositionClosing = this.x + (this.contentOriginalWidth() / 2);
       const yPositionOpening = this.y;
       this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionOpening);
     }
   }
 
   isOpened() {
-    return this.width === this.cardOriginalWidth();
+    return this.width === this.contentOriginalWidth();
   }
 
   closed() {
@@ -611,8 +611,8 @@ class CardSprite extends ActionSprite {
 
   commandLeave() {
     if (this.isVisible() && this.isStopped() && this.isOpened()) {
-      const xPositionClosing = this.x + (this.cardOriginalWidth() / 2);
-      const yPositionClosing = this.y + (this.cardOriginalHeight() / 2);
+      const xPositionClosing = this.x + (this.contentOriginalWidth() / 2);
+      const yPositionClosing = this.y + (this.contentOriginalHeight() / 2);
       this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionClosing);
     }
   }
@@ -671,7 +671,7 @@ class CardSprite extends ActionSprite {
 
   startClosed(xPosition = this.x, yPosition = this.y) {
     xPosition = xPosition;
-    const cardWidthHalf = (this.cardOriginalWidth() / 2);
+    const cardWidthHalf = (this.contentOriginalWidth() / 2);
     this.x = xPosition + cardWidthHalf;
     this.y = yPosition;
     this.width = 0;

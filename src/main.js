@@ -2,7 +2,6 @@
 'use strict';
 // include ./constant/CardTypes.js
 // include ./constant/CardColors.js
-// include ./constant/CardStatus.js
 // include ./data/playerDecksData.js
 // include ./helper/uuidv4.js
 // include ./window/TextWindow.js
@@ -38,7 +37,7 @@
 // include ../test/integration/card/QuakeCardSpriteTest.js
 // tests CARDSET
 // include ../test/integration/cardset/StartPositionCardsetSpriteTest.js
-// include ../test/integration/cardset/PresentOpenCardsCardsetSpriteTest.js
+// include ../test/integration/cardset/SetCardsAndOpenCardsetSpriteTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./manager/CardBattleManager.js

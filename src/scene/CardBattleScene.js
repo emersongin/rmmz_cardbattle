@@ -43,7 +43,7 @@ class CardBattleScene extends Scene_Message {
     ];
     const cardsetTests = [
       // StartPositionCardsetSpriteTest,
-      PresentOpenCardsCardsetSpriteTest
+      SetCardsAndOpenCardsetSpriteTest
     ];
     const tests = [
       // ...cardSpriteTests,

@@ -1,49 +1,29 @@
 class CardsetSprite extends ActionSprite {
   initialize() { 
     super.initialize();
-    this._cards = [];
+    this._sprites = [];
     this.setSize();
   }
 
   setSize() {
-    this.width = this.cardsetOriginalWidth();
-    this.height = this.cardsetOriginalHeight();
+    this.width = this.contentOriginalWidth();
+    this.height = this.contentOriginalHeight();
   }
 
-  cardsetOriginalWidth() {
-    const cardsetWidthLimite = 576;
-    const cardsetPaddingWidthLimite = 5;
-    return cardsetWidthLimite + cardsetPaddingWidthLimite;
+  contentOriginalWidth() {
+    const widthLimit = 576;
+    const paddingLimit = 5;
+    return widthLimit + paddingLimit;
   }
 
-  cardsetOriginalHeight() {
-    const cardsetHeightLimite = 128;
-    return cardsetHeightLimite;
+  contentOriginalHeight() {
+    const heightLimit = 128;
+    return heightLimit;
   }
 
-  static create(cards) {
+  static create() {
     const cardset = new CardsetSprite();
-    cardset.setCards(cards || []);
     return cardset;
-  }
-
-  setCards(cards) {
-    this._cards = cards.map(card => {
-      const { type, color, figureName, attack, health } = card;
-      const sprite = CardSprite.create(type, color, figureName, attack, health);
-      const status = CardStatus.ADDED;
-      const cardStatus = this.createCardStatus(status, sprite);
-      return cardStatus;
-    });
-  }
-
-  createCardStatus(status, sprite) {
-    return { status, sprite };
-  }
-
-  setBackGroundColor(color) {
-    this.bitmap = new Bitmap(this.cardsetOriginalWidth(), this.cardsetOriginalHeight());
-    this.bitmap.fillAll(color || 'white');
   }
 
   startPosition(xPosition, yPosition) {
@@ -51,55 +31,72 @@ class CardsetSprite extends ActionSprite {
     this.y = yPosition || this.y;
   }
 
-  presentOpenCards() {
-    this.clearContent();
-    const sprites = this.getSpritesWithStatus(CardStatus.ADDED);
-    this.startCardsClosed(sprites);
-    this.openCards(sprites);
+  setBackGroundColor(color) {
+    this.bitmap = new Bitmap(this.contentOriginalWidth(), this.contentOriginalHeight());
+    this.bitmap.fillAll(color || 'white');
   }
 
-  clearContent(sprites) {
-    const children = sprites || this.children || [];
-    while (children.length) {
-      children.forEach(async child => {
-        await this.removeChild(child)
+  clear() {
+    while (this.children.length) {
+      this.children.forEach(async child => {
+        await this.removeChild(child);
       });
     }
   }
 
-  getSpritesWithStatus(cardStatus) {
-    const cards = this._cards.filter(({ status }) => status === cardStatus);
-    return cards.map(({ sprite }) => sprite);
+  setCardsAndOpen(cards, timeOpen) {
+    this.clear();
+    const sprites = cards.map(card => this.createCardSprite(card));
+    this.setSprites(sprites);
+    this.addSprites(sprites);
+    this.openSprites(sprites, timeOpen);
   }
 
-  startCardsClosed(sprites) {
-    const length = this.getChildrenLength() + sprites.length;
-    const widthLimit = this.cardsetOriginalWidth();
+  createCardSprite(card) {
+    const { type, color, figureName, attack, health } = card;
+    const sprite = CardSprite.create(type, color, figureName, attack, health);
+    return sprite;
+  }
+
+  setSprites(sprites) {
+    this._cards = sprites;
+  }
+
+  addSprites(sprites) {
+    const total = sprites.length;
     sprites.forEach((sprite, index) => {
-      const width = sprite.cardOriginalWidth();
-      const spaceBetween = this.calculateSpaceBetweenCards(width, length, widthLimit) * index;
-      const xPosition = index ? spaceBetween : 0;
-      const yPosition = 0;
-      sprite.startClosed(xPosition, yPosition);
+      const { x, y } = this.getChildPosition(index, total);
+      sprite.startClosed(x, y);
       this.addChild(sprite);
     });
   }
 
-  getChildrenLength() {
-    return this.children.length;
+  getChildPosition(index, total) {
+    index = index || this.children.length;
+    const contentWidthLimit = this.contentOriginalWidth();
+    return this.getSpriteInitPosition(index, total);
   }
 
-  calculateSpaceBetweenCards(width, length, widthLimit) {
+  getSpriteInitPosition(index, total) {
+    const spaceBetween = this.spaceBetweenCards(total) * index;
+    const x = index ? spaceBetween : 0;
+    const y = 0;
+    return { x, y };
+  }
+
+  spaceBetweenCards(total) {
+    const contentLimit = this.contentOriginalWidth();
+    total = total || (this.children.length + 1);
     const padding = 1;
-    const space = (widthLimit - (padding * length)) / (length || 1);
-    return parseInt(Math.ceil(space) < width ? space : width + padding) || padding;
+    const cardWidth = 96;
+    const space = (contentLimit - (padding * total)) / (total || 1);
+    return parseInt(Math.ceil(space) < cardWidth ? space : cardWidth + padding) || padding;
   }
 
-  openCards(sprites) {
+  openSprites(sprites, milliseconds) {
+    const ms = milliseconds ? milliseconds : 0;
     sprites.forEach((sprite, index) => {
-      setTimeout(() =>
-        sprite.open()
-      , (100 * index));
+      setTimeout(() => sprite.open(), (ms * index));
     });
   }
 }
