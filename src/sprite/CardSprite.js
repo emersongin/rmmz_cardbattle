@@ -32,7 +32,7 @@ class CardSprite extends ActionSprite {
   setup() {
     this.setSize();
     this.createLayers();
-    this.hide();
+    this.commandHide();
     this.stop();
   }
 
@@ -97,6 +97,10 @@ class CardSprite extends ActionSprite {
   }
 
   hide() {
+    this.addAction(this.commandHide);
+  }
+
+  commandHide() {
     this.visible = false;
   }
 
@@ -109,8 +113,8 @@ class CardSprite extends ActionSprite {
   }
 
   update() {
-    if (this.hasActions() && (this.isStopped())) this.executeAction();
-    if (this.isMoving() && this.isHidden()) this.show();
+    if (this.hasActions() && this.isStopped()) this.executeAction();
+    if (this.isMoving() && this.isHidden()) this.commandShow();
     if (this.isVisible()) {
       this.updateStates();
       this.updateBehaviors();
@@ -139,6 +143,10 @@ class CardSprite extends ActionSprite {
   }
 
   show() {
+    this.addAction(this.commandShow);
+  }
+
+  commandShow() {
     this.visible = true;
     this.refresh();
   }
@@ -442,17 +450,29 @@ class CardSprite extends ActionSprite {
   }
 
   hover() {
+    this.addAction(this.commandHover);
+  }
+
+  commandHover() {
     if (this.isVisible() && this.isStopped()) {
       this.addBehavior(CardSpriteHoveredBehavior);
     }
   }
 
   unhover() {
+    this.addAction(this.commandUnhover);
+  }
+
+  commandUnhover() {
     this._hoveredLayer.bitmap.clear();
     this.removeBehavior(CardSpriteHoveredBehavior);
   }
 
   select() {
+    this.addAction(this.commandSelect);
+  }
+
+  commandSelect() {
     if (this.isVisible() && (this.isStopped() || this.isOpening() || this.isMoving() || this.isZooming())) {
       this.addBehavior(CardSpriteSelectedBehavior);
     }
@@ -467,11 +487,19 @@ class CardSprite extends ActionSprite {
   }
 
   unselect() {
+    this.addAction(this.commandUnselect);
+  }
+
+  commandUnselect() {
     this._selectedLayer.bitmap.clear();
     this.removeBehavior(CardSpriteSelectedBehavior);
   }
 
   flash(color = 'white', duration = 60, times = 1) {
+    this.addAction(this.commandFlash, color, duration, times);
+  }
+
+  commandFlash(color, duration, times) {
     if (this.isVisible() && (this.isStopped() || this.isOpening() || this.isMoving() || this.isZooming())) {
       this.addBehavior(
         CardSpriteFlashedBehavior,
@@ -482,12 +510,12 @@ class CardSprite extends ActionSprite {
     }
   }
 
-  damageAnimation(times = 1) {
-    const animation = this.damage();
-    this.animate(animation, times);
+  damage(times = 1) {
+    const animation = this.damageAnimation();
+    this.addAction(this.commandAnimate, animation, times);
   }
 
-  damage() {
+  damageAnimation() {
     return {
       id: 45,
       displayType: 0,
@@ -515,6 +543,10 @@ class CardSprite extends ActionSprite {
     };
   }
 
+  commandAnimate(animation, times) {
+    this.animate(animation, times);
+  }
+
   animate(animation, times) {
     if (this.isVisible() && (this.isStopped() || this.isOpening() || this.isMoving() || this.isZooming())) {
       this.addBehavior(
@@ -534,6 +566,10 @@ class CardSprite extends ActionSprite {
   }
 
   changePoints(attackPoints = this._attackPoints, healtPoints = this._healthPoints) {
+    this.addAction(this.commandChangePoints, attackPoints, healtPoints);
+  }
+
+  commandChangePoints(attackPoints, healtPoints) {
     if (this.isVisible() && this.isStopped()) {
       this.addBehavior(
         CardSpriteUpdatedBehavior, 
@@ -550,7 +586,7 @@ class CardSprite extends ActionSprite {
   }
 
   isBusy() {
-    return this.isNotStopped() || this.hasActions();
+    return this.hasActions() || this.isNotStopped();
   }
 
   isNotStopped() {
@@ -660,6 +696,17 @@ class CardSprite extends ActionSprite {
     if (behavior) return behavior.isPlayingAnimation();
     return false;
   }
+
+  setPosition(xPosition, yPosition) {
+    this.x = xPosition;
+    this.y = yPosition;
+  }
+
+
+
+
+  
+
 
   startOpen(xPosition, yPosition) {
     this.x = xPosition || this.x;

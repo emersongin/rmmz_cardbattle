@@ -36,8 +36,10 @@
 // include ../test/integration/card/LeaveCardSpriteTest.js
 // include ../test/integration/card/QuakeCardSpriteTest.js
 // tests CARDSET
-// include ../test/integration/cardset/StartPositionCardsetSpriteTest.js
-// include ../test/integration/cardset/SetCardsAndOpenCardsetSpriteTest.js
+// include ../test/integration/cardset/SetBackgroundAndStartPositionCardsetSpriteTest.js
+// include ../test/integration/cardset/SetCardsCardsetSpriteTest.js
+// include ../test/integration/cardset/StartPositionCardsCardsetSpriteTest.js
+// include ../test/integration/cardset/StartListCardsCardsetSpriteTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./manager/CardBattleManager.js

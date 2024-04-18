@@ -25,7 +25,7 @@ class DamageAnimationCardSpriteTest extends Test {
   start() {
     return new Promise(resolve => {
       const times = 1;
-      this.card.damageAnimation(times);
+      this.card.damage(times);
       setTimeout(() => {
         this.scene.removeChild(this.card);
         resolve(true);

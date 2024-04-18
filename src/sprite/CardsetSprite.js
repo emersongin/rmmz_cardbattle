@@ -31,7 +31,7 @@ class CardsetSprite extends ActionSprite {
     this.y = yPosition || this.y;
   }
 
-  setBackGroundColor(color) {
+  setBackgroundColor(color) {
     this.bitmap = new Bitmap(this.contentOriginalWidth(), this.contentOriginalHeight());
     this.bitmap.fillAll(color || 'white');
   }
@@ -44,12 +44,11 @@ class CardsetSprite extends ActionSprite {
     }
   }
 
-  setCardsAndOpen(cards, timeOpen) {
+  setCards(cards) {
     this.clear();
     const sprites = cards.map(card => this.createCardSprite(card));
     this.setSprites(sprites);
     this.addSprites(sprites);
-    this.openSprites(sprites, timeOpen);
   }
 
   createCardSprite(card) {
@@ -63,16 +62,34 @@ class CardsetSprite extends ActionSprite {
   }
 
   addSprites(sprites) {
-    const total = sprites.length;
     sprites.forEach((sprite, index) => {
-      const { x, y } = this.getChildPosition(index, total);
-      sprite.startClosed(x, y);
+      sprite.setPosition(0, 0);
       this.addChild(sprite);
     });
   }
 
-  getChildPosition(index, total) {
-    index = index || this.children.length;
+  showCards(sprites = this._cards, milliseconds = 0) {
+    sprites.forEach((sprite, index) => {
+      setTimeout(() => sprite.show(), (milliseconds * index));
+    });
+  }
+
+  startPositionCards(xPosition, yPosition, sprites = this._cards) {
+    sprites.forEach((sprite, index) => {
+      sprite.setPosition(xPosition, yPosition);
+    });
+  }
+
+  startListCards(sprites = this._cards) {
+    sprites.forEach((sprite, index) => {
+      const { x, y } = this.getChildPosition(index, sprites.length);
+      console.log(x, y, index, sprites.length);
+      sprite.setPosition(x, y);
+    });
+  }
+
+  getChildPosition(index = this.children.length, total) {
+    index = index;
     const contentWidthLimit = this.contentOriginalWidth();
     return this.getSpriteInitPosition(index, total);
   }
@@ -91,12 +108,5 @@ class CardsetSprite extends ActionSprite {
     const cardWidth = 96;
     const space = (contentLimit - (padding * total)) / (total || 1);
     return parseInt(Math.ceil(space) < cardWidth ? space : cardWidth + padding) || padding;
-  }
-
-  openSprites(sprites, milliseconds) {
-    const ms = milliseconds ? milliseconds : 0;
-    sprites.forEach((sprite, index) => {
-      setTimeout(() => sprite.open(), (ms * index));
-    });
   }
 }

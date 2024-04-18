@@ -42,8 +42,10 @@ class CardBattleScene extends Scene_Message {
       QuakeCardSpriteTest
     ];
     const cardsetTests = [
-      // StartPositionCardsetSpriteTest,
-      SetCardsAndOpenCardsetSpriteTest
+      SetBackgroundAndStartPositionCardsetSpriteTest,
+      SetCardsCardsetSpriteTest,
+      StartPositionCardsCardsetSpriteTest,
+      StartListCardsCardsetSpriteTest
     ];
     const tests = [
       // ...cardSpriteTests,
