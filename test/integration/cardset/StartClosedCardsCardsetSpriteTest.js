@@ -32,6 +32,7 @@ class StartClosedCardsCardsetSpriteTest extends SceneTest {
       this.cardset.setCards(cards);
       this.cardset.startListCards();
       this.cardset.startClosedCards();
+      this.cardset.showCards();
       this.cardset.openCards();
       setTimeout(() => {
         this.cardset.clear();

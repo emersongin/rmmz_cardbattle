@@ -68,12 +68,6 @@ class CardsetSprite extends ActionSprite {
     });
   }
 
-  showCards(sprites = this._cards, milliseconds = 0) {
-    sprites.forEach((sprite, index) => {
-      setTimeout(() => sprite.show(), (milliseconds * index));
-    });
-  }
-
   startPositionCards(xPosition, yPosition, sprites = this._cards) {
     sprites.forEach((sprite, index) => {
       sprite.setPosition(xPosition, yPosition);
@@ -83,7 +77,6 @@ class CardsetSprite extends ActionSprite {
   startListCards(sprites = this._cards) {
     sprites.forEach((sprite, index) => {
       const { x, y } = this.getChildPosition(index, sprites.length);
-      console.log(x, y, index, sprites.length);
       sprite.setPosition(x, y);
     });
   }
@@ -113,6 +106,12 @@ class CardsetSprite extends ActionSprite {
   startClosedCards(sprites = this._cards) {
     sprites.forEach((sprite, index) => {
       sprite.startClosed();
+    });
+  }
+
+  showCards(sprites = this._cards) {
+    sprites.forEach((sprite, index) => {
+      sprite.show();
     });
   }
 

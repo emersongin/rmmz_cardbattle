@@ -1660,12 +1660,6 @@ class CardsetSprite extends ActionSprite {
     });
   }
 
-  showCards(sprites = this._cards, milliseconds = 0) {
-    sprites.forEach((sprite, index) => {
-      setTimeout(() => sprite.show(), (milliseconds * index));
-    });
-  }
-
   startPositionCards(xPosition, yPosition, sprites = this._cards) {
     sprites.forEach((sprite, index) => {
       sprite.setPosition(xPosition, yPosition);
@@ -1675,7 +1669,6 @@ class CardsetSprite extends ActionSprite {
   startListCards(sprites = this._cards) {
     sprites.forEach((sprite, index) => {
       const { x, y } = this.getChildPosition(index, sprites.length);
-      console.log(x, y, index, sprites.length);
       sprite.setPosition(x, y);
     });
   }
@@ -1705,6 +1698,12 @@ class CardsetSprite extends ActionSprite {
   startClosedCards(sprites = this._cards) {
     sprites.forEach((sprite, index) => {
       sprite.startClosed();
+    });
+  }
+
+  showCards(sprites = this._cards) {
+    sprites.forEach((sprite, index) => {
+      sprite.show();
     });
   }
 
@@ -3032,6 +3031,7 @@ class StartClosedCardsCardsetSpriteTest extends SceneTest {
       this.cardset.setCards(cards);
       this.cardset.startListCards();
       this.cardset.startClosedCards();
+      this.cardset.showCards();
       this.cardset.openCards();
       setTimeout(() => {
         this.cardset.clear();
@@ -3068,33 +3068,33 @@ class CardBattleScene extends Scene_Message {
 
   async startTests() {
     const cardSpriteTests = [
-      // StartOpenCardSpriteTest,
-      // StartClosedCardSpriteTest,
-      // CloseCardSpriteTest,
-      // OpenCardSpriteTest,
-      // MoveCardSpriteTest,
-      // DisableCardSpriteTest,
-      // HoveredCardSpriteTest,
-      // SelectedCardSpriteTest,
-      // FlashCardSpriteTest,
-      // DamageAnimationCardSpriteTest,
-      // UpdatingPointsCardSpriteTest,
-      // ZoomInCardSpriteTest,
-      // ZoomOutCardSpriteTest,
-      // LeaveCardSpriteTest,
-      // QuakeCardSpriteTest,
+      StartOpenCardSpriteTest,
+      StartClosedCardSpriteTest,
+      CloseCardSpriteTest,
+      OpenCardSpriteTest,
+      MoveCardSpriteTest,
+      DisableCardSpriteTest,
+      HoveredCardSpriteTest,
+      SelectedCardSpriteTest,
+      FlashCardSpriteTest,
+      DamageAnimationCardSpriteTest,
+      UpdatingPointsCardSpriteTest,
+      ZoomInCardSpriteTest,
+      ZoomOutCardSpriteTest,
+      LeaveCardSpriteTest,
+      QuakeCardSpriteTest,
       FlipCardToUpSpriteTest
     ];
     const cardsetTests = [
-      SetBackgroundAndStartPositionCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      StartPositionCardsCardsetSpriteTest,
-      StartListCardsCardsetSpriteTest,
+      // SetBackgroundAndStartPositionCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      // StartPositionCardsCardsetSpriteTest,
+      // StartListCardsCardsetSpriteTest,
       StartClosedCardsCardsetSpriteTest
     ];
     const tests = [
-      ...cardSpriteTests
-      // ...cardsetTests
+      // ...cardSpriteTests,
+      ...cardsetTests
     ];
     for (const test of tests) {
       this.changePhase(test);
