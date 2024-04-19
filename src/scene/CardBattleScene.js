@@ -43,11 +43,14 @@ class CardBattleScene extends Scene_Message {
       FlipCardToUpSpriteTest
     ];
     const cardsetTests = [
-      // SetBackgroundAndStartPositionCardsetSpriteTest,
-      // SetCardsCardsetSpriteTest,
-      // StartPositionCardsCardsetSpriteTest,
-      // StartListCardsCardsetSpriteTest,
-      StartClosedCardsCardsetSpriteTest
+      SetBackgroundAndStartPositionCardsetSpriteTest,
+      SetCardsCardsetSpriteTest,
+      StartPositionCardsCardsetSpriteTest,
+      StartListCardsCardsetSpriteTest,
+      StartClosedAndOpenCardsCardsetSpriteTest,
+      MoveCardsToListCardsetSpriteTest,
+      MoveCardsToPositionCardsetSpriteTest,
+      AddCardAndMoveToListCardsetSpriteTest
     ];
     const tests = [
       // ...cardSpriteTests,

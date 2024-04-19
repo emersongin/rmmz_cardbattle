@@ -1,4 +1,4 @@
-class StartClosedCardsCardsetSpriteTest extends SceneTest {
+class MoveCardsToListCardsetSpriteTest extends SceneTest {
   cardset;
   card;
   scene;
@@ -29,15 +29,16 @@ class StartClosedCardsCardsetSpriteTest extends SceneTest {
 
   testCards(cards) {
     return new Promise(resolve => {
+      const screenWidth = Graphics.boxWidth;
       this.cardset.setCards(cards);
-      this.cardset.startListCards();
-      this.cardset.startClosedCards();
+      this.cardset.startPositionCards(screenWidth, 0);
+      this.cardset.startOpenCards();
       this.cardset.showCards();
-      this.cardset.openCards();
+      this.cardset.moveCardsToList();
       setTimeout(() => {
         this.cardset.clear();
         resolve(true);
-      }, 300);
+      }, 1000);
     });
   }
 }
