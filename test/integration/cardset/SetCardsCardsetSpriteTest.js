@@ -1,4 +1,4 @@
-class SetCardsCardsetSpriteTest extends Test {
+class SetCardsCardsetSpriteTest extends SceneTest {
   cardset;
   card;
   scene;
@@ -50,6 +50,7 @@ class SetCardsCardsetSpriteTest extends Test {
       this.cardset.setCards(cards);
       this.cardset.showCards();
       setTimeout(() => {
+        this.cardset.clear();
         resolve(true);
       }, 300);
     });

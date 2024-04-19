@@ -1,4 +1,4 @@
-class StartPositionCardsCardsetSpriteTest extends Test {
+class StartPositionCardsCardsetSpriteTest extends SceneTest {
   cardset;
   card;
   scene;
@@ -51,6 +51,7 @@ class StartPositionCardsCardsetSpriteTest extends Test {
       this.cardset.startPositionCards(100, 0);
       this.cardset.showCards();
       setTimeout(() => {
+        this.cardset.clear();
         resolve(true);
       }, 300);
     });

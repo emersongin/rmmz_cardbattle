@@ -1,4 +1,4 @@
-class MoveCardSpriteTest extends Test {
+class MoveCardSpriteTest extends SceneTest {
   card;
   scene;
 
@@ -9,14 +9,16 @@ class MoveCardSpriteTest extends Test {
   }
 
   setTest() {
+    const card = this.generateCard();
     this.card = CardSprite.create(
-      CardTypes.BATTLE,
-      CardColors.BLUE,
-      'default',
-      1,
-      1
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
     );
     this.card.startOpen(0, 0);
+    this.card.show();
     this.scene.addChild(this.card);
   }
 
@@ -34,7 +36,6 @@ class MoveCardSpriteTest extends Test {
       this.card.toMove(returnStartPosition, returnStartPosition);
       this.card.toMove(destinyXPosition, destinyYPosition);
       setTimeout(() => {
-        this.scene.removeChild(this.card);
         resolve(true);
       }, 2000);
     });

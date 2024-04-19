@@ -1,4 +1,4 @@
-class SetBackgroundAndStartPositionCardsetSpriteTest extends Test {
+class SetBackgroundAndStartPositionCardsetSpriteTest extends SceneTest {
   cardset;
   scene;
 
@@ -20,7 +20,7 @@ class SetBackgroundAndStartPositionCardsetSpriteTest extends Test {
       this.cardset.setBackgroundColor('rgba(255, 0, 0, 0.5)');
       this.cardset.startPosition(centerXPosition, centerYPosition);
       setTimeout(() => {
-        this.scene.removeChild(this.cardset);
+        this.cardset.clear();
         resolve(true);
       }, 1000);
     });

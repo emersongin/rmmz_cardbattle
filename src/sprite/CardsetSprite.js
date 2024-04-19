@@ -36,19 +36,19 @@ class CardsetSprite extends ActionSprite {
     this.bitmap.fillAll(color || 'white');
   }
 
+  setCards(cards) {
+    this.clear();
+    const sprites = cards.map(card => this.createCardSprite(card));
+    this.setSprites(sprites);
+    this.addSprites(sprites);
+  }
+
   clear() {
     while (this.children.length) {
       this.children.forEach(async child => {
         await this.removeChild(child);
       });
     }
-  }
-
-  setCards(cards) {
-    this.clear();
-    const sprites = cards.map(card => this.createCardSprite(card));
-    this.setSprites(sprites);
-    this.addSprites(sprites);
   }
 
   createCardSprite(card) {
@@ -108,5 +108,17 @@ class CardsetSprite extends ActionSprite {
     const cardWidth = 96;
     const space = (contentLimit - (padding * total)) / (total || 1);
     return parseInt(Math.ceil(space) < cardWidth ? space : cardWidth + padding) || padding;
+  }
+
+  startClosedCards(sprites = this._cards) {
+    sprites.forEach((sprite, index) => {
+      sprite.startClosed();
+    });
+  }
+
+  openCards(sprites = this._cards) {
+    sprites.forEach((sprite, index) => {
+      sprite.open();
+    });
   }
 }

@@ -30,10 +30,14 @@ class CardSprite extends ActionSprite {
   }
 
   setup() {
+    this.visible = false;
     this.setSize();
     this.createLayers();
-    this.commandHide();
     this.stop();
+  }
+
+  setToDown() {
+    this._turned = false;
   }
 
   setSize() {
@@ -702,26 +706,36 @@ class CardSprite extends ActionSprite {
     this.y = yPosition;
   }
 
-
-
-
-  
-
-
-  startOpen(xPosition, yPosition) {
-    this.x = xPosition || this.x;
-    this.y = yPosition || this.y;
+  startOpen(xPosition = this.x, yPosition = this.y) {
+    this.x = xPosition;
+    this.y = yPosition;
+    if (this.width !== 0) return;
     this.setSize();
-    this.enable();
-    this.show();
   }
 
   startClosed(xPosition = this.x, yPosition = this.y) {
-    xPosition = xPosition;
-    const cardWidthHalf = (this.contentOriginalWidth() / 2);
-    this.x = xPosition + cardWidthHalf;
+    this.x = xPosition;
     this.y = yPosition;
+    if (this.width === 0) return;
+    const cardWidthHalf = (this.contentOriginalWidth() / 2);
+    this.x = this.x + cardWidthHalf;
     this.width = 0;
-    this.show();
+  }
+
+  flipToUp() {
+    this.addAction(this.commandClose);
+    this.addAction(this.commandFlipToUp);
+    this.addAction(this.commandOpen);
+  }
+
+  commandFlipToUp() {
+    if (this.isVisible() && this.isStopped() && this.isClosed() && this.isToDown()){
+      this._turned = true;
+      this.refresh();
+    }
+  }
+
+  isToDown() {
+    return !this._turned;
   }
 }

@@ -1,4 +1,4 @@
-class StartOpenCardSpriteTest extends Test {
+class StartOpenCardSpriteTest extends SceneTest {
   card;
   scene;
 
@@ -9,12 +9,13 @@ class StartOpenCardSpriteTest extends Test {
   }
 
   setTest() {
+    const card = this.generateCard();
     this.card = CardSprite.create(
-      CardTypes.BATTLE,
-      CardColors.BLUE,
-      'default',
-      1,
-      1
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
     );
     this.scene.addChild(this.card);
   }
@@ -24,8 +25,8 @@ class StartOpenCardSpriteTest extends Test {
       const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
       const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
       this.card.startOpen(centerXPosition, centerYPosition);
+      this.card.show();
       setTimeout(() => {
-        this.scene.removeChild(this.card);
         resolve(true);
       }, 1000);
     });

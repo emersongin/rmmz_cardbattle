@@ -1,4 +1,4 @@
-class StartListCardsCardsetSpriteTest extends SceneTest {
+class StartClosedCardsCardsetSpriteTest extends SceneTest {
   cardset;
   card;
   scene;
@@ -27,32 +27,15 @@ class StartListCardsCardsetSpriteTest extends SceneTest {
     }
   }
 
-  generateCards(amount = 1) {
-    const cards = [];
-    for (let i = 0; i < amount; i++) {
-      cards.push(this.generateCard());
-    }
-    return cards;
-  }
-
-  generateCard() {
-    return {
-      type: Math.floor(Math.random() * 3) + 1,
-      color: Math.floor(Math.random() * 6) + 1,
-      figureName: 'default',
-      attack: Math.floor(Math.random() * 99) + 1,
-      health: Math.floor(Math.random() * 99) + 1
-    };
-  }
-
   testCards(cards) {
     return new Promise(resolve => {
       this.cardset.setCards(cards);
       this.cardset.startListCards();
-      this.cardset.showCards();
+      this.cardset.startClosedCards();
+      this.cardset.openCards();
       setTimeout(() => {
-        resolve(true);
         this.cardset.clear();
+        resolve(true);
       }, 300);
     });
   }

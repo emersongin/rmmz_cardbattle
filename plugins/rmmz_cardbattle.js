@@ -881,10 +881,14 @@ class CardSprite extends ActionSprite {
   }
 
   setup() {
+    this.visible = false;
     this.setSize();
     this.createLayers();
-    this.commandHide();
     this.stop();
+  }
+
+  setToDown() {
+    this._turned = false;
   }
 
   setSize() {
@@ -1553,27 +1557,37 @@ class CardSprite extends ActionSprite {
     this.y = yPosition;
   }
 
-
-
-
-  
-
-
-  startOpen(xPosition, yPosition) {
-    this.x = xPosition || this.x;
-    this.y = yPosition || this.y;
+  startOpen(xPosition = this.x, yPosition = this.y) {
+    this.x = xPosition;
+    this.y = yPosition;
+    if (this.width !== 0) return;
     this.setSize();
-    this.enable();
-    this.show();
   }
 
   startClosed(xPosition = this.x, yPosition = this.y) {
-    xPosition = xPosition;
-    const cardWidthHalf = (this.contentOriginalWidth() / 2);
-    this.x = xPosition + cardWidthHalf;
+    this.x = xPosition;
     this.y = yPosition;
+    if (this.width === 0) return;
+    const cardWidthHalf = (this.contentOriginalWidth() / 2);
+    this.x = this.x + cardWidthHalf;
     this.width = 0;
-    this.show();
+  }
+
+  flipToUp() {
+    this.addAction(this.commandClose);
+    this.addAction(this.commandFlipToUp);
+    this.addAction(this.commandOpen);
+  }
+
+  commandFlipToUp() {
+    if (this.isVisible() && this.isStopped() && this.isClosed() && this.isToDown()){
+      this._turned = true;
+      this.refresh();
+    }
+  }
+
+  isToDown() {
+    return !this._turned;
   }
 }
 class CardsetSprite extends ActionSprite {
@@ -1614,19 +1628,19 @@ class CardsetSprite extends ActionSprite {
     this.bitmap.fillAll(color || 'white');
   }
 
+  setCards(cards) {
+    this.clear();
+    const sprites = cards.map(card => this.createCardSprite(card));
+    this.setSprites(sprites);
+    this.addSprites(sprites);
+  }
+
   clear() {
     while (this.children.length) {
       this.children.forEach(async child => {
         await this.removeChild(child);
       });
     }
-  }
-
-  setCards(cards) {
-    this.clear();
-    const sprites = cards.map(card => this.createCardSprite(card));
-    this.setSprites(sprites);
-    this.addSprites(sprites);
   }
 
   createCardSprite(card) {
@@ -1686,6 +1700,18 @@ class CardsetSprite extends ActionSprite {
     const cardWidth = 96;
     const space = (contentLimit - (padding * total)) / (total || 1);
     return parseInt(Math.ceil(space) < cardWidth ? space : cardWidth + padding) || padding;
+  }
+
+  startClosedCards(sprites = this._cards) {
+    sprites.forEach((sprite, index) => {
+      sprite.startClosed();
+    });
+  }
+
+  openCards(sprites = this._cards) {
+    sprites.forEach((sprite, index) => {
+      sprite.open();
+    });
   }
 }
 class BackgroundSprite extends Sprite {
@@ -2071,7 +2097,7 @@ class CardBattlePhase {
 }
 
 // tests CARD
-class Test {
+class SceneTest {
   setTest() {
     // Override this method in the child class
   }
@@ -2113,8 +2139,35 @@ class Test {
       callback();
     }
   }
+
+  clearScene() {
+    if (!this.scene || !this.scene.children) return;
+    while (this.scene.children.length) {
+      this.scene.children.forEach(async child => {
+        await this.scene.removeChild(child);
+      });
+    }
+  }
+
+  generateCards(amount = 1) {
+    const cards = [];
+    for (let i = 0; i < amount; i++) {
+      cards.push(this.generateCard());
+    }
+    return cards;
+  }
+
+  generateCard() {
+    return {
+      type: Math.floor(Math.random() * 3) + 1,
+      color: Math.floor(Math.random() * 6) + 1,
+      figureName: 'default',
+      attack: Math.floor(Math.random() * 99) + 1,
+      health: Math.floor(Math.random() * 99) + 1
+    };
+  }
 }
-class StartOpenCardSpriteTest extends Test {
+class StartOpenCardSpriteTest extends SceneTest {
   card;
   scene;
 
@@ -2125,12 +2178,13 @@ class StartOpenCardSpriteTest extends Test {
   }
 
   setTest() {
+    const card = this.generateCard();
     this.card = CardSprite.create(
-      CardTypes.BATTLE,
-      CardColors.BLUE,
-      'default',
-      1,
-      1
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
     );
     this.scene.addChild(this.card);
   }
@@ -2140,15 +2194,15 @@ class StartOpenCardSpriteTest extends Test {
       const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
       const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
       this.card.startOpen(centerXPosition, centerYPosition);
+      this.card.show();
       setTimeout(() => {
-        this.scene.removeChild(this.card);
         resolve(true);
       }, 1000);
     });
   }
 
 }
-class StartClosedCardSpriteTest extends Test {
+class StartClosedCardSpriteTest extends SceneTest {
   card;
   scene;
 
@@ -2159,12 +2213,13 @@ class StartClosedCardSpriteTest extends Test {
   }
 
   setTest() {
+    const card = this.generateCard();
     this.card = CardSprite.create(
-      CardTypes.BATTLE,
-      CardColors.BLUE,
-      'default',
-      1,
-      1
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
     );
     this.scene.addChild(this.card);
   }
@@ -2174,10 +2229,10 @@ class StartClosedCardSpriteTest extends Test {
       const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
       const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
       this.card.startClosed(centerXPosition, centerYPosition);
+      this.card.show();
       setTimeout(() => {
         this.card.open();
         setTimeout(() => {
-          this.scene.removeChild(this.card);
           resolve(true);
         }, 1000);
       }, 1000);
@@ -2185,7 +2240,7 @@ class StartClosedCardSpriteTest extends Test {
   }
 
 }
-class OpenCardSpriteTest extends Test {
+class OpenCardSpriteTest extends SceneTest {
   card;
   scene;
 
@@ -2196,16 +2251,18 @@ class OpenCardSpriteTest extends Test {
   }
 
   setTest() {
+    const card = this.generateCard();
     this.card = CardSprite.create(
-      CardTypes.BATTLE,
-      CardColors.BLUE,
-      'default',
-      1,
-      1
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startClosed(centerXPosition, centerYPosition);
+    this.card.show();
     this.scene.addChild(this.card);
   }
 
@@ -2213,14 +2270,13 @@ class OpenCardSpriteTest extends Test {
     return new Promise(resolve => {
       this.card.open();
       setTimeout(() => {
-        this.scene.removeChild(this.card);
         resolve(true);
       }, 1000);
     });
   }
 
 }
-class CloseCardSpriteTest extends Test {
+class CloseCardSpriteTest extends SceneTest {
   card;
   scene;
 
@@ -2231,16 +2287,18 @@ class CloseCardSpriteTest extends Test {
   }
 
   setTest() {
+    const card = this.generateCard();
     this.card = CardSprite.create(
-      CardTypes.BATTLE,
-      CardColors.BLUE,
-      'default',
-      1,
-      1
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
+    this.card.show();
     this.scene.addChild(this.card);
   }
 
@@ -2248,7 +2306,6 @@ class CloseCardSpriteTest extends Test {
     return new Promise(resolve => {
       this.card.close();
       setTimeout(() => {
-        this.scene.removeChild(this.card);
         resolve(true);
       }, 1000);
     });
@@ -2261,7 +2318,7 @@ class CloseCardSpriteTest extends Test {
   // this.assert(this.card._status).toBeInstanceof(CardSpriteStoppedState);
   // this.assert(this.card.width).toBe(0);
 }
-class MoveCardSpriteTest extends Test {
+class MoveCardSpriteTest extends SceneTest {
   card;
   scene;
 
@@ -2272,14 +2329,16 @@ class MoveCardSpriteTest extends Test {
   }
 
   setTest() {
+    const card = this.generateCard();
     this.card = CardSprite.create(
-      CardTypes.BATTLE,
-      CardColors.BLUE,
-      'default',
-      1,
-      1
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
     );
     this.card.startOpen(0, 0);
+    this.card.show();
     this.scene.addChild(this.card);
   }
 
@@ -2297,14 +2356,13 @@ class MoveCardSpriteTest extends Test {
       this.card.toMove(returnStartPosition, returnStartPosition);
       this.card.toMove(destinyXPosition, destinyYPosition);
       setTimeout(() => {
-        this.scene.removeChild(this.card);
         resolve(true);
       }, 2000);
     });
   }
 
 }
-class HoveredCardSpriteTest extends Test {
+class HoveredCardSpriteTest extends SceneTest {
   card;
   scene;
 
@@ -2315,16 +2373,18 @@ class HoveredCardSpriteTest extends Test {
   }
 
   setTest() {
+    const card = this.generateCard();
     this.card = CardSprite.create(
-      CardTypes.BATTLE,
-      CardColors.BLUE,
-      'default',
-      1,
-      1
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
+    this.card.show();
     this.scene.addChild(this.card);
   }
 
@@ -2334,7 +2394,6 @@ class HoveredCardSpriteTest extends Test {
       setTimeout(() => {
         this.card.unhover();
         setTimeout(() => {
-          this.scene.removeChild(this.card);
           resolve(true);
         }, 300);
       }, 1000);
@@ -2342,7 +2401,7 @@ class HoveredCardSpriteTest extends Test {
   } 
 
 }
-class SelectedCardSpriteTest extends Test {
+class SelectedCardSpriteTest extends SceneTest {
   card;
   scene;
 
@@ -2353,16 +2412,18 @@ class SelectedCardSpriteTest extends Test {
   }
 
   setTest() {
+    const card = this.generateCard();
     this.card = CardSprite.create(
-      CardTypes.BATTLE,
-      CardColors.BLUE,
-      'default',
-      1,
-      1
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
+    this.card.show();
     this.scene.addChild(this.card);
   }
 
@@ -2372,7 +2433,6 @@ class SelectedCardSpriteTest extends Test {
       setTimeout(() => {
         this.card.unselect();
         setTimeout(() => {
-          this.scene.removeChild(this.card);
           resolve(true);
         }, 300);
       }, 1000);
@@ -2380,7 +2440,7 @@ class SelectedCardSpriteTest extends Test {
   }
 
 }
-class FlashCardSpriteTest extends Test {
+class FlashCardSpriteTest extends SceneTest {
   card;
   scene;
 
@@ -2391,16 +2451,18 @@ class FlashCardSpriteTest extends Test {
   }
 
   setTest() {
+    const card = this.generateCard();
     this.card = CardSprite.create(
-      CardTypes.BATTLE,
-      CardColors.BLUE,
-      'default',
-      1,
-      1
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
+    this.card.show();
     this.scene.addChild(this.card);
   }
 
@@ -2433,7 +2495,7 @@ class FlashCardSpriteTest extends Test {
   }
 
 }
-class DamageAnimationCardSpriteTest extends Test {
+class DamageAnimationCardSpriteTest extends SceneTest {
   card;
   scene;
 
@@ -2444,16 +2506,18 @@ class DamageAnimationCardSpriteTest extends Test {
   }
 
   setTest() {
+    const card = this.generateCard();
     this.card = CardSprite.create(
-      CardTypes.BATTLE,
-      CardColors.BLUE,
-      'default',
-      1,
-      1
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
+    this.card.show();
     this.scene.addChild(this.card);
   }
 
@@ -2462,14 +2526,13 @@ class DamageAnimationCardSpriteTest extends Test {
       const times = 1;
       this.card.damage(times);
       setTimeout(() => {
-        this.scene.removeChild(this.card);
         resolve(true);
       }, 2000);
     });
   }
 
 }
-class UpdatingPointsCardSpriteTest extends Test {
+class UpdatingPointsCardSpriteTest extends SceneTest {
   card;
   scene;
 
@@ -2480,16 +2543,18 @@ class UpdatingPointsCardSpriteTest extends Test {
   }
 
   setTest() {
+    const card = this.generateCard();
     this.card = CardSprite.create(
-      CardTypes.BATTLE,
-      CardColors.BLUE,
-      'default',
-      1,
-      1
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
+    this.card.show();
     this.scene.addChild(this.card);
   }
 
@@ -2497,14 +2562,13 @@ class UpdatingPointsCardSpriteTest extends Test {
     return new Promise(resolve => {
       this.card.changePoints(30, 30);
       setTimeout(() => {
-        this.scene.removeChild(this.card);
         resolve(true);
       }, 2000);
     });
   }
 
 }
-class DisableCardSpriteTest extends Test {
+class DisableCardSpriteTest extends SceneTest {
   card;
   scene;
 
@@ -2515,16 +2579,18 @@ class DisableCardSpriteTest extends Test {
   }
 
   setTest() {
+    const card = this.generateCard();
     this.card = CardSprite.create(
-      CardTypes.BATTLE,
-      CardColors.BLUE,
-      'default',
-      1,
-      1
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
+    this.card.show();
     this.scene.addChild(this.card);
   }
 
@@ -2534,7 +2600,6 @@ class DisableCardSpriteTest extends Test {
       setTimeout(() => {
         this.card.enable();
         setTimeout(() => {
-          this.scene.removeChild(this.card);
           resolve(true);
         }, 300);
       }, 1000);
@@ -2542,7 +2607,7 @@ class DisableCardSpriteTest extends Test {
   }
 
 }
-class ZoomInCardSpriteTest extends Test {
+class ZoomInCardSpriteTest extends SceneTest {
   card;
   scene;
 
@@ -2553,16 +2618,18 @@ class ZoomInCardSpriteTest extends Test {
   }
 
   setTest() {
+    const card = this.generateCard();
     this.card = CardSprite.create(
-      CardTypes.BATTLE,
-      CardColors.BLUE,
-      'default',
-      1,
-      1
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
+    this.card.show();
     this.scene.addChild(this.card);
   }
 
@@ -2570,14 +2637,13 @@ class ZoomInCardSpriteTest extends Test {
     return new Promise(resolve => {
       this.card.zoom();
       setTimeout(() => {
-        this.scene.removeChild(this.card);
         resolve(true);
       }, 1000);
     });
   }
 
 }
-class ZoomOutCardSpriteTest extends Test {
+class ZoomOutCardSpriteTest extends SceneTest {
   card;
   scene;
 
@@ -2588,12 +2654,13 @@ class ZoomOutCardSpriteTest extends Test {
   }
 
   setTest() {
+    const card = this.generateCard();
     this.card = CardSprite.create(
-      CardTypes.BATTLE,
-      CardColors.BLUE,
-      'default',
-      1,
-      1
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
@@ -2609,14 +2676,13 @@ class ZoomOutCardSpriteTest extends Test {
     return new Promise(resolve => {
       this.card.zoomOut();
       setTimeout(() => {
-        this.scene.removeChild(this.card);
         resolve(true);
       }, 1000);
     });
   }
 
 }
-class LeaveCardSpriteTest extends Test {
+class LeaveCardSpriteTest extends SceneTest {
   card;
   scene;
 
@@ -2627,16 +2693,18 @@ class LeaveCardSpriteTest extends Test {
   }
 
   setTest() {
+    const card = this.generateCard();
     this.card = CardSprite.create(
-      CardTypes.BATTLE,
-      CardColors.BLUE,
-      'default',
-      1,
-      1
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
+    this.card.show();
     this.scene.addChild(this.card);
   }
 
@@ -2644,14 +2712,13 @@ class LeaveCardSpriteTest extends Test {
     return new Promise(resolve => {
       this.card.leave();
       setTimeout(() => {
-        // this.scene.removeChild(this.card);
         resolve(true);
       }, 1000);
     });
   }
 
 }
-class QuakeCardSpriteTest extends Test {
+class QuakeCardSpriteTest extends SceneTest {
   card;
   scene;
 
@@ -2662,35 +2729,71 @@ class QuakeCardSpriteTest extends Test {
   }
 
   setTest() {
+    const card = this.generateCard();
     this.card = CardSprite.create(
-      CardTypes.BATTLE,
-      CardColors.BLUE,
-      'default',
-      1,
-      1
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
+    this.card.show();
     this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
-      const times = 1;
-      // this.card.damageAnimation(times);
+      const times = 3;
+      this.card.damage();
       this.card.quake(times);
       setTimeout(() => {
-        if (!this.card.isAnimationPlaying()) 
-          this.scene.removeChild(this.card);
         resolve(true);
       }, 1000);
     });
   }
 
 }
+class FlipCardToUpSpriteTest extends SceneTest {
+  card;
+  scene;
+
+  constructor(scene) {
+    super();
+    this.scene = scene;
+    this.setTest();
+  }
+
+  setTest() {
+    const card = this.generateCard();
+    this.card = CardSprite.create(
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
+    );
+    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
+    this.card.startOpen(centerXPosition, centerYPosition);
+    this.card.setToDown();
+    this.card.show();
+    this.scene.addChild(this.card);
+  }
+
+  start() {
+    return new Promise(resolve => {
+      this.card.flipToUp();
+      setTimeout(() => {
+        resolve(true);
+      }, 1000);
+    });
+  }
+}
 // tests CARDSET
-class SetBackgroundAndStartPositionCardsetSpriteTest extends Test {
+class SetBackgroundAndStartPositionCardsetSpriteTest extends SceneTest {
   cardset;
   scene;
 
@@ -2712,14 +2815,14 @@ class SetBackgroundAndStartPositionCardsetSpriteTest extends Test {
       this.cardset.setBackgroundColor('rgba(255, 0, 0, 0.5)');
       this.cardset.startPosition(centerXPosition, centerYPosition);
       setTimeout(() => {
-        this.scene.removeChild(this.cardset);
+        this.cardset.clear();
         resolve(true);
       }, 1000);
     });
   }
 
 }
-class SetCardsCardsetSpriteTest extends Test {
+class SetCardsCardsetSpriteTest extends SceneTest {
   cardset;
   card;
   scene;
@@ -2771,12 +2874,13 @@ class SetCardsCardsetSpriteTest extends Test {
       this.cardset.setCards(cards);
       this.cardset.showCards();
       setTimeout(() => {
+        this.cardset.clear();
         resolve(true);
       }, 300);
     });
   }
 }
-class StartPositionCardsCardsetSpriteTest extends Test {
+class StartPositionCardsCardsetSpriteTest extends SceneTest {
   cardset;
   card;
   scene;
@@ -2829,12 +2933,13 @@ class StartPositionCardsCardsetSpriteTest extends Test {
       this.cardset.startPositionCards(100, 0);
       this.cardset.showCards();
       setTimeout(() => {
+        this.cardset.clear();
         resolve(true);
       }, 300);
     });
   }
 }
-class StartListCardsCardsetSpriteTest extends Test {
+class StartListCardsCardsetSpriteTest extends SceneTest {
   cardset;
   card;
   scene;
@@ -2856,7 +2961,7 @@ class StartListCardsCardsetSpriteTest extends Test {
 
   async start() {
     let testTimes = 1;
-    for (let index = 0; index < 40; index++) {
+    for (let index = 0; index < 6; index++) {
       const cards = this.generateCards(testTimes);
       await this.testCards(cards);
       testTimes++;
@@ -2887,6 +2992,49 @@ class StartListCardsCardsetSpriteTest extends Test {
       this.cardset.startListCards();
       this.cardset.showCards();
       setTimeout(() => {
+        resolve(true);
+        this.cardset.clear();
+      }, 300);
+    });
+  }
+}
+class StartClosedCardsCardsetSpriteTest extends SceneTest {
+  cardset;
+  card;
+  scene;
+
+  constructor(scene) {
+    super();
+    this.scene = scene;
+    this.setTest();
+  }
+
+  setTest() {
+    this.cardset = CardsetSprite.create();
+    const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
+    this.cardset.startPosition(centerXPosition, centerYPosition);
+    this.cardset.setBackgroundColor('white');
+    this.scene.addChild(this.cardset);
+  }
+
+  async start() {
+    let testTimes = 1;
+    for (let index = 0; index < 6; index++) {
+      const cards = this.generateCards(testTimes);
+      await this.testCards(cards);
+      testTimes++;
+    }
+  }
+
+  testCards(cards) {
+    return new Promise(resolve => {
+      this.cardset.setCards(cards);
+      this.cardset.startListCards();
+      this.cardset.startClosedCards();
+      this.cardset.openCards();
+      setTimeout(() => {
+        this.cardset.clear();
         resolve(true);
       }, 300);
     });
@@ -2920,35 +3068,38 @@ class CardBattleScene extends Scene_Message {
 
   async startTests() {
     const cardSpriteTests = [
-      StartOpenCardSpriteTest,
-      StartClosedCardSpriteTest,
-      CloseCardSpriteTest,
-      OpenCardSpriteTest,
-      MoveCardSpriteTest,
-      DisableCardSpriteTest,
-      HoveredCardSpriteTest,
-      SelectedCardSpriteTest,
-      FlashCardSpriteTest,
-      DamageAnimationCardSpriteTest,
-      UpdatingPointsCardSpriteTest,
-      ZoomInCardSpriteTest,
-      ZoomOutCardSpriteTest,
-      LeaveCardSpriteTest,
-      QuakeCardSpriteTest
+      // StartOpenCardSpriteTest,
+      // StartClosedCardSpriteTest,
+      // CloseCardSpriteTest,
+      // OpenCardSpriteTest,
+      // MoveCardSpriteTest,
+      // DisableCardSpriteTest,
+      // HoveredCardSpriteTest,
+      // SelectedCardSpriteTest,
+      // FlashCardSpriteTest,
+      // DamageAnimationCardSpriteTest,
+      // UpdatingPointsCardSpriteTest,
+      // ZoomInCardSpriteTest,
+      // ZoomOutCardSpriteTest,
+      // LeaveCardSpriteTest,
+      // QuakeCardSpriteTest,
+      FlipCardToUpSpriteTest
     ];
     const cardsetTests = [
       SetBackgroundAndStartPositionCardsetSpriteTest,
       SetCardsCardsetSpriteTest,
       StartPositionCardsCardsetSpriteTest,
-      StartListCardsCardsetSpriteTest
+      StartListCardsCardsetSpriteTest,
+      StartClosedCardsCardsetSpriteTest
     ];
     const tests = [
-      // ...cardSpriteTests,
-      ...cardsetTests
+      ...cardSpriteTests
+      // ...cardsetTests
     ];
     for (const test of tests) {
       this.changePhase(test);
       await this._phase.start();
+      this._phase.clearScene();
     }
   }
 

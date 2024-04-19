@@ -19,7 +19,7 @@
 // include ./scene/phase/CardBattlePhase.js
 
 // tests CARD
-// include ../test/integration/Test.js
+// include ../test/integration/SceneTest.js
 // include ../test/integration/card/StartOpenCardSpriteTest.js
 // include ../test/integration/card/StartClosedCardSpriteTest.js
 // include ../test/integration/card/OpenCardSpriteTest.js
@@ -35,11 +35,13 @@
 // include ../test/integration/card/ZoomOutCardSpriteTest.js
 // include ../test/integration/card/LeaveCardSpriteTest.js
 // include ../test/integration/card/QuakeCardSpriteTest.js
+// include ../test/integration/card/FlipCardToUpSpriteTest.js
 // tests CARDSET
 // include ../test/integration/cardset/SetBackgroundAndStartPositionCardsetSpriteTest.js
 // include ../test/integration/cardset/SetCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/StartPositionCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/StartListCardsCardsetSpriteTest.js
+// include ../test/integration/cardset/StartClosedCardsCardsetSpriteTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./manager/CardBattleManager.js

@@ -1,4 +1,4 @@
-class DamageAnimationCardSpriteTest extends Test {
+class DamageAnimationCardSpriteTest extends SceneTest {
   card;
   scene;
 
@@ -9,16 +9,18 @@ class DamageAnimationCardSpriteTest extends Test {
   }
 
   setTest() {
+    const card = this.generateCard();
     this.card = CardSprite.create(
-      CardTypes.BATTLE,
-      CardColors.BLUE,
-      'default',
-      1,
-      1
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
     );
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
+    this.card.show();
     this.scene.addChild(this.card);
   }
 
@@ -27,7 +29,6 @@ class DamageAnimationCardSpriteTest extends Test {
       const times = 1;
       this.card.damage(times);
       setTimeout(() => {
-        this.scene.removeChild(this.card);
         resolve(true);
       }, 2000);
     });

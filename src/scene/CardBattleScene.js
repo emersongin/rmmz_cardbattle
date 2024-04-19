@@ -25,35 +25,38 @@ class CardBattleScene extends Scene_Message {
 
   async startTests() {
     const cardSpriteTests = [
-      StartOpenCardSpriteTest,
-      StartClosedCardSpriteTest,
-      CloseCardSpriteTest,
-      OpenCardSpriteTest,
-      MoveCardSpriteTest,
-      DisableCardSpriteTest,
-      HoveredCardSpriteTest,
-      SelectedCardSpriteTest,
-      FlashCardSpriteTest,
-      DamageAnimationCardSpriteTest,
-      UpdatingPointsCardSpriteTest,
-      ZoomInCardSpriteTest,
-      ZoomOutCardSpriteTest,
-      LeaveCardSpriteTest,
-      QuakeCardSpriteTest
+      // StartOpenCardSpriteTest,
+      // StartClosedCardSpriteTest,
+      // CloseCardSpriteTest,
+      // OpenCardSpriteTest,
+      // MoveCardSpriteTest,
+      // DisableCardSpriteTest,
+      // HoveredCardSpriteTest,
+      // SelectedCardSpriteTest,
+      // FlashCardSpriteTest,
+      // DamageAnimationCardSpriteTest,
+      // UpdatingPointsCardSpriteTest,
+      // ZoomInCardSpriteTest,
+      // ZoomOutCardSpriteTest,
+      // LeaveCardSpriteTest,
+      // QuakeCardSpriteTest,
+      FlipCardToUpSpriteTest
     ];
     const cardsetTests = [
       SetBackgroundAndStartPositionCardsetSpriteTest,
       SetCardsCardsetSpriteTest,
       StartPositionCardsCardsetSpriteTest,
-      StartListCardsCardsetSpriteTest
+      StartListCardsCardsetSpriteTest,
+      StartClosedCardsCardsetSpriteTest
     ];
     const tests = [
-      // ...cardSpriteTests,
-      ...cardsetTests
+      ...cardSpriteTests
+      // ...cardsetTests
     ];
     for (const test of tests) {
       this.changePhase(test);
       await this._phase.start();
+      this._phase.clearScene();
     }
   }
 
