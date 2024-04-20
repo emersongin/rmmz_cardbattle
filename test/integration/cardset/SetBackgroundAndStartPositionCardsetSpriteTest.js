@@ -19,6 +19,7 @@ class SetBackgroundAndStartPositionCardsetSpriteTest extends SceneTest {
       const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
       this.cardset.setBackgroundColor('rgba(255, 0, 0, 0.5)');
       this.cardset.startPosition(centerXPosition, centerYPosition);
+      this.cardset.show();
       setTimeout(() => {
         this.cardset.clear();
         resolve(true);

@@ -2,6 +2,13 @@ class CardsetSprite extends ActionSprite {
   initialize() { 
     super.initialize();
     this._sprites = [];
+    this.setup();
+  }
+
+  setup() {
+    this.commandHide();
+    this.startPosition(0, 0);
+    this.setBackgroundColor('none');
     this.setSize();
   }
 
@@ -12,8 +19,8 @@ class CardsetSprite extends ActionSprite {
 
   contentOriginalWidth() {
     const widthLimit = 576;
-    const paddingLimit = 5;
-    return widthLimit + paddingLimit;
+    const padding = 1;
+    return widthLimit + padding;
   }
 
   contentOriginalHeight() {
@@ -33,6 +40,7 @@ class CardsetSprite extends ActionSprite {
 
   setBackgroundColor(color) {
     this.bitmap = new Bitmap(this.contentOriginalWidth(), this.contentOriginalHeight());
+    if (color.toLowerCase() == 'none') return this.bitmap.clear();
     this.bitmap.fillAll(color || 'white');
   }
 
@@ -49,24 +57,12 @@ class CardsetSprite extends ActionSprite {
     return sprites;
   }
 
-  clear() {
-    while (this.children.length) {
-      this.children.forEach(async child => {
-        await this.removeChild(child);
-      });
-    }
-  }
-
   addSprites(sprites) {
     sprites = this.toArray(sprites);
     sprites.forEach((sprite, index) => {
       sprite.setPosition(0, 0);
       this.addChild(sprite);
     });
-  }
-
-  toArray(items = []) {
-    return (Array.isArray(items) == false) ? [items] : items;
   }
 
   createCardSprite(card) {
@@ -93,7 +89,7 @@ class CardsetSprite extends ActionSprite {
 
   startPositionCards(xPosition, yPosition, sprites = this._sprites) {
     sprites = this.toArray(sprites);
-    sprites.forEach((sprite, index) => {
+    sprites.forEach(sprite => {
       sprite.setPosition(xPosition, yPosition);
     });
   }
@@ -102,22 +98,19 @@ class CardsetSprite extends ActionSprite {
     this.startListCards(sprite);
   }
 
-  startListCards(sprites = this._sprites) {
+  startListCards(sprites = this._sprites, exceptSprites = []) {
     sprites = this.toArray(sprites);
-    sprites.forEach((sprite, index) => {
-      const { x, y } = this.getChildPosition(index, sprites.length);
+    sprites.forEach(sprite => {
+      if (exceptSprites.includes(sprite)) return;
+      const index = this.indexOfSprite(sprite);
+      if (index < 0) return;
+      const { x, y } = this.getSpritePosition(index);
       sprite.setPosition(x, y);
     });
   }
 
-  getChildPosition(index = this.children.length, total) {
-    index = index;
-    const contentWidthLimit = this.contentOriginalWidth();
-    return this.getSpriteInitPosition(index, total);
-  }
-
-  getSpriteInitPosition(index, total) {
-    const spaceBetween = this.spaceBetweenCards(total) * index;
+  getSpritePosition(index) {
+    const spaceBetween = this.spaceBetweenCards(this.numberOfChildren()) * index;
     const x = index ? spaceBetween : 0;
     const y = 0;
     return { x, y };
@@ -125,7 +118,6 @@ class CardsetSprite extends ActionSprite {
 
   spaceBetweenCards(total) {
     const contentLimit = this.contentOriginalWidth();
-    total = total || (this.children.length + 1);
     const padding = 1;
     const cardWidth = 96;
     const space = (contentLimit - (padding * total)) / (total || 1);
@@ -160,9 +152,15 @@ class CardsetSprite extends ActionSprite {
 
   showCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
+    this.addAction(this.commandShowCards, sprites);
+  }
+
+  commandShowCards(sprites) {
+    if (this.isHidden()) return;
     sprites.forEach((sprite, index) => {
       sprite.show();
     });
+    return true;
   }
 
   openCard(sprite) {
@@ -171,69 +169,66 @@ class CardsetSprite extends ActionSprite {
 
   openCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
+    this.addAction(this.commandOpenCards, sprites);
+  }
+
+  commandOpenCards(sprites) {
+    if (this.isHidden()) return;
     sprites.forEach(sprite => {
       sprite.open();
     });
-  }
-
-  moveCardToList(sprite) {
-    this.moveCardsToList(sprite);
-  }
-
-  moveCardsToList(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
-    sprites.forEach(sprite => {
-      const index = this.indexOfSprite(sprite);
-      const totalChildren = this.children.length;
-      const { x, y } = this.getChildPosition(index, totalChildren);
-      sprite.toMove(x, y);
-    });
-  }
-
-  indexOfSprite(sprite) {
-    for (let i = 0; i < this.children.length; i++) {
-      if (this.compareObjects(this.children[i], sprite)) {
-        return i;
-      }
-    }
-    return -1;
-  }
-  
-  compareObjects(object1, object2) {
-    const keys1 = Object.keys(object1);
-    const keys2 = Object.keys(object2);
-    if (keys1.length !== keys2.length) {
-      return false;
-    }
-    for (let key of keys1) {
-      if (object1[key] !== object2[key]) {
-        return false;
-      }
-    }
     return true;
   }
 
+  moveCardToList(sprite, exceptSprites) {
+    this.moveCardsToList(sprite, exceptSprites);
+  }
 
+  moveCardsToList(sprites = this._sprites, exceptSprites) {
+    sprites = this.toArray(sprites);
+    this.startListCards(this._sprites, exceptSprites || sprites);
+    this.addAction(this.commandMoveCardsToList, sprites);
+  }
 
-
-
-
-
-
-
-
-
-
-
+  commandMoveCardsToList(sprites) {
+    if (this.isHidden()) return;
+    sprites.forEach(sprite => {
+      const index = this.indexOfSprite(sprite);
+      if (index < 0) return;
+      const { x, y } = this.getSpritePosition(index);
+      sprite.toMove(x, y);
+    });
+    return true;
+  }
 
   moveCardToPosition(sprite, xPosition, yPosition) {
     this.moveCardsToPosition(xPosition, yPosition, sprite);
   }
 
-  moveCardsToPosition(xPosition = 0, yPosition = 0, sprites = this._sprites) {
+  moveCardsToPosition(xPosition, yPosition, sprites) {
     sprites = this.toArray(sprites);
+    this.addAction(this.commandMoveCardsToPosition, xPosition, yPosition, sprites);
+  }
+
+  commandMoveCardsToPosition(xPosition = 0, yPosition = 0, sprites = this._sprites) {
+    if (this.isHidden()) return;
     sprites.forEach(sprite => {
       sprite.toMove(xPosition, yPosition);
     });
+    return true;
+  }
+
+  update() {
+    if (this.hasActions() && this.isNoBusy()) this.executeAction();
+    if (this.numberOfChildren() && this.isHidden()) this.commandShow();
+    super.update();
+  }
+
+  isNoBusy() {
+    return !this.isBusy();
+  }
+
+  isBusy() {
+    return this._sprites.some(sprite => sprite.isBusy());
   }
 }

@@ -21,26 +21,22 @@ class AddCardAndMoveToListCardsetSpriteTest extends SceneTest {
   async start() {
     return new Promise(resolve => {
       const cards = this.generateCards(3);
-      this.cardset.setCards(cards);
-      this.cardset.startListCards();
-      this.cardset.showCards();
-      setTimeout(async () => {
-        resolve(await this.testCard());
-      }, 300);
-    });
-  }
+      const sprites = this.cardset.setCards(cards);
+      this.cardset.startListCards(sprites);
+      this.cardset.showCards(sprites);
 
-  testCard() {
-    return new Promise(resolve => {
-      const card = this.generateCard();
-      const sprite = this.cardset.addCard(card);
+      const newCards = this.generateCards(3);
+      const newSprites = this.cardset.addCards(newCards);
       const screenWidth = Graphics.boxWidth;
-      this.cardset.startPositionCard(sprite, screenWidth, 0);
-      this.cardset.showCard(sprite);
-      this.cardset.moveCardToList(sprite);
-      setTimeout(() => {
+      newSprites.forEach(sprite => {
+        this.cardset.startPositionCard(sprite, screenWidth, 0);
+        this.cardset.showCard(sprite);
+        this.cardset.moveCardToList(sprite, newSprites);
+      });
+      // this.cardset.moveCardsToList(newSprites);
+      setTimeout(async () => {
         resolve(true);
-      }, 1000);
+      }, 2300);
     });
   }
 }

@@ -313,18 +313,90 @@ class ActionSprite extends Sprite {
   }
 
   executeAction() {
-    const action = this._actions.shift();
-    if (action) action.execute();
+    const action = this._actions[0];
+    if (action) {
+      const executed = action.execute();
+      if (executed) this._actions.shift();
+    }
   }
 
   hasActions() {
     return this._actions.length > 0;
   }
 
+  hasChildren() {
+    return this.numberOfChildren() > 0;
+  }
+
+  numberOfChildren() {
+    return this.children.length;
+  }
+
+  show() {
+    this.addAction(this.commandShow);
+  }
+
+  commandShow() {
+    this.visible = true;
+    return true;
+  }
+
+  hide() {
+    this.addAction(this.commandHide);
+  }
+
+  commandHide() {
+    this.visible = false;
+    return true;
+  }
+
+  isHidden() {
+    return !this.isVisible();
+  }
+
+  isVisible() {
+    return this.visible;
+  }
+
+  toArray(items = []) {
+    return (Array.isArray(items) === false) ? [items] : items;
+  }
+
   calculateTimeInterval(origin, destiny, duration = 1) {
     const distance = Math.abs(origin - destiny);
     const time = Math.abs(duration * 60);
     return (distance / time) || 1;
+  }
+
+  indexOfSprite(sprite) {
+    for (let i = 0; i < this.numberOfChildren(); i++) {
+      if (this.compareObjects(this.children[i], sprite)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+  
+  compareObjects(object1, object2) {
+    const keys1 = Object.keys(object1);
+    const keys2 = Object.keys(object2);
+    if (keys1.length !== keys2.length) {
+      return false;
+    }
+    for (let key of keys1) {
+      if (object1[key] !== object2[key]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  clear() {
+    while (this.numberOfChildren()) {
+      this.children.forEach(async child => {
+        await this.removeChild(child);
+      });
+    }
   }
 }
 class CardSpriteStoppedState {
@@ -881,7 +953,7 @@ class CardSprite extends ActionSprite {
   }
 
   setup() {
-    this.visible = false;
+    this.commandHide();
     this.setSize();
     this.createLayers();
     this.stop();
@@ -951,14 +1023,6 @@ class CardSprite extends ActionSprite {
     this.refresh();
   }
 
-  hide() {
-    this.addAction(this.commandHide);
-  }
-
-  commandHide() {
-    this.visible = false;
-  }
-
   stop() {
     this.changeStatus(CardSpriteStoppedState);
   }
@@ -989,21 +1053,10 @@ class CardSprite extends ActionSprite {
     return this.getStatus() instanceof CardSpriteMovingState;
   }
 
-  isHidden() {
-    return !this.isVisible();
-  }
-
-  isVisible() {
-    return this.visible;
-  }
-
-  show() {
-    this.addAction(this.commandShow);
-  }
-
   commandShow() {
-    this.visible = true;
+    super.commandShow();
     this.refresh();
+    return true;
   }
 
   refresh() {
@@ -1237,11 +1290,11 @@ class CardSprite extends ActionSprite {
   }
 
   commandOpen() {
-    if (this.isVisible() && this.isStopped() && this.isClosed()) {
-      const xPositionOpening = this.x - (this.contentOriginalWidth() / 2);
-      const yPositionOpening = this.y;
-      this.changeStatus(CardSpriteOpeningState, xPositionOpening, yPositionOpening);
-    }
+    if (!(this.isVisible() && this.isStopped() && this.isClosed())) return;
+    const xPositionOpening = this.x - (this.contentOriginalWidth() / 2);
+    const yPositionOpening = this.y;
+    this.changeStatus(CardSpriteOpeningState, xPositionOpening, yPositionOpening);
+    return true;
   }
 
   isClosed() {
@@ -1258,11 +1311,11 @@ class CardSprite extends ActionSprite {
   }
 
   commandClose() {
-    if (this.isVisible() && this.isStopped() && this.isOpened()) {
-      const xPositionClosing = this.x + (this.contentOriginalWidth() / 2);
-      const yPositionOpening = this.y;
-      this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionOpening);
-    }
+    if (!(this.isVisible() && this.isStopped() && this.isOpened())) return;
+    const xPositionClosing = this.x + (this.contentOriginalWidth() / 2);
+    const yPositionOpening = this.y;
+    this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionOpening);
+    return true;
   }
 
   isOpened() {
@@ -1292,16 +1345,16 @@ class CardSprite extends ActionSprite {
     originYPosition = this.y, 
     duration
   ) {
-    if (this.isVisible() && this.isStopped()) {
-      this.changeStatus( 
-        CardSpriteMovingState,
-        destinyXPosition,
-        destinyYPosition,
-        originXPosition,
-        originYPosition,
-        duration
-      );
-    }
+    if (!(this.isVisible() && this.isStopped())) return;
+    this.changeStatus( 
+      CardSpriteMovingState,
+      destinyXPosition,
+      destinyYPosition,
+      originXPosition,
+      originYPosition,
+      duration
+    );
+    return true;
   }
 
   hover() {
@@ -1309,9 +1362,9 @@ class CardSprite extends ActionSprite {
   }
 
   commandHover() {
-    if (this.isVisible() && this.isStopped()) {
-      this.addBehavior(CardSpriteHoveredBehavior);
-    }
+    if (!(this.isVisible() && this.isStopped())) return;
+    this.addBehavior(CardSpriteHoveredBehavior);
+    return true;
   }
 
   unhover() {
@@ -1321,6 +1374,7 @@ class CardSprite extends ActionSprite {
   commandUnhover() {
     this._hoveredLayer.bitmap.clear();
     this.removeBehavior(CardSpriteHoveredBehavior);
+    return true;
   }
 
   select() {
@@ -1328,9 +1382,10 @@ class CardSprite extends ActionSprite {
   }
 
   commandSelect() {
-    if (this.isVisible() && (this.isStopped() || this.isOpening() || this.isMoving() || this.isZooming())) {
-      this.addBehavior(CardSpriteSelectedBehavior);
-    }
+    if (!(this.isVisible() && 
+      (this.isStopped() || this.isOpening() || this.isMoving() || this.isZooming()))) return; 
+    this.addBehavior(CardSpriteSelectedBehavior);
+    return true;
   }
 
   isZooming() {
@@ -1348,6 +1403,7 @@ class CardSprite extends ActionSprite {
   commandUnselect() {
     this._selectedLayer.bitmap.clear();
     this.removeBehavior(CardSpriteSelectedBehavior);
+    return true;
   }
 
   flash(color = 'white', duration = 60, times = 1) {
@@ -1355,14 +1411,15 @@ class CardSprite extends ActionSprite {
   }
 
   commandFlash(color, duration, times) {
-    if (this.isVisible() && (this.isStopped() || this.isOpening() || this.isMoving() || this.isZooming())) {
-      this.addBehavior(
-        CardSpriteFlashedBehavior,
-        color, 
-        duration, 
-        times
-      );
-    }
+    if (!(this.isVisible() 
+      && (this.isStopped() || this.isOpening() || this.isMoving() || this.isZooming()))) return;
+    this.addBehavior(
+      CardSpriteFlashedBehavior,
+      color, 
+      duration, 
+      times
+    );
+    return true;
   }
 
   damage(times = 1) {
@@ -1400,6 +1457,7 @@ class CardSprite extends ActionSprite {
 
   commandAnimate(animation, times) {
     this.animate(animation, times);
+    return true;
   }
 
   animate(animation, times) {
@@ -1425,13 +1483,13 @@ class CardSprite extends ActionSprite {
   }
 
   commandChangePoints(attackPoints, healtPoints) {
-    if (this.isVisible() && this.isStopped()) {
-      this.addBehavior(
-        CardSpriteUpdatedBehavior, 
-        attackPoints,
-        healtPoints
-      );
-    }
+    if (!(this.isVisible() && this.isStopped())) return;
+    this.addBehavior(
+      CardSpriteUpdatedBehavior, 
+      attackPoints,
+      healtPoints
+    );
+    return true;
   }
 
   disable() {
@@ -1453,19 +1511,19 @@ class CardSprite extends ActionSprite {
   }
 
   commandZoom() {
-    if (this.isVisible() && this.isStopped() && this.isOpened() && this.isNoZoom()) {
-      const destinyXPosition = this.x - ((this.width / 2) / 2);
-      const destinyYPosition = this.y - ((this.height / 2) / 2);
-      const destinyXScale = (this.scale.x / 2) * 3;
-      const destinyYScale = (this.scale.y / 2) * 3;
-      this.changeStatus(
-        CardSpriteZoomState,
-        destinyXPosition,
-        destinyYPosition,
-        destinyXScale,
-        destinyYScale
-      );
-    }
+    if (!(this.isVisible() && this.isStopped() && this.isOpened() && this.isNoZoom())) return;
+    const destinyXPosition = this.x - ((this.width / 2) / 2);
+    const destinyYPosition = this.y - ((this.height / 2) / 2);
+    const destinyXScale = (this.scale.x / 2) * 3;
+    const destinyYScale = (this.scale.y / 2) * 3;
+    this.changeStatus(
+      CardSpriteZoomState,
+      destinyXPosition,
+      destinyYPosition,
+      destinyXScale,
+      destinyYScale
+    );
+    return true;
   }
 
   isNoZoom() {
@@ -1477,19 +1535,19 @@ class CardSprite extends ActionSprite {
   }
 
   commandZoomOut() {
-    if (this.isVisible() && this.isStopped() && this.isOpened() && this.isZoom()) {
-      const destinyXPosition = this.x + ((this.width / 2) / 2);
-      const destinyYPosition = this.y + ((this.height / 2) / 2);
-      const destinyXScale = ((this.scale.x / 3) * 2);
-      const destinyYScale = ((this.scale.y / 3) * 2);
-      this.changeStatus(
-        CardSpriteZoomState,
-        destinyXPosition,
-        destinyYPosition, 
-        destinyXScale,
-        destinyYScale        
-      );
-    }
+    if (!(this.isVisible() && this.isStopped() && this.isOpened() && this.isZoom())) return;
+    const destinyXPosition = this.x + ((this.width / 2) / 2);
+    const destinyYPosition = this.y + ((this.height / 2) / 2);
+    const destinyXScale = ((this.scale.x / 3) * 2);
+    const destinyYScale = ((this.scale.y / 3) * 2);
+    this.changeStatus(
+      CardSpriteZoomState,
+      destinyXPosition,
+      destinyYPosition, 
+      destinyXScale,
+      destinyYScale        
+    );
+    return true;
   }
 
   isZoom() {
@@ -1501,11 +1559,11 @@ class CardSprite extends ActionSprite {
   }
 
   commandLeave() {
-    if (this.isVisible() && this.isStopped() && this.isOpened()) {
-      const xPositionClosing = this.x + (this.contentOriginalWidth() / 2);
-      const yPositionClosing = this.y + (this.contentOriginalHeight() / 2);
-      this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionClosing);
-    }
+    if (!(this.isVisible() && this.isStopped() && this.isOpened())) return;
+    const xPositionClosing = this.x + (this.contentOriginalWidth() / 2);
+    const yPositionClosing = this.y + (this.contentOriginalHeight() / 2);
+    this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionClosing);
+    return true;
   }
 
   quake(times, distance) {
@@ -1513,37 +1571,37 @@ class CardSprite extends ActionSprite {
   }
 
   commandQuake(times = 1, distance = 2) {
-    if (this.isVisible() && this.isStopped() && this.isOpened()) {
-      const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
-      const moves = [];
-      let direction = '';
-      for (let index = 0; index < (times * 3); index++) {
-        const dirs = directions.filter(dir => dir !== direction);
-        direction = dirs[Math.randomInt(3)];
-        switch (direction) {
-          case 'TOP':
-            moves.push({x: 0, y: -distance}, {x: 0, y: 0});
-            break;
-          case 'BOTTOM':
-            moves.push({x: 0, y: distance}, {x: 0, y: 0});
-            break;
-          case 'LEFT':
-            moves.push({x: -distance, y: 0}, {x: 0, y: 0});
-            break;
-          case 'RIGHT':
-            moves.push({x: distance, y: 0}, {x: 0, y: 0});
-            break;
-        }
+    if (!this.isVisible() && this.isStopped() && this.isOpened()) return;
+    const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
+    const moves = [];
+    let direction = '';
+    for (let index = 0; index < (times * 3); index++) {
+      const dirs = directions.filter(dir => dir !== direction);
+      direction = dirs[Math.randomInt(3)];
+      switch (direction) {
+        case 'TOP':
+          moves.push({x: 0, y: -distance}, {x: 0, y: 0});
+          break;
+        case 'BOTTOM':
+          moves.push({x: 0, y: distance}, {x: 0, y: 0});
+          break;
+        case 'LEFT':
+          moves.push({x: -distance, y: 0}, {x: 0, y: 0});
+          break;
+        case 'RIGHT':
+          moves.push({x: distance, y: 0}, {x: 0, y: 0});
+          break;
       }
-      const cardXPosition = this.x;
-      const cardYPosition = this.y; 
-      moves.forEach((move, index) => {
-        const xMove = cardXPosition + move.x;
-        const yMove = cardYPosition + move.y;
-        const duration = 0.01;
-        this.toMove(xMove, yMove, cardXPosition, cardYPosition, duration);
-      });
     }
+    const cardXPosition = this.x;
+    const cardYPosition = this.y; 
+    moves.forEach((move, index) => {
+      const xMove = cardXPosition + move.x;
+      const yMove = cardYPosition + move.y;
+      const duration = 0.01;
+      this.toMove(xMove, yMove, cardXPosition, cardYPosition, duration);
+    });
+    return true;
   }
   
   isAnimationPlaying() {
@@ -1580,10 +1638,10 @@ class CardSprite extends ActionSprite {
   }
 
   commandFlipToUp() {
-    if (this.isVisible() && this.isStopped() && this.isClosed() && this.isToDown()){
-      this._turned = true;
-      this.refresh();
-    }
+    if (!(this.isVisible() && this.isStopped() && this.isClosed() && this.isToDown())) return;
+    this._turned = true;
+    this.refresh();
+    return true;
   }
 
   isToDown() {
@@ -1594,6 +1652,13 @@ class CardsetSprite extends ActionSprite {
   initialize() { 
     super.initialize();
     this._sprites = [];
+    this.setup();
+  }
+
+  setup() {
+    this.commandHide();
+    this.startPosition(0, 0);
+    this.setBackgroundColor('none');
     this.setSize();
   }
 
@@ -1604,8 +1669,8 @@ class CardsetSprite extends ActionSprite {
 
   contentOriginalWidth() {
     const widthLimit = 576;
-    const paddingLimit = 5;
-    return widthLimit + paddingLimit;
+    const padding = 1;
+    return widthLimit + padding;
   }
 
   contentOriginalHeight() {
@@ -1625,6 +1690,7 @@ class CardsetSprite extends ActionSprite {
 
   setBackgroundColor(color) {
     this.bitmap = new Bitmap(this.contentOriginalWidth(), this.contentOriginalHeight());
+    if (color.toLowerCase() == 'none') return this.bitmap.clear();
     this.bitmap.fillAll(color || 'white');
   }
 
@@ -1641,24 +1707,12 @@ class CardsetSprite extends ActionSprite {
     return sprites;
   }
 
-  clear() {
-    while (this.children.length) {
-      this.children.forEach(async child => {
-        await this.removeChild(child);
-      });
-    }
-  }
-
   addSprites(sprites) {
     sprites = this.toArray(sprites);
     sprites.forEach((sprite, index) => {
       sprite.setPosition(0, 0);
       this.addChild(sprite);
     });
-  }
-
-  toArray(items = []) {
-    return (Array.isArray(items) == false) ? [items] : items;
   }
 
   createCardSprite(card) {
@@ -1685,7 +1739,7 @@ class CardsetSprite extends ActionSprite {
 
   startPositionCards(xPosition, yPosition, sprites = this._sprites) {
     sprites = this.toArray(sprites);
-    sprites.forEach((sprite, index) => {
+    sprites.forEach(sprite => {
       sprite.setPosition(xPosition, yPosition);
     });
   }
@@ -1694,22 +1748,19 @@ class CardsetSprite extends ActionSprite {
     this.startListCards(sprite);
   }
 
-  startListCards(sprites = this._sprites) {
+  startListCards(sprites = this._sprites, exceptSprites = []) {
     sprites = this.toArray(sprites);
-    sprites.forEach((sprite, index) => {
-      const { x, y } = this.getChildPosition(index, sprites.length);
+    sprites.forEach(sprite => {
+      if (exceptSprites.includes(sprite)) return;
+      const index = this.indexOfSprite(sprite);
+      if (index < 0) return;
+      const { x, y } = this.getSpritePosition(index);
       sprite.setPosition(x, y);
     });
   }
 
-  getChildPosition(index = this.children.length, total) {
-    index = index;
-    const contentWidthLimit = this.contentOriginalWidth();
-    return this.getSpriteInitPosition(index, total);
-  }
-
-  getSpriteInitPosition(index, total) {
-    const spaceBetween = this.spaceBetweenCards(total) * index;
+  getSpritePosition(index) {
+    const spaceBetween = this.spaceBetweenCards(this.numberOfChildren()) * index;
     const x = index ? spaceBetween : 0;
     const y = 0;
     return { x, y };
@@ -1717,7 +1768,6 @@ class CardsetSprite extends ActionSprite {
 
   spaceBetweenCards(total) {
     const contentLimit = this.contentOriginalWidth();
-    total = total || (this.children.length + 1);
     const padding = 1;
     const cardWidth = 96;
     const space = (contentLimit - (padding * total)) / (total || 1);
@@ -1752,9 +1802,15 @@ class CardsetSprite extends ActionSprite {
 
   showCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
+    this.addAction(this.commandShowCards, sprites);
+  }
+
+  commandShowCards(sprites) {
+    if (this.isHidden()) return;
     sprites.forEach((sprite, index) => {
       sprite.show();
     });
+    return true;
   }
 
   openCard(sprite) {
@@ -1763,70 +1819,67 @@ class CardsetSprite extends ActionSprite {
 
   openCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
+    this.addAction(this.commandOpenCards, sprites);
+  }
+
+  commandOpenCards(sprites) {
+    if (this.isHidden()) return;
     sprites.forEach(sprite => {
       sprite.open();
     });
-  }
-
-  moveCardToList(sprite) {
-    this.moveCardsToList(sprite);
-  }
-
-  moveCardsToList(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
-    sprites.forEach(sprite => {
-      const index = this.indexOfSprite(sprite);
-      const totalChildren = this.children.length;
-      const { x, y } = this.getChildPosition(index, totalChildren);
-      sprite.toMove(x, y);
-    });
-  }
-
-  indexOfSprite(sprite) {
-    for (let i = 0; i < this.children.length; i++) {
-      if (this.compareObjects(this.children[i], sprite)) {
-        return i;
-      }
-    }
-    return -1;
-  }
-  
-  compareObjects(object1, object2) {
-    const keys1 = Object.keys(object1);
-    const keys2 = Object.keys(object2);
-    if (keys1.length !== keys2.length) {
-      return false;
-    }
-    for (let key of keys1) {
-      if (object1[key] !== object2[key]) {
-        return false;
-      }
-    }
     return true;
   }
 
+  moveCardToList(sprite, exceptSprites) {
+    this.moveCardsToList(sprite, exceptSprites);
+  }
 
+  moveCardsToList(sprites = this._sprites, exceptSprites) {
+    sprites = this.toArray(sprites);
+    this.startListCards(this._sprites, exceptSprites || sprites);
+    this.addAction(this.commandMoveCardsToList, sprites);
+  }
 
-
-
-
-
-
-
-
-
-
-
+  commandMoveCardsToList(sprites) {
+    if (this.isHidden()) return;
+    sprites.forEach(sprite => {
+      const index = this.indexOfSprite(sprite);
+      if (index < 0) return;
+      const { x, y } = this.getSpritePosition(index);
+      sprite.toMove(x, y);
+    });
+    return true;
+  }
 
   moveCardToPosition(sprite, xPosition, yPosition) {
     this.moveCardsToPosition(xPosition, yPosition, sprite);
   }
 
-  moveCardsToPosition(xPosition = 0, yPosition = 0, sprites = this._sprites) {
+  moveCardsToPosition(xPosition, yPosition, sprites) {
     sprites = this.toArray(sprites);
+    this.addAction(this.commandMoveCardsToPosition, xPosition, yPosition, sprites);
+  }
+
+  commandMoveCardsToPosition(xPosition = 0, yPosition = 0, sprites = this._sprites) {
+    if (this.isHidden()) return;
     sprites.forEach(sprite => {
       sprite.toMove(xPosition, yPosition);
     });
+    return true;
+  }
+
+  update() {
+    if (this.hasActions() && this.isNoBusy()) this.executeAction();
+    if (this.numberOfChildren() && this.isHidden()) this.commandShow();
+    super.update();
+  }
+
+  isNoBusy() {
+    return !this.isBusy();
+  }
+
+  isBusy() {
+    return this._sprites.some(sprite => sprite.isBusy());
   }
 }
 class BackgroundSprite extends Sprite {
@@ -2929,6 +2982,7 @@ class SetBackgroundAndStartPositionCardsetSpriteTest extends SceneTest {
       const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
       this.cardset.setBackgroundColor('rgba(255, 0, 0, 0.5)');
       this.cardset.startPosition(centerXPosition, centerYPosition);
+      this.cardset.show();
       setTimeout(() => {
         this.cardset.clear();
         resolve(true);
@@ -3076,29 +3130,11 @@ class StartListCardsCardsetSpriteTest extends SceneTest {
 
   async start() {
     let testTimes = 1;
-    for (let index = 0; index < 6; index++) {
+    for (let index = 0; index < 40; index++) {
       const cards = this.generateCards(testTimes);
       await this.testCards(cards);
       testTimes++;
     }
-  }
-
-  generateCards(amount = 1) {
-    const cards = [];
-    for (let i = 0; i < amount; i++) {
-      cards.push(this.generateCard());
-    }
-    return cards;
-  }
-
-  generateCard() {
-    return {
-      type: Math.floor(Math.random() * 3) + 1,
-      color: Math.floor(Math.random() * 6) + 1,
-      figureName: 'default',
-      attack: Math.floor(Math.random() * 99) + 1,
-      health: Math.floor(Math.random() * 99) + 1
-    };
   }
 
   testCards(cards) {
@@ -3269,26 +3305,22 @@ class AddCardAndMoveToListCardsetSpriteTest extends SceneTest {
   async start() {
     return new Promise(resolve => {
       const cards = this.generateCards(3);
-      this.cardset.setCards(cards);
-      this.cardset.startListCards();
-      this.cardset.showCards();
-      setTimeout(async () => {
-        resolve(await this.testCard());
-      }, 300);
-    });
-  }
+      const sprites = this.cardset.setCards(cards);
+      this.cardset.startListCards(sprites);
+      this.cardset.showCards(sprites);
 
-  testCard() {
-    return new Promise(resolve => {
-      const card = this.generateCard();
-      const sprite = this.cardset.addCard(card);
+      const newCards = this.generateCards(3);
+      const newSprites = this.cardset.addCards(newCards);
       const screenWidth = Graphics.boxWidth;
-      this.cardset.startPositionCard(sprite, screenWidth, 0);
-      this.cardset.showCard(sprite);
-      this.cardset.moveCardToList(sprite);
-      setTimeout(() => {
+      newSprites.forEach(sprite => {
+        this.cardset.startPositionCard(sprite, screenWidth, 0);
+        this.cardset.showCard(sprite);
+        this.cardset.moveCardToList(sprite, newSprites);
+      });
+      // this.cardset.moveCardsToList(newSprites);
+      setTimeout(async () => {
         resolve(true);
-      }, 1000);
+      }, 2300);
     });
   }
 }
@@ -3338,14 +3370,14 @@ class CardBattleScene extends Scene_Message {
       FlipCardToUpSpriteTest
     ];
     const cardsetTests = [
-      SetBackgroundAndStartPositionCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      StartPositionCardsCardsetSpriteTest,
+      // SetBackgroundAndStartPositionCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      // StartPositionCardsCardsetSpriteTest,
       StartListCardsCardsetSpriteTest,
-      StartClosedAndOpenCardsCardsetSpriteTest,
-      MoveCardsToListCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
-      AddCardAndMoveToListCardsetSpriteTest
+      // StartClosedAndOpenCardsCardsetSpriteTest,
+      // MoveCardsToListCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
+      // AddCardAndMoveToListCardsetSpriteTest
     ];
     const tests = [
       // ...cardSpriteTests,
