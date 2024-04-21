@@ -18,13 +18,16 @@ class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
     this.scene.addChild(this.cardset);
   }
 
-  async start() {
-    let testTimes = 1;
-    for (let index = 0; index < 1; index++) {
-      const cards = this.generateCards(testTimes);
-      await this.testCards(cards);
-      testTimes++;
-    }
+  start() {
+    return new Promise(async resolve => {
+      let testTimes = 1;
+      for (let index = 0; index < 3; index++) {
+        const cards = this.generateCards(testTimes);
+        await this.testCards(cards);
+        testTimes++;
+      }
+      resolve(true);
+    });
   }
 
   testCards(cards) {

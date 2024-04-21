@@ -180,6 +180,23 @@ class CardsetSprite extends ActionSprite {
     return true;
   }
 
+  openCardsWithDelay(delay = 1, sprites = this._sprites) {
+    sprites = this.toArray(sprites);
+    const actions = this.createActionsWithDelay(this.commandOpenCards, delay, sprites);
+    this.addActions(actions);
+  }
+
+  createActionsWithDelay(fn, delay, sprites) {
+    sprites = this.toArray(sprites);
+    const actions = sprites.map((sprite, index) => {
+      return this.createAction({
+        fn, 
+        delay: (index === 0) ? 0 : delay
+      }, this.toArray(sprite));
+    });
+    return actions;
+  }
+
   moveCardToList(sprite, exceptSprites) {
     this.moveCardsToList(sprite, exceptSprites);
   }
@@ -190,8 +207,16 @@ class CardsetSprite extends ActionSprite {
     this.addAction(this.commandMoveCardsToList, sprites);
   }
 
+  moveCardsToListDelay(delay = 10, sprites = this._sprites, exceptSprites) {
+    sprites = this.toArray(sprites);
+    this.startListCards(this._sprites, exceptSprites || sprites);
+    const actions = this.createActionsWithDelay(this.commandMoveCardsToList, delay, sprites);
+    this.addActions(actions);
+  }
+
   commandMoveCardsToList(sprites) {
     if (this.isHidden()) return;
+    sprites = this.toArray(sprites);
     sprites.forEach(sprite => {
       const index = this.indexOfSprite(sprite);
       if (index < 0) return;
@@ -205,7 +230,7 @@ class CardsetSprite extends ActionSprite {
     this.moveCardsToPosition(xPosition, yPosition, sprite);
   }
 
-  moveCardsToPosition(xPosition, yPosition, sprites) {
+  moveCardsToPosition(xPosition, yPosition, sprites = this._sprites) {
     sprites = this.toArray(sprites);
     this.addAction(this.commandMoveCardsToPosition, xPosition, yPosition, sprites);
   }
@@ -219,6 +244,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   update() {
+    console.log(this.isBusy());
     if (this.hasActions() && this.isNoBusy()) this.executeAction();
     if (this.numberOfChildren() && this.isHidden()) this.commandShow();
     super.update();
@@ -229,6 +255,6 @@ class CardsetSprite extends ActionSprite {
   }
 
   isBusy() {
-    return this._sprites.some(sprite => sprite.isBusy());
+    return this._sprites.some(sprite => sprite.isBusy()) || super.isBusy();
   }
 }

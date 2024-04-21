@@ -18,25 +18,58 @@ class AddCardAndMoveToListCardsetSpriteTest extends SceneTest {
     this.scene.addChild(this.cardset);
   }
 
-  async start() {
-    return new Promise(resolve => {
-      const cards = this.generateCards(3);
-      const sprites = this.cardset.setCards(cards);
-      this.cardset.startListCards(sprites);
-      this.cardset.showCards(sprites);
+  start() {
+    return new Promise(async resolve => {
+      let testTimes = 1;
+      for (let index = 0; index < 3; index++) {
+        const cards = this.generateCards(3);
+        const sprites = this.cardset.setCards(cards);
+        this.cardset.startListCards(sprites);
+        this.cardset.showCards(sprites);
+        const newCards = this.generateCards(testTimes);
+        const newSprites = this.cardset.addCards(newCards);
+        await this.testCard(newSprites);
+        testTimes++;
+      }
+      testTimes = 1;
+      for (let index = 0; index < 3; index++) {
+        const cards = this.generateCards(3);
+        const sprites = this.cardset.setCards(cards);
+        this.cardset.startListCards(sprites);
+        this.cardset.showCards(sprites);
+        const newCards = this.generateCards(testTimes);
+        const newSprites = this.cardset.addCards(newCards);
+        await this.testCards(newSprites);
+        testTimes++;
+      }
+    });
+    resolve(true);
+  }
 
-      const newCards = this.generateCards(3);
-      const newSprites = this.cardset.addCards(newCards);
+  testCard(sprites) {
+    return new Promise(resolve => {
       const screenWidth = Graphics.boxWidth;
-      newSprites.forEach(sprite => {
-        this.cardset.startPositionCard(sprite, screenWidth, 0);
-        this.cardset.showCard(sprite);
-        this.cardset.moveCardToList(sprite, newSprites);
-      });
-      // this.cardset.moveCardsToList(newSprites);
+      this.cardset.startPositionCards(screenWidth, 0, sprites);
+      this.cardset.showCards(sprites);
+      this.cardset.moveCardsToList(sprites);
       setTimeout(async () => {
+        this.cardset.clear();
         resolve(true);
-      }, 2300);
+      }, 500 * sprites.length);
+    });
+  }
+
+  testCards(sprites) {
+    return new Promise(resolve => {
+      const screenWidth = Graphics.boxWidth;
+      this.cardset.startPositionCards(screenWidth, 0, sprites);
+      this.cardset.showCards(sprites);
+      const delay = 10;
+      this.cardset.moveCardsToListDelay(delay, sprites);
+      setTimeout(async () => {
+        this.cardset.clear();
+        resolve(true);
+      }, 500 * sprites.length);
     });
   }
 }

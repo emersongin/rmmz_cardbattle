@@ -18,13 +18,22 @@ class StartClosedAndOpenCardsCardsetSpriteTest extends SceneTest {
     this.scene.addChild(this.cardset);
   }
 
-  async start() {
-    let testTimes = 1;
-    for (let index = 0; index < 6; index++) {
-      const cards = this.generateCards(testTimes);
-      await this.testCards(cards);
-      testTimes++;
-    }
+  start() {
+    return new Promise(async resolve => {
+      let testTimes = 1;
+      for (let index = 0; index < 6; index++) {
+        const cards = this.generateCards(testTimes);
+        await this.testCards(cards);
+        testTimes++;
+      }
+      testTimes = 35;
+      for (let index = 0; index < 6; index++) {
+        const cards = this.generateCards(testTimes);
+        await this.testDelayCards(cards);
+        testTimes++;
+      }
+      resolve(true);
+    });
   }
 
   testCards(cards) {
@@ -38,6 +47,20 @@ class StartClosedAndOpenCardsCardsetSpriteTest extends SceneTest {
         this.cardset.clear();
         resolve(true);
       }, 300);
+    });
+  }
+
+  testDelayCards(cards) {
+    return new Promise(resolve => {
+      this.cardset.setCards(cards);
+      this.cardset.startListCards();
+      this.cardset.startClosedCards();
+      this.cardset.showCards();
+      this.cardset.openCardsWithDelay();
+      setTimeout(() => {
+        this.cardset.clear();
+        resolve(true);
+      }, 30 * cards.length);
     });
   }
 }
