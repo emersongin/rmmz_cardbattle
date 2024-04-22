@@ -50,10 +50,11 @@ class CardBattleScene extends Scene_Message {
       StartClosedAndOpenCardsCardsetSpriteTest,
       MoveCardsToListCardsetSpriteTest,
       MoveCardsToPositionCardsetSpriteTest,
-      AddCardAndMoveToListCardsetSpriteTest
+      AddCardAndMoveToListCardsetSpriteTest,
+      SelectModeCardsetSpriteTest
     ];
     const tests = [
-      ...cardSpriteTests,
+      // ...cardSpriteTests,
       ...cardsetTests
     ];
     for (const test of tests) {

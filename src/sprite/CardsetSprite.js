@@ -1,15 +1,31 @@
+// include ./state/CardsetSpriteStaticModeState.js
+// include ./state/CardsetSpriteSelectModeState.js
+
 class CardsetSprite extends ActionSprite {
   initialize() { 
     super.initialize();
     this._sprites = [];
+    this._cursorIndex = 0;
     this.setup();
   }
 
   setup() {
-    this.commandHide();
     this.startPosition(0, 0);
     this.setBackgroundColor('none');
     this.setSize();
+    this.staticMode();
+    this.commandHide();
+  }
+
+  startPosition(xPosition, yPosition) {
+    this.x = xPosition || this.x;
+    this.y = yPosition || this.y;
+  }
+
+  setBackgroundColor(color) {
+    this.bitmap = new Bitmap(this.contentOriginalWidth(), this.contentOriginalHeight());
+    if (color.toLowerCase() == 'none') return this.bitmap.clear();
+    this.bitmap.fillAll(color || 'white');
   }
 
   setSize() {
@@ -28,20 +44,13 @@ class CardsetSprite extends ActionSprite {
     return heightLimit;
   }
 
+  staticMode() {
+    this.changeStatus(CardsetSpriteStaticModeState);
+  }
+
   static create() {
     const cardset = new CardsetSprite();
     return cardset;
-  }
-
-  startPosition(xPosition, yPosition) {
-    this.x = xPosition || this.x;
-    this.y = yPosition || this.y;
-  }
-
-  setBackgroundColor(color) {
-    this.bitmap = new Bitmap(this.contentOriginalWidth(), this.contentOriginalHeight());
-    if (color.toLowerCase() == 'none') return this.bitmap.clear();
-    this.bitmap.fillAll(color || 'white');
   }
 
   setCard(card) {
@@ -244,9 +253,12 @@ class CardsetSprite extends ActionSprite {
   }
 
   update() {
-    console.log(this.isBusy());
     if (this.hasActions() && this.isNoBusy()) this.executeAction();
     if (this.numberOfChildren() && this.isHidden()) this.commandShow();
+    if (this.isVisible()) {
+      this.updateStates();
+      console.log(this._status.constructor.name);
+    }
     super.update();
   }
 
@@ -256,5 +268,33 @@ class CardsetSprite extends ActionSprite {
 
   isBusy() {
     return this._sprites.some(sprite => sprite.isBusy()) || super.isBusy();
+  }
+
+  selectMode() {
+    this.addAction(this.commandSelectMode);
+  }
+
+  commandSelectMode() {
+    if (!(this.isVisible() && this.allSpritesIsOpened())) return;
+    this.changeStatus(CardsetSpriteSelectModeState);
+    return true;
+  }
+
+  allSpritesIsOpened() {
+    return this._sprites.every(sprite => sprite.isOpened());
+  }
+
+  unselectMode() {
+    this.addAction(this.commandUnselectMode);
+  }
+
+  commandUnselectMode() {
+    if (!this.isVisible() && this.isSelectMode()) return;
+    this.staticMode();
+    return true;
+  }
+
+  isSelectMode() {
+    return this.getStatus() instanceof CardsetSpriteSelectModeState;
   }
 }

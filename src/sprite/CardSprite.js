@@ -15,7 +15,6 @@ class CardSprite extends ActionSprite {
     this._color = 0;
     this._figure = {};
     this._backImage = {};
-    this._status = {};
     this._behaviors = [];
     this._turned = true;
     this._disabled = false;
@@ -104,10 +103,6 @@ class CardSprite extends ActionSprite {
     this.changeStatus(CardSpriteStoppedState);
   }
 
-  changeStatus(status, ...params) {
-    this._status = new status(this, ...params);
-  }
-
   update() {
     if (this.hasActions() && this.isStopped()) this.executeAction();
     if (this.isMoving() && this.isHidden()) this.commandShow();
@@ -120,10 +115,6 @@ class CardSprite extends ActionSprite {
 
   isStopped() {
     return this.getStatus() instanceof CardSpriteStoppedState;
-  }
-
-  getStatus() {
-    return this._status;
   }
 
   isMoving() {
@@ -315,10 +306,6 @@ class CardSprite extends ActionSprite {
 
   isDisabled() {
     return this._disabled;
-  }
-
-  updateStates() {
-    if (this._status) this._status.updateState();
   }
 
   updateBehaviors() {
@@ -751,5 +738,9 @@ class CardSprite extends ActionSprite {
 
   isToDown() {
     return !this._turned;
+  }
+
+  isHovered() {
+    return this.getBehavior(CardSpriteHoveredBehavior) instanceof CardSpriteHoveredBehavior;
   }
 }

@@ -301,6 +301,7 @@ class ActionSprite extends Sprite {
   initialize() { 
     super.initialize();
     this._duration = 0.3;
+    this._status = {};
     this._actions = [];
     this._delayActions = [];
   }
@@ -343,7 +344,6 @@ class ActionSprite extends Sprite {
           continue;
         }
         const executed = action.execute();
-        console.log(action.fn, executed);
         if (executed) {
           this._actions.shift();
           continue;
@@ -351,6 +351,14 @@ class ActionSprite extends Sprite {
         break;
       }
     }
+  }
+
+  changeStatus(status, ...params) {
+    this._status = new status(this, ...params);
+  }
+
+  getStatus() {
+    return this._status;
   }
 
   update() {
@@ -367,6 +375,10 @@ class ActionSprite extends Sprite {
         this._delayActions.shift();
       }
     }
+  }
+
+  updateStates() {
+    if (this._status) this._status.updateState();
   }
 
   isBusy() {
@@ -991,7 +1003,6 @@ class CardSprite extends ActionSprite {
     this._color = 0;
     this._figure = {};
     this._backImage = {};
-    this._status = {};
     this._behaviors = [];
     this._turned = true;
     this._disabled = false;
@@ -1080,10 +1091,6 @@ class CardSprite extends ActionSprite {
     this.changeStatus(CardSpriteStoppedState);
   }
 
-  changeStatus(status, ...params) {
-    this._status = new status(this, ...params);
-  }
-
   update() {
     if (this.hasActions() && this.isStopped()) this.executeAction();
     if (this.isMoving() && this.isHidden()) this.commandShow();
@@ -1096,10 +1103,6 @@ class CardSprite extends ActionSprite {
 
   isStopped() {
     return this.getStatus() instanceof CardSpriteStoppedState;
-  }
-
-  getStatus() {
-    return this._status;
   }
 
   isMoving() {
@@ -1291,10 +1294,6 @@ class CardSprite extends ActionSprite {
 
   isDisabled() {
     return this._disabled;
-  }
-
-  updateStates() {
-    if (this._status) this._status.updateState();
   }
 
   updateBehaviors() {
@@ -1728,19 +1727,147 @@ class CardSprite extends ActionSprite {
   isToDown() {
     return !this._turned;
   }
+
+  isHovered() {
+    return this.getBehavior(CardSpriteHoveredBehavior) instanceof CardSpriteHoveredBehavior;
+  }
 }
+class CardsetSpriteStaticModeState {
+  _cardset;
+  
+  constructor(sprite) {
+    this._cardset = sprite;
+    this.unhouverSprites();
+  }
+
+  unhouverSprites() {
+    const spritesHovered = this.getSpritesHovered();
+    spritesHovered.forEach(({ sprite, index }) => {
+      this.unhoverSprite(sprite);
+      this._cardset.removeChild(sprite);
+      this._cardset.addChildAt(sprite, index);
+    });
+  }
+
+  getSpritesHovered() {
+    const sprites = this._cardset._sprites.map((sprite, index) => {
+      return { sprite, index };
+    });
+    return sprites.filter(({ sprite, index }) => sprite.isHovered());
+  }
+
+  unhoverSprite(sprite) {
+    const destinyXPosition = sprite.x;
+    const destinyYPosition = 0;
+    const duration = 0.03;
+    sprite.unhover();
+    sprite.toMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
+  }
+
+  updateState() {
+    // nothing
+  }
+}
+class CardsetSpriteSelectModeState {
+  _cardset;
+  _cursorIndex;
+  
+  constructor(sprite) {
+    this._cardset = sprite;
+    this._cursorIndex = 0;
+    this.updateSpriteCards();
+  }
+
+  updateState() {
+    if (this._cardset.isNoBusy()) this.updateCursor();
+    if (Input.isAnyKeyActive() && this._cardset.isNoBusy()) this.updateSpriteCards();
+  }
+
+  updateCursor() {
+    if (Input.isRepeated('right') || Input.isLongPressed('right')) {
+      this.moveCursorRight();
+    } else if (Input.isRepeated('left') || Input.isLongPressed('left')) {
+      this.moveCursorLeft();
+    }
+  }
+
+  moveCursorRight(times = 1) {
+    const sprites = this._cardset._sprites;
+    const indexsAmount = sprites.length - 1;
+    if (this._cursorIndex < indexsAmount) {
+      const nextIndex = this._cursorIndex + times;
+      this._cursorIndex = nextIndex > indexsAmount ? indexsAmount : nextIndex;
+    }
+  }
+
+  moveCursorLeft(times = 1) {
+    const minIndex = 0;
+    if (this._cursorIndex > minIndex) {
+      const nextIndex = this._cursorIndex - times;
+      this._cursorIndex = nextIndex < minIndex ? minIndex : nextIndex;
+    }
+  }
+
+  updateSpriteCards() {
+    const cardset = this._cardset;
+    const sprites = cardset._sprites;
+    const indexsAmount = sprites.length - 1;
+    sprites.forEach((sprite, index) => {
+      if (index === this._cursorIndex) {
+        this.hoverSprite(sprite);
+        cardset.removeChild(sprite);
+        cardset.addChildAt(sprite, indexsAmount);
+      } else {
+        this.unhoverSprite(sprite);
+        cardset.removeChild(sprite);
+        const fixLastCardindex = (index === indexsAmount ? indexsAmount - 1 : index);
+        cardset.addChildAt(sprite, fixLastCardindex);
+      }
+    });
+  }
+
+  hoverSprite(sprite) {
+    const destinyXPosition = sprite.x;
+    const destinyYPosition = -10;
+    const duration = 0.03;
+    sprite.hover();
+    sprite.toMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
+  }
+
+  unhoverSprite(sprite) {
+    const destinyXPosition = sprite.x;
+    const destinyYPosition = 0;
+    const duration = 0.03;
+    sprite.unhover();
+    sprite.toMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
+  }
+}
+
 class CardsetSprite extends ActionSprite {
   initialize() { 
     super.initialize();
     this._sprites = [];
+    this._cursorIndex = 0;
     this.setup();
   }
 
   setup() {
-    this.commandHide();
     this.startPosition(0, 0);
     this.setBackgroundColor('none');
     this.setSize();
+    this.staticMode();
+    this.commandHide();
+  }
+
+  startPosition(xPosition, yPosition) {
+    this.x = xPosition || this.x;
+    this.y = yPosition || this.y;
+  }
+
+  setBackgroundColor(color) {
+    this.bitmap = new Bitmap(this.contentOriginalWidth(), this.contentOriginalHeight());
+    if (color.toLowerCase() == 'none') return this.bitmap.clear();
+    this.bitmap.fillAll(color || 'white');
   }
 
   setSize() {
@@ -1759,20 +1886,13 @@ class CardsetSprite extends ActionSprite {
     return heightLimit;
   }
 
+  staticMode() {
+    this.changeStatus(CardsetSpriteStaticModeState);
+  }
+
   static create() {
     const cardset = new CardsetSprite();
     return cardset;
-  }
-
-  startPosition(xPosition, yPosition) {
-    this.x = xPosition || this.x;
-    this.y = yPosition || this.y;
-  }
-
-  setBackgroundColor(color) {
-    this.bitmap = new Bitmap(this.contentOriginalWidth(), this.contentOriginalHeight());
-    if (color.toLowerCase() == 'none') return this.bitmap.clear();
-    this.bitmap.fillAll(color || 'white');
   }
 
   setCard(card) {
@@ -1975,9 +2095,12 @@ class CardsetSprite extends ActionSprite {
   }
 
   update() {
-    console.log(this.isBusy());
     if (this.hasActions() && this.isNoBusy()) this.executeAction();
     if (this.numberOfChildren() && this.isHidden()) this.commandShow();
+    if (this.isVisible()) {
+      this.updateStates();
+      console.log(this._status.constructor.name);
+    }
     super.update();
   }
 
@@ -1987,6 +2110,34 @@ class CardsetSprite extends ActionSprite {
 
   isBusy() {
     return this._sprites.some(sprite => sprite.isBusy()) || super.isBusy();
+  }
+
+  selectMode() {
+    this.addAction(this.commandSelectMode);
+  }
+
+  commandSelectMode() {
+    if (!(this.isVisible() && this.allSpritesIsOpened())) return;
+    this.changeStatus(CardsetSpriteSelectModeState);
+    return true;
+  }
+
+  allSpritesIsOpened() {
+    return this._sprites.every(sprite => sprite.isOpened());
+  }
+
+  unselectMode() {
+    this.addAction(this.commandUnselectMode);
+  }
+
+  commandUnselectMode() {
+    if (!this.isVisible() && this.isSelectMode()) return;
+    this.staticMode();
+    return true;
+  }
+
+  isSelectMode() {
+    return this.getStatus() instanceof CardsetSpriteSelectModeState;
   }
 }
 class BackgroundSprite extends Sprite {
@@ -3456,8 +3607,8 @@ class AddCardAndMoveToListCardsetSpriteTest extends SceneTest {
         await this.testCards(newSprites);
         testTimes++;
       }
+      resolve(true);
     });
-    resolve(true);
   }
 
   testCard(sprites) {
@@ -3484,6 +3635,40 @@ class AddCardAndMoveToListCardsetSpriteTest extends SceneTest {
         this.cardset.clear();
         resolve(true);
       }, 500 * sprites.length);
+    });
+  }
+}
+class SelectModeCardsetSpriteTest extends SceneTest {
+  cardset;
+  card;
+  scene;
+
+  constructor(scene) {
+    super();
+    this.scene = scene;
+    this.setTest();
+  }
+
+  setTest() {
+    this.cardset = CardsetSprite.create();
+    const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
+    this.cardset.startPosition(centerXPosition, centerYPosition);
+    this.cardset.setBackgroundColor('white');
+    this.cardset.show();
+    this.scene.addChild(this.cardset);
+  }
+
+  start() {
+    return new Promise(async resolve => {
+      const cards = this.generateCards(10);
+      this.cardset.setCards(cards);
+      this.cardset.startListCards();
+      this.cardset.showCards();
+      this.cardset.selectMode();
+      setTimeout(() => {
+        this.cardset.staticMode();
+      }, 1000);
     });
   }
 }
@@ -3540,10 +3725,11 @@ class CardBattleScene extends Scene_Message {
       StartClosedAndOpenCardsCardsetSpriteTest,
       MoveCardsToListCardsetSpriteTest,
       MoveCardsToPositionCardsetSpriteTest,
-      AddCardAndMoveToListCardsetSpriteTest
+      AddCardAndMoveToListCardsetSpriteTest,
+      SelectModeCardsetSpriteTest
     ];
     const tests = [
-      ...cardSpriteTests,
+      // ...cardSpriteTests,
       ...cardsetTests
     ];
     for (const test of tests) {

@@ -5,7 +5,6 @@ class CardsetSprite extends ActionSprite {
     this._selectMode = false;
     this._changedMode = false;
     this._selectedCards = [];
-    this._cursorIndex = 0;
     this._active = false;
     this.setup();
     this.test();

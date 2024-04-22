@@ -42,8 +42,8 @@ class AddCardAndMoveToListCardsetSpriteTest extends SceneTest {
         await this.testCards(newSprites);
         testTimes++;
       }
+      resolve(true);
     });
-    resolve(true);
   }
 
   testCard(sprites) {

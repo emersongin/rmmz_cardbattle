@@ -2,6 +2,7 @@ class ActionSprite extends Sprite {
   initialize() { 
     super.initialize();
     this._duration = 0.3;
+    this._status = {};
     this._actions = [];
     this._delayActions = [];
   }
@@ -44,7 +45,6 @@ class ActionSprite extends Sprite {
           continue;
         }
         const executed = action.execute();
-        console.log(action.fn, executed);
         if (executed) {
           this._actions.shift();
           continue;
@@ -52,6 +52,14 @@ class ActionSprite extends Sprite {
         break;
       }
     }
+  }
+
+  changeStatus(status, ...params) {
+    this._status = new status(this, ...params);
+  }
+
+  getStatus() {
+    return this._status;
   }
 
   update() {
@@ -68,6 +76,10 @@ class ActionSprite extends Sprite {
         this._delayActions.shift();
       }
     }
+  }
+
+  updateStates() {
+    if (this._status) this._status.updateState();
   }
 
   isBusy() {
