@@ -54,7 +54,7 @@ class CardBattleScene extends Scene_Message {
     ];
     const tests = [
       ...cardSpriteTests,
-      // ...cardsetTests
+      ...cardsetTests
     ];
     for (const test of tests) {
       this.changePhase(test);

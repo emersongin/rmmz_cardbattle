@@ -343,6 +343,7 @@ class ActionSprite extends Sprite {
           continue;
         }
         const executed = action.execute();
+        console.log(action.fn, executed);
         if (executed) {
           this._actions.shift();
           continue;
@@ -1107,7 +1108,7 @@ class CardSprite extends ActionSprite {
 
   commandShow() {
     super.commandShow();
-    this.refresh();
+    if (this.isOpened()) this.refresh();
     return true;
   }
 
@@ -1142,8 +1143,34 @@ class CardSprite extends ActionSprite {
   drawCardBackground() {
     const xPosition = 0;
     const yPosition = 0;
+    const borderColor = this.getBorderColor();
+    this._contentLayer.bitmap.fillRect(xPosition, yPosition, this.width, this.height, borderColor);
     const color = this.getBackgroundColor();
-    this._contentLayer.bitmap.fillRect(xPosition, yPosition, this.width, this.height, color);
+    this._contentLayer.bitmap.fillRect(xPosition + 2, yPosition + 2, this.width - 4, this.height - 4, color);
+  }
+
+  getBorderColor() {
+    switch (this._color) {
+      case CardColors.RED:
+        return '#990000';
+        break;
+      case CardColors.GREEN:
+        return '#009900';
+        break;
+      case CardColors.BLUE:
+        return '#000099';
+        break;
+      case CardColors.WHITE:
+        return '#959595';
+        break;
+      case CardColors.BLACK:
+        return '#101010';
+        break;
+      default:
+        const brown = '#852828';
+        return brown;
+        break;
+    }
   }
 
   getBackgroundColor() {
@@ -1158,10 +1185,10 @@ class CardSprite extends ActionSprite {
         return '#0000ff';
         break;
       case CardColors.WHITE:
-        return '#ffffff';
+        return '#e5e5e5';
         break;
       case CardColors.BLACK:
-        return '#000000';
+        return '#191919';
         break;
       default:
         const brown = '#a52a2a';
@@ -1342,9 +1369,10 @@ class CardSprite extends ActionSprite {
   }
 
   commandOpen() {
-    if (!(this.isVisible() && this.isStopped() && this.isClosed())) return;
+    if (!(this.isStopped() && this.isClosed())) return;
     const xPositionOpening = this.x - (this.contentOriginalWidth() / 2);
     const yPositionOpening = this.y;
+    this.visible = true;
     this.changeStatus(CardSpriteOpeningState, xPositionOpening, yPositionOpening);
     return true;
   }
@@ -1354,7 +1382,7 @@ class CardSprite extends ActionSprite {
   }
 
   opened() {
-    this.width = this.contentOriginalWidth();
+    this.setSize();
     this.stop();
   }
 
@@ -1376,6 +1404,7 @@ class CardSprite extends ActionSprite {
 
   closed() {
     this.width = 0;
+    this.visible = false;
     this.stop();
   }
 
@@ -1671,7 +1700,7 @@ class CardSprite extends ActionSprite {
     this.x = xPosition;
     this.y = yPosition;
     if (this.width !== 0) return;
-    this.setSize();
+    this.opened();
   }
 
   startClosed(xPosition = this.x, yPosition = this.y) {
@@ -1680,7 +1709,7 @@ class CardSprite extends ActionSprite {
     if (this.width === 0) return;
     const cardWidthHalf = (this.contentOriginalWidth() / 2);
     this.x = this.x + cardWidthHalf;
-    this.width = 0;
+    this.closed();
   }
 
   flipToUp() {
@@ -3515,7 +3544,7 @@ class CardBattleScene extends Scene_Message {
     ];
     const tests = [
       ...cardSpriteTests,
-      // ...cardsetTests
+      ...cardsetTests
     ];
     for (const test of tests) {
       this.changePhase(test);

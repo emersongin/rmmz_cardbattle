@@ -44,6 +44,7 @@ class ActionSprite extends Sprite {
           continue;
         }
         const executed = action.execute();
+        console.log(action.fn, executed);
         if (executed) {
           this._actions.shift();
           continue;
