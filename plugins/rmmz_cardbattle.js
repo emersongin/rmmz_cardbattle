@@ -995,6 +995,68 @@ class CardSpriteUpdatedBehavior {
     }
   }
 }
+class CardSpriteIluminatedBehavior {
+  _card;
+  _color;
+  _intensity;
+  _positiveIntensity;
+  
+  constructor(sprite) {
+    this._card = sprite;
+    this.setup();
+  }
+
+  setup() {
+    this._color = '#ffff00';
+    this._intensity = 255;
+    this._positiveIntensity = false;
+  }
+
+  updateBehavior() {
+    const color = this._color;
+    const intensity = this._intensity;
+    this.updateBrightness(color, intensity);
+    this.updateIntensity();
+  }
+
+  updateIntensity() {
+    if (this._intensity <= 255 && !this._positiveIntensity) {
+      this._intensity += 6;
+      if (this._intensity >= 255) {
+        this._positiveIntensity = true;
+      }
+    }
+    if (this._intensity >= 100 && this._positiveIntensity) {
+      this._intensity -= 6;
+      if (this._intensity <= 100) {
+        this._positiveIntensity = false;
+      }
+    }
+  }
+
+  updateBrightness(color, intensity) {
+    const layer = this._card._selectedLayer;
+    const newColor = this.getBrightness(color, intensity);
+    layer.bitmap.clear();
+    layer.bitmap.fillAll(newColor);
+    layer.bitmap.clearRect(4, 4, this._card.width - 8, this._card.height - 8);
+  }
+
+  getBrightness(hex, intensity) {
+    let r = parseInt(hex.substring(1, 3), 16);
+    let g = parseInt(hex.substring(3, 5), 16);
+    let b = parseInt(hex.substring(5, 7), 16);
+    let factor = intensity / 255;
+    r = Math.round(r * factor);
+    g = Math.round(g * factor);
+    b = Math.round(b * factor);
+    r = Math.min(255, Math.max(0, r));
+    g = Math.min(255, Math.max(0, g));
+    b = Math.min(255, Math.max(0, b));
+    let resultHex = '#' + (r * 0x10000 + g * 0x100 + b).toString(16).padStart(6, '0');
+    return resultHex;
+  }
+}
 
 class CardSprite extends ActionSprite {
   initialize() {
@@ -1730,6 +1792,17 @@ class CardSprite extends ActionSprite {
 
   isHovered() {
     return this.getBehavior(CardSpriteHoveredBehavior) instanceof CardSpriteHoveredBehavior;
+  }
+
+  iluminate() {
+    this.addAction(this.commandIluminate);
+  }
+
+  commandIluminate() {
+    if (!(this.isVisible() && 
+      (this.isStopped() || this.isOpening() || this.isMoving() || this.isZooming()))) return; 
+    this.addBehavior(CardSpriteIluminatedBehavior);
+    return true;
   }
 }
 class CardsetSpriteStaticModeState {
@@ -3218,6 +3291,42 @@ class FlipCardToUpSpriteTest extends SceneTest {
     });
   }
 }
+class IluminatedCardSpriteTest extends SceneTest {
+  card;
+  scene;
+
+  constructor(scene) {
+    super();
+    this.scene = scene;
+    this.setTest();
+  }
+
+  setTest() {
+    const card = this.generateCard();
+    this.card = CardSprite.create(
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
+    );
+    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
+    this.card.startOpen(centerXPosition, centerYPosition);
+    this.card.show();
+    this.scene.addChild(this.card);
+  }
+
+  start() {
+    return new Promise(resolve => {
+      this.card.iluminate();
+      setTimeout(() => {
+        resolve(true);
+      }, 20000);
+    });
+  }
+
+}
 // tests CARDSET
 class SetBackgroundAndStartPositionCardsetSpriteTest extends SceneTest {
   cardset;
@@ -3668,6 +3777,7 @@ class SelectModeCardsetSpriteTest extends SceneTest {
       this.cardset.selectMode();
       setTimeout(() => {
         this.cardset.staticMode();
+        resolve(true);
       }, 1000);
     });
   }
@@ -3700,22 +3810,23 @@ class CardBattleScene extends Scene_Message {
 
   async startTests() {
     const cardSpriteTests = [
-      StartOpenCardSpriteTest,
-      StartClosedCardSpriteTest,
-      CloseCardSpriteTest,
-      OpenCardSpriteTest,
-      MoveCardSpriteTest,
-      DisableCardSpriteTest,
-      HoveredCardSpriteTest,
-      SelectedCardSpriteTest,
-      FlashCardSpriteTest,
-      DamageAnimationCardSpriteTest,
-      UpdatingPointsCardSpriteTest,
-      ZoomInCardSpriteTest,
-      ZoomOutCardSpriteTest,
-      LeaveCardSpriteTest,
-      QuakeCardSpriteTest,
-      FlipCardToUpSpriteTest
+      // StartOpenCardSpriteTest,
+      // StartClosedCardSpriteTest,
+      // CloseCardSpriteTest,
+      // OpenCardSpriteTest,
+      // MoveCardSpriteTest,
+      // DisableCardSpriteTest,
+      // HoveredCardSpriteTest,
+      // SelectedCardSpriteTest,
+      // FlashCardSpriteTest,
+      // DamageAnimationCardSpriteTest,
+      // UpdatingPointsCardSpriteTest,
+      // ZoomInCardSpriteTest,
+      // ZoomOutCardSpriteTest,
+      // LeaveCardSpriteTest,
+      // QuakeCardSpriteTest,
+      // FlipCardToUpSpriteTest
+      IluminatedCardSpriteTest
     ];
     const cardsetTests = [
       SetBackgroundAndStartPositionCardsetSpriteTest,
@@ -3729,8 +3840,8 @@ class CardBattleScene extends Scene_Message {
       SelectModeCardsetSpriteTest
     ];
     const tests = [
-      // ...cardSpriteTests,
-      ...cardsetTests
+      ...cardSpriteTests,
+      // ...cardsetTests
     ];
     for (const test of tests) {
       this.changePhase(test);

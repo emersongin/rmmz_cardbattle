@@ -36,6 +36,7 @@
 // include ../test/integration/card/LeaveCardSpriteTest.js
 // include ../test/integration/card/QuakeCardSpriteTest.js
 // include ../test/integration/card/FlipCardToUpSpriteTest.js
+// include ../test/integration/card/IluminatedCardSpriteTest.js
 // tests CARDSET
 // include ../test/integration/cardset/SetBackgroundAndStartPositionCardsetSpriteTest.js
 // include ../test/integration/cardset/SetCardsCardsetSpriteTest.js

@@ -7,6 +7,7 @@
 // include ./behavior/CardSpriteSelectedBehavior.js
 // include ./behavior/CardSpriteHoveredBehavior.js
 // include ./behavior/CardSpriteUpdatedBehavior.js
+// include ./behavior/CardSpriteIluminatedBehavior.js
 
 class CardSprite extends ActionSprite {
   initialize() {
@@ -742,5 +743,16 @@ class CardSprite extends ActionSprite {
 
   isHovered() {
     return this.getBehavior(CardSpriteHoveredBehavior) instanceof CardSpriteHoveredBehavior;
+  }
+
+  iluminate() {
+    this.addAction(this.commandIluminate);
+  }
+
+  commandIluminate() {
+    if (!(this.isVisible() && 
+      (this.isStopped() || this.isOpening() || this.isMoving() || this.isZooming()))) return; 
+    this.addBehavior(CardSpriteIluminatedBehavior);
+    return true;
   }
 }
