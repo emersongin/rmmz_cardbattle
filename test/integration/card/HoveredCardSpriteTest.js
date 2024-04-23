@@ -32,7 +32,7 @@ class HoveredCardSpriteTest extends SceneTest {
         setTimeout(() => {
           resolve(true);
         }, 300);
-      }, 1000);
+      }, 3000);
     });
   } 
 

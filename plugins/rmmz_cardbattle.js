@@ -1852,8 +1852,9 @@ class CardsetSpriteSelectModeState {
   }
 
   updateState() {
+    const keys = ['right', 'left'];
     if (this._cardset.isNoBusy()) this.updateCursor();
-    if (Input.isAnyKeyActive() && this._cardset.isNoBusy()) this.updateSpriteCards();
+    if (Input.isAnyKeyActiveIn(keys) && this._cardset.isNoBusy()) this.updateSpriteCards();
   }
 
   updateCursor() {
@@ -1870,14 +1871,20 @@ class CardsetSpriteSelectModeState {
     if (this._cursorIndex < indexsAmount) {
       const nextIndex = this._cursorIndex + times;
       this._cursorIndex = nextIndex > indexsAmount ? indexsAmount : nextIndex;
+    } else {
+      this._cursorIndex = 0;
     }
   }
 
   moveCursorLeft(times = 1) {
     const minIndex = 0;
+    const sprites = this._cardset._sprites;
+    const indexsAmount = sprites.length - 1;
     if (this._cursorIndex > minIndex) {
       const nextIndex = this._cursorIndex - times;
       this._cursorIndex = nextIndex < minIndex ? minIndex : nextIndex;
+    } else {
+      this._cursorIndex = indexsAmount;
     }
   }
 
@@ -2895,7 +2902,7 @@ class HoveredCardSpriteTest extends SceneTest {
         setTimeout(() => {
           resolve(true);
         }, 300);
-      }, 1000);
+      }, 3000);
     });
   } 
 
@@ -2934,7 +2941,7 @@ class SelectedCardSpriteTest extends SceneTest {
         setTimeout(() => {
           resolve(true);
         }, 300);
-      }, 1000);
+      }, 3000);
     });
   }
 
@@ -3322,7 +3329,7 @@ class IluminatedCardSpriteTest extends SceneTest {
       this.card.iluminate();
       setTimeout(() => {
         resolve(true);
-      }, 20000);
+      }, 3000);
     });
   }
 
@@ -3778,7 +3785,7 @@ class SelectModeCardsetSpriteTest extends SceneTest {
       setTimeout(() => {
         this.cardset.staticMode();
         resolve(true);
-      }, 1000);
+      }, 30000);
     });
   }
 }
@@ -3810,38 +3817,38 @@ class CardBattleScene extends Scene_Message {
 
   async startTests() {
     const cardSpriteTests = [
-      // StartOpenCardSpriteTest,
-      // StartClosedCardSpriteTest,
-      // CloseCardSpriteTest,
-      // OpenCardSpriteTest,
-      // MoveCardSpriteTest,
-      // DisableCardSpriteTest,
-      // HoveredCardSpriteTest,
-      // SelectedCardSpriteTest,
-      // FlashCardSpriteTest,
-      // DamageAnimationCardSpriteTest,
-      // UpdatingPointsCardSpriteTest,
-      // ZoomInCardSpriteTest,
-      // ZoomOutCardSpriteTest,
-      // LeaveCardSpriteTest,
-      // QuakeCardSpriteTest,
-      // FlipCardToUpSpriteTest
+      StartOpenCardSpriteTest,
+      StartClosedCardSpriteTest,
+      CloseCardSpriteTest,
+      OpenCardSpriteTest,
+      MoveCardSpriteTest,
+      DisableCardSpriteTest,
+      HoveredCardSpriteTest,
+      SelectedCardSpriteTest,
+      FlashCardSpriteTest,
+      DamageAnimationCardSpriteTest,
+      UpdatingPointsCardSpriteTest,
+      ZoomInCardSpriteTest,
+      ZoomOutCardSpriteTest,
+      LeaveCardSpriteTest,
+      QuakeCardSpriteTest,
+      FlipCardToUpSpriteTest,
       IluminatedCardSpriteTest
     ];
     const cardsetTests = [
-      SetBackgroundAndStartPositionCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      StartPositionCardsCardsetSpriteTest,
-      StartListCardsCardsetSpriteTest,
-      StartClosedAndOpenCardsCardsetSpriteTest,
-      MoveCardsToListCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
-      AddCardAndMoveToListCardsetSpriteTest,
+      // SetBackgroundAndStartPositionCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      // StartPositionCardsCardsetSpriteTest,
+      // StartListCardsCardsetSpriteTest,
+      // StartClosedAndOpenCardsCardsetSpriteTest,
+      // MoveCardsToListCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
+      // AddCardAndMoveToListCardsetSpriteTest,
       SelectModeCardsetSpriteTest
     ];
     const tests = [
-      ...cardSpriteTests,
-      // ...cardsetTests
+      // ...cardSpriteTests,
+      ...cardsetTests
     ];
     for (const test of tests) {
       this.changePhase(test);
@@ -4063,8 +4070,9 @@ class CardBattleManager {
     return this._phase instanceof StartPhase;
   }
 }
-Input.isAnyKeyActive = function() {
-  return this._latestButton !== null;
+
+Input.isAnyKeyActiveIn = function(keys = []) {
+  return keys.some(key => this._latestButton === key);
 };
 Scene_Boot.prototype.start = function() {
   Scene_Base.prototype.start.call(this);

@@ -29,7 +29,7 @@ class IluminatedCardSpriteTest extends SceneTest {
       this.card.iluminate();
       setTimeout(() => {
         resolve(true);
-      }, 20000);
+      }, 3000);
     });
   }
 
