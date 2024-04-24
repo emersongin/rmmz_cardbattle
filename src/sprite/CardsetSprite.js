@@ -5,7 +5,8 @@ class CardsetSprite extends ActionSprite {
   initialize() { 
     super.initialize();
     this._sprites = [];
-    this._cursorIndex = 0;
+    this._enableSelected = false;
+    this._selectedIndexs = [];
     this.setup();
   }
 
@@ -257,7 +258,6 @@ class CardsetSprite extends ActionSprite {
     if (this.numberOfChildren() && this.isHidden()) this.commandShow();
     if (this.isVisible()) {
       this.updateStates();
-      console.log(this._status.constructor.name);
     }
     super.update();
   }
@@ -290,11 +290,30 @@ class CardsetSprite extends ActionSprite {
 
   commandUnselectMode() {
     if (!this.isVisible() && this.isSelectMode()) return;
+    this._enableSelected = false;
+    if (this._selectedIndexs.length) {
+      this._selectedIndexs.forEach(index => {
+        const sprite = this._sprites[index];
+        sprite.unselect();
+        sprite.iluminate();
+      });
+    }
     this.staticMode();
     return true;
   }
 
   isSelectMode() {
     return this.getStatus() instanceof CardsetSpriteSelectModeState;
+  }
+
+  enableChoice() {
+    this.addAction(this.commandEnableChoice);
+  }
+
+  commandEnableChoice() {
+    if (!this.isSelectMode()) return;
+    this._enableSelected = true;
+    this._selectedIndexs = [];
+    return true;
   }
 }

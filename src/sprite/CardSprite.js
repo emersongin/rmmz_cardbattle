@@ -305,6 +305,10 @@ class CardSprite extends ActionSprite {
     this._contentLayer.bitmap.blt(this._backImage, 0, 0, this.width, this.height, 0, 0);
   }
 
+  isEnabled() {
+    return !this.isDisabled();
+  }
+
   isDisabled() {
     return this._disabled;
   }

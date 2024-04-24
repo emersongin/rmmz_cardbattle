@@ -1354,6 +1354,10 @@ class CardSprite extends ActionSprite {
     this._contentLayer.bitmap.blt(this._backImage, 0, 0, this.width, this.height, 0, 0);
   }
 
+  isEnabled() {
+    return !this.isDisabled();
+  }
+
   isDisabled() {
     return this._disabled;
   }
@@ -1852,9 +1856,21 @@ class CardsetSpriteSelectModeState {
   }
 
   updateState() {
+    const cardset = this._cardset;
     const keys = ['right', 'left'];
-    if (this._cardset.isNoBusy()) this.updateCursor();
-    if (Input.isAnyKeyActiveIn(keys) && this._cardset.isNoBusy()) this.updateSpriteCards();
+    if (cardset.isNoBusy()) this.updateCursor();
+    if (Input.isAnyKeyActiveIn(keys) && cardset.isNoBusy()) this.updateSpriteCards();
+    if (cardset.isNoBusy() && cardset._enableSelected) {
+      if (Input.isTriggered('ok')) this.selectSprite();
+      if (Input.isTriggered('cancel') || this.selecteLimit()) cardset.unselectMode();
+    }
+  }
+
+  selecteLimit() {
+    const cardset = this._cardset;
+    const allowedAmount = cardset._sprites.filter(sprite => sprite.isEnabled()).length;
+    const selectedAmount = cardset._selectedIndexs.length;
+    return selectedAmount === allowedAmount;
   }
 
   updateCursor() {
@@ -1921,13 +1937,43 @@ class CardsetSpriteSelectModeState {
     sprite.unhover();
     sprite.toMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
   }
+
+  selectSprite() {
+    const cardset = this._cardset;
+    const sprites = cardset._sprites;
+    const selectedSprite = sprites[this._cursorIndex];
+    if (selectedSprite.isDisabled()) return;
+    if (this.isSelectedSprite()) {
+      selectedSprite.unselect();
+      this.removeSelectedIndex(this._cursorIndex);
+      return;
+    }
+    selectedSprite.select();
+    this.addSelectedIndex(this._cursorIndex);
+  }
+
+  isSelectedSprite() {
+    const cardset = this._cardset;
+    return cardset._selectedIndexs.find(index => index === this._cursorIndex);
+  }
+
+  addSelectedIndex(index) {
+    const cardset = this._cardset;
+    cardset._selectedIndexs.push(index);
+  }
+
+  removeSelectedIndex(index) {
+    const cardset = this._cardset;
+    cardset._selectedIndexs = cardset._selectedIndexs.filter(selectedIndex => selectedIndex !== index);
+  }
 }
 
 class CardsetSprite extends ActionSprite {
   initialize() { 
     super.initialize();
     this._sprites = [];
-    this._cursorIndex = 0;
+    this._enableSelected = false;
+    this._selectedIndexs = [];
     this.setup();
   }
 
@@ -2179,7 +2225,6 @@ class CardsetSprite extends ActionSprite {
     if (this.numberOfChildren() && this.isHidden()) this.commandShow();
     if (this.isVisible()) {
       this.updateStates();
-      console.log(this._status.constructor.name);
     }
     super.update();
   }
@@ -2212,12 +2257,31 @@ class CardsetSprite extends ActionSprite {
 
   commandUnselectMode() {
     if (!this.isVisible() && this.isSelectMode()) return;
+    this._enableSelected = false;
+    if (this._selectedIndexs.length) {
+      this._selectedIndexs.forEach(index => {
+        const sprite = this._sprites[index];
+        sprite.unselect();
+        sprite.iluminate();
+      });
+    }
     this.staticMode();
     return true;
   }
 
   isSelectMode() {
     return this.getStatus() instanceof CardsetSpriteSelectModeState;
+  }
+
+  enableChoice() {
+    this.addAction(this.commandEnableChoice);
+  }
+
+  commandEnableChoice() {
+    if (!this.isSelectMode()) return;
+    this._enableSelected = true;
+    this._selectedIndexs = [];
+    return true;
   }
 }
 class BackgroundSprite extends Sprite {
@@ -3789,6 +3853,42 @@ class SelectModeCardsetSpriteTest extends SceneTest {
     });
   }
 }
+class SelectModeAndEnableChoiceCardsetSpriteTest extends SceneTest {
+  cardset;
+  card;
+  scene;
+
+  constructor(scene) {
+    super();
+    this.scene = scene;
+    this.setTest();
+  }
+
+  setTest() {
+    this.cardset = CardsetSprite.create();
+    const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
+    this.cardset.startPosition(centerXPosition, centerYPosition);
+    this.cardset.setBackgroundColor('white');
+    this.cardset.show();
+    this.scene.addChild(this.cardset);
+  }
+
+  start() {
+    return new Promise(async resolve => {
+      const cards = this.generateCards(10);
+      this.cardset.setCards(cards);
+      this.cardset.startListCards();
+      this.cardset.showCards();
+      this.cardset.selectMode();
+      this.cardset.enableChoice();
+      setTimeout(() => {
+        this.cardset.staticMode();
+        resolve(true);
+      }, 30000);
+    });
+  }
+}
 
 class CardBattleScene extends Scene_Message {
   initialize() {
@@ -3844,7 +3944,8 @@ class CardBattleScene extends Scene_Message {
       // MoveCardsToListCardsetSpriteTest,
       // MoveCardsToPositionCardsetSpriteTest,
       // AddCardAndMoveToListCardsetSpriteTest,
-      SelectModeCardsetSpriteTest
+      // SelectModeCardsetSpriteTest,
+      SelectModeAndEnableChoiceCardsetSpriteTest
     ];
     const tests = [
       // ...cardSpriteTests,
@@ -4070,8 +4171,8 @@ class CardBattleManager {
     return this._phase instanceof StartPhase;
   }
 }
-
 Input.isAnyKeyActiveIn = function(keys = []) {
+  keys = Array.isArray(keys) ? keys : [keys];
   return keys.some(key => this._latestButton === key);
 };
 Scene_Boot.prototype.start = function() {

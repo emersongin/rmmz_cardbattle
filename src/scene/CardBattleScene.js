@@ -52,7 +52,8 @@ class CardBattleScene extends Scene_Message {
       // MoveCardsToListCardsetSpriteTest,
       // MoveCardsToPositionCardsetSpriteTest,
       // AddCardAndMoveToListCardsetSpriteTest,
-      SelectModeCardsetSpriteTest
+      // SelectModeCardsetSpriteTest,
+      SelectModeAndEnableChoiceCardsetSpriteTest
     ];
     const tests = [
       // ...cardSpriteTests,

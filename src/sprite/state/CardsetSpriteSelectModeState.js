@@ -9,9 +9,21 @@ class CardsetSpriteSelectModeState {
   }
 
   updateState() {
+    const cardset = this._cardset;
     const keys = ['right', 'left'];
-    if (this._cardset.isNoBusy()) this.updateCursor();
-    if (Input.isAnyKeyActiveIn(keys) && this._cardset.isNoBusy()) this.updateSpriteCards();
+    if (cardset.isNoBusy()) this.updateCursor();
+    if (Input.isAnyKeyActiveIn(keys) && cardset.isNoBusy()) this.updateSpriteCards();
+    if (cardset.isNoBusy() && cardset._enableSelected) {
+      if (Input.isTriggered('ok')) this.selectSprite();
+      if (Input.isTriggered('cancel') || this.selecteLimit()) cardset.unselectMode();
+    }
+  }
+
+  selecteLimit() {
+    const cardset = this._cardset;
+    const allowedAmount = cardset._sprites.filter(sprite => sprite.isEnabled()).length;
+    const selectedAmount = cardset._selectedIndexs.length;
+    return selectedAmount === allowedAmount;
   }
 
   updateCursor() {
@@ -77,5 +89,34 @@ class CardsetSpriteSelectModeState {
     const duration = 0.03;
     sprite.unhover();
     sprite.toMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
+  }
+
+  selectSprite() {
+    const cardset = this._cardset;
+    const sprites = cardset._sprites;
+    const selectedSprite = sprites[this._cursorIndex];
+    if (selectedSprite.isDisabled()) return;
+    if (this.isSelectedSprite()) {
+      selectedSprite.unselect();
+      this.removeSelectedIndex(this._cursorIndex);
+      return;
+    }
+    selectedSprite.select();
+    this.addSelectedIndex(this._cursorIndex);
+  }
+
+  isSelectedSprite() {
+    const cardset = this._cardset;
+    return cardset._selectedIndexs.find(index => index === this._cursorIndex);
+  }
+
+  addSelectedIndex(index) {
+    const cardset = this._cardset;
+    cardset._selectedIndexs.push(index);
+  }
+
+  removeSelectedIndex(index) {
+    const cardset = this._cardset;
+    cardset._selectedIndexs = cardset._selectedIndexs.filter(selectedIndex => selectedIndex !== index);
   }
 }
