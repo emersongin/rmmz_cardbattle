@@ -5,6 +5,9 @@ class ActionSprite extends Sprite {
     this._status = {};
     this._actions = [];
     this._delayActions = [];
+    this._positiveIntensityEffect = false;
+    this._intensityEffect = 255;
+    this._opacityEffect = 255;
   }
 
   addAction(fn, ...params) {
@@ -64,6 +67,7 @@ class ActionSprite extends Sprite {
 
   update() {
     this.updateDelayActions();
+    this.updateChildrenEffect();
     super.update();
   }
 
@@ -75,6 +79,33 @@ class ActionSprite extends Sprite {
         action.execute();
         this._delayActions.shift();
       }
+    }
+  }
+
+  updateChildrenEffect() {
+    this.updateIntensityEffect();
+    this.updateOpacityEffect();
+  }
+
+  updateIntensityEffect() {
+    if (this._intensityEffect <= 255 && !this._positiveIntensityEffect) {
+      this._intensityEffect += 6;
+      if (this._intensityEffect >= 255) {
+        this._positiveIntensityEffect = true;
+      }
+    }
+    if (this._intensityEffect >= 100 && this._positiveIntensityEffect) {
+      this._intensityEffect -= 6;
+      if (this._intensityEffect <= 100) {
+        this._positiveIntensityEffect = false;
+      }
+    }
+  }
+
+  updateOpacityEffect() {
+    this._opacityEffect -= 32;
+    if (this._opacityEffect <= 0) {
+      this._opacityEffect = 255;
     }
   }
 

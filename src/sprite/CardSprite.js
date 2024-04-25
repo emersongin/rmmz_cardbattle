@@ -759,4 +759,8 @@ class CardSprite extends ActionSprite {
     this.addBehavior(CardSpriteIluminatedBehavior);
     return true;
   }
+
+  isIluminated() {
+    return this.getBehavior(CardSpriteIluminatedBehavior) instanceof CardSpriteIluminatedBehavior;
+  }
 }

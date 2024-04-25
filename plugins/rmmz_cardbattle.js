@@ -304,6 +304,9 @@ class ActionSprite extends Sprite {
     this._status = {};
     this._actions = [];
     this._delayActions = [];
+    this._positiveIntensityEffect = false;
+    this._intensityEffect = 255;
+    this._opacityEffect = 255;
   }
 
   addAction(fn, ...params) {
@@ -363,6 +366,7 @@ class ActionSprite extends Sprite {
 
   update() {
     this.updateDelayActions();
+    this.updateChildrenEffect();
     super.update();
   }
 
@@ -374,6 +378,33 @@ class ActionSprite extends Sprite {
         action.execute();
         this._delayActions.shift();
       }
+    }
+  }
+
+  updateChildrenEffect() {
+    this.updateIntensityEffect();
+    this.updateOpacityEffect();
+  }
+
+  updateIntensityEffect() {
+    if (this._intensityEffect <= 255 && !this._positiveIntensityEffect) {
+      this._intensityEffect += 6;
+      if (this._intensityEffect >= 255) {
+        this._positiveIntensityEffect = true;
+      }
+    }
+    if (this._intensityEffect >= 100 && this._positiveIntensityEffect) {
+      this._intensityEffect -= 6;
+      if (this._intensityEffect <= 100) {
+        this._positiveIntensityEffect = false;
+      }
+    }
+  }
+
+  updateOpacityEffect() {
+    this._opacityEffect -= 32;
+    if (this._opacityEffect <= 0) {
+      this._opacityEffect = 255;
     }
   }
 
@@ -911,20 +942,16 @@ class CardSpriteSelectedBehavior {
     const that = this._card;
     const layer = this._card._selectedLayer;
     layer.bitmap.clear();
-    layer.bitmap.fillAll('orange');
+    layer.bitmap.fillAll('Coral');
     layer.bitmap.clearRect(4, 4, that.width - 8, that.height - 8);
   }
 
   updateBehavior() {
-    this.updatePulse();
-  }
-
-  updatePulse() {
-    const layer = this._card._selectedLayer;
-    layer.opacity -= 32;
-    if (layer.opacity <= 0) {
-      layer.opacity = 255;
-    }
+    const that = this._card;
+    const parent = that.parent;
+    const layer = that._selectedLayer;
+    const opacity = parent?._opacityEffect || that._opacityEffect;
+    layer.opacity = opacity;
   }
 }
 class CardSpriteHoveredBehavior {
@@ -939,20 +966,16 @@ class CardSpriteHoveredBehavior {
     const that = this._card;
     const layer = this._card._hoveredLayer;
     layer.bitmap.clear();
-    layer.bitmap.fillAll('yellow');
+    layer.bitmap.fillAll('CornflowerBlue');
     layer.bitmap.clearRect(4, 4, that.width - 8, that.height - 8);
   }
 
   updateBehavior() {
-    this.updatePulse();
-  }
-
-  updatePulse() {
-    const layer = this._card._hoveredLayer;
-    layer.opacity -= 32;
-    if (layer.opacity <= 0) {
-      layer.opacity = 255;
-    }
+    const that = this._card;
+    const parent = that.parent;
+    const layer = that._hoveredLayer;
+    const opacity = parent?._opacityEffect || that._opacityEffect;
+    layer.opacity = opacity;
   }
 }
 class CardSpriteUpdatedBehavior {
@@ -997,64 +1020,26 @@ class CardSpriteUpdatedBehavior {
 }
 class CardSpriteIluminatedBehavior {
   _card;
-  _color;
-  _intensity;
-  _positiveIntensity;
   
   constructor(sprite) {
     this._card = sprite;
-    this.setup();
+    this.fillLayer();
   }
 
-  setup() {
-    this._color = '#ffff00';
-    this._intensity = 255;
-    this._positiveIntensity = false;
+  fillLayer() {
+    const that = this._card;
+    const layer = this._card._selectedLayer;
+    layer.bitmap.clear();
+    layer.bitmap.fillAll('White');
+    layer.bitmap.clearRect(4, 4, that.width - 8, that.height - 8);
   }
 
   updateBehavior() {
-    const color = this._color;
-    const intensity = this._intensity;
-    this.updateBrightness(color, intensity);
-    this.updateIntensity();
-  }
-
-  updateIntensity() {
-    if (this._intensity <= 255 && !this._positiveIntensity) {
-      this._intensity += 6;
-      if (this._intensity >= 255) {
-        this._positiveIntensity = true;
-      }
-    }
-    if (this._intensity >= 100 && this._positiveIntensity) {
-      this._intensity -= 6;
-      if (this._intensity <= 100) {
-        this._positiveIntensity = false;
-      }
-    }
-  }
-
-  updateBrightness(color, intensity) {
-    const layer = this._card._selectedLayer;
-    const newColor = this.getBrightness(color, intensity);
-    layer.bitmap.clear();
-    layer.bitmap.fillAll(newColor);
-    layer.bitmap.clearRect(4, 4, this._card.width - 8, this._card.height - 8);
-  }
-
-  getBrightness(hex, intensity) {
-    let r = parseInt(hex.substring(1, 3), 16);
-    let g = parseInt(hex.substring(3, 5), 16);
-    let b = parseInt(hex.substring(5, 7), 16);
-    let factor = intensity / 255;
-    r = Math.round(r * factor);
-    g = Math.round(g * factor);
-    b = Math.round(b * factor);
-    r = Math.min(255, Math.max(0, r));
-    g = Math.min(255, Math.max(0, g));
-    b = Math.min(255, Math.max(0, b));
-    let resultHex = '#' + (r * 0x10000 + g * 0x100 + b).toString(16).padStart(6, '0');
-    return resultHex;
+    const that = this._card;
+    const parent = that.parent;
+    const layer = that._selectedLayer;
+    const opacity = parent?._intensityEffect || that._intensityEffect;
+    layer.opacity = opacity;
   }
 }
 
@@ -1807,6 +1792,10 @@ class CardSprite extends ActionSprite {
       (this.isStopped() || this.isOpening() || this.isMoving() || this.isZooming()))) return; 
     this.addBehavior(CardSpriteIluminatedBehavior);
     return true;
+  }
+
+  isIluminated() {
+    return this.getBehavior(CardSpriteIluminatedBehavior) instanceof CardSpriteIluminatedBehavior;
   }
 }
 class CardsetSpriteStaticModeState {
@@ -3885,7 +3874,7 @@ class SelectModeAndEnableChoiceCardsetSpriteTest extends SceneTest {
       setTimeout(() => {
         this.cardset.staticMode();
         resolve(true);
-      }, 30000);
+      }, 9999999999);
     });
   }
 }

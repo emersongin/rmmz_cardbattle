@@ -10,19 +10,15 @@ class CardSpriteSelectedBehavior {
     const that = this._card;
     const layer = this._card._selectedLayer;
     layer.bitmap.clear();
-    layer.bitmap.fillAll('orange');
+    layer.bitmap.fillAll('Coral');
     layer.bitmap.clearRect(4, 4, that.width - 8, that.height - 8);
   }
 
   updateBehavior() {
-    this.updatePulse();
-  }
-
-  updatePulse() {
-    const layer = this._card._selectedLayer;
-    layer.opacity -= 32;
-    if (layer.opacity <= 0) {
-      layer.opacity = 255;
-    }
+    const that = this._card;
+    const parent = that.parent;
+    const layer = that._selectedLayer;
+    const opacity = parent?._opacityEffect || that._opacityEffect;
+    layer.opacity = opacity;
   }
 }
