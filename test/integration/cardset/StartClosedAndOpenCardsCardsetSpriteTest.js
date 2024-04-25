@@ -1,6 +1,5 @@
 class StartClosedAndOpenCardsCardsetSpriteTest extends SceneTest {
   cardset;
-  card;
   scene;
 
   constructor(scene) {

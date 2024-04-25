@@ -1,6 +1,5 @@
 class StartListCardsCardsetSpriteTest extends SceneTest {
   cardset;
-  card;
   scene;
 
   constructor(scene) {

@@ -1,4 +1,4 @@
-class StartPositionCardsCardsetSpriteTest extends SceneTest {
+class DisableAndEnableCardsCardsetSpriteTest extends SceneTest {
   cardset;
   scene;
 
@@ -14,30 +14,25 @@ class StartPositionCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
+    this.cardset.show();
     this.scene.addChild(this.cardset);
   }
 
   start() {
     return new Promise(async resolve => {
-      let testTimes = 1;
-      for (let index = 0; index < 6; index++) {
-        const cards = this.generateCards(testTimes);
-        await this.testCards(cards);
-        testTimes++;
-      }
-      resolve(true);
-    });
-  }
-
-  testCards(cards) {
-    return new Promise(resolve => {
+      const cards = this.generateCards(10);
       this.cardset.setCards(cards);
-      this.cardset.startPositionCards(100, 0);
+      this.cardset.startListCards();
       this.cardset.showCards();
+      this.cardset.disableCards();
+      const sprite = this.cardset.getCardIndex();
+      this.cardset.enableCard(sprite);
+      const sprites = this.cardset.getCardIndexs([3, 4, 5, 6]);
+      this.cardset.enableCards(sprites);
       setTimeout(() => {
-        this.cardset.clear();
+        this.cardset.staticMode();
         resolve(true);
-      }, 300);
+      }, 600);
     });
   }
 }

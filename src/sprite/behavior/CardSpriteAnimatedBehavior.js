@@ -2,12 +2,14 @@
 
 class CardSpriteAnimatedBehavior {
   _card;
+  _parent;
   _animation;
   _animationSprite;
   _times;
   
-  constructor(sprite, animation, times) {
+  constructor(sprite, animation, times, anchorParent) {
     this._card = sprite;
+    this._parent = anchorParent || sprite.parent;
     this._animation = animation;
     this._times = times;
   }
@@ -18,7 +20,7 @@ class CardSpriteAnimatedBehavior {
       if (this.noHasAnimationSprite()) {
         this._animationSprite = new CardAnimationSprite();
         this._animationSprite.setup([that], this._animation);
-        that.parent.addChild(this._animationSprite);
+        this._parent.addChild(this._animationSprite);
         this._times--;
       } else {
         if (this.isNoPlayingAnimation()) this._animationSprite = null;

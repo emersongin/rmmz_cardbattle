@@ -1,6 +1,5 @@
 class SelectModeAndEnableChoiceCardsetSpriteTest extends SceneTest {
   cardset;
-  card;
   scene;
 
   constructor(scene) {
@@ -25,6 +24,9 @@ class SelectModeAndEnableChoiceCardsetSpriteTest extends SceneTest {
       this.cardset.setCards(cards);
       this.cardset.startListCards();
       this.cardset.showCards();
+      const sprites = this.cardset.getCardIndexs([4, 5]);
+      this.cardset.disableCards();
+      this.cardset.enableCards(sprites);
       this.cardset.selectMode();
       this.cardset.enableChoice();
       setTimeout(() => {

@@ -424,7 +424,13 @@ class CardSprite extends ActionSprite {
     this.stop();
   }
 
-  toMove(destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration) {
+  toMove(
+    destinyXPosition = this.x, 
+    destinyYPosition = this.y, 
+    originXPosition = this.x, 
+    originYPosition = this.y, 
+    duration = this._duration
+  ) {
     this.addAction(
       this.commandMoving, 
       destinyXPosition, 
@@ -435,13 +441,7 @@ class CardSprite extends ActionSprite {
     );
   }
 
-  commandMoving(
-    destinyXPosition = this.x, 
-    destinyYPosition = this.y, 
-    originXPosition = this.x, 
-    originYPosition = this.y, 
-    duration
-  ) {
+  commandMoving(destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration) {
     if (!(this.isVisible() && this.isStopped())) return;
     this.changeStatus( 
       CardSpriteMovingState,
@@ -519,9 +519,9 @@ class CardSprite extends ActionSprite {
     return true;
   }
 
-  damage(times = 1) {
+  damage(times = 1, anchorParent = this.parent) {
     const animation = this.damageAnimation();
-    this.addAction(this.commandAnimate, animation, times);
+    this.addAction(this.commandAnimate, animation, times, anchorParent);
   }
 
   damageAnimation() {
@@ -552,19 +552,16 @@ class CardSprite extends ActionSprite {
     };
   }
 
-  commandAnimate(animation, times) {
-    this.animate(animation, times);
-    return true;
-  }
-
-  animate(animation, times) {
+  commandAnimate(animation, times, anchorParent) {
     if (this.isVisible() && (this.isStopped() || this.isOpening() || this.isMoving() || this.isZooming())) {
       this.addBehavior(
         CardSpriteAnimatedBehavior, 
         animation,
-        times
+        times,
+        anchorParent
       );
     }
+    return true;
   }
 
   changeAttackPoints(attackPoints) {
@@ -596,7 +593,7 @@ class CardSprite extends ActionSprite {
   }
 
   isBusy() {
-    return this.hasActions() || this.isNotStopped();
+    return this.hasActions() || this.isNotStopped() || this.isAnimated();
   }
 
   isNotStopped() {
@@ -663,42 +660,28 @@ class CardSprite extends ActionSprite {
     return true;
   }
 
-  quake(times, distance) {
-    this.addAction(this.commandQuake, times, distance);
+  quake(times = 1, distance = 2, movements = null) {
+    this.addAction(this.commandQuake, times, distance, movements);
   }
 
-  commandQuake(times = 1, distance = 2) {
+  commandQuake(times, distance, movements) {
     if (!this.isVisible() && this.isStopped() && this.isOpened()) return;
-    const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
-    const moves = [];
-    let direction = '';
-    for (let index = 0; index < (times * 3); index++) {
-      const dirs = directions.filter(dir => dir !== direction);
-      direction = dirs[Math.randomInt(3)];
-      switch (direction) {
-        case 'TOP':
-          moves.push({x: 0, y: -distance}, {x: 0, y: 0});
-          break;
-        case 'BOTTOM':
-          moves.push({x: 0, y: distance}, {x: 0, y: 0});
-          break;
-        case 'LEFT':
-          moves.push({x: -distance, y: 0}, {x: 0, y: 0});
-          break;
-        case 'RIGHT':
-          moves.push({x: distance, y: 0}, {x: 0, y: 0});
-          break;
-      }
-    }
+    const moves = movements || this.generateQuakeMoves(times, distance);
     const cardXPosition = this.x;
     const cardYPosition = this.y; 
     moves.forEach((move, index) => {
       const xMove = cardXPosition + move.x;
       const yMove = cardYPosition + move.y;
-      const duration = 0.01;
+      const duration = 0;
       this.toMove(xMove, yMove, cardXPosition, cardYPosition, duration);
     });
     return true;
+  }
+
+  isAnimated() {
+    return this.getBehavior(CardSpriteFlashedBehavior) instanceof CardSpriteFlashedBehavior ||
+      this.getBehavior(CardSpriteAnimatedBehavior) instanceof CardSpriteAnimatedBehavior ||
+      this.getBehavior(CardSpriteUpdatedBehavior) instanceof CardSpriteUpdatedBehavior;
   }
   
   isAnimationPlaying() {
@@ -763,4 +746,6 @@ class CardSprite extends ActionSprite {
   isIluminated() {
     return this.getBehavior(CardSpriteIluminatedBehavior) instanceof CardSpriteIluminatedBehavior;
   }
+
+
 }

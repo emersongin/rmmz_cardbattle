@@ -48,6 +48,8 @@
 // include ../test/integration/cardset/AddCardAndMoveToListCardsetSpriteTest.js
 // include ../test/integration/cardset/SelectModeCardsetSpriteTest.js
 // include ../test/integration/cardset/SelectModeAndEnableChoiceCardsetSpriteTest.js
+// include ../test/integration/cardset/AnimateCardsCardsetSpriteTest.js
+// include ../test/integration/cardset/DisableAndEnableCardsCardsetSpriteTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./manager/CardBattleManager.js

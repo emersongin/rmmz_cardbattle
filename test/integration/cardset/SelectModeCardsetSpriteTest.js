@@ -1,6 +1,5 @@
 class SelectModeCardsetSpriteTest extends SceneTest {
   cardset;
-  card;
   scene;
 
   constructor(scene) {

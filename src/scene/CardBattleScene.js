@@ -53,11 +53,13 @@ class CardBattleScene extends Scene_Message {
       MoveCardsToPositionCardsetSpriteTest,
       AddCardAndMoveToListCardsetSpriteTest,
       SelectModeCardsetSpriteTest,
-      SelectModeAndEnableChoiceCardsetSpriteTest
+      DisableAndEnableCardsCardsetSpriteTest,
+      SelectModeAndEnableChoiceCardsetSpriteTest,
+      AnimateCardsCardsetSpriteTest
     ];
     const tests = [
-      // ...cardSpriteTests,
-      ...cardsetTests
+      ...cardSpriteTests,
+      // ...cardsetTests
     ];
     for (const test of tests) {
       this.changePhase(test);

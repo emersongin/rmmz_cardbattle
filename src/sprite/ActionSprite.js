@@ -159,9 +159,9 @@ class ActionSprite extends Sprite {
     return this.visible;
   }
 
-  calculateTimeInterval(origin, destiny, duration = 1) {
+  calculateTimeInterval(origin, destiny, duration = 0) {
     const distance = Math.abs(origin - destiny);
-    const time = Math.abs(duration * 60);
+    const time = Math.abs((duration) * 60);
     return (distance / time) || 1;
   }
 
@@ -194,5 +194,30 @@ class ActionSprite extends Sprite {
         await this.removeChild(child);
       });
     }
+  }
+
+  generateQuakeMoves(times = 1, distance = 2) {
+    const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
+    const moves = [];
+    let direction = '';
+    for (let index = 0; index < (times * 3); index++) {
+      const dirs = directions.filter(dir => dir !== direction);
+      direction = dirs[Math.randomInt(3)];
+      switch (direction) {
+        case 'TOP':
+          moves.push({x: 0, y: -distance}, {x: 0, y: 0});
+          break;
+        case 'BOTTOM':
+          moves.push({x: 0, y: distance}, {x: 0, y: 0});
+          break;
+        case 'LEFT':
+          moves.push({x: -distance, y: 0}, {x: 0, y: 0});
+          break;
+        case 'RIGHT':
+          moves.push({x: distance, y: 0}, {x: 0, y: 0});
+          break;
+      }
+    }
+    return moves;
   }
 }

@@ -14,11 +14,6 @@ class CardSpriteMovingState {
     duration
   ) {
     this._card = sprite;
-    destinyXPosition = destinyXPosition;
-    destinyYPosition = destinyYPosition;
-    originXPosition = originXPosition;
-    originYPosition = originYPosition;
-    duration = duration || this._card._duration || 1;
     this._x = destinyXPosition;
     this._y = destinyYPosition;
     this._xInterval = this._card.calculateTimeInterval(originXPosition, destinyXPosition, duration);

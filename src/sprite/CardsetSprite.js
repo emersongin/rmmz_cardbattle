@@ -211,13 +211,13 @@ class CardsetSprite extends ActionSprite {
     this.moveCardsToList(sprite, exceptSprites);
   }
 
-  moveCardsToList(sprites = this._sprites, exceptSprites) {
+  moveCardsToList(sprites = this._sprites, exceptSprites = null) {
     sprites = this.toArray(sprites);
     this.startListCards(this._sprites, exceptSprites || sprites);
     this.addAction(this.commandMoveCardsToList, sprites);
   }
 
-  moveCardsToListDelay(delay = 10, sprites = this._sprites, exceptSprites) {
+  moveCardsToListDelay(delay = 10, sprites = this._sprites, exceptSprites = null) {
     sprites = this.toArray(sprites);
     this.startListCards(this._sprites, exceptSprites || sprites);
     const actions = this.createActionsWithDelay(this.commandMoveCardsToList, delay, sprites);
@@ -240,12 +240,12 @@ class CardsetSprite extends ActionSprite {
     this.moveCardsToPosition(xPosition, yPosition, sprite);
   }
 
-  moveCardsToPosition(xPosition, yPosition, sprites = this._sprites) {
+  moveCardsToPosition(xPosition = 0, yPosition = 0, sprites = this._sprites) {
     sprites = this.toArray(sprites);
     this.addAction(this.commandMoveCardsToPosition, xPosition, yPosition, sprites);
   }
 
-  commandMoveCardsToPosition(xPosition = 0, yPosition = 0, sprites = this._sprites) {
+  commandMoveCardsToPosition(xPosition, yPosition, sprites) {
     if (this.isHidden()) return;
     sprites.forEach(sprite => {
       sprite.toMove(xPosition, yPosition);
@@ -293,7 +293,7 @@ class CardsetSprite extends ActionSprite {
     this._enableSelected = false;
     if (this._selectedIndexs.length) {
       this._selectedIndexs.forEach(index => {
-        const sprite = this._sprites[index];
+        const sprite = this.getCardIndex(index);
         sprite.unselect();
         sprite.iluminate();
       });
@@ -306,6 +306,14 @@ class CardsetSprite extends ActionSprite {
     return this.getStatus() instanceof CardsetSpriteSelectModeState;
   }
 
+  getCardIndexs(indexs) {
+    return indexs.map(index => this.getCardIndex(index)) || this._sprites;
+  }
+
+  getCardIndex(index) {
+    return this._sprites[index || 0];
+  }
+
   enableChoice() {
     this.addAction(this.commandEnableChoice);
   }
@@ -314,6 +322,92 @@ class CardsetSprite extends ActionSprite {
     if (!this.isSelectMode()) return;
     this._enableSelected = true;
     this._selectedIndexs = [];
+    return true;
+  }
+
+  animateCardFlash(sprite, color, duration, times) {
+    this.animateCardsFlash(color, duration, times, sprite);
+  }
+
+  animateCardsFlash(color = 'white', duration = 60, times = 1, sprites = this._sprites) {
+    sprites = this.toArray(sprites);
+    this.addAction(this.commandAnimateCardsFlash, sprites, color, duration, times);
+  }
+
+  commandAnimateCardsFlash(sprites, color, duration, times) {
+    if (this.isHidden() || this.isBusy()) return;
+    sprites.forEach(sprite => {
+      sprite.flash(color, duration, times);
+    });
+    return true;
+  }
+
+  animateCardDamage(sprite, times) {
+    this.animateCardsDamage(times, sprite);
+  }
+
+  animateCardsDamage(times = 1, sprites = this._sprites) {
+    sprites = this.toArray(sprites);
+    this.addAction(this.commandAnimateCardsDamage, sprites, times);
+  }
+
+  commandAnimateCardsDamage(sprites, times) {
+    if (this.isHidden() || this.isBusy()) return;
+    sprites.forEach(sprite => {
+      sprite.damage(times, this.parent);
+    });
+    return true;
+  }
+
+  animateCardQuake(sprite, times, distance) {
+    this.animateCardsQuake(times, distance, sprite);
+  }
+
+  animateCardsQuake(times = 1, distance = 2, sprites = this._sprites) {
+    sprites = this.toArray(sprites);
+    this.addAction(this.commandAnimateCardsQuake, sprites, times, distance);
+  }
+
+  commandAnimateCardsQuake(sprites, times, distance) {
+    if (this.isHidden() || this.isBusy()) return;
+    const movements = this.generateQuakeMoves(times, distance);
+    sprites.forEach(sprite => {
+      sprite.quake(times, distance, movements);
+    });
+    return true;
+  }
+
+  disableCard(sprite) {
+    this.disableCards(sprite);
+  }
+
+  disableCards(sprites = this._sprites) {
+    sprites = this.toArray(sprites);
+    this.addAction(this.commandDisableCards, sprites);
+  }
+
+  commandDisableCards(sprites) {
+    if (this.isHidden()) return;
+    sprites.forEach(sprite => {
+      sprite.disable();
+    });
+    return true;
+  }
+
+  enableCard(sprite) {
+    this.enableCards(sprite);
+  }
+
+  enableCards(sprites = this._sprites) {
+    sprites = this.toArray(sprites);
+    this.addAction(this.commandEnableCards, sprites);
+  }
+
+  commandEnableCards(sprites) {
+    if (this.isHidden()) return;
+    sprites.forEach(sprite => {
+      sprite.enable();
+    });
     return true;
   }
 }
