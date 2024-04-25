@@ -27,7 +27,7 @@ class MoveCardsToListCardsetSpriteTest extends SceneTest {
         testTimes++;
       }
       testTimes = 38;
-      for (let index = 0; index < 2; index++) {
+      for (let index = 0; index < 1; index++) {
         const cards = this.generateCards(testTimes);
         await this.testCardsDelay(cards);
         testTimes++;

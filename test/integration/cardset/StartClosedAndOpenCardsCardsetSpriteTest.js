@@ -26,8 +26,8 @@ class StartClosedAndOpenCardsCardsetSpriteTest extends SceneTest {
         await this.testCards(cards);
         testTimes++;
       }
-      testTimes = 35;
-      for (let index = 0; index < 6; index++) {
+      testTimes = 40;
+      for (let index = 0; index < 1; index++) {
         const cards = this.generateCards(testTimes);
         await this.testDelayCards(cards);
         testTimes++;

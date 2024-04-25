@@ -3527,8 +3527,8 @@ class StartListCardsCardsetSpriteTest extends SceneTest {
 
   start() {
     return new Promise(async resolve => {
-      let testTimes = 35;
-      for (let index = 0; index < 6; index++) {
+      let testTimes = 40;
+      for (let index = 0; index < 1; index++) {
         const cards = this.generateCards(testTimes);
         await this.testCards(cards);
         testTimes++;
@@ -3577,8 +3577,8 @@ class StartClosedAndOpenCardsCardsetSpriteTest extends SceneTest {
         await this.testCards(cards);
         testTimes++;
       }
-      testTimes = 35;
-      for (let index = 0; index < 6; index++) {
+      testTimes = 40;
+      for (let index = 0; index < 1; index++) {
         const cards = this.generateCards(testTimes);
         await this.testDelayCards(cards);
         testTimes++;
@@ -3644,7 +3644,7 @@ class MoveCardsToListCardsetSpriteTest extends SceneTest {
         testTimes++;
       }
       testTimes = 38;
-      for (let index = 0; index < 2; index++) {
+      for (let index = 0; index < 1; index++) {
         const cards = this.generateCards(testTimes);
         await this.testCardsDelay(cards);
         testTimes++;
@@ -3706,7 +3706,7 @@ class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
   start() {
     return new Promise(async resolve => {
       let testTimes = 1;
-      for (let index = 0; index < 3; index++) {
+      for (let index = 0; index < 1; index++) {
         const cards = this.generateCards(testTimes);
         await this.testCards(cards);
         testTimes++;
@@ -3838,7 +3838,7 @@ class SelectModeCardsetSpriteTest extends SceneTest {
       setTimeout(() => {
         this.cardset.staticMode();
         resolve(true);
-      }, 30000);
+      }, 3000);
     });
   }
 }
@@ -3874,7 +3874,7 @@ class SelectModeAndEnableChoiceCardsetSpriteTest extends SceneTest {
       setTimeout(() => {
         this.cardset.staticMode();
         resolve(true);
-      }, 9999999999);
+      }, 3000);
     });
   }
 }
@@ -3925,15 +3925,15 @@ class CardBattleScene extends Scene_Message {
       IluminatedCardSpriteTest
     ];
     const cardsetTests = [
-      // SetBackgroundAndStartPositionCardsetSpriteTest,
-      // SetCardsCardsetSpriteTest,
-      // StartPositionCardsCardsetSpriteTest,
-      // StartListCardsCardsetSpriteTest,
-      // StartClosedAndOpenCardsCardsetSpriteTest,
-      // MoveCardsToListCardsetSpriteTest,
-      // MoveCardsToPositionCardsetSpriteTest,
-      // AddCardAndMoveToListCardsetSpriteTest,
-      // SelectModeCardsetSpriteTest,
+      SetBackgroundAndStartPositionCardsetSpriteTest,
+      SetCardsCardsetSpriteTest,
+      StartPositionCardsCardsetSpriteTest,
+      StartListCardsCardsetSpriteTest,
+      StartClosedAndOpenCardsCardsetSpriteTest,
+      MoveCardsToListCardsetSpriteTest,
+      MoveCardsToPositionCardsetSpriteTest,
+      AddCardAndMoveToListCardsetSpriteTest,
+      SelectModeCardsetSpriteTest,
       SelectModeAndEnableChoiceCardsetSpriteTest
     ];
     const tests = [

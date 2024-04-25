@@ -29,7 +29,7 @@ class SelectModeCardsetSpriteTest extends SceneTest {
       setTimeout(() => {
         this.cardset.staticMode();
         resolve(true);
-      }, 30000);
+      }, 3000);
     });
   }
 }
