@@ -17,11 +17,11 @@ class ZoomOutCardSpriteTest extends SceneTest {
     this.card.scale.x = (this.card.scale.x / 2) * 3;
     this.card.scale.y = (this.card.scale.y / 2) * 3;
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       this.card.zoomOut();
       setTimeout(() => {
         resolve(true);

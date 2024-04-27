@@ -14,7 +14,6 @@ class FlashCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
@@ -23,6 +22,7 @@ class FlashCardSpriteTest extends SceneTest {
         const color = 'white';
         const duration = 60;
         const times = 1;
+        this.scene.addChild(this.card);
         this.card.flash(color, duration, times);
         setTimeout(() => {
           this.scene.removeChild(this.card);

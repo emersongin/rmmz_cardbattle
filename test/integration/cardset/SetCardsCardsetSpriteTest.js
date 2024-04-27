@@ -7,11 +7,11 @@ class SetCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
-    this.scene.addChild(this.cardset);
   }
 
   start() {
     return new Promise(async resolve => {
+      this.scene.addChild(this.cardset);
       let testTimes = 1;
       for (let index = 0; index < 6; index++) {
         const cards = this.generateCards(testTimes);

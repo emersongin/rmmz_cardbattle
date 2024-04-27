@@ -12,11 +12,11 @@ class MoveCardSpriteTest extends SceneTest {
     );
     this.card.startOpen(0, 0);
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       const destinyXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
       const destinyYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
       this.card.toMove(destinyXPosition, destinyYPosition);

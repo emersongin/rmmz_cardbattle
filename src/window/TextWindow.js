@@ -22,7 +22,9 @@ class TextWindow extends Window_Base {
     if (this._lines.length) {
       const textContent = this.processLines();
       this.resize(textContent);
-      this.drawTextEx(textContent, 0, 0, 0);
+      console.log(textContent);
+      this.drawTextEx(textContent, 0, 0, this.width);
+      // this.contents.drawText(textContent, 0, 0, this.width, 'center');
     }
   }
 

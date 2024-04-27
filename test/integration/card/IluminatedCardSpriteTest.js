@@ -14,11 +14,11 @@ class IluminatedCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       this.card.iluminate();
       setTimeout(() => {
         resolve(true);

@@ -10,11 +10,11 @@ class StartClosedCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
       const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
       this.card.startClosed(centerXPosition, centerYPosition);

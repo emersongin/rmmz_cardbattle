@@ -86,7 +86,9 @@ class TextWindow extends Window_Base {
     if (this._lines.length) {
       const textContent = this.processLines();
       this.resize(textContent);
-      this.drawTextEx(textContent, 0, 0, 0);
+      console.log(textContent);
+      this.drawTextEx(textContent, 0, 0, this.width);
+      // this.contents.drawText(textContent, 0, 0, this.width, 'center');
     }
   }
 
@@ -2805,11 +2807,11 @@ class StartOpenCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
       const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
       this.card.startOpen(centerXPosition, centerYPosition);
@@ -2833,11 +2835,11 @@ class StartClosedCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
       const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
       this.card.startClosed(centerXPosition, centerYPosition);
@@ -2868,11 +2870,11 @@ class OpenCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startClosed(centerXPosition, centerYPosition);
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       this.card.open();
       setTimeout(() => {
         resolve(true);
@@ -2897,11 +2899,11 @@ class CloseCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       this.card.close();
       setTimeout(() => {
         resolve(true);
@@ -2930,11 +2932,11 @@ class MoveCardSpriteTest extends SceneTest {
     );
     this.card.startOpen(0, 0);
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       const destinyXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
       const destinyYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
       this.card.toMove(destinyXPosition, destinyYPosition);
@@ -2969,11 +2971,11 @@ class HoveredCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       this.card.hover();
       setTimeout(() => {
         this.card.unhover();
@@ -3001,11 +3003,11 @@ class SelectedCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       this.card.select();
       setTimeout(() => {
         this.card.unselect();
@@ -3033,7 +3035,6 @@ class FlashCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
@@ -3042,6 +3043,7 @@ class FlashCardSpriteTest extends SceneTest {
         const color = 'white';
         const duration = 60;
         const times = 1;
+        this.scene.addChild(this.card);
         this.card.flash(color, duration, times);
         setTimeout(() => {
           this.scene.removeChild(this.card);
@@ -3081,12 +3083,12 @@ class DamageAnimationCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
       const times = 1;
+      this.scene.addChild(this.card);
       this.card.damage(times);
       setTimeout(() => {
         resolve(true);
@@ -3111,11 +3113,11 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       this.card.changePoints(30, 30);
       setTimeout(() => {
         resolve(true);
@@ -3140,11 +3142,11 @@ class DisableCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       this.card.disable();
       setTimeout(() => {
         this.card.enable();
@@ -3172,11 +3174,11 @@ class ZoomInCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       this.card.zoom();
       setTimeout(() => {
         resolve(true);
@@ -3204,11 +3206,11 @@ class ZoomOutCardSpriteTest extends SceneTest {
     this.card.scale.x = (this.card.scale.x / 2) * 3;
     this.card.scale.y = (this.card.scale.y / 2) * 3;
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       this.card.zoomOut();
       setTimeout(() => {
         resolve(true);
@@ -3233,11 +3235,11 @@ class LeaveCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       this.card.leave();
       setTimeout(() => {
         resolve(true);
@@ -3262,12 +3264,12 @@ class QuakeCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
       const times = 3;
+      this.scene.addChild(this.card);
       this.card.damage();
       this.card.quake(times);
       setTimeout(() => {
@@ -3294,11 +3296,11 @@ class FlipCardToUpSpriteTest extends SceneTest {
     this.card.startOpen(centerXPosition, centerYPosition);
     this.card.setToDown();
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       this.card.flipToUp();
       setTimeout(() => {
         resolve(true);
@@ -3322,11 +3324,11 @@ class IluminatedCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       this.card.iluminate();
       setTimeout(() => {
         resolve(true);
@@ -3341,11 +3343,11 @@ class SetBackgroundAndStartPositionCardsetSpriteTest extends SceneTest {
 
   create() {
     this.cardset = CardsetSprite.create();
-    this.scene.addChild(this.cardset);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.cardset);
       const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
       const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
       this.cardset.setBackgroundColor('rgba(255, 0, 0, 0.5)');
@@ -3368,11 +3370,11 @@ class SetCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
-    this.scene.addChild(this.cardset);
   }
 
   start() {
     return new Promise(async resolve => {
+      this.scene.addChild(this.cardset);
       let testTimes = 1;
       for (let index = 0; index < 6; index++) {
         const cards = this.generateCards(testTimes);
@@ -3403,11 +3405,11 @@ class StartPositionCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
-    this.scene.addChild(this.cardset);
   }
 
   start() {
     return new Promise(async resolve => {
+      this.scene.addChild(this.cardset);
       let testTimes = 1;
       for (let index = 0; index < 6; index++) {
         const cards = this.generateCards(testTimes);
@@ -3439,11 +3441,11 @@ class StartListCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
-    this.scene.addChild(this.cardset);
   }
 
   start() {
     return new Promise(async resolve => {
+      this.scene.addChild(this.cardset);
       let testTimes = 40;
       for (let index = 0; index < 1; index++) {
         const cards = this.generateCards(testTimes);
@@ -3475,11 +3477,11 @@ class StartClosedAndOpenCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
-    this.scene.addChild(this.cardset);
   }
 
   start() {
     return new Promise(async resolve => {
+      this.scene.addChild(this.cardset);
       let testTimes = 1;
       for (let index = 0; index < 6; index++) {
         const cards = this.generateCards(testTimes);
@@ -3533,11 +3535,11 @@ class MoveCardsToListCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
-    this.scene.addChild(this.cardset);
   }
 
   start() {
     return new Promise(async resolve => {
+      this.scene.addChild(this.cardset);
       let testTimes = 1;
       for (let index = 0; index < 6; index++) {
         const cards = this.generateCards(testTimes);
@@ -3593,11 +3595,11 @@ class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
-    this.scene.addChild(this.cardset);
   }
 
   start() {
     return new Promise(async resolve => {
+      this.scene.addChild(this.cardset);
       let testTimes = 1;
       for (let index = 0; index < 1; index++) {
         const cards = this.generateCards(testTimes);
@@ -3634,11 +3636,11 @@ class AddCardAndMoveToListCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
-    this.scene.addChild(this.cardset);
   }
 
   start() {
     return new Promise(async resolve => {
+      this.scene.addChild(this.cardset);
       let testTimes = 1;
       for (let index = 0; index < 3; index++) {
         const cards = this.generateCards(3);
@@ -3702,11 +3704,11 @@ class SelectModeCardsetSpriteTest extends SceneTest {
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
     this.cardset.show();
-    this.scene.addChild(this.cardset);
   }
 
   start() {
     return new Promise(async resolve => {
+      this.scene.addChild(this.cardset);
       const cards = this.generateCards(10);
       this.cardset.setCards(cards);
       this.cardset.startListCards();
@@ -3729,11 +3731,11 @@ class SelectModeAndEnableChoiceCardsetSpriteTest extends SceneTest {
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
     this.cardset.show();
-    this.scene.addChild(this.cardset);
   }
 
   start() {
     return new Promise(async resolve => {
+      this.scene.addChild(this.cardset);
       const cards = this.generateCards(10);
       this.cardset.setCards(cards);
       this.cardset.startListCards();
@@ -3759,11 +3761,11 @@ class AnimateCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
-    this.scene.addChild(this.cardset);
   }
 
   async start() {
     return new Promise(async resolve => {
+      this.scene.addChild(this.cardset);
       await this.startFlash();
       await this.startDamage();
       await this.startQuake();
@@ -3835,11 +3837,11 @@ class DisableAndEnableCardsCardsetSpriteTest extends SceneTest {
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
     this.cardset.show();
-    this.scene.addChild(this.cardset);
   }
 
   start() {
     return new Promise(async resolve => {
+      this.scene.addChild(this.cardset);
       const cards = this.generateCards(10);
       this.cardset.setCards(cards);
       this.cardset.startListCards();
@@ -3864,11 +3866,12 @@ class OpenAndCloseTextWindowTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - 100 / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - 100 / 2);
     this.textWindow = TextWindow.create(centerXPosition, centerYPosition, 100, 100);
-    this.scene.addWindow(this.textWindow);
+    console.log(this.textWindow);
   }
 
-  start() {
+  start() {      
     return new Promise(resolve => {
+      this.scene.addWindow(this.textWindow);
       this.textWindow.open();
       setTimeout(() => {
         this.textWindow.close();
@@ -3884,13 +3887,13 @@ class SetTextTextWindowTest extends SceneTest {
 
   create() {
     this.textWindow = TextWindow.create(0, 0, 0, 0);
-    this.textWindow.addText('Hello World');
-    this.textWindow.renderText();
-    this.scene.addWindow(this.textWindow);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addWindow(this.textWindow);
+      this.textWindow.addText('Hello World');
+      this.textWindow.renderText();
       this.textWindow.open();
       setTimeout(() => {
         resolve(true);
@@ -3909,16 +3912,11 @@ class CardBattleScene extends Scene_Message {
   create() {
     super.create();
     this.createDisplayObjects();
-    this.loadAssets();
     this.createTests();
   }
 
   createDisplayObjects() {
     this.createWindowLayer();
-  }
-
-  loadAssets() {
-    ImageManager.loadCard('default');
   }
 
   async createTests() {
@@ -3960,13 +3958,21 @@ class CardBattleScene extends Scene_Message {
       SetTextTextWindowTest,
     ];
     this.tests = [
-      // ...cardSpriteTests,
-      // ...cardsetTests,
-      ...textWindowTests,
+      ...cardSpriteTests,
+      ...cardsetTests,
+      // ...textWindowTests,
     ];
+    this.tests = this.tests.map(test => {
+      const instance = new test(this);
+      instance.create();
+      return instance;
+    });
+  }
+
+  async start() {
+    super.start();
     for (const test of this.tests) {
-      this.changePhase(test);
-      this._phase.create();
+      this._phase = test;
       await this._phase.start();
       this._phase.clearScene();
     }

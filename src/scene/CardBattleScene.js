@@ -8,16 +8,11 @@ class CardBattleScene extends Scene_Message {
   create() {
     super.create();
     this.createDisplayObjects();
-    this.loadAssets();
     this.createTests();
   }
 
   createDisplayObjects() {
     this.createWindowLayer();
-  }
-
-  loadAssets() {
-    ImageManager.loadCard('default');
   }
 
   async createTests() {
@@ -59,13 +54,21 @@ class CardBattleScene extends Scene_Message {
       SetTextTextWindowTest,
     ];
     this.tests = [
-      // ...cardSpriteTests,
-      // ...cardsetTests,
-      ...textWindowTests,
+      ...cardSpriteTests,
+      ...cardsetTests,
+      // ...textWindowTests,
     ];
+    this.tests = this.tests.map(test => {
+      const instance = new test(this);
+      instance.create();
+      return instance;
+    });
+  }
+
+  async start() {
+    super.start();
     for (const test of this.tests) {
-      this.changePhase(test);
-      this._phase.create();
+      this._phase = test;
       await this._phase.start();
       this._phase.clearScene();
     }

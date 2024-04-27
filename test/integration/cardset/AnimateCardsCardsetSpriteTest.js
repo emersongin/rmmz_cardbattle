@@ -7,11 +7,11 @@ class AnimateCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
-    this.scene.addChild(this.cardset);
   }
 
   async start() {
     return new Promise(async resolve => {
+      this.scene.addChild(this.cardset);
       await this.startFlash();
       await this.startDamage();
       await this.startQuake();

@@ -14,12 +14,12 @@ class QuakeCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
       const times = 3;
+      this.scene.addChild(this.card);
       this.card.damage();
       this.card.quake(times);
       setTimeout(() => {

@@ -14,11 +14,11 @@ class OpenCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startClosed(centerXPosition, centerYPosition);
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       this.card.open();
       setTimeout(() => {
         resolve(true);

@@ -8,11 +8,11 @@ class SelectModeCardsetSpriteTest extends SceneTest {
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
     this.cardset.show();
-    this.scene.addChild(this.cardset);
   }
 
   start() {
     return new Promise(async resolve => {
+      this.scene.addChild(this.cardset);
       const cards = this.generateCards(10);
       this.cardset.setCards(cards);
       this.cardset.startListCards();

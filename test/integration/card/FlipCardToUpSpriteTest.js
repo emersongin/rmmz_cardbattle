@@ -15,11 +15,11 @@ class FlipCardToUpSpriteTest extends SceneTest {
     this.card.startOpen(centerXPosition, centerYPosition);
     this.card.setToDown();
     this.card.show();
-    this.scene.addChild(this.card);
   }
 
   start() {
     return new Promise(resolve => {
+      this.scene.addChild(this.card);
       this.card.flipToUp();
       setTimeout(() => {
         resolve(true);

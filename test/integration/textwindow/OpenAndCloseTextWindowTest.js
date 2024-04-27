@@ -5,11 +5,12 @@ class OpenAndCloseTextWindowTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - 100 / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - 100 / 2);
     this.textWindow = TextWindow.create(centerXPosition, centerYPosition, 100, 100);
-    this.scene.addWindow(this.textWindow);
+    console.log(this.textWindow);
   }
 
-  start() {
+  start() {      
     return new Promise(resolve => {
+      this.scene.addWindow(this.textWindow);
       this.textWindow.open();
       setTimeout(() => {
         this.textWindow.close();
