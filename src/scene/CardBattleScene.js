@@ -55,12 +55,13 @@ class CardBattleScene extends Scene_Message {
       AnimateCardsCardsetSpriteTest
     ];
     const textWindowTests = [
-      OpenTextWindowTest,
+      // OpenAndCloseTextWindowTest,
+      SetTextTextWindowTest,
     ];
     this.tests = [
-      ...cardSpriteTests,
+      // ...cardSpriteTests,
       // ...cardsetTests,
-      // ...textWindowTests,
+      ...textWindowTests,
     ];
     for (const test of this.tests) {
       this.changePhase(test);

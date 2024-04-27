@@ -20,14 +20,14 @@ class TextWindow_old extends Window_Base {
     }
   }
 
-  processTextContent() {
-    let content = [];
-    this._text.forEach((text, index) => {
-      if (index) content.push('\n');
-      content.push(text);
-    });
-    return content.join('');
-  }
+  // processTextContent() {
+  //   let content = [];
+  //   this._text.forEach((text, index) => {
+  //     if (index) content.push('\n');
+  //     content.push(text);
+  //   });
+  //   return content.join('');
+  // }
   
   contentAlign(text) {
     switch (this._contentAlign) {

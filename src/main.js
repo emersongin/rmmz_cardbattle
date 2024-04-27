@@ -51,7 +51,8 @@
 // include ../test/integration/cardset/AnimateCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/DisableAndEnableCardsCardsetSpriteTest.js
 // tests TEXT WINDOW
-// include ../test/integration/textwindow/OpenTextWindowTest.js
+// include ../test/integration/textwindow/OpenAndCloseTextWindowTest.js
+// include ../test/integration/textwindow/SetTextTextWindowTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./manager/CardBattleManager.js

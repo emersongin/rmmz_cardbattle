@@ -63,19 +63,69 @@ function uuidv4() {
   });
 }
 class TextWindow extends Window_Base {
+  _lines = [];
   
   constructor(rect) {
     super(rect);
-    this.close();
+    this.closed();
+  }
+  
+  closed() {
+    this._openness = 0;
   }
 
   static create(x, y, width, height) {
     return new TextWindow(new Rectangle(x, y, width, height));
   }
 
-  close() {
-    this._openness = 0;
+  addText(text = '') {
+    this._lines.push(text);
   }
+
+  renderText() {
+    if (this._lines.length) {
+      const textContent = this.processLines();
+      this.resize(textContent);
+      this.drawTextEx(textContent, 0, 0, 0);
+    }
+  }
+
+  processLines() {
+    let textContent = [];
+    this._lines.forEach((text, index) => {
+      if (index > 0) textContent.push('\n');
+      textContent.push(text);
+    });
+    return textContent.join('');
+  }
+
+  resize(textContent) {
+    this.move(this.x, this.y, this.calculeWidth(textContent), this.calculeHeight());
+  }
+
+  calculeWidth(textContent) {
+    // return this.textSizeEx(textContent).width;
+    return 300;
+    
+  }
+
+  calculeHeight() {
+    return this.fittingHeight(this.numberLines() + 2);
+  }
+
+  numberLines() {
+    return this._lines.length;
+  }
+
+  // clear() {
+  //   this._lines = [];
+  //   this.contents.clear();
+  // }
+
+  // changeColor(color) {
+  //   color = `\\C[${color}]`;
+  //   this._lines.unshift(color);
+  // }
 }
 class ChooseFolderWindow extends Window_Command {
   constructor(rect) {
@@ -3807,23 +3857,44 @@ class DisableAndEnableCardsCardsetSpriteTest extends SceneTest {
   }
 }
 // tests TEXT WINDOW
-class OpenTextWindowTest extends SceneTest {
+class OpenAndCloseTextWindowTest extends SceneTest {
   textWindow;
 
   create() {
-    this.textWindow = TextWindow.create(0, 0, 100, 100);
+    const centerXPosition = (Graphics.boxWidth / 2 - 100 / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - 100 / 2);
+    this.textWindow = TextWindow.create(centerXPosition, centerYPosition, 100, 100);
     this.scene.addWindow(this.textWindow);
   }
 
-  setTest() {
-    // this.textWindow.addText('Hello World!');
+  start() {
+    return new Promise(resolve => {
+      this.textWindow.open();
+      setTimeout(() => {
+        this.textWindow.close();
+        setTimeout(() => {
+          resolve(true);
+        }, 1000);
+      }, 1000);
+    });
+  }
+}
+class SetTextTextWindowTest extends SceneTest {
+  textWindow;
+
+  create() {
+    this.textWindow = TextWindow.create(0, 0, 0, 0);
+    this.textWindow.addText('Hello World');
+    this.textWindow.renderText();
+    this.scene.addWindow(this.textWindow);
   }
 
   start() {
-    return new Promise(async resolve => {
-      console.log(this.textWindow);
+    return new Promise(resolve => {
       this.textWindow.open();
-      resolve(true);
+      setTimeout(() => {
+        resolve(true);
+      }, 10000);
     });
   }
 }
@@ -3885,12 +3956,13 @@ class CardBattleScene extends Scene_Message {
       AnimateCardsCardsetSpriteTest
     ];
     const textWindowTests = [
-      OpenTextWindowTest,
+      // OpenAndCloseTextWindowTest,
+      SetTextTextWindowTest,
     ];
     this.tests = [
-      ...cardSpriteTests,
+      // ...cardSpriteTests,
       // ...cardsetTests,
-      // ...textWindowTests,
+      ...textWindowTests,
     ];
     for (const test of this.tests) {
       this.changePhase(test);
