@@ -2,12 +2,14 @@ class CardBattleScene extends Scene_Message {
   initialize() {
     super.initialize();
     this._phase = null;
+    this.tests = [];
   }
 
   create() {
     super.create();
     this.createDisplayObjects();
     this.loadAssets();
+    this.createTests();
   }
 
   createDisplayObjects() {
@@ -18,12 +20,7 @@ class CardBattleScene extends Scene_Message {
     ImageManager.loadCard('default');
   }
 
-  start() {
-    super.start();
-    this.startTests();
-  }
-
-  async startTests() {
+  async createTests() {
     const cardSpriteTests = [
       StartOpenCardSpriteTest,
       StartClosedCardSpriteTest,
@@ -57,12 +54,17 @@ class CardBattleScene extends Scene_Message {
       SelectModeAndEnableChoiceCardsetSpriteTest,
       AnimateCardsCardsetSpriteTest
     ];
-    const tests = [
-      ...cardSpriteTests,
-      // ...cardsetTests
+    const textWindowTests = [
+      OpenTextWindowTest,
     ];
-    for (const test of tests) {
+    this.tests = [
+      ...cardSpriteTests,
+      // ...cardsetTests,
+      // ...textWindowTests,
+    ];
+    for (const test of this.tests) {
       this.changePhase(test);
+      this._phase.create();
       await this._phase.start();
       this._phase.clearScene();
     }

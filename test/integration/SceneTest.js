@@ -1,5 +1,11 @@
 class SceneTest {
-  setTest() {
+  scene;
+
+  constructor(scene) {
+    this.scene = scene;
+  }
+
+  create() {
     // Override this method in the child class
   }
 

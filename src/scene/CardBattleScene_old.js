@@ -85,7 +85,7 @@ class CardBattleScene extends Scene_Message {
   createDisplayObjects() {
     this.createSpriteset();
     // this.createWindowLayer();
-    // this.createAllWindows();
+    this.createAllWindows();
   }
 
   createSpriteset() {

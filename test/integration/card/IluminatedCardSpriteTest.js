@@ -1,14 +1,7 @@
 class IluminatedCardSpriteTest extends SceneTest {
   card;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     const card = this.generateCard();
     this.card = CardSprite.create(
       card.type,

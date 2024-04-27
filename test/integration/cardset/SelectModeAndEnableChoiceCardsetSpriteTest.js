@@ -1,14 +1,7 @@
 class SelectModeAndEnableChoiceCardsetSpriteTest extends SceneTest {
   cardset;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     this.cardset = CardsetSprite.create();
     const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);

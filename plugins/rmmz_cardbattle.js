@@ -63,108 +63,18 @@ function uuidv4() {
   });
 }
 class TextWindow extends Window_Base {
-  _text = [];
-  _contentAlign = 'LEFT';
-  _windowPosition = 'BOTTOM';
-
+  
   constructor(rect) {
     super(rect);
-    this.initClosed();
+    this.close();
   }
 
-  initClosed() {
+  static create(x, y, width, height) {
+    return new TextWindow(new Rectangle(x, y, width, height));
+  }
+
+  close() {
     this._openness = 0;
-  }
-
-  drawContentText() {
-    if (this._text?.length) {
-      const textContent = this.processTextContent();
-      this.drawTextEx(textContent, this.contentAlign(textContent), 0, this._width);
-      this.refreshSize();
-    }
-  }
-
-  processTextContent() {
-    let content = [];
-    this._text.forEach((text, index) => {
-      if (index) content.push('\n');
-      content.push(text);
-    });
-    return content.join('');
-  }
-  
-  contentAlign(text) {
-    switch (this._contentAlign) {
-      case 'CENTER':
-        return (this.contentsWidth() / 2) - (this.textSizeEx(text).width / 2);
-      case 'RIGHT':
-        return this.contentsWidth() - this.textSizeEx(text).width;
-      default:
-        // LEFT
-        return 0;
-    }
-  }
-
-  refreshSize() {
-    this.move(this.x, this.y, this._width, this.calculeHeight());
-  }
-
-  moveWindow(x, y) {
-    x = x >= 0 ? x : this.x;
-    y = y >= 0 ? y : this.y;
-    this.move(x, y, this._width, this.calculeHeight());
-  }
-
-  calculeHeight() {
-    return this.fittingHeight(this._text.length);
-  }
-
-  addText(text) {
-    if (!text) return this._text.push('\n');
-    this._text.push(text);
-  }
-  
-  alignContentCenter() {
-    this._contentAlign = 'CENTER';
-  }
-
-  clearContent() {
-    this._text = [];
-    this.contents.clear();
-  }
-  
-  changeContentTextColor(colorNumber) {
-    if (this._text?.length) {
-      this._text[0] = `\\C[${colorNumber}]` + this._text[0];
-    }
-  }
-
-  moveWindowToTop() {
-    this.moveWindow(this.x, 0);
-  }
-
-  moveWindowToBetweenTopAndCenter () {
-    this.moveWindow(this.x, (Graphics.boxHeight / 3)  - 108);
-  }
-
-  moveWindowOnTopCenter () {
-    this.moveWindow(this.x, (Graphics.boxHeight / 3));
-  }
-
-  moveWindowToCenter() {
-    this.moveWindow(this.x, (Graphics.boxHeight / 2) - 36);
-  }
-
-  moveWindowToBottom() {
-    this.moveWindow(this.x, Graphics.boxHeight - this.calculeHeight());
-  }
-
-  isBusy() {
-    return this.isOpening() || this.isClosing();
-  }
-
-  isAvailable() {
-    return !this.isBusy();
   }
 }
 class ChooseFolderWindow extends Window_Command {
@@ -458,10 +368,10 @@ class ActionSprite extends Sprite {
     return this.visible;
   }
 
-  calculateTimeInterval(origin, destiny, duration = 0) {
+  calculateTimeInterval(origin = 0, destiny = 0, duration = 0) {
     const distance = Math.abs(origin - destiny);
-    const time = Math.abs((duration) * 60);
-    return (distance / time) || 1;
+    const time = Math.abs(duration * 60);
+    return (distance / (time || 1)) || (Graphics.width / 30);
   }
 
   indexOfSprite(sprite) {
@@ -1480,7 +1390,13 @@ class CardSprite extends ActionSprite {
     this.stop();
   }
 
-  toMove(destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration = this._duration) {
+  toMove(
+    destinyXPosition = this.x, 
+    destinyYPosition = this.y, 
+    originXPosition = this.x, 
+    originYPosition = this.y, 
+    duration = this._duration
+  ) {
     this.addAction(
       this.commandMoving, 
       destinyXPosition, 
@@ -1491,13 +1407,7 @@ class CardSprite extends ActionSprite {
     );
   }
 
-  commandMoving(
-    destinyXPosition = this.x, 
-    destinyYPosition = this.y, 
-    originXPosition = this.x, 
-    originYPosition = this.y, 
-    duration
-  ) {
+  commandMoving(destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration) {
     if (!(this.isVisible() && this.isStopped())) return;
     this.changeStatus( 
       CardSpriteMovingState,
@@ -2758,7 +2668,13 @@ class CardBattlePhase {
 
 // tests CARD
 class SceneTest {
-  setTest() {
+  scene;
+
+  constructor(scene) {
+    this.scene = scene;
+  }
+
+  create() {
     // Override this method in the child class
   }
 
@@ -2829,15 +2745,8 @@ class SceneTest {
 }
 class StartOpenCardSpriteTest extends SceneTest {
   card;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     const card = this.generateCard();
     this.card = CardSprite.create(
       card.type,
@@ -2864,15 +2773,8 @@ class StartOpenCardSpriteTest extends SceneTest {
 }
 class StartClosedCardSpriteTest extends SceneTest {
   card;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     const card = this.generateCard();
     this.card = CardSprite.create(
       card.type,
@@ -2902,15 +2804,8 @@ class StartClosedCardSpriteTest extends SceneTest {
 }
 class OpenCardSpriteTest extends SceneTest {
   card;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     const card = this.generateCard();
     this.card = CardSprite.create(
       card.type,
@@ -2938,15 +2833,8 @@ class OpenCardSpriteTest extends SceneTest {
 }
 class CloseCardSpriteTest extends SceneTest {
   card;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     const card = this.generateCard();
     this.card = CardSprite.create(
       card.type,
@@ -2980,15 +2868,8 @@ class CloseCardSpriteTest extends SceneTest {
 }
 class MoveCardSpriteTest extends SceneTest {
   card;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     const card = this.generateCard();
     this.card = CardSprite.create(
       card.type,
@@ -3024,15 +2905,8 @@ class MoveCardSpriteTest extends SceneTest {
 }
 class HoveredCardSpriteTest extends SceneTest {
   card;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     const card = this.generateCard();
     this.card = CardSprite.create(
       card.type,
@@ -3063,15 +2937,8 @@ class HoveredCardSpriteTest extends SceneTest {
 }
 class SelectedCardSpriteTest extends SceneTest {
   card;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     const card = this.generateCard();
     this.card = CardSprite.create(
       card.type,
@@ -3102,15 +2969,8 @@ class SelectedCardSpriteTest extends SceneTest {
 }
 class FlashCardSpriteTest extends SceneTest {
   card;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     const card = this.generateCard();
     this.card = CardSprite.create(
       card.type,
@@ -3157,15 +3017,8 @@ class FlashCardSpriteTest extends SceneTest {
 }
 class DamageAnimationCardSpriteTest extends SceneTest {
   card;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     const card = this.generateCard();
     this.card = CardSprite.create(
       card.type,
@@ -3194,15 +3047,8 @@ class DamageAnimationCardSpriteTest extends SceneTest {
 }
 class UpdatingPointsCardSpriteTest extends SceneTest {
   card;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     const card = this.generateCard();
     this.card = CardSprite.create(
       card.type,
@@ -3230,15 +3076,8 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
 }
 class DisableCardSpriteTest extends SceneTest {
   card;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     const card = this.generateCard();
     this.card = CardSprite.create(
       card.type,
@@ -3269,15 +3108,8 @@ class DisableCardSpriteTest extends SceneTest {
 }
 class ZoomInCardSpriteTest extends SceneTest {
   card;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     const card = this.generateCard();
     this.card = CardSprite.create(
       card.type,
@@ -3305,15 +3137,8 @@ class ZoomInCardSpriteTest extends SceneTest {
 }
 class ZoomOutCardSpriteTest extends SceneTest {
   card;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     const card = this.generateCard();
     this.card = CardSprite.create(
       card.type,
@@ -3344,15 +3169,8 @@ class ZoomOutCardSpriteTest extends SceneTest {
 }
 class LeaveCardSpriteTest extends SceneTest {
   card;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     const card = this.generateCard();
     this.card = CardSprite.create(
       card.type,
@@ -3380,15 +3198,8 @@ class LeaveCardSpriteTest extends SceneTest {
 }
 class QuakeCardSpriteTest extends SceneTest {
   card;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     const card = this.generateCard();
     this.card = CardSprite.create(
       card.type,
@@ -3418,15 +3229,8 @@ class QuakeCardSpriteTest extends SceneTest {
 }
 class FlipCardToUpSpriteTest extends SceneTest {
   card;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     const card = this.generateCard();
     this.card = CardSprite.create(
       card.type,
@@ -3454,15 +3258,8 @@ class FlipCardToUpSpriteTest extends SceneTest {
 }
 class IluminatedCardSpriteTest extends SceneTest {
   card;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     const card = this.generateCard();
     this.card = CardSprite.create(
       card.type,
@@ -3491,15 +3288,8 @@ class IluminatedCardSpriteTest extends SceneTest {
 // tests CARDSET
 class SetBackgroundAndStartPositionCardsetSpriteTest extends SceneTest {
   cardset;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     this.cardset = CardsetSprite.create();
     this.scene.addChild(this.cardset);
   }
@@ -3521,15 +3311,8 @@ class SetBackgroundAndStartPositionCardsetSpriteTest extends SceneTest {
 }
 class SetCardsCardsetSpriteTest extends SceneTest {
   cardset;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     this.cardset = CardsetSprite.create();
     const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
@@ -3563,15 +3346,8 @@ class SetCardsCardsetSpriteTest extends SceneTest {
 }
 class StartPositionCardsCardsetSpriteTest extends SceneTest {
   cardset;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     this.cardset = CardsetSprite.create();
     const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
@@ -3606,15 +3382,8 @@ class StartPositionCardsCardsetSpriteTest extends SceneTest {
 }
 class StartListCardsCardsetSpriteTest extends SceneTest {
   cardset;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     this.cardset = CardsetSprite.create();
     const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
@@ -3649,15 +3418,8 @@ class StartListCardsCardsetSpriteTest extends SceneTest {
 }
 class StartClosedAndOpenCardsCardsetSpriteTest extends SceneTest {
   cardset;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     this.cardset = CardsetSprite.create();
     const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
@@ -3714,15 +3476,8 @@ class StartClosedAndOpenCardsCardsetSpriteTest extends SceneTest {
 }
 class MoveCardsToListCardsetSpriteTest extends SceneTest {
   cardset;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     this.cardset = CardsetSprite.create();
     const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
@@ -3781,15 +3536,8 @@ class MoveCardsToListCardsetSpriteTest extends SceneTest {
 }
 class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
   cardset;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     this.cardset = CardsetSprite.create();
     const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
@@ -3829,15 +3577,8 @@ class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
 }
 class AddCardAndMoveToListCardsetSpriteTest extends SceneTest {
   cardset;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     this.cardset = CardsetSprite.create();
     const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
@@ -3903,15 +3644,8 @@ class AddCardAndMoveToListCardsetSpriteTest extends SceneTest {
 }
 class SelectModeCardsetSpriteTest extends SceneTest {
   cardset;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     this.cardset = CardsetSprite.create();
     const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
@@ -3937,15 +3671,8 @@ class SelectModeCardsetSpriteTest extends SceneTest {
 }
 class SelectModeAndEnableChoiceCardsetSpriteTest extends SceneTest {
   cardset;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     this.cardset = CardsetSprite.create();
     const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
@@ -3975,15 +3702,8 @@ class SelectModeAndEnableChoiceCardsetSpriteTest extends SceneTest {
 }
 class AnimateCardsCardsetSpriteTest extends SceneTest {
   cardset;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     this.cardset = CardsetSprite.create();
     const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
@@ -4032,7 +3752,7 @@ class AnimateCardsCardsetSpriteTest extends SceneTest {
         setTimeout(() => {
           this.cardset.clear();
           resolve(true);
-        }, 6000)
+        }, 3000)
       }, 200);
     });
   }
@@ -4057,15 +3777,8 @@ class AnimateCardsCardsetSpriteTest extends SceneTest {
 }
 class DisableAndEnableCardsCardsetSpriteTest extends SceneTest {
   cardset;
-  scene;
 
-  constructor(scene) {
-    super();
-    this.scene = scene;
-    this.setTest();
-  }
-
-  setTest() {
+  create() {
     this.cardset = CardsetSprite.create();
     const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
@@ -4093,17 +3806,40 @@ class DisableAndEnableCardsCardsetSpriteTest extends SceneTest {
     });
   }
 }
+// tests TEXT WINDOW
+class OpenTextWindowTest extends SceneTest {
+  textWindow;
+
+  create() {
+    this.textWindow = TextWindow.create(0, 0, 100, 100);
+    this.scene.addWindow(this.textWindow);
+  }
+
+  setTest() {
+    // this.textWindow.addText('Hello World!');
+  }
+
+  start() {
+    return new Promise(async resolve => {
+      console.log(this.textWindow);
+      this.textWindow.open();
+      resolve(true);
+    });
+  }
+}
 
 class CardBattleScene extends Scene_Message {
   initialize() {
     super.initialize();
     this._phase = null;
+    this.tests = [];
   }
 
   create() {
     super.create();
     this.createDisplayObjects();
     this.loadAssets();
+    this.createTests();
   }
 
   createDisplayObjects() {
@@ -4114,12 +3850,7 @@ class CardBattleScene extends Scene_Message {
     ImageManager.loadCard('default');
   }
 
-  start() {
-    super.start();
-    this.startTests();
-  }
-
-  async startTests() {
+  async createTests() {
     const cardSpriteTests = [
       StartOpenCardSpriteTest,
       StartClosedCardSpriteTest,
@@ -4153,12 +3884,17 @@ class CardBattleScene extends Scene_Message {
       SelectModeAndEnableChoiceCardsetSpriteTest,
       AnimateCardsCardsetSpriteTest
     ];
-    const tests = [
-      // ...cardSpriteTests,
-      ...cardsetTests
+    const textWindowTests = [
+      OpenTextWindowTest,
     ];
-    for (const test of tests) {
+    this.tests = [
+      ...cardSpriteTests,
+      // ...cardsetTests,
+      // ...textWindowTests,
+    ];
+    for (const test of this.tests) {
       this.changePhase(test);
+      this._phase.create();
       await this._phase.start();
       this._phase.clearScene();
     }
