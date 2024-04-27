@@ -254,16 +254,12 @@ class CardsetSprite extends ActionSprite {
   }
 
   update() {
-    if (this.hasActions() && this.isNoBusy()) this.executeAction();
+    if (this.hasActions() && this.isAvailable()) this.executeAction();
     if (this.numberOfChildren() && this.isHidden()) this.commandShow();
     if (this.isVisible()) {
       this.updateStates();
     }
     super.update();
-  }
-
-  isNoBusy() {
-    return !this.isBusy();
   }
 
   isBusy() {

@@ -53,6 +53,10 @@
 // tests TEXT WINDOW
 // include ../test/integration/textwindow/OpenAndCloseTextWindowTest.js
 // include ../test/integration/textwindow/SetTextTextWindowTest.js
+// include ../test/integration/textwindow/PositionTextWindowTest.js
+// include ../test/integration/textwindow/DrawTextAndAlignCenterTextWindowTest.js
+// include ../test/integration/textwindow/SetSizeTextWindowTest.js
+// include ../test/integration/textwindow/DrawTextAndLinesTextWindowTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./manager/CardBattleManager.js

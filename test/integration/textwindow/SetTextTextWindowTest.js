@@ -2,18 +2,24 @@ class SetTextTextWindowTest extends SceneTest {
   textWindow;
 
   create() {
-    this.textWindow = TextWindow.create(0, 0, 0, 0);
+    const windowWidth = 0;
+    const windowHeight = 0;
+    const centerXPosition = 0;
+    const centerYPosition = 0;
+    this.textWindow = TextWindow.create(centerXPosition, centerYPosition, windowWidth, windowHeight);
   }
 
-  start() {
-    return new Promise(resolve => {
-      this.scene.addWindow(this.textWindow);
-      this.textWindow.addText('Hello World');
-      this.textWindow.renderText();
-      this.textWindow.open();
-      setTimeout(() => {
-        resolve(true);
-      }, 10000);
+  start() {      
+    return new Promise(async resolve => {
+      await this.timertoTrue(2000, () => {
+        this.scene.addWindow(this.textWindow);
+        this.textWindow.addText("Hello World Hello World Hello World Hello World");
+        this.textWindow.addText("Hello World");
+        this.textWindow.addText("Hello World Hello World Hello World");
+        this.textWindow.renderText();
+        this.textWindow.open();
+      })
+      resolve(true);
     });
   }
 }

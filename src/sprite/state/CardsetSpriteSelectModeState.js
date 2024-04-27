@@ -11,9 +11,9 @@ class CardsetSpriteSelectModeState {
   updateState() {
     const cardset = this._cardset;
     const keys = ['right', 'left'];
-    if (cardset.isNoBusy()) this.updateCursor();
-    if (Input.isAnyKeyActiveIn(keys) && cardset.isNoBusy()) this.updateSpriteCards();
-    if (cardset.isNoBusy() && cardset._enableSelected) {
+    if (cardset.isAvailable()) this.updateCursor();
+    if (Input.isAnyKeyActiveIn(keys) && cardset.isAvailable()) this.updateSpriteCards();
+    if (cardset.isAvailable() && cardset._enableSelected) {
       if (Input.isTriggered('ok')) this.selectSprite();
       if (Input.isTriggered('cancel') || this.selecteLimit()) cardset.unselectMode();
     }

@@ -48,12 +48,23 @@ class SceneTest {
   }
 
   clearScene() {
-    if (!this.scene || !this.scene.children) return;
-    while (this.scene.children.length) {
-      this.scene.children.forEach(async child => {
-        await this.scene.removeChild(child);
-      });
-    }
+    return new Promise(resolve => {
+      if (!this.scene) return;
+      const children = this.scene.children;
+      while (children.length > 1) {
+        children.forEach(async child => {
+          if (child === this.scene._windowLayer) return;
+          await this.scene.removeChild(child);
+        });
+      }
+      const windowChildren = this.scene._windowLayer.children;
+      while (windowChildren.length) {
+        windowChildren.forEach(async child => {
+          await this.scene._windowLayer.removeChild(child);
+        });
+      }
+      resolve(true);
+    });
   }
 
   generateCards(amount = 1) {
@@ -72,5 +83,14 @@ class SceneTest {
       attack: Math.floor(Math.random() * 99) + 1,
       health: Math.floor(Math.random() * 99) + 1
     };
+  }
+
+  timertoTrue(milliseconds, callback) {
+    if (callback) callback();
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(true)
+      }, milliseconds)
+    });
   }
 }

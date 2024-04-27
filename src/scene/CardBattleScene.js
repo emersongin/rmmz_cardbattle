@@ -51,12 +51,16 @@ class CardBattleScene extends Scene_Message {
     ];
     const textWindowTests = [
       // OpenAndCloseTextWindowTest,
-      SetTextTextWindowTest,
+      // SetTextTextWindowTest,
+      // PositionTextWindowTest,
+      // SetSizeTextWindowTest,
+      // DrawTextAndAlignCenterTextWindowTest,
+      DrawTextAndLinesTextWindowTest,
     ];
     this.tests = [
-      ...cardSpriteTests,
-      ...cardsetTests,
-      // ...textWindowTests,
+      // ...cardSpriteTests,
+      // ...cardsetTests,
+      ...textWindowTests,
     ];
     this.tests = this.tests.map(test => {
       const instance = new test(this);
@@ -70,7 +74,7 @@ class CardBattleScene extends Scene_Message {
     for (const test of this.tests) {
       this._phase = test;
       await this._phase.start();
-      this._phase.clearScene();
+      await this._phase.clearScene();
     }
   }
 
@@ -104,5 +108,4 @@ class CardBattleScene extends Scene_Message {
   removeWindow(window) {
     this._windowLayer.removeChild(window);
   };
-
 }

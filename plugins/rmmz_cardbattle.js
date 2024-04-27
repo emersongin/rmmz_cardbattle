@@ -63,7 +63,7 @@ function uuidv4() {
   });
 }
 class TextWindow extends Window_Base {
-  _lines = [];
+  _text = [];
   
   constructor(rect) {
     super(rect);
@@ -78,56 +78,116 @@ class TextWindow extends Window_Base {
     return new TextWindow(new Rectangle(x, y, width, height));
   }
 
-  addText(text = '') {
-    this._lines.push(text);
+  static createWindowMiddleSize(x, y) {
+    const width = Graphics.boxWidth / 2;
+    const height = TextWindow.minHeight();
+    return TextWindow.create(x, y, width, height);
   }
 
-  renderText() {
-    if (this._lines.length) {
-      const textContent = this.processLines();
-      this.resize(textContent);
-      console.log(textContent);
-      this.drawTextEx(textContent, 0, 0, this.width);
-      // this.contents.drawText(textContent, 0, 0, this.width, 'center');
+  static createWindowFullSize(x, y) {
+    const width = Graphics.boxWidth;
+    const height = TextWindow.minHeight();
+    return TextWindow.create(x, y, width, height);
+  }
+
+  static minHeight() {
+    return 60;
+  }
+
+  addText(text = '') {
+    this._text.push(text);
+  }
+
+  renderTextCenter() {
+    this.renderText('CENTER');
+  }
+
+  renderText(align = 'LEFT') {
+    if (this._text.length) {
+      const text = this.processText();
+      const textWidth = this.textSizeEx(text).width;
+      const xPosition = this.getAlignText(textWidth, align);
+      this.drawTextEx(text, xPosition);
     }
   }
 
-  processLines() {
-    let textContent = [];
-    this._lines.forEach((text, index) => {
-      if (index > 0) textContent.push('\n');
-      textContent.push(text);
+  processText() {
+    let content = [];
+    this._text.forEach((text, index) => {
+      if (index > 0) content.push('\n');
+      content.push(text);
     });
-    return textContent.join('');
+    return content.join('');
   }
 
-  resize(textContent) {
-    this.move(this.x, this.y, this.calculeWidth(textContent), this.calculeHeight());
+  getAlignText(textWidth, align) {
+    switch (align) {
+      case 'CENTER':
+        return (this.contentsWidth() / 2) - (textWidth / 2);
+      case 'RIGHT':
+        return this.contentsWidth() - textWidth;
+      default:
+        return 0;
+    }
   }
 
-  calculeWidth(textContent) {
-    // return this.textSizeEx(textContent).width;
-    return 300;
-    
+  drawTextEx(text = '', xPosition = 0, yPosition = 0, width = this.width) {
+    this.resize(text);
+    super.drawTextEx(text, xPosition, yPosition, width);
   }
 
-  calculeHeight() {
-    return this.fittingHeight(this.numberLines() + 2);
+  resize(text) {
+    this.resizeContent(text);
+    this.resizeWindow(text);
   }
 
-  numberLines() {
-    return this._lines.length;
+  resizeContent(text) {
+    const contentWidth = this.calculeTextMinHeight(text);
+    this.contents.resize(contentWidth, this.calculeTextHeight());
   }
 
-  // clear() {
-  //   this._lines = [];
-  //   this.contents.clear();
-  // }
+  calculeTextMinHeight(text) {
+    const textWidth = this.calculeTextWidth(text);
+    return this.width > textWidth ? this.width : textWidth;
+  }
 
-  // changeColor(color) {
-  //   color = `\\C[${color}]`;
-  //   this._lines.unshift(color);
-  // }
+  resizeWindow(text) {
+    const contentWidth = this.calculeTextMinHeight(text);
+    const windowPadding = this.padding + this.itemPadding();
+    const width = Math.ceil(contentWidth) + windowPadding + 6;
+    const windowWidth = Math.min(width, Graphics.boxWidth);
+    this.move(this.x, this.y, windowWidth, this.calculeTextHeight());
+  }
+
+  calculeTextWidth(text) {
+    let width = this.textSizeEx(text).width;
+    width = Math.ceil(width);
+    return Math.min(width, Graphics.boxWidth);
+  }
+
+  calculeTextHeight() {
+    return this.fittingHeight(this.numLines());
+  }
+
+  numLines() {
+    return this._text.length;
+  }
+
+  setVerticalPosition(position) {
+    this.y = 60 * position;
+  }
+
+  setHorizontalPosition(position) {
+    this.x = (Graphics.boxWidth / 2) * position;
+  }
+
+  isAvailable() {
+    return !this.isBusy();
+  }
+
+  isBusy() {
+    return this.isOpening() || this.isClosing();
+  }
 }
 class ChooseFolderWindow extends Window_Command {
   constructor(rect) {
@@ -372,6 +432,10 @@ class ActionSprite extends Sprite {
 
   updateStates() {
     if (this._status) this._status.updateState();
+  }
+
+  isAvailable() {
+    return !this.isBusy();
   }
 
   isBusy() {
@@ -1816,9 +1880,9 @@ class CardsetSpriteSelectModeState {
   updateState() {
     const cardset = this._cardset;
     const keys = ['right', 'left'];
-    if (cardset.isNoBusy()) this.updateCursor();
-    if (Input.isAnyKeyActiveIn(keys) && cardset.isNoBusy()) this.updateSpriteCards();
-    if (cardset.isNoBusy() && cardset._enableSelected) {
+    if (cardset.isAvailable()) this.updateCursor();
+    if (Input.isAnyKeyActiveIn(keys) && cardset.isAvailable()) this.updateSpriteCards();
+    if (cardset.isAvailable() && cardset._enableSelected) {
       if (Input.isTriggered('ok')) this.selectSprite();
       if (Input.isTriggered('cancel') || this.selecteLimit()) cardset.unselectMode();
     }
@@ -2179,16 +2243,12 @@ class CardsetSprite extends ActionSprite {
   }
 
   update() {
-    if (this.hasActions() && this.isNoBusy()) this.executeAction();
+    if (this.hasActions() && this.isAvailable()) this.executeAction();
     if (this.numberOfChildren() && this.isHidden()) this.commandShow();
     if (this.isVisible()) {
       this.updateStates();
     }
     super.update();
-  }
-
-  isNoBusy() {
-    return !this.isBusy();
   }
 
   isBusy() {
@@ -2769,12 +2829,23 @@ class SceneTest {
   }
 
   clearScene() {
-    if (!this.scene || !this.scene.children) return;
-    while (this.scene.children.length) {
-      this.scene.children.forEach(async child => {
-        await this.scene.removeChild(child);
-      });
-    }
+    return new Promise(resolve => {
+      if (!this.scene) return;
+      const children = this.scene.children;
+      while (children.length > 1) {
+        children.forEach(async child => {
+          if (child === this.scene._windowLayer) return;
+          await this.scene.removeChild(child);
+        });
+      }
+      const windowChildren = this.scene._windowLayer.children;
+      while (windowChildren.length) {
+        windowChildren.forEach(async child => {
+          await this.scene._windowLayer.removeChild(child);
+        });
+      }
+      resolve(true);
+    });
   }
 
   generateCards(amount = 1) {
@@ -2793,6 +2864,15 @@ class SceneTest {
       attack: Math.floor(Math.random() * 99) + 1,
       health: Math.floor(Math.random() * 99) + 1
     };
+  }
+
+  timertoTrue(milliseconds, callback) {
+    if (callback) callback();
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve(true)
+      }, milliseconds)
+    });
   }
 }
 class StartOpenCardSpriteTest extends SceneTest {
@@ -3863,22 +3943,23 @@ class OpenAndCloseTextWindowTest extends SceneTest {
   textWindow;
 
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - 100 / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - 100 / 2);
-    this.textWindow = TextWindow.create(centerXPosition, centerYPosition, 100, 100);
-    console.log(this.textWindow);
+    const windowWidth = 100;
+    const windowHeight = 100;
+    const centerXPosition = ((Graphics.boxWidth / 2) - (windowWidth / 2));
+    const centerYPosition = ((Graphics.boxHeight / 2) - (windowHeight / 2));
+    this.textWindow = TextWindow.create(centerXPosition, centerYPosition, windowWidth, windowHeight);
   }
 
   start() {      
-    return new Promise(resolve => {
-      this.scene.addWindow(this.textWindow);
-      this.textWindow.open();
-      setTimeout(() => {
+    return new Promise(async resolve => {
+      await this.timertoTrue(600, () => {
+        this.scene.addWindow(this.textWindow);
+        this.textWindow.open();
+      });
+      await this.timertoTrue(600, () => {
         this.textWindow.close();
-        setTimeout(() => {
-          resolve(true);
-        }, 1000);
-      }, 1000);
+      });
+      resolve(true);
     });
   }
 }
@@ -3886,18 +3967,145 @@ class SetTextTextWindowTest extends SceneTest {
   textWindow;
 
   create() {
-    this.textWindow = TextWindow.create(0, 0, 0, 0);
+    const windowWidth = 0;
+    const windowHeight = 0;
+    const centerXPosition = 0;
+    const centerYPosition = 0;
+    this.textWindow = TextWindow.create(centerXPosition, centerYPosition, windowWidth, windowHeight);
   }
 
-  start() {
-    return new Promise(resolve => {
+  start() {      
+    return new Promise(async resolve => {
+      await this.timertoTrue(2000, () => {
+        this.scene.addWindow(this.textWindow);
+        this.textWindow.addText("Hello World Hello World Hello World Hello World");
+        this.textWindow.addText("Hello World");
+        this.textWindow.addText("Hello World Hello World Hello World");
+        this.textWindow.renderText();
+        this.textWindow.open();
+      })
+      resolve(true);
+    });
+  }
+}
+class PositionTextWindowTest extends SceneTest {
+  textWindow;
+
+  create() {
+    const windowWidth = 0;
+    const windowHeight = 0;
+    const centerXPosition = 0;
+    const centerYPosition = 0;
+    this.textWindow = TextWindow.create(centerXPosition, centerYPosition, windowWidth, windowHeight);
+  }
+
+  start() {      
+    return new Promise(async resolve => {
       this.scene.addWindow(this.textWindow);
-      this.textWindow.addText('Hello World');
+      this.textWindow.addText("Hello World");
       this.textWindow.renderText();
       this.textWindow.open();
-      setTimeout(() => {
-        resolve(true);
-      }, 10000);
+      const verticalPositions = [0,1,2,3,4,5,6,7,8,9];
+      const horizontalPositions = [0,1];
+      for (const position of verticalPositions) {
+        await this.timertoTrue(200, () => this.textWindow.setVerticalPosition(position));
+      }
+      for (const position of horizontalPositions) {
+        await this.timertoTrue(200, () => this.textWindow.setHorizontalPosition(position));
+      }
+      resolve(true);
+    });
+  }
+}
+class DrawTextAndLinesTextWindowTest extends SceneTest {
+  textWindowFullSize;
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.textWindowFullSize = TextWindow.createWindowFullSize(x, y);
+  }
+
+  start() {      
+    return new Promise(async resolve => {
+      await this.timertoTrue(600, () => {
+        this.scene.addWindow(this.textWindowFullSize);
+        this.textWindowFullSize.addText("Hello World");
+        this.textWindowFullSize.addText("\n");
+        this.textWindowFullSize.addText("\n");
+        this.textWindowFullSize.renderText();
+        this.textWindowFullSize.open();
+      });
+      await this.timertoTrue(600, () => {
+        this.textWindowFullSize.close();
+      });
+      resolve(true);
+    });
+  }
+}
+class SetSizeTextWindowTest extends SceneTest {
+  textWindowMiddleSize;
+  textWindowFullSize;
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.textWindowMiddleSize = TextWindow.createWindowMiddleSize(x, y);
+    this.textWindowFullSize = TextWindow.createWindowFullSize(x, y);
+  }
+
+  start() {      
+    return new Promise(async resolve => {
+      await this.timertoTrue(600, () => {
+        this.scene.addWindow(this.textWindowMiddleSize);
+        this.textWindowMiddleSize.open();
+      });
+      await this.timertoTrue(600, () => {
+        this.textWindowMiddleSize.close();
+      });
+      await this.timertoTrue(600, () => {
+        this.scene.addWindow(this.textWindowFullSize);
+        this.textWindowFullSize.open();
+      });
+      await this.timertoTrue(600, () => {
+        this.textWindowFullSize.close();
+      });
+      resolve(true);
+    });
+  }
+}
+class DrawTextAndAlignCenterTextWindowTest extends SceneTest {
+  textWindowMiddleSize;
+  textWindowFullSize;
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.textWindowMiddleSize = TextWindow.createWindowMiddleSize(x, y);
+    this.textWindowFullSize = TextWindow.createWindowFullSize(x, y);
+  }
+
+  start() {      
+    return new Promise(async resolve => {
+      await this.timertoTrue(600, () => {
+        this.scene.addWindow(this.textWindowMiddleSize);
+        this.textWindowMiddleSize.addText("Hello World");
+        this.textWindowMiddleSize.renderTextCenter();
+        this.textWindowMiddleSize.open();
+      });
+      await this.timertoTrue(600, () => {
+        this.textWindowMiddleSize.close();
+      });
+      await this.timertoTrue(600, () => {
+        this.scene.addWindow(this.textWindowFullSize);
+        this.textWindowFullSize.addText("Hello World");
+        this.textWindowFullSize.renderTextCenter();
+        this.textWindowFullSize.open();
+      });
+      await this.timertoTrue(600, () => {
+        this.textWindowFullSize.close();
+      });
+      resolve(true);
     });
   }
 }
@@ -3955,12 +4163,16 @@ class CardBattleScene extends Scene_Message {
     ];
     const textWindowTests = [
       // OpenAndCloseTextWindowTest,
-      SetTextTextWindowTest,
+      // SetTextTextWindowTest,
+      // PositionTextWindowTest,
+      // SetSizeTextWindowTest,
+      // DrawTextAndAlignCenterTextWindowTest,
+      DrawTextAndLinesTextWindowTest,
     ];
     this.tests = [
-      ...cardSpriteTests,
-      ...cardsetTests,
-      // ...textWindowTests,
+      // ...cardSpriteTests,
+      // ...cardsetTests,
+      ...textWindowTests,
     ];
     this.tests = this.tests.map(test => {
       const instance = new test(this);
@@ -3974,7 +4186,7 @@ class CardBattleScene extends Scene_Message {
     for (const test of this.tests) {
       this._phase = test;
       await this._phase.start();
-      this._phase.clearScene();
+      await this._phase.clearScene();
     }
   }
 
@@ -4008,7 +4220,6 @@ class CardBattleScene extends Scene_Message {
   removeWindow(window) {
     this._windowLayer.removeChild(window);
   };
-
 }
 class CardBattleManagerDrawPhaseState {
   _manager;

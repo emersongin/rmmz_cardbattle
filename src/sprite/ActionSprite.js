@@ -113,6 +113,10 @@ class ActionSprite extends Sprite {
     if (this._status) this._status.updateState();
   }
 
+  isAvailable() {
+    return !this.isBusy();
+  }
+
   isBusy() {
     return this._delayActions.some(action => action.delay > 0);
   }
