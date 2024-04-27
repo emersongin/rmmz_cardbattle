@@ -57,8 +57,11 @@
 // include ../test/integration/textwindow/DrawTextAndAlignCenterTextWindowTest.js
 // include ../test/integration/textwindow/SetSizeTextWindowTest.js
 // include ../test/integration/textwindow/DrawTextAndLinesTextWindowTest.js
+// tests BOARD
+// include ../test/integration/board/ShowBoardTest.js
 
 // include ./scene/CardBattleScene.js
+// include ./scene/CardBattleTestScene.js
 // include ./manager/CardBattleManager.js
 // include ./core/Input.js
 // include ./core/Scene_Boot.js

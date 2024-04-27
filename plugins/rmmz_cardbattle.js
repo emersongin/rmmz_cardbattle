@@ -4005,8 +4005,10 @@ class PositionTextWindowTest extends SceneTest {
       this.textWindow.addText("Hello World");
       this.textWindow.renderText();
       this.textWindow.open();
-      const verticalPositions = [0,1,2,3,4,5,6,7,8,9];
-      const horizontalPositions = [0,1];
+      const verticalPositions = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+      const start = 0;
+      const middle = 1;
+      const horizontalPositions = [start, middle];
       for (const position of verticalPositions) {
         await this.timertoTrue(200, () => this.textWindow.setVerticalPosition(position));
       }
@@ -4109,22 +4111,80 @@ class DrawTextAndAlignCenterTextWindowTest extends SceneTest {
     });
   }
 }
+// tests BOARD
+class ShowBoardTest extends SceneTest {
+  board;
+
+  create() {
+
+  }
+
+  start() {
+
+  }
+}
 
 class CardBattleScene extends Scene_Message {
   initialize() {
     super.initialize();
     this._phase = null;
-    this.tests = [];
   }
 
   create() {
     super.create();
     this.createDisplayObjects();
-    this.createTests();
   }
 
   createDisplayObjects() {
     this.createWindowLayer();
+  }
+
+  start() {
+    super.start();
+  }
+
+  update() {
+    if (this.isActive()) {
+      if (this._phase) this._phase.update();
+    }
+    super.update();
+  }
+
+  changePhase(phase) {
+    this._phase = new phase(this);
+  }
+
+  isActive() {
+    return !this.isBusy();
+  }
+
+  isBusy() {
+    return super.isBusy();
+  };
+
+  stop() {
+    super.stop();
+  }
+
+  terminate() {
+    super.terminate();
+  }
+
+  removeWindow(window) {
+    this._windowLayer.removeChild(window);
+  };
+}
+class CardBattleTestScene extends Scene_Message {
+  initialize() {
+    super.initialize();
+    this.tests = [];
+    this._test = null;
+  }
+
+  create() {
+    super.create();
+    this.createWindowLayer();
+    this.createTests();
   }
 
   async createTests() {
@@ -4162,17 +4222,21 @@ class CardBattleScene extends Scene_Message {
       AnimateCardsCardsetSpriteTest
     ];
     const textWindowTests = [
-      // OpenAndCloseTextWindowTest,
-      // SetTextTextWindowTest,
-      // PositionTextWindowTest,
-      // SetSizeTextWindowTest,
-      // DrawTextAndAlignCenterTextWindowTest,
+      OpenAndCloseTextWindowTest,
+      SetTextTextWindowTest,
+      PositionTextWindowTest,
+      SetSizeTextWindowTest,
+      DrawTextAndAlignCenterTextWindowTest,
       DrawTextAndLinesTextWindowTest,
     ];
+    const boardTests = [
+      ShowBoardTest
+    ];
     this.tests = [
-      // ...cardSpriteTests,
-      // ...cardsetTests,
+      ...cardSpriteTests,
+      ...cardsetTests,
       ...textWindowTests,
+      ...boardTests
     ];
     this.tests = this.tests.map(test => {
       const instance = new test(this);
@@ -4181,24 +4245,24 @@ class CardBattleScene extends Scene_Message {
     });
   }
 
-  async start() {
+  start() {
     super.start();
+    this.startTests();
+  }
+
+  async startTests() {
     for (const test of this.tests) {
-      this._phase = test;
-      await this._phase.start();
-      await this._phase.clearScene();
+      this._test = test;
+      await this._test.start();
+      await this._test.clearScene();
     }
   }
 
   update() {
     if (this.isActive()) {
-      if (this._phase) this._phase.update();
+      if (this._test) this._test.update();
     }
     super.update();
-  }
-
-  changePhase(phase) {
-    this._phase = new phase(this);
   }
 
   isActive() {
@@ -4208,14 +4272,6 @@ class CardBattleScene extends Scene_Message {
   isBusy() {
     return super.isBusy();
   };
-
-  stop() {
-    super.stop();
-  }
-
-  terminate() {
-    super.terminate();
-  }
 
   removeWindow(window) {
     this._windowLayer.removeChild(window);
@@ -4410,7 +4466,7 @@ Scene_Boot.prototype.start = function() {
   Scene_Base.prototype.start.call(this);
   SoundManager.preloadImportantSounds();
   DataManager.setupNewGame();
-  SceneManager.goto(CardBattleScene);
+  SceneManager.goto(CardBattleTestScene);
   this.resizeScreen();
   this.updateDocumentTitle();
 };
