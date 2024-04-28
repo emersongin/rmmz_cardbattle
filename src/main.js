@@ -59,6 +59,7 @@
 // include ../test/integration/textwindow/DrawTextAndAlignCenterTextWindowTest.js
 // include ../test/integration/textwindow/SetSizeTextWindowTest.js
 // include ../test/integration/textwindow/DrawTextAndLinesTextWindowTest.js
+// include ../test/integration/textwindow/TextColorTextWindowTest.js
 // tests BOARD
 // include ../test/integration/gameboardwindow/OpenAndCloseGameBoardWindowTest.js
 // include ../test/integration/gameboardwindow/RefreshGameBoardWindowTest.js

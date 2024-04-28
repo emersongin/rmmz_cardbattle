@@ -94,8 +94,22 @@ class CardBattleWindow extends Window_Base {
     return 60;
   }
 
-  addText(text = '') {
-    this._text.push(text);
+  renderTextExCenter() {
+    this.renderTextEx('CENTER');
+  }
+
+  renderTextEx(align = 'LEFT') {
+    if (this._text.length) {
+      const text = this.processText();
+      const textWidth = this.getTextWidth(text);
+      const xPosition = this.getAlignText(textWidth, align);
+      this.resize(text);
+      this.drawTextEx(text, xPosition);
+    }
+  }
+
+  drawTextEx(text = '', x = 0, y = 0, width = this.width) {
+    super.drawTextEx(text, x, y, width);
   }
 
   renderTextCenter() {
@@ -105,17 +119,27 @@ class CardBattleWindow extends Window_Base {
   renderText(align = 'LEFT') {
     if (this._text.length) {
       const text = this.processText();
-      const textWidth = this.textSizeEx(text).width;
+      const textWidth = this.getTextWidth(text);
       const xPosition = this.getAlignText(textWidth, align);
-      this.drawTextEx(text, xPosition);
+      const yPosition = 0;
+      this.resize(text);
+      this.drawText(text, xPosition, yPosition, align);
     }
+  }
+
+  drawText(text = '', x = 0, y = 0, align = 'left', width = this.width) {
+    super.drawText(text, x, y, width, align);
   }
 
   processText() {
     let content = [];
-    this._text.forEach((text, index) => {
-      if (index > 0) content.push('\n');
+    const length = this._text.length;
+    this._text.forEach((text, index) => { 
       content.push(text);
+      const isGreaterThanOne = length > 1;
+      const isNotLast = length !== (index + 1);
+      const isNotSpecialLine = text[0] != '\\';
+      if (isGreaterThanOne && isNotLast && isNotSpecialLine) content.push('\n');
     });
     return content.join('');
   }
@@ -129,11 +153,6 @@ class CardBattleWindow extends Window_Base {
       default:
         return 0;
     }
-  }
-
-  drawTextEx(text = '', xPosition = 0, yPosition = 0, width = this.width) {
-    this.resize(text);
-    super.drawTextEx(text, xPosition, yPosition, width);
   }
 
   resize(text) {
@@ -160,9 +179,16 @@ class CardBattleWindow extends Window_Base {
   }
 
   calculeTextWidth(text) {
-    let width = this.textSizeEx(text).width;
+    let width = this.getTextWidth(text);
     width = Math.ceil(width);
     return Math.min(width, Graphics.boxWidth);
+  }
+
+  getTextWidth(text) {
+    const textState = this.createTextState(text, 0, 0, 0);
+    textState.drawing = false;
+    this.processAllText(textState);
+    return textState.outputWidth;
   }
 
   calculeTextHeight() {
@@ -170,11 +196,13 @@ class CardBattleWindow extends Window_Base {
   }
 
   numLines() {
-    return this._text.length;
+    const lines = this._text.filter(text => text[0] !== "\\");
+    return lines.length;
   }
 
   setVerticalPosition(position) {
-    this.y = 60 * position;
+    const paddingTop = 12;
+    this.y = (60 * position) + paddingTop;
   }
 
   setHorizontalPosition(position) {
@@ -187,6 +215,30 @@ class CardBattleWindow extends Window_Base {
 
   isBusy() {
     return this.isOpening() || this.isClosing();
+  }
+
+  setTextColor(color) {
+    this.changeTextColor(color || ColorManager.normalColor());
+  }
+
+  changeTextColorHere(colorIndex) {
+    const colorText = `\\c[${colorIndex}]`;
+    const noSpace = false;
+    this.appendText(colorText, noSpace);
+  }
+
+  appendText(text, space = true) {
+    const length = this._text.length;
+    const lastText = this._text[length - 1];
+    if (length && lastText && lastText[0] !== '\\') {
+      this._text[length - 1] = `${lastText}${space ? ' ' : ''}${text.trim()}`;
+    } else {
+      this.addText(text);
+    }
+  }
+
+  addText(text = '') {
+    this._text.push(text.trim());
   }
 }
 class TextWindow extends CardBattleWindow {
@@ -4045,10 +4097,17 @@ class PositionTextWindowTest extends SceneTest {
       this.textWindow.addText("Hello World");
       this.textWindow.renderText();
       this.textWindow.open();
-      const verticalPositions = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+      const maxTop = 0;
+      const top = 1;
+      const middleTop = 3;
+      const middle = 4;
+      const middleBottom = 5;
+      const bottom = 8;
+      const maxBottom = 9;
+      const verticalPositions = [maxTop, top, 2, middleTop, middle, middleBottom, 6, 7, bottom, maxBottom];
       const start = 0;
-      const middle = 1;
-      const horizontalPositions = [start, middle];
+      const end = 1;
+      const horizontalPositions = [start, end];
       for (const position of verticalPositions) {
         await this.timertoTrue(200, () => this.textWindow.setVerticalPosition(position));
       }
@@ -4146,6 +4205,54 @@ class DrawTextAndAlignCenterTextWindowTest extends SceneTest {
       });
       await this.timertoTrue(600, () => {
         this.textWindowFullSize.close();
+      });
+      resolve(true);
+    });
+  }
+}
+class TextColorTextWindowTest extends SceneTest {
+  textWindowText;
+  textWindowTextEx;
+  
+  create() {
+    const x = 0;
+    const y = 0;
+    this.textWindowText = TextWindow.createWindowFullSize(x, y);
+    this.textWindowTextEx = TextWindow.createWindowFullSize(x, y);
+  }
+
+  start() {      
+    return new Promise(async resolve => {
+      await this.timertoTrue(600, () => {
+        this.scene.addWindow(this.textWindowText);
+        const middle = 4;
+        this.textWindowText.setVerticalPosition(middle)
+        this.textWindowText.setTextColor("#ff0000");
+        this.textWindowText.addText("Hello World");
+        this.textWindowText.renderTextCenter();
+        this.textWindowText.open();
+      });
+      await this.timertoTrue(1000, () => {
+        this.textWindowText.close();
+      });
+      await this.timertoTrue(600, () => {
+        this.scene.addWindow(this.textWindowTextEx);
+        const middle = 4;
+        this.textWindowTextEx.setVerticalPosition(middle)
+        const primaryColor = 2;
+        const sencondColor = 5;
+        const thirdColor = 8;
+        this.textWindowTextEx.changeTextColorHere(primaryColor);
+        this.textWindowTextEx.appendText("Hello World");
+        this.textWindowTextEx.changeTextColorHere(sencondColor);
+        this.textWindowTextEx.addText("Hello World");
+        this.textWindowTextEx.changeTextColorHere(thirdColor);
+        this.textWindowTextEx.appendText("Hello World");
+        this.textWindowTextEx.renderTextExCenter();
+        this.textWindowTextEx.open();
+      });
+      await this.timertoTrue(1000, () => {
+        this.textWindowTextEx.close();
       });
       resolve(true);
     });
@@ -4299,12 +4406,13 @@ class CardBattleTestScene extends Scene_Message {
       AnimateCardsCardsetSpriteTest
     ];
     const textWindowTests = [
-      OpenAndCloseTextWindowTest,
-      SetTextTextWindowTest,
-      PositionTextWindowTest,
-      SetSizeTextWindowTest,
-      DrawTextAndAlignCenterTextWindowTest,
-      DrawTextAndLinesTextWindowTest,
+      // OpenAndCloseTextWindowTest,
+      // SetTextTextWindowTest,
+      // PositionTextWindowTest,
+      // SetSizeTextWindowTest,
+      // DrawTextAndAlignCenterTextWindowTest,
+      // DrawTextAndLinesTextWindowTest,
+      TextColorTextWindowTest,
     ];
     const gameBoardTests = [
       // OpenAndCloseGameBoardWindowTest,
@@ -4313,8 +4421,8 @@ class CardBattleTestScene extends Scene_Message {
     this.tests = [
       // ...cardSpriteTests,
       // ...cardsetTests,
-      // ...textWindowTests,
-      ...gameBoardTests
+      ...textWindowTests,
+      // ...gameBoardTests,
     ];
     this.tests = this.tests.map(test => {
       const instance = new test(this);
@@ -4329,7 +4437,6 @@ class CardBattleTestScene extends Scene_Message {
   }
 
   async startTests() {
-    console.log(this.tests);
     for (const test of this.tests) {
       this._test = test;
       await this._test.start();

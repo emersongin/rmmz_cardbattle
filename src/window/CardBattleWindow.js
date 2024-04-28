@@ -30,8 +30,22 @@ class CardBattleWindow extends Window_Base {
     return 60;
   }
 
-  addText(text = '') {
-    this._text.push(text);
+  renderTextExCenter() {
+    this.renderTextEx('CENTER');
+  }
+
+  renderTextEx(align = 'LEFT') {
+    if (this._text.length) {
+      const text = this.processText();
+      const textWidth = this.getTextWidth(text);
+      const xPosition = this.getAlignText(textWidth, align);
+      this.resize(text);
+      this.drawTextEx(text, xPosition);
+    }
+  }
+
+  drawTextEx(text = '', x = 0, y = 0, width = this.width) {
+    super.drawTextEx(text, x, y, width);
   }
 
   renderTextCenter() {
@@ -41,17 +55,27 @@ class CardBattleWindow extends Window_Base {
   renderText(align = 'LEFT') {
     if (this._text.length) {
       const text = this.processText();
-      const textWidth = this.textSizeEx(text).width;
+      const textWidth = this.getTextWidth(text);
       const xPosition = this.getAlignText(textWidth, align);
-      this.drawTextEx(text, xPosition);
+      const yPosition = 0;
+      this.resize(text);
+      this.drawText(text, xPosition, yPosition, align);
     }
+  }
+
+  drawText(text = '', x = 0, y = 0, align = 'left', width = this.width) {
+    super.drawText(text, x, y, width, align);
   }
 
   processText() {
     let content = [];
-    this._text.forEach((text, index) => {
-      if (index > 0) content.push('\n');
+    const length = this._text.length;
+    this._text.forEach((text, index) => { 
       content.push(text);
+      const isGreaterThanOne = length > 1;
+      const isNotLast = length !== (index + 1);
+      const isNotSpecialLine = text[0] != '\\';
+      if (isGreaterThanOne && isNotLast && isNotSpecialLine) content.push('\n');
     });
     return content.join('');
   }
@@ -65,11 +89,6 @@ class CardBattleWindow extends Window_Base {
       default:
         return 0;
     }
-  }
-
-  drawTextEx(text = '', xPosition = 0, yPosition = 0, width = this.width) {
-    this.resize(text);
-    super.drawTextEx(text, xPosition, yPosition, width);
   }
 
   resize(text) {
@@ -96,9 +115,16 @@ class CardBattleWindow extends Window_Base {
   }
 
   calculeTextWidth(text) {
-    let width = this.textSizeEx(text).width;
+    let width = this.getTextWidth(text);
     width = Math.ceil(width);
     return Math.min(width, Graphics.boxWidth);
+  }
+
+  getTextWidth(text) {
+    const textState = this.createTextState(text, 0, 0, 0);
+    textState.drawing = false;
+    this.processAllText(textState);
+    return textState.outputWidth;
   }
 
   calculeTextHeight() {
@@ -106,11 +132,13 @@ class CardBattleWindow extends Window_Base {
   }
 
   numLines() {
-    return this._text.length;
+    const lines = this._text.filter(text => text[0] !== "\\");
+    return lines.length;
   }
 
   setVerticalPosition(position) {
-    this.y = 60 * position;
+    const paddingTop = 12;
+    this.y = (60 * position) + paddingTop;
   }
 
   setHorizontalPosition(position) {
@@ -123,5 +151,29 @@ class CardBattleWindow extends Window_Base {
 
   isBusy() {
     return this.isOpening() || this.isClosing();
+  }
+
+  setTextColor(color) {
+    this.changeTextColor(color || ColorManager.normalColor());
+  }
+
+  changeTextColorHere(colorIndex) {
+    const colorText = `\\c[${colorIndex}]`;
+    const noSpace = false;
+    this.appendText(colorText, noSpace);
+  }
+
+  appendText(text, space = true) {
+    const length = this._text.length;
+    const lastText = this._text[length - 1];
+    if (length && lastText && lastText[0] !== '\\') {
+      this._text[length - 1] = `${lastText}${space ? ' ' : ''}${text.trim()}`;
+    } else {
+      this.addText(text);
+    }
+  }
+
+  addText(text = '') {
+    this._text.push(text.trim());
   }
 }

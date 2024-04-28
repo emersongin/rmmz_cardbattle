@@ -15,10 +15,17 @@ class PositionTextWindowTest extends SceneTest {
       this.textWindow.addText("Hello World");
       this.textWindow.renderText();
       this.textWindow.open();
-      const verticalPositions = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+      const maxTop = 0;
+      const top = 1;
+      const middleTop = 3;
+      const middle = 4;
+      const middleBottom = 5;
+      const bottom = 8;
+      const maxBottom = 9;
+      const verticalPositions = [maxTop, top, 2, middleTop, middle, middleBottom, 6, 7, bottom, maxBottom];
       const start = 0;
-      const middle = 1;
-      const horizontalPositions = [start, middle];
+      const end = 1;
+      const horizontalPositions = [start, end];
       for (const position of verticalPositions) {
         await this.timertoTrue(200, () => this.textWindow.setVerticalPosition(position));
       }
