@@ -668,7 +668,7 @@ class GameBoardWindow extends CardBattleWindow {
 
   update() {
     if (this.hasUpdates() && this.isStopped()) this.executeUpdate();
-    if (this.isOpen() && this._status) this._status.updateStatus();
+    if (this.isOpen() && this.getStatus()) this._status.updateStatus();
     super.update();
   }
 
@@ -685,11 +685,90 @@ class GameBoardWindow extends CardBattleWindow {
     }
   }
 }
+class GamePointsWindowStoppedState {
+  _window;
+
+  constructor(window) {
+    this._window = window;
+  }
+
+  updateStatus() {
+    // nothing
+  }
+}
+class GamePointsWindowUpdatedState {
+  _window;
+  _attack;
+  _health;
+  _interval = 0;
+  _counter = 0;
+
+  constructor(window, attackPoints, healthPoints) {
+    console.log(attackPoints, healthPoints);
+    this._window = window;
+    this._attack = attackPoints;
+    this._health = healthPoints;
+    this.calculateInterval();
+  }
+
+  calculateInterval() {
+    const that = this._window;
+    const atk = Math.abs(that._attackPoints - this._attack);
+    const hlt = Math.abs(that._healthPoints - this._health);
+    const points = IntegerHelper.findBigger(atk, hlt);
+    const fps = 30;
+    this._interval = Math.floor(fps / (points || 1)) || 1;
+  }
+
+  updateStatus() {
+    const that = this._window;
+    if (this._counter) return this._counter--;
+    if (this.isToUpdate()) {
+      if (this.isToUpdateAttack()) {
+        that._attackPoints = this.getUpdatePoints(this._attack, that._attackPoints);
+      }
+      if (this.isToUpdateHealth()) {
+        that._healthPoints = this.getUpdatePoints(this._health, that._healthPoints);
+      }
+      that.refresh();
+      this._counter = this._interval;
+    } else {
+      that.stop();
+    }
+  }
+
+  getUpdatePoints(updatePoints, points) {
+    return points > updatePoints ? points - 1 : points + 1;
+  }
+
+  isToUpdate() {
+    return this.isToUpdateAttack() || this.isToUpdateHealth();
+  }
+
+  isToUpdateAttack() {
+    return this._window._attackPoints !== this._attack;
+  }
+
+  isToUpdateHealth() {
+    return this._window._healthPoints !== this._health;
+  }
+}
+
 class GamePointsWindow extends CardBattleWindow {
   initialize(rect) {
+    super.initialize(rect);
     this._attackPoints = 0;
     this._healthPoints = 0;
-    super.initialize(rect);
+    this._status = {};
+    this.stop();
+  }
+
+  stop() {
+    this.changeStatus(GamePointsWindowStoppedState);
+  }
+
+  changeStatus(status, ...params) {
+    this._status = new status(this, ...params);
   }
 
   static create(x, y) {
@@ -715,6 +794,35 @@ class GamePointsWindow extends CardBattleWindow {
       this.contents.height,
       'center'
     );
+  }
+
+  changePoints(attackPoints = this._attackPoints, healthPoints = this._healthPoints) {
+    if (this.isUpdating()) return;
+    this.changeStatus(GamePointsWindowUpdatedState, attackPoints, healthPoints);
+  }
+
+  getStatus() {
+    return this._status;
+  }
+
+  isUpdating() {
+    return this.getStatus() instanceof GamePointsWindowUpdatedState;
+  }
+
+  isStopped() {
+    return this.getStatus() instanceof GamePointsWindowStoppedState;
+  }
+
+  reset() {
+    if (this.isUpdating()) return;
+    this._attackPoints = 0;
+    this._healthPoints = 0;
+    this.refresh();
+  }
+
+  update() {
+    if (this.getStatus()) this._status.updateStatus();
+    super.update();
   }
 }
 class ChooseFolderWindow extends Window_Command {
@@ -4742,6 +4850,9 @@ class UpdatingPointsGameBoardTest extends SceneTest {
 
   start() {
     return new Promise(async resolve => {
+      this.scene.addWindow(this.gameboard);
+      this.gameboard.refresh();
+      this.gameboard.open();
       const updateRedPoints = GameBoardWindow.createPointsUpdate(10, 'RED');
       const updateBluePoints = GameBoardWindow.createPointsUpdate(10, 'BLUE');
       const updateGreenPoints = GameBoardWindow.createPointsUpdate(10, 'GREEN');
@@ -4750,9 +4861,6 @@ class UpdatingPointsGameBoardTest extends SceneTest {
       const updateDeckPoints = GameBoardWindow.createPointsUpdate(10, 'DECK');
       const updateHandPoints = GameBoardWindow.createPointsUpdate(10, 'HAND');
       await this.timertoTrue(5000, () => {
-        this.scene.addWindow(this.gameboard);
-        this.gameboard.refresh();
-        this.gameboard.open();
         this.gameboard.changePoints(updateWhitePoints);
         this.gameboard.changePoints(updateRedPoints);
         this.gameboard.changePoints(updateBluePoints);
@@ -4765,9 +4873,6 @@ class UpdatingPointsGameBoardTest extends SceneTest {
         this.gameboard.reset();
       });
       await this.timertoTrue(1000, () => {
-        this.scene.addWindow(this.gameboard);
-        this.gameboard.refresh();
-        this.gameboard.open();
         const manyUpdates = [
           updateRedPoints,
           updateBluePoints,
@@ -4809,6 +4914,44 @@ class RefreshAndOpenGamePointsWindowTest extends SceneTest {
       resolve(true);
     });
   }
+}
+class UpdatingPointsGamePointsWindowTest extends SceneTest {
+  gamePoints;
+
+  create() {
+    this.gamePoints = GamePointsWindow.create(0, 0);
+    this.gamePoints.setcenteredPosition();
+  }
+
+  start() {
+    return new Promise(async resolve => {
+      this.scene.addWindow(this.gamePoints);
+      this.gamePoints.refresh();
+      this.gamePoints.open();
+      const attackPoints = 30;
+      const healtPoints = 30;
+      await this.timertoTrue(2000, () => {
+        this.gamePoints.changePoints(attackPoints);
+      });
+      await this.timertoTrue(600, () => {
+        this.gamePoints.reset();
+      });
+      await this.timertoTrue(2000, () => {
+        this.gamePoints.changePoints(undefined, healtPoints);
+      });
+      await this.timertoTrue(600, () => {
+        this.gamePoints.reset();
+      });
+      await this.timertoTrue(2000, () => {
+        this.gamePoints.changePoints(attackPoints, healtPoints);
+      });
+      await this.timertoTrue(600, () => {
+        this.gamePoints.reset();
+      });
+      resolve(true);
+    });
+  }
+
 }
 
 class CardBattleScene extends Scene_Message {
@@ -4922,12 +5065,13 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsGameBoardTest,
     ];
     const gamePointsTests = [
-      RefreshAndOpenGamePointsWindowTest
+      RefreshAndOpenGamePointsWindowTest,
+      UpdatingPointsGamePointsWindowTest,
     ];
     this.tests = [
       // ...cardSpriteTests,
       // ...cardsetTests,
-      ...textWindowTests,
+      // ...textWindowTests,
       ...gameBoardTests,
       ...gamePointsTests,
     ];

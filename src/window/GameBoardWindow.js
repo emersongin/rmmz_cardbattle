@@ -166,7 +166,7 @@ class GameBoardWindow extends CardBattleWindow {
 
   update() {
     if (this.hasUpdates() && this.isStopped()) this.executeUpdate();
-    if (this.isOpen() && this._status) this._status.updateStatus();
+    if (this.isOpen() && this.getStatus()) this._status.updateStatus();
     super.update();
   }
 

@@ -71,6 +71,7 @@
 // include ../test/integration/gameboardwindow/UpdatingPointsGameBoardTest.js
 // tests GAME POINTS WINDOW
 // include ../test/integration/gamepointswindow/RefreshAndOpenGamePointsWindowTest.js
+// include ../test/integration/gamepointswindow/UpdatingPointsGamePointsWindowTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./scene/CardBattleTestScene.js

@@ -8,6 +8,9 @@ class UpdatingPointsGameBoardTest extends SceneTest {
 
   start() {
     return new Promise(async resolve => {
+      this.scene.addWindow(this.gameboard);
+      this.gameboard.refresh();
+      this.gameboard.open();
       const updateRedPoints = GameBoardWindow.createPointsUpdate(10, 'RED');
       const updateBluePoints = GameBoardWindow.createPointsUpdate(10, 'BLUE');
       const updateGreenPoints = GameBoardWindow.createPointsUpdate(10, 'GREEN');
@@ -16,9 +19,6 @@ class UpdatingPointsGameBoardTest extends SceneTest {
       const updateDeckPoints = GameBoardWindow.createPointsUpdate(10, 'DECK');
       const updateHandPoints = GameBoardWindow.createPointsUpdate(10, 'HAND');
       await this.timertoTrue(5000, () => {
-        this.scene.addWindow(this.gameboard);
-        this.gameboard.refresh();
-        this.gameboard.open();
         this.gameboard.changePoints(updateWhitePoints);
         this.gameboard.changePoints(updateRedPoints);
         this.gameboard.changePoints(updateBluePoints);
@@ -31,9 +31,6 @@ class UpdatingPointsGameBoardTest extends SceneTest {
         this.gameboard.reset();
       });
       await this.timertoTrue(1000, () => {
-        this.scene.addWindow(this.gameboard);
-        this.gameboard.refresh();
-        this.gameboard.open();
         const manyUpdates = [
           updateRedPoints,
           updateBluePoints,
