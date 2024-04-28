@@ -270,6 +270,11 @@ class CardBattleWindow extends Window_Base {
     this.x = (Graphics.boxWidth / 2) * position;
   }
 
+  setcenteredPosition() {
+    this.x = (Graphics.boxWidth / 2) - (this.width / 2);
+    this.y = (Graphics.boxHeight / 2) - (this.height / 2);
+  }
+
   isAvailable() {
     return !this.isBusy();
   }
@@ -310,6 +315,14 @@ class CardBattleWindow extends Window_Base {
     const sy = Math.floor(iconIndex / 16) * ph;
     this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
   };
+
+  refresh() {
+    this.clearContent();
+  }
+
+  clearContent() {
+    this.contents.clear();
+  }
 }
 class TextWindow extends CardBattleWindow {
   static create(x, y, width, height) {
@@ -543,13 +556,9 @@ class GameBoardWindow extends CardBattleWindow {
   }
 
   refresh() {
-    this.clearContent();
+    super.refresh();
     this.drawIcons();
     this.drawDisplay();
-  }
-
-  clearContent() {
-    this.contents.clear();
   }
   
   drawIcons() {
@@ -674,6 +683,38 @@ class GameBoardWindow extends CardBattleWindow {
       const executed = update.execute();
       if (executed) updates.shift();
     }
+  }
+}
+class GamePointsWindow extends CardBattleWindow {
+  initialize(rect) {
+    this._attackPoints = 0;
+    this._healthPoints = 0;
+    super.initialize(rect);
+  }
+
+  static create(x, y) {
+    const width = Graphics.boxWidth / 4;
+    const height = CardBattleWindow.minHeight();
+    return new GamePointsWindow(new Rectangle(x, y, width, height));
+  }
+
+  refresh() {
+    super.refresh();
+    this.drawPoints();
+  }
+
+  drawPoints() {
+    const attack = StringHelper.convertPointsDisplay(this._attackPoints);
+    const health = StringHelper.convertPointsDisplay(this._healthPoints);
+    const points = `AP ${attack} HP ${health}`;
+    this.contents.drawText(
+      points, 
+      0, 
+      0, 
+      this.contents.width, 
+      this.contents.height,
+      'center'
+    );
   }
 }
 class ChooseFolderWindow extends Window_Command {
@@ -4442,9 +4483,10 @@ class OpenAndCloseTextWindowTest extends SceneTest {
   create() {
     const windowWidth = 100;
     const windowHeight = 100;
-    const centerXPosition = ((Graphics.boxWidth / 2) - (windowWidth / 2));
-    const centerYPosition = ((Graphics.boxHeight / 2) - (windowHeight / 2));
-    this.textWindow = TextWindow.create(centerXPosition, centerYPosition, windowWidth, windowHeight);
+    const xPosition = 0;
+    const yPosition = 0;
+    this.textWindow = TextWindow.create(xPosition, yPosition, windowWidth, windowHeight);
+    this.textWindow.setcenteredPosition();
   }
 
   start() {      
@@ -4479,6 +4521,7 @@ class SetTextTextWindowTest extends SceneTest {
         this.textWindow.addText("Hello World");
         this.textWindow.addText("Hello World Hello World Hello World");
         this.textWindow.renderTextEx();
+        this.textWindow.setcenteredPosition();
         this.textWindow.open();
       })
       resolve(true);
@@ -4530,6 +4573,7 @@ class DrawTextAndLinesTextWindowTest extends SceneTest {
     const x = 0;
     const y = 0;
     this.textWindowFullSize = TextWindow.createWindowFullSize(x, y);
+    this.textWindowFullSize.setcenteredPosition();
   }
 
   start() {      
@@ -4558,6 +4602,8 @@ class SetSizeTextWindowTest extends SceneTest {
     const y = 0;
     this.textWindowMiddleSize = TextWindow.createWindowMiddleSize(x, y);
     this.textWindowFullSize = TextWindow.createWindowFullSize(x, y);
+    this.textWindowMiddleSize.setcenteredPosition();
+    this.textWindowFullSize.setcenteredPosition();
   }
 
   start() {      
@@ -4589,6 +4635,8 @@ class DrawTextAndAlignCenterTextWindowTest extends SceneTest {
     const y = 0;
     this.textWindowMiddleSize = TextWindow.createWindowMiddleSize(x, y);
     this.textWindowFullSize = TextWindow.createWindowFullSize(x, y);
+    this.textWindowMiddleSize.setcenteredPosition();
+    this.textWindowFullSize.setcenteredPosition();
   }
 
   start() {      
@@ -4624,14 +4672,14 @@ class TextColorTextWindowTest extends SceneTest {
     const y = 0;
     this.textWindowText = TextWindow.createWindowFullSize(x, y);
     this.textWindowTextEx = TextWindow.createWindowFullSize(x, y);
+    this.textWindowText.setcenteredPosition();
+    this.textWindowTextEx.setcenteredPosition();
   }
 
   start() {      
     return new Promise(async resolve => {
       await this.timertoTrue(600, () => {
         this.scene.addWindow(this.textWindowText);
-        const middle = 4;
-        this.textWindowText.setVerticalPosition(middle)
         this.textWindowText.setTextColor("#ff0000");
         this.textWindowText.addText("Hello World");
         this.textWindowText.renderTextCenter();
@@ -4642,8 +4690,6 @@ class TextColorTextWindowTest extends SceneTest {
       });
       await this.timertoTrue(600, () => {
         this.scene.addWindow(this.textWindowTextEx);
-        const middle = 4;
-        this.textWindowTextEx.setVerticalPosition(middle)
         const primaryColor = 2;
         const sencondColor = 5;
         const thirdColor = 8;
@@ -4663,36 +4709,13 @@ class TextColorTextWindowTest extends SceneTest {
     });
   }
 }
-// tests BOARD
-class OpenAndCloseGameBoardWindowTest extends SceneTest {
+// tests GAME BOARD WINDOW
+class RefreshAndOpenGameBoardWindowTest extends SceneTest {
   gameboard;
 
   create() {
     this.gameboard = GameBoardWindow.createWindowFullSize(0, 0);
-    const maxDown = 9;
-    this.gameboard.setVerticalPosition(maxDown);
-  }
-
-  start() {
-    return new Promise(async resolve => {
-      await this.timertoTrue(600, () => {
-        this.scene.addWindow(this.gameboard);
-        this.gameboard.open();
-      });
-      await this.timertoTrue(600, () => {
-        this.gameboard.close();
-      });
-      resolve(true);
-    });
-  }
-}
-class RefreshGameBoardWindowTest extends SceneTest {
-  gameboard;
-
-  create() {
-    this.gameboard = GameBoardWindow.createWindowFullSize(0, 0);
-    const maxDown = 9;
-    this.gameboard.setVerticalPosition(maxDown);
+    this.gameboard.setcenteredPosition();
   }
 
   start() {
@@ -4714,8 +4737,7 @@ class UpdatingPointsGameBoardTest extends SceneTest {
 
   create() {
     this.gameboard = GameBoardWindow.createWindowFullSize(0, 0);
-    const maxDown = 9;
-    this.gameboard.setVerticalPosition(maxDown);
+    this.gameboard.setcenteredPosition();
   }
 
   start() {
@@ -4764,6 +4786,29 @@ class UpdatingPointsGameBoardTest extends SceneTest {
     });
   }
 
+}
+// tests GAME POINTS WINDOW
+class RefreshAndOpenGamePointsWindowTest extends SceneTest {
+  gamePoints;
+
+  create() {
+    this.gamePoints = GamePointsWindow.create(0, 0);
+    this.gamePoints.setcenteredPosition();
+  }
+
+  start() {
+    return new Promise(async resolve => {
+      await this.timertoTrue(600, () => {
+        this.scene.addWindow(this.gamePoints);
+        this.gamePoints.refresh();
+        this.gamePoints.open();
+      });
+      await this.timertoTrue(600, () => {
+        this.gamePoints.close();
+      });
+      resolve(true);
+    });
+  }
 }
 
 class CardBattleScene extends Scene_Message {
@@ -4873,15 +4918,18 @@ class CardBattleTestScene extends Scene_Message {
       TextColorTextWindowTest,
     ];
     const gameBoardTests = [
-      // OpenAndCloseGameBoardWindowTest,
-      // RefreshGameBoardWindowTest,
+      RefreshAndOpenGameBoardWindowTest,
       UpdatingPointsGameBoardTest,
+    ];
+    const gamePointsTests = [
+      RefreshAndOpenGamePointsWindowTest
     ];
     this.tests = [
       // ...cardSpriteTests,
       // ...cardsetTests,
-      // ...textWindowTests,
+      ...textWindowTests,
       ...gameBoardTests,
+      ...gamePointsTests,
     ];
     this.tests = this.tests.map(test => {
       const instance = new test(this);

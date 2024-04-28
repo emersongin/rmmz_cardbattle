@@ -5,6 +5,7 @@ class DrawTextAndLinesTextWindowTest extends SceneTest {
     const x = 0;
     const y = 0;
     this.textWindowFullSize = TextWindow.createWindowFullSize(x, y);
+    this.textWindowFullSize.setcenteredPosition();
   }
 
   start() {      

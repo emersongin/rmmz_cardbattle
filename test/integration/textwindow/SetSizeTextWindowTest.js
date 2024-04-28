@@ -7,6 +7,8 @@ class SetSizeTextWindowTest extends SceneTest {
     const y = 0;
     this.textWindowMiddleSize = TextWindow.createWindowMiddleSize(x, y);
     this.textWindowFullSize = TextWindow.createWindowFullSize(x, y);
+    this.textWindowMiddleSize.setcenteredPosition();
+    this.textWindowFullSize.setcenteredPosition();
   }
 
   start() {      

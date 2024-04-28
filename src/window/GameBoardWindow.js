@@ -54,13 +54,9 @@ class GameBoardWindow extends CardBattleWindow {
   }
 
   refresh() {
-    this.clearContent();
+    super.refresh();
     this.drawIcons();
     this.drawDisplay();
-  }
-
-  clearContent() {
-    this.contents.clear();
   }
   
   drawIcons() {

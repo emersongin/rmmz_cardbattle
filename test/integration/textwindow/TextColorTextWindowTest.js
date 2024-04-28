@@ -7,14 +7,14 @@ class TextColorTextWindowTest extends SceneTest {
     const y = 0;
     this.textWindowText = TextWindow.createWindowFullSize(x, y);
     this.textWindowTextEx = TextWindow.createWindowFullSize(x, y);
+    this.textWindowText.setcenteredPosition();
+    this.textWindowTextEx.setcenteredPosition();
   }
 
   start() {      
     return new Promise(async resolve => {
       await this.timertoTrue(600, () => {
         this.scene.addWindow(this.textWindowText);
-        const middle = 4;
-        this.textWindowText.setVerticalPosition(middle)
         this.textWindowText.setTextColor("#ff0000");
         this.textWindowText.addText("Hello World");
         this.textWindowText.renderTextCenter();
@@ -25,8 +25,6 @@ class TextColorTextWindowTest extends SceneTest {
       });
       await this.timertoTrue(600, () => {
         this.scene.addWindow(this.textWindowTextEx);
-        const middle = 4;
-        this.textWindowTextEx.setVerticalPosition(middle)
         const primaryColor = 2;
         const sencondColor = 5;
         const thirdColor = 8;

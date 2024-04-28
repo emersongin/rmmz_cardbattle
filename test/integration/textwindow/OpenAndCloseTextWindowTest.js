@@ -4,9 +4,10 @@ class OpenAndCloseTextWindowTest extends SceneTest {
   create() {
     const windowWidth = 100;
     const windowHeight = 100;
-    const centerXPosition = ((Graphics.boxWidth / 2) - (windowWidth / 2));
-    const centerYPosition = ((Graphics.boxHeight / 2) - (windowHeight / 2));
-    this.textWindow = TextWindow.create(centerXPosition, centerYPosition, windowWidth, windowHeight);
+    const xPosition = 0;
+    const yPosition = 0;
+    this.textWindow = TextWindow.create(xPosition, yPosition, windowWidth, windowHeight);
+    this.textWindow.setcenteredPosition();
   }
 
   start() {      

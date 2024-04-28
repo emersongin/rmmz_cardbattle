@@ -17,6 +17,7 @@ class SetTextTextWindowTest extends SceneTest {
         this.textWindow.addText("Hello World");
         this.textWindow.addText("Hello World Hello World Hello World");
         this.textWindow.renderTextEx();
+        this.textWindow.setcenteredPosition();
         this.textWindow.open();
       })
       resolve(true);

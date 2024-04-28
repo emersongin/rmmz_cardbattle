@@ -148,6 +148,11 @@ class CardBattleWindow extends Window_Base {
     this.x = (Graphics.boxWidth / 2) * position;
   }
 
+  setcenteredPosition() {
+    this.x = (Graphics.boxWidth / 2) - (this.width / 2);
+    this.y = (Graphics.boxHeight / 2) - (this.height / 2);
+  }
+
   isAvailable() {
     return !this.isBusy();
   }
@@ -188,4 +193,12 @@ class CardBattleWindow extends Window_Base {
     const sy = Math.floor(iconIndex / 16) * ph;
     this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
   };
+
+  refresh() {
+    this.clearContent();
+  }
+
+  clearContent() {
+    this.contents.clear();
+  }
 }

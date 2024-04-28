@@ -3,8 +3,7 @@ class UpdatingPointsGameBoardTest extends SceneTest {
 
   create() {
     this.gameboard = GameBoardWindow.createWindowFullSize(0, 0);
-    const maxDown = 9;
-    this.gameboard.setVerticalPosition(maxDown);
+    this.gameboard.setcenteredPosition();
   }
 
   start() {

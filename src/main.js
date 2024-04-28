@@ -12,6 +12,7 @@
 // include ./window/CardBattleWindow.js
 // include ./window/TextWindow.js
 // include ./window/GameBoardWindow.js
+// include ./window/GamePointsWindow.js
 // include ./window/ChooseFolderWindow.js
 // include ./object/PowerAction.js
 // include ./object/Energy.js
@@ -65,10 +66,11 @@
 // include ../test/integration/textwindow/SetSizeTextWindowTest.js
 // include ../test/integration/textwindow/DrawTextAndLinesTextWindowTest.js
 // include ../test/integration/textwindow/TextColorTextWindowTest.js
-// tests BOARD
-// include ../test/integration/gameboardwindow/OpenAndCloseGameBoardWindowTest.js
-// include ../test/integration/gameboardwindow/RefreshGameBoardWindowTest.js
+// tests GAME BOARD WINDOW
+// include ../test/integration/gameboardwindow/RefreshAndOpenGameBoardWindowTest.js
 // include ../test/integration/gameboardwindow/UpdatingPointsGameBoardTest.js
+// tests GAME POINTS WINDOW
+// include ../test/integration/gamepointswindow/RefreshAndOpenGamePointsWindowTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./scene/CardBattleTestScene.js

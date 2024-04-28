@@ -55,15 +55,18 @@ class CardBattleTestScene extends Scene_Message {
       TextColorTextWindowTest,
     ];
     const gameBoardTests = [
-      // OpenAndCloseGameBoardWindowTest,
-      // RefreshGameBoardWindowTest,
+      RefreshAndOpenGameBoardWindowTest,
       UpdatingPointsGameBoardTest,
+    ];
+    const gamePointsTests = [
+      RefreshAndOpenGamePointsWindowTest
     ];
     this.tests = [
       // ...cardSpriteTests,
       // ...cardsetTests,
       // ...textWindowTests,
-      ...gameBoardTests,
+      // ...gameBoardTests,
+      ...gamePointsTests,
     ];
     this.tests = this.tests.map(test => {
       const instance = new test(this);
