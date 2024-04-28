@@ -46,12 +46,12 @@ class CardBattleTestScene extends Scene_Message {
       AnimateCardsCardsetSpriteTest
     ];
     const textWindowTests = [
-      // OpenAndCloseTextWindowTest,
-      // SetTextTextWindowTest,
-      // PositionTextWindowTest,
-      // SetSizeTextWindowTest,
-      // DrawTextAndAlignCenterTextWindowTest,
-      // DrawTextAndLinesTextWindowTest,
+      OpenAndCloseTextWindowTest,
+      SetTextTextWindowTest,
+      PositionTextWindowTest,
+      SetSizeTextWindowTest,
+      DrawTextAndAlignCenterTextWindowTest,
+      DrawTextAndLinesTextWindowTest,
       TextColorTextWindowTest,
     ];
     const gameBoardTests = [
@@ -61,8 +61,8 @@ class CardBattleTestScene extends Scene_Message {
     this.tests = [
       // ...cardSpriteTests,
       // ...cardsetTests,
-      ...textWindowTests,
-      // ...gameBoardTests,
+      // ...textWindowTests,
+      ...gameBoardTests,
     ];
     this.tests = this.tests.map(test => {
       const instance = new test(this);

@@ -129,18 +129,22 @@ class CardSprite extends ActionSprite {
   }
 
   refresh() {
+    this.clearContent();
     this.drawCard();
+    this.drawFilter();
   }
 
   drawCard() {
-    this.clearContent();
     if (this.isTurnedToUp()) {
-      this.drawCardBackground();
-      this.drawCardFigure();
-      this.drawCardDisplay();
+      this.drawBackground();
+      this.drawFigure();
+      this.drawDisplay();
     } else {
-      this.drawCardBack();
+      this.drawBack();
     }
+  }
+
+  drawFilter() {
     if (this.isDisabled()) {
       this._contentLayer.setColorTone([0, 0, 0, 255]);
     } else {
@@ -156,7 +160,7 @@ class CardSprite extends ActionSprite {
     return this._turned;
   }
 
-  drawCardBackground() {
+  drawBackground() {
     const xPosition = 0;
     const yPosition = 0;
     const borderColor = this.getBorderColor();
@@ -167,53 +171,51 @@ class CardSprite extends ActionSprite {
 
   getBorderColor() {
     switch (this._color) {
-      case CardColors.RED:
-        return '#990000';
+      case 1:
+        return HexColors.FADEDRED;
         break;
-      case CardColors.GREEN:
-        return '#009900';
+      case 2:
+        return HexColors.FADEDGREEN;
         break;
-      case CardColors.BLUE:
-        return '#000099';
+      case 3:
+        return HexColors.FADEDBLUE;
         break;
-      case CardColors.WHITE:
-        return '#959595';
+      case 4:
+        return HexColors.FADEDWHITE;
         break;
-      case CardColors.BLACK:
-        return '#101010';
+      case 5:
+        return HexColors.FADEDBLACK;
         break;
       default:
-        const brown = '#852828';
-        return brown;
+        return HexColors.FADEDBROWN;
         break;
     }
   }
 
   getBackgroundColor() {
     switch (this._color) {
-      case CardColors.RED:
-        return '#ff0000';
+      case 1:
+        return HexColors.RED;
         break;
-      case CardColors.GREEN:
-        return '#00ff00';
+      case 2:
+        return HexColors.GREEN;
         break;
-      case CardColors.BLUE:
-        return '#0000ff';
+      case 3:
+        return HexColors.BLUE;
         break;
-      case CardColors.WHITE:
-        return '#e5e5e5';
+      case 4:
+        return HexColors.WHITE;
         break;
-      case CardColors.BLACK:
-        return '#191919';
+      case 5:
+        return HexColors.BLACK;
         break;
       default:
-        const brown = '#a52a2a';
-        return brown;
+        return HexColors.BROWN;
         break;
     }
   }
 
-  drawCardFigure() {
+  drawFigure() {
     const contentX = 4;
     const contentY = 4;
     const contentWidth = this.contentOriginalWidth() - 8;
@@ -239,7 +241,7 @@ class CardSprite extends ActionSprite {
     );
   }
 
-  drawCardDisplay() {
+  drawDisplay() {
     switch (this._type) {
       case CardTypes.BATTLE:
           this.drawPoints();
@@ -261,8 +263,8 @@ class CardSprite extends ActionSprite {
   }
 
   drawPoints() {
-    const attack = this._attackPoints.toString().padStart(2, ' ');
-    const health = this._healthPoints.toString().padStart(2, ' ');
+    const attack = Helper.convertPointsDisplay(this._attackPoints);
+    const health = Helper.convertPointsDisplay(this._healthPoints);
     const points = `${attack} / ${health}`;
     this._contentLayer.bitmap.drawText(
       points, 
@@ -301,7 +303,7 @@ class CardSprite extends ActionSprite {
     );
   }
 
-  drawCardBack() {
+  drawBack() {
     this._contentLayer.bitmap.blt(this._backImage, 0, 0, this.width, this.height, 0, 0);
   }
 
@@ -343,7 +345,7 @@ class CardSprite extends ActionSprite {
     const card = new CardSprite();
     card.setCard(
       type || CardTypes.BATTLE, 
-      color || CardColors.BROWN, 
+      color || HexColors.BROWN, 
       figureName || 'default', 
       attack || 0, 
       health || 0

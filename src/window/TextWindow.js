@@ -14,5 +14,4 @@ class TextWindow extends CardBattleWindow {
     const height = CardBattleWindow.minHeight();
     return TextWindow.create(x, y, width, height);
   }
-
 }

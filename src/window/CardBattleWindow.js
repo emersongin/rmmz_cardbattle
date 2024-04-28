@@ -3,6 +3,7 @@ class CardBattleWindow extends Window_Base {
   
   initialize(rect) {
     super.initialize(rect);
+    this._iconset = "IconSet";
     this.closed();
   }
   
@@ -176,4 +177,13 @@ class CardBattleWindow extends Window_Base {
   addText(text = '') {
     this._text.push(text.trim());
   }
+
+  drawIcon(iconIndex, x, y) {
+    const bitmap = ImageManager.loadSystem(this._iconset);
+    const pw = ImageManager.iconWidth;
+    const ph = ImageManager.iconHeight;
+    const sx = (iconIndex % 16) * pw;
+    const sy = Math.floor(iconIndex / 16) * ph;
+    this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
+  };
 }

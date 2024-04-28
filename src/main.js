@@ -1,7 +1,12 @@
 (function() {
 'use strict';
+// include ./core/Input.js
+// include ./core/Scene_Boot.js
+// include ./core/ImageManager.js
+// include ./core/Helper.js
 // include ./constant/CardTypes.js
-// include ./constant/CardColors.js
+// include ./constant/HexColors.js
+// include ./constant/IconSet.js
 // include ./data/playerDecksData.js
 // include ./helper/uuidv4.js
 // include ./window/CardBattleWindow.js
@@ -67,8 +72,5 @@
 // include ./scene/CardBattleScene.js
 // include ./scene/CardBattleTestScene.js
 // include ./manager/CardBattleManager.js
-// include ./core/Input.js
-// include ./core/Scene_Boot.js
-// include ./core/ImageManager.js
 
 })();

@@ -5,14 +5,11 @@ class RefreshGameBoardWindowTest extends SceneTest {
     this.gameboard = GameBoardWindow.createWindowFullSize(0, 0);
     const maxDown = 9;
     this.gameboard.setVerticalPosition(maxDown);
-
-    console.log(this.gameboard instanceof GameBoardWindow);
-    console.log(this.gameboard);
   }
 
   start() {
     return new Promise(async resolve => {
-      await this.timertoTrue(600, () => {
+      await this.timertoTrue(999999, () => {
         this.scene.addWindow(this.gameboard);
         this.gameboard.refresh();
         this.gameboard.open();

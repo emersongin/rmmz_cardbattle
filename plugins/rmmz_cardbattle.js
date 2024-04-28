@@ -1,17 +1,63 @@
 (function() {
 'use strict';
+Input.isAnyKeyActiveIn = function(keys = []) {
+  keys = Array.isArray(keys) ? keys : [keys];
+  return keys.some(key => this._latestButton === key);
+};
+Scene_Boot.prototype.start = function() {
+  Scene_Base.prototype.start.call(this);
+  SoundManager.preloadImportantSounds();
+  DataManager.setupNewGame();
+  SceneManager.goto(CardBattleTestScene);
+  this.resizeScreen();
+  this.updateDocumentTitle();
+};
+ImageManager.loadCard = function(filename) {
+  return this.loadBitmap("img/cards/", filename);
+};
+class Helper {
+  static convertPointsDisplay(value = 0) {
+    return value.toString().padStart(2, ' ');
+  }
+
+  static convertPointsDisplayPad(value = 0, pad = 2) {
+    return value.toString().padStart(pad, '0');
+  }
+}
 const CardTypes = {
   BATTLE: 1,
   POWER: 2,
   GAME: 3
 };
-const CardColors = {
-  RED: 1,
-  BLUE: 2,
-  GREEN: 3,
-  WHITE: 4,
-  BLACK: 5,
-  BROWN: 6
+const HexColors = {
+  RED: '#ff0000',
+  GREEN: '#00ff00',
+  BLUE: '#0000ff',
+  WHITE: '#e5e5e5',
+  BLACK: '#191919',
+  BROWN: '#a52a2a',
+  FADEDRED: '#990000',
+  FADEDGREEN: '#009900',
+  FADEDBLUE: '#000099',
+  FADEDWHITE: '#959595',
+  FADEDBLACK: '#101010',
+  FADEDBROWN: '#852828',
+};
+const IconSet = {
+  REDBOX: 309,
+  BLUEBOX: 312,
+  GREENBOX: 311,
+  WHITEBOX: 307,
+  BLACKBOX: 308,
+  BROWNBOX: 310,
+  DECK: 296,
+  HAND: 142,
+  TRASH: 235,
+  SAPPHIRE: 161,
+  REDSAPPHIRE: 162,
+  BLUESAPPHIRE: 165,
+  SWORD: 76,
+  SHIELD: 81,
 };
 const playerDecksData = [
   {
@@ -67,6 +113,7 @@ class CardBattleWindow extends Window_Base {
   
   initialize(rect) {
     super.initialize(rect);
+    this._iconset = "IconSet";
     this.closed();
   }
   
@@ -240,6 +287,15 @@ class CardBattleWindow extends Window_Base {
   addText(text = '') {
     this._text.push(text.trim());
   }
+
+  drawIcon(iconIndex, x, y) {
+    const bitmap = ImageManager.loadSystem(this._iconset);
+    const pw = ImageManager.iconWidth;
+    const ph = ImageManager.iconHeight;
+    const sx = (iconIndex % 16) * pw;
+    const sy = Math.floor(iconIndex / 16) * ph;
+    this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
+  };
 }
 class TextWindow extends CardBattleWindow {
   static create(x, y, width, height) {
@@ -257,9 +313,19 @@ class TextWindow extends CardBattleWindow {
     const height = CardBattleWindow.minHeight();
     return TextWindow.create(x, y, width, height);
   }
-
 }
 class GameBoardWindow extends CardBattleWindow {
+  initialize(rect) {
+    this._redPoints = 0;
+    this._bluePoints = 0;
+    this._greenPoints = 0;
+    this._blackPoints = 0;
+    this._whitePoints = 0;
+    this._numCardsInDeck = 0;
+    this._numCardsInHand = 0;
+    super.initialize(rect);
+  }
+
   static create(x, y, width, height) {
     return new GameBoardWindow(new Rectangle(x, y, width, height));
   }
@@ -277,8 +343,76 @@ class GameBoardWindow extends CardBattleWindow {
   }
 
   refresh() {
-    // super.refresh();
-    console.log('GameBoardWindow refresh');
+    this.clearContent();
+    this.drawIcons();
+    this.drawDisplay();
+  }
+
+  clearContent() {
+    this.contents.clear();
+  }
+  
+  drawIcons() {
+    this.drawColorBoxIcons();
+    this.drawAllIcons();
+  }
+
+  drawColorBoxIcons() {
+    const indexOne = 0;
+    const indexTwo = 96;
+    const indexThree = 192;
+    const indexFour = 288;
+    const indexFive = 384;
+    this.drawIcon(IconSet.WHITEBOX, indexOne, 0);
+    this.drawIcon(IconSet.REDBOX, indexTwo, 0);
+    this.drawIcon(IconSet.BLUEBOX, indexThree, 0);
+    this.drawIcon(IconSet.GREENBOX, indexFour, 0);
+    this.drawIcon(IconSet.BLACKBOX, indexFive, 0);
+  }
+
+  drawAllIcons() {
+    const floatRightIndexOne = this.contents.width - 96;
+    const floatRightIndexTwo = this.contents.width - 192;
+    this.drawIcon(IconSet.HAND, floatRightIndexOne, 0);
+    this.drawIcon(IconSet.DECK, floatRightIndexTwo, 0);
+  }
+
+  drawDisplay() {
+    this.drawEnergiesPoints();
+    this.drawCardsPoints();
+  }
+
+  drawEnergiesPoints() {
+    const width = 64;
+    const height = 32;
+    const yPosition = 0;
+    const xPositionWhitePoints = 40;
+    const xPositonRedPoints = 136;
+    const xPositionBluePoints = 232;
+    const xPositionGreenPoints = 328;
+    const xPositionBlackPoints = 424;
+    const redPoints = Helper.convertPointsDisplayPad(this._redPoints);
+    const bluePoints = Helper.convertPointsDisplayPad(this._bluePoints);
+    const greenPoints = Helper.convertPointsDisplayPad(this._greenPoints);
+    const blackPoints = Helper.convertPointsDisplayPad(this._blackPoints);
+    const whitePoints = Helper.convertPointsDisplayPad(this._whitePoints);
+    this.contents.drawText(whitePoints, xPositionWhitePoints, yPosition, width, height);
+    this.contents.drawText(redPoints, xPositonRedPoints, yPosition, width, height);
+    this.contents.drawText(bluePoints, xPositionBluePoints, yPosition, width, height);
+    this.contents.drawText(greenPoints, xPositionGreenPoints, yPosition, width, height);
+    this.contents.drawText(blackPoints, xPositionBlackPoints, yPosition, width, height);
+  }
+
+  drawCardsPoints() {
+    const width = 64;
+    const height = 32;
+    const yPosition = 0;
+    const xPositionHand = this.contents.width - 96 + 40;
+    const xPositionDeck = this.contents.width - 192 + 40;
+    const handPoints = Helper.convertPointsDisplayPad(this._numCardsInHand);
+    const deckPoints = Helper.convertPointsDisplayPad(this._numCardsInDeck);
+    this.contents.drawText(handPoints, xPositionHand, yPosition, width, height);
+    this.contents.drawText(deckPoints, xPositionDeck, yPosition, width, height);
   }
 }
 class ChooseFolderWindow extends Window_Command {
@@ -1303,18 +1437,22 @@ class CardSprite extends ActionSprite {
   }
 
   refresh() {
+    this.clearContent();
     this.drawCard();
+    this.drawFilter();
   }
 
   drawCard() {
-    this.clearContent();
     if (this.isTurnedToUp()) {
-      this.drawCardBackground();
-      this.drawCardFigure();
-      this.drawCardDisplay();
+      this.drawBackground();
+      this.drawFigure();
+      this.drawDisplay();
     } else {
-      this.drawCardBack();
+      this.drawBack();
     }
+  }
+
+  drawFilter() {
     if (this.isDisabled()) {
       this._contentLayer.setColorTone([0, 0, 0, 255]);
     } else {
@@ -1330,7 +1468,7 @@ class CardSprite extends ActionSprite {
     return this._turned;
   }
 
-  drawCardBackground() {
+  drawBackground() {
     const xPosition = 0;
     const yPosition = 0;
     const borderColor = this.getBorderColor();
@@ -1341,53 +1479,51 @@ class CardSprite extends ActionSprite {
 
   getBorderColor() {
     switch (this._color) {
-      case CardColors.RED:
-        return '#990000';
+      case 1:
+        return HexColors.FADEDRED;
         break;
-      case CardColors.GREEN:
-        return '#009900';
+      case 2:
+        return HexColors.FADEDGREEN;
         break;
-      case CardColors.BLUE:
-        return '#000099';
+      case 3:
+        return HexColors.FADEDBLUE;
         break;
-      case CardColors.WHITE:
-        return '#959595';
+      case 4:
+        return HexColors.FADEDWHITE;
         break;
-      case CardColors.BLACK:
-        return '#101010';
+      case 5:
+        return HexColors.FADEDBLACK;
         break;
       default:
-        const brown = '#852828';
-        return brown;
+        return HexColors.FADEDBROWN;
         break;
     }
   }
 
   getBackgroundColor() {
     switch (this._color) {
-      case CardColors.RED:
-        return '#ff0000';
+      case 1:
+        return HexColors.RED;
         break;
-      case CardColors.GREEN:
-        return '#00ff00';
+      case 2:
+        return HexColors.GREEN;
         break;
-      case CardColors.BLUE:
-        return '#0000ff';
+      case 3:
+        return HexColors.BLUE;
         break;
-      case CardColors.WHITE:
-        return '#e5e5e5';
+      case 4:
+        return HexColors.WHITE;
         break;
-      case CardColors.BLACK:
-        return '#191919';
+      case 5:
+        return HexColors.BLACK;
         break;
       default:
-        const brown = '#a52a2a';
-        return brown;
+        return HexColors.BROWN;
         break;
     }
   }
 
-  drawCardFigure() {
+  drawFigure() {
     const contentX = 4;
     const contentY = 4;
     const contentWidth = this.contentOriginalWidth() - 8;
@@ -1413,7 +1549,7 @@ class CardSprite extends ActionSprite {
     );
   }
 
-  drawCardDisplay() {
+  drawDisplay() {
     switch (this._type) {
       case CardTypes.BATTLE:
           this.drawPoints();
@@ -1435,8 +1571,8 @@ class CardSprite extends ActionSprite {
   }
 
   drawPoints() {
-    const attack = this._attackPoints.toString().padStart(2, ' ');
-    const health = this._healthPoints.toString().padStart(2, ' ');
+    const attack = Helper.convertPointsDisplay(this._attackPoints);
+    const health = Helper.convertPointsDisplay(this._healthPoints);
     const points = `${attack} / ${health}`;
     this._contentLayer.bitmap.drawText(
       points, 
@@ -1475,7 +1611,7 @@ class CardSprite extends ActionSprite {
     );
   }
 
-  drawCardBack() {
+  drawBack() {
     this._contentLayer.bitmap.blt(this._backImage, 0, 0, this.width, this.height, 0, 0);
   }
 
@@ -1517,7 +1653,7 @@ class CardSprite extends ActionSprite {
     const card = new CardSprite();
     card.setCard(
       type || CardTypes.BATTLE, 
-      color || CardColors.BROWN, 
+      color || HexColors.BROWN, 
       figureName || 'default', 
       attack || 0, 
       health || 0
@@ -4288,14 +4424,11 @@ class RefreshGameBoardWindowTest extends SceneTest {
     this.gameboard = GameBoardWindow.createWindowFullSize(0, 0);
     const maxDown = 9;
     this.gameboard.setVerticalPosition(maxDown);
-
-    console.log(this.gameboard instanceof GameBoardWindow);
-    console.log(this.gameboard);
   }
 
   start() {
     return new Promise(async resolve => {
-      await this.timertoTrue(600, () => {
+      await this.timertoTrue(999999, () => {
         this.scene.addWindow(this.gameboard);
         this.gameboard.refresh();
         this.gameboard.open();
@@ -4406,12 +4539,12 @@ class CardBattleTestScene extends Scene_Message {
       AnimateCardsCardsetSpriteTest
     ];
     const textWindowTests = [
-      // OpenAndCloseTextWindowTest,
-      // SetTextTextWindowTest,
-      // PositionTextWindowTest,
-      // SetSizeTextWindowTest,
-      // DrawTextAndAlignCenterTextWindowTest,
-      // DrawTextAndLinesTextWindowTest,
+      OpenAndCloseTextWindowTest,
+      SetTextTextWindowTest,
+      PositionTextWindowTest,
+      SetSizeTextWindowTest,
+      DrawTextAndAlignCenterTextWindowTest,
+      DrawTextAndLinesTextWindowTest,
       TextColorTextWindowTest,
     ];
     const gameBoardTests = [
@@ -4421,8 +4554,8 @@ class CardBattleTestScene extends Scene_Message {
     this.tests = [
       // ...cardSpriteTests,
       // ...cardsetTests,
-      ...textWindowTests,
-      // ...gameBoardTests,
+      // ...textWindowTests,
+      ...gameBoardTests,
     ];
     this.tests = this.tests.map(test => {
       const instance = new test(this);
@@ -4644,21 +4777,6 @@ class CardBattleManager {
     return this._phase instanceof StartPhase;
   }
 }
-Input.isAnyKeyActiveIn = function(keys = []) {
-  keys = Array.isArray(keys) ? keys : [keys];
-  return keys.some(key => this._latestButton === key);
-};
-Scene_Boot.prototype.start = function() {
-  Scene_Base.prototype.start.call(this);
-  SoundManager.preloadImportantSounds();
-  DataManager.setupNewGame();
-  SceneManager.goto(CardBattleTestScene);
-  this.resizeScreen();
-  this.updateDocumentTitle();
-};
-ImageManager.loadCard = function(filename) {
-  return this.loadBitmap("img/cards/", filename);
-};
 
 })();
 
