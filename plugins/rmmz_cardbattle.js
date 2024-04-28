@@ -62,11 +62,11 @@ function uuidv4() {
     return v.toString(16);
   });
 }
-class TextWindow extends Window_Base {
+class CardBattleWindow extends Window_Base {
   _text = [];
   
-  constructor(rect) {
-    super(rect);
+  initialize(rect) {
+    super.initialize(rect);
     this.closed();
   }
   
@@ -75,19 +75,19 @@ class TextWindow extends Window_Base {
   }
 
   static create(x, y, width, height) {
-    return new TextWindow(new Rectangle(x, y, width, height));
+    return new CardBattleWindow(new Rectangle(x, y, width, height));
   }
 
   static createWindowMiddleSize(x, y) {
     const width = Graphics.boxWidth / 2;
-    const height = TextWindow.minHeight();
-    return TextWindow.create(x, y, width, height);
+    const height = CardBattleWindow.minHeight();
+    return CardBattleWindow.create(x, y, width, height);
   }
 
   static createWindowFullSize(x, y) {
     const width = Graphics.boxWidth;
-    const height = TextWindow.minHeight();
-    return TextWindow.create(x, y, width, height);
+    const height = CardBattleWindow.minHeight();
+    return CardBattleWindow.create(x, y, width, height);
   }
 
   static minHeight() {
@@ -189,13 +189,53 @@ class TextWindow extends Window_Base {
     return this.isOpening() || this.isClosing();
   }
 }
+class TextWindow extends CardBattleWindow {
+  static create(x, y, width, height) {
+    return new TextWindow(new Rectangle(x, y, width, height));
+  }
+
+  static createWindowMiddleSize(x, y) {
+    const width = Graphics.boxWidth / 2;
+    const height = CardBattleWindow.minHeight();
+    return TextWindow.create(x, y, width, height);
+  }
+
+  static createWindowFullSize(x, y) {
+    const width = Graphics.boxWidth;
+    const height = CardBattleWindow.minHeight();
+    return TextWindow.create(x, y, width, height);
+  }
+
+}
+class GameBoardWindow extends CardBattleWindow {
+  static create(x, y, width, height) {
+    return new GameBoardWindow(new Rectangle(x, y, width, height));
+  }
+
+  static createWindowMiddleSize(x, y) {
+    const width = Graphics.boxWidth / 2;
+    const height = CardBattleWindow.minHeight();
+    return GameBoardWindow.create(x, y, width, height);
+  }
+
+  static createWindowFullSize(x, y) {
+    const width = Graphics.boxWidth;
+    const height = CardBattleWindow.minHeight();
+    return GameBoardWindow.create(x, y, width, height);
+  }
+
+  refresh() {
+    // super.refresh();
+    console.log('GameBoardWindow refresh');
+  }
+}
 class ChooseFolderWindow extends Window_Command {
-  constructor(rect) {
-    super(rect);
-    this.initClosed();
+  initialize() {
+    super.initialize();
+    this.closed();
   }
   
-  initClosed() {
+  closed() {
     this._openness = 0;
   }
 
@@ -854,13 +894,13 @@ class CardSpriteZoomState {
 
 }
 class CardAnimationSprite extends Sprite_Animation {
-  initMembers() {
-    super.initMembers();
-  }
+  // initMembers() {
+  //   super.initMembers();
+  // }
 
-  setup(targets, animation, mirror, delay) {
-    super.setup(targets, animation, mirror, delay);
-  }
+  // setup(targets, animation, mirror, delay) {
+  //   super.setup(targets, animation, mirror, delay);
+  // }
 
   update() {
     super.update();
@@ -4112,15 +4152,52 @@ class DrawTextAndAlignCenterTextWindowTest extends SceneTest {
   }
 }
 // tests BOARD
-class ShowBoardTest extends SceneTest {
-  board;
+class OpenAndCloseGameBoardWindowTest extends SceneTest {
+  gameboard;
 
   create() {
-
+    this.gameboard = GameBoardWindow.createWindowFullSize(0, 0);
+    const maxDown = 9;
+    this.gameboard.setVerticalPosition(maxDown);
   }
 
   start() {
+    return new Promise(async resolve => {
+      await this.timertoTrue(600, () => {
+        this.scene.addWindow(this.gameboard);
+        this.gameboard.open();
+      });
+      await this.timertoTrue(600, () => {
+        this.gameboard.close();
+      });
+      resolve(true);
+    });
+  }
+}
+class RefreshGameBoardWindowTest extends SceneTest {
+  gameboard;
 
+  create() {
+    this.gameboard = GameBoardWindow.createWindowFullSize(0, 0);
+    const maxDown = 9;
+    this.gameboard.setVerticalPosition(maxDown);
+
+    console.log(this.gameboard instanceof GameBoardWindow);
+    console.log(this.gameboard);
+  }
+
+  start() {
+    return new Promise(async resolve => {
+      await this.timertoTrue(600, () => {
+        this.scene.addWindow(this.gameboard);
+        this.gameboard.refresh();
+        this.gameboard.open();
+      });
+      await this.timertoTrue(600, () => {
+        this.gameboard.close();
+      });
+      resolve(true);
+    });
   }
 }
 
@@ -4229,14 +4306,15 @@ class CardBattleTestScene extends Scene_Message {
       DrawTextAndAlignCenterTextWindowTest,
       DrawTextAndLinesTextWindowTest,
     ];
-    const boardTests = [
-      ShowBoardTest
+    const gameBoardTests = [
+      // OpenAndCloseGameBoardWindowTest,
+      RefreshGameBoardWindowTest,
     ];
     this.tests = [
-      ...cardSpriteTests,
-      ...cardsetTests,
-      ...textWindowTests,
-      ...boardTests
+      // ...cardSpriteTests,
+      // ...cardsetTests,
+      // ...textWindowTests,
+      ...gameBoardTests
     ];
     this.tests = this.tests.map(test => {
       const instance = new test(this);
@@ -4251,6 +4329,7 @@ class CardBattleTestScene extends Scene_Message {
   }
 
   async startTests() {
+    console.log(this.tests);
     for (const test of this.tests) {
       this._test = test;
       await this._test.start();

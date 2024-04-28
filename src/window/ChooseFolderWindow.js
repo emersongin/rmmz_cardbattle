@@ -1,10 +1,10 @@
 class ChooseFolderWindow extends Window_Command {
-  constructor(rect) {
-    super(rect);
-    this.initClosed();
+  initialize() {
+    super.initialize();
+    this.closed();
   }
   
-  initClosed() {
+  closed() {
     this._openness = 0;
   }
 

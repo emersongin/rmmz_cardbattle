@@ -4,7 +4,9 @@
 // include ./constant/CardColors.js
 // include ./data/playerDecksData.js
 // include ./helper/uuidv4.js
+// include ./window/CardBattleWindow.js
 // include ./window/TextWindow.js
+// include ./window/GameBoardWindow.js
 // include ./window/ChooseFolderWindow.js
 // include ./object/PowerAction.js
 // include ./object/Energy.js
@@ -58,7 +60,8 @@
 // include ../test/integration/textwindow/SetSizeTextWindowTest.js
 // include ../test/integration/textwindow/DrawTextAndLinesTextWindowTest.js
 // tests BOARD
-// include ../test/integration/board/ShowBoardTest.js
+// include ../test/integration/gameboardwindow/OpenAndCloseGameBoardWindowTest.js
+// include ../test/integration/gameboardwindow/RefreshGameBoardWindowTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./scene/CardBattleTestScene.js
