@@ -3,12 +3,12 @@
 // include ./core/Input.js
 // include ./core/Scene_Boot.js
 // include ./core/ImageManager.js
-// include ./core/Helper.js
 // include ./constant/CardTypes.js
 // include ./constant/HexColors.js
 // include ./constant/IconSet.js
 // include ./data/playerDecksData.js
 // include ./helper/uuidv4.js
+// include ./helper/Helper.js
 // include ./window/CardBattleWindow.js
 // include ./window/TextWindow.js
 // include ./window/GameBoardWindow.js
@@ -68,6 +68,7 @@
 // tests BOARD
 // include ../test/integration/gameboardwindow/OpenAndCloseGameBoardWindowTest.js
 // include ../test/integration/gameboardwindow/RefreshGameBoardWindowTest.js
+// include ../test/integration/gameboardwindow/UpdatingPointsGameBoardTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./scene/CardBattleTestScene.js

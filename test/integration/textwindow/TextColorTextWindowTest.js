@@ -20,7 +20,7 @@ class TextColorTextWindowTest extends SceneTest {
         this.textWindowText.renderTextCenter();
         this.textWindowText.open();
       });
-      await this.timertoTrue(1000, () => {
+      await this.timertoTrue(600, () => {
         this.textWindowText.close();
       });
       await this.timertoTrue(600, () => {
@@ -39,7 +39,7 @@ class TextColorTextWindowTest extends SceneTest {
         this.textWindowTextEx.renderTextExCenter();
         this.textWindowTextEx.open();
       });
-      await this.timertoTrue(1000, () => {
+      await this.timertoTrue(600, () => {
         this.textWindowTextEx.close();
       });
       resolve(true);

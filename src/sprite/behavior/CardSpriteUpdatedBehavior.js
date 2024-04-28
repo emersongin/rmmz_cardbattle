@@ -2,7 +2,7 @@ class CardSpriteUpdatedBehavior {
   _card;
   _attack;
   _health;
-  _interval;
+  _interval = 0;
   _counter = 0;
   
   constructor(sprite, attackPoints, healtPoints) {

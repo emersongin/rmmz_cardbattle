@@ -108,7 +108,7 @@ class CardSprite extends ActionSprite {
     if (this.hasActions() && this.isStopped()) this.executeAction();
     if (this.isMoving() && this.isHidden()) this.commandShow();
     if (this.isVisible()) {
-      this.updateStates();
+      this.updateStatus();
       this.updateBehaviors();
     }
     super.update();
@@ -263,8 +263,8 @@ class CardSprite extends ActionSprite {
   }
 
   drawPoints() {
-    const attack = Helper.convertPointsDisplay(this._attackPoints);
-    const health = Helper.convertPointsDisplay(this._healthPoints);
+    const attack = StringHelper.convertPointsDisplay(this._attackPoints);
+    const health = StringHelper.convertPointsDisplay(this._healthPoints);
     const points = `${attack} / ${health}`;
     this._contentLayer.bitmap.drawText(
       points, 

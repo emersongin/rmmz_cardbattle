@@ -257,7 +257,7 @@ class CardsetSprite extends ActionSprite {
     if (this.hasActions() && this.isAvailable()) this.executeAction();
     if (this.numberOfChildren() && this.isHidden()) this.commandShow();
     if (this.isVisible()) {
-      this.updateStates();
+      this.updateStatus();
     }
     super.update();
   }

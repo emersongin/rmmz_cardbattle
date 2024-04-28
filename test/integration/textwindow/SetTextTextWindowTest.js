@@ -11,12 +11,12 @@ class SetTextTextWindowTest extends SceneTest {
 
   start() {      
     return new Promise(async resolve => {
-      await this.timertoTrue(2000, () => {
+      await this.timertoTrue(600, () => {
         this.scene.addWindow(this.textWindow);
         this.textWindow.addText("Hello World Hello World Hello World Hello World");
         this.textWindow.addText("Hello World");
         this.textWindow.addText("Hello World Hello World Hello World");
-        this.textWindow.renderText();
+        this.textWindow.renderTextEx();
         this.textWindow.open();
       })
       resolve(true);

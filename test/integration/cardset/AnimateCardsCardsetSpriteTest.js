@@ -12,6 +12,7 @@ class AnimateCardsCardsetSpriteTest extends SceneTest {
   async start() {
     return new Promise(async resolve => {
       this.scene.addChild(this.cardset);
+      this.cardset.show();
       await this.startFlash();
       await this.startDamage();
       await this.startQuake();

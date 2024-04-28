@@ -9,7 +9,7 @@ class RefreshGameBoardWindowTest extends SceneTest {
 
   start() {
     return new Promise(async resolve => {
-      await this.timertoTrue(999999, () => {
+      await this.timertoTrue(600, () => {
         this.scene.addWindow(this.gameboard);
         this.gameboard.refresh();
         this.gameboard.open();

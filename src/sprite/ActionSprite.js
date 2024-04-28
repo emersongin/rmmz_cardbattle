@@ -109,8 +109,8 @@ class ActionSprite extends Sprite {
     }
   }
 
-  updateStates() {
-    if (this._status) this._status.updateState();
+  updateStatus() {
+    if (this._status) this._status.updateStatus();
   }
 
   isAvailable() {

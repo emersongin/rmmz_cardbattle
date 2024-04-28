@@ -76,6 +76,7 @@ class CardBattleWindow extends Window_Base {
       const isGreaterThanOne = length > 1;
       const isNotLast = length !== (index + 1);
       const isNotSpecialLine = text[0] != '\\';
+      console.log(isGreaterThanOne, isNotLast, isNotSpecialLine);
       if (isGreaterThanOne && isNotLast && isNotSpecialLine) content.push('\n');
     });
     return content.join('');
@@ -116,6 +117,7 @@ class CardBattleWindow extends Window_Base {
   }
 
   calculeTextWidth(text) {
+    console.log(text);
     let width = this.getTextWidth(text);
     width = Math.ceil(width);
     return Math.min(width, Graphics.boxWidth);

@@ -12,6 +12,7 @@ class StartClosedAndOpenCardsCardsetSpriteTest extends SceneTest {
   start() {
     return new Promise(async resolve => {
       this.scene.addChild(this.cardset);
+      this.cardset.show();
       let testTimes = 1;
       for (let index = 0; index < 6; index++) {
         const cards = this.generateCards(testTimes);

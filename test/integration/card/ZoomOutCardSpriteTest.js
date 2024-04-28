@@ -16,12 +16,12 @@ class ZoomOutCardSpriteTest extends SceneTest {
     this.card.y = centerYPosition - ((this.card.height / 2) / 2);
     this.card.scale.x = (this.card.scale.x / 2) * 3;
     this.card.scale.y = (this.card.scale.y / 2) * 3;
-    this.card.show();
   }
 
   start() {
     return new Promise(resolve => {
       this.scene.addChild(this.card);
+      this.card.show();
       this.card.zoomOut();
       setTimeout(() => {
         resolve(true);

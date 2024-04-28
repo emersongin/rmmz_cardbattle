@@ -7,12 +7,12 @@ class DisableAndEnableCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
-    this.cardset.show();
   }
 
   start() {
     return new Promise(async resolve => {
       this.scene.addChild(this.cardset);
+      this.cardset.show();
       const cards = this.generateCards(10);
       this.cardset.setCards(cards);
       this.cardset.startListCards();

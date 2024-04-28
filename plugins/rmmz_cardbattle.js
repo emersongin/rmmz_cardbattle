@@ -15,15 +15,6 @@ Scene_Boot.prototype.start = function() {
 ImageManager.loadCard = function(filename) {
   return this.loadBitmap("img/cards/", filename);
 };
-class Helper {
-  static convertPointsDisplay(value = 0) {
-    return value.toString().padStart(2, ' ');
-  }
-
-  static convertPointsDisplayPad(value = 0, pad = 2) {
-    return value.toString().padStart(pad, '0');
-  }
-}
 const CardTypes = {
   BATTLE: 1,
   POWER: 2,
@@ -108,6 +99,27 @@ function uuidv4() {
     return v.toString(16);
   });
 }
+class StringHelper {
+  static convertPointsDisplay(value = 0) {
+    return value.toString().padStart(2, ' ');
+  }
+
+  static convertPointsDisplayPad(value = 0, pad = 2) {
+    return value.toString().padStart(pad, '0');
+  }
+}
+
+class IntegerHelper {
+  static findBigger() {
+    let bigger = arguments[0];
+    for (let i = 1; i < arguments.length; i++) {
+        if (arguments[i] > bigger) {
+          bigger = arguments[i];
+        }
+    }
+    return bigger;
+  }
+}
 class CardBattleWindow extends Window_Base {
   _text = [];
   
@@ -186,6 +198,7 @@ class CardBattleWindow extends Window_Base {
       const isGreaterThanOne = length > 1;
       const isNotLast = length !== (index + 1);
       const isNotSpecialLine = text[0] != '\\';
+      console.log(isGreaterThanOne, isNotLast, isNotSpecialLine);
       if (isGreaterThanOne && isNotLast && isNotSpecialLine) content.push('\n');
     });
     return content.join('');
@@ -226,6 +239,7 @@ class CardBattleWindow extends Window_Base {
   }
 
   calculeTextWidth(text) {
+    console.log(text);
     let width = this.getTextWidth(text);
     width = Math.ceil(width);
     return Math.min(width, Graphics.boxWidth);
@@ -314,6 +328,168 @@ class TextWindow extends CardBattleWindow {
     return TextWindow.create(x, y, width, height);
   }
 }
+class GameBoardWindowStoppedState {
+  _board;
+
+  constructor(window) {
+    this._board = window;
+  }
+
+  updateStatus() {
+    // nothing
+  }
+}
+class GameBoardWindowUpdatedState {
+  _board;
+  _red;
+  _blue;
+  _green;
+  _black;
+  _white;
+  _deck;
+  _hand;
+  _interval = 0;
+  _counter = 0;
+
+  constructor(window, fields = []) {
+    this._board = window;
+    this.restoreStatus();
+    this.processFieldsUpdates(fields);
+    this.calculateInterval();
+  }
+
+  restoreStatus() {
+    this._red = this._board._redPoints;
+    this._blue = this._board._bluePoints;
+    this._green = this._board._greenPoints;
+    this._black = this._board._blackPoints;
+    this._white = this._board._whitePoints;
+    this._deck = this._board._numCardsInDeck;
+    this._hand = this._board._numCardsInHand;
+  }
+
+  processFieldsUpdates(fields) {
+    fields.forEach(field => {
+      const { name, points } = field;
+      this.setUpdatePoints(name, points);
+    });
+  }
+
+  setUpdatePoints(name, points) {
+    switch (name) {
+      case 'RED':
+        this._red = points;
+        break;
+      case 'BLUE':
+        this._blue = points;
+        break;
+      case 'GREEN':
+        this._green = points;
+        break;
+      case 'BLACK':
+        this._black = points;
+        break;
+      case 'WHITE':
+        this._white = points;
+        break;
+      case 'DECK':
+        this._deck = points;
+        break;
+      case 'HAND':
+        this._hand = points;
+        break;
+    }
+  }
+
+  calculateInterval() {
+    const that = this._board;
+    const red = Math.abs(that._redPoints - this._red);
+    const blu = Math.abs(that._bluePoints - this._blue);
+    const gre = Math.abs(that._greenPoints - this._green);
+    const blk = Math.abs(that._blackPoints - this._black);
+    const wht = Math.abs(that._whitePoints - this._white);
+    const deck = Math.abs(that._numCardsInDeck - this._deck);
+    const hand = Math.abs(that._numCardsInHand - this._hand);
+    const points = IntegerHelper.findBigger(red, blu, gre, blk, wht, deck, hand);
+    const fps = 30;
+    this._interval = Math.floor(fps / (points || 1)) || 1;
+  }
+
+  updateStatus() {
+    const that = this._board;
+    if (this._counter) return this._counter--;
+    if (this.isToUpdate()) {
+      if (this.isToUpdateRed()) {
+        that._redPoints = this.getUpdatePoints(this._red, that._redPoints);
+      }
+      if (this.isToUpdateBlue()) {
+        that._bluePoints = this.getUpdatePoints(this._blue, that._bluePoints);
+      }
+      if (this.isToUpdateGreen()) {
+        that._greenPoints = this.getUpdatePoints(this._green, that._greenPoints);
+      }
+      if (this.isToUpdateBlack()) {
+        that._blackPoints = this.getUpdatePoints(this._black, that._blackPoints);
+      }
+      if (this.isToUpdateWhite()) {
+        that._whitePoints = this.getUpdatePoints(this._white, that._whitePoints);
+      }
+      if (this.isToUpdateDeck()) {
+        that._numCardsInDeck = this.getUpdatePoints(this._deck, that._numCardsInDeck);
+      }
+      if (this.isToUpdateHand()) {
+        that._numCardsInHand = this.getUpdatePoints(this._hand, that._numCardsInHand);
+      }
+      that.refresh();
+      this._counter = this._interval;
+    } else {
+      that.stop();
+    }
+  }
+
+  getUpdatePoints(updatePoints, points) {
+    return points > updatePoints ? points - 1 : points + 1;
+  }
+
+  isToUpdate() {
+    return this.isToUpdateRed() || 
+      this.isToUpdateBlue() ||
+      this.isToUpdateGreen() ||
+      this.isToUpdateBlack() ||
+      this.isToUpdateWhite() ||
+      this.isToUpdateDeck() ||
+      this.isToUpdateHand();
+  }
+
+  isToUpdateRed() {
+    return this._board._redPoints !== this._red;
+  }
+
+  isToUpdateBlue() {
+    return this._board._bluePoints !== this._blue;
+  }
+
+  isToUpdateGreen() {
+    return this._board._greenPoints !== this._green;
+  }
+
+  isToUpdateBlack() {
+    return this._board._blackPoints !== this._black;
+  }
+
+  isToUpdateWhite() {
+    return this._board._whitePoints !== this._white;
+  }
+
+  isToUpdateDeck() {
+    return this._board._numCardsInDeck !== this._deck;
+  }
+
+  isToUpdateHand() {
+    return this._board._numCardsInHand !== this._hand;
+  }
+}
+
 class GameBoardWindow extends CardBattleWindow {
   initialize(rect) {
     this._redPoints = 0;
@@ -323,7 +499,31 @@ class GameBoardWindow extends CardBattleWindow {
     this._whitePoints = 0;
     this._numCardsInDeck = 0;
     this._numCardsInHand = 0;
+    this._status = {};
+    this._updates = [];
+    this.stop();
     super.initialize(rect);
+  }
+
+  stop() {
+    this.changeStatus(GameBoardWindowStoppedState);
+  }
+
+  changeStatus(status, ...params) {
+    this._status = new status(this, ...params);
+  }
+
+  addUpdate(fn, ...params) {
+    const update = this.createUpdate(fn, ...params);
+    this._updates.push(update);
+  }
+
+  createUpdate(fn, ...params) {
+    const action = {
+      fn: fn.name || 'anonymous',
+      execute: () => fn.call(this, ...params)
+    };
+    return action;
   }
 
   static create(x, y, width, height) {
@@ -391,11 +591,11 @@ class GameBoardWindow extends CardBattleWindow {
     const xPositionBluePoints = 232;
     const xPositionGreenPoints = 328;
     const xPositionBlackPoints = 424;
-    const redPoints = Helper.convertPointsDisplayPad(this._redPoints);
-    const bluePoints = Helper.convertPointsDisplayPad(this._bluePoints);
-    const greenPoints = Helper.convertPointsDisplayPad(this._greenPoints);
-    const blackPoints = Helper.convertPointsDisplayPad(this._blackPoints);
-    const whitePoints = Helper.convertPointsDisplayPad(this._whitePoints);
+    const redPoints = StringHelper.convertPointsDisplayPad(this._redPoints);
+    const bluePoints = StringHelper.convertPointsDisplayPad(this._bluePoints);
+    const greenPoints = StringHelper.convertPointsDisplayPad(this._greenPoints);
+    const blackPoints = StringHelper.convertPointsDisplayPad(this._blackPoints);
+    const whitePoints = StringHelper.convertPointsDisplayPad(this._whitePoints);
     this.contents.drawText(whitePoints, xPositionWhitePoints, yPosition, width, height);
     this.contents.drawText(redPoints, xPositonRedPoints, yPosition, width, height);
     this.contents.drawText(bluePoints, xPositionBluePoints, yPosition, width, height);
@@ -409,10 +609,71 @@ class GameBoardWindow extends CardBattleWindow {
     const yPosition = 0;
     const xPositionHand = this.contents.width - 96 + 40;
     const xPositionDeck = this.contents.width - 192 + 40;
-    const handPoints = Helper.convertPointsDisplayPad(this._numCardsInHand);
-    const deckPoints = Helper.convertPointsDisplayPad(this._numCardsInDeck);
+    const handPoints = StringHelper.convertPointsDisplayPad(this._numCardsInHand);
+    const deckPoints = StringHelper.convertPointsDisplayPad(this._numCardsInDeck);
     this.contents.drawText(handPoints, xPositionHand, yPosition, width, height);
     this.contents.drawText(deckPoints, xPositionDeck, yPosition, width, height);
+  }
+
+  static createPointsUpdate(points, name) {
+    return { name, points };
+  }
+
+  changePoints(updates) {
+    updates = Array.isArray(updates) ? updates : [updates];
+    this.addUpdate(this.commandChangePoints, updates);
+  }
+
+  reset() {
+    this._redPoints = 0;
+    this._bluePoints = 0;
+    this._greenPoints = 0;
+    this._blackPoints = 0;
+    this._whitePoints = 0;
+    this._numCardsInDeck = 0;
+    this._numCardsInHand = 0;
+    this.refresh();
+  }
+
+  commandChangePoints(fields) {
+    if (!(this.isOpen() && this.isStopped())) return;
+    this.changeStatus(GameBoardWindowUpdatedState, fields);
+    return true;
+  }
+
+  isStopped() {
+    return this.getStatus() instanceof GameBoardWindowStoppedState;
+  }
+
+  getStatus() {
+    return this._status;
+  }
+
+  isBusy() {
+    return this.isUpdating();
+  }
+
+  isUpdating() {
+    return this.getStatus() instanceof GameBoardWindowUpdatedState;
+  }
+
+  update() {
+    if (this.hasUpdates() && this.isStopped()) this.executeUpdate();
+    if (this.isOpen() && this._status) this._status.updateStatus();
+    super.update();
+  }
+
+  hasUpdates() {
+    return this._updates.length > 0;
+  }
+
+  executeUpdate() {
+    const updates = this._updates;
+    if (updates.length > 0) {
+      const update = updates[0];
+      const executed = update.execute();
+      if (executed) updates.shift();
+    }
   }
 }
 class ChooseFolderWindow extends Window_Command {
@@ -656,8 +917,8 @@ class ActionSprite extends Sprite {
     }
   }
 
-  updateStates() {
-    if (this._status) this._status.updateState();
+  updateStatus() {
+    if (this._status) this._status.updateStatus();
   }
 
   isAvailable() {
@@ -1256,7 +1517,7 @@ class CardSpriteUpdatedBehavior {
   _card;
   _attack;
   _health;
-  _interval;
+  _interval = 0;
   _counter = 0;
   
   constructor(sprite, attackPoints, healtPoints) {
@@ -1416,7 +1677,7 @@ class CardSprite extends ActionSprite {
     if (this.hasActions() && this.isStopped()) this.executeAction();
     if (this.isMoving() && this.isHidden()) this.commandShow();
     if (this.isVisible()) {
-      this.updateStates();
+      this.updateStatus();
       this.updateBehaviors();
     }
     super.update();
@@ -1571,8 +1832,8 @@ class CardSprite extends ActionSprite {
   }
 
   drawPoints() {
-    const attack = Helper.convertPointsDisplay(this._attackPoints);
-    const health = Helper.convertPointsDisplay(this._healthPoints);
+    const attack = StringHelper.convertPointsDisplay(this._attackPoints);
+    const health = StringHelper.convertPointsDisplay(this._healthPoints);
     const points = `${attack} / ${health}`;
     this._contentLayer.bitmap.drawText(
       points, 
@@ -2474,7 +2735,7 @@ class CardsetSprite extends ActionSprite {
     if (this.hasActions() && this.isAvailable()) this.executeAction();
     if (this.numberOfChildren() && this.isHidden()) this.commandShow();
     if (this.isVisible()) {
-      this.updateStates();
+      this.updateStatus();
     }
     super.update();
   }
@@ -3177,12 +3438,12 @@ class OpenCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startClosed(centerXPosition, centerYPosition);
-    this.card.show();
   }
 
   start() {
     return new Promise(resolve => {
       this.scene.addChild(this.card);
+      this.card.show();
       this.card.open();
       setTimeout(() => {
         resolve(true);
@@ -3206,12 +3467,12 @@ class CloseCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
-    this.card.show();
   }
 
   start() {
     return new Promise(resolve => {
       this.scene.addChild(this.card);
+      this.card.show();
       this.card.close();
       setTimeout(() => {
         resolve(true);
@@ -3239,12 +3500,12 @@ class MoveCardSpriteTest extends SceneTest {
       card.health
     );
     this.card.startOpen(0, 0);
-    this.card.show();
   }
 
   start() {
     return new Promise(resolve => {
       this.scene.addChild(this.card);
+      this.card.show();
       const destinyXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
       const destinyYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
       this.card.toMove(destinyXPosition, destinyYPosition);
@@ -3278,12 +3539,12 @@ class HoveredCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
-    this.card.show();
   }
 
   start() {
     return new Promise(resolve => {
       this.scene.addChild(this.card);
+      this.card.show();
       this.card.hover();
       setTimeout(() => {
         this.card.unhover();
@@ -3310,12 +3571,12 @@ class SelectedCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
-    this.card.show();
   }
 
   start() {
     return new Promise(resolve => {
       this.scene.addChild(this.card);
+      this.card.show();
       this.card.select();
       setTimeout(() => {
         this.card.unselect();
@@ -3342,7 +3603,6 @@ class FlashCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
-    this.card.show();
   }
 
   start() {
@@ -3352,6 +3612,7 @@ class FlashCardSpriteTest extends SceneTest {
         const duration = 60;
         const times = 1;
         this.scene.addChild(this.card);
+        this.card.show();
         this.card.flash(color, duration, times);
         setTimeout(() => {
           this.scene.removeChild(this.card);
@@ -3390,13 +3651,13 @@ class DamageAnimationCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
-    this.card.show();
   }
 
   start() {
     return new Promise(resolve => {
       const times = 1;
       this.scene.addChild(this.card);
+      this.card.show();
       this.card.damage(times);
       setTimeout(() => {
         resolve(true);
@@ -3420,12 +3681,12 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
-    this.card.show();
   }
 
   start() {
     return new Promise(resolve => {
       this.scene.addChild(this.card);
+      this.card.show();
       this.card.changePoints(30, 30);
       setTimeout(() => {
         resolve(true);
@@ -3449,12 +3710,12 @@ class DisableCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
-    this.card.show();
   }
 
   start() {
     return new Promise(resolve => {
       this.scene.addChild(this.card);
+      this.card.show();
       this.card.disable();
       setTimeout(() => {
         this.card.enable();
@@ -3481,12 +3742,12 @@ class ZoomInCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
-    this.card.show();
   }
 
   start() {
     return new Promise(resolve => {
       this.scene.addChild(this.card);
+      this.card.show();
       this.card.zoom();
       setTimeout(() => {
         resolve(true);
@@ -3513,12 +3774,12 @@ class ZoomOutCardSpriteTest extends SceneTest {
     this.card.y = centerYPosition - ((this.card.height / 2) / 2);
     this.card.scale.x = (this.card.scale.x / 2) * 3;
     this.card.scale.y = (this.card.scale.y / 2) * 3;
-    this.card.show();
   }
 
   start() {
     return new Promise(resolve => {
       this.scene.addChild(this.card);
+      this.card.show();
       this.card.zoomOut();
       setTimeout(() => {
         resolve(true);
@@ -3542,12 +3803,12 @@ class LeaveCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
-    this.card.show();
   }
 
   start() {
     return new Promise(resolve => {
       this.scene.addChild(this.card);
+      this.card.show();
       this.card.leave();
       setTimeout(() => {
         resolve(true);
@@ -3571,13 +3832,13 @@ class QuakeCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
-    this.card.show();
   }
 
   start() {
     return new Promise(resolve => {
       const times = 3;
       this.scene.addChild(this.card);
+      this.card.show();
       this.card.damage();
       this.card.quake(times);
       setTimeout(() => {
@@ -3603,12 +3864,12 @@ class FlipCardToUpSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
     this.card.setToDown();
-    this.card.show();
   }
 
   start() {
     return new Promise(resolve => {
       this.scene.addChild(this.card);
+      this.card.show();
       this.card.flipToUp();
       setTimeout(() => {
         resolve(true);
@@ -3631,12 +3892,12 @@ class IluminatedCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
-    this.card.show();
   }
 
   start() {
     return new Promise(resolve => {
       this.scene.addChild(this.card);
+      this.card.show();
       this.card.iluminate();
       setTimeout(() => {
         resolve(true);
@@ -3651,15 +3912,15 @@ class SetBackgroundAndStartPositionCardsetSpriteTest extends SceneTest {
 
   create() {
     this.cardset = CardsetSprite.create();
+    this.cardset.setBackgroundColor('rgba(255, 0, 0, 0.5)');
+    const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
+    this.cardset.startPosition(centerXPosition, centerYPosition);
   }
 
   start() {
     return new Promise(resolve => {
       this.scene.addChild(this.cardset);
-      const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
-      const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
-      this.cardset.setBackgroundColor('rgba(255, 0, 0, 0.5)');
-      this.cardset.startPosition(centerXPosition, centerYPosition);
       this.cardset.show();
       setTimeout(() => {
         this.cardset.clear();
@@ -3683,6 +3944,7 @@ class SetCardsCardsetSpriteTest extends SceneTest {
   start() {
     return new Promise(async resolve => {
       this.scene.addChild(this.cardset);
+      this.cardset.show();
       let testTimes = 1;
       for (let index = 0; index < 6; index++) {
         const cards = this.generateCards(testTimes);
@@ -3718,6 +3980,7 @@ class StartPositionCardsCardsetSpriteTest extends SceneTest {
   start() {
     return new Promise(async resolve => {
       this.scene.addChild(this.cardset);
+      this.cardset.show();
       let testTimes = 1;
       for (let index = 0; index < 6; index++) {
         const cards = this.generateCards(testTimes);
@@ -3754,6 +4017,7 @@ class StartListCardsCardsetSpriteTest extends SceneTest {
   start() {
     return new Promise(async resolve => {
       this.scene.addChild(this.cardset);
+      this.cardset.show();
       let testTimes = 40;
       for (let index = 0; index < 1; index++) {
         const cards = this.generateCards(testTimes);
@@ -3790,6 +4054,7 @@ class StartClosedAndOpenCardsCardsetSpriteTest extends SceneTest {
   start() {
     return new Promise(async resolve => {
       this.scene.addChild(this.cardset);
+      this.cardset.show();
       let testTimes = 1;
       for (let index = 0; index < 6; index++) {
         const cards = this.generateCards(testTimes);
@@ -3848,6 +4113,7 @@ class MoveCardsToListCardsetSpriteTest extends SceneTest {
   start() {
     return new Promise(async resolve => {
       this.scene.addChild(this.cardset);
+      this.cardset.show();
       let testTimes = 1;
       for (let index = 0; index < 6; index++) {
         const cards = this.generateCards(testTimes);
@@ -3908,6 +4174,7 @@ class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
   start() {
     return new Promise(async resolve => {
       this.scene.addChild(this.cardset);
+      this.cardset.show();
       let testTimes = 1;
       for (let index = 0; index < 1; index++) {
         const cards = this.generateCards(testTimes);
@@ -3949,6 +4216,7 @@ class AddCardAndMoveToListCardsetSpriteTest extends SceneTest {
   start() {
     return new Promise(async resolve => {
       this.scene.addChild(this.cardset);
+      this.cardset.show();
       let testTimes = 1;
       for (let index = 0; index < 3; index++) {
         const cards = this.generateCards(3);
@@ -4011,12 +4279,12 @@ class SelectModeCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
-    this.cardset.show();
   }
 
   start() {
     return new Promise(async resolve => {
       this.scene.addChild(this.cardset);
+      this.cardset.show();
       const cards = this.generateCards(10);
       this.cardset.setCards(cards);
       this.cardset.startListCards();
@@ -4038,12 +4306,12 @@ class SelectModeAndEnableChoiceCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
-    this.cardset.show();
   }
 
   start() {
     return new Promise(async resolve => {
       this.scene.addChild(this.cardset);
+      this.cardset.show();
       const cards = this.generateCards(10);
       this.cardset.setCards(cards);
       this.cardset.startListCards();
@@ -4074,6 +4342,7 @@ class AnimateCardsCardsetSpriteTest extends SceneTest {
   async start() {
     return new Promise(async resolve => {
       this.scene.addChild(this.cardset);
+      this.cardset.show();
       await this.startFlash();
       await this.startDamage();
       await this.startQuake();
@@ -4144,12 +4413,12 @@ class DisableAndEnableCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
-    this.cardset.show();
   }
 
   start() {
     return new Promise(async resolve => {
       this.scene.addChild(this.cardset);
+      this.cardset.show();
       const cards = this.generateCards(10);
       this.cardset.setCards(cards);
       this.cardset.startListCards();
@@ -4204,12 +4473,12 @@ class SetTextTextWindowTest extends SceneTest {
 
   start() {      
     return new Promise(async resolve => {
-      await this.timertoTrue(2000, () => {
+      await this.timertoTrue(600, () => {
         this.scene.addWindow(this.textWindow);
         this.textWindow.addText("Hello World Hello World Hello World Hello World");
         this.textWindow.addText("Hello World");
         this.textWindow.addText("Hello World Hello World Hello World");
-        this.textWindow.renderText();
+        this.textWindow.renderTextEx();
         this.textWindow.open();
       })
       resolve(true);
@@ -4368,7 +4637,7 @@ class TextColorTextWindowTest extends SceneTest {
         this.textWindowText.renderTextCenter();
         this.textWindowText.open();
       });
-      await this.timertoTrue(1000, () => {
+      await this.timertoTrue(600, () => {
         this.textWindowText.close();
       });
       await this.timertoTrue(600, () => {
@@ -4387,7 +4656,7 @@ class TextColorTextWindowTest extends SceneTest {
         this.textWindowTextEx.renderTextExCenter();
         this.textWindowTextEx.open();
       });
-      await this.timertoTrue(1000, () => {
+      await this.timertoTrue(600, () => {
         this.textWindowTextEx.close();
       });
       resolve(true);
@@ -4428,7 +4697,7 @@ class RefreshGameBoardWindowTest extends SceneTest {
 
   start() {
     return new Promise(async resolve => {
-      await this.timertoTrue(999999, () => {
+      await this.timertoTrue(600, () => {
         this.scene.addWindow(this.gameboard);
         this.gameboard.refresh();
         this.gameboard.open();
@@ -4439,6 +4708,62 @@ class RefreshGameBoardWindowTest extends SceneTest {
       resolve(true);
     });
   }
+}
+class UpdatingPointsGameBoardTest extends SceneTest {
+  gameboard;
+
+  create() {
+    this.gameboard = GameBoardWindow.createWindowFullSize(0, 0);
+    const maxDown = 9;
+    this.gameboard.setVerticalPosition(maxDown);
+  }
+
+  start() {
+    return new Promise(async resolve => {
+      const updateRedPoints = GameBoardWindow.createPointsUpdate(10, 'RED');
+      const updateBluePoints = GameBoardWindow.createPointsUpdate(10, 'BLUE');
+      const updateGreenPoints = GameBoardWindow.createPointsUpdate(10, 'GREEN');
+      const updateBlackPoints = GameBoardWindow.createPointsUpdate(10, 'BLACK');
+      const updateWhitePoints = GameBoardWindow.createPointsUpdate(10, 'WHITE');
+      const updateDeckPoints = GameBoardWindow.createPointsUpdate(10, 'DECK');
+      const updateHandPoints = GameBoardWindow.createPointsUpdate(10, 'HAND');
+      await this.timertoTrue(5000, () => {
+        this.scene.addWindow(this.gameboard);
+        this.gameboard.refresh();
+        this.gameboard.open();
+        this.gameboard.changePoints(updateWhitePoints);
+        this.gameboard.changePoints(updateRedPoints);
+        this.gameboard.changePoints(updateBluePoints);
+        this.gameboard.changePoints(updateGreenPoints);
+        this.gameboard.changePoints(updateBlackPoints);
+        this.gameboard.changePoints(updateDeckPoints);
+        this.gameboard.changePoints(updateHandPoints);
+      });
+      await this.timertoTrue(600, () => {
+        this.gameboard.reset();
+      });
+      await this.timertoTrue(1000, () => {
+        this.scene.addWindow(this.gameboard);
+        this.gameboard.refresh();
+        this.gameboard.open();
+        const manyUpdates = [
+          updateRedPoints,
+          updateBluePoints,
+          updateGreenPoints,
+          updateBlackPoints,
+          updateWhitePoints,
+          updateDeckPoints,
+          updateHandPoints
+        ];
+        this.gameboard.changePoints(manyUpdates);
+      });
+      await this.timertoTrue(600, () => {
+        this.gameboard.close();
+      });
+      resolve(true);
+    });
+  }
+
 }
 
 class CardBattleScene extends Scene_Message {
@@ -4549,7 +4874,8 @@ class CardBattleTestScene extends Scene_Message {
     ];
     const gameBoardTests = [
       // OpenAndCloseGameBoardWindowTest,
-      RefreshGameBoardWindowTest,
+      // RefreshGameBoardWindowTest,
+      UpdatingPointsGameBoardTest,
     ];
     this.tests = [
       // ...cardSpriteTests,

@@ -12,6 +12,7 @@ class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
   start() {
     return new Promise(async resolve => {
       this.scene.addChild(this.cardset);
+      this.cardset.show();
       let testTimes = 1;
       for (let index = 0; index < 1; index++) {
         const cards = this.generateCards(testTimes);

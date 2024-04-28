@@ -56,7 +56,8 @@ class CardBattleTestScene extends Scene_Message {
     ];
     const gameBoardTests = [
       // OpenAndCloseGameBoardWindowTest,
-      RefreshGameBoardWindowTest,
+      // RefreshGameBoardWindowTest,
+      UpdatingPointsGameBoardTest,
     ];
     this.tests = [
       // ...cardSpriteTests,
