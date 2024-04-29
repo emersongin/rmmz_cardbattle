@@ -30,7 +30,7 @@ class CardsetSpriteStaticModeState {
     sprite.toMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
   }
 
-  updateState() {
+  updateStatus() {
     // nothing
   }
 }

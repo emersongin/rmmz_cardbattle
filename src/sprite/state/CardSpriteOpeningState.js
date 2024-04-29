@@ -20,7 +20,7 @@ class CardSpriteOpeningState {
     this._interval = that.calculateTimeInterval(0, that.contentOriginalWidth(), that._duration);
   }
 
-  updateState() {
+  updateStatus() {
     const that = this._card;
     if (this.isUpdatingPosition() || this.isUpdatingOpening()) {
       this.updatePosition();

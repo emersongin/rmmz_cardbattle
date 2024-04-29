@@ -8,7 +8,7 @@ class CardsetSpriteSelectModeState {
     this.updateSpriteCards();
   }
 
-  updateState() {
+  updateStatus() {
     const cardset = this._cardset;
     const keys = ['right', 'left'];
     if (cardset.isAvailable()) this.updateCursor();

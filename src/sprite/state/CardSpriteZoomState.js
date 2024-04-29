@@ -41,7 +41,7 @@ class CardSpriteZoomState {
 
   }
 
-  updateState() {
+  updateStatus() {
     const that = this._card;
     if (
         this.isXpositionDifferent() || 

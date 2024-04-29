@@ -92,7 +92,6 @@ class CardBattleWindow extends Window_Base {
 
   commandUpdateValues(updates) {
     if (!(this.isOpen() && this.isStopped())) return;
-    console.log(updates, this._values);
     this.changeStatus(WindowUpdatedState, updates);
     return true;
   }

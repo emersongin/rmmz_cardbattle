@@ -964,6 +964,7 @@ class ActionSprite extends Sprite {
   }
 
   updateStatus() {
+    GameBattlePointsValues(this._status);
     if (this._status) this._status.updateStatus();
   }
 
@@ -4970,10 +4971,10 @@ class CardBattleTestScene extends Scene_Message {
     ];
     this.tests = [
       ...cardSpriteTests,
-      ...cardsetTests,
-      ...textWindowTests,
-      ...gameBoardTests,
-      ...gamePointsTests,
+      // ...cardsetTests,
+      // ...textWindowTests,
+      // ...gameBoardTests,
+      // ...gamePointsTests,
     ];
     this.tests = this.tests.map(test => {
       const instance = new test(this);

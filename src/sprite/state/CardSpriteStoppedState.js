@@ -5,7 +5,7 @@ class CardSpriteStoppedState {
     this._card = sprite;
   }
 
-  updateState() {
+  updateStatus() {
     // nothing
   }
 }
