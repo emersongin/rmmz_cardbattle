@@ -11,6 +11,7 @@
 // include ./data/playerDecksData.js
 // include ./helper/uuidv4.js
 // include ./helper/Helper.js
+// include ./helper/Generator.js
 // include ./window/CardBattleWindow.js
 // include ./window/TextWindow.js
 // include ./window/GameBoardWindow.js

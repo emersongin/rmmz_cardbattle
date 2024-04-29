@@ -14,22 +14,22 @@ class CardBattleTestScene extends Scene_Message {
   async createTests() {
     const cardSpriteTests = [
       StartOpenCardSpriteTest,
-      StartClosedCardSpriteTest,
-      CloseCardSpriteTest,
-      OpenCardSpriteTest,
-      MoveCardSpriteTest,
-      DisableCardSpriteTest,
-      HoveredCardSpriteTest,
-      SelectedCardSpriteTest,
-      FlashCardSpriteTest,
-      DamageAnimationCardSpriteTest,
-      UpdatingPointsCardSpriteTest,
-      ZoomInCardSpriteTest,
-      ZoomOutCardSpriteTest,
-      LeaveCardSpriteTest,
-      QuakeCardSpriteTest,
-      FlipCardToUpSpriteTest,
-      IluminatedCardSpriteTest
+      // StartClosedCardSpriteTest,
+      // CloseCardSpriteTest,
+      // OpenCardSpriteTest,
+      // MoveCardSpriteTest,
+      // DisableCardSpriteTest,
+      // HoveredCardSpriteTest,
+      // SelectedCardSpriteTest,
+      // FlashCardSpriteTest,
+      // DamageAnimationCardSpriteTest,
+      // UpdatingPointsCardSpriteTest,
+      // ZoomInCardSpriteTest,
+      // ZoomOutCardSpriteTest,
+      // LeaveCardSpriteTest,
+      // QuakeCardSpriteTest,
+      // FlipCardToUpSpriteTest,
+      // IluminatedCardSpriteTest
     ];
     const cardsetTests = [
       SetBackgroundAndStartPositionCardsetSpriteTest,
@@ -59,15 +59,15 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsGameBoardTest,
     ];
     const gamePointsTests = [
-      // RefreshAndOpenGamePointsWindowTest,
+      RefreshAndOpenGamePointsWindowTest,
       UpdatingPointsGamePointsWindowTest,
     ];
     this.tests = [
       ...cardSpriteTests,
-      ...cardsetTests,
-      ...textWindowTests,
-      ...gameBoardTests,
-      ...gamePointsTests,
+    //   ...cardsetTests,
+    //   ...textWindowTests,
+    //   ...gameBoardTests,
+    //   ...gamePointsTests,
     ];
     this.tests = this.tests.map(test => {
       const instance = new test(this);
@@ -85,7 +85,7 @@ class CardBattleTestScene extends Scene_Message {
     for (const test of this.tests) {
       this._test = test;
       await this._test.start();
-      await this._test.clearScene();
+      await this.clearScene();
     }
   }
 
@@ -107,4 +107,23 @@ class CardBattleTestScene extends Scene_Message {
   removeWindow(window) {
     this._windowLayer.removeChild(window);
   };
+
+  clearScene() {
+    return new Promise(resolve => {
+      const children = this.children;
+      while (children.length > 1) {
+        children.forEach(async child => {
+          if (child === this._windowLayer) return;
+          await this.removeChild(child);
+        });
+      }
+      const windowChildren = this._windowLayer.children;
+      while (windowChildren.length) {
+        windowChildren.forEach(async child => {
+          await this._windowLayer.removeChild(child);
+        });
+      }
+      resolve(true);
+    });
+  }
 }

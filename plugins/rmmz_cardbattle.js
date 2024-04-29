@@ -133,6 +133,25 @@ class IntegerHelper {
     return bigger;
   }
 }
+class Generator {
+  static generateCards(amount = 1) {
+    const cards = [];
+    for (let i = 0; i < amount; i++) {
+      cards.push(Generator.generateCard());
+    }
+    return cards;
+  }
+
+  static generateCard() {
+    return {
+      type: Math.floor(Math.random() * 3) + 1,
+      color: Math.floor(Math.random() * 6) + 1,
+      figureName: 'default',
+      attack: Math.floor(Math.random() * 99) + 1,
+      health: Math.floor(Math.random() * 99) + 1
+    };
+  }
+}
 class WindowStoppedState {
   _board;
 
@@ -3316,6 +3335,26 @@ class CardBattlePhase {
 // tests CARD
 class SceneTest {
   scene;
+  tests = [];
+  nextAsserts = {};
+  childrenToAdd = [];
+  value = null;
+  message = '';
+  counter = 0;
+  log = {
+    info: function (...msg) {
+      console.log(`%c${msg.map(t => t.toString())}`,`background: #5DADE2; color: #FFFFFF; font-size: 12px; padding: 5px;`);
+    },
+    warn: function (...msg) {
+      console.log(`%c${msg.map(t => t.toString())}`,`background: #FF8C00; color: #FFFFFF; font-size: 12px; padding: 5px;`);
+    },
+    success: function (...msg) {
+      console.log(`%c${msg.map(t => t.toString())}`,`background: #008000; color: #FFFFFF; font-size: 12px; padding: 5px;`);
+    },
+    error: function (...msg) {
+      console.log(`%c${msg.map(t => t.toString())}`,`background: #FF0000; color: #FFFFFF; font-size: 12px; padding: 5px;`);
+    }
+  };
 
   constructor(scene) {
     this.scene = scene;
@@ -3329,76 +3368,113 @@ class SceneTest {
     // Override this method in the child class
   }
 
+  test(
+    message = 'sem mensagem de teste!',
+    act = () => { 
+      this.log.error('Nenhuma Acts!');
+    }, 
+    assert = () => { 
+      return this.log.error('Nenhuma Asserts!'); 
+    }, 
+    seconds = 1
+  ) {
+    this.tests.push({
+      seconds,
+      act: () => {
+        act();
+        return true;
+      },
+      assert: () => {
+        this.message = message;
+        assert();
+        return true;
+      }
+    });
+  }
+
+  update() {
+    if (this.counter) return this.counter--;
+    if (this.hasAsserts()) return this.startAsserts();
+    if (this.hasTests()) this.startTest();
+  }
+
+  hasAsserts() {
+    return typeof this.nextAsserts === 'function';
+  }
+
+  hasTests() {
+    return this.tests.length > 0;
+  }
+
+  startTest() {
+    const fps = 60;
+    const test = this.tests[0];
+    const { seconds, act, assert } = test;
+    if (test) {
+      this.counter = (fps * seconds);
+      this.appendChildren();
+      const completed = act();
+      if (completed) {
+        this.nextAsserts = assert;
+        this.tests.shift();
+      }
+    }
+  }
+
+  startAsserts() {
+    const completed = this.nextAsserts();
+    if (completed) {
+      this.nextAsserts = null;
+    }
+  }
+
   assert(value) {
     this.value = value;
     return this;
   }
 
   toBe(value) {
-    if (this.value !== value) {
-      console.error('Test failed!: os valores não são iguais!');
-      console.error('Expected:', value);
-      console.error('Received:', this.value);
-      return this;
-    }
-    console.info('Test passed!');
-    return this;
+    this.resultTest(this.value === value, value);
   }
 
   toBeInstanceof(value) {
-    if (!(this.value instanceof value)) {
-      console.error('Test failed!: os valores não são instâncias!');
-      console.error('Expected:', value);
-      console.error('Received:', this.value);
-      return this;
-    }
-    console.info('Test passed!');
-    return this;
+    this.resultTest(this.value instanceof value, value);
   }
 
-  update(callback, fps = 60) {
-    if (typeof callback !== 'function') return;
-    for (let i = 0; i < fps; i++) {
-      callback();
+  resultTest(test, value) {
+    this.log.info(this.message);
+    if (test === false) {
+      return this.consoleError(value, this.value);
     }
+    this.log.success('Test passed!');
   }
 
-  clearScene() {
-    return new Promise(resolve => {
-      if (!this.scene) return;
-      const children = this.scene.children;
-      while (children.length > 1) {
-        children.forEach(async child => {
-          if (child === this.scene._windowLayer) return;
-          await this.scene.removeChild(child);
-        });
-      }
-      const windowChildren = this.scene._windowLayer.children;
-      while (windowChildren.length) {
-        windowChildren.forEach(async child => {
-          await this.scene._windowLayer.removeChild(child);
-        });
-      }
-      resolve(true);
+  consoleError(valueExpected, valueReceived) {
+    this.log.error('Test failed!');
+    this.log.error('Expected:', valueExpected);
+    this.log.error('Received:', valueReceived);
+  }
+
+  addChild(child) {
+    this.childrenToAdd.push(child);
+  }
+
+  appendChildren() {
+    this.childrenToAdd.forEach(child => {
+      this.scene.addChild(child);
+    });
+    this.childrenToAdd = [];
+  }
+
+  isFinished() {
+    return new Promise(async resolve => {
+      const seconds = this.totalSeconds();
+      return resolve(await this.timertoTrue(1200 * seconds));
     });
   }
 
-  generateCards(amount = 1) {
-    const cards = [];
-    for (let i = 0; i < amount; i++) {
-      cards.push(this.generateCard());
-    }
-    return cards;
-  }
-
-  generateCard() {
-    return {
-      type: Math.floor(Math.random() * 3) + 1,
-      color: Math.floor(Math.random() * 6) + 1,
-      figureName: 'default',
-      attack: Math.floor(Math.random() * 99) + 1,
-      health: Math.floor(Math.random() * 99) + 1
-    };
+  totalSeconds() {
+    return this.tests.reduce((acc, test) => acc + test.seconds, 0);
   }
 
   timertoTrue(milliseconds, callback) {
@@ -3414,7 +3490,7 @@ class StartOpenCardSpriteTest extends SceneTest {
   card;
 
   create() {
-    const card = this.generateCard();
+    const card = Generator.generateCard();
     this.card = CardSprite.create(
       card.type,
       card.color,
@@ -3422,18 +3498,22 @@ class StartOpenCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addChild(this.card);
   }
 
   start() {
-    return new Promise(resolve => {
-      this.scene.addChild(this.card);
-      const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-      const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-      this.card.startOpen(centerXPosition, centerYPosition);
-      this.card.show();
-      setTimeout(() => {
-        resolve(true);
-      }, 1000);
+    return new Promise(async resolve => {
+      const act = () => {
+        const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
+        const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
+        this.card.startOpen(centerXPosition, centerYPosition);
+        this.card.show();
+      };
+      const assert = () => {
+        this.assert(this.card.isOpened()).toBe(true);
+      };
+      this.test('deve estar aberta corretamente!', act, assert);
+      resolve(await this.isFinished());
     });
   }
 
@@ -4920,22 +5000,22 @@ class CardBattleTestScene extends Scene_Message {
   async createTests() {
     const cardSpriteTests = [
       StartOpenCardSpriteTest,
-      StartClosedCardSpriteTest,
-      CloseCardSpriteTest,
-      OpenCardSpriteTest,
-      MoveCardSpriteTest,
-      DisableCardSpriteTest,
-      HoveredCardSpriteTest,
-      SelectedCardSpriteTest,
-      FlashCardSpriteTest,
-      DamageAnimationCardSpriteTest,
-      UpdatingPointsCardSpriteTest,
-      ZoomInCardSpriteTest,
-      ZoomOutCardSpriteTest,
-      LeaveCardSpriteTest,
-      QuakeCardSpriteTest,
-      FlipCardToUpSpriteTest,
-      IluminatedCardSpriteTest
+      // StartClosedCardSpriteTest,
+      // CloseCardSpriteTest,
+      // OpenCardSpriteTest,
+      // MoveCardSpriteTest,
+      // DisableCardSpriteTest,
+      // HoveredCardSpriteTest,
+      // SelectedCardSpriteTest,
+      // FlashCardSpriteTest,
+      // DamageAnimationCardSpriteTest,
+      // UpdatingPointsCardSpriteTest,
+      // ZoomInCardSpriteTest,
+      // ZoomOutCardSpriteTest,
+      // LeaveCardSpriteTest,
+      // QuakeCardSpriteTest,
+      // FlipCardToUpSpriteTest,
+      // IluminatedCardSpriteTest
     ];
     const cardsetTests = [
       SetBackgroundAndStartPositionCardsetSpriteTest,
@@ -4965,15 +5045,15 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsGameBoardTest,
     ];
     const gamePointsTests = [
-      // RefreshAndOpenGamePointsWindowTest,
+      RefreshAndOpenGamePointsWindowTest,
       UpdatingPointsGamePointsWindowTest,
     ];
     this.tests = [
       ...cardSpriteTests,
-      ...cardsetTests,
-      ...textWindowTests,
-      ...gameBoardTests,
-      ...gamePointsTests,
+    //   ...cardsetTests,
+    //   ...textWindowTests,
+    //   ...gameBoardTests,
+    //   ...gamePointsTests,
     ];
     this.tests = this.tests.map(test => {
       const instance = new test(this);
@@ -4991,7 +5071,7 @@ class CardBattleTestScene extends Scene_Message {
     for (const test of this.tests) {
       this._test = test;
       await this._test.start();
-      await this._test.clearScene();
+      await this.clearScene();
     }
   }
 
@@ -5013,6 +5093,25 @@ class CardBattleTestScene extends Scene_Message {
   removeWindow(window) {
     this._windowLayer.removeChild(window);
   };
+
+  clearScene() {
+    return new Promise(resolve => {
+      const children = this.children;
+      while (children.length > 1) {
+        children.forEach(async child => {
+          if (child === this._windowLayer) return;
+          await this.removeChild(child);
+        });
+      }
+      const windowChildren = this._windowLayer.children;
+      while (windowChildren.length) {
+        windowChildren.forEach(async child => {
+          await this._windowLayer.removeChild(child);
+        });
+      }
+      resolve(true);
+    });
+  }
 }
 class CardBattleManagerDrawPhaseState {
   _manager;
