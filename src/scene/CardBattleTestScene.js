@@ -59,13 +59,13 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsGameBoardTest,
     ];
     const gamePointsTests = [
-      RefreshAndOpenGamePointsWindowTest,
+      // RefreshAndOpenGamePointsWindowTest,
       UpdatingPointsGamePointsWindowTest,
     ];
     this.tests = [
-      // ...cardSpriteTests,
-      // ...cardsetTests,
-      // ...textWindowTests,
+      ...cardSpriteTests,
+      ...cardsetTests,
+      ...textWindowTests,
       ...gameBoardTests,
       ...gamePointsTests,
     ];

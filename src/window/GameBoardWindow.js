@@ -1,40 +1,37 @@
-// include ./state/GameBoardWindowStoppedState.js
-// include ./state/GameBoardWindowUpdatedState.js
-
 class GameBoardWindow extends CardBattleWindow {
   initialize(rect) {
-    this._redPoints = 0;
-    this._bluePoints = 0;
-    this._greenPoints = 0;
-    this._blackPoints = 0;
-    this._whitePoints = 0;
-    this._numCardsInDeck = 0;
-    this._numCardsInHand = 0;
-    this._status = {};
-    this._updates = [];
-    this.stop();
     super.initialize(rect);
+    this.setup();
+    this.reset();
   }
 
-  stop() {
-    this.changeStatus(GameBoardWindowStoppedState);
+  setup() {
+    this.addValue(GameBoardValues.RED_POINTS, 0);
+    this.addValue(GameBoardValues.BLUE_POINTS, 0);
+    this.addValue(GameBoardValues.GREEN_POINTS, 0);
+    this.addValue(GameBoardValues.BLACK_POINTS, 0);
+    this.addValue(GameBoardValues.WHITE_POINTS, 0);
+    this.addValue(GameBoardValues.NUM_CARDS_IN_DECK, 0);
+    this.addValue(GameBoardValues.NUM_CARDS_IN_HAND, 0);
   }
 
-  changeStatus(status, ...params) {
-    this._status = new status(this, ...params);
-  }
-
-  addUpdate(fn, ...params) {
-    const update = this.createUpdate(fn, ...params);
-    this._updates.push(update);
-  }
-
-  createUpdate(fn, ...params) {
-    const action = {
-      fn: fn.name || 'anonymous',
-      execute: () => fn.call(this, ...params)
-    };
-    return action;
+  reset() {
+    const attackUpdate = GameBoardWindow.createValueUpdate(GameBoardValues.RED_POINTS, 0);
+    const healthUpdate = GameBoardWindow.createValueUpdate(GameBoardValues.BLUE_POINTS, 0);
+    const greenUpdate = GameBoardWindow.createValueUpdate(GameBoardValues.GREEN_POINTS, 0);
+    const blackUpdate = GameBoardWindow.createValueUpdate(GameBoardValues.BLACK_POINTS, 0);
+    const whiteUpdate = GameBoardWindow.createValueUpdate(GameBoardValues.WHITE_POINTS, 0);
+    const numCardsInDeckUpdate = GameBoardWindow.createValueUpdate(GameBoardValues.NUM_CARDS_IN_DECK, 0);
+    const numCardsInHandUpdate = GameBoardWindow.createValueUpdate(GameBoardValues.NUM_CARDS_IN_HAND, 0); 
+    this.updateValues([
+      attackUpdate,
+      healthUpdate,
+      greenUpdate,
+      blackUpdate,
+      whiteUpdate,
+      numCardsInDeckUpdate,
+      numCardsInHandUpdate
+    ]);
   }
 
   static create(x, y, width, height) {
@@ -51,6 +48,10 @@ class GameBoardWindow extends CardBattleWindow {
     const width = Graphics.boxWidth;
     const height = CardBattleWindow.minHeight();
     return GameBoardWindow.create(x, y, width, height);
+  }
+
+  static createValueUpdate(name, value) {
+    return CardBattleWindow.createValueUpdate(name, value);
   }
 
   refresh() {
@@ -98,11 +99,11 @@ class GameBoardWindow extends CardBattleWindow {
     const xPositionBluePoints = 232;
     const xPositionGreenPoints = 328;
     const xPositionBlackPoints = 424;
-    const redPoints = StringHelper.convertPointsDisplayPad(this._redPoints);
-    const bluePoints = StringHelper.convertPointsDisplayPad(this._bluePoints);
-    const greenPoints = StringHelper.convertPointsDisplayPad(this._greenPoints);
-    const blackPoints = StringHelper.convertPointsDisplayPad(this._blackPoints);
-    const whitePoints = StringHelper.convertPointsDisplayPad(this._whitePoints);
+    const redPoints = this.getValueAndconvertToDisplayPad(GameBoardValues.RED_POINTS);
+    const bluePoints = this.getValueAndconvertToDisplayPad(GameBoardValues.BLUE_POINTS);
+    const greenPoints = this.getValueAndconvertToDisplayPad(GameBoardValues.GREEN_POINTS);
+    const blackPoints = this.getValueAndconvertToDisplayPad(GameBoardValues.BLACK_POINTS);
+    const whitePoints = this.getValueAndconvertToDisplayPad(GameBoardValues.WHITE_POINTS);
     this.contents.drawText(whitePoints, xPositionWhitePoints, yPosition, width, height);
     this.contents.drawText(redPoints, xPositonRedPoints, yPosition, width, height);
     this.contents.drawText(bluePoints, xPositionBluePoints, yPosition, width, height);
@@ -116,70 +117,9 @@ class GameBoardWindow extends CardBattleWindow {
     const yPosition = 0;
     const xPositionHand = this.contents.width - 96 + 40;
     const xPositionDeck = this.contents.width - 192 + 40;
-    const handPoints = StringHelper.convertPointsDisplayPad(this._numCardsInHand);
-    const deckPoints = StringHelper.convertPointsDisplayPad(this._numCardsInDeck);
+    const handPoints = this.getValueAndconvertToDisplayPad(GameBoardValues.NUM_CARDS_IN_HAND);
+    const deckPoints = this.getValueAndconvertToDisplayPad(GameBoardValues.NUM_CARDS_IN_DECK);
     this.contents.drawText(handPoints, xPositionHand, yPosition, width, height);
     this.contents.drawText(deckPoints, xPositionDeck, yPosition, width, height);
-  }
-
-  static createPointsUpdate(points, name) {
-    return { name, points };
-  }
-
-  changePoints(updates) {
-    updates = Array.isArray(updates) ? updates : [updates];
-    this.addUpdate(this.commandChangePoints, updates);
-  }
-
-  reset() {
-    this._redPoints = 0;
-    this._bluePoints = 0;
-    this._greenPoints = 0;
-    this._blackPoints = 0;
-    this._whitePoints = 0;
-    this._numCardsInDeck = 0;
-    this._numCardsInHand = 0;
-    this.refresh();
-  }
-
-  commandChangePoints(fields) {
-    if (!(this.isOpen() && this.isStopped())) return;
-    this.changeStatus(GameBoardWindowUpdatedState, fields);
-    return true;
-  }
-
-  isStopped() {
-    return this.getStatus() instanceof GameBoardWindowStoppedState;
-  }
-
-  getStatus() {
-    return this._status;
-  }
-
-  isBusy() {
-    return this.isUpdating();
-  }
-
-  isUpdating() {
-    return this.getStatus() instanceof GameBoardWindowUpdatedState;
-  }
-
-  update() {
-    if (this.hasUpdates() && this.isStopped()) this.executeUpdate();
-    if (this.isOpen() && this.getStatus()) this._status.updateStatus();
-    super.update();
-  }
-
-  hasUpdates() {
-    return this._updates.length > 0;
-  }
-
-  executeUpdate() {
-    const updates = this._updates;
-    if (updates.length > 0) {
-      const update = updates[0];
-      const executed = update.execute();
-      if (executed) updates.shift();
-    }
   }
 }

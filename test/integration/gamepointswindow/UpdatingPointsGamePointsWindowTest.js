@@ -11,24 +11,27 @@ class UpdatingPointsGamePointsWindowTest extends SceneTest {
       this.scene.addWindow(this.gamePoints);
       this.gamePoints.refresh();
       this.gamePoints.open();
-      const attackPoints = 30;
-      const healtPoints = 30;
-      await this.timertoTrue(2000, () => {
-        this.gamePoints.changePoints(attackPoints);
+      const updateAttackPoints = GamePointsWindow.createValueUpdate(GameBattlePointsValues.ATTACK_POINTS, 30);
+      const updateHealtPoints = GamePointsWindow.createValueUpdate(GameBattlePointsValues.HEALTH_POINTS, 30);
+      await this.timertoTrue(1200, () => {
+        this.gamePoints.updateValues(updateAttackPoints);
       });
-      await this.timertoTrue(600, () => {
+      await this.timertoTrue(1200, () => {
         this.gamePoints.reset();
       });
-      await this.timertoTrue(2000, () => {
-        this.gamePoints.changePoints(undefined, healtPoints);
+      await this.timertoTrue(1200, () => {
+        this.gamePoints.updateValues(updateHealtPoints);
       });
-      await this.timertoTrue(600, () => {
+      await this.timertoTrue(1200, () => {
         this.gamePoints.reset();
       });
-      await this.timertoTrue(2000, () => {
-        this.gamePoints.changePoints(attackPoints, healtPoints);
+      await this.timertoTrue(1200, () => {
+        this.gamePoints.updateValues([
+          updateAttackPoints,
+          updateHealtPoints
+        ]);
       });
-      await this.timertoTrue(600, () => {
+      await this.timertoTrue(1200, () => {
         this.gamePoints.reset();
       });
       resolve(true);

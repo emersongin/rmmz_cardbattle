@@ -1,4 +1,4 @@
-class GameBoardWindowStoppedState {
+class WindowStoppedState {
   _board;
 
   constructor(window) {

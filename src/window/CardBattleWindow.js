@@ -1,14 +1,27 @@
-class CardBattleWindow extends Window_Base {
-  _text = [];
-  
+// include ./state/WindowStoppedState.js
+// include ./state/WindowUpdatedState.js
+
+class CardBattleWindow extends Window_Base { 
   initialize(rect) {
     super.initialize(rect);
     this._iconset = "IconSet";
+    this._values = {};
+    this._status = {};
+    this._updates = [];
     this.closed();
+    this.stop();
   }
   
   closed() {
     this._openness = 0;
+  }
+
+  stop() {
+    this.changeStatus(WindowStoppedState);
+  }
+
+  changeStatus(status, ...params) {
+    this._status = new status(this, ...params);
   }
 
   static create(x, y, width, height) {
@@ -21,122 +34,79 @@ class CardBattleWindow extends Window_Base {
     return CardBattleWindow.create(x, y, width, height);
   }
 
+  static minHeight() {
+    return 60;
+  }
+
   static createWindowFullSize(x, y) {
     const width = Graphics.boxWidth;
     const height = CardBattleWindow.minHeight();
     return CardBattleWindow.create(x, y, width, height);
   }
 
-  static minHeight() {
-    return 60;
+  update() {
+    if (this.hasUpdates() && this.isStopped()) this.executeUpdate();
+    if (this.isOpen() && this.getStatus()) this._status.updateStatus();
+    super.update();
   }
 
-  renderTextExCenter() {
-    this.renderTextEx('CENTER');
+  hasUpdates() {
+    return this._updates.length > 0;
   }
 
-  renderTextEx(align = 'LEFT') {
-    if (this._text.length) {
-      const text = this.processText();
-      const textWidth = this.getTextWidth(text);
-      const xPosition = this.getAlignText(textWidth, align);
-      this.resize(text);
-      this.drawTextEx(text, xPosition);
+  isStopped() {
+    return this.getStatus() instanceof WindowStoppedState;
+  }
+
+  getStatus() {
+    return this._status;
+  }
+
+  executeUpdate() {
+    const updates = this._updates;
+    if (updates.length > 0) {
+      const update = updates[0];
+      const executed = update.execute();
+      if (executed) updates.shift();
     }
   }
 
-  drawTextEx(text = '', x = 0, y = 0, width = this.width) {
-    super.drawTextEx(text, x, y, width);
+  drawIcon(iconIndex, x, y) {
+    const bitmap = ImageManager.loadSystem(this._iconset);
+    const pw = ImageManager.iconWidth;
+    const ph = ImageManager.iconHeight;
+    const sx = (iconIndex % 16) * pw;
+    const sy = Math.floor(iconIndex / 16) * ph;
+    this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
+  };
+
+  updateValues(updates) {
+    updates = Array.isArray(updates) ? updates : [updates];
+    this.addUpdate(this.commandUpdateValues, updates);
   }
 
-  renderTextCenter() {
-    this.renderText('CENTER');
+  addUpdate(fn, ...params) {
+    const update = this.createUpdate(fn, ...params);
+    this._updates.push(update);
   }
 
-  renderText(align = 'LEFT') {
-    if (this._text.length) {
-      const text = this.processText();
-      const textWidth = this.getTextWidth(text);
-      const xPosition = this.getAlignText(textWidth, align);
-      const yPosition = 0;
-      this.resize(text);
-      this.drawText(text, xPosition, yPosition, align);
-    }
+  commandUpdateValues(updates) {
+    if (!(this.isOpen() && this.isStopped())) return;
+    console.log(updates, this._values);
+    this.changeStatus(WindowUpdatedState, updates);
+    return true;
   }
 
-  drawText(text = '', x = 0, y = 0, align = 'left', width = this.width) {
-    super.drawText(text, x, y, width, align);
+  createUpdate(fn, ...params) {
+    const action = {
+      fn: fn.name || 'anonymous',
+      execute: () => fn.call(this, ...params)
+    };
+    return action;
   }
 
-  processText() {
-    let content = [];
-    const length = this._text.length;
-    this._text.forEach((text, index) => { 
-      content.push(text);
-      const isGreaterThanOne = length > 1;
-      const isNotLast = length !== (index + 1);
-      const isNotSpecialLine = text[0] != '\\';
-      console.log(isGreaterThanOne, isNotLast, isNotSpecialLine);
-      if (isGreaterThanOne && isNotLast && isNotSpecialLine) content.push('\n');
-    });
-    return content.join('');
-  }
-
-  getAlignText(textWidth, align) {
-    switch (align) {
-      case 'CENTER':
-        return (this.contentsWidth() / 2) - (textWidth / 2);
-      case 'RIGHT':
-        return this.contentsWidth() - textWidth;
-      default:
-        return 0;
-    }
-  }
-
-  resize(text) {
-    this.resizeContent(text);
-    this.resizeWindow(text);
-  }
-
-  resizeContent(text) {
-    const contentWidth = this.calculeTextMinHeight(text);
-    this.contents.resize(contentWidth, this.calculeTextHeight());
-  }
-
-  calculeTextMinHeight(text) {
-    const textWidth = this.calculeTextWidth(text);
-    return this.width > textWidth ? this.width : textWidth;
-  }
-
-  resizeWindow(text) {
-    const contentWidth = this.calculeTextMinHeight(text);
-    const windowPadding = this.padding + this.itemPadding();
-    const width = Math.ceil(contentWidth) + windowPadding + 6;
-    const windowWidth = Math.min(width, Graphics.boxWidth);
-    this.move(this.x, this.y, windowWidth, this.calculeTextHeight());
-  }
-
-  calculeTextWidth(text) {
-    console.log(text);
-    let width = this.getTextWidth(text);
-    width = Math.ceil(width);
-    return Math.min(width, Graphics.boxWidth);
-  }
-
-  getTextWidth(text) {
-    const textState = this.createTextState(text, 0, 0, 0);
-    textState.drawing = false;
-    this.processAllText(textState);
-    return textState.outputWidth;
-  }
-
-  calculeTextHeight() {
-    return this.fittingHeight(this.numLines());
-  }
-
-  numLines() {
-    const lines = this._text.filter(text => text[0] !== "\\");
-    return lines.length;
+  static createValueUpdate(name, value) {
+    return { name, value };
   }
 
   setVerticalPosition(position) {
@@ -158,47 +128,54 @@ class CardBattleWindow extends Window_Base {
   }
 
   isBusy() {
-    return this.isOpening() || this.isClosing();
+    return this.isOpening() || this.isClosing() || this.isUpdating();
   }
+
+  isUpdating() {
+    return this.getStatus() instanceof WindowUpdatedState;
+  }
+
+  refresh() {
+    this.contents.clear();
+  }
+
+  addValue(name, value) {
+    if (this._values.hasOwnProperty(name)) {
+      return this.setValue(name, value);
+    }
+    Object.defineProperty(this._values, name, {
+        value: value,
+        writable: true,
+        enumerable: true,
+        configurable: true
+    });
+  }
+
+  setValue(name, value) {
+    this._values[name] = value;
+  }
+
+  getValue(name) {
+    return this._values[name];
+  }
+
+  getValueAndconvertToDisplay(name) {
+    const points = this.getValue(name) || 0;
+    return StringHelper.convertPointsDisplay(points);
+  }
+
+  getValueAndconvertToDisplayPad(name) {
+    const pad = 2;
+    const points = this.getValue(name) || 0;
+    return StringHelper.convertPointsDisplayPad(points, pad);
+  }
+
+
+
+
+
 
   setTextColor(color) {
     this.changeTextColor(color || ColorManager.normalColor());
-  }
-
-  changeTextColorHere(colorIndex) {
-    const colorText = `\\c[${colorIndex}]`;
-    const noSpace = false;
-    this.appendText(colorText, noSpace);
-  }
-
-  appendText(text, space = true) {
-    const length = this._text.length;
-    const lastText = this._text[length - 1];
-    if (length && lastText && lastText[0] !== '\\') {
-      this._text[length - 1] = `${lastText}${space ? ' ' : ''}${text.trim()}`;
-    } else {
-      this.addText(text);
-    }
-  }
-
-  addText(text = '') {
-    this._text.push(text.trim());
-  }
-
-  drawIcon(iconIndex, x, y) {
-    const bitmap = ImageManager.loadSystem(this._iconset);
-    const pw = ImageManager.iconWidth;
-    const ph = ImageManager.iconHeight;
-    const sx = (iconIndex % 16) * pw;
-    const sy = Math.floor(iconIndex / 16) * ph;
-    this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
-  };
-
-  refresh() {
-    this.clearContent();
-  }
-
-  clearContent() {
-    this.contents.clear();
   }
 }

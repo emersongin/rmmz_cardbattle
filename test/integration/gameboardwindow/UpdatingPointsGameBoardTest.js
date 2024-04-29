@@ -11,21 +11,21 @@ class UpdatingPointsGameBoardTest extends SceneTest {
       this.scene.addWindow(this.gameboard);
       this.gameboard.refresh();
       this.gameboard.open();
-      const updateRedPoints = GameBoardWindow.createPointsUpdate(10, 'RED');
-      const updateBluePoints = GameBoardWindow.createPointsUpdate(10, 'BLUE');
-      const updateGreenPoints = GameBoardWindow.createPointsUpdate(10, 'GREEN');
-      const updateBlackPoints = GameBoardWindow.createPointsUpdate(10, 'BLACK');
-      const updateWhitePoints = GameBoardWindow.createPointsUpdate(10, 'WHITE');
-      const updateDeckPoints = GameBoardWindow.createPointsUpdate(10, 'DECK');
-      const updateHandPoints = GameBoardWindow.createPointsUpdate(10, 'HAND');
+      const updateRedPoints = GameBoardWindow.createValueUpdate(GameBoardValues.RED_POINTS, 10);
+      const updateBluePoints = GameBoardWindow.createValueUpdate(GameBoardValues.BLUE_POINTS, 10);
+      const updateGreenPoints = GameBoardWindow.createValueUpdate(GameBoardValues.GREEN_POINTS, 10);
+      const updateBlackPoints = GameBoardWindow.createValueUpdate(GameBoardValues.BLACK_POINTS, 10);
+      const updateWhitePoints = GameBoardWindow.createValueUpdate(GameBoardValues.WHITE_POINTS, 10);
+      const updateDeckPoints = GameBoardWindow.createValueUpdate(GameBoardValues.NUM_CARDS_IN_DECK, 10);
+      const updateHandPoints = GameBoardWindow.createValueUpdate(GameBoardValues.NUM_CARDS_IN_HAND, 10);
       await this.timertoTrue(5000, () => {
-        this.gameboard.changePoints(updateWhitePoints);
-        this.gameboard.changePoints(updateRedPoints);
-        this.gameboard.changePoints(updateBluePoints);
-        this.gameboard.changePoints(updateGreenPoints);
-        this.gameboard.changePoints(updateBlackPoints);
-        this.gameboard.changePoints(updateDeckPoints);
-        this.gameboard.changePoints(updateHandPoints);
+        this.gameboard.updateValues(updateWhitePoints);
+        this.gameboard.updateValues(updateRedPoints);
+        this.gameboard.updateValues(updateBluePoints);
+        this.gameboard.updateValues(updateGreenPoints);
+        this.gameboard.updateValues(updateBlackPoints);
+        this.gameboard.updateValues(updateDeckPoints);
+        this.gameboard.updateValues(updateHandPoints);
       });
       await this.timertoTrue(600, () => {
         this.gameboard.reset();
@@ -40,7 +40,7 @@ class UpdatingPointsGameBoardTest extends SceneTest {
           updateDeckPoints,
           updateHandPoints
         ];
-        this.gameboard.changePoints(manyUpdates);
+        this.gameboard.updateValues(manyUpdates);
       });
       await this.timertoTrue(600, () => {
         this.gameboard.close();

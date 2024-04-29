@@ -1,21 +1,19 @@
-// include ./state/GamePointsWindowStoppedState.js
-// include ./state/GamePointsWindowUpdatedState.js
-
 class GamePointsWindow extends CardBattleWindow {
   initialize(rect) {
     super.initialize(rect);
-    this._attackPoints = 0;
-    this._healthPoints = 0;
-    this._status = {};
-    this.stop();
+    this.setup();
+    this.reset();
   }
 
-  stop() {
-    this.changeStatus(GamePointsWindowStoppedState);
+  setup() {
+    this.addValue(GameBattlePointsValues.ATTACK_POINTS, 0);
+    this.addValue(GameBattlePointsValues.HEALTH_POINTS, 0);
   }
 
-  changeStatus(status, ...params) {
-    this._status = new status(this, ...params);
+  reset() {
+    const attackUpdate = GamePointsWindow.createValueUpdate(GameBattlePointsValues.ATTACK_POINTS, 0);
+    const healthUpdate = GamePointsWindow.createValueUpdate(GameBattlePointsValues.HEALTH_POINTS, 0);
+    this.updateValues([attackUpdate, healthUpdate]);
   }
 
   static create(x, y) {
@@ -24,14 +22,18 @@ class GamePointsWindow extends CardBattleWindow {
     return new GamePointsWindow(new Rectangle(x, y, width, height));
   }
 
+  static createValueUpdate(name, value) {
+    return CardBattleWindow.createValueUpdate(name, value);
+  }
+
   refresh() {
     super.refresh();
     this.drawPoints();
   }
 
   drawPoints() {
-    const attack = StringHelper.convertPointsDisplay(this._attackPoints);
-    const health = StringHelper.convertPointsDisplay(this._healthPoints);
+    const attack = this.getValueAndconvertToDisplay(GameBattlePointsValues.ATTACK_POINTS);
+    const health = this.getValueAndconvertToDisplay(GameBattlePointsValues.HEALTH_POINTS);
     const points = `AP ${attack} HP ${health}`;
     this.contents.drawText(
       points, 
@@ -41,34 +43,5 @@ class GamePointsWindow extends CardBattleWindow {
       this.contents.height,
       'center'
     );
-  }
-
-  changePoints(attackPoints = this._attackPoints, healthPoints = this._healthPoints) {
-    if (this.isUpdating()) return;
-    this.changeStatus(GamePointsWindowUpdatedState, attackPoints, healthPoints);
-  }
-
-  getStatus() {
-    return this._status;
-  }
-
-  isUpdating() {
-    return this.getStatus() instanceof GamePointsWindowUpdatedState;
-  }
-
-  isStopped() {
-    return this.getStatus() instanceof GamePointsWindowStoppedState;
-  }
-
-  reset() {
-    if (this.isUpdating()) return;
-    this._attackPoints = 0;
-    this._healthPoints = 0;
-    this.refresh();
-  }
-
-  update() {
-    if (this.getStatus()) this._status.updateStatus();
-    super.update();
   }
 }

@@ -1,0 +1,4 @@
+const GameBattlePointsValues = {
+  ATTACK_POINTS: 'ATTACK_POINTS',
+  HEALTH_POINTS: 'HEALTH_POINTS'
+};

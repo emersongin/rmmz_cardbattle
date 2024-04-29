@@ -7,7 +7,7 @@ class CardBattleManagerDrawPhaseState {
   }
 
   update() {
-    console.log('Draw phase updated');
+    // TODO: Implement update
   }
 
 }

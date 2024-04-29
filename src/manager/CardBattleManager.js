@@ -62,7 +62,6 @@ class CardBattleManager {
     const cards = playerDecksData[index].cards;
     const cardset = this.createCardset(cards);
     this._player.setDeck(cardset);
-    console.log(cardset);
   }
 
   static hasPlayerDeck() {

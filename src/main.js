@@ -6,6 +6,8 @@
 // include ./constant/CardTypes.js
 // include ./constant/HexColors.js
 // include ./constant/IconSet.js
+// include ./constant/GameBoardValues.js
+// include ./constant/GameBattlePointsValues.js
 // include ./data/playerDecksData.js
 // include ./helper/uuidv4.js
 // include ./helper/Helper.js
