@@ -7,25 +7,33 @@ class StartClosedAndOpenCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
+    this.addChild(this.cardset);
   }
 
   start() {
-    return new Promise(async resolve => {
-      this.scene.addChild(this.cardset);
+    return new Promise(async res => {
       this.cardset.show();
-      let testTimes = 1;
-      for (let index = 0; index < 6; index++) {
-        const cards = this.generateCards(testTimes);
-        await this.testCards(cards);
-        testTimes++;
+      let times = 1;
+      for (let i = 0; i < 6; i++) {
+        const cards = Generator.generateCards(times);
+        await this.test('Deve abrir todos os cartões do set!', async () => {
+          await this.testCards(cards);
+        }, () => {
+          this.assert(this.cardset.allCardsOpened()).toBe(true);
+        });
+        times++;
       }
-      testTimes = 40;
-      for (let index = 0; index < 1; index++) {
-        const cards = this.generateCards(testTimes);
-        await this.testDelayCards(cards);
-        testTimes++;
+      times = 40;
+      for (let i = 0; i < 1; i++) {
+        const cards = Generator.generateCards(times);
+        await this.test('Deve abrir todos os cartões do set!', async () => {
+          await this.testDelayCards(cards);
+        }, () => {
+          this.assert(this.cardset.allCardsOpened()).toBe(true);
+        });
+        times++;
       }
-      resolve(true);
+      res(true);
     });
   }
 

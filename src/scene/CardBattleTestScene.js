@@ -32,18 +32,18 @@ class CardBattleTestScene extends Scene_Message {
       IluminatedCardSpriteTest
     ];
     const cardsetTests = [
-      SetBackgroundAndStartPositionCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      StartPositionCardsCardsetSpriteTest,
-      StartListCardsCardsetSpriteTest,
-      StartClosedAndOpenCardsCardsetSpriteTest,
-      MoveCardsToListCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
+      // SetBackgroundAndStartPositionCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      // StartPositionCardsCardsetSpriteTest,
+      // StartListCardsCardsetSpriteTest,
+      // StartClosedAndOpenCardsCardsetSpriteTest,
+      // MoveCardsToListCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
       AddCardAndMoveToListCardsetSpriteTest,
-      SelectModeCardsetSpriteTest,
-      DisableAndEnableCardsCardsetSpriteTest,
-      SelectModeAndEnableChoiceCardsetSpriteTest,
-      AnimateCardsCardsetSpriteTest
+      // SelectModeCardsetSpriteTest,
+      // DisableAndEnableCardsCardsetSpriteTest,
+      // SelectModeAndEnableChoiceCardsetSpriteTest,
+      // AnimateCardsCardsetSpriteTest
     ];
     const textWindowTests = [
       OpenAndCloseTextWindowTest,
@@ -63,8 +63,8 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsGamePointsWindowTest,
     ];
     this.tests = [
-      ...cardSpriteTests,
-    //   ...cardsetTests,
+      // ...cardSpriteTests,
+      ...cardsetTests,
     //   ...textWindowTests,
     //   ...gameBoardTests,
     //   ...gamePointsTests,

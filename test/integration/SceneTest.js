@@ -136,7 +136,7 @@ class SceneTest {
     return this.tests.reduce((acc, test) => acc + test.seconds, 0);
   }
 
-  timertoTrue(milliseconds, callback) {
+  timertoTrue(milliseconds = 600, callback) {
     if (callback) callback();
     return new Promise(resolve => {
       setTimeout(() => {
