@@ -2,7 +2,7 @@ class FlashCardSpriteTest extends SceneTest {
   card;
 
   create() {
-    const card = this.generateCard();
+    const card = Generator.generateCard();
     this.card = CardSprite.create(
       card.type,
       card.color,
@@ -13,36 +13,21 @@ class FlashCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
+    this.addChild(this.card);
   }
 
   start() {
-    return new Promise(resolve => {
-      setTimeout(() => {
+    return new Promise(async res => {
+      await this.test('O cartão deve receber um flash de luz!', () => {
         const color = 'white';
         const duration = 60;
-        const times = 1;
-        this.scene.addChild(this.card);
+        const infinity = -1;
         this.card.show();
-        this.card.flash(color, duration, times);
-        setTimeout(() => {
-          this.scene.removeChild(this.card);
-          resolve(true);
-        }, 2000);
-      }, 300);
+        this.card.flash(color, duration, infinity);
+      }, () => {
+        this.assert(this.card.isFlashPlaying()).toBe(true);
+      });
+      res(true);
     });
   } 
-
-  testInfinityFlash() {
-    this.card.show();
-    setTimeout(() => {
-      const color = 'white';
-      const duration = 60;
-      const infinity = -1;
-      this.card.flash(color, duration, infinity);
-      setTimeout(() => {
-        this.card.stopFlash();
-      }, 3000);
-    }, 300);
-  }
-
 }

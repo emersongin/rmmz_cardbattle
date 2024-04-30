@@ -2,7 +2,7 @@ class DisableCardSpriteTest extends SceneTest {
   card;
 
   create() {
-    const card = this.generateCard();
+    const card = Generator.generateCard();
     this.card = CardSprite.create(
       card.type,
       card.color,
@@ -13,20 +13,23 @@ class DisableCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
+    this.addChild(this.card);
   }
 
   start() {
-    return new Promise(resolve => {
-      this.scene.addChild(this.card);
+    return new Promise(async res => {
       this.card.show();
-      this.card.disable();
-      setTimeout(() => {
+      await this.test('Deve desabilitar o cartão!', () => {
+        this.card.disable();
+      }, () => {
+        this.assert(this.card.isDisabled()).toBe(true);
+      });
+      await this.test('Deve habilitar o cartão!', () => {
         this.card.enable();
-        setTimeout(() => {
-          resolve(true);
-        }, 300);
-      }, 1000);
+      }, () => {
+        this.assert(this.card.isEnabled()).toBe(true);
+      });
+      res(true);
     });
   }
-
 }

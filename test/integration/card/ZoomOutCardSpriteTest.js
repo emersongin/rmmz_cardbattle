@@ -2,7 +2,7 @@ class ZoomOutCardSpriteTest extends SceneTest {
   card;
 
   create() {
-    const card = this.generateCard();
+    const card = Generator.generateCard();
     this.card = CardSprite.create(
       card.type,
       card.color,
@@ -16,17 +16,17 @@ class ZoomOutCardSpriteTest extends SceneTest {
     this.card.y = centerYPosition - ((this.card.height / 2) / 2);
     this.card.scale.x = (this.card.scale.x / 2) * 3;
     this.card.scale.y = (this.card.scale.y / 2) * 3;
+    this.addChild(this.card);
   }
 
   start() {
-    return new Promise(resolve => {
-      this.scene.addChild(this.card);
-      this.card.show();
-      this.card.zoomOut();
-      setTimeout(() => {
-        resolve(true);
-      }, 1000);
+    return new Promise(async res => {
+      res(await this.test('Deve retonar a escala normal do cartão!', () => {
+        this.card.show();
+        this.card.zoomOut();
+      }, () => {
+        this.assert(this.card.isOriginalScale()).toBe(true);
+      }));
     });
   }
-
 }

@@ -7,9 +7,9 @@ class Generator {
     return cards;
   }
 
-  static generateCard() {
+  static generateCard(type) {
     return {
-      type: Math.floor(Math.random() * 3) + 1,
+      type: type ? type : (Math.floor(Math.random() * 3) + 1),
       color: Math.floor(Math.random() * 6) + 1,
       figureName: 'default',
       attack: Math.floor(Math.random() * 99) + 1,

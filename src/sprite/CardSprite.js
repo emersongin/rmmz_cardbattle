@@ -17,7 +17,7 @@ class CardSprite extends ActionSprite {
     this._figure = {};
     this._backImage = {};
     this._behaviors = [];
-    this._turned = true;
+    this._turned = false;
     this._disabled = false;
     this._attackPoints = 0;
     this._healthPoints = 0;
@@ -31,9 +31,14 @@ class CardSprite extends ActionSprite {
 
   setup() {
     this.commandHide();
+    this.setToUp();
     this.setSize();
     this.createLayers();
     this.stop();
+  }
+
+  setToUp() {
+    this._turned = true;
   }
 
   setToDown() {
@@ -607,7 +612,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandZoom() {
-    if (!(this.isVisible() && this.isStopped() && this.isOpened() && this.isNoZoom())) return;
+    if (!(this.isVisible() && this.isStopped() && this.isOpened() && this.isOriginalScale())) return;
     const destinyXPosition = this.x - ((this.width / 2) / 2);
     const destinyYPosition = this.y - ((this.height / 2) / 2);
     const destinyXScale = (this.scale.x / 2) * 3;
@@ -622,7 +627,7 @@ class CardSprite extends ActionSprite {
     return true;
   }
 
-  isNoZoom() {
+  isOriginalScale() {
     return this.scale.x === 1 && this.scale.y === 1;
   }
 
@@ -681,9 +686,19 @@ class CardSprite extends ActionSprite {
   }
 
   isAnimated() {
-    return this.getBehavior(CardSpriteFlashedBehavior) instanceof CardSpriteFlashedBehavior ||
-      this.getBehavior(CardSpriteAnimatedBehavior) instanceof CardSpriteAnimatedBehavior ||
-      this.getBehavior(CardSpriteUpdatedBehavior) instanceof CardSpriteUpdatedBehavior;
+    return this.isUpdating() || this.isAnimationPlaying() || this.isFlashPlaying();
+  }
+
+  isAnimationPlaying() {
+    return this.getBehavior(CardSpriteAnimatedBehavior) instanceof CardSpriteAnimatedBehavior;
+  }
+
+  isFlashPlaying() {
+    return this.getBehavior(CardSpriteFlashedBehavior) instanceof CardSpriteFlashedBehavior;
+  }
+
+  isUpdating() {
+    return this.getBehavior(CardSpriteUpdatedBehavior) instanceof CardSpriteUpdatedBehavior;
   }
   
   isAnimationPlaying() {
@@ -720,8 +735,8 @@ class CardSprite extends ActionSprite {
   }
 
   commandFlipToUp() {
-    if (!(this.isVisible() && this.isStopped() && this.isClosed() && this.isToDown())) return;
-    this._turned = true;
+    if (!(this.isHidden() && this.isStopped() && this.isClosed() && this.isToDown())) return;
+    this.setToUp();
     this.refresh();
     return true;
   }
@@ -732,6 +747,10 @@ class CardSprite extends ActionSprite {
 
   isHovered() {
     return this.getBehavior(CardSpriteHoveredBehavior) instanceof CardSpriteHoveredBehavior;
+  }
+
+  isSelected() {
+    return this.getBehavior(CardSpriteSelectedBehavior) instanceof CardSpriteSelectedBehavior;
   }
 
   iluminate() {
@@ -748,6 +767,4 @@ class CardSprite extends ActionSprite {
   isIluminated() {
     return this.getBehavior(CardSpriteIluminatedBehavior) instanceof CardSpriteIluminatedBehavior;
   }
-
-
 }

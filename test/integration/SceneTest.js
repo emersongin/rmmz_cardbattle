@@ -10,9 +10,6 @@ class SceneTest {
     info: function (...msg) {
       console.log(`%c${msg.map(t => t.toString())}`,`background: #5DADE2; color: #FFFFFF; font-size: 12px; padding: 5px;`);
     },
-    warn: function (...msg) {
-      console.log(`%c${msg.map(t => t.toString())}`,`background: #FF8C00; color: #FFFFFF; font-size: 12px; padding: 5px;`);
-    },
     success: function (...msg) {
       console.log(`%c${msg.map(t => t.toString())}`,`background: #008000; color: #FFFFFF; font-size: 12px; padding: 5px;`);
     },
@@ -33,7 +30,7 @@ class SceneTest {
     // Override this method in the child class
   }
 
-  test(
+  async test(
     message = 'sem mensagem de teste!',
     act = () => { 
       this.log.error('Nenhuma Acts!');
@@ -43,17 +40,21 @@ class SceneTest {
     }, 
     seconds = 1
   ) {
-    this.tests.push({
-      seconds,
-      act: () => {
-        act();
-        return true;
-      },
-      assert: () => {
-        this.message = message;
-        assert();
-        return true;
-      }
+    return new Promise(async resolve => {
+      this.tests.push({
+        seconds,
+        act: () => {
+          act();
+          return true;
+        },
+        assert: () => {
+          this.message = message;
+          assert();
+          return true;
+        }
+      });
+      const total = this.totalSeconds();
+      return resolve(await this.timertoTrue((1000 * total) + 200));
     });
   }
 
@@ -129,13 +130,6 @@ class SceneTest {
       this.scene.addChild(child);
     });
     this.childrenToAdd = [];
-  }
-
-  isFinished() {
-    return new Promise(async resolve => {
-      const seconds = this.totalSeconds();
-      return resolve(await this.timertoTrue(1200 * seconds));
-    });
   }
 
   totalSeconds() {

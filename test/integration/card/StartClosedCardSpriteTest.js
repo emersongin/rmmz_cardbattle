@@ -2,7 +2,7 @@ class StartClosedCardSpriteTest extends SceneTest {
   card;
 
   create() {
-    const card = this.generateCard();
+    const card = Generator.generateCard();
     this.card = CardSprite.create(
       card.type,
       card.color,
@@ -10,22 +10,19 @@ class StartClosedCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addChild(this.card);
   }
 
   start() {
-    return new Promise(resolve => {
-      this.scene.addChild(this.card);
-      const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-      const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-      this.card.startClosed(centerXPosition, centerYPosition);
-      this.card.show();
-      setTimeout(() => {
-        this.card.open();
-        setTimeout(() => {
-          resolve(true);
-        }, 1000);
-      }, 1000);
+    return new Promise(async res => {
+      res(await this.test('Deve apresentar o cartão fechado!', () => {
+        const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
+        const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
+        this.card.startClosed(centerXPosition, centerYPosition);
+        this.card.show();
+      }, () => {
+        this.assert(this.card.isClosed()).toBe(true);
+      }));
     });
   }
-
 }

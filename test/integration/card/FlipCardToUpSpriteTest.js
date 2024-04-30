@@ -2,7 +2,7 @@ class FlipCardToUpSpriteTest extends SceneTest {
   card;
 
   create() {
-    const card = this.generateCard();
+    const card = Generator.generateCard();
     this.card = CardSprite.create(
       card.type,
       card.color,
@@ -14,16 +14,19 @@ class FlipCardToUpSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
     this.card.setToDown();
+    this.addChild(this.card);
   }
 
   start() {
-    return new Promise(resolve => {
-      this.scene.addChild(this.card);
-      this.card.show();
-      this.card.flipToUp();
-      setTimeout(() => {
-        resolve(true);
-      }, 1000);
+    return new Promise(async res => {
+      await this.test('O cartão deve estar em estado de hover!', () => {
+        this.card.show();
+        this.card.flipToUp();
+      }, () => {
+        this.assert(this.card.isTurnedToUp()).toBe(true);
+        this.assert(this.card.isOpened()).toBe(true);
+      });
+      res(true);
     });
   }
 }

@@ -2,7 +2,7 @@ class IluminatedCardSpriteTest extends SceneTest {
   card;
 
   create() {
-    const card = this.generateCard();
+    const card = Generator.generateCard();
     this.card = CardSprite.create(
       card.type,
       card.color,
@@ -13,17 +13,18 @@ class IluminatedCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
     this.card.startOpen(centerXPosition, centerYPosition);
+    this.addChild(this.card);
   }
 
   start() {
-    return new Promise(resolve => {
-      this.scene.addChild(this.card);
-      this.card.show();
-      this.card.iluminate();
-      setTimeout(() => {
-        resolve(true);
-      }, 3000);
+    return new Promise(async res => {
+      await this.test('O cartão deve estar em estado de hover!', () => {
+        this.card.show();
+        this.card.iluminate();
+      }, () => {
+        this.assert(this.card.isIluminated()).toBe(true);
+      });
+      res(true);
     });
   }
-
 }

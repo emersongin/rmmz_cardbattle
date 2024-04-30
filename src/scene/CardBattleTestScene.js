@@ -14,22 +14,22 @@ class CardBattleTestScene extends Scene_Message {
   async createTests() {
     const cardSpriteTests = [
       StartOpenCardSpriteTest,
-      // StartClosedCardSpriteTest,
-      // CloseCardSpriteTest,
-      // OpenCardSpriteTest,
-      // MoveCardSpriteTest,
-      // DisableCardSpriteTest,
-      // HoveredCardSpriteTest,
-      // SelectedCardSpriteTest,
-      // FlashCardSpriteTest,
-      // DamageAnimationCardSpriteTest,
-      // UpdatingPointsCardSpriteTest,
-      // ZoomInCardSpriteTest,
-      // ZoomOutCardSpriteTest,
-      // LeaveCardSpriteTest,
-      // QuakeCardSpriteTest,
-      // FlipCardToUpSpriteTest,
-      // IluminatedCardSpriteTest
+      StartClosedCardSpriteTest,
+      CloseCardSpriteTest,
+      OpenCardSpriteTest,
+      MoveCardSpriteTest,
+      DisableCardSpriteTest,
+      HoveredCardSpriteTest,
+      SelectedCardSpriteTest,
+      FlashCardSpriteTest,
+      DamageAnimationCardSpriteTest,
+      UpdatingPointsCardSpriteTest,
+      ZoomInCardSpriteTest,
+      ZoomOutCardSpriteTest,
+      LeaveCardSpriteTest,
+      QuakeCardSpriteTest,
+      FlipCardToUpSpriteTest,
+      IluminatedCardSpriteTest
     ];
     const cardsetTests = [
       SetBackgroundAndStartPositionCardsetSpriteTest,
