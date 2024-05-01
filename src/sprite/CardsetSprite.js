@@ -424,4 +424,8 @@ class CardsetSprite extends ActionSprite {
   allCardsOpened() {
     return this._sprites.every(sprite => sprite.isOpened());
   }
+
+  isEnableChoice() {
+    return this._enableSelected;
+  }
 }

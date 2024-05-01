@@ -14,23 +14,23 @@ class CardBattleTestScene extends Scene_Message {
 
   data() {
     const cardSpriteTests = [
-      StartOpenCardSpriteTest,
-      StartClosedCardSpriteTest,
-      CloseCardSpriteTest,
-      OpenCardSpriteTest,
-      MoveCardSpriteTest,
-      DisableCardSpriteTest,
-      HoveredCardSpriteTest,
-      SelectedCardSpriteTest,
-      FlashCardSpriteTest,
+      // StartOpenCardSpriteTest,
+      // StartClosedCardSpriteTest,
+      // CloseCardSpriteTest,
+      // OpenCardSpriteTest,
+      // MoveCardSpriteTest,
+      // DisableCardSpriteTest,
+      // HoveredCardSpriteTest,
+      // SelectedCardSpriteTest,
+      // FlashCardSpriteTest,
       DamageAnimationCardSpriteTest,
-      UpdatingPointsCardSpriteTest,
-      ZoomInCardSpriteTest,
-      ZoomOutCardSpriteTest,
-      LeaveCardSpriteTest,
-      QuakeCardSpriteTest,
-      FlipCardToUpSpriteTest,
-      IluminatedCardSpriteTest
+      // UpdatingPointsCardSpriteTest,
+      // ZoomInCardSpriteTest,
+      // ZoomOutCardSpriteTest,
+      // LeaveCardSpriteTest,
+      // QuakeCardSpriteTest,
+      // FlipCardToUpSpriteTest,
+      // IluminatedCardSpriteTest
     ];
     const cardsetTests = [
       // SetBackgroundAndStartPositionCardsetSpriteTest,
@@ -41,10 +41,12 @@ class CardBattleTestScene extends Scene_Message {
       // MoveCardsToListCardsetSpriteTest,
       // MoveCardsToPositionCardsetSpriteTest,
       // AddCardAndMoveToListCardsetSpriteTest,
-      SelectModeCardsetSpriteTest,
+      // SelectModeCardsetSpriteTest,
       // DisableAndEnableCardsCardsetSpriteTest,
       // SelectModeAndEnableChoiceCardsetSpriteTest,
-      // AnimateCardsCardsetSpriteTest
+      AnimateQuakeCardsCardsetSpriteTest,
+      AnimateFlashCardsCardsetSpriteTest,
+      AnimateDamageCardsCardsetSpriteTest,
     ];
     const textWindowTests = [
       OpenAndCloseTextWindowTest,

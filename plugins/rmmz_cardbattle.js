@@ -2985,6 +2985,10 @@ class CardsetSprite extends ActionSprite {
   allCardsOpened() {
     return this._sprites.every(sprite => sprite.isOpened());
   }
+
+  isEnableChoice() {
+    return this._enableSelected;
+  }
 }
 class BackgroundSprite extends Sprite {
   initialize() {
@@ -3508,15 +3512,15 @@ class SceneTest {
     this.WindowsToAdd = [];
   }
 
+  assertTrue(title, value) {
+    this.assert(title, value);
+    return this.toBe(true);
+  }
+
   assert(title, value) {
     this.assertTitle = title;
     this.assertValue = value;
     return this;
-  }
-
-  assertTrue(value) {
-    this.assertValue = value;
-    return this.toBe(true);
   }
 
   toBe(value) {
@@ -4371,35 +4375,35 @@ class AddCardAndMoveToListCardsetSpriteTest extends SceneTest {
   start() {
     this.cardset.show();
     let times = 1;
-    // for (let i = 0; i < 3; i++) {
-    //   const cards = Generator.generateCards(3);
-    //   const newCards = Generator.generateCards(times);
-    //   const screenWidth = Graphics.boxWidth;
-    //   const positions = newCards.map((card, index) => {
-    //     index = cards.length + index;
-    //     const { x, y } = this.cardset.getSpritePosition(index, cards.length);
-    //     return { index, x, y };
-    //   });
-    //   this.test('Deve mover todos os cartões do set na posição em lista!', async () => {
-    //     const sprites = this.cardset.setCards(cards);
-    //     this.cardset.startListCards(sprites);
-    //     this.cardset.showCards(sprites);
-    //     const newSprites = this.cardset.addCards(newCards);
-    //     this.cardset.startPositionCards(screenWidth, 0, newSprites);
-    //     this.cardset.showCards(newSprites);
-    //     // const delay = 10;
-    //     this.cardset.moveCardsToList(newSprites);
-    //     await this.timertoTrue(1000 * times);
-    //     this.cardset.clear();
-    //   }, () => {
-    //     const validation = positions.every(({ index, x, y }) => {
-    //       const sprite = this.cardset.children[index];
-    //       return sprite.x === x && sprite.y === y;
-    //     });
-    //     this.assert('Foram movidos em lista?', validation).toBe(true);
-    //   });
-    //   times++;
-    // }
+    for (let i = 0; i < 3; i++) {
+      const cards = Generator.generateCards(3);
+      const newCards = Generator.generateCards(times);
+      const screenWidth = Graphics.boxWidth;
+      const positions = newCards.map((card, index) => {
+        index = cards.length + index;
+        const { x, y } = this.cardset.getSpritePosition(index, cards.length);
+        return { index, x, y };
+      });
+      this.test('Deve mover todos os cartões do set na posição em lista!', async () => {
+        const sprites = this.cardset.setCards(cards);
+        this.cardset.startListCards(sprites);
+        this.cardset.showCards(sprites);
+        const newSprites = this.cardset.addCards(newCards);
+        this.cardset.startPositionCards(screenWidth, 0, newSprites);
+        this.cardset.showCards(newSprites);
+        // const delay = 10;
+        this.cardset.moveCardsToList(newSprites);
+        await this.timertoTrue(1000 * times);
+        this.cardset.clear();
+      }, () => {
+        const validation = positions.every(({ index, x, y }) => {
+          const sprite = this.cardset.children[index];
+          return sprite.x === x && sprite.y === y;
+        });
+        this.assert('Foram movidos em lista?', validation).toBe(true);
+      });
+      times++;
+    }
     times = 1;
     for (let i = 0; i < 3; i++) {
       const cards = Generator.generateCards(3);
@@ -4456,21 +4460,23 @@ class SelectModeCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
+    this.addChild(this.cardset);
   }
 
   start() {
     return new Promise(async resolve => {
-      this.scene.addChild(this.cardset);
       this.cardset.show();
-      const cards = this.generateCards(10);
-      this.cardset.setCards(cards);
-      this.cardset.startListCards();
-      this.cardset.showCards();
-      this.cardset.selectMode();
-      setTimeout(() => {
-        this.cardset.staticMode();
-        resolve(true);
-      }, 3000);
+      const cards = Generator.generateCards(10);
+      this.test('Deve entrar em modo seleção!', async () => {
+        this.cardset.setCards(cards);
+        this.cardset.startListCards();
+        this.cardset.showCards();
+        this.cardset.selectMode();
+      }, () => {
+        this.assert('Esta em modo seleção?', this.cardset.isSelectMode()).toBe(true);
+      }, 3);
+      await this.timertoTrue(5000);
+      this.cardset.staticMode();
     });
   }
 }
@@ -4484,31 +4490,34 @@ class SelectModeAndEnableChoiceCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
+    this.addChild(this.cardset);
   }
 
   start() {
     return new Promise(async resolve => {
-      this.scene.addChild(this.cardset);
       this.cardset.show();
-      const cards = this.generateCards(10);
-      this.cardset.setCards(cards);
-      this.cardset.startListCards();
-      this.cardset.showCards();
-      const sprites = this.cardset.getCardIndexs([4, 5]);
-      this.cardset.disableCards();
-      this.cardset.enableCards(sprites);
-      this.cardset.selectMode();
-      this.cardset.enableChoice();
-      setTimeout(() => {
-        this.cardset.staticMode();
-        resolve(true);
-      }, 3000);
+      const cards = Generator.generateCards(10);
+      this.test('Deve entrar em modo seleção!', async () => {
+        this.cardset.setCards(cards);
+        this.cardset.startListCards();
+        this.cardset.showCards();
+        const sprites = this.cardset.getCardIndexs([4, 5]);
+        this.cardset.disableCards();
+        this.cardset.enableCards(sprites);
+        this.cardset.selectMode();
+        this.cardset.enableChoice();
+      }, () => {
+        this.assert('Esta em modo seleção?', this.cardset.isSelectMode()).toBe(true);
+        this.assert('Esta em modo escolha?', this.cardset.isEnableChoice()).toBe(true);
+      }, 3);
+      await this.timertoTrue(5000);
+      this.cardset.staticMode();
     });
   }
 }
-class AnimateCardsCardsetSpriteTest extends SceneTest {
+class AnimateQuakeCardsCardsetSpriteTest extends SceneTest {
   cardset;
-  name = 'AnimateCardsCardsetSpriteTest';
+  name = 'AnimateQuakeCardsCardsetSpriteTest';
 
   create() {
     this.cardset = CardsetSprite.create();
@@ -4516,71 +4525,96 @@ class AnimateCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
+    this.addChild(this.cardset);
   }
 
-  async start() {
-    return new Promise(async resolve => {
-      this.scene.addChild(this.cardset);
-      this.cardset.show();
-      await this.startFlash();
-      await this.startDamage();
-      await this.startQuake();
-      resolve(true);
+  start() {
+    this.cardset.show();
+    this.test('Deve realizar um chacoalhar nos cartões!', () => {
+      this.startQuake();
+    }, () => {
+      const isMoving = this.cardset.children.some(child => child.isMoving());
+      this.assertTrue('Houve um chacoalhar?', isMoving);
     });
   }
 
-  startFlash() {
-    return new Promise(async resolve => {
-      const cards = this.generateCards(6);
-      const sprites = this.cardset.setCards(cards);
-      this.cardset.startListCards();
-      this.cardset.showCards();
-      setTimeout(() => {
-        const sprite = this.cardset.getCardIndex(0);
-        this.cardset.animateCardFlash(sprite);
-        this.cardset.animateCardsFlash();
-        setTimeout(() => {
-          this.cardset.clear();
-          resolve(true);
-        }, 2000)
-      }, 200);
-    });
+  async startQuake() {
+    const cards = Generator.generateCards(6);
+    const sprites = this.cardset.setCards(cards);
+    this.cardset.startListCards();
+    this.cardset.showCards();
+    await this.timertoTrue(200);
+    const sprite = this.cardset.getCardIndex(0);
+    this.cardset.animateCardQuake(sprite, 3);
+    this.cardset.animateCardsQuake(50);
+  }
+}
+class AnimateFlashCardsCardsetSpriteTest extends SceneTest {
+  cardset;
+  name = 'AnimateFlashCardsCardsetSpriteTest';
+
+  create() {
+    this.cardset = CardsetSprite.create();
+    const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
+    this.cardset.startPosition(centerXPosition, centerYPosition);
+    this.cardset.setBackgroundColor('white');
+    this.addChild(this.cardset);
   }
 
-  startDamage() {
-    return new Promise(async resolve => {
-      const cards = this.generateCards(6);
-      const sprites = this.cardset.setCards(cards);
-      this.cardset.startListCards();
-      this.cardset.showCards();
-      setTimeout(() => {
-        const sprite = this.cardset.getCardIndex(0);
-        this.cardset.animateCardDamage(sprite);
-        this.cardset.animateCardsDamage();
-        setTimeout(() => {
-          this.cardset.clear();
-          resolve(true);
-        }, 3000)
-      }, 200);
-    });
+  start() {
+    this.cardset.show();
+    this.test('Deve realizar um flash nos cartões!', () => {
+      this.startFlash();
+    }, () => {
+      const isFlash = this.cardset.children.some(child => child.isFlashPlaying());
+      this.assertTrue('Houve um flash de luz?', isFlash);
+    }, 2);
   }
 
-  startQuake() {
-    return new Promise(async resolve => {
-      const cards = this.generateCards(6);
-      const sprites = this.cardset.setCards(cards);
-      this.cardset.startListCards();
-      this.cardset.showCards();
-      setTimeout(() => {
-        const sprite = this.cardset.getCardIndex(0);
-        this.cardset.animateCardQuake(sprite, 3);
-        this.cardset.animateCardsQuake(3);
-        setTimeout(() => {
-          this.cardset.clear();
-          resolve(true);
-        }, 2000)
-      }, 200);
-    });
+  async startFlash() {
+    const cards = Generator.generateCards(6);
+    const sprites = this.cardset.setCards(cards);
+    this.cardset.startListCards();
+    this.cardset.showCards();
+    await this.timertoTrue(200);
+    const sprite = this.cardset.getCardIndex(0);
+    this.cardset.animateCardFlash(sprite);
+    this.cardset.animateCardsFlash();
+  }
+}
+class AnimateDamageCardsCardsetSpriteTest extends SceneTest {
+  cardset;
+  name = 'AnimateDamageCardsCardsetSpriteTest';
+
+  create() {
+    this.cardset = CardsetSprite.create();
+    const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
+    this.cardset.startPosition(centerXPosition, centerYPosition);
+    this.cardset.setBackgroundColor('white');
+    this.addChild(this.cardset);
+  }
+
+  start() {
+    this.cardset.show();
+    this.test('Deve realizar uma animação nos cartões!', () => {
+      this.startDamage();
+    }, () => {
+      const isAnimationPlaying = this.cardset.children.some(child => child.isAnimationPlaying());
+      this.assertTrue('Houve uma animação?', isAnimationPlaying);
+    }, 2);
+  }
+
+  async startDamage() {
+    const cards = Generator.generateCards(6);
+    const sprites = this.cardset.setCards(cards);
+    this.cardset.startListCards();
+    this.cardset.showCards();
+    await this.timertoTrue(300);
+    const sprite = this.cardset.getCardIndex(0);
+    this.cardset.animateCardDamage(sprite);
+    this.cardset.animateCardsDamage();
   }
 }
 class DisableAndEnableCardsCardsetSpriteTest extends SceneTest {
@@ -4593,25 +4627,29 @@ class DisableAndEnableCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
     this.cardset.startPosition(centerXPosition, centerYPosition);
     this.cardset.setBackgroundColor('white');
+    this.addChild(this.cardset);
   }
 
   start() {
     return new Promise(async resolve => {
-      this.scene.addChild(this.cardset);
       this.cardset.show();
-      const cards = this.generateCards(10);
-      this.cardset.setCards(cards);
-      this.cardset.startListCards();
-      this.cardset.showCards();
-      this.cardset.disableCards();
-      const sprite = this.cardset.getCardIndex();
-      this.cardset.enableCard(sprite);
-      const sprites = this.cardset.getCardIndexs([3, 4, 5, 6]);
-      this.cardset.enableCards(sprites);
-      setTimeout(() => {
+      const cards = Generator.generateCards(10);
+      const enableCardsIndex = [0, 3, 4, 5, 6];
+      this.test('', async () => {
+        this.cardset.setCards(cards);
+        this.cardset.startListCards();
+        this.cardset.showCards();
+        this.cardset.disableCards();
+        const sprite = this.cardset.getCardIndex();
+        this.cardset.enableCard(sprite);
+        const sprites = this.cardset.getCardIndexs([3, 4, 5, 6]);
+        this.cardset.enableCards(sprites);
+        await this.timertoTrue(600);
         this.cardset.staticMode();
-        resolve(true);
-      }, 600);
+      }, () => {
+        const isDisableds = enableCardsIndex.every(index => this.cardset.getCardIndex(index).isEnabled());
+        this.assert('Esta em modo seleção?', isDisableds).toBe(true);
+      });
     });
   }
 }
@@ -5054,23 +5092,23 @@ class CardBattleTestScene extends Scene_Message {
 
   data() {
     const cardSpriteTests = [
-      StartOpenCardSpriteTest,
-      StartClosedCardSpriteTest,
-      CloseCardSpriteTest,
-      OpenCardSpriteTest,
-      MoveCardSpriteTest,
-      DisableCardSpriteTest,
-      HoveredCardSpriteTest,
-      SelectedCardSpriteTest,
-      FlashCardSpriteTest,
+      // StartOpenCardSpriteTest,
+      // StartClosedCardSpriteTest,
+      // CloseCardSpriteTest,
+      // OpenCardSpriteTest,
+      // MoveCardSpriteTest,
+      // DisableCardSpriteTest,
+      // HoveredCardSpriteTest,
+      // SelectedCardSpriteTest,
+      // FlashCardSpriteTest,
       DamageAnimationCardSpriteTest,
-      UpdatingPointsCardSpriteTest,
-      ZoomInCardSpriteTest,
-      ZoomOutCardSpriteTest,
-      LeaveCardSpriteTest,
-      QuakeCardSpriteTest,
-      FlipCardToUpSpriteTest,
-      IluminatedCardSpriteTest
+      // UpdatingPointsCardSpriteTest,
+      // ZoomInCardSpriteTest,
+      // ZoomOutCardSpriteTest,
+      // LeaveCardSpriteTest,
+      // QuakeCardSpriteTest,
+      // FlipCardToUpSpriteTest,
+      // IluminatedCardSpriteTest
     ];
     const cardsetTests = [
       // SetBackgroundAndStartPositionCardsetSpriteTest,
@@ -5080,11 +5118,13 @@ class CardBattleTestScene extends Scene_Message {
       // StartClosedAndOpenCardsCardsetSpriteTest,
       // MoveCardsToListCardsetSpriteTest,
       // MoveCardsToPositionCardsetSpriteTest,
-      AddCardAndMoveToListCardsetSpriteTest,
+      // AddCardAndMoveToListCardsetSpriteTest,
       // SelectModeCardsetSpriteTest,
       // DisableAndEnableCardsCardsetSpriteTest,
       // SelectModeAndEnableChoiceCardsetSpriteTest,
-      // AnimateCardsCardsetSpriteTest
+      AnimateQuakeCardsCardsetSpriteTest,
+      AnimateFlashCardsCardsetSpriteTest,
+      AnimateDamageCardsCardsetSpriteTest,
     ];
     const textWindowTests = [
       OpenAndCloseTextWindowTest,

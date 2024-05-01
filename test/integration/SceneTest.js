@@ -137,15 +137,15 @@ class SceneTest {
     this.WindowsToAdd = [];
   }
 
+  assertTrue(title, value) {
+    this.assert(title, value);
+    return this.toBe(true);
+  }
+
   assert(title, value) {
     this.assertTitle = title;
     this.assertValue = value;
     return this;
-  }
-
-  assertTrue(value) {
-    this.assertValue = value;
-    return this.toBe(true);
   }
 
   toBe(value) {

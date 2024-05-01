@@ -59,7 +59,9 @@
 // include ../test/integration/cardset/AddCardAndMoveToListCardsetSpriteTest.js
 // include ../test/integration/cardset/SelectModeCardsetSpriteTest.js
 // include ../test/integration/cardset/SelectModeAndEnableChoiceCardsetSpriteTest.js
-// include ../test/integration/cardset/AnimateCardsCardsetSpriteTest.js
+// include ../test/integration/cardset/AnimateQuakeCardsCardsetSpriteTest.js
+// include ../test/integration/cardset/AnimateFlashCardsCardsetSpriteTest.js
+// include ../test/integration/cardset/AnimateDamageCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/DisableAndEnableCardsCardsetSpriteTest.js
 // tests TEXT WINDOW
 // include ../test/integration/textwindow/OpenAndCloseTextWindowTest.js
