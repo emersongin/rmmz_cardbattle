@@ -12,76 +12,70 @@ class AddCardAndMoveToListCardsetSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      this.cardset.show();
-      let times = 1;
-      for (let i = 0; i < 6; i++) {
-        const cards = Generator.generateCards(times);
-        await this.test('Deve abrir todos os cartões do set!', async () => {
-          await this.testCards(cards);
-        }, () => {
-          this.assert(this.cardset.allCardsOpened()).toBe(true);
-        });
-        times++;
-      }
-      times = 40;
-      for (let i = 0; i < 1; i++) {
-        const cards = Generator.generateCards(times);
-        await this.test('Deve abrir todos os cartões do set!', async () => {
-          await this.testDelayCards(cards);
-        }, () => {
-          this.assert(this.cardset.allCardsOpened()).toBe(true);
-        });
-        times++;
-      }
-      res(true);
-    });
-  }
-
-  // start() {
-  //   return new Promise(async resolve => {
-  //     this.scene.addChild(this.cardset);
-  //     this.cardset.show();
-  //     let testTimes = 1;
-  //     for (let index = 0; index < 3; index++) {
-  //       const cards = this.generateCards(3);
-  //       const sprites = this.cardset.setCards(cards);
-  //       this.cardset.startListCards(sprites);
-  //       this.cardset.showCards(sprites);
-  //       const newCards = this.generateCards(testTimes);
-  //       const newSprites = this.cardset.addCards(newCards);
-  //       await this.testCard(newSprites);
-  //       testTimes++;
-  //     }
-  //     testTimes = 1;
-  //     for (let index = 0; index < 3; index++) {
-  //       const cards = this.generateCards(3);
-  //       const sprites = this.cardset.setCards(cards);
-  //       this.cardset.startListCards(sprites);
-  //       this.cardset.showCards(sprites);
-  //       const newCards = this.generateCards(testTimes);
-  //       const newSprites = this.cardset.addCards(newCards);
-  //       await this.testCards(newSprites);
-  //       testTimes++;
-  //     }
-  //     resolve(true);
-  //   });
-  // }
-
-  testCard(sprites) {
-    return new Promise(resolve => {
+    this.cardset.show();
+    let times = 1;
+    for (let i = 0; i < 3; i++) {
+      const cards = Generator.generateCards(3);
+      const newCards = Generator.generateCards(times);
       const screenWidth = Graphics.boxWidth;
-      this.cardset.startPositionCards(screenWidth, 0, sprites);
-      this.cardset.showCards(sprites);
-      this.cardset.moveCardsToList(sprites);
-      setTimeout(async () => {
+      const positions = newCards.map((card, index) => {
+        index = cards.length + index;
+        const { x, y } = this.cardset.getSpritePosition(index, cards.length);
+        return { index, x, y };
+      });
+      this.test('Deve mover todos os cartões do set na posição em lista!', async () => {
+        const sprites = this.cardset.setCards(cards);
+        this.cardset.startListCards(sprites);
+        this.cardset.showCards(sprites);
+        const newSprites = this.cardset.addCards(newCards);
+        this.cardset.startPositionCards(screenWidth, 0, newSprites);
+        this.cardset.showCards(newSprites);
+        // const delay = 10;
+        this.cardset.moveCardsToList(newSprites);
+        await this.timertoTrue(1000 * times);
         this.cardset.clear();
-        resolve(true);
-      }, 500 * sprites.length);
-    });
+      }, () => {
+        const validation = positions.every(({ index, x, y }) => {
+          const sprite = this.cardset.children[index];
+          return sprite.x === x && sprite.y === y;
+        });
+        this.assert('Foram movidos em lista?', validation).toBe(true);
+      });
+      times++;
+    }
+    times = 1;
+    for (let i = 0; i < 3; i++) {
+      const cards = Generator.generateCards(3);
+      const newCards = Generator.generateCards(times);
+      const screenWidth = Graphics.boxWidth;
+      const positions = newCards.map((card, index) => {
+        index = cards.length + index;
+        const { x, y } = this.cardset.getSpritePosition(index, cards.length);
+        return { index, x, y };
+      });
+      this.test('Deve mover todos os cartões do set na posição em lista!', async () => {
+        const sprites = this.cardset.setCards(cards);
+        this.cardset.startListCards(sprites);
+        this.cardset.showCards(sprites);
+        const newSprites = this.cardset.addCards(newCards);
+        this.cardset.startPositionCards(screenWidth, 0, newSprites);
+        this.cardset.showCards(newSprites);
+        const delay = 10;
+        this.cardset.moveCardsToListDelay(delay, newSprites);
+        await this.timertoTrue(1000 * times);
+        this.cardset.clear();
+      }, () => {
+        const validation = positions.every(({ index, x, y }) => {
+          const sprite = this.cardset.children[index];
+          return sprite.x === x && sprite.y === y;
+        });
+        this.assert('Foram movidos em lista?', validation).toBe(true);
+      });
+      times++;
+    }
   }
 
-  testCards(sprites) {
+  testDelayCards(sprites) {
     return new Promise(resolve => {
       const screenWidth = Graphics.boxWidth;
       this.cardset.startPositionCards(screenWidth, 0, sprites);

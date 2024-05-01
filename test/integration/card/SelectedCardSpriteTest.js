@@ -18,14 +18,11 @@ class SelectedCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('O cartão deve estar em estado de select!', () => {
-        this.card.show();
-        this.card.select();
-      }, () => {
-        this.assert('Esta selecioando?', this.card.isSelected()).toBe(true);
-      });
-      return res(this.finish());
+    this.test('O cartão deve estar em estado de select!', () => {
+      this.card.show();
+      this.card.select();
+    }, () => {
+      this.assert('Esta selecioando?', this.card.isSelected()).toBe(true);
     });
   }
 }

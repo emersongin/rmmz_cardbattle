@@ -2683,8 +2683,8 @@ class CardsetSprite extends ActionSprite {
     return positions;
   }
 
-  getSpritePosition(index) {
-    const spaceBetween = this.spaceBetweenCards(this.numberOfChildren()) * index;
+  getSpritePosition(index, numberOfChildren = this.numberOfChildren()) {
+    const spaceBetween = this.spaceBetweenCards(numberOfChildren) * index;
     const x = index ? spaceBetween : 0;
     const y = 0;
     return { x, y };
@@ -2772,32 +2772,41 @@ class CardsetSprite extends ActionSprite {
   }
 
   moveCardToList(sprite, exceptSprites) {
-    this.moveCardsToList(sprite, exceptSprites);
+    return this.moveCardsToList(sprite, exceptSprites);
   }
 
   moveCardsToList(sprites = this._sprites, exceptSprites) {
     sprites = this.toArray(sprites);
-    const positions = this.startListCards(this._sprites, exceptSprites || sprites);
-    this.addAction(this.commandMoveCardsToList, sprites);
+    this.startListCards(this._sprites, exceptSprites || sprites);
+    const positions = this.calculateSpritesPositionsToList(sprites);
+    this.addAction(this.commandMoveCardsToList, positions);
+    return positions;
+  }
+
+  calculateSpritesPositionsToList(sprites = this._sprites) {
+    const positions = [];
+    sprites.forEach(sprite => {
+      const index = this.indexOfSprite(sprite);
+      const { x, y } = this.getSpritePosition(index);
+      positions.push({ index, x, y });
+    });
     return positions;
   }
 
   moveCardsToListDelay(delay = 10, sprites = this._sprites, exceptSprites) {
     sprites = this.toArray(sprites);
-    const positions = this.startListCards(this._sprites, exceptSprites || sprites);
-    const actions = this.createActionsWithDelay(this.commandMoveCardsToList, delay, sprites);
+    this.startListCards(this._sprites, exceptSprites || sprites);
+    const positions = this.calculateSpritesPositionsToList(sprites);
+    const actions = this.createActionsWithDelay(this.commandMoveCardsToList, delay, positions);
     this.addActions(actions);
     return positions;
   }
 
-  commandMoveCardsToList(sprites) {
+  commandMoveCardsToList(positions) {
     if (this.isHidden()) return;
-    sprites = this.toArray(sprites);
-    sprites.forEach(sprite => {
-      const index = this.indexOfSprite(sprite);
+    positions.forEach(({ index, x, y }) => {
       if (index < 0) return;
-      const { x, y } = this.getSpritePosition(index);
-      sprite.toMove(x, y);
+      this._sprites[index].toMove(x, y);
     });
     return true;
   }
@@ -3385,12 +3394,23 @@ class SceneTest {
     // Override this method in the child class
   }
 
+  run() {
+    return new Promise(async res => {
+      this.start();
+      res(await this.finish());
+    });
+  }
+
   finish() {
-    return {
-      passed: this.results.every(result => result.passed),
-      testName: this.name,
-      assertsResult: this.results
-    };
+    return new Promise(async res => {
+      const total = this.totalSeconds();
+      await this.timertoTrue((1000 * total) + 200);
+      res({
+        passed: this.results.every(result => result.passed),
+        testName: this.name,
+        assertsResult: this.results
+      });
+    });
   }
 
   async test(assertsName, act, asserts, seconds = 1) {
@@ -3404,21 +3424,17 @@ class SceneTest {
         message: 'Nenhuma assert definida!'
       });
     };
-    return new Promise(async resolve => {
-      this.tests.push({
-        seconds,
-        act: () => {
-          act ? act() : actDefault();
-          return true;
-        },
-        asserts: () => {
-          this.assertsName = assertsName;
-          asserts ? asserts() : assertsDefault();
-          return true;
-        }
-      });
-      const total = this.totalSeconds();
-      return resolve(await this.timertoTrue((1000 * total) + 200));
+    this.tests.push({
+      seconds,
+      act: () => {
+        act ? act() : actDefault();
+        return true;
+      },
+      asserts: () => {
+        this.assertsName = assertsName;
+        asserts ? asserts() : assertsDefault();
+        return true;
+      }
     });
   }
 
@@ -3559,16 +3575,13 @@ class StartOpenCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('Deve apresentar o cartão aberto!', () => {
-        const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-        const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-        this.card.startOpen(centerXPosition, centerYPosition);
-        this.card.show();
-      }, () => {
-        this.assert('Esta aberto?', this.card.isOpened()).toBe(true);
-      })
-      return res(this.finish());
+    this.test('Deve apresentar o cartão aberto!', () => {
+      const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
+      const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
+      this.card.startOpen(centerXPosition, centerYPosition);
+      this.card.show();
+    }, () => {
+      this.assert('Esta aberto?', this.card.isOpened()).toBe(true);
     });
   }
 }
@@ -3589,16 +3602,13 @@ class StartClosedCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('Deve apresentar o cartão fechado!', () => {
-        const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-        const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-        this.card.startClosed(centerXPosition, centerYPosition);
-        this.card.show();
-      }, () => {
-        this.assert('Esta fechado?', this.card.isClosed()).toBe(true);
-      })
-      return res(this.finish());
+    this.test('Deve apresentar o cartão fechado!', () => {
+      const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
+      const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
+      this.card.startClosed(centerXPosition, centerYPosition);
+      this.card.show();
+    }, () => {
+      this.assert('Esta fechado?', this.card.isClosed()).toBe(true);
     });
   }
 }
@@ -3622,14 +3632,11 @@ class OpenCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('Deve abrir o cartão!', () => {
-        this.card.show();
-        this.card.open();
-      }, () => {
-        this.assert('Esta aberto?', this.card.isOpened()).toBe(true);
-      })
-      return res(this.finish());
+    this.test('Deve abrir o cartão!', () => {
+      this.card.show();
+      this.card.open();
+    }, () => {
+      this.assert('Esta aberto?', this.card.isOpened()).toBe(true);
     });
   }
 }
@@ -3653,15 +3660,12 @@ class CloseCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('Deve fechar o cartão!', () => {
-        this.card.show();
-        this.card.close();
-      }, () => {
-        this.assert('Esta fechado?', this.card.isClosed()).toBe(true);
-      })
-      return res(this.finish());
-    });
+    this.test('Deve fechar o cartão!', () => {
+      this.card.show();
+      this.card.close();
+    }, () => {
+      this.assert('Esta fechado?', this.card.isClosed()).toBe(true);
+    })
   }
 
   // exemplo de teste de unidade
@@ -3689,40 +3693,37 @@ class MoveCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      this.card.show();
-      const destinyXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-      const destinyYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-      const avanceXposition = (Graphics.boxWidth - this.card.width);
-      const avanceYposition = (Graphics.boxHeight - this.card.height);
-      const returnStartPosition = 0;
-      await this.test('Deve mover o cartão!', () => {
-        this.card.toMove(destinyXPosition, destinyYPosition);
-      }, () => {
-        this.assert('Esta na Posição x?', this.card.x).toBe(destinyXPosition);
-        this.assert('Esta na Posição y?', this.card.y).toBe(destinyYPosition);
-      });
-      await this.test('Deve mover o cartão!', () => {
-        this.card.toMove(avanceXposition, destinyYPosition);
-      }, () => {
-        this.assert('Esta na Posição x?', this.card.x).toBe(avanceXposition);
-        this.assert('Esta na Posição y?', this.card.y).toBe(destinyYPosition);
-      });
-      await this.test('Deve mover o cartão!', () => {
-        this.card.toMove(avanceXposition, avanceYposition);
-        this.card.toMove(destinyXPosition, avanceYposition);
-      }, () => {
-        this.assert('Esta na Posição x?', this.card.x).toBe(destinyXPosition);
-        this.assert('Esta na Posição y?', this.card.y).toBe(avanceYposition);
-      });
-      await this.test('Deve mover o cartão!', () => {
-        this.card.toMove(returnStartPosition, returnStartPosition);
-        this.card.toMove(destinyXPosition, destinyYPosition);
-      }, () => {
-        this.assert('Esta na Posição x?', this.card.x).toBe(destinyXPosition);
-        this.assert('Esta na Posição y?', this.card.y).toBe(destinyYPosition);
-      });
-      return res(this.finish());
+    this.card.show();
+    const destinyXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
+    const destinyYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
+    const avanceXposition = (Graphics.boxWidth - this.card.width);
+    const avanceYposition = (Graphics.boxHeight - this.card.height);
+    const returnStartPosition = 0;
+    this.test('Deve mover o cartão!', () => {
+      this.card.toMove(destinyXPosition, destinyYPosition);
+    }, () => {
+      this.assert('Esta na Posição x?', this.card.x).toBe(destinyXPosition);
+      this.assert('Esta na Posição y?', this.card.y).toBe(destinyYPosition);
+    });
+    this.test('Deve mover o cartão!', () => {
+      this.card.toMove(avanceXposition, destinyYPosition);
+    }, () => {
+      this.assert('Esta na Posição x?', this.card.x).toBe(avanceXposition);
+      this.assert('Esta na Posição y?', this.card.y).toBe(destinyYPosition);
+    });
+    this.test('Deve mover o cartão!', () => {
+      this.card.toMove(avanceXposition, avanceYposition);
+      this.card.toMove(destinyXPosition, avanceYposition);
+    }, () => {
+      this.assert('Esta na Posição x?', this.card.x).toBe(destinyXPosition);
+      this.assert('Esta na Posição y?', this.card.y).toBe(avanceYposition);
+    });
+    this.test('Deve mover o cartão!', () => {
+      this.card.toMove(returnStartPosition, returnStartPosition);
+      this.card.toMove(destinyXPosition, destinyYPosition);
+    }, () => {
+      this.assert('Esta na Posição x?', this.card.x).toBe(destinyXPosition);
+      this.assert('Esta na Posição y?', this.card.y).toBe(destinyYPosition);
     });
   }
 }
@@ -3746,14 +3747,11 @@ class HoveredCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('O cartão deve estar em estado de hover!', () => {
-        this.card.show();
-        this.card.hover();
-      }, () => {
-        this.assert('Esta em cursor?', this.card.isHovered()).toBe(true);
-      });
-      return res(this.finish());
+    this.test('O cartão deve estar em estado de hover!', () => {
+      this.card.show();
+      this.card.hover();
+    }, () => {
+      this.assert('Esta em cursor?', this.card.isHovered()).toBe(true);
     });
   } 
 }
@@ -3777,14 +3775,11 @@ class SelectedCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('O cartão deve estar em estado de select!', () => {
-        this.card.show();
-        this.card.select();
-      }, () => {
-        this.assert('Esta selecioando?', this.card.isSelected()).toBe(true);
-      });
-      return res(this.finish());
+    this.test('O cartão deve estar em estado de select!', () => {
+      this.card.show();
+      this.card.select();
+    }, () => {
+      this.assert('Esta selecioando?', this.card.isSelected()).toBe(true);
     });
   }
 }
@@ -3808,17 +3803,14 @@ class FlashCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('O cartão deve receber um flash de luz!', () => {
-        const color = 'white';
-        const duration = 60;
-        const infinity = -1;
-        this.card.show();
-        this.card.flash(color, duration, infinity);
-      }, () => {
-        this.assert('Houve um flash de luz?', this.card.isFlashPlaying()).toBe(true);
-      });
-      return res(this.finish());
+    this.test('O cartão deve receber um flash de luz!', () => {
+      const color = 'white';
+      const duration = 60;
+      const infinity = -1;
+      this.card.show();
+      this.card.flash(color, duration, infinity);
+    }, () => {
+      this.assert('Houve um flash de luz?', this.card.isFlashPlaying()).toBe(true);
     });
   } 
 }
@@ -3842,15 +3834,12 @@ class DamageAnimationCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('O cartão deve receber uma animação de dano!', () => {
-        const times = 1;
-        this.card.show();
-        this.card.damage(times);
-      }, () => {
-        this.assert('Houve uma animação?', this.card.isAnimationPlaying()).toBe(true);
-      });
-      return res(this.finish());
+    this.test('O cartão deve receber uma animação de dano!', () => {
+      const times = 1;
+      this.card.show();
+      this.card.damage(times);
+    }, () => {
+      this.assert('Houve uma animação?', this.card.isAnimationPlaying()).toBe(true);
     });
   }
 }
@@ -3874,14 +3863,11 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('Deve atualizar os pontos do cartão!', () => {
-        this.card.show();
-        this.card.changePoints(99, 99);
-      }, () => {
-        this.assert('Esta atualizando?', this.card.isUpdating()).toBe(true);
-      })
-      return res(this.finish());
+    this.test('Deve atualizar os pontos do cartão!', () => {
+      this.card.show();
+      this.card.changePoints(99, 99);
+    }, () => {
+      this.assert('Esta atualizando?', this.card.isUpdating()).toBe(true);
     });
   }
 }
@@ -3905,19 +3891,16 @@ class DisableCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      this.card.show();
-      await this.test('Deve desabilitar o cartão!', () => {
-        this.card.disable();
-      }, () => {
-        this.assert('Esta disabilitado?', this.card.isDisabled()).toBe(true);
-      });
-      await this.test('Deve habilitar o cartão!', () => {
-        this.card.enable();
-      }, () => {
-        this.assert('Esta habilitado?', this.card.isEnabled()).toBe(true);
-      });
-      return res(this.finish());
+    this.card.show();
+    this.test('Deve desabilitar o cartão!', () => {
+      this.card.disable();
+    }, () => {
+      this.assert('Esta disabilitado?', this.card.isDisabled()).toBe(true);
+    });
+    this.test('Deve habilitar o cartão!', () => {
+      this.card.enable();
+    }, () => {
+      this.assert('Esta habilitado?', this.card.isEnabled()).toBe(true);
     });
   }
 }
@@ -3941,14 +3924,11 @@ class ZoomInCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('Deve aplicar um zoom no cartão!', () => {
-        this.card.show();
-        this.card.zoom();
-      }, () => {
-        this.assert('Esta ampliado?', this.card.isZoom()).toBe(true);
-      })
-      return res(this.finish());
+    this.test('Deve aplicar um zoom no cartão!', () => {
+      this.card.show();
+      this.card.zoom();
+    }, () => {
+      this.assert('Esta ampliado?', this.card.isZoom()).toBe(true);
     });
   }
 }
@@ -3975,14 +3955,11 @@ class ZoomOutCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('Deve retonar a escala normal do cartão!', () => {
-        this.card.show();
-        this.card.zoomOut();
-      }, () => {
-        this.assert('Esta em escala original?', this.card.isOriginalScale()).toBe(true);
-      })
-      return res(this.finish());
+    this.test('Deve retonar a escala normal do cartão!', () => {
+      this.card.show();
+      this.card.zoomOut();
+    }, () => {
+      this.assert('Esta em escala original?', this.card.isOriginalScale()).toBe(true);
     });
   }
 }
@@ -4006,16 +3983,13 @@ class LeaveCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('Deve aplicar um zoom no cartão!', () => {
-        this.card.show();
-        this.card.leave();
-      }, () => {
-        this.assert('Largura é zero?', this.card.width).toBe(0);
-        this.assert('Altura é zero?', this.card.height).toBe(0);
-      })
-      return res(this.finish());
-    });
+    this.test('Deve aplicar um zoom no cartão!', () => {
+      this.card.show();
+      this.card.leave();
+    }, () => {
+      this.assert('Largura é zero?', this.card.width).toBe(0);
+      this.assert('Altura é zero?', this.card.height).toBe(0);
+    })
   }
 }
 class QuakeCardSpriteTest extends SceneTest {
@@ -4038,15 +4012,12 @@ class QuakeCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('Deve aplicar um zoom no cartão!', () => {
-        this.card.show();
-        const infinity = 10;
-        this.card.quake(infinity);
-      }, () => {
-        this.assert('Esta chacoalhando?', this.card.isMoving()).toBe(true);
-      });
-      return res(this.finish());
+    this.test('Deve aplicar um zoom no cartão!', () => {
+      this.card.show();
+      const infinity = 10;
+      this.card.quake(infinity);
+    }, () => {
+      this.assert('Esta chacoalhando?', this.card.isMoving()).toBe(true);
     });
   }
 }
@@ -4071,15 +4042,12 @@ class FlipCardToUpSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('O cartão deve estar em estado de hover!', () => {
-        this.card.show();
-        this.card.flipToUp();
-      }, () => {
-        this.assert('Esta para cima?', this.card.isTurnedToUp()).toBe(true);
-        this.assert('Esta aberto?', this.card.isOpened()).toBe(true);
-      });
-      return res(this.finish());
+    this.test('O cartão deve estar em estado de hover!', () => {
+      this.card.show();
+      this.card.flipToUp();
+    }, () => {
+      this.assert('Esta para cima?', this.card.isTurnedToUp()).toBe(true);
+      this.assert('Esta aberto?', this.card.isOpened()).toBe(true);
     });
   }
 }
@@ -4103,14 +4071,11 @@ class IluminatedCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('O cartão deve estar em estado de hover!', () => {
-        this.card.show();
-        this.card.iluminate();
-      }, () => {
-        this.assert('Esta iluminado?', this.card.isIluminated()).toBe(true);
-      });
-      return res(this.finish());
+    this.test('O cartão deve estar em estado de hover!', () => {
+      this.card.show();
+      this.card.iluminate();
+    }, () => {
+      this.assert('Esta iluminado?', this.card.isIluminated()).toBe(true);
     });
   }
 }
@@ -4129,13 +4094,10 @@ class SetBackgroundAndStartPositionCardsetSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('Deve apresentar o set de cartões!', () => {
-        this.cardset.show();
-      }, () => {
-        this.assert('É visível?', this.cardset.isVisible()).toBe(true);
-      });
-      return res(this.finish());
+    this.test('Deve apresentar o set de cartões!', () => {
+      this.cardset.show();
+    }, () => {
+      this.assert('É visível?', this.cardset.isVisible()).toBe(true);
     });
   }
 }
@@ -4153,31 +4115,20 @@ class SetCardsCardsetSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      this.cardset.show();
-      let times = 1;
-      for (let index = 0; index < 2; index++) {
-        await this.test('Deve mostrar todos os cartões abertos do set na mesma posição!', async () => {
-          const cards = Generator.generateCard(times);
-          await this.testCards(cards);
-        }, () => {
-          this.assert('Estão aberto?', this.cardset.allCardsOpened()).toBe(true);
-        });
-        times++;
-      }
-      return res(this.finish());
-    });
-  }
-
-  testCards(cards) {
-    return new Promise(resolve => {
-      this.cardset.setCards(cards);
-      this.cardset.showCards();
-      setTimeout(() => {
+    this.cardset.show();
+    let times = 1;
+    for (let index = 0; index < 2; index++) {
+      this.test('Deve mostrar todos os cartões abertos do set na mesma posição!', async () => {
+        const cards = Generator.generateCard(times);
+        this.cardset.setCards(cards);
+        this.cardset.showCards();
+        await this.timertoTrue(300);
         this.cardset.clear();
-        resolve(true);
-      }, 300);
-    });
+      }, () => {
+        this.assert('Estão aberto?', this.cardset.allCardsOpened()).toBe(true);
+      });
+      times++;
+    }
   }
 }
 class StartPositionCardsCardsetSpriteTest extends SceneTest {
@@ -4194,36 +4145,25 @@ class StartPositionCardsCardsetSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      this.cardset.show();
-      let times = 1;
-      const x = 100;
-      const y = 0;
-      for (let index = 0; index < 2; index++) {
-        await this.test('Deve mostrar todos os cartões do set na posição definida!', async () => {
-          const cards = Generator.generateCard(times);
-          await this.testCards(cards, x, y);
-        }, () => {
-          this.assert('Estão aberto?', this.cardset.allCardsOpened()).toBe(true);
-          const allInPosition = this.cardset.children.every(sprite => sprite.x === x && sprite.y === y);
-          this.assert('Estão na posição?', allInPosition).toBe(true);
-        });
-        times++;
-      }
-      return res(this.finish());
-    });
-  }
-
-  testCards(cards, x, y) {
-    return new Promise(resolve => {
-      this.cardset.setCards(cards);
-      this.cardset.startPositionCards(x, y);
-      this.cardset.showCards();
-      setTimeout(() => {
+    this.cardset.show();
+    let times = 1;
+    const x = 100;
+    const y = 0;
+    for (let index = 0; index < 2; index++) {
+      this.test('Deve mostrar todos os cartões do set na posição definida!', async () => {
+        const cards = Generator.generateCard(times);
+        this.cardset.setCards(cards);
+        this.cardset.startPositionCards(x, y);
+        this.cardset.showCards();
+        await this.timertoTrue(300);
         this.cardset.clear();
-        resolve(true);
-      }, 300);
-    });
+      }, () => {
+        this.assert('Estão aberto?', this.cardset.allCardsOpened()).toBe(true);
+        const allInPosition = this.cardset.children.every(sprite => sprite.x === x && sprite.y === y);
+        this.assert('Estão na posição?', allInPosition).toBe(true);
+      });
+      times++;
+    }
   }
 }
 class StartListCardsCardsetSpriteTest extends SceneTest {
@@ -4240,26 +4180,23 @@ class StartListCardsCardsetSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      this.cardset.show();
-      let times = 40;
-      for (let i = 0; i < 1; i++) {
-        const cards = Generator.generateCards(times);
-        this.cardset.setCards(cards);
-        const positions = this.cardset.startListCards();
-        await this.test('Deve mostrar todos os cartões em lista!', async () => {
-          this.cardset.showCards();
-          await this.timertoTrue(600);
-        }, () => {
-          const validation = this.cardset.children.every((sprite, index) => {
-            return sprite.x === positions[index].x && sprite.y === positions[index].y;
-          });
-          this.assert('Estão em lista?', validation).toBe(true);
+    this.cardset.show();
+    let times = 40;
+    for (let i = 0; i < 1; i++) {
+      const cards = Generator.generateCards(times);
+      this.cardset.setCards(cards);
+      const positions = this.cardset.startListCards();
+      this.test('Deve mostrar todos os cartões em lista!', async () => {
+        this.cardset.showCards();
+        await this.timertoTrue(600);
+      }, () => {
+        const validation = this.cardset.children.every((sprite, index) => {
+          return sprite.x === positions[index].x && sprite.y === positions[index].y;
         });
-        times++;
-      }
-      return res(this.finish());
-    });
+        this.assert('Estão em lista?', validation).toBe(true);
+      });
+      times++;
+    }
   }
 }
 class StartClosedAndOpenCardsCardsetSpriteTest extends SceneTest {
@@ -4276,58 +4213,40 @@ class StartClosedAndOpenCardsCardsetSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      this.cardset.show();
-      let times = 1;
-      for (let i = 0; i < 6; i++) {
-        const cards = Generator.generateCards(times);
-        await this.test('Deve abrir todos os cartões do set!', async () => {
-          await this.testCards(cards);
-        }, () => {
-          this.assert('Estão aberto?', this.cardset.allCardsOpened()).toBe(true);
-        });
-        times++;
-      }
-      times = 40;
-      for (let i = 0; i < 1; i++) {
-        const cards = Generator.generateCards(times);
-        await this.test('Deve abrir todos os cartões do set!', async () => {
-          await this.testDelayCards(cards);
-        }, () => {
-          this.assert('Estão aberto?', this.cardset.allCardsOpened()).toBe(true);
-        });
-        times++;
-      }
-      return res(this.finish());
-    });
-  }
-
-  testCards(cards) {
-    return new Promise(resolve => {
-      this.cardset.setCards(cards);
-      this.cardset.startListCards();
-      this.cardset.startClosedCards();
-      this.cardset.showCards();
-      this.cardset.openCards();
-      setTimeout(() => {
+    this.cardset.show();
+    let times = 1;
+    for (let i = 0; i < 6; i++) {
+      const cards = Generator.generateCards(times);
+      this.test('Deve abrir todos os cartões do set!', async () => {
+        this.cardset.setCards(cards);
+        this.cardset.startListCards();
+        this.cardset.startClosedCards();
+        this.cardset.showCards();
+        this.cardset.openCards();
+        await this.timertoTrue(300);
         this.cardset.clear();
-        resolve(true);
-      }, 300);
-    });
-  }
-
-  testDelayCards(cards) {
-    return new Promise(resolve => {
-      this.cardset.setCards(cards);
-      this.cardset.startListCards();
-      this.cardset.startClosedCards();
-      this.cardset.showCards();
-      this.cardset.openCardsWithDelay();
-      setTimeout(() => {
+      }, () => {
+        this.assert('Estão aberto?', this.cardset.allCardsOpened()).toBe(true);
+      });
+      times++;
+    }
+    times = 40;
+    for (let i = 0; i < 1; i++) {
+      const cards = Generator.generateCards(times);
+      this.test('Deve abrir todos os cartões do set!', async () => {
+        this.cardset.setCards(cards);
+        this.cardset.startListCards();
+        this.cardset.startClosedCards();
+        this.cardset.showCards();
+        this.cardset.openCardsWithDelay();
+        const timer = 30 * cards.length;
+        await this.timertoTrue(timer);
         this.cardset.clear();
-        resolve(true);
-      }, 30 * cards.length);
-    });
+      }, () => {
+        this.assert('Estão aberto?', this.cardset.allCardsOpened()).toBe(true);
+      });
+      times++;
+    }
   }
 }
 class MoveCardsToListCardsetSpriteTest extends SceneTest {
@@ -4344,52 +4263,57 @@ class MoveCardsToListCardsetSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      this.cardset.show();
-      let times = 1;
-      for (let i = 0; i < 6; i++) {
-        const cards = Generator.generateCards(times);
-        const screenWidth = Graphics.boxWidth;
-        this.cardset.setCards(cards);
+    this.cardset.show();
+    let times = 1;
+    for (let i = 0; i < 6; i++) {
+      const cards = Generator.generateCards(times);
+      const screenWidth = Graphics.boxWidth;
+      const positions = cards.map((card, index) => {
+        const { x, y } = this.cardset.getSpritePosition(index, cards.length);
+        return { index, x, y };
+      });
+      this.test('Deve mover todos os cartões do set na posição em lista!', async () => {
+        const sprites = this.cardset.setCards(cards);
         this.cardset.startPositionCards(screenWidth, 0);
         this.cardset.startOpenCards();
         this.cardset.showCards();
-        const positions = this.cardset.moveCardsToList();
-        await this.test('Deve mover todos os cartões do set na posição em lista!', async () => {
-          await this.timertoTrue(600);
-          this.cardset.clear();
-        }, () => {
-          const validation = this.cardset.children.every((sprite, index) => {
-            return sprite.x === positions[index].x && sprite.y === positions[index].y;
-          });
-          this.assert('Foram movidos em lista?', validation).toBe(true);
+        this.cardset.moveCardsToList();
+        await this.timertoTrue(600 * times);
+        this.cardset.clear();
+      }, () => {
+        const validation = this.cardset.children.every((sprite, index) => {
+          return sprite.x === positions[index].x && sprite.y === positions[index].y;
         });
-        times++;
-      }
-      times = 40;
-      for (let i = 0; i < 1; i++) {
-        const cards = Generator.generateCards(times);
-        const screenWidth = Graphics.boxWidth;
+        this.assert('Foram movidos em lista?', validation).toBe(true);
+      });
+      times++;
+    }
+    times = 40;
+    for (let i = 0; i < 1; i++) {
+      const cards = Generator.generateCards(times);
+      const screenWidth = Graphics.boxWidth;
+      const positions = cards.map((card, index) => {
+        const { x, y } = this.cardset.getSpritePosition(index, cards.length);
+        return { index, x, y };
+      });
+      const timeout = 8;
+      this.test('Deve mover todos os cartões do set na posição em lista!', async () => {
         this.cardset.setCards(cards);
         this.cardset.startOpenCards();
-        const positions = this.cardset.startListCards();
+        this.cardset.startListCards();
         this.cardset.startPositionCards(screenWidth, 0);
         this.cardset.showCards();
         this.cardset.moveCardsToListDelay(10);
-        const timeout = 8;
-        await this.test('Deve mover todos os cartões do set na posição em lista!', async () => {
-          await this.timertoTrue(200 * cards.length);
-          this.cardset.clear();
-        }, () => {
-          const validation = this.cardset.children.every((sprite, index) => {
-            return sprite.x === positions[index].x && sprite.y === positions[index].y;
-          });
-          this.assert('Foram movidos em lista?', validation).toBe(true);
-        }, timeout);
-        times++;
-      }
-      return res(this.finish());
-    });
+        await this.timertoTrue(600 * cards.length);
+        this.cardset.clear();
+      }, () => {
+        const validation = this.cardset.children.every((sprite, index) => {
+          return sprite.x === positions[index].x && sprite.y === positions[index].y;
+        });
+        this.assert('Foram movidos em lista?', validation).toBe(true);
+      }, timeout);
+      times++;
+    }
   }
 }
 class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
@@ -4406,32 +4330,29 @@ class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      this.cardset.show();
-      let times = 1;
-      for (let i = 0; i < 1; i++) {
-        const cards = Generator.generateCards(times);
-        const screenWidth = Graphics.boxWidth;
-        this.cardset.setCards(cards);
-        this.cardset.startPositionCards(screenWidth, 0);
-        this.cardset.startOpenCards();
-        this.cardset.showCards();
-        const cardWidth = 96;
-        const xPosition = (this.cardset.width / 2) - (cardWidth / 2);
-        this.cardset.moveCardsToPosition(xPosition, 0);
-        await this.test('Deve mover todos os cartões do set na posição!', async () => {
-          await this.timertoTrue(600);
-          this.cardset.clear();
-        }, () => {
-          const validation = this.cardset.children.every((sprite, index) => {
-            return sprite.x === xPosition && sprite.y === 0;
-          });
-          this.assert('Foram movidos para posição?', validation).toBe(true);
+    this.cardset.show();
+    let times = 1;
+    for (let i = 0; i < 1; i++) {
+      const cards = Generator.generateCards(times);
+      const screenWidth = Graphics.boxWidth;
+      this.cardset.setCards(cards);
+      this.cardset.startPositionCards(screenWidth, 0);
+      this.cardset.startOpenCards();
+      this.cardset.showCards();
+      const cardWidth = 96;
+      const xPosition = (this.cardset.width / 2) - (cardWidth / 2);
+      this.cardset.moveCardsToPosition(xPosition, 0);
+      this.test('Deve mover todos os cartões do set na posição!', async () => {
+        await this.timertoTrue(600);
+        this.cardset.clear();
+      }, () => {
+        const validation = this.cardset.children.every((sprite, index) => {
+          return sprite.x === xPosition && sprite.y === 0;
         });
-        times++;
-      }
-      return res(this.finish());
-    });
+        this.assert('Foram movidos para posição?', validation).toBe(true);
+      });
+      times++;
+    }
   }
 }
 class AddCardAndMoveToListCardsetSpriteTest extends SceneTest {
@@ -4448,76 +4369,70 @@ class AddCardAndMoveToListCardsetSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      this.cardset.show();
-      let times = 1;
-      for (let i = 0; i < 6; i++) {
-        const cards = Generator.generateCards(times);
-        await this.test('Deve abrir todos os cartões do set!', async () => {
-          await this.testCards(cards);
-        }, () => {
-          this.assert(this.cardset.allCardsOpened()).toBe(true);
-        });
-        times++;
-      }
-      times = 40;
-      for (let i = 0; i < 1; i++) {
-        const cards = Generator.generateCards(times);
-        await this.test('Deve abrir todos os cartões do set!', async () => {
-          await this.testDelayCards(cards);
-        }, () => {
-          this.assert(this.cardset.allCardsOpened()).toBe(true);
-        });
-        times++;
-      }
-      res(true);
-    });
-  }
-
-  // start() {
-  //   return new Promise(async resolve => {
-  //     this.scene.addChild(this.cardset);
-  //     this.cardset.show();
-  //     let testTimes = 1;
-  //     for (let index = 0; index < 3; index++) {
-  //       const cards = this.generateCards(3);
-  //       const sprites = this.cardset.setCards(cards);
-  //       this.cardset.startListCards(sprites);
-  //       this.cardset.showCards(sprites);
-  //       const newCards = this.generateCards(testTimes);
-  //       const newSprites = this.cardset.addCards(newCards);
-  //       await this.testCard(newSprites);
-  //       testTimes++;
-  //     }
-  //     testTimes = 1;
-  //     for (let index = 0; index < 3; index++) {
-  //       const cards = this.generateCards(3);
-  //       const sprites = this.cardset.setCards(cards);
-  //       this.cardset.startListCards(sprites);
-  //       this.cardset.showCards(sprites);
-  //       const newCards = this.generateCards(testTimes);
-  //       const newSprites = this.cardset.addCards(newCards);
-  //       await this.testCards(newSprites);
-  //       testTimes++;
-  //     }
-  //     resolve(true);
-  //   });
-  // }
-
-  testCard(sprites) {
-    return new Promise(resolve => {
+    this.cardset.show();
+    let times = 1;
+    // for (let i = 0; i < 3; i++) {
+    //   const cards = Generator.generateCards(3);
+    //   const newCards = Generator.generateCards(times);
+    //   const screenWidth = Graphics.boxWidth;
+    //   const positions = newCards.map((card, index) => {
+    //     index = cards.length + index;
+    //     const { x, y } = this.cardset.getSpritePosition(index, cards.length);
+    //     return { index, x, y };
+    //   });
+    //   this.test('Deve mover todos os cartões do set na posição em lista!', async () => {
+    //     const sprites = this.cardset.setCards(cards);
+    //     this.cardset.startListCards(sprites);
+    //     this.cardset.showCards(sprites);
+    //     const newSprites = this.cardset.addCards(newCards);
+    //     this.cardset.startPositionCards(screenWidth, 0, newSprites);
+    //     this.cardset.showCards(newSprites);
+    //     // const delay = 10;
+    //     this.cardset.moveCardsToList(newSprites);
+    //     await this.timertoTrue(1000 * times);
+    //     this.cardset.clear();
+    //   }, () => {
+    //     const validation = positions.every(({ index, x, y }) => {
+    //       const sprite = this.cardset.children[index];
+    //       return sprite.x === x && sprite.y === y;
+    //     });
+    //     this.assert('Foram movidos em lista?', validation).toBe(true);
+    //   });
+    //   times++;
+    // }
+    times = 1;
+    for (let i = 0; i < 3; i++) {
+      const cards = Generator.generateCards(3);
+      const newCards = Generator.generateCards(times);
       const screenWidth = Graphics.boxWidth;
-      this.cardset.startPositionCards(screenWidth, 0, sprites);
-      this.cardset.showCards(sprites);
-      this.cardset.moveCardsToList(sprites);
-      setTimeout(async () => {
+      const positions = newCards.map((card, index) => {
+        index = cards.length + index;
+        const { x, y } = this.cardset.getSpritePosition(index, cards.length);
+        return { index, x, y };
+      });
+      this.test('Deve mover todos os cartões do set na posição em lista!', async () => {
+        const sprites = this.cardset.setCards(cards);
+        this.cardset.startListCards(sprites);
+        this.cardset.showCards(sprites);
+        const newSprites = this.cardset.addCards(newCards);
+        this.cardset.startPositionCards(screenWidth, 0, newSprites);
+        this.cardset.showCards(newSprites);
+        const delay = 10;
+        this.cardset.moveCardsToListDelay(delay, newSprites);
+        await this.timertoTrue(1000 * times);
         this.cardset.clear();
-        resolve(true);
-      }, 500 * sprites.length);
-    });
+      }, () => {
+        const validation = positions.every(({ index, x, y }) => {
+          const sprite = this.cardset.children[index];
+          return sprite.x === x && sprite.y === y;
+        });
+        this.assert('Foram movidos em lista?', validation).toBe(true);
+      });
+      times++;
+    }
   }
 
-  testCards(sprites) {
+  testDelayCards(sprites) {
     return new Promise(resolve => {
       const screenWidth = Graphics.boxWidth;
       this.cardset.startPositionCards(screenWidth, 0, sprites);
@@ -5158,14 +5073,14 @@ class CardBattleTestScene extends Scene_Message {
       IluminatedCardSpriteTest
     ];
     const cardsetTests = [
-      SetBackgroundAndStartPositionCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      StartPositionCardsCardsetSpriteTest,
-      StartListCardsCardsetSpriteTest,
-      StartClosedAndOpenCardsCardsetSpriteTest,
-      MoveCardsToListCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
-      // AddCardAndMoveToListCardsetSpriteTest,
+      // SetBackgroundAndStartPositionCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      // StartPositionCardsCardsetSpriteTest,
+      // StartListCardsCardsetSpriteTest,
+      // StartClosedAndOpenCardsCardsetSpriteTest,
+      // MoveCardsToListCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
+      AddCardAndMoveToListCardsetSpriteTest,
       // SelectModeCardsetSpriteTest,
       // DisableAndEnableCardsCardsetSpriteTest,
       // SelectModeAndEnableChoiceCardsetSpriteTest,
@@ -5189,7 +5104,7 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsGamePointsWindowTest,
     ];
     return [
-      ...cardSpriteTests,
+      // ...cardSpriteTests,
       ...cardsetTests,
     //   ...textWindowTests,
     //   ...gameBoardTests,
@@ -5215,7 +5130,7 @@ class CardBattleTestScene extends Scene_Message {
     let results = [];
     for (const test of this.tests) {
       this._test = test;
-      const result = await this._test.start();
+      const result = await this._test.run();
       results.push(result);
       await this.clearScene();
     }

@@ -12,25 +12,22 @@ class StartListCardsCardsetSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      this.cardset.show();
-      let times = 40;
-      for (let i = 0; i < 1; i++) {
-        const cards = Generator.generateCards(times);
-        this.cardset.setCards(cards);
-        const positions = this.cardset.startListCards();
-        await this.test('Deve mostrar todos os cartões em lista!', async () => {
-          this.cardset.showCards();
-          await this.timertoTrue(600);
-        }, () => {
-          const validation = this.cardset.children.every((sprite, index) => {
-            return sprite.x === positions[index].x && sprite.y === positions[index].y;
-          });
-          this.assert('Estão em lista?', validation).toBe(true);
+    this.cardset.show();
+    let times = 40;
+    for (let i = 0; i < 1; i++) {
+      const cards = Generator.generateCards(times);
+      this.cardset.setCards(cards);
+      const positions = this.cardset.startListCards();
+      this.test('Deve mostrar todos os cartões em lista!', async () => {
+        this.cardset.showCards();
+        await this.timertoTrue(600);
+      }, () => {
+        const validation = this.cardset.children.every((sprite, index) => {
+          return sprite.x === positions[index].x && sprite.y === positions[index].y;
         });
-        times++;
-      }
-      return res(this.finish());
-    });
+        this.assert('Estão em lista?', validation).toBe(true);
+      });
+      times++;
+    }
   }
 }

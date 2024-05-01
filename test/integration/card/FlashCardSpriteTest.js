@@ -18,17 +18,14 @@ class FlashCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('O cartão deve receber um flash de luz!', () => {
-        const color = 'white';
-        const duration = 60;
-        const infinity = -1;
-        this.card.show();
-        this.card.flash(color, duration, infinity);
-      }, () => {
-        this.assert('Houve um flash de luz?', this.card.isFlashPlaying()).toBe(true);
-      });
-      return res(this.finish());
+    this.test('O cartão deve receber um flash de luz!', () => {
+      const color = 'white';
+      const duration = 60;
+      const infinity = -1;
+      this.card.show();
+      this.card.flash(color, duration, infinity);
+    }, () => {
+      this.assert('Houve um flash de luz?', this.card.isFlashPlaying()).toBe(true);
     });
   } 
 }

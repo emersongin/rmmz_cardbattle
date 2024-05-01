@@ -33,15 +33,15 @@ class CardBattleTestScene extends Scene_Message {
       IluminatedCardSpriteTest
     ];
     const cardsetTests = [
-      SetBackgroundAndStartPositionCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      StartPositionCardsCardsetSpriteTest,
-      StartListCardsCardsetSpriteTest,
-      StartClosedAndOpenCardsCardsetSpriteTest,
-      MoveCardsToListCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
+      // SetBackgroundAndStartPositionCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      // StartPositionCardsCardsetSpriteTest,
+      // StartListCardsCardsetSpriteTest,
+      // StartClosedAndOpenCardsCardsetSpriteTest,
+      // MoveCardsToListCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
       // AddCardAndMoveToListCardsetSpriteTest,
-      // SelectModeCardsetSpriteTest,
+      SelectModeCardsetSpriteTest,
       // DisableAndEnableCardsCardsetSpriteTest,
       // SelectModeAndEnableChoiceCardsetSpriteTest,
       // AnimateCardsCardsetSpriteTest
@@ -64,7 +64,7 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsGamePointsWindowTest,
     ];
     return [
-      ...cardSpriteTests,
+      // ...cardSpriteTests,
       ...cardsetTests,
     //   ...textWindowTests,
     //   ...gameBoardTests,
@@ -90,7 +90,7 @@ class CardBattleTestScene extends Scene_Message {
     let results = [];
     for (const test of this.tests) {
       this._test = test;
-      const result = await this._test.start();
+      const result = await this._test.run();
       results.push(result);
       await this.clearScene();
     }

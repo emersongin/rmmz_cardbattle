@@ -18,15 +18,12 @@ class DamageAnimationCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('O cartão deve receber uma animação de dano!', () => {
-        const times = 1;
-        this.card.show();
-        this.card.damage(times);
-      }, () => {
-        this.assert('Houve uma animação?', this.card.isAnimationPlaying()).toBe(true);
-      });
-      return res(this.finish());
+    this.test('O cartão deve receber uma animação de dano!', () => {
+      const times = 1;
+      this.card.show();
+      this.card.damage(times);
+    }, () => {
+      this.assert('Houve uma animação?', this.card.isAnimationPlaying()).toBe(true);
     });
   }
 }

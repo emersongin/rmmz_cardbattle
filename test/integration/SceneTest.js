@@ -23,12 +23,23 @@ class SceneTest {
     // Override this method in the child class
   }
 
+  run() {
+    return new Promise(async res => {
+      this.start();
+      res(await this.finish());
+    });
+  }
+
   finish() {
-    return {
-      passed: this.results.every(result => result.passed),
-      testName: this.name,
-      assertsResult: this.results
-    };
+    return new Promise(async res => {
+      const total = this.totalSeconds();
+      await this.timertoTrue((1000 * total) + 200);
+      res({
+        passed: this.results.every(result => result.passed),
+        testName: this.name,
+        assertsResult: this.results
+      });
+    });
   }
 
   async test(assertsName, act, asserts, seconds = 1) {
@@ -42,21 +53,17 @@ class SceneTest {
         message: 'Nenhuma assert definida!'
       });
     };
-    return new Promise(async resolve => {
-      this.tests.push({
-        seconds,
-        act: () => {
-          act ? act() : actDefault();
-          return true;
-        },
-        asserts: () => {
-          this.assertsName = assertsName;
-          asserts ? asserts() : assertsDefault();
-          return true;
-        }
-      });
-      const total = this.totalSeconds();
-      return resolve(await this.timertoTrue((1000 * total) + 200));
+    this.tests.push({
+      seconds,
+      act: () => {
+        act ? act() : actDefault();
+        return true;
+      },
+      asserts: () => {
+        this.assertsName = assertsName;
+        asserts ? asserts() : assertsDefault();
+        return true;
+      }
     });
   }
 

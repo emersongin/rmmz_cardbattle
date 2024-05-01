@@ -18,14 +18,11 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('Deve atualizar os pontos do cartão!', () => {
-        this.card.show();
-        this.card.changePoints(99, 99);
-      }, () => {
-        this.assert('Esta atualizando?', this.card.isUpdating()).toBe(true);
-      })
-      return res(this.finish());
+    this.test('Deve atualizar os pontos do cartão!', () => {
+      this.card.show();
+      this.card.changePoints(99, 99);
+    }, () => {
+      this.assert('Esta atualizando?', this.card.isUpdating()).toBe(true);
     });
   }
 }

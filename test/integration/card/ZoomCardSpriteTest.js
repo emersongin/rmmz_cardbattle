@@ -18,14 +18,11 @@ class ZoomInCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('Deve aplicar um zoom no cartão!', () => {
-        this.card.show();
-        this.card.zoom();
-      }, () => {
-        this.assert('Esta ampliado?', this.card.isZoom()).toBe(true);
-      })
-      return res(this.finish());
+    this.test('Deve aplicar um zoom no cartão!', () => {
+      this.card.show();
+      this.card.zoom();
+    }, () => {
+      this.assert('Esta ampliado?', this.card.isZoom()).toBe(true);
     });
   }
 }

@@ -122,8 +122,8 @@ class CardsetSprite extends ActionSprite {
     return positions;
   }
 
-  getSpritePosition(index) {
-    const spaceBetween = this.spaceBetweenCards(this.numberOfChildren()) * index;
+  getSpritePosition(index, numberOfChildren = this.numberOfChildren()) {
+    const spaceBetween = this.spaceBetweenCards(numberOfChildren) * index;
     const x = index ? spaceBetween : 0;
     const y = 0;
     return { x, y };
@@ -211,32 +211,41 @@ class CardsetSprite extends ActionSprite {
   }
 
   moveCardToList(sprite, exceptSprites) {
-    this.moveCardsToList(sprite, exceptSprites);
+    return this.moveCardsToList(sprite, exceptSprites);
   }
 
   moveCardsToList(sprites = this._sprites, exceptSprites) {
     sprites = this.toArray(sprites);
-    const positions = this.startListCards(this._sprites, exceptSprites || sprites);
-    this.addAction(this.commandMoveCardsToList, sprites);
+    this.startListCards(this._sprites, exceptSprites || sprites);
+    const positions = this.calculateSpritesPositionsToList(sprites);
+    this.addAction(this.commandMoveCardsToList, positions);
+    return positions;
+  }
+
+  calculateSpritesPositionsToList(sprites = this._sprites) {
+    const positions = [];
+    sprites.forEach(sprite => {
+      const index = this.indexOfSprite(sprite);
+      const { x, y } = this.getSpritePosition(index);
+      positions.push({ index, x, y });
+    });
     return positions;
   }
 
   moveCardsToListDelay(delay = 10, sprites = this._sprites, exceptSprites) {
     sprites = this.toArray(sprites);
-    const positions = this.startListCards(this._sprites, exceptSprites || sprites);
-    const actions = this.createActionsWithDelay(this.commandMoveCardsToList, delay, sprites);
+    this.startListCards(this._sprites, exceptSprites || sprites);
+    const positions = this.calculateSpritesPositionsToList(sprites);
+    const actions = this.createActionsWithDelay(this.commandMoveCardsToList, delay, positions);
     this.addActions(actions);
     return positions;
   }
 
-  commandMoveCardsToList(sprites) {
+  commandMoveCardsToList(positions) {
     if (this.isHidden()) return;
-    sprites = this.toArray(sprites);
-    sprites.forEach(sprite => {
-      const index = this.indexOfSprite(sprite);
+    positions.forEach(({ index, x, y }) => {
       if (index < 0) return;
-      const { x, y } = this.getSpritePosition(index);
-      sprite.toMove(x, y);
+      this._sprites[index].toMove(x, y);
     });
     return true;
   }

@@ -12,30 +12,19 @@ class SetCardsCardsetSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      this.cardset.show();
-      let times = 1;
-      for (let index = 0; index < 2; index++) {
-        await this.test('Deve mostrar todos os cartões abertos do set na mesma posição!', async () => {
-          const cards = Generator.generateCard(times);
-          await this.testCards(cards);
-        }, () => {
-          this.assert('Estão aberto?', this.cardset.allCardsOpened()).toBe(true);
-        });
-        times++;
-      }
-      return res(this.finish());
-    });
-  }
-
-  testCards(cards) {
-    return new Promise(resolve => {
-      this.cardset.setCards(cards);
-      this.cardset.showCards();
-      setTimeout(() => {
+    this.cardset.show();
+    let times = 1;
+    for (let index = 0; index < 2; index++) {
+      this.test('Deve mostrar todos os cartões abertos do set na mesma posição!', async () => {
+        const cards = Generator.generateCard(times);
+        this.cardset.setCards(cards);
+        this.cardset.showCards();
+        await this.timertoTrue(300);
         this.cardset.clear();
-        resolve(true);
-      }, 300);
-    });
+      }, () => {
+        this.assert('Estão aberto?', this.cardset.allCardsOpened()).toBe(true);
+      });
+      times++;
+    }
   }
 }

@@ -18,14 +18,11 @@ class OpenCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('Deve abrir o cartão!', () => {
-        this.card.show();
-        this.card.open();
-      }, () => {
-        this.assert('Esta aberto?', this.card.isOpened()).toBe(true);
-      })
-      return res(this.finish());
+    this.test('Deve abrir o cartão!', () => {
+      this.card.show();
+      this.card.open();
+    }, () => {
+      this.assert('Esta aberto?', this.card.isOpened()).toBe(true);
     });
   }
 }

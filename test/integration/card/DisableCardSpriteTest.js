@@ -18,19 +18,16 @@ class DisableCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      this.card.show();
-      await this.test('Deve desabilitar o cartão!', () => {
-        this.card.disable();
-      }, () => {
-        this.assert('Esta disabilitado?', this.card.isDisabled()).toBe(true);
-      });
-      await this.test('Deve habilitar o cartão!', () => {
-        this.card.enable();
-      }, () => {
-        this.assert('Esta habilitado?', this.card.isEnabled()).toBe(true);
-      });
-      return res(this.finish());
+    this.card.show();
+    this.test('Deve desabilitar o cartão!', () => {
+      this.card.disable();
+    }, () => {
+      this.assert('Esta disabilitado?', this.card.isDisabled()).toBe(true);
+    });
+    this.test('Deve habilitar o cartão!', () => {
+      this.card.enable();
+    }, () => {
+      this.assert('Esta habilitado?', this.card.isEnabled()).toBe(true);
     });
   }
 }

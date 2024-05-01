@@ -16,40 +16,37 @@ class MoveCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      this.card.show();
-      const destinyXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-      const destinyYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-      const avanceXposition = (Graphics.boxWidth - this.card.width);
-      const avanceYposition = (Graphics.boxHeight - this.card.height);
-      const returnStartPosition = 0;
-      await this.test('Deve mover o cartão!', () => {
-        this.card.toMove(destinyXPosition, destinyYPosition);
-      }, () => {
-        this.assert('Esta na Posição x?', this.card.x).toBe(destinyXPosition);
-        this.assert('Esta na Posição y?', this.card.y).toBe(destinyYPosition);
-      });
-      await this.test('Deve mover o cartão!', () => {
-        this.card.toMove(avanceXposition, destinyYPosition);
-      }, () => {
-        this.assert('Esta na Posição x?', this.card.x).toBe(avanceXposition);
-        this.assert('Esta na Posição y?', this.card.y).toBe(destinyYPosition);
-      });
-      await this.test('Deve mover o cartão!', () => {
-        this.card.toMove(avanceXposition, avanceYposition);
-        this.card.toMove(destinyXPosition, avanceYposition);
-      }, () => {
-        this.assert('Esta na Posição x?', this.card.x).toBe(destinyXPosition);
-        this.assert('Esta na Posição y?', this.card.y).toBe(avanceYposition);
-      });
-      await this.test('Deve mover o cartão!', () => {
-        this.card.toMove(returnStartPosition, returnStartPosition);
-        this.card.toMove(destinyXPosition, destinyYPosition);
-      }, () => {
-        this.assert('Esta na Posição x?', this.card.x).toBe(destinyXPosition);
-        this.assert('Esta na Posição y?', this.card.y).toBe(destinyYPosition);
-      });
-      return res(this.finish());
+    this.card.show();
+    const destinyXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
+    const destinyYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
+    const avanceXposition = (Graphics.boxWidth - this.card.width);
+    const avanceYposition = (Graphics.boxHeight - this.card.height);
+    const returnStartPosition = 0;
+    this.test('Deve mover o cartão!', () => {
+      this.card.toMove(destinyXPosition, destinyYPosition);
+    }, () => {
+      this.assert('Esta na Posição x?', this.card.x).toBe(destinyXPosition);
+      this.assert('Esta na Posição y?', this.card.y).toBe(destinyYPosition);
+    });
+    this.test('Deve mover o cartão!', () => {
+      this.card.toMove(avanceXposition, destinyYPosition);
+    }, () => {
+      this.assert('Esta na Posição x?', this.card.x).toBe(avanceXposition);
+      this.assert('Esta na Posição y?', this.card.y).toBe(destinyYPosition);
+    });
+    this.test('Deve mover o cartão!', () => {
+      this.card.toMove(avanceXposition, avanceYposition);
+      this.card.toMove(destinyXPosition, avanceYposition);
+    }, () => {
+      this.assert('Esta na Posição x?', this.card.x).toBe(destinyXPosition);
+      this.assert('Esta na Posição y?', this.card.y).toBe(avanceYposition);
+    });
+    this.test('Deve mover o cartão!', () => {
+      this.card.toMove(returnStartPosition, returnStartPosition);
+      this.card.toMove(destinyXPosition, destinyYPosition);
+    }, () => {
+      this.assert('Esta na Posição x?', this.card.x).toBe(destinyXPosition);
+      this.assert('Esta na Posição y?', this.card.y).toBe(destinyYPosition);
     });
   }
 }

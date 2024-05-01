@@ -18,15 +18,12 @@ class CloseCardSpriteTest extends SceneTest {
   }
 
   start() {
-    return new Promise(async res => {
-      await this.test('Deve fechar o cartão!', () => {
-        this.card.show();
-        this.card.close();
-      }, () => {
-        this.assert('Esta fechado?', this.card.isClosed()).toBe(true);
-      })
-      return res(this.finish());
-    });
+    this.test('Deve fechar o cartão!', () => {
+      this.card.show();
+      this.card.close();
+    }, () => {
+      this.assert('Esta fechado?', this.card.isClosed()).toBe(true);
+    })
   }
 
   // exemplo de teste de unidade
