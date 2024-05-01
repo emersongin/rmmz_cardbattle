@@ -1,28 +1,27 @@
 class AnimateDamageCardsCardsetSpriteTest extends SceneTest {
-  cardset;
   name = 'AnimateDamageCardsCardsetSpriteTest';
 
   create() {
-    this.cardset = CardsetSprite.create();
-    const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
-    this.cardset.startPosition(centerXPosition, centerYPosition);
-    this.cardset.setBackgroundColor('white');
-    this.addChild(this.cardset);
+    this.subject = CardsetSprite.create();
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startPosition(centerXPosition, centerYPosition);
+    this.subject.setBackgroundColor('white');
+    this.addChild(this.subject);
   }
 
   start() {
-    this.cardset.show();
+    this.subject.show();
     const cards = CardGenerator.generateCards(6);
     this.test('Deve realizar animações nos cartões!', () => {
-      const sprites = this.cardset.setCards(cards);
-      this.cardset.startListCards();
-      this.cardset.showCards();
-      const sprite = this.cardset.getCardIndex(0);
-      this.cardset.animateCardDamage(sprite);
-      this.cardset.animateCardsDamage();
+      const sprites = this.subject.setCards(cards);
+      this.subject.startListCards();
+      this.subject.showCards();
+      const sprite = this.subject.getCardIndex(0);
+      this.subject.animateCardDamage(sprite);
+      this.subject.animateCardsDamage();
     }, () => {
-      this.assertTrue('Houve uma animação?', this.cardset.someSpriteIsAnimationPlaying());
-    }, 2);
+      this.assertWasTrue('Houve uma animação?', this.subject.someSpriteIsAnimationPlaying);
+    });
   }
 }

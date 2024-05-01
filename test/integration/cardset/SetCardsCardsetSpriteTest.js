@@ -1,26 +1,25 @@
 class SetCardsCardsetSpriteTest extends SceneTest {
-  cardset;
   name = 'SetCardsCardsetSpriteTest';
 
   create() {
-    this.cardset = CardsetSprite.create();
-    const centerXPosition = (Graphics.boxWidth / 2 - this.cardset.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.cardset.height / 2);
-    this.cardset.startPosition(centerXPosition, centerYPosition);
-    this.cardset.setBackgroundColor('white');
-    this.addChild(this.cardset);
+    this.subject = CardsetSprite.create();
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startPosition(centerXPosition, centerYPosition);
+    this.subject.setBackgroundColor('white');
+    this.addChild(this.subject);
   }
 
   start() {
-    this.cardset.show();
+    this.subject.show();
     let times = 1;
     for (let index = 0; index < 2; index++) {
       const cards = CardGenerator.generateCard(times);
       this.test('Deve mostrar todos os cartões abertos do set na mesma posição!', () => {
-        this.cardset.setCards(cards);
-        this.cardset.showCards();
+        this.subject.setCards(cards);
+        this.subject.showCards();
       }, () => {
-        this.assertTrue('Estão aberto?', this.cardset.allCardsOpened());
+        this.assertTrue('Estão aberto?', this.subject.allCardsOpened());
       }, 0.3);
       times++;
     }

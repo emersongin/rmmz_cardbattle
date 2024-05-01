@@ -210,6 +210,29 @@ class CardsetSprite extends ActionSprite {
     return actions;
   }
 
+  closeCard(sprite) {
+    this.closeCards(sprite);
+  }
+
+  closeCards(sprites = this._sprites) {
+    sprites = this.toArray(sprites);
+    this.addAction(this.commandCloseCards, sprites);
+  }
+
+  commandCloseCards(sprites) {
+    if (this.isHidden()) return;
+    sprites.forEach(sprite => {
+      sprite.close();
+    });
+    return true;
+  }
+
+  closeCardsWithDelay(delay = 1, sprites = this._sprites) {
+    sprites = this.toArray(sprites);
+    const actions = this.createActionsWithDelay(this.commandCloseCards, delay, sprites);
+    this.addActions(actions);
+  }
+
   moveCardToList(sprite, exceptSprites) {
     return this.moveCardsToList(sprite, exceptSprites);
   }
@@ -427,6 +450,10 @@ class CardsetSprite extends ActionSprite {
     return this._sprites.every(sprite => sprite.isOpened());
   }
 
+  allCardsClosed() {
+    return this._sprites.every(sprite => sprite.isClosed());
+  }
+
   isEnableChoice() {
     return this._enableSelected;
   }
@@ -456,6 +483,10 @@ class CardsetSprite extends ActionSprite {
     return indexs.every(index => this.getCardIndex(index).isEnabled());
   }
 
+  isDisabledCardsIndex(indexs) {
+    return indexs.every(index => this.getCardIndex(index).isDisabled());
+  }
+
   static createPositions(numCards = 1, padingLeftToAdd = 13, x, y) {
     const positions = [];
     let padingLeft = 0;
@@ -464,6 +495,10 @@ class CardsetSprite extends ActionSprite {
       padingLeft += padingLeftToAdd;
     }
     return positions;
+  }
+
+  isStaticMode() {
+    return this.getStatus() instanceof CardsetSpriteStaticModeState;
   }
 
 }

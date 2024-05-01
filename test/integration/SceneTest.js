@@ -146,10 +146,10 @@ class SceneTest {
     this.WindowsToAdd = [];
   }
 
-  assertWasTrue(title, fnOrValue) {
+  assertWasTrue(title, fnOrValue, ...params) {
     const result = this.subjects.some(subject => {
       if (typeof fnOrValue === 'function') {
-        return subject[fnOrValue.name]();
+        return subject[fnOrValue.name](...params);
       }
       return subject[fnOrValue];
     });
