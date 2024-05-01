@@ -1,5 +1,6 @@
 class IluminatedCardSpriteTest extends SceneTest {
   card;
+  name = 'IluminatedCardSpriteTest';
 
   create() {
     const card = Generator.generateCard();
@@ -22,9 +23,9 @@ class IluminatedCardSpriteTest extends SceneTest {
         this.card.show();
         this.card.iluminate();
       }, () => {
-        this.assert(this.card.isIluminated()).toBe(true);
+        this.assert('Esta iluminado?', this.card.isIluminated()).toBe(true);
       });
-      res(true);
+      return res(this.finish());
     });
   }
 }

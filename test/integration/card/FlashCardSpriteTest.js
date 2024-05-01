@@ -1,5 +1,6 @@
 class FlashCardSpriteTest extends SceneTest {
   card;
+  name = 'FlashCardSpriteTest';
 
   create() {
     const card = Generator.generateCard();
@@ -25,9 +26,9 @@ class FlashCardSpriteTest extends SceneTest {
         this.card.show();
         this.card.flash(color, duration, infinity);
       }, () => {
-        this.assert(this.card.isFlashPlaying()).toBe(true);
+        this.assert('Houve um flash de luz?', this.card.isFlashPlaying()).toBe(true);
       });
-      res(true);
+      return res(this.finish());
     });
   } 
 }

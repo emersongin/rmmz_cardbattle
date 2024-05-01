@@ -1,5 +1,6 @@
 class OpenCardSpriteTest extends SceneTest {
   card;
+  name = 'OpenCardSpriteTest';
 
   create() {
     const card = Generator.generateCard();
@@ -18,12 +19,13 @@ class OpenCardSpriteTest extends SceneTest {
 
   start() {
     return new Promise(async res => {
-      res(await this.test('Deve abrir o cartão!', () => {
+      await this.test('Deve abrir o cartão!', () => {
         this.card.show();
         this.card.open();
       }, () => {
-        this.assert(this.card.isOpened()).toBe(true);
-      }));
+        this.assert('Esta aberto?', this.card.isOpened()).toBe(true);
+      })
+      return res(this.finish());
     });
   }
 }

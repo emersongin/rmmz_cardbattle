@@ -1,5 +1,6 @@
 class UpdatingPointsCardSpriteTest extends SceneTest {
   card;
+  name = 'UpdatingPointsCardSpriteTest';
 
   create() {
     const card = Generator.generateCard(CardTypes.BATTLE);
@@ -18,12 +19,13 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
 
   start() {
     return new Promise(async res => {
-      res(await this.test('Deve atualizar os pontos do cartão!', () => {
+      await this.test('Deve atualizar os pontos do cartão!', () => {
         this.card.show();
         this.card.changePoints(99, 99);
       }, () => {
-        this.assert(this.card.isUpdating()).toBe(true);
-      }));
+        this.assert('Esta atualizando?', this.card.isUpdating()).toBe(true);
+      })
+      return res(this.finish());
     });
   }
 }

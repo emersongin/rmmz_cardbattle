@@ -1,5 +1,6 @@
 class LeaveCardSpriteTest extends SceneTest {
   card;
+  name = 'LeaveCardSpriteTest';
 
   create() {
     const card = Generator.generateCard();
@@ -18,13 +19,14 @@ class LeaveCardSpriteTest extends SceneTest {
 
   start() {
     return new Promise(async res => {
-      res(await this.test('Deve aplicar um zoom no cartão!', () => {
+      await this.test('Deve aplicar um zoom no cartão!', () => {
         this.card.show();
         this.card.leave();
       }, () => {
-        this.assert(this.card.width).toBe(0);
-        this.assert(this.card.height).toBe(0);
-      }));
+        this.assert('Largura é zero?', this.card.width).toBe(0);
+        this.assert('Altura é zero?', this.card.height).toBe(0);
+      })
+      return res(this.finish());
     });
   }
 }

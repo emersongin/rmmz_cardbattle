@@ -1,5 +1,6 @@
 class ZoomInCardSpriteTest extends SceneTest {
   card;
+  name = 'ZoomInCardSpriteTest';
 
   create() {
     const card = Generator.generateCard();
@@ -18,12 +19,13 @@ class ZoomInCardSpriteTest extends SceneTest {
 
   start() {
     return new Promise(async res => {
-      res(await this.test('Deve aplicar um zoom no cartão!', () => {
+      await this.test('Deve aplicar um zoom no cartão!', () => {
         this.card.show();
         this.card.zoom();
       }, () => {
-        this.assert(this.card.isZoom()).toBe(true);
-      }));
+        this.assert('Esta ampliado?', this.card.isZoom()).toBe(true);
+      })
+      return res(this.finish());
     });
   }
 }

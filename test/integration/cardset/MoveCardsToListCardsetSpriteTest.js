@@ -1,5 +1,6 @@
 class MoveCardsToListCardsetSpriteTest extends SceneTest {
   cardset;
+  name = 'MoveCardsToListCardsetSpriteTest';
 
   create() {
     this.cardset = CardsetSprite.create();
@@ -29,7 +30,7 @@ class MoveCardsToListCardsetSpriteTest extends SceneTest {
           const validation = this.cardset.children.every((sprite, index) => {
             return sprite.x === positions[index].x && sprite.y === positions[index].y;
           });
-          this.assert(validation).toBe(true);
+          this.assert('Foram movidos em lista?', validation).toBe(true);
         });
         times++;
       }
@@ -51,11 +52,11 @@ class MoveCardsToListCardsetSpriteTest extends SceneTest {
           const validation = this.cardset.children.every((sprite, index) => {
             return sprite.x === positions[index].x && sprite.y === positions[index].y;
           });
-          this.assert(validation).toBe(true);
+          this.assert('Foram movidos em lista?', validation).toBe(true);
         }, timeout);
         times++;
       }
-      res(true);
+      return res(this.finish());
     });
   }
 }

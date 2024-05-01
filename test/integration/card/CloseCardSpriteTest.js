@@ -1,5 +1,6 @@
 class CloseCardSpriteTest extends SceneTest {
   card;
+  name = 'CloseCardSpriteTest';
 
   create() {
     const card = Generator.generateCard();
@@ -18,12 +19,13 @@ class CloseCardSpriteTest extends SceneTest {
 
   start() {
     return new Promise(async res => {
-      res(await this.test('Deve fechar o cartão!', () => {
+      await this.test('Deve fechar o cartão!', () => {
         this.card.show();
         this.card.close();
       }, () => {
-        this.assert(this.card.isClosed()).toBe(true);
-      }));
+        this.assert('Esta fechado?', this.card.isClosed()).toBe(true);
+      })
+      return res(this.finish());
     });
   }
 

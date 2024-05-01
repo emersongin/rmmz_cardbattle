@@ -1,5 +1,6 @@
 class MoveCardSpriteTest extends SceneTest {
   card;
+  name = 'MoveCardSpriteTest';
 
   create() {
     const card = Generator.generateCard();
@@ -25,30 +26,30 @@ class MoveCardSpriteTest extends SceneTest {
       await this.test('Deve mover o cartão!', () => {
         this.card.toMove(destinyXPosition, destinyYPosition);
       }, () => {
-        this.assert(this.card.x).toBe(destinyXPosition);
-        this.assert(this.card.y).toBe(destinyYPosition);
+        this.assert('Esta na Posição x?', this.card.x).toBe(destinyXPosition);
+        this.assert('Esta na Posição y?', this.card.y).toBe(destinyYPosition);
       });
       await this.test('Deve mover o cartão!', () => {
         this.card.toMove(avanceXposition, destinyYPosition);
       }, () => {
-        this.assert(this.card.x).toBe(avanceXposition);
-        this.assert(this.card.y).toBe(destinyYPosition);
+        this.assert('Esta na Posição x?', this.card.x).toBe(avanceXposition);
+        this.assert('Esta na Posição y?', this.card.y).toBe(destinyYPosition);
       });
       await this.test('Deve mover o cartão!', () => {
         this.card.toMove(avanceXposition, avanceYposition);
         this.card.toMove(destinyXPosition, avanceYposition);
       }, () => {
-        this.assert(this.card.x).toBe(destinyXPosition);
-        this.assert(this.card.y).toBe(avanceYposition);
+        this.assert('Esta na Posição x?', this.card.x).toBe(destinyXPosition);
+        this.assert('Esta na Posição y?', this.card.y).toBe(avanceYposition);
       });
       await this.test('Deve mover o cartão!', () => {
         this.card.toMove(returnStartPosition, returnStartPosition);
         this.card.toMove(destinyXPosition, destinyYPosition);
       }, () => {
-        this.assert(this.card.x).toBe(destinyXPosition);
-        this.assert(this.card.y).toBe(destinyYPosition);
+        this.assert('Esta na Posição x?', this.card.x).toBe(destinyXPosition);
+        this.assert('Esta na Posição y?', this.card.y).toBe(destinyYPosition);
       });
-      res(true);
+      return res(this.finish());
     });
   }
 }

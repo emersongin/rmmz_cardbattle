@@ -1,5 +1,6 @@
 class QuakeCardSpriteTest extends SceneTest {
   card;
+  name = 'QuakeCardSpriteTest';
 
   create() {
     const card = Generator.generateCard();
@@ -18,13 +19,14 @@ class QuakeCardSpriteTest extends SceneTest {
 
   start() {
     return new Promise(async res => {
-      res(await this.test('Deve aplicar um zoom no cartão!', () => {
+      await this.test('Deve aplicar um zoom no cartão!', () => {
         this.card.show();
         const infinity = 10;
         this.card.quake(infinity);
       }, () => {
-        this.assert(this.card.isMoving()).toBe(true);
-      }));
+        this.assert('Esta chacoalhando?', this.card.isMoving()).toBe(true);
+      });
+      return res(this.finish());
     });
   }
 }

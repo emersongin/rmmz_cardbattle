@@ -1,5 +1,6 @@
 class HoveredCardSpriteTest extends SceneTest {
   card;
+  name = 'HoveredCardSpriteTest';
 
   create() {
     const card = Generator.generateCard();
@@ -22,9 +23,9 @@ class HoveredCardSpriteTest extends SceneTest {
         this.card.show();
         this.card.hover();
       }, () => {
-        this.assert(this.card.isHovered()).toBe(true);
+        this.assert('Esta em cursor?', this.card.isHovered()).toBe(true);
       });
-      res(true);
+      return res(this.finish());
     });
   } 
 }

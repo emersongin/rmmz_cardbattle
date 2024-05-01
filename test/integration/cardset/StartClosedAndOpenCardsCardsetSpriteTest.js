@@ -1,5 +1,6 @@
 class StartClosedAndOpenCardsCardsetSpriteTest extends SceneTest {
   cardset;
+  name = 'StartClosedAndOpenCardsCardsetSpriteTest';
 
   create() {
     this.cardset = CardsetSprite.create();
@@ -19,7 +20,7 @@ class StartClosedAndOpenCardsCardsetSpriteTest extends SceneTest {
         await this.test('Deve abrir todos os cartões do set!', async () => {
           await this.testCards(cards);
         }, () => {
-          this.assert(this.cardset.allCardsOpened()).toBe(true);
+          this.assert('Estão aberto?', this.cardset.allCardsOpened()).toBe(true);
         });
         times++;
       }
@@ -29,11 +30,11 @@ class StartClosedAndOpenCardsCardsetSpriteTest extends SceneTest {
         await this.test('Deve abrir todos os cartões do set!', async () => {
           await this.testDelayCards(cards);
         }, () => {
-          this.assert(this.cardset.allCardsOpened()).toBe(true);
+          this.assert('Estão aberto?', this.cardset.allCardsOpened()).toBe(true);
         });
         times++;
       }
-      res(true);
+      return res(this.finish());
     });
   }
 

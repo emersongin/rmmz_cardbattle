@@ -1,5 +1,6 @@
 class DisableAndEnableCardsCardsetSpriteTest extends SceneTest {
   cardset;
+  name = 'DisableAndEnableCardsCardsetSpriteTest';
 
   create() {
     this.cardset = CardsetSprite.create();

@@ -1,5 +1,6 @@
 class DisableCardSpriteTest extends SceneTest {
   card;
+  name = 'DisableCardSpriteTest';
 
   create() {
     const card = Generator.generateCard();
@@ -22,14 +23,14 @@ class DisableCardSpriteTest extends SceneTest {
       await this.test('Deve desabilitar o cartão!', () => {
         this.card.disable();
       }, () => {
-        this.assert(this.card.isDisabled()).toBe(true);
+        this.assert('Esta disabilitado?', this.card.isDisabled()).toBe(true);
       });
       await this.test('Deve habilitar o cartão!', () => {
         this.card.enable();
       }, () => {
-        this.assert(this.card.isEnabled()).toBe(true);
+        this.assert('Esta habilitado?', this.card.isEnabled()).toBe(true);
       });
-      res(true);
+      return res(this.finish());
     });
   }
 }

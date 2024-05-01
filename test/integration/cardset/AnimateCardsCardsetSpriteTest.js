@@ -1,5 +1,6 @@
 class AnimateCardsCardsetSpriteTest extends SceneTest {
   cardset;
+  name = 'AnimateCardsCardsetSpriteTest';
 
   create() {
     this.cardset = CardsetSprite.create();

@@ -1,5 +1,6 @@
 class SelectModeAndEnableChoiceCardsetSpriteTest extends SceneTest {
   cardset;
+  name = 'SelectModeAndEnableChoiceCardsetSpriteTest';
 
   create() {
     this.cardset = CardsetSprite.create();

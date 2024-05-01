@@ -1,22 +1,15 @@
 class SceneTest {
   scene;
   tests = [];
+  asserts = [];
+  results = [];
   nextAsserts = {};
+  assertsName = '';
+  assertTitle = '';
+  assertValue = undefined;
   childrenToAdd = [];
-  value = null;
-  message = '';
+  WindowsToAdd = [];
   counter = 0;
-  log = {
-    info: function (...msg) {
-      console.log(`%c${msg.map(t => t.toString())}`,`background: #5DADE2; color: #FFFFFF; font-size: 12px; padding: 5px;`);
-    },
-    success: function (...msg) {
-      console.log(`%c${msg.map(t => t.toString())}`,`background: #008000; color: #FFFFFF; font-size: 12px; padding: 5px;`);
-    },
-    error: function (...msg) {
-      console.log(`%c${msg.map(t => t.toString())}`,`background: #FF0000; color: #FFFFFF; font-size: 12px; padding: 5px;`);
-    }
-  };
 
   constructor(scene) {
     this.scene = scene;
@@ -30,106 +23,41 @@ class SceneTest {
     // Override this method in the child class
   }
 
-  async test(
-    message = 'sem mensagem de teste!',
-    act = () => { 
-      this.log.error('Nenhuma Acts!');
-    }, 
-    assert = () => { 
-      return this.log.error('Nenhuma Asserts!'); 
-    }, 
-    seconds = 1
-  ) {
+  finish() {
+    return {
+      passed: this.results.every(result => result.passed),
+      testName: this.name,
+      assertsResult: this.results
+    };
+  }
+
+  async test(assertsName, act, asserts, seconds = 1) {
+    const msgDefault = 'Nenhum titulo para asserts definido.';
+    const actDefault = () => { 
+      console.error('Nenhum act de asserts definido.');
+    };
+    const assertsDefault = () => { 
+      this.asserts.push({
+        passed: false,
+        message: 'Nenhuma assert definida!'
+      });
+    };
     return new Promise(async resolve => {
       this.tests.push({
         seconds,
         act: () => {
-          act();
+          act ? act() : actDefault();
           return true;
         },
-        assert: () => {
-          this.message = message;
-          assert();
+        asserts: () => {
+          this.assertsName = assertsName;
+          asserts ? asserts() : assertsDefault();
           return true;
         }
       });
       const total = this.totalSeconds();
       return resolve(await this.timertoTrue((1000 * total) + 200));
     });
-  }
-
-  update() {
-    if (this.counter) return this.counter--;
-    if (this.hasAsserts()) return this.startAsserts();
-    if (this.hasTests()) this.startTest();
-  }
-
-  hasAsserts() {
-    return typeof this.nextAsserts === 'function';
-  }
-
-  hasTests() {
-    return this.tests.length > 0;
-  }
-
-  startTest() {
-    const fps = 60;
-    const test = this.tests[0];
-    const { seconds, act, assert } = test;
-    if (test) {
-      this.counter = (fps * seconds);
-      this.appendChildren();
-      const completed = act();
-      if (completed) {
-        this.nextAsserts = assert;
-        this.tests.shift();
-      }
-    }
-  }
-
-  startAsserts() {
-    const completed = this.nextAsserts();
-    if (completed) {
-      this.nextAsserts = null;
-    }
-  }
-
-  assert(value) {
-    this.value = value;
-    return this;
-  }
-
-  toBe(value) {
-    this.resultTest(this.value === value, value);
-  }
-
-  toBeInstanceof(value) {
-    this.resultTest(this.value instanceof value, value);
-  }
-
-  resultTest(test, value) {
-    this.log.info(this.message);
-    if (test === false) {
-      return this.consoleError(value, this.value);
-    }
-    this.log.success('Test passed!');
-  }
-
-  consoleError(valueExpected, valueReceived) {
-    this.log.error('Test failed!');
-    this.log.error('Expected:', valueExpected);
-    this.log.error('Received:', valueReceived);
-  }
-
-  addChild(child) {
-    this.childrenToAdd.push(child);
-  }
-
-  appendChildren() {
-    this.childrenToAdd.forEach(child => {
-      this.scene.addChild(child);
-    });
-    this.childrenToAdd = [];
   }
 
   totalSeconds() {
@@ -144,4 +72,111 @@ class SceneTest {
       }, milliseconds)
     });
   }
+
+  update() {
+    if (this.counter) return this.counter--;
+    if (this.hasAsserts()) return this.startAsserts();
+    if (this.hasTests()) this.startTest();
+  }
+
+  hasAsserts() {
+    return typeof this.nextAsserts === 'function';
+  }
+
+  startAsserts() {
+    const completed = this.nextAsserts();
+    if (completed) {
+      this.results.push({
+        passed: this.asserts.every(assert => assert.passed),
+        assertsName: this.assertsName,
+        asserts: this.asserts
+      });
+      this.nextAsserts = null;
+      this.asserts = [];
+    }
+  }
+
+  hasTests() {
+    return this.tests.length > 0;
+  }
+
+  startTest() {
+    const fps = 60;
+    const test = this.tests[0];
+    const { seconds, act, asserts } = test;
+    if (test) {
+      this.counter = (fps * seconds);
+      this.appendChildren();
+      this.appendWindows();
+      const completed = act();
+      if (completed) {
+        this.nextAsserts = asserts;
+        this.tests.shift();
+      }
+    }
+  }
+
+  appendChildren() {
+    this.childrenToAdd.forEach(child => {
+      this.scene.addChild(child);
+    });
+    this.childrenToAdd = [];
+  }
+
+  appendWindows() {
+    this.WindowsToAdd.forEach(window => {
+      this.scene._windowLayer.addChild(window);
+    });
+    this.WindowsToAdd = [];
+  }
+
+  assert(title, value) {
+    this.assertTitle = title;
+    this.assertValue = value;
+    return this;
+  }
+
+  assertTrue(value) {
+    this.assertValue = value;
+    return this.toBe(true);
+  }
+
+  toBe(value) {
+    const assertResult = this.resultTest(this.assertValue === value, value);
+    this.asserts.push(assertResult);
+  }
+
+  resultTest(test, value) {
+    if (test === false) {
+      return this.testFailed(value, this.assertValue);
+    }
+    const testSuccess = {
+      passed: true,
+      title: this.assertTitle,
+      message: 'Test passed!'
+    };
+    return testSuccess;
+  }
+
+  testFailed(valueExpected, valueReceived) {
+    return {
+      passed: false,
+      title: this.assertTitle,
+      message: `Expected: ${valueExpected} Received: ${valueReceived}`
+    };
+  }
+
+  toBeInstanceof(value) {
+    const assertResult = this.resultTest(this.assertValue instanceof value, value);
+    this.asserts.push(assertResult);
+  }
+
+  addChild(child) {
+    this.childrenToAdd.push(child);
+  }
+
+  addWindow(window) {
+    this.WindowsToAdd.push(window);
+  }
+
 }

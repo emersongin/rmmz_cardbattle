@@ -1,5 +1,6 @@
 class DamageAnimationCardSpriteTest extends SceneTest {
   card;
+  name = 'DamageAnimationCardSpriteTest';
 
   create() {
     const card = Generator.generateCard();
@@ -23,9 +24,9 @@ class DamageAnimationCardSpriteTest extends SceneTest {
         this.card.show();
         this.card.damage(times);
       }, () => {
-        this.assert(this.card.isAnimationPlaying()).toBe(true);
+        this.assert('Houve uma animação?', this.card.isAnimationPlaying()).toBe(true);
       });
-      res(true);
+      return res(this.finish());
     });
   }
 }

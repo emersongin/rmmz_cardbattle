@@ -1,5 +1,6 @@
 class SetBackgroundAndStartPositionCardsetSpriteTest extends SceneTest {
   cardset;
+  name = 'SetBackgroundAndStartPositionCardsetSpriteTest';
 
   create() {
     this.cardset = CardsetSprite.create();
@@ -12,11 +13,12 @@ class SetBackgroundAndStartPositionCardsetSpriteTest extends SceneTest {
 
   start() {
     return new Promise(async res => {
-      res(await this.test('Deve apresentar o set de cartões!', () => {
+      await this.test('Deve apresentar o set de cartões!', () => {
         this.cardset.show();
       }, () => {
-        this.assert(this.cardset.isVisible()).toBe(true);
-      }));
+        this.assert('É visível?', this.cardset.isVisible()).toBe(true);
+      });
+      return res(this.finish());
     });
   }
 }

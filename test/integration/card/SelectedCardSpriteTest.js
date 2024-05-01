@@ -1,5 +1,6 @@
 class SelectedCardSpriteTest extends SceneTest {
   card;
+  name = 'SelectedCardSpriteTest';
 
   create() {
     const card = Generator.generateCard();
@@ -22,9 +23,9 @@ class SelectedCardSpriteTest extends SceneTest {
         this.card.show();
         this.card.select();
       }, () => {
-        this.assert(this.card.isSelected()).toBe(true);
+        this.assert('Esta selecioando?', this.card.isSelected()).toBe(true);
       });
-      res(true);
+      return res(this.finish());
     });
   }
 }

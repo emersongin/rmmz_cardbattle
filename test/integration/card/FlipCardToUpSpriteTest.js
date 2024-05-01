@@ -1,5 +1,6 @@
 class FlipCardToUpSpriteTest extends SceneTest {
   card;
+  name = 'FlipCardToUpSpriteTest';
 
   create() {
     const card = Generator.generateCard();
@@ -23,10 +24,10 @@ class FlipCardToUpSpriteTest extends SceneTest {
         this.card.show();
         this.card.flipToUp();
       }, () => {
-        this.assert(this.card.isTurnedToUp()).toBe(true);
-        this.assert(this.card.isOpened()).toBe(true);
+        this.assert('Esta para cima?', this.card.isTurnedToUp()).toBe(true);
+        this.assert('Esta aberto?', this.card.isOpened()).toBe(true);
       });
-      res(true);
+      return res(this.finish());
     });
   }
 }

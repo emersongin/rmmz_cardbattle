@@ -1,5 +1,6 @@
 class SetCardsCardsetSpriteTest extends SceneTest {
   cardset;
+  name = 'SetCardsCardsetSpriteTest';
 
   create() {
     this.cardset = CardsetSprite.create();
@@ -19,11 +20,11 @@ class SetCardsCardsetSpriteTest extends SceneTest {
           const cards = Generator.generateCard(times);
           await this.testCards(cards);
         }, () => {
-          this.assert(this.cardset.allCardsOpened()).toBe(true);
+          this.assert('Estão aberto?', this.cardset.allCardsOpened()).toBe(true);
         });
         times++;
       }
-      res(true);
+      return res(this.finish());
     });
   }
 

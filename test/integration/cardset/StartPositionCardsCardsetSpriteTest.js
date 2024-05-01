@@ -1,5 +1,6 @@
 class StartPositionCardsCardsetSpriteTest extends SceneTest {
   cardset;
+  name = 'StartPositionCardsCardsetSpriteTest';
 
   create() {
     this.cardset = CardsetSprite.create();
@@ -21,13 +22,13 @@ class StartPositionCardsCardsetSpriteTest extends SceneTest {
           const cards = Generator.generateCard(times);
           await this.testCards(cards, x, y);
         }, () => {
-          this.assert(this.cardset.allCardsOpened()).toBe(true);
+          this.assert('Estão aberto?', this.cardset.allCardsOpened()).toBe(true);
           const allInPosition = this.cardset.children.every(sprite => sprite.x === x && sprite.y === y);
-          this.assert(allInPosition).toBe(true);
+          this.assert('Estão na posição?', allInPosition).toBe(true);
         });
         times++;
       }
-      res(true);
+      return res(this.finish());
     });
   }
 

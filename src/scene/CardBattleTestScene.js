@@ -1,6 +1,7 @@
 class CardBattleTestScene extends Scene_Message {
   initialize() {
     super.initialize();
+    this.css = 'color: #FFFFFF; font-size: 12px; padding: 5px;';
     this.tests = [];
     this._test = null;
   }
@@ -11,7 +12,7 @@ class CardBattleTestScene extends Scene_Message {
     this.createTests();
   }
 
-  async createTests() {
+  data() {
     const cardSpriteTests = [
       StartOpenCardSpriteTest,
       StartClosedCardSpriteTest,
@@ -32,14 +33,14 @@ class CardBattleTestScene extends Scene_Message {
       IluminatedCardSpriteTest
     ];
     const cardsetTests = [
-      // SetBackgroundAndStartPositionCardsetSpriteTest,
-      // SetCardsCardsetSpriteTest,
-      // StartPositionCardsCardsetSpriteTest,
-      // StartListCardsCardsetSpriteTest,
-      // StartClosedAndOpenCardsCardsetSpriteTest,
-      // MoveCardsToListCardsetSpriteTest,
-      // MoveCardsToPositionCardsetSpriteTest,
-      AddCardAndMoveToListCardsetSpriteTest,
+      SetBackgroundAndStartPositionCardsetSpriteTest,
+      SetCardsCardsetSpriteTest,
+      StartPositionCardsCardsetSpriteTest,
+      StartListCardsCardsetSpriteTest,
+      StartClosedAndOpenCardsCardsetSpriteTest,
+      MoveCardsToListCardsetSpriteTest,
+      MoveCardsToPositionCardsetSpriteTest,
+      // AddCardAndMoveToListCardsetSpriteTest,
       // SelectModeCardsetSpriteTest,
       // DisableAndEnableCardsCardsetSpriteTest,
       // SelectModeAndEnableChoiceCardsetSpriteTest,
@@ -62,13 +63,17 @@ class CardBattleTestScene extends Scene_Message {
       RefreshAndOpenGamePointsWindowTest,
       UpdatingPointsGamePointsWindowTest,
     ];
-    this.tests = [
-      // ...cardSpriteTests,
+    return [
+      ...cardSpriteTests,
       ...cardsetTests,
     //   ...textWindowTests,
     //   ...gameBoardTests,
     //   ...gamePointsTests,
     ];
+  }
+
+  async createTests() {
+    this.tests = this.data();
     this.tests = this.tests.map(test => {
       const instance = new test(this);
       instance.create();
@@ -82,11 +87,59 @@ class CardBattleTestScene extends Scene_Message {
   }
 
   async startTests() {
+    let results = [];
     for (const test of this.tests) {
       this._test = test;
-      await this._test.start();
+      const result = await this._test.start();
+      results.push(result);
       await this.clearScene();
     }
+    this.printResults(results);
+    this.printResultsTotals(results);
+  }
+
+  printResults(results) {
+    results.forEach(test => {
+      const { passed: isTestPassed, testName, assertsResult } = test;
+      if (isTestPassed) {
+        this.printSuccess(`Teste: ${test.testName} passou!`);
+      } else {
+        this.printError(`Teste: ${test.testName} falhou!`);
+        assertsResult.forEach(allAsserts => {
+          const { passed: isAssertsPassed, assertsName, asserts } = allAsserts;
+          if (!isAssertsPassed) {
+              this.printError(`Assert: ${assertsName}`);
+              asserts.forEach(assert => {
+                const { passed: isAssertPassed, title, message } = assert;
+                if (!isAssertPassed) {
+                  this.printError(`${title}: ${message}`);
+                }
+              });
+          }
+        });
+      }
+    });
+  }
+
+  printResultsTotals(results) {
+    const total = results.length;
+    const success = results.filter(result => result.passed === true).length;
+    const failed = total - success;
+    this.printInfo(`Total de testes: ${total}`);
+    this.printSuccess(`Testes passados: ${success}`);
+    this.printError(`Testes falhados: ${failed}`);
+  }
+
+  printInfo(...msg) {
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #5DADE2; ${this.css}`);
+  }
+
+  printError(...msg) {
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #FF0000; ${this.css}`);
+  }
+
+  printSuccess(...msg) {
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #008000; ${this.css}`);
   }
 
   update() {
@@ -99,10 +152,6 @@ class CardBattleTestScene extends Scene_Message {
   isActive() {
     return !this.isBusy();
   }
-
-  isBusy() {
-    return super.isBusy();
-  };
 
   removeWindow(window) {
     this._windowLayer.removeChild(window);

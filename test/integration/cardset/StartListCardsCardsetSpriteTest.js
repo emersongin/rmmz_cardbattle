@@ -1,5 +1,6 @@
 class StartListCardsCardsetSpriteTest extends SceneTest {
   cardset;
+  name = 'StartListCardsCardsetSpriteTest';
 
   create() {
     this.cardset = CardsetSprite.create();
@@ -25,11 +26,11 @@ class StartListCardsCardsetSpriteTest extends SceneTest {
           const validation = this.cardset.children.every((sprite, index) => {
             return sprite.x === positions[index].x && sprite.y === positions[index].y;
           });
-          this.assert(validation).toBe(true);
+          this.assert('Estão em lista?', validation).toBe(true);
         });
         times++;
       }
-      res(true);
+      return res(this.finish());
     });
   }
 }

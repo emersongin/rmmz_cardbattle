@@ -1,5 +1,6 @@
 class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
   cardset;
+  name = 'MoveCardsToPositionCardsetSpriteTest';
 
   create() {
     this.cardset = CardsetSprite.create();
@@ -31,11 +32,11 @@ class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
           const validation = this.cardset.children.every((sprite, index) => {
             return sprite.x === xPosition && sprite.y === 0;
           });
-          this.assert(validation).toBe(true);
+          this.assert('Foram movidos para posição?', validation).toBe(true);
         });
         times++;
       }
-      res(true);
+      return res(this.finish());
     });
   }
 }
