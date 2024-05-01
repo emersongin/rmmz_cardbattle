@@ -161,6 +161,10 @@ class CardSprite extends ActionSprite {
     this._contentLayer.bitmap.clear();
   }
 
+  isTurnedToDown() {
+    return !this._turned;
+  }
+
   isTurnedToUp() {
     return this._turned;
   }
@@ -727,14 +731,23 @@ class CardSprite extends ActionSprite {
   }
 
   commandFlipToUp() {
-    if (!(this.isHidden() && this.isStopped() && this.isClosed() && this.isToDown())) return;
+    if (!(this.isHidden() && this.isStopped() && this.isClosed() && this.isTurnedToDown())) return;
     this.setToUp();
     this.refresh();
     return true;
   }
 
-  isToDown() {
-    return !this._turned;
+  flipToDown() {
+    this.addAction(this.commandClose);
+    this.addAction(this.commandFlipToDown);
+    this.addAction(this.commandOpen);
+  }
+
+  commandFlipToDown() {
+    if (!(this.isHidden() && this.isStopped() && this.isClosed() && this.isTurnedToUp())) return;
+    this.setToDown();
+    this.refresh();
+    return true;
   }
 
   isHovered() {
@@ -762,5 +775,9 @@ class CardSprite extends ActionSprite {
 
   static createPosition(x, y, index) {
     return { x, y, index };
+  }
+
+  isNormal() {
+    return !this.isHovered() && !this.isSelected() && !this.isIluminated();
   }
 }

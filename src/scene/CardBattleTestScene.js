@@ -14,23 +14,20 @@ class CardBattleTestScene extends Scene_Message {
 
   data() {
     const cardSpriteTests = [
-      // StartOpenCardSpriteTest,
-      // StartClosedCardSpriteTest,
-      // CloseCardSpriteTest,
-      // OpenCardSpriteTest,
+      StartClosedAndStartOpenCardSpriteTest,
+      CloseAndOpenCardSpriteTest,
       MoveCardSpriteTest,
-      // DisableCardSpriteTest,
-      // HoveredCardSpriteTest,
-      // SelectedCardSpriteTest,
-      // FlashCardSpriteTest,
-      // DamageAnimationCardSpriteTest,
-      // UpdatingPointsCardSpriteTest,
-      // ZoomInCardSpriteTest,
-      // ZoomOutCardSpriteTest,
-      // LeaveCardSpriteTest,
-      // QuakeCardSpriteTest,
-      // FlipCardToUpSpriteTest,
-      // IluminatedCardSpriteTest
+      DisableAndEnableCardSpriteTest,
+      HoveredCardSpriteTest,
+      SelectedCardSpriteTest,
+      FlashCardSpriteTest,
+      DamageAnimationCardSpriteTest,
+      UpdatingPointsCardSpriteTest,
+      ZoomAndZoomoutCardSpriteTest,
+      LeaveCardSpriteTest,
+      QuakeCardSpriteTest,
+      FlipCardSpriteTest,
+      IluminatedCardSpriteTest
     ];
     const cardsetTests = [
       SetBackgroundAndStartPositionCardsetSpriteTest,
@@ -93,11 +90,14 @@ class CardBattleTestScene extends Scene_Message {
 
   async startTests() {
     let results = [];
+    let index = 0;
     for (const test of this.tests) {
       this._test = test;
       const result = await this._test.run();
       results.push(result);
       await this.clearScene();
+      this._test = null;
+      index++;
     }
     this.printResults(results);
     this.printResultsTotals(results);
@@ -172,13 +172,15 @@ class CardBattleTestScene extends Scene_Message {
       while (children.length > 1) {
         children.forEach(async child => {
           if (child === this._windowLayer) return;
+          child.destroy();
           await this.removeChild(child);
         });
       }
       const windowChildren = this._windowLayer.children;
       while (windowChildren.length) {
-        windowChildren.forEach(async child => {
-          await this._windowLayer.removeChild(child);
+        windowChildren.forEach(async window => {
+          window.destroy();
+          await this._windowLayer.removeChild(window);
         });
       }
       resolve(true);

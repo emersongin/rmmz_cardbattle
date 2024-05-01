@@ -14,7 +14,7 @@ class SelectModeCardsetSpriteTest extends SceneTest {
   start() {
     return new Promise(async resolve => {
       this.cardset.show();
-      const cards = Generator.generateCards(10);
+      const cards = CardGenerator.generateCards(10);
       this.test('Deve entrar em modo seleção!', () => {
         this.cardset.setCards(cards);
         this.cardset.startListCards();

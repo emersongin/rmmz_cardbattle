@@ -1,5 +1,5 @@
-class DamageAnimationCardSpriteTest extends SceneTest {
-  name = 'DamageAnimationCardSpriteTest';
+class DisableAndEnableCardSpriteTest extends SceneTest {
+  name = 'DisableAndEnableCardSpriteTest';
 
   create() {
     const card = CardGenerator.generateCard();
@@ -17,12 +17,16 @@ class DamageAnimationCardSpriteTest extends SceneTest {
   }
 
   start() {
-    const times = 1;
     this.subject.show();
-    this.test('Deve receber animação de dano!', () => {
-      this.subject.damage(times);
+    this.test('Deve desabilitar!', () => {
+      this.subject.disable();
     }, () => {
-      this.assertWasTrue('Houve animação?', this.subject.isAnimationPlaying);
+      this.assertTrue('Esta disabilitado?', this.subject.isDisabled());
+    });
+    this.test('Deve habilitar!', () => {
+      this.subject.enable();
+    }, () => {
+      this.assertTrue('Esta habilitado?', this.subject.isEnabled());
     });
   }
 }

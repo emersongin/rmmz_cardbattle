@@ -1,31 +1,30 @@
 class FlashCardSpriteTest extends SceneTest {
-  card;
   name = 'FlashCardSpriteTest';
 
   create() {
-    const card = Generator.generateCard();
-    this.card = CardSprite.create(
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
       card.type,
       card.color,
       card.figureName,
       card.attack,
       card.health
     );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.startOpen(centerXPosition, centerYPosition);
-    this.addChild(this.card);
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.addChild(this.subject);
   }
 
   start() {
     const color = 'white';
     const duration = 60;
     const infinity = -1;
-    this.card.show();
-    this.test('O cartão deve receber um flash de luz!', () => {
-      this.card.flash(color, duration, infinity);
+    this.subject.show();
+    this.test('Deve receber um flash de luz!', () => {
+      this.subject.flash(color, duration, infinity);
     }, () => {
-      this.assertTrue('Houve um flash de luz?', this.card.isFlashPlaying());
+      this.assertWasTrue('Houve flash de luz?', this.subject.isFlashPlaying);
     });
   } 
 }

@@ -1,5 +1,5 @@
-class DamageAnimationCardSpriteTest extends SceneTest {
-  name = 'DamageAnimationCardSpriteTest';
+class ZoomAndZoomoutCardSpriteTest extends SceneTest {
+  name = 'ZoomAndZoomoutCardSpriteTest';
 
   create() {
     const card = CardGenerator.generateCard();
@@ -17,12 +17,16 @@ class DamageAnimationCardSpriteTest extends SceneTest {
   }
 
   start() {
-    const times = 1;
     this.subject.show();
-    this.test('Deve receber animação de dano!', () => {
-      this.subject.damage(times);
+    this.test('Deve amplicar!', () => {
+      this.subject.zoom();
     }, () => {
-      this.assertWasTrue('Houve animação?', this.subject.isAnimationPlaying);
+      this.assertTrue('Esta ampliado?', this.subject.isZoom());
+    });
+    this.test('Deve retonar a escala normal!', () => {
+      this.subject.zoomOut();
+    }, () => {
+      this.assertTrue('Esta em escala original?', this.subject.isOriginalScale());
     });
   }
 }

@@ -1,8 +1,11 @@
 class SceneTest {
   scene;
+  name;
+  subject;
   tests = [];
   asserts = [];
   results = [];
+  subjects = [];
   nextAsserts = {};
   assertsName = '';
   assertTitle = '';
@@ -81,6 +84,7 @@ class SceneTest {
   }
 
   update() {
+    this.copySubject();
     if (this.counter) return this.counter--;
     if (this.hasAsserts()) return this.startAsserts();
     if (this.hasTests()) this.startTest();
@@ -123,6 +127,11 @@ class SceneTest {
     }
   }
 
+  copySubject() {
+    const subjectCopy = ObjectHelper.copyObject(this.subject);
+    this.subjects.push(subjectCopy);
+  }
+
   appendChildren() {
     this.childrenToAdd.forEach(child => {
       this.scene.addChild(child);
@@ -135,6 +144,18 @@ class SceneTest {
       this.scene._windowLayer.addChild(window);
     });
     this.WindowsToAdd = [];
+  }
+
+  assertWasTrue(title, fnOrValue) {
+    const result = this.subjects.some(subject => {
+      if (typeof fnOrValue === 'function') {
+        return subject[fnOrValue.name]();
+      }
+      return subject[fnOrValue];
+    });
+    
+    this.assert(title, result);
+    return this.toBe(true);
   }
 
   assertTrue(title, value) {

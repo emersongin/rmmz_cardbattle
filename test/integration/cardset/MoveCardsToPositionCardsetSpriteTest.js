@@ -14,7 +14,7 @@ class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
   start() {
     const numCards = 40;
     this.cardset.show();
-    const cards = Generator.generateCards(numCards);
+    const cards = CardGenerator.generateCards(numCards);
     const screenWidth = Graphics.boxWidth;
     const cardWidth = 96;
     const xPosition = (this.cardset.width / 2) - (cardWidth / 2);

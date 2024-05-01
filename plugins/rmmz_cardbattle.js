@@ -105,13 +105,6 @@ const playerDecksData = [
     cards: []
   }
 ];
-function uuidv4() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = (Math.random() * 16) | 0,
-        v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
 class StringHelper {
   static convertPointsDisplay(value = 0) {
     return value.toString().padStart(2, ' ');
@@ -133,11 +126,20 @@ class IntegerHelper {
     return bigger;
   }
 }
-class Generator {
+
+class ObjectHelper {
+  static copyObject(obj) {
+    const copiedObj = Object.create(Object.getPrototypeOf(obj));
+    const descriptors = Object.getOwnPropertyDescriptors(obj);
+    Object.defineProperties(copiedObj, descriptors);
+    return copiedObj;
+  }
+}
+class CardGenerator {
   static generateCards(amount = 1) {
     const cards = [];
     for (let i = 0; i < amount; i++) {
-      cards.push(Generator.generateCard());
+      cards.push(CardGenerator.generateCard());
     }
     return cards;
   }
@@ -150,6 +152,16 @@ class Generator {
       attack: Math.floor(Math.random() * 99) + 1,
       health: Math.floor(Math.random() * 99) + 1
     };
+  }
+}
+
+class HashGenerator {
+  static uuidv4() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = (Math.random() * 16) | 0,
+          v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
   }
 }
 class WindowStoppedState {
@@ -1818,6 +1830,10 @@ class CardSprite extends ActionSprite {
     this._contentLayer.bitmap.clear();
   }
 
+  isTurnedToDown() {
+    return !this._turned;
+  }
+
   isTurnedToUp() {
     return this._turned;
   }
@@ -2384,14 +2400,23 @@ class CardSprite extends ActionSprite {
   }
 
   commandFlipToUp() {
-    if (!(this.isHidden() && this.isStopped() && this.isClosed() && this.isToDown())) return;
+    if (!(this.isHidden() && this.isStopped() && this.isClosed() && this.isTurnedToDown())) return;
     this.setToUp();
     this.refresh();
     return true;
   }
 
-  isToDown() {
-    return !this._turned;
+  flipToDown() {
+    this.addAction(this.commandClose);
+    this.addAction(this.commandFlipToDown);
+    this.addAction(this.commandOpen);
+  }
+
+  commandFlipToDown() {
+    if (!(this.isHidden() && this.isStopped() && this.isClosed() && this.isTurnedToUp())) return;
+    this.setToDown();
+    this.refresh();
+    return true;
   }
 
   isHovered() {
@@ -2419,6 +2444,10 @@ class CardSprite extends ActionSprite {
 
   static createPosition(x, y, index) {
     return { x, y, index };
+  }
+
+  isNormal() {
+    return !this.isHovered() && !this.isSelected() && !this.isIluminated();
   }
 }
 class CardsetSpriteStaticModeState {
@@ -3434,9 +3463,12 @@ class CardBattlePhase {
 // tests CARD
 class SceneTest {
   scene;
+  name;
+  subject;
   tests = [];
   asserts = [];
   results = [];
+  subjects = [];
   nextAsserts = {};
   assertsName = '';
   assertTitle = '';
@@ -3515,6 +3547,7 @@ class SceneTest {
   }
 
   update() {
+    this.copySubject();
     if (this.counter) return this.counter--;
     if (this.hasAsserts()) return this.startAsserts();
     if (this.hasTests()) this.startTest();
@@ -3557,6 +3590,11 @@ class SceneTest {
     }
   }
 
+  copySubject() {
+    const subjectCopy = ObjectHelper.copyObject(this.subject);
+    this.subjects.push(subjectCopy);
+  }
+
   appendChildren() {
     this.childrenToAdd.forEach(child => {
       this.scene.addChild(child);
@@ -3569,6 +3607,18 @@ class SceneTest {
       this.scene._windowLayer.addChild(window);
     });
     this.WindowsToAdd = [];
+  }
+
+  assertWasTrue(title, fnOrValue) {
+    const result = this.subjects.some(subject => {
+      if (typeof fnOrValue === 'function') {
+        return subject[fnOrValue.name]();
+      }
+      return subject[fnOrValue];
+    });
+    
+    this.assert(title, result);
+    return this.toBe(true);
   }
 
   assertTrue(title, value) {
@@ -3621,146 +3671,99 @@ class SceneTest {
   }
 
 }
-class StartOpenCardSpriteTest extends SceneTest {
-  card;
-  name = 'StartOpenCardSpriteTest';
+class StartClosedAndStartOpenCardSpriteTest extends SceneTest {
+  name = 'StartClosedAndStartOpenCardSpriteTest';
 
   create() {
-    const card = Generator.generateCard();
-    this.card = CardSprite.create(
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
       card.type,
       card.color,
       card.figureName,
       card.attack,
       card.health
     );
-    this.addChild(this.card);
+    this.addChild(this.subject);
   }
 
   start() {
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.startOpen(centerXPosition, centerYPosition);
-    this.test('Deve apresentar o cartão aberto!', () => {
-      this.card.show();
-    }, () => {
-      this.assertTrue('Esta aberto?', this.card.isOpened());
-    });
-  }
-}
-class StartClosedCardSpriteTest extends SceneTest {
-  card;
-  name = 'StartClosedCardSpriteTest';
-
-  create() {
-    const card = Generator.generateCard();
-    this.card = CardSprite.create(
-      card.type,
-      card.color,
-      card.figureName,
-      card.attack,
-      card.health
-    );
-    this.addChild(this.card);
-  }
-
-  start() {
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.startClosed(centerXPosition, centerYPosition);
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.test('Deve apresentar o cartão fechado!', () => {
-      this.card.show();
+      this.subject.startClosed(centerXPosition, centerYPosition);
+      this.subject.show();
     }, () => {
-      this.assertTrue('Esta fechado?', this.card.isClosed());
+      this.assertTrue('Esta fechado?', this.subject.isClosed());
+    });
+    this.test('Deve apresentar o cartão aberto!', () => {
+      this.subject.startOpen(centerXPosition, centerYPosition);
+      this.subject.show();
+    }, () => {
+      this.assertTrue('Esta aberto?', this.subject.isOpened());
     });
   }
 }
-class OpenCardSpriteTest extends SceneTest {
-  card;
-  name = 'OpenCardSpriteTest';
+class CloseAndOpenCardSpriteTest extends SceneTest {
+  name = 'CloseAndOpenCardSpriteTest';
 
   create() {
-    const card = Generator.generateCard();
-    this.card = CardSprite.create(
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
       card.type,
       card.color,
       card.figureName,
       card.attack,
       card.health
     );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.startClosed(centerXPosition, centerYPosition);
-    this.addChild(this.card);
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.addChild(this.subject);
   }
 
   start() {
-    this.card.show();
+    this.subject.show();
+    this.test('Deve fechar!', () => {
+      this.subject.close();
+    }, () => {
+      this.assertTrue('Esta fechado?', this.subject.isClosed());
+    });
     this.test('Deve abrir o cartão!', () => {
-      this.card.open();
+      this.subject.open();
     }, () => {
-      this.assertTrue('Esta aberto?', this.card.isOpened());
+      this.assertTrue('Esta aberto?', this.subject.isOpened());
     });
-  }
-}
-class CloseCardSpriteTest extends SceneTest {
-  card;
-  name = 'CloseCardSpriteTest';
-
-  create() {
-    const card = Generator.generateCard();
-    this.card = CardSprite.create(
-      card.type,
-      card.color,
-      card.figureName,
-      card.attack,
-      card.health
-    );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.startOpen(centerXPosition, centerYPosition);
-    this.addChild(this.card);
-  }
-
-  start() {
-    this.card.show();
-    this.test('Deve fechar o cartão!', () => {
-      this.card.close();
-    }, () => {
-      this.assertTrue('Esta fechado?', this.card.isClosed());
-    })
   }
 
   // exemplo de teste de unidade
   // this.update(() => {
-  //   this.card.update();
+  //   this.subject.update();
   // });
-  // this.assert(this.card._status).toBeInstanceof(CardSpriteStoppedState);
-  // this.assert(this.card.width).toBe(0);
+  // this.assert(this.subject._status).toBeInstanceof(CardSpriteStoppedState);
+  // this.assert(this.subject.width).toBe(0);
 }
 class MoveCardSpriteTest extends SceneTest {
-  card;
   name = 'MoveCardSpriteTest';
 
   create() {
-    const card = Generator.generateCard();
-    this.card = CardSprite.create(
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
       card.type,
       card.color,
       card.figureName,
       card.attack,
       card.health
     );
-    this.card.startOpen(0, 0);
-    this.addChild(this.card);
+    this.subject.startOpen(0, 0);
+    this.addChild(this.subject);
   }
 
   start() {
-    this.card.show();
-    const destinyXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const destinyYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    const avanceXposition = (Graphics.boxWidth - this.card.width);
-    const avanceYposition = (Graphics.boxHeight - this.card.height);
+    this.subject.show();
+    const destinyXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const destinyYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    const avanceXposition = (Graphics.boxWidth - this.subject.width);
+    const avanceYposition = (Graphics.boxHeight - this.subject.height);
     const returnStartPosition = 0;
     const move1 = CardSprite.createMove(destinyXPosition, destinyYPosition);
     const move2 = CardSprite.createMove(avanceXposition, destinyYPosition);
@@ -3769,363 +3772,347 @@ class MoveCardSpriteTest extends SceneTest {
     const move5 = CardSprite.createMove(returnStartPosition, returnStartPosition);
     const move6 = CardSprite.createMove(destinyXPosition, destinyYPosition);
     const moves = [move1, move2, move3, move4, move5, move6];
-    this.test('Deve mover o cartão!', () => {
-      this.card.toMove(moves);
+    this.test('Deve mover!', () => {
+      this.subject.toMove(moves);
     }, () => {
-      this.assert('Esta na Posição x?', this.card.x).toBe(destinyXPosition);
-      this.assert('Esta na Posição x?', this.card.y).toBe(destinyYPosition);
+      this.assert('Esta na Posição x?', this.subject.x).toBe(destinyXPosition);
+      this.assert('Esta na Posição x?', this.subject.y).toBe(destinyYPosition);
     }, moves.length * 0.3);
   }
 }
 class HoveredCardSpriteTest extends SceneTest {
-  card;
   name = 'HoveredCardSpriteTest';
 
   create() {
-    const card = Generator.generateCard();
-    this.card = CardSprite.create(
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
       card.type,
       card.color,
       card.figureName,
       card.attack,
       card.health
     );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.startOpen(centerXPosition, centerYPosition);
-    this.addChild(this.card);
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.addChild(this.subject);
   }
 
   start() {
-    this.card.show();
-    this.test('O cartão deve estar em estado de hover!', () => {
-      this.card.hover();
+    this.subject.show();
+    this.test('Deve estar em estado de hover!', () => {
+      this.subject.hover();
     }, () => {
-      this.assertTrue('Esta em cursor?', this.card.isHovered());
+      this.assertTrue('esta hover?', this.subject.isHovered());
+    });
+    this.test('Deve retornar ao normal!', () => {
+      this.subject.unhover();
+    }, () => {
+      this.assertTrue('Esta normal?', this.subject.isNormal());
     });
   } 
 }
 class SelectedCardSpriteTest extends SceneTest {
-  card;
   name = 'SelectedCardSpriteTest';
 
   create() {
-    const card = Generator.generateCard();
-    this.card = CardSprite.create(
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
       card.type,
       card.color,
       card.figureName,
       card.attack,
       card.health
     );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.startOpen(centerXPosition, centerYPosition);
-    this.addChild(this.card);
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.addChild(this.subject);
   }
 
   start() {
-    this.card.show();
+    this.subject.show();
     this.test('O cartão deve estar em estado de select!', () => {
-      this.card.select();
+      this.subject.select();
     }, () => {
-      this.assertTrue('Esta selecioando?', this.card.isSelected());
+      this.assertTrue('Esta selecioando?', this.subject.isSelected());
+    });
+    this.test('O cartão deve estar em estado de select!', () => {
+      this.subject.unselect();
+    }, () => {
+      this.assertTrue('Esta normal?', this.subject.isNormal());
     });
   }
 }
 class FlashCardSpriteTest extends SceneTest {
-  card;
   name = 'FlashCardSpriteTest';
 
   create() {
-    const card = Generator.generateCard();
-    this.card = CardSprite.create(
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
       card.type,
       card.color,
       card.figureName,
       card.attack,
       card.health
     );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.startOpen(centerXPosition, centerYPosition);
-    this.addChild(this.card);
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.addChild(this.subject);
   }
 
   start() {
     const color = 'white';
     const duration = 60;
     const infinity = -1;
-    this.card.show();
-    this.test('O cartão deve receber um flash de luz!', () => {
-      this.card.flash(color, duration, infinity);
+    this.subject.show();
+    this.test('Deve receber um flash de luz!', () => {
+      this.subject.flash(color, duration, infinity);
     }, () => {
-      this.assertTrue('Houve um flash de luz?', this.card.isFlashPlaying());
+      this.assertWasTrue('Houve flash de luz?', this.subject.isFlashPlaying);
     });
   } 
 }
 class DamageAnimationCardSpriteTest extends SceneTest {
-  card;
   name = 'DamageAnimationCardSpriteTest';
 
   create() {
-    const card = Generator.generateCard();
-    this.card = CardSprite.create(
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
       card.type,
       card.color,
       card.figureName,
       card.attack,
       card.health
     );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.startOpen(centerXPosition, centerYPosition);
-    this.addChild(this.card);
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.addChild(this.subject);
   }
 
   start() {
     const times = 1;
-    this.card.show();
-    this.test('O cartão deve receber uma animação de dano!', () => {
-      this.card.damage(times);
+    this.subject.show();
+    this.test('Deve receber animação de dano!', () => {
+      this.subject.damage(times);
     }, () => {
-      this.assertTrue('Houve uma animação?', this.card.isAnimationPlaying());
+      this.assertWasTrue('Houve animação?', this.subject.isAnimationPlaying);
     });
   }
 }
 class UpdatingPointsCardSpriteTest extends SceneTest {
-  card;
   name = 'UpdatingPointsCardSpriteTest';
 
   create() {
-    const card = Generator.generateCard(CardTypes.BATTLE);
-    this.card = CardSprite.create(
+    const card = CardGenerator.generateCard(CardTypes.BATTLE);
+    this.subject = CardSprite.create(
       card.type,
       card.color,
       card.figureName,
       0,
       0
     );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.startOpen(centerXPosition, centerYPosition);
-    this.addChild(this.card);
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.addChild(this.subject);
   }
 
   start() {
-    this.card.show();
-    this.test('Deve atualizar os pontos do cartão!', () => {
-      this.card.changePoints(99, 99);
+    this.subject.show();
+    this.test('Deve atualizar os pontos!', () => {
+      this.subject.changePoints(18, 17);
     }, () => {
-      this.assertTrue('Esta atualizando?', this.card.isUpdating());
+      this.assertWasTrue('Foi atualizando?', this.subject.isUpdating);
     });
   }
 }
-class DisableCardSpriteTest extends SceneTest {
-  card;
-  name = 'DisableCardSpriteTest';
+class DisableAndEnableCardSpriteTest extends SceneTest {
+  name = 'DisableAndEnableCardSpriteTest';
 
   create() {
-    const card = Generator.generateCard();
-    this.card = CardSprite.create(
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
       card.type,
       card.color,
       card.figureName,
       card.attack,
       card.health
     );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.startOpen(centerXPosition, centerYPosition);
-    this.addChild(this.card);
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.addChild(this.subject);
   }
 
   start() {
-    this.card.show();
-    this.test('Deve desabilitar o cartão!', () => {
-      this.card.disable();
+    this.subject.show();
+    this.test('Deve desabilitar!', () => {
+      this.subject.disable();
     }, () => {
-      this.assertTrue('Esta disabilitado?', this.card.isDisabled());
+      this.assertTrue('Esta disabilitado?', this.subject.isDisabled());
     });
-    this.test('Deve habilitar o cartão!', () => {
-      this.card.enable();
+    this.test('Deve habilitar!', () => {
+      this.subject.enable();
     }, () => {
-      this.assertTrue('Esta habilitado?', this.card.isEnabled());
+      this.assertTrue('Esta habilitado?', this.subject.isEnabled());
     });
   }
 }
-class ZoomInCardSpriteTest extends SceneTest {
-  card;
-  name = 'ZoomInCardSpriteTest';
+class ZoomAndZoomoutCardSpriteTest extends SceneTest {
+  name = 'ZoomAndZoomoutCardSpriteTest';
 
   create() {
-    const card = Generator.generateCard();
-    this.card = CardSprite.create(
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
       card.type,
       card.color,
       card.figureName,
       card.attack,
       card.health
     );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.startOpen(centerXPosition, centerYPosition);
-    this.addChild(this.card);
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.addChild(this.subject);
   }
 
   start() {
-    this.card.show();
-    this.test('Deve aplicar um zoom no cartão!', () => {
-      this.card.zoom();
+    this.subject.show();
+    this.test('Deve amplicar!', () => {
+      this.subject.zoom();
     }, () => {
-      this.assertTrue('Esta ampliado?', this.card.isZoom());
+      this.assertTrue('Esta ampliado?', this.subject.isZoom());
     });
-  }
-}
-class ZoomOutCardSpriteTest extends SceneTest {
-  card;
-  name = 'ZoomOutCardSpriteTest';
-
-  create() {
-    const card = Generator.generateCard();
-    this.card = CardSprite.create(
-      card.type,
-      card.color,
-      card.figureName,
-      card.attack,
-      card.health
-    );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.x = centerXPosition - ((this.card.width / 2) / 2);
-    this.card.y = centerYPosition - ((this.card.height / 2) / 2);
-    this.card.scale.x = (this.card.scale.x / 2) * 3;
-    this.card.scale.y = (this.card.scale.y / 2) * 3;
-    this.addChild(this.card);
-  }
-
-  start() {
-    this.card.show();
-    this.test('Deve retonar a escala normal do cartão!', () => {
-      this.card.zoomOut();
+    this.test('Deve retonar a escala normal!', () => {
+      this.subject.zoomOut();
     }, () => {
-      this.assertTrue('Esta em escala original?', this.card.isOriginalScale());
+      this.assertTrue('Esta em escala original?', this.subject.isOriginalScale());
     });
   }
 }
 class LeaveCardSpriteTest extends SceneTest {
-  card;
   name = 'LeaveCardSpriteTest';
 
   create() {
-    const card = Generator.generateCard();
-    this.card = CardSprite.create(
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
       card.type,
       card.color,
       card.figureName,
       card.attack,
       card.health
     );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.startOpen(centerXPosition, centerYPosition);
-    this.addChild(this.card);
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.addChild(this.subject);
   }
 
   start() {
-    this.card.show();
-    this.test('Deve aplicar um zoom no cartão!', () => {
-      this.card.leave();
+    this.subject.show();
+    this.test('Deve aplicar um zoom até sumir!', () => {
+      this.subject.leave();
     }, () => {
-      this.assert('Largura é zero?', this.card.width).toBe(0);
-      this.assert('Altura é zero?', this.card.height).toBe(0);
+      this.assert('Largura é zero?', this.subject.width).toBe(0);
+      this.assert('Altura é zero?', this.subject.height).toBe(0);
     })
   }
 }
 class QuakeCardSpriteTest extends SceneTest {
-  card;
   name = 'QuakeCardSpriteTest';
 
   create() {
-    const card = Generator.generateCard();
-    this.card = CardSprite.create(
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
       card.type,
       card.color,
       card.figureName,
       card.attack,
       card.health
     );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.startOpen(centerXPosition, centerYPosition);
-    this.addChild(this.card);
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.addChild(this.subject);
   }
 
   start() {
-    this.card.show();
+    this.subject.show();
     const infinity = 10;
-    this.test('Deve aplicar um zoom no cartão!', () => {
-      this.card.quake(infinity);
+    this.test('Deve aplicar um chacoalhar!', () => {
+      this.subject.quake(3);
     }, () => {
-      this.assertTrue('Esta chacoalhando?', this.card.isMoving());
+      this.assertWasTrue('Esta chacoalhando?', this.subject.isMoving);
     });
   }
 }
-class FlipCardToUpSpriteTest extends SceneTest {
-  card;
-  name = 'FlipCardToUpSpriteTest';
+class FlipCardSpriteTest extends SceneTest {
+  name = 'FlipCardSpriteTest';
 
   create() {
-    const card = Generator.generateCard();
-    this.card = CardSprite.create(
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
       card.type,
       card.color,
       card.figureName,
       card.attack,
       card.health
     );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.startOpen(centerXPosition, centerYPosition);
-    this.card.setToDown();
-    this.addChild(this.card);
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.subject.setToDown();
+    this.addChild(this.subject);
   }
 
   start() {
-    this.card.show();
-    this.test('O cartão deve estar em estado de hover!', () => {
-      this.card.flipToUp();
+    this.subject.show();
+    this.test('Deve estar em estado virado para cima!', () => {
+      this.subject.flipToUp();
     }, () => {
-      this.assertTrue('Esta para cima?', this.card.isTurnedToUp());
-      this.assertTrue('Esta aberto?', this.card.isOpened());
+      this.assertTrue('Esta virado para cima?', this.subject.isTurnedToUp());
+      this.assertTrue('Esta aberto?', this.subject.isOpened());
+    });
+    this.test('Deve estar em estado virado para baixo!', () => {
+      this.subject.flipToDown();
+    }, () => {
+      this.assertTrue('Esta virado para baixo?', this.subject.isTurnedToDown());
+      this.assertTrue('Esta aberto?', this.subject.isOpened());
     });
   }
 }
 class IluminatedCardSpriteTest extends SceneTest {
-  card;
   name = 'IluminatedCardSpriteTest';
 
   create() {
-    const card = Generator.generateCard();
-    this.card = CardSprite.create(
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
       card.type,
       card.color,
       card.figureName,
       card.attack,
       card.health
     );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.card.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.card.height / 2);
-    this.card.startOpen(centerXPosition, centerYPosition);
-    this.addChild(this.card);
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.addChild(this.subject);
   }
 
   start() {
-    this.card.show();
-    this.test('O cartão deve estar em estado de hover!', () => {
-      this.card.iluminate();
+    this.subject.show();
+    this.test('Deve estar em estado iluminado!', () => {
+      this.subject.iluminate();
     }, () => {
-      this.assertTrue('Esta iluminado?', this.card.isIluminated());
+      this.assertTrue('Esta iluminado?', this.subject.isIluminated());
+    });
+    this.test('Deve estar em estado normal!', () => {
+      this.subject.iluminate();
+    }, () => {
+      this.assertTrue('Esta normal?', this.subject.isIluminated());
     });
   }
 }
@@ -4168,7 +4155,7 @@ class SetCardsCardsetSpriteTest extends SceneTest {
     this.cardset.show();
     let times = 1;
     for (let index = 0; index < 2; index++) {
-      const cards = Generator.generateCard(times);
+      const cards = CardGenerator.generateCard(times);
       this.test('Deve mostrar todos os cartões abertos do set na mesma posição!', () => {
         this.cardset.setCards(cards);
         this.cardset.showCards();
@@ -4198,7 +4185,7 @@ class StartPositionCardsCardsetSpriteTest extends SceneTest {
     const x = 100;
     const y = 0;
     const paddingLeft = 0;
-    const cards = Generator.generateCards(numCards);
+    const cards = CardGenerator.generateCards(numCards);
     const positions = CardsetSprite.createPositions(numCards, paddingLeft, x, y);
     this.test('Deve mostrar todos os cartões do set na posição definida!', () => {
       this.cardset.setCards(cards);
@@ -4226,7 +4213,7 @@ class StartListCardsCardsetSpriteTest extends SceneTest {
   start() {
     const numCards = 40;
     this.cardset.show();
-    const cards = Generator.generateCards(numCards);
+    const cards = CardGenerator.generateCards(numCards);
     const positions = CardsetSprite.createPositions(numCards);
     this.test('Deve mostrar todos os cartões em lista!', () => {
       this.cardset.setCards(cards);
@@ -4257,7 +4244,7 @@ class StartClosedAndOpenCardsCardsetSpriteTest extends SceneTest {
     this.cardset.show();
     let times = 1;
     for (let i = 0; i < 6; i++) {
-      const cards = Generator.generateCards(times);
+      const cards = CardGenerator.generateCards(times);
       this.test('Deve abrir todos os cartões do set!', () => {
         this.cardset.setCards(cards);
         this.cardset.startListCards();
@@ -4288,7 +4275,7 @@ class StartClosedAndOpenCardsDelayCardsetSpriteTest extends SceneTest {
     this.cardset.show();
     let times = 40;
     for (let i = 0; i < 1; i++) {
-      const cards = Generator.generateCards(times);
+      const cards = CardGenerator.generateCards(times);
       this.test('Deve abrir todos os cartões do set com delay!', () => {
         this.cardset.setCards(cards);
         this.cardset.startListCards();
@@ -4319,7 +4306,7 @@ class MoveCardsToListCardsetSpriteTest extends SceneTest {
     this.cardset.show();
     let times = 1;
     for (let i = 0; i < 6; i++) {
-      const cards = Generator.generateCards(times);
+      const cards = CardGenerator.generateCards(times);
       const screenWidth = Graphics.boxWidth;
       const paddingLeft = 97;
       const positions = CardsetSprite.createPositions(6, paddingLeft);
@@ -4353,7 +4340,7 @@ class MoveCardsToListDelayCardsetSpriteTest extends SceneTest {
     this.cardset.show();
     let times = 40;
     for (let i = 0; i < 1; i++) {
-      const cards = Generator.generateCards(times);
+      const cards = CardGenerator.generateCards(times);
       const screenWidth = Graphics.boxWidth;
       const positions = CardsetSprite.createPositions(6);
       const timeout = times * 0.2;
@@ -4388,7 +4375,7 @@ class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
   start() {
     const numCards = 40;
     this.cardset.show();
-    const cards = Generator.generateCards(numCards);
+    const cards = CardGenerator.generateCards(numCards);
     const screenWidth = Graphics.boxWidth;
     const cardWidth = 96;
     const xPosition = (this.cardset.width / 2) - (cardWidth / 2);
@@ -4423,8 +4410,8 @@ class AddCardAndMoveToListCardsetSpriteTest extends SceneTest {
     this.cardset.show();
     let times = 1;
     for (let i = 0; i < 3; i++) {
-      const cards = Generator.generateCards(3);
-      const newCards = Generator.generateCards(times);
+      const cards = CardGenerator.generateCards(3);
+      const newCards = CardGenerator.generateCards(times);
       const screenWidth = Graphics.boxWidth;
       const positions = CardsetSprite.createPositions(6, 97);
       positions.shift();
@@ -4462,8 +4449,8 @@ class AddCardAndMoveToListDelayCardsetSpriteTest extends SceneTest {
     this.cardset.show();
     let times = 1;
     for (let i = 0; i < 3; i++) {
-      const cards = Generator.generateCards(3);
-      const newCards = Generator.generateCards(times);
+      const cards = CardGenerator.generateCards(3);
+      const newCards = CardGenerator.generateCards(times);
       const screenWidth = Graphics.boxWidth;
       const positions = CardsetSprite.createPositions(6, 97);
       positions.shift();
@@ -4501,7 +4488,7 @@ class SelectModeCardsetSpriteTest extends SceneTest {
   start() {
     return new Promise(async resolve => {
       this.cardset.show();
-      const cards = Generator.generateCards(10);
+      const cards = CardGenerator.generateCards(10);
       this.test('Deve entrar em modo seleção!', () => {
         this.cardset.setCards(cards);
         this.cardset.startListCards();
@@ -4531,7 +4518,7 @@ class SelectModeAndEnableChoiceCardsetSpriteTest extends SceneTest {
   start() {
     return new Promise(async resolve => {
       this.cardset.show();
-      const cards = Generator.generateCards(10);
+      const cards = CardGenerator.generateCards(10);
       this.test('Deve entrar em modo seleção!', () => {
         this.cardset.setCards(cards);
         this.cardset.startListCards();
@@ -4565,7 +4552,7 @@ class AnimateQuakeCardsCardsetSpriteTest extends SceneTest {
 
   start() {
     this.cardset.show();
-    const cards = Generator.generateCards(6);
+    const cards = CardGenerator.generateCards(6);
     this.test('Deve realizar chacoalhar os cartões!', () => {
       const sprites = this.cardset.setCards(cards);
       this.cardset.startListCards();
@@ -4593,7 +4580,7 @@ class AnimateFlashCardsCardsetSpriteTest extends SceneTest {
 
   start() {
     this.cardset.show();
-    const cards = Generator.generateCards(6);
+    const cards = CardGenerator.generateCards(6);
     this.test('Deve realizar um flash nos cartões!', () => {
       const sprites = this.cardset.setCards(cards);
       this.cardset.startListCards();
@@ -4621,7 +4608,7 @@ class AnimateDamageCardsCardsetSpriteTest extends SceneTest {
 
   start() {
     this.cardset.show();
-    const cards = Generator.generateCards(6);
+    const cards = CardGenerator.generateCards(6);
     this.test('Deve realizar animações nos cartões!', () => {
       const sprites = this.cardset.setCards(cards);
       this.cardset.startListCards();
@@ -4650,7 +4637,7 @@ class DisableAndEnableCardsCardsetSpriteTest extends SceneTest {
   start() {
     return new Promise(async resolve => {
       this.cardset.show();
-      const cards = Generator.generateCards(10);
+      const cards = CardGenerator.generateCards(10);
       const enableCardsIndex = [0, 3, 4, 5, 6];
       this.test('Deve desabilitar todos exceto os indices!', () => {
         this.cardset.setCards(cards);
@@ -5106,23 +5093,20 @@ class CardBattleTestScene extends Scene_Message {
 
   data() {
     const cardSpriteTests = [
-      // StartOpenCardSpriteTest,
-      // StartClosedCardSpriteTest,
-      // CloseCardSpriteTest,
-      // OpenCardSpriteTest,
+      StartClosedAndStartOpenCardSpriteTest,
+      CloseAndOpenCardSpriteTest,
       MoveCardSpriteTest,
-      // DisableCardSpriteTest,
-      // HoveredCardSpriteTest,
-      // SelectedCardSpriteTest,
-      // FlashCardSpriteTest,
-      // DamageAnimationCardSpriteTest,
-      // UpdatingPointsCardSpriteTest,
-      // ZoomInCardSpriteTest,
-      // ZoomOutCardSpriteTest,
-      // LeaveCardSpriteTest,
-      // QuakeCardSpriteTest,
-      // FlipCardToUpSpriteTest,
-      // IluminatedCardSpriteTest
+      DisableAndEnableCardSpriteTest,
+      HoveredCardSpriteTest,
+      SelectedCardSpriteTest,
+      FlashCardSpriteTest,
+      DamageAnimationCardSpriteTest,
+      UpdatingPointsCardSpriteTest,
+      ZoomAndZoomoutCardSpriteTest,
+      LeaveCardSpriteTest,
+      QuakeCardSpriteTest,
+      FlipCardSpriteTest,
+      IluminatedCardSpriteTest
     ];
     const cardsetTests = [
       SetBackgroundAndStartPositionCardsetSpriteTest,
@@ -5185,11 +5169,14 @@ class CardBattleTestScene extends Scene_Message {
 
   async startTests() {
     let results = [];
+    let index = 0;
     for (const test of this.tests) {
       this._test = test;
       const result = await this._test.run();
       results.push(result);
       await this.clearScene();
+      this._test = null;
+      index++;
     }
     this.printResults(results);
     this.printResultsTotals(results);
@@ -5264,13 +5251,15 @@ class CardBattleTestScene extends Scene_Message {
       while (children.length > 1) {
         children.forEach(async child => {
           if (child === this._windowLayer) return;
+          child.destroy();
           await this.removeChild(child);
         });
       }
       const windowChildren = this._windowLayer.children;
       while (windowChildren.length) {
-        windowChildren.forEach(async child => {
-          await this._windowLayer.removeChild(child);
+        windowChildren.forEach(async window => {
+          window.destroy();
+          await this._windowLayer.removeChild(window);
         });
       }
       resolve(true);

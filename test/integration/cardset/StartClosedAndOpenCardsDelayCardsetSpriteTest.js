@@ -15,7 +15,7 @@ class StartClosedAndOpenCardsDelayCardsetSpriteTest extends SceneTest {
     this.cardset.show();
     let times = 40;
     for (let i = 0; i < 1; i++) {
-      const cards = Generator.generateCards(times);
+      const cards = CardGenerator.generateCards(times);
       this.test('Deve abrir todos os cartões do set com delay!', () => {
         this.cardset.setCards(cards);
         this.cardset.startListCards();

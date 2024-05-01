@@ -15,7 +15,7 @@ class MoveCardsToListDelayCardsetSpriteTest extends SceneTest {
     this.cardset.show();
     let times = 40;
     for (let i = 0; i < 1; i++) {
-      const cards = Generator.generateCards(times);
+      const cards = CardGenerator.generateCards(times);
       const screenWidth = Graphics.boxWidth;
       const positions = CardsetSprite.createPositions(6);
       const timeout = times * 0.2;

@@ -15,7 +15,7 @@ class MoveCardsToListCardsetSpriteTest extends SceneTest {
     this.cardset.show();
     let times = 1;
     for (let i = 0; i < 6; i++) {
-      const cards = Generator.generateCards(times);
+      const cards = CardGenerator.generateCards(times);
       const screenWidth = Graphics.boxWidth;
       const paddingLeft = 97;
       const positions = CardsetSprite.createPositions(6, paddingLeft);

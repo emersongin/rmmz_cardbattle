@@ -14,7 +14,7 @@ class StartListCardsCardsetSpriteTest extends SceneTest {
   start() {
     const numCards = 40;
     this.cardset.show();
-    const cards = Generator.generateCards(numCards);
+    const cards = CardGenerator.generateCards(numCards);
     const positions = CardsetSprite.createPositions(numCards);
     this.test('Deve mostrar todos os cartões em lista!', () => {
       this.cardset.setCards(cards);

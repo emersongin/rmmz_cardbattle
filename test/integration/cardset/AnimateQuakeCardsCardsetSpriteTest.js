@@ -13,7 +13,7 @@ class AnimateQuakeCardsCardsetSpriteTest extends SceneTest {
 
   start() {
     this.cardset.show();
-    const cards = Generator.generateCards(6);
+    const cards = CardGenerator.generateCards(6);
     this.test('Deve realizar chacoalhar os cartões!', () => {
       const sprites = this.cardset.setCards(cards);
       this.cardset.startListCards();

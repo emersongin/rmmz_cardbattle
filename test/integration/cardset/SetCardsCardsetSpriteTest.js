@@ -15,7 +15,7 @@ class SetCardsCardsetSpriteTest extends SceneTest {
     this.cardset.show();
     let times = 1;
     for (let index = 0; index < 2; index++) {
-      const cards = Generator.generateCard(times);
+      const cards = CardGenerator.generateCard(times);
       this.test('Deve mostrar todos os cartões abertos do set na mesma posição!', () => {
         this.cardset.setCards(cards);
         this.cardset.showCards();

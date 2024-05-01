@@ -14,7 +14,7 @@ class DisableAndEnableCardsCardsetSpriteTest extends SceneTest {
   start() {
     return new Promise(async resolve => {
       this.cardset.show();
-      const cards = Generator.generateCards(10);
+      const cards = CardGenerator.generateCards(10);
       const enableCardsIndex = [0, 3, 4, 5, 6];
       this.test('Deve desabilitar todos exceto os indices!', () => {
         this.cardset.setCards(cards);

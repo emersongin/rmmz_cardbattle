@@ -19,3 +19,12 @@ class IntegerHelper {
     return bigger;
   }
 }
+
+class ObjectHelper {
+  static copyObject(obj) {
+    const copiedObj = Object.create(Object.getPrototypeOf(obj));
+    const descriptors = Object.getOwnPropertyDescriptors(obj);
+    Object.defineProperties(copiedObj, descriptors);
+    return copiedObj;
+  }
+}

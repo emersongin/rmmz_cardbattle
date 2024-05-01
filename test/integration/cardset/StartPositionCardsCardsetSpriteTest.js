@@ -17,7 +17,7 @@ class StartPositionCardsCardsetSpriteTest extends SceneTest {
     const x = 100;
     const y = 0;
     const paddingLeft = 0;
-    const cards = Generator.generateCards(numCards);
+    const cards = CardGenerator.generateCards(numCards);
     const positions = CardsetSprite.createPositions(numCards, paddingLeft, x, y);
     this.test('Deve mostrar todos os cartões do set na posição definida!', () => {
       this.cardset.setCards(cards);
