@@ -1,33 +1,55 @@
 class CardSpriteMovingState {
   _card;
+  _moves;
   _x;
   _y;
   _xInterval;
   _yInterval;
   
-  constructor(
-    sprite, 
-    destinyXPosition, 
-    destinyYPosition, 
-    originXPosition, 
-    originYPosition, 
-    duration
-  ) {
+  constructor(sprite, moves) {
     this._card = sprite;
-    this._x = destinyXPosition;
-    this._y = destinyYPosition;
-    this._xInterval = this._card.calculateTimeInterval(originXPosition, destinyXPosition, duration);
-    this._yInterval = this._card.calculateTimeInterval(originYPosition, destinyYPosition, duration);
+    this._moves = moves;
+    this._x = this._card.x;
+    this._y = this._card.y;
   }
 
   updateStatus() {
     const that = this._card;
-    if (this._x !== that.x || this._y !== that.y) {
+    if (this.hasMoves() && this.isStopped()) this.startMove();
+    if (this.isToMove()) {
       this.updateXPosition();
       this.updateYPosition();
     } else {
       that.stop();
     }
+  }
+
+  hasMoves() {
+    return this._moves.length > 0;
+  }
+
+  isStopped() {
+    return !this.isToMove();
+  }
+
+  startMove() {
+    const move = this._moves[0];
+    if (move) {
+      let { destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration } = move;
+      originXPosition = originXPosition || this._card.x;
+      originYPosition = originYPosition || this._card.y;
+      duration = duration >= 0 ? duration : this._card._duration;
+      this._x = destinyXPosition;
+      this._y = destinyYPosition;
+      this._xInterval = this._card.calculateTimeInterval(originXPosition, destinyXPosition, duration);
+      this._yInterval = this._card.calculateTimeInterval(originYPosition, destinyYPosition, duration);
+      this._moves.shift();
+    }
+  }
+
+  isToMove() {  
+    const that = this._card;
+    return this._x !== that.x || this._y !== that.y;
   }
 
   updateXPosition() {

@@ -15,7 +15,7 @@ class SelectModeAndEnableChoiceCardsetSpriteTest extends SceneTest {
     return new Promise(async resolve => {
       this.cardset.show();
       const cards = Generator.generateCards(10);
-      this.test('Deve entrar em modo seleção!', async () => {
+      this.test('Deve entrar em modo seleção!', () => {
         this.cardset.setCards(cards);
         this.cardset.startListCards();
         this.cardset.showCards();
@@ -25,8 +25,8 @@ class SelectModeAndEnableChoiceCardsetSpriteTest extends SceneTest {
         this.cardset.selectMode();
         this.cardset.enableChoice();
       }, () => {
-        this.assert('Esta em modo seleção?', this.cardset.isSelectMode()).toBe(true);
-        this.assert('Esta em modo escolha?', this.cardset.isEnableChoice()).toBe(true);
+        this.assertTrue('Esta em modo seleção?', this.cardset.isSelectMode());
+        this.assertTrue('Esta em modo escolha?', this.cardset.isEnableChoice());
       }, 3);
       await this.timertoTrue(5000);
       this.cardset.staticMode();

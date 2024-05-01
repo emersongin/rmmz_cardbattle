@@ -245,24 +245,26 @@ class CardsetSprite extends ActionSprite {
     if (this.isHidden()) return;
     positions.forEach(({ index, x, y }) => {
       if (index < 0) return;
-      this._sprites[index].toMove(x, y);
+      const move = CardSprite.createMove(x, y);
+      this._sprites[index].toMove(move);
     });
     return true;
   }
 
-  moveCardToPosition(sprite, xPosition, yPosition) {
-    this.moveCardsToPosition(xPosition, yPosition, sprite);
+  moveCardToPosition(sprite, x, y) {
+    this.moveCardsToPosition(x, y, sprite);
   }
 
-  moveCardsToPosition(xPosition = 0, yPosition = 0, sprites = this._sprites) {
+  moveCardsToPosition(x = 0, y = 0, sprites = this._sprites) {
     sprites = this.toArray(sprites);
-    this.addAction(this.commandMoveCardsToPosition, xPosition, yPosition, sprites);
+    this.addAction(this.commandMoveCardsToPosition, x, y, sprites);
   }
 
-  commandMoveCardsToPosition(xPosition, yPosition, sprites) {
+  commandMoveCardsToPosition(x, y, sprites) {
     if (this.isHidden()) return;
     sprites.forEach(sprite => {
-      sprite.toMove(xPosition, yPosition);
+      const move = CardSprite.createMove(x, y);
+      sprite.toMove(move);
     });
     return true;
   }
@@ -428,4 +430,40 @@ class CardsetSprite extends ActionSprite {
   isEnableChoice() {
     return this._enableSelected;
   }
+
+  isSpritesPositions(positions, sprites = this.children) {
+    return sprites.every((sprite, index) => {
+      const position = positions.find(position => position.index === index);
+      if (!position) return true;
+      const { x, y } = position;
+      return sprite.x === x && sprite.y === y;
+    });
+  }
+
+  someSpriteIsAnimationPlaying() {
+    return this.children.some(sprite => sprite.isAnimationPlaying());
+  }
+
+  someSpriteIsFlashPlaying() {
+    return this.children.some(sprite => sprite.isFlashPlaying());
+  }
+
+  someSpriteIsMoving() {
+    return this.children.some(sprite => sprite.isMoving());
+  }
+
+  isEnabledCardsIndex(indexs) {
+    return indexs.every(index => this.getCardIndex(index).isEnabled());
+  }
+
+  static createPositions(numCards = 1, padingLeftToAdd = 13, x, y) {
+    const positions = [];
+    let padingLeft = 0;
+    for (let i = 0; i < numCards; i++) {
+      positions.push(CardSprite.createPosition(x || padingLeft, y || 0, i));
+      padingLeft += padingLeftToAdd;
+    }
+    return positions;
+  }
+
 }

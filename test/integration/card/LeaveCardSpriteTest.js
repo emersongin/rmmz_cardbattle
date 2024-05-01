@@ -18,8 +18,8 @@ class LeaveCardSpriteTest extends SceneTest {
   }
 
   start() {
+    this.card.show();
     this.test('Deve aplicar um zoom no cartão!', () => {
-      this.card.show();
       this.card.leave();
     }, () => {
       this.assert('Largura é zero?', this.card.width).toBe(0);

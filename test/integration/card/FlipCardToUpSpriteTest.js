@@ -19,12 +19,12 @@ class FlipCardToUpSpriteTest extends SceneTest {
   }
 
   start() {
+    this.card.show();
     this.test('O cartão deve estar em estado de hover!', () => {
-      this.card.show();
       this.card.flipToUp();
     }, () => {
-      this.assert('Esta para cima?', this.card.isTurnedToUp()).toBe(true);
-      this.assert('Esta aberto?', this.card.isOpened()).toBe(true);
+      this.assertTrue('Esta para cima?', this.card.isTurnedToUp());
+      this.assertTrue('Esta aberto?', this.card.isOpened());
     });
   }
 }

@@ -18,12 +18,12 @@ class CardBattleTestScene extends Scene_Message {
       // StartClosedCardSpriteTest,
       // CloseCardSpriteTest,
       // OpenCardSpriteTest,
-      // MoveCardSpriteTest,
+      MoveCardSpriteTest,
       // DisableCardSpriteTest,
       // HoveredCardSpriteTest,
       // SelectedCardSpriteTest,
       // FlashCardSpriteTest,
-      DamageAnimationCardSpriteTest,
+      // DamageAnimationCardSpriteTest,
       // UpdatingPointsCardSpriteTest,
       // ZoomInCardSpriteTest,
       // ZoomOutCardSpriteTest,
@@ -33,17 +33,20 @@ class CardBattleTestScene extends Scene_Message {
       // IluminatedCardSpriteTest
     ];
     const cardsetTests = [
-      // SetBackgroundAndStartPositionCardsetSpriteTest,
-      // SetCardsCardsetSpriteTest,
-      // StartPositionCardsCardsetSpriteTest,
-      // StartListCardsCardsetSpriteTest,
-      // StartClosedAndOpenCardsCardsetSpriteTest,
-      // MoveCardsToListCardsetSpriteTest,
-      // MoveCardsToPositionCardsetSpriteTest,
-      // AddCardAndMoveToListCardsetSpriteTest,
-      // SelectModeCardsetSpriteTest,
-      // DisableAndEnableCardsCardsetSpriteTest,
-      // SelectModeAndEnableChoiceCardsetSpriteTest,
+      SetBackgroundAndStartPositionCardsetSpriteTest,
+      SetCardsCardsetSpriteTest,
+      StartPositionCardsCardsetSpriteTest,
+      StartListCardsCardsetSpriteTest,
+      StartClosedAndOpenCardsCardsetSpriteTest,
+      StartClosedAndOpenCardsDelayCardsetSpriteTest,
+      MoveCardsToListCardsetSpriteTest,
+      MoveCardsToListDelayCardsetSpriteTest,
+      MoveCardsToPositionCardsetSpriteTest,
+      AddCardAndMoveToListCardsetSpriteTest,
+      AddCardAndMoveToListDelayCardsetSpriteTest,
+      SelectModeCardsetSpriteTest,
+      DisableAndEnableCardsCardsetSpriteTest,
+      SelectModeAndEnableChoiceCardsetSpriteTest,
       AnimateQuakeCardsCardsetSpriteTest,
       AnimateFlashCardsCardsetSpriteTest,
       AnimateDamageCardsCardsetSpriteTest,
@@ -66,8 +69,8 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsGamePointsWindowTest,
     ];
     return [
-      // ...cardSpriteTests,
-      ...cardsetTests,
+      ...cardSpriteTests,
+      // ...cardsetTests,
     //   ...textWindowTests,
     //   ...gameBoardTests,
     //   ...gamePointsTests,
@@ -106,7 +109,7 @@ class CardBattleTestScene extends Scene_Message {
       if (isTestPassed) {
         this.printSuccess(`Teste: ${test.testName} passou!`);
       } else {
-        this.printError(`Teste: ${test.testName} falhou!`);
+        this.printTestError(`Teste: ${test.testName} falhou!`);
         assertsResult.forEach(allAsserts => {
           const { passed: isAssertsPassed, assertsName, asserts } = allAsserts;
           if (!isAssertsPassed) {
@@ -138,6 +141,10 @@ class CardBattleTestScene extends Scene_Message {
 
   printError(...msg) {
     console.log(`%c${msg.map(t => t.toString())}`,`background: #FF0000; ${this.css}`);
+  }
+
+  printTestError(...msg) {
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #800000; ${this.css}`);
   }
 
   printSuccess(...msg) {

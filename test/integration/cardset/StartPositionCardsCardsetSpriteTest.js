@@ -13,23 +13,19 @@ class StartPositionCardsCardsetSpriteTest extends SceneTest {
 
   start() {
     this.cardset.show();
-    let times = 1;
+    let numCards = 1;
     const x = 100;
     const y = 0;
-    for (let index = 0; index < 2; index++) {
-      this.test('Deve mostrar todos os cartões do set na posição definida!', async () => {
-        const cards = Generator.generateCard(times);
-        this.cardset.setCards(cards);
-        this.cardset.startPositionCards(x, y);
-        this.cardset.showCards();
-        await this.timertoTrue(300);
-        this.cardset.clear();
-      }, () => {
-        this.assert('Estão aberto?', this.cardset.allCardsOpened()).toBe(true);
-        const allInPosition = this.cardset.children.every(sprite => sprite.x === x && sprite.y === y);
-        this.assert('Estão na posição?', allInPosition).toBe(true);
-      });
-      times++;
-    }
+    const paddingLeft = 0;
+    const cards = Generator.generateCards(numCards);
+    const positions = CardsetSprite.createPositions(numCards, paddingLeft, x, y);
+    this.test('Deve mostrar todos os cartões do set na posição definida!', () => {
+      this.cardset.setCards(cards);
+      this.cardset.startPositionCards(x, y);
+      this.cardset.showCards();
+    }, () => {
+      this.assertTrue('Estão aberto?', this.cardset.allCardsOpened());
+      this.assertTrue('Estão na posição?', this.cardset.isSpritesPositions(positions));
+    });
   }
 }

@@ -13,22 +13,16 @@ class AnimateFlashCardsCardsetSpriteTest extends SceneTest {
 
   start() {
     this.cardset.show();
-    this.test('Deve realizar um flash nos cartões!', () => {
-      this.startFlash();
-    }, () => {
-      const isFlash = this.cardset.children.some(child => child.isFlashPlaying());
-      this.assertTrue('Houve um flash de luz?', isFlash);
-    }, 2);
-  }
-
-  async startFlash() {
     const cards = Generator.generateCards(6);
-    const sprites = this.cardset.setCards(cards);
-    this.cardset.startListCards();
-    this.cardset.showCards();
-    await this.timertoTrue(200);
-    const sprite = this.cardset.getCardIndex(0);
-    this.cardset.animateCardFlash(sprite);
-    this.cardset.animateCardsFlash();
+    this.test('Deve realizar um flash nos cartões!', () => {
+      const sprites = this.cardset.setCards(cards);
+      this.cardset.startListCards();
+      this.cardset.showCards();
+      const sprite = this.cardset.getCardIndex(0);
+      this.cardset.animateCardFlash(sprite);
+      this.cardset.animateCardsFlash();
+    }, () => {
+      this.assertTrue('Houve um flash de luz?', this.cardset.someSpriteIsFlashPlaying());
+    }, 2);
   }
 }

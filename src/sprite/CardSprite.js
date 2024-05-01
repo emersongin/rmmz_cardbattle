@@ -431,32 +431,23 @@ class CardSprite extends ActionSprite {
     this.stop();
   }
 
-  toMove(
-    destinyXPosition = this.x, 
-    destinyYPosition = this.y, 
-    originXPosition = this.x, 
-    originYPosition = this.y, 
-    duration = this._duration
-  ) {
+  static createMove(destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration) {
+    return { destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration };
+  }
+
+  toMove(moves) {
+    moves = this.toArray(moves);
     this.addAction(
-      this.commandMoving, 
-      destinyXPosition, 
-      destinyYPosition,
-      originXPosition, 
-      originYPosition,
-      duration
+      this.commandMoving,
+      moves
     );
   }
 
-  commandMoving(destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration) {
+  commandMoving(moves) {
     if (!(this.isVisible() && this.isStopped())) return;
     this.changeStatus( 
       CardSpriteMovingState,
-      destinyXPosition,
-      destinyYPosition,
-      originXPosition,
-      originYPosition,
-      duration
+      moves
     );
     return true;
   }
@@ -667,7 +658,7 @@ class CardSprite extends ActionSprite {
     return true;
   }
 
-  quake(times = 1, distance = 2, movements = null) {
+  quake(times = 1, distance = 8, movements = null) {
     this.addAction(this.commandQuake, times, distance, movements);
   }
 
@@ -680,7 +671,8 @@ class CardSprite extends ActionSprite {
       const xMove = cardXPosition + move.x;
       const yMove = cardYPosition + move.y;
       const duration = 0;
-      this.toMove(xMove, yMove, cardXPosition, cardYPosition, duration);
+      const directionMove = CardSprite.createMove(xMove, yMove, cardXPosition, cardYPosition, duration);
+      this.toMove(directionMove);
     });
     return true;
   }
@@ -766,5 +758,9 @@ class CardSprite extends ActionSprite {
 
   isIluminated() {
     return this.getBehavior(CardSpriteIluminatedBehavior) instanceof CardSpriteIluminatedBehavior;
+  }
+
+  static createPosition(x, y, index) {
+    return { x, y, index };
   }
 }

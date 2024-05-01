@@ -18,11 +18,11 @@ class HoveredCardSpriteTest extends SceneTest {
   }
 
   start() {
+    this.card.show();
     this.test('O cartão deve estar em estado de hover!', () => {
-      this.card.show();
       this.card.hover();
     }, () => {
-      this.assert('Esta em cursor?', this.card.isHovered()).toBe(true);
+      this.assertTrue('Esta em cursor?', this.card.isHovered());
     });
   } 
 }

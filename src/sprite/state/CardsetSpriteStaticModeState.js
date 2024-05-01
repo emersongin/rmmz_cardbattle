@@ -27,7 +27,8 @@ class CardsetSpriteStaticModeState {
     const destinyYPosition = 0;
     const duration = 0.03;
     sprite.unhover();
-    sprite.toMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
+    const move = CardSprite.createMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
+    sprite.toMove(move);
   }
 
   updateStatus() {

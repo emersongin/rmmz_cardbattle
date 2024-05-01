@@ -18,11 +18,11 @@ class SelectedCardSpriteTest extends SceneTest {
   }
 
   start() {
+    this.card.show();
     this.test('O cartão deve estar em estado de select!', () => {
-      this.card.show();
       this.card.select();
     }, () => {
-      this.assert('Esta selecioando?', this.card.isSelected()).toBe(true);
+      this.assertTrue('Esta selecioando?', this.card.isSelected());
     });
   }
 }

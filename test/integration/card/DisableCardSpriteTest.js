@@ -22,12 +22,12 @@ class DisableCardSpriteTest extends SceneTest {
     this.test('Deve desabilitar o cartão!', () => {
       this.card.disable();
     }, () => {
-      this.assert('Esta disabilitado?', this.card.isDisabled()).toBe(true);
+      this.assertTrue('Esta disabilitado?', this.card.isDisabled());
     });
     this.test('Deve habilitar o cartão!', () => {
       this.card.enable();
     }, () => {
-      this.assert('Esta habilitado?', this.card.isEnabled()).toBe(true);
+      this.assertTrue('Esta habilitado?', this.card.isEnabled());
     });
   }
 }

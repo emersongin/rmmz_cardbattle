@@ -1,6 +1,6 @@
-class MoveCardsToListCardsetSpriteTest extends SceneTest {
+class MoveCardsToListDelayCardsetSpriteTest extends SceneTest {
   cardset;
-  name = 'MoveCardsToListCardsetSpriteTest';
+  name = 'MoveCardsToListDelayCardsetSpriteTest';
 
   create() {
     this.cardset = CardsetSprite.create();
@@ -13,21 +13,23 @@ class MoveCardsToListCardsetSpriteTest extends SceneTest {
 
   start() {
     this.cardset.show();
-    let times = 1;
-    for (let i = 0; i < 6; i++) {
+    let times = 40;
+    for (let i = 0; i < 1; i++) {
       const cards = Generator.generateCards(times);
       const screenWidth = Graphics.boxWidth;
-      const paddingLeft = 97;
-      const positions = CardsetSprite.createPositions(6, paddingLeft);
-      this.test('Deve mover todos os cartões do set na posição em lista!', () => {
-        const sprites = this.cardset.setCards(cards);
-        this.cardset.startPositionCards(screenWidth, 0);
+      const positions = CardsetSprite.createPositions(6);
+      const timeout = times * 0.2;
+      this.test('Deve mover todos os cartões do set na posição em lista com delay!', () => {
+        this.cardset.setCards(cards);
         this.cardset.startOpenCards();
+        this.cardset.startListCards();
+        this.cardset.startPositionCards(screenWidth, 0);
         this.cardset.showCards();
-        this.cardset.moveCardsToList();
+        const delay = 10;
+        this.cardset.moveCardsToListDelay(delay);
       }, () => {
         this.assertTrue('Foram movidos em lista?', this.cardset.isSpritesPositions(positions));
-      });
+      }, timeout);
       times++;
     }
   }

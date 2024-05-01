@@ -13,22 +13,16 @@ class AnimateDamageCardsCardsetSpriteTest extends SceneTest {
 
   start() {
     this.cardset.show();
-    this.test('Deve realizar uma animação nos cartões!', () => {
-      this.startDamage();
-    }, () => {
-      const isAnimationPlaying = this.cardset.children.some(child => child.isAnimationPlaying());
-      this.assertTrue('Houve uma animação?', isAnimationPlaying);
-    }, 2);
-  }
-
-  async startDamage() {
     const cards = Generator.generateCards(6);
-    const sprites = this.cardset.setCards(cards);
-    this.cardset.startListCards();
-    this.cardset.showCards();
-    await this.timertoTrue(300);
-    const sprite = this.cardset.getCardIndex(0);
-    this.cardset.animateCardDamage(sprite);
-    this.cardset.animateCardsDamage();
+    this.test('Deve realizar animações nos cartões!', () => {
+      const sprites = this.cardset.setCards(cards);
+      this.cardset.startListCards();
+      this.cardset.showCards();
+      const sprite = this.cardset.getCardIndex(0);
+      this.cardset.animateCardDamage(sprite);
+      this.cardset.animateCardsDamage();
+    }, () => {
+      this.assertTrue('Houve uma animação?', this.cardset.someSpriteIsAnimationPlaying());
+    }, 2);
   }
 }

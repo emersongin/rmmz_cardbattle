@@ -18,11 +18,11 @@ class CloseCardSpriteTest extends SceneTest {
   }
 
   start() {
+    this.card.show();
     this.test('Deve fechar o cartão!', () => {
-      this.card.show();
       this.card.close();
     }, () => {
-      this.assert('Esta fechado?', this.card.isClosed()).toBe(true);
+      this.assertTrue('Esta fechado?', this.card.isClosed());
     })
   }
 

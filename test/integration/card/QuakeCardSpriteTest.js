@@ -18,12 +18,12 @@ class QuakeCardSpriteTest extends SceneTest {
   }
 
   start() {
+    this.card.show();
+    const infinity = 10;
     this.test('Deve aplicar um zoom no cartão!', () => {
-      this.card.show();
-      const infinity = 10;
       this.card.quake(infinity);
     }, () => {
-      this.assert('Esta chacoalhando?', this.card.isMoving()).toBe(true);
+      this.assertTrue('Esta chacoalhando?', this.card.isMoving());
     });
   }
 }

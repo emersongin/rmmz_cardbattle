@@ -1,6 +1,6 @@
-class AddCardAndMoveToListCardsetSpriteTest extends SceneTest {
+class AddCardAndMoveToListDelayCardsetSpriteTest extends SceneTest {
   cardset;
-  name = 'AddCardAndMoveToListCardsetSpriteTest';
+  name = 'AddCardAndMoveToListDelayCardsetSpriteTest';
 
   create() {
     this.cardset = CardsetSprite.create();
@@ -22,17 +22,18 @@ class AddCardAndMoveToListCardsetSpriteTest extends SceneTest {
       positions.shift();
       positions.shift();
       positions.shift();
-      this.test('Deve mover todos os cartões do set na posição em lista!', () => {
+      this.test('Deve mover todos os cartões do set na posição em lista com delay!', () => {
         const sprites = this.cardset.setCards(cards);
         this.cardset.startListCards(sprites);
         this.cardset.showCards(sprites);
         const newSprites = this.cardset.addCards(newCards);
         this.cardset.startPositionCards(screenWidth, 0, newSprites);
         this.cardset.showCards(newSprites);
-        this.cardset.moveCardsToList(newSprites);
+        const delay = 10;
+        this.cardset.moveCardsToListDelay(delay, newSprites);
       }, () => {
         this.assertTrue('Foram movidos em lista?', this.cardset.isSpritesPositions(positions));
-      }, 1);
+      });
       times++;
     }
   }

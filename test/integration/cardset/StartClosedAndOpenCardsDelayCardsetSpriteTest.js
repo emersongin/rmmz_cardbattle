@@ -1,6 +1,6 @@
-class SetCardsCardsetSpriteTest extends SceneTest {
+class StartClosedAndOpenCardsDelayCardsetSpriteTest extends SceneTest {
   cardset;
-  name = 'SetCardsCardsetSpriteTest';
+  name = 'StartClosedAndOpenCardsDelayCardsetSpriteTest';
 
   create() {
     this.cardset = CardsetSprite.create();
@@ -13,15 +13,18 @@ class SetCardsCardsetSpriteTest extends SceneTest {
 
   start() {
     this.cardset.show();
-    let times = 1;
-    for (let index = 0; index < 2; index++) {
-      const cards = Generator.generateCard(times);
-      this.test('Deve mostrar todos os cartões abertos do set na mesma posição!', () => {
+    let times = 40;
+    for (let i = 0; i < 1; i++) {
+      const cards = Generator.generateCards(times);
+      this.test('Deve abrir todos os cartões do set com delay!', () => {
         this.cardset.setCards(cards);
+        this.cardset.startListCards();
+        this.cardset.startClosedCards();
         this.cardset.showCards();
+        this.cardset.openCardsWithDelay();
       }, () => {
         this.assertTrue('Estão aberto?', this.cardset.allCardsOpened());
-      }, 0.3);
+      });
       times++;
     }
   }

@@ -18,11 +18,11 @@ class IluminatedCardSpriteTest extends SceneTest {
   }
 
   start() {
+    this.card.show();
     this.test('O cartão deve estar em estado de hover!', () => {
-      this.card.show();
       this.card.iluminate();
     }, () => {
-      this.assert('Esta iluminado?', this.card.isIluminated()).toBe(true);
+      this.assertTrue('Esta iluminado?', this.card.isIluminated());
     });
   }
 }

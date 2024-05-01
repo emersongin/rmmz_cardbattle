@@ -16,7 +16,7 @@ class DisableAndEnableCardsCardsetSpriteTest extends SceneTest {
       this.cardset.show();
       const cards = Generator.generateCards(10);
       const enableCardsIndex = [0, 3, 4, 5, 6];
-      this.test('', async () => {
+      this.test('Deve desabilitar todos exceto os indices!', () => {
         this.cardset.setCards(cards);
         this.cardset.startListCards();
         this.cardset.showCards();
@@ -25,11 +25,8 @@ class DisableAndEnableCardsCardsetSpriteTest extends SceneTest {
         this.cardset.enableCard(sprite);
         const sprites = this.cardset.getCardIndexs([3, 4, 5, 6]);
         this.cardset.enableCards(sprites);
-        await this.timertoTrue(600);
-        this.cardset.staticMode();
       }, () => {
-        const isDisableds = enableCardsIndex.every(index => this.cardset.getCardIndex(index).isEnabled());
-        this.assert('Esta em modo seleção?', isDisableds).toBe(true);
+        this.assertTrue('Esta em modo seleção?', this.cardset.isEnabledCardsIndex(enableCardsIndex));
       });
     });
   }

@@ -21,11 +21,11 @@ class ZoomOutCardSpriteTest extends SceneTest {
   }
 
   start() {
+    this.card.show();
     this.test('Deve retonar a escala normal do cartão!', () => {
-      this.card.show();
       this.card.zoomOut();
     }, () => {
-      this.assert('Esta em escala original?', this.card.isOriginalScale()).toBe(true);
+      this.assertTrue('Esta em escala original?', this.card.isOriginalScale());
     });
   }
 }

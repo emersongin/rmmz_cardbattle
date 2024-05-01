@@ -13,22 +13,16 @@ class AnimateQuakeCardsCardsetSpriteTest extends SceneTest {
 
   start() {
     this.cardset.show();
-    this.test('Deve realizar um chacoalhar nos cartões!', () => {
-      this.startQuake();
-    }, () => {
-      const isMoving = this.cardset.children.some(child => child.isMoving());
-      this.assertTrue('Houve um chacoalhar?', isMoving);
-    });
-  }
-
-  async startQuake() {
     const cards = Generator.generateCards(6);
-    const sprites = this.cardset.setCards(cards);
-    this.cardset.startListCards();
-    this.cardset.showCards();
-    await this.timertoTrue(200);
-    const sprite = this.cardset.getCardIndex(0);
-    this.cardset.animateCardQuake(sprite, 3);
-    this.cardset.animateCardsQuake(50);
+    this.test('Deve realizar chacoalhar os cartões!', () => {
+      const sprites = this.cardset.setCards(cards);
+      this.cardset.startListCards();
+      this.cardset.showCards();
+      const sprite = this.cardset.getCardIndex(0);
+      this.cardset.animateCardQuake(sprite, 3);
+      this.cardset.animateCardsQuake(50);
+    }, () => {
+      this.assertTrue('Houve um chacoalhar?', this.cardset.someSpriteIsMoving());
+    });
   }
 }
