@@ -1,5 +1,5 @@
-class TextColorTextWindowTest extends SceneTest {
-  name = 'TextColorTextWindowTest';
+class DrawTextCenterFullSizeTextWindowTest extends SceneTest {
+  name = 'DrawTextCenterFullSizeTextWindowTest';
 
   create() {
     const x = 0;
@@ -9,16 +9,14 @@ class TextColorTextWindowTest extends SceneTest {
   }
 
   start() {
+    this.subject.setCenteredPosition();
     this.subject.show();
-    const textColor = "#ff0000";
-    this.test('Deve apresentar o texto com a cor definida!', () => {
-      this.subject.setTextColor(textColor);
+    this.test('Deve alinhar o texto no centro!', () => {
       this.subject.addText("Hello World");
       this.subject.renderTextCenter();
       this.subject.open();
     }, () => {
-      this.assert('Esta renderizado?', this.subject.getTextColor()).toBe(textColor);
+      this.assertTrue('Esta com texto alinhado no centro?', this.subject.isCenterAlignedText());
     });
   }
-
 }

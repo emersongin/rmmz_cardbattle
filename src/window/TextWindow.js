@@ -1,5 +1,15 @@
-class TextWindow extends CardBattleWindow {
+class TextWindow extends Window_Base {
   _text = [];
+  _align = 'LEFT';
+
+  initialize(rect) {
+    super.initialize(rect);
+    this.closed();
+  }
+
+  closed() {
+    this._openness = 0;
+  }
 
   static create(x, y, width, height) {
     return new TextWindow(new Rectangle(x, y, width, height));
@@ -17,29 +27,12 @@ class TextWindow extends CardBattleWindow {
     return TextWindow.create(x, y, width, height);
   }
 
-  renderTextExCenter() {
-    this.renderTextEx('CENTER');
-  }
-
-  renderTextEx(align = 'LEFT') {
-    if (this._text.length) {
-      const text = this.processText();
-      const textWidth = this.getTextWidth(text);
-      const xPosition = this.getAlignText(textWidth, align);
-      this.resize(text);
-      this.drawTextEx(text, xPosition);
-    }
-  }
-
-  drawTextEx(text = '', x = 0, y = 0, width = this.width) {
-    super.drawTextEx(text, x, y, width);
-  }
-
   renderTextCenter() {
     this.renderText('CENTER');
+    this._align = 'CENTER';
   }
 
-  renderText(align = 'LEFT') {
+  renderText(align = this._align) {
     if (this._text.length) {
       const text = this.processText();
       const textWidth = this.getTextWidth(text);
@@ -48,10 +41,6 @@ class TextWindow extends CardBattleWindow {
       this.resize(text);
       this.drawText(text, xPosition, yPosition, align);
     }
-  }
-
-  drawText(text = '', x = 0, y = 0, align = 'left', width = this.width) {
-    super.drawText(text, x, y, width, align);
   }
 
   processText() {
@@ -65,6 +54,13 @@ class TextWindow extends CardBattleWindow {
       if (isGreaterThanOne && isNotLast && isNotSpecialLine) content.push('\n');
     });
     return content.join('');
+  }
+
+  getTextWidth(text) {
+    const textState = this.createTextState(text, 0, 0, 0);
+    textState.drawing = false;
+    this.processAllText(textState);
+    return textState.outputWidth;
   }
 
   getAlignText(textWidth, align) {
@@ -93,25 +89,10 @@ class TextWindow extends CardBattleWindow {
     return this.width > textWidth ? this.width : textWidth;
   }
 
-  resizeWindow(text) {
-    const contentWidth = this.calculeTextMinHeight(text);
-    const windowPadding = this.padding + this.itemPadding();
-    const width = Math.ceil(contentWidth) + windowPadding + 6;
-    const windowWidth = Math.min(width, Graphics.boxWidth);
-    this.move(this.x, this.y, windowWidth, this.calculeTextHeight());
-  }
-
   calculeTextWidth(text) {
     let width = this.getTextWidth(text);
     width = Math.ceil(width);
     return Math.min(width, Graphics.boxWidth);
-  }
-
-  getTextWidth(text) {
-    const textState = this.createTextState(text, 0, 0, 0);
-    textState.drawing = false;
-    this.processAllText(textState);
-    return textState.outputWidth;
   }
 
   calculeTextHeight() {
@@ -121,6 +102,38 @@ class TextWindow extends CardBattleWindow {
   numLines() {
     const lines = this._text.filter(text => text[0] !== "\\");
     return lines.length;
+  }
+
+  resizeWindow(text) {
+    const contentWidth = this.calculeTextMinHeight(text);
+    const windowPadding = this.padding + this.itemPadding();
+    let width = Math.ceil(contentWidth) + windowPadding + 6;
+    let windowWidth = Math.max(width, this.width);
+    windowWidth = Math.min(windowWidth, Graphics.boxWidth);
+    this.move(this.x, this.y, windowWidth, this.calculeTextHeight());
+  }
+
+  drawText(text = '', x = 0, y = 0, align = 'left', width = this.width) {
+    super.drawText(text, x, y, width, align);
+  }
+
+  renderTextExCenter() {
+    this.renderTextEx('CENTER');
+    this._align = 'CENTER';
+  }
+
+  renderTextEx(align = this._align) {
+    if (this._text.length) {
+      const text = this.processText();
+      const textWidth = this.getTextWidth(text);
+      const xPosition = this.getAlignText(textWidth, align);
+      this.resize(text);
+      this.drawTextEx(text, xPosition);
+    }
+  }
+
+  drawTextEx(text = '', x = 0, y = 0, width = this.width) {
+    super.drawTextEx(text, x, y, width);
   }
 
   changeTextColorHere(colorIndex) {
@@ -141,5 +154,53 @@ class TextWindow extends CardBattleWindow {
 
   addText(text = '') {
     this._text.push(text.trim());
+  }
+
+  setCenteredPosition() {
+    this.x = (Graphics.boxWidth / 2) - (this.width / 2);
+    this.y = (Graphics.boxHeight / 2) - (this.height / 2);
+  }
+
+  isCenterAlign() {
+    return this.x === (Graphics.boxWidth / 2) - (this.width / 2) && 
+      this.y === (Graphics.boxHeight / 2) - (this.height / 2);
+  }
+
+  isCenterAlignedText() {
+    return this._align === 'CENTER';
+  }
+
+  static getVerticalPosition(position) {
+    const paddingTop = 12;
+    return (60 * position) + paddingTop;
+  }
+
+  static getHorizontalPosition(position) {
+    return (Graphics.boxWidth / 2) * position;
+  }
+
+  setVerticalPosition(position) {
+    const paddingTop = 12;
+    this.y = (60 * position) + paddingTop;
+  }
+
+  setHorizontalPosition(position) {
+    this.x = (Graphics.boxWidth / 2) * position;
+  }
+
+  isFullsize() {
+    return this.width === Graphics.boxWidth;
+  }
+
+  isMiddleSize() {
+    return this.width === Graphics.boxWidth / 2;
+  }
+
+  setTextColor(color) {
+    this.changeTextColor(color || ColorManager.normalColor());
+  }
+
+  getTextColor() {
+    return this.contents.textColor;
   }
 }

@@ -63,13 +63,16 @@
 // include ../test/integration/cardset/AnimateDamageCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/DisableAndEnableCardsCardsetSpriteTest.js
 // tests TEXT WINDOW
+// include ../test/integration/textwindow/AlignCenterMiddleSizeTextWindowTest.js
+// include ../test/integration/textwindow/AlignCenterFullSizeTextWindowTest.js
+// include ../test/integration/textwindow/DrawTextCenterFullSizeTextWindowTest.js
 // include ../test/integration/textwindow/OpenAndCloseTextWindowTest.js
+// include ../test/integration/textwindow/PositionMoveTextWindowTest.js
+// include ../test/integration/textwindow/SetFullSizeTextWindowTest.js
+// include ../test/integration/textwindow/SetMiddleSizeTextWindowTest.js
 // include ../test/integration/textwindow/SetTextTextWindowTest.js
-// include ../test/integration/textwindow/PositionTextWindowTest.js
-// include ../test/integration/textwindow/DrawTextAndAlignCenterTextWindowTest.js
-// include ../test/integration/textwindow/SetSizeTextWindowTest.js
-// include ../test/integration/textwindow/DrawTextAndLinesTextWindowTest.js
 // include ../test/integration/textwindow/TextColorTextWindowTest.js
+
 // tests GAME BOARD WINDOW
 // include ../test/integration/gameboardwindow/RefreshAndOpenGameBoardWindowTest.js
 // include ../test/integration/gameboardwindow/UpdatingPointsGameBoardTest.js

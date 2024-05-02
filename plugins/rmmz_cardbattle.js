@@ -375,7 +375,7 @@ class CardBattleWindow extends Window_Base {
     this.x = (Graphics.boxWidth / 2) * position;
   }
 
-  setcenteredPosition() {
+  setCenteredPosition() {
     this.x = (Graphics.boxWidth / 2) - (this.width / 2);
     this.y = (Graphics.boxHeight / 2) - (this.height / 2);
   }
@@ -436,8 +436,18 @@ class CardBattleWindow extends Window_Base {
     this.changeTextColor(color || ColorManager.normalColor());
   }
 }
-class TextWindow extends CardBattleWindow {
+class TextWindow extends Window_Base {
   _text = [];
+  _align = 'LEFT';
+
+  initialize(rect) {
+    super.initialize(rect);
+    this.closed();
+  }
+
+  closed() {
+    this._openness = 0;
+  }
 
   static create(x, y, width, height) {
     return new TextWindow(new Rectangle(x, y, width, height));
@@ -455,29 +465,12 @@ class TextWindow extends CardBattleWindow {
     return TextWindow.create(x, y, width, height);
   }
 
-  renderTextExCenter() {
-    this.renderTextEx('CENTER');
-  }
-
-  renderTextEx(align = 'LEFT') {
-    if (this._text.length) {
-      const text = this.processText();
-      const textWidth = this.getTextWidth(text);
-      const xPosition = this.getAlignText(textWidth, align);
-      this.resize(text);
-      this.drawTextEx(text, xPosition);
-    }
-  }
-
-  drawTextEx(text = '', x = 0, y = 0, width = this.width) {
-    super.drawTextEx(text, x, y, width);
-  }
-
   renderTextCenter() {
     this.renderText('CENTER');
+    this._align = 'CENTER';
   }
 
-  renderText(align = 'LEFT') {
+  renderText(align = this._align) {
     if (this._text.length) {
       const text = this.processText();
       const textWidth = this.getTextWidth(text);
@@ -486,10 +479,6 @@ class TextWindow extends CardBattleWindow {
       this.resize(text);
       this.drawText(text, xPosition, yPosition, align);
     }
-  }
-
-  drawText(text = '', x = 0, y = 0, align = 'left', width = this.width) {
-    super.drawText(text, x, y, width, align);
   }
 
   processText() {
@@ -503,6 +492,13 @@ class TextWindow extends CardBattleWindow {
       if (isGreaterThanOne && isNotLast && isNotSpecialLine) content.push('\n');
     });
     return content.join('');
+  }
+
+  getTextWidth(text) {
+    const textState = this.createTextState(text, 0, 0, 0);
+    textState.drawing = false;
+    this.processAllText(textState);
+    return textState.outputWidth;
   }
 
   getAlignText(textWidth, align) {
@@ -531,25 +527,10 @@ class TextWindow extends CardBattleWindow {
     return this.width > textWidth ? this.width : textWidth;
   }
 
-  resizeWindow(text) {
-    const contentWidth = this.calculeTextMinHeight(text);
-    const windowPadding = this.padding + this.itemPadding();
-    const width = Math.ceil(contentWidth) + windowPadding + 6;
-    const windowWidth = Math.min(width, Graphics.boxWidth);
-    this.move(this.x, this.y, windowWidth, this.calculeTextHeight());
-  }
-
   calculeTextWidth(text) {
     let width = this.getTextWidth(text);
     width = Math.ceil(width);
     return Math.min(width, Graphics.boxWidth);
-  }
-
-  getTextWidth(text) {
-    const textState = this.createTextState(text, 0, 0, 0);
-    textState.drawing = false;
-    this.processAllText(textState);
-    return textState.outputWidth;
   }
 
   calculeTextHeight() {
@@ -559,6 +540,38 @@ class TextWindow extends CardBattleWindow {
   numLines() {
     const lines = this._text.filter(text => text[0] !== "\\");
     return lines.length;
+  }
+
+  resizeWindow(text) {
+    const contentWidth = this.calculeTextMinHeight(text);
+    const windowPadding = this.padding + this.itemPadding();
+    let width = Math.ceil(contentWidth) + windowPadding + 6;
+    let windowWidth = Math.max(width, this.width);
+    windowWidth = Math.min(windowWidth, Graphics.boxWidth);
+    this.move(this.x, this.y, windowWidth, this.calculeTextHeight());
+  }
+
+  drawText(text = '', x = 0, y = 0, align = 'left', width = this.width) {
+    super.drawText(text, x, y, width, align);
+  }
+
+  renderTextExCenter() {
+    this.renderTextEx('CENTER');
+    this._align = 'CENTER';
+  }
+
+  renderTextEx(align = this._align) {
+    if (this._text.length) {
+      const text = this.processText();
+      const textWidth = this.getTextWidth(text);
+      const xPosition = this.getAlignText(textWidth, align);
+      this.resize(text);
+      this.drawTextEx(text, xPosition);
+    }
+  }
+
+  drawTextEx(text = '', x = 0, y = 0, width = this.width) {
+    super.drawTextEx(text, x, y, width);
   }
 
   changeTextColorHere(colorIndex) {
@@ -579,6 +592,54 @@ class TextWindow extends CardBattleWindow {
 
   addText(text = '') {
     this._text.push(text.trim());
+  }
+
+  setCenteredPosition() {
+    this.x = (Graphics.boxWidth / 2) - (this.width / 2);
+    this.y = (Graphics.boxHeight / 2) - (this.height / 2);
+  }
+
+  isCenterAlign() {
+    return this.x === (Graphics.boxWidth / 2) - (this.width / 2) && 
+      this.y === (Graphics.boxHeight / 2) - (this.height / 2);
+  }
+
+  isCenterAlignedText() {
+    return this._align === 'CENTER';
+  }
+
+  static getVerticalPosition(position) {
+    const paddingTop = 12;
+    return (60 * position) + paddingTop;
+  }
+
+  static getHorizontalPosition(position) {
+    return (Graphics.boxWidth / 2) * position;
+  }
+
+  setVerticalPosition(position) {
+    const paddingTop = 12;
+    this.y = (60 * position) + paddingTop;
+  }
+
+  setHorizontalPosition(position) {
+    this.x = (Graphics.boxWidth / 2) * position;
+  }
+
+  isFullsize() {
+    return this.width === Graphics.boxWidth;
+  }
+
+  isMiddleSize() {
+    return this.width === Graphics.boxWidth / 2;
+  }
+
+  setTextColor(color) {
+    this.changeTextColor(color || ColorManager.normalColor());
+  }
+
+  getTextColor() {
+    return this.contents.textColor;
   }
 }
 class GameBoardWindow extends CardBattleWindow {
@@ -4687,238 +4748,243 @@ class DisableAndEnableCardsCardsetSpriteTest extends SceneTest {
   }
 }
 // tests TEXT WINDOW
-class OpenAndCloseTextWindowTest extends SceneTest {
-  textWindow;
+class AlignCenterMiddleSizeTextWindowTest extends SceneTest {
+  name = 'AlignCenterMiddleSizeTextWindowTest';
 
   create() {
-    const windowWidth = 100;
-    const windowHeight = 100;
-    const xPosition = 0;
-    const yPosition = 0;
-    this.textWindow = TextWindow.create(xPosition, yPosition, windowWidth, windowHeight);
-    this.textWindow.setcenteredPosition();
+    const x = 0;
+    const y = 0;
+    this.subject = TextWindow.createWindowMiddleSize(x, y);
+    this.addWindow(this.subject);
   }
 
-  start() {      
-    return new Promise(async resolve => {
-      await this.timertoTrue(600, () => {
-        this.scene.addWindow(this.textWindow);
-        this.textWindow.open();
-      });
-      await this.timertoTrue(600, () => {
-        this.textWindow.close();
-      });
-      resolve(true);
+  start() {
+    this.subject.addText("Hello World!");
+    this.subject.renderTextCenter();
+    this.subject.show();
+    this.test('Deve alinhar no centro!', () => {
+      this.subject.setCenteredPosition();
+      this.subject.open();
+    }, () => {
+      this.assertTrue('Esta alinhado no centro?', this.subject.isCenterAlign());
     });
   }
+}
+class AlignCenterFullSizeTextWindowTest extends SceneTest {
+  name = 'AlignCenterFullSizeTextWindowTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = TextWindow.createWindowFullSize(x, y);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.addText("Hello World!");
+    this.subject.renderTextCenter();
+    this.subject.show();
+    this.test('Deve alinhar no centro!', () => {
+      this.subject.setCenteredPosition();
+      this.subject.open();
+    }, () => {
+      this.assertTrue('Esta alinhado no centro?', this.subject.isCenterAlign());
+    });
+  }
+}
+class DrawTextCenterFullSizeTextWindowTest extends SceneTest {
+  name = 'DrawTextCenterFullSizeTextWindowTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = TextWindow.createWindowFullSize(x, y);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.setCenteredPosition();
+    this.subject.show();
+    this.test('Deve alinhar o texto no centro!', () => {
+      this.subject.addText("Hello World");
+      this.subject.renderTextCenter();
+      this.subject.open();
+    }, () => {
+      this.assertTrue('Esta com texto alinhado no centro?', this.subject.isCenterAlignedText());
+    });
+  }
+}
+class OpenAndCloseTextWindowTest extends SceneTest {
+  name = 'OpenAndCloseTextWindowTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = TextWindow.createWindowMiddleSize(x, y);
+    this.addWindow(this.subject);
+  }
+  
+  start() {
+    this.subject.setCenteredPosition();
+    this.subject.show();
+    this.test('Deve abrir!', () => {
+      this.subject.open();
+    }, () => {
+      this.assertTrue('Esta aberta?', this.subject.isOpen());
+    });
+    this.test('Deve fechar!', () => {
+      this.subject.close();
+    }, () => {
+      this.assertTrue('Esta fechada?', this.subject.isClosed());
+    });
+  }
+
+}
+class PositionMoveTextWindowTest extends SceneTest {
+  name = 'PositionMoveTextWindowTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = TextWindow.createWindowMiddleSize(x, y);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.setCenteredPosition();
+    this.subject.show();
+    this.subject.addText("Hello World");
+    this.subject.renderText();
+    this.subject.open();
+    const maxTop = 0;
+    const middle = 4;
+    const maxBottom = 9;
+    const start = 0;
+    const end = 1;
+    this.test('Deve move para o topo!', () => {
+      this.subject.setHorizontalPosition(start);
+      this.subject.setVerticalPosition(maxTop);
+    }, () => {
+      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalPosition(start));
+      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalPosition(maxTop));
+    });
+    this.test('Deve move para o center!', () => {
+      this.subject.setHorizontalPosition(start);
+      this.subject.setVerticalPosition(middle);
+    }, () => {
+      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalPosition(start));
+      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalPosition(middle));
+    });
+    this.test('Deve move para baixo!', () => {
+      this.subject.setHorizontalPosition(start);
+      this.subject.setVerticalPosition(maxBottom);
+    }, () => {
+      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalPosition(start));
+      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalPosition(maxBottom));
+    });
+    this.test('Deve move para o final embaixo!', () => {
+      this.subject.setHorizontalPosition(end);
+      this.subject.setVerticalPosition(maxBottom);
+    }, () => {
+      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalPosition(end));
+      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalPosition(maxBottom));
+    });
+  }
+
+}
+class SetFullSizeTextWindowTest extends SceneTest {
+  name = 'SetFullSizeTextWindowTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = TextWindow.createWindowFullSize(x, y);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.setCenteredPosition();
+    this.subject.show();
+    this.test('Deve abrir na largura total!', () => {
+      this.subject.open();
+    }, () => {
+      this.assertTrue('Esta na largura total?', this.subject.isFullsize());
+    });
+  }
+
+}
+class SetMiddleSizeTextWindowTest extends SceneTest {
+  name = 'SetMiddleSizeTextWindowTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = TextWindow.createWindowMiddleSize(x, y);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.setCenteredPosition();
+    this.subject.show();
+    this.test('Deve abrir na largura média!', () => {
+      this.subject.open();
+    }, () => {
+      this.assertTrue('Esta na largura média?', this.subject.isMiddleSize());
+    });
+  }
+  
 }
 class SetTextTextWindowTest extends SceneTest {
-  textWindow;
-
-  create() {
-    const windowWidth = 0;
-    const windowHeight = 0;
-    const centerXPosition = 0;
-    const centerYPosition = 0;
-    this.textWindow = TextWindow.create(centerXPosition, centerYPosition, windowWidth, windowHeight);
-  }
-
-  start() {      
-    return new Promise(async resolve => {
-      await this.timertoTrue(600, () => {
-        this.scene.addWindow(this.textWindow);
-        this.textWindow.addText("Hello World Hello World Hello World Hello World");
-        this.textWindow.addText("Hello World");
-        this.textWindow.addText("Hello World Hello World Hello World");
-        this.textWindow.renderTextEx();
-        this.textWindow.setcenteredPosition();
-        this.textWindow.open();
-      })
-      resolve(true);
-    });
-  }
-}
-class PositionTextWindowTest extends SceneTest {
-  textWindow;
-
-  create() {
-    const windowWidth = 0;
-    const windowHeight = 0;
-    const centerXPosition = 0;
-    const centerYPosition = 0;
-    this.textWindow = TextWindow.create(centerXPosition, centerYPosition, windowWidth, windowHeight);
-  }
-
-  start() {      
-    return new Promise(async resolve => {
-      this.scene.addWindow(this.textWindow);
-      this.textWindow.addText("Hello World");
-      this.textWindow.renderText();
-      this.textWindow.open();
-      const maxTop = 0;
-      const top = 1;
-      const middleTop = 3;
-      const middle = 4;
-      const middleBottom = 5;
-      const bottom = 8;
-      const maxBottom = 9;
-      const verticalPositions = [maxTop, top, 2, middleTop, middle, middleBottom, 6, 7, bottom, maxBottom];
-      const start = 0;
-      const end = 1;
-      const horizontalPositions = [start, end];
-      for (const position of verticalPositions) {
-        await this.timertoTrue(200, () => this.textWindow.setVerticalPosition(position));
-      }
-      for (const position of horizontalPositions) {
-        await this.timertoTrue(200, () => this.textWindow.setHorizontalPosition(position));
-      }
-      resolve(true);
-    });
-  }
-}
-class DrawTextAndLinesTextWindowTest extends SceneTest {
-  textWindowFullSize;
+  name = 'SetTextTextWindowTest';
 
   create() {
     const x = 0;
     const y = 0;
-    this.textWindowFullSize = TextWindow.createWindowFullSize(x, y);
-    this.textWindowFullSize.setcenteredPosition();
+    this.subject = TextWindow.createWindowMiddleSize(x, y);
+    this.addWindow(this.subject);
   }
 
-  start() {      
-    return new Promise(async resolve => {
-      await this.timertoTrue(600, () => {
-        this.scene.addWindow(this.textWindowFullSize);
-        this.textWindowFullSize.addText("Hello World");
-        this.textWindowFullSize.addText("\n");
-        this.textWindowFullSize.addText("\n");
-        this.textWindowFullSize.renderText();
-        this.textWindowFullSize.open();
-      });
-      await this.timertoTrue(600, () => {
-        this.textWindowFullSize.close();
-      });
-      resolve(true);
+  start() {
+    this.subject.show();
+    this.test('Deve apresentar o texto definido!', () => {
+      this.subject.addText("Hello World Hello World Hello World Hello World");
+      this.subject.addText("Hello World");
+      this.subject.addText("Hello World Hello World Hello World");
+      this.subject.renderTextEx();
+      this.subject.setCenteredPosition();
+      this.subject.open();
+    }, () => {
+      const text = "Hello World Hello World Hello World Hello World\nHello World\nHello World Hello World Hello World";
+      this.assert('Esta renderizado?', this.subject.processText()).toBe(text);
     });
   }
-}
-class SetSizeTextWindowTest extends SceneTest {
-  textWindowMiddleSize;
-  textWindowFullSize;
 
-  create() {
-    const x = 0;
-    const y = 0;
-    this.textWindowMiddleSize = TextWindow.createWindowMiddleSize(x, y);
-    this.textWindowFullSize = TextWindow.createWindowFullSize(x, y);
-    this.textWindowMiddleSize.setcenteredPosition();
-    this.textWindowFullSize.setcenteredPosition();
-  }
-
-  start() {      
-    return new Promise(async resolve => {
-      await this.timertoTrue(600, () => {
-        this.scene.addWindow(this.textWindowMiddleSize);
-        this.textWindowMiddleSize.open();
-      });
-      await this.timertoTrue(600, () => {
-        this.textWindowMiddleSize.close();
-      });
-      await this.timertoTrue(600, () => {
-        this.scene.addWindow(this.textWindowFullSize);
-        this.textWindowFullSize.open();
-      });
-      await this.timertoTrue(600, () => {
-        this.textWindowFullSize.close();
-      });
-      resolve(true);
-    });
-  }
-}
-class DrawTextAndAlignCenterTextWindowTest extends SceneTest {
-  textWindowMiddleSize;
-  textWindowFullSize;
-
-  create() {
-    const x = 0;
-    const y = 0;
-    this.textWindowMiddleSize = TextWindow.createWindowMiddleSize(x, y);
-    this.textWindowFullSize = TextWindow.createWindowFullSize(x, y);
-    this.textWindowMiddleSize.setcenteredPosition();
-    this.textWindowFullSize.setcenteredPosition();
-  }
-
-  start() {      
-    return new Promise(async resolve => {
-      await this.timertoTrue(600, () => {
-        this.scene.addWindow(this.textWindowMiddleSize);
-        this.textWindowMiddleSize.addText("Hello World");
-        this.textWindowMiddleSize.renderTextCenter();
-        this.textWindowMiddleSize.open();
-      });
-      await this.timertoTrue(600, () => {
-        this.textWindowMiddleSize.close();
-      });
-      await this.timertoTrue(600, () => {
-        this.scene.addWindow(this.textWindowFullSize);
-        this.textWindowFullSize.addText("Hello World");
-        this.textWindowFullSize.renderTextCenter();
-        this.textWindowFullSize.open();
-      });
-      await this.timertoTrue(600, () => {
-        this.textWindowFullSize.close();
-      });
-      resolve(true);
-    });
-  }
 }
 class TextColorTextWindowTest extends SceneTest {
-  textWindowText;
-  textWindowTextEx;
-  
+  name = 'TextColorTextWindowTest';
+
   create() {
     const x = 0;
     const y = 0;
-    this.textWindowText = TextWindow.createWindowFullSize(x, y);
-    this.textWindowTextEx = TextWindow.createWindowFullSize(x, y);
-    this.textWindowText.setcenteredPosition();
-    this.textWindowTextEx.setcenteredPosition();
+    this.subject = TextWindow.createWindowFullSize(x, y);
+    this.addWindow(this.subject);
   }
 
-  start() {      
-    return new Promise(async resolve => {
-      await this.timertoTrue(600, () => {
-        this.scene.addWindow(this.textWindowText);
-        this.textWindowText.setTextColor("#ff0000");
-        this.textWindowText.addText("Hello World");
-        this.textWindowText.renderTextCenter();
-        this.textWindowText.open();
-      });
-      await this.timertoTrue(600, () => {
-        this.textWindowText.close();
-      });
-      await this.timertoTrue(600, () => {
-        this.scene.addWindow(this.textWindowTextEx);
-        const primaryColor = 2;
-        const sencondColor = 5;
-        const thirdColor = 8;
-        this.textWindowTextEx.changeTextColorHere(primaryColor);
-        this.textWindowTextEx.appendText("Hello World");
-        this.textWindowTextEx.changeTextColorHere(sencondColor);
-        this.textWindowTextEx.addText("Hello World");
-        this.textWindowTextEx.changeTextColorHere(thirdColor);
-        this.textWindowTextEx.appendText("Hello World");
-        this.textWindowTextEx.renderTextExCenter();
-        this.textWindowTextEx.open();
-      });
-      await this.timertoTrue(600, () => {
-        this.textWindowTextEx.close();
-      });
-      resolve(true);
+  start() {
+    this.subject.show();
+    const textColor = "#ff0000";
+    this.test('Deve apresentar o texto com a cor definida!', () => {
+      this.subject.setTextColor(textColor);
+      this.subject.addText("Hello World");
+      this.subject.renderTextCenter();
+      this.subject.open();
+    }, () => {
+      this.assert('Esta renderizado?', this.subject.getTextColor()).toBe(textColor);
     });
   }
+
 }
+
 // tests GAME BOARD WINDOW
 class RefreshAndOpenGameBoardWindowTest extends SceneTest {
   gameboard;
@@ -5160,12 +5226,14 @@ class CardBattleTestScene extends Scene_Message {
       AnimateDamageCardsCardsetSpriteTest,
     ];
     const textWindowTests = [
-      OpenAndCloseTextWindowTest,
-      SetTextTextWindowTest,
-      PositionTextWindowTest,
-      SetSizeTextWindowTest,
-      DrawTextAndAlignCenterTextWindowTest,
-      DrawTextAndLinesTextWindowTest,
+      // AlignCenterMiddleSizeTextWindowTest,
+      // AlignCenterFullSizeTextWindowTest,
+      // DrawTextCenterFullSizeTextWindowTest,
+      // OpenAndCloseTextWindowTest,
+      // PositionMoveTextWindowTest,
+      // SetFullSizeTextWindowTest,
+      // SetMiddleSizeTextWindowTest,
+      // SetTextTextWindowTest,
       TextColorTextWindowTest,
     ];
     const gameBoardTests = [
@@ -5178,8 +5246,8 @@ class CardBattleTestScene extends Scene_Message {
     ];
     return [
       // ...cardSpriteTests,
-      ...cardsetTests,
-    //   ...textWindowTests,
+      // ...cardsetTests,
+      ...textWindowTests,
     //   ...gameBoardTests,
     //   ...gamePointsTests,
     ];

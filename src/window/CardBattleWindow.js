@@ -117,7 +117,7 @@ class CardBattleWindow extends Window_Base {
     this.x = (Graphics.boxWidth / 2) * position;
   }
 
-  setcenteredPosition() {
+  setCenteredPosition() {
     this.x = (Graphics.boxWidth / 2) - (this.width / 2);
     this.y = (Graphics.boxHeight / 2) - (this.height / 2);
   }

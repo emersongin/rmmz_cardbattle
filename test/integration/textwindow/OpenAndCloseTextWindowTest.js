@@ -1,25 +1,26 @@
 class OpenAndCloseTextWindowTest extends SceneTest {
-  textWindow;
+  name = 'OpenAndCloseTextWindowTest';
 
   create() {
-    const windowWidth = 100;
-    const windowHeight = 100;
-    const xPosition = 0;
-    const yPosition = 0;
-    this.textWindow = TextWindow.create(xPosition, yPosition, windowWidth, windowHeight);
-    this.textWindow.setcenteredPosition();
+    const x = 0;
+    const y = 0;
+    this.subject = TextWindow.createWindowMiddleSize(x, y);
+    this.addWindow(this.subject);
   }
-
-  start() {      
-    return new Promise(async resolve => {
-      await this.timertoTrue(600, () => {
-        this.scene.addWindow(this.textWindow);
-        this.textWindow.open();
-      });
-      await this.timertoTrue(600, () => {
-        this.textWindow.close();
-      });
-      resolve(true);
+  
+  start() {
+    this.subject.setCenteredPosition();
+    this.subject.show();
+    this.test('Deve abrir!', () => {
+      this.subject.open();
+    }, () => {
+      this.assertTrue('Esta aberta?', this.subject.isOpen());
+    });
+    this.test('Deve fechar!', () => {
+      this.subject.close();
+    }, () => {
+      this.assertTrue('Esta fechada?', this.subject.isClosed());
     });
   }
+
 }
