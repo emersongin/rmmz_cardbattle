@@ -1,4 +1,4 @@
-const GameBoardValues = {
+const BoardWindowValues = {
   RED_POINTS: 'RED_POINTS',
   BLUE_POINTS: 'BLUE_POINTS',
   GREEN_POINTS: 'GREEN_POINTS',

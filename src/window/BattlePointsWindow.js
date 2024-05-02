@@ -1,19 +1,8 @@
-class GamePointsWindow extends CardBattleWindow {
-  initialize(rect) {
-    super.initialize(rect);
-    this.setup();
-    this.reset();
-  }
-
-  setup() {
+class BattlePointsWindow extends ValuesWindow {
+  reset() {
     this.addValue(GameBattlePointsValues.ATTACK_POINTS, 0);
     this.addValue(GameBattlePointsValues.HEALTH_POINTS, 0);
-  }
-
-  reset() {
-    const attackUpdate = GamePointsWindow.createValueUpdate(GameBattlePointsValues.ATTACK_POINTS, 0);
-    const healthUpdate = GamePointsWindow.createValueUpdate(GameBattlePointsValues.HEALTH_POINTS, 0);
-    this.updateValues([attackUpdate, healthUpdate]);
+    super.reset();
   }
 
   static create(x, y) {

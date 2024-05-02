@@ -5,29 +5,28 @@ class TextExColorTextWindowTest extends SceneTest {
     const x = 0;
     const y = 0;
     this.subject = TextWindow.createWindowFullSize(x, y);
-    this.subject.setcenteredPosition();
+    this.addWindow(this.subject);
   }
 
-  start() {      
-    return new Promise(async resolve => {
-      await this.timertoTrue(600, () => {
-        this.scene.addWindow(this.subject);
-        const primaryColor = 2;
-        const sencondColor = 5;
-        const thirdColor = 8;
-        this.subject.changeTextColorHere(primaryColor);
-        this.subject.appendText("Hello World");
-        this.subject.changeTextColorHere(sencondColor);
-        this.subject.addText("Hello World");
-        this.subject.changeTextColorHere(thirdColor);
-        this.subject.appendText("Hello World");
-        this.subject.renderTextExCenter();
-        this.subject.open();
-      });
-      await this.timertoTrue(600, () => {
-        this.subject.close();
-      });
-      resolve(true);
+  start() {
+    this.subject.show();
+    const primaryColor = 2;
+    const sencondColor = 5;
+    const thirdColor = 8;
+    this.test('Deve apresentar o texto com a cor definida!', () => {
+      this.subject.changeTextColorHere(primaryColor);
+      this.subject.appendText("Hello World");
+      this.subject.changeTextColorHere(sencondColor);
+      this.subject.addText("Hello World");
+      this.subject.changeTextColorHere(thirdColor);
+      this.subject.appendText("Hello World");
+      this.subject.renderTextExCenter();
+      this.subject.setCenteredPosition();
+      this.subject.open();
+    }, () => {
+      const textColor = `\\c[${primaryColor}]Hello World\\c[${sencondColor}]\nHello World\\c[${thirdColor}] Hello World`;
+      this.assert('Esta renderizado?', this.subject.processText()).toBe(textColor);
     });
   }
+
 }

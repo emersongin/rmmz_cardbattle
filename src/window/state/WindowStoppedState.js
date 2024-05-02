@@ -1,8 +1,8 @@
 class WindowStoppedState {
-  _board;
+  _window;
 
   constructor(window) {
-    this._board = window;
+    this._window = window;
   }
 
   updateStatus() {

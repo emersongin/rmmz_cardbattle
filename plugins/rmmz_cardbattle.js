@@ -50,7 +50,7 @@ const IconSet = {
   SWORD: 76,
   SHIELD: 81,
 };
-const GameBoardValues = {
+const BoardWindowValues = {
   RED_POINTS: 'RED_POINTS',
   BLUE_POINTS: 'BLUE_POINTS',
   GREEN_POINTS: 'GREEN_POINTS',
@@ -59,7 +59,7 @@ const GameBoardValues = {
   NUM_CARDS_IN_DECK: 'NUM_CARDS_IN_DECK',
   NUM_CARDS_IN_HAND: 'NUM_CARDS_IN_HAND'
 };
-const GameBattlePointsValues = {
+const BattlePointsWindowValues = {
   ATTACK_POINTS: 'ATTACK_POINTS',
   HEALTH_POINTS: 'HEALTH_POINTS'
 };
@@ -259,7 +259,7 @@ class WindowUpdatedState {
   }
 }
 
-class CardBattleWindow extends Window_Base { 
+class ValuesWindow extends Window_Base { 
   initialize(rect) {
     super.initialize(rect);
     this._iconset = "IconSet";
@@ -268,7 +268,30 @@ class CardBattleWindow extends Window_Base {
     this._updates = [];
     this.closed();
     this.stop();
+    this.reset();
   }
+
+  static minHeight() {
+    return 60;
+  }
+
+  reset() {
+    // to be implemented by the child class
+  }
+
+  setCenteredPosition() {
+    this.x = (Graphics.boxWidth / 2) - (this.width / 2);
+    this.y = (Graphics.boxHeight / 2) - (this.height / 2);
+  }
+
+
+
+
+
+
+
+
+  
   
   closed() {
     this._openness = 0;
@@ -280,26 +303,6 @@ class CardBattleWindow extends Window_Base {
 
   changeStatus(status, ...params) {
     this._status = new status(this, ...params);
-  }
-
-  static create(x, y, width, height) {
-    return new CardBattleWindow(new Rectangle(x, y, width, height));
-  }
-
-  static createWindowMiddleSize(x, y) {
-    const width = Graphics.boxWidth / 2;
-    const height = CardBattleWindow.minHeight();
-    return CardBattleWindow.create(x, y, width, height);
-  }
-
-  static minHeight() {
-    return 60;
-  }
-
-  static createWindowFullSize(x, y) {
-    const width = Graphics.boxWidth;
-    const height = CardBattleWindow.minHeight();
-    return CardBattleWindow.create(x, y, width, height);
   }
 
   update() {
@@ -375,10 +378,7 @@ class CardBattleWindow extends Window_Base {
     this.x = (Graphics.boxWidth / 2) * position;
   }
 
-  setCenteredPosition() {
-    this.x = (Graphics.boxWidth / 2) - (this.width / 2);
-    this.y = (Graphics.boxHeight / 2) - (this.height / 2);
-  }
+
 
   isAvailable() {
     return !this.isBusy();
@@ -427,14 +427,6 @@ class CardBattleWindow extends Window_Base {
     return StringHelper.convertPointsDisplayPad(points, pad);
   }
 
-
-
-
-
-
-  setTextColor(color) {
-    this.changeTextColor(color || ColorManager.normalColor());
-  }
 }
 class TextWindow extends Window_Base {
   _text = [];
@@ -642,60 +634,36 @@ class TextWindow extends Window_Base {
     return this.contents.textColor;
   }
 }
-class GameBoardWindow extends CardBattleWindow {
-  initialize(rect) {
-    super.initialize(rect);
-    this.setup();
-    this.reset();
-  }
-
-  setup() {
-    this.addValue(GameBoardValues.RED_POINTS, 0);
-    this.addValue(GameBoardValues.BLUE_POINTS, 0);
-    this.addValue(GameBoardValues.GREEN_POINTS, 0);
-    this.addValue(GameBoardValues.BLACK_POINTS, 0);
-    this.addValue(GameBoardValues.WHITE_POINTS, 0);
-    this.addValue(GameBoardValues.NUM_CARDS_IN_DECK, 0);
-    this.addValue(GameBoardValues.NUM_CARDS_IN_HAND, 0);
-  }
-
-  reset() {
-    const attackUpdate = GameBoardWindow.createValueUpdate(GameBoardValues.RED_POINTS, 0);
-    const healthUpdate = GameBoardWindow.createValueUpdate(GameBoardValues.BLUE_POINTS, 0);
-    const greenUpdate = GameBoardWindow.createValueUpdate(GameBoardValues.GREEN_POINTS, 0);
-    const blackUpdate = GameBoardWindow.createValueUpdate(GameBoardValues.BLACK_POINTS, 0);
-    const whiteUpdate = GameBoardWindow.createValueUpdate(GameBoardValues.WHITE_POINTS, 0);
-    const numCardsInDeckUpdate = GameBoardWindow.createValueUpdate(GameBoardValues.NUM_CARDS_IN_DECK, 0);
-    const numCardsInHandUpdate = GameBoardWindow.createValueUpdate(GameBoardValues.NUM_CARDS_IN_HAND, 0); 
-    this.updateValues([
-      attackUpdate,
-      healthUpdate,
-      greenUpdate,
-      blackUpdate,
-      whiteUpdate,
-      numCardsInDeckUpdate,
-      numCardsInHandUpdate
-    ]);
-  }
-
+class BoardWindow extends ValuesWindow {
   static create(x, y, width, height) {
-    return new GameBoardWindow(new Rectangle(x, y, width, height));
+    return new BoardWindow(new Rectangle(x, y, width, height));
   }
 
   static createWindowMiddleSize(x, y) {
     const width = Graphics.boxWidth / 2;
-    const height = CardBattleWindow.minHeight();
-    return GameBoardWindow.create(x, y, width, height);
+    const height = ValuesWindow.minHeight();
+    return BoardWindow.create(x, y, width, height);
   }
 
   static createWindowFullSize(x, y) {
     const width = Graphics.boxWidth;
-    const height = CardBattleWindow.minHeight();
-    return GameBoardWindow.create(x, y, width, height);
+    const height = ValuesWindow.minHeight();
+    return BoardWindow.create(x, y, width, height);
   }
 
   static createValueUpdate(name, value) {
-    return CardBattleWindow.createValueUpdate(name, value);
+    return ValuesWindow.createValueUpdate(name, value);
+  }
+
+  reset() {
+    this.addValue(BoardWindowValues.RED_POINTS, 0);
+    this.addValue(BoardWindowValues.BLUE_POINTS, 0);
+    this.addValue(BoardWindowValues.GREEN_POINTS, 0);
+    this.addValue(BoardWindowValues.BLACK_POINTS, 0);
+    this.addValue(BoardWindowValues.WHITE_POINTS, 0);
+    this.addValue(BoardWindowValues.NUM_CARDS_IN_DECK, 0);
+    this.addValue(BoardWindowValues.NUM_CARDS_IN_HAND, 0);
+    this.refresh();
   }
 
   refresh() {
@@ -703,7 +671,7 @@ class GameBoardWindow extends CardBattleWindow {
     this.drawIcons();
     this.drawDisplay();
   }
-  
+
   drawIcons() {
     this.drawColorBoxIcons();
     this.drawAllIcons();
@@ -743,11 +711,11 @@ class GameBoardWindow extends CardBattleWindow {
     const xPositionBluePoints = 232;
     const xPositionGreenPoints = 328;
     const xPositionBlackPoints = 424;
-    const redPoints = this.getValueAndconvertToDisplayPad(GameBoardValues.RED_POINTS);
-    const bluePoints = this.getValueAndconvertToDisplayPad(GameBoardValues.BLUE_POINTS);
-    const greenPoints = this.getValueAndconvertToDisplayPad(GameBoardValues.GREEN_POINTS);
-    const blackPoints = this.getValueAndconvertToDisplayPad(GameBoardValues.BLACK_POINTS);
-    const whitePoints = this.getValueAndconvertToDisplayPad(GameBoardValues.WHITE_POINTS);
+    const redPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.RED_POINTS);
+    const bluePoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.BLUE_POINTS);
+    const greenPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.GREEN_POINTS);
+    const blackPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.BLACK_POINTS);
+    const whitePoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.WHITE_POINTS);
     this.contents.drawText(whitePoints, xPositionWhitePoints, yPosition, width, height);
     this.contents.drawText(redPoints, xPositonRedPoints, yPosition, width, height);
     this.contents.drawText(bluePoints, xPositionBluePoints, yPosition, width, height);
@@ -761,28 +729,20 @@ class GameBoardWindow extends CardBattleWindow {
     const yPosition = 0;
     const xPositionHand = this.contents.width - 96 + 40;
     const xPositionDeck = this.contents.width - 192 + 40;
-    const handPoints = this.getValueAndconvertToDisplayPad(GameBoardValues.NUM_CARDS_IN_HAND);
-    const deckPoints = this.getValueAndconvertToDisplayPad(GameBoardValues.NUM_CARDS_IN_DECK);
+    const handPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.NUM_CARDS_IN_HAND);
+    const deckPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.NUM_CARDS_IN_DECK);
     this.contents.drawText(handPoints, xPositionHand, yPosition, width, height);
     this.contents.drawText(deckPoints, xPositionDeck, yPosition, width, height);
   }
-}
-class GamePointsWindow extends CardBattleWindow {
-  initialize(rect) {
-    super.initialize(rect);
-    this.setup();
-    this.reset();
-  }
 
-  setup() {
+  isRendered() {
+    return this._isRendered;
+  }
+}
+class BattlePointsWindow extends ValuesWindow {
+  reset() {
     this.addValue(GameBattlePointsValues.ATTACK_POINTS, 0);
     this.addValue(GameBattlePointsValues.HEALTH_POINTS, 0);
-  }
-
-  reset() {
-    const attackUpdate = GamePointsWindow.createValueUpdate(GameBattlePointsValues.ATTACK_POINTS, 0);
-    const healthUpdate = GamePointsWindow.createValueUpdate(GameBattlePointsValues.HEALTH_POINTS, 0);
-    this.updateValues([attackUpdate, healthUpdate]);
   }
 
   static create(x, y) {
@@ -4984,78 +4944,99 @@ class TextColorTextWindowTest extends SceneTest {
   }
 
 }
-
-// tests GAME BOARD WINDOW
-class RefreshAndOpenGameBoardWindowTest extends SceneTest {
-  gameboard;
+class TextExColorTextWindowTest extends SceneTest {
+  name = 'TextExColorTextWindowTest';
 
   create() {
-    this.gameboard = GameBoardWindow.createWindowFullSize(0, 0);
-    this.gameboard.setcenteredPosition();
+    const x = 0;
+    const y = 0;
+    this.subject = TextWindow.createWindowFullSize(x, y);
+    this.addWindow(this.subject);
   }
 
   start() {
-    return new Promise(async resolve => {
-      await this.timertoTrue(600, () => {
-        this.scene.addWindow(this.gameboard);
-        this.gameboard.refresh();
-        this.gameboard.open();
-      });
-      await this.timertoTrue(600, () => {
-        this.gameboard.close();
-      });
-      resolve(true);
+    this.subject.show();
+    const primaryColor = 2;
+    const sencondColor = 5;
+    const thirdColor = 8;
+    this.test('Deve apresentar o texto com a cor definida!', () => {
+      this.subject.changeTextColorHere(primaryColor);
+      this.subject.appendText("Hello World");
+      this.subject.changeTextColorHere(sencondColor);
+      this.subject.addText("Hello World");
+      this.subject.changeTextColorHere(thirdColor);
+      this.subject.appendText("Hello World");
+      this.subject.renderTextExCenter();
+      this.subject.setCenteredPosition();
+      this.subject.open();
+    }, () => {
+      const textColor = `\\c[${primaryColor}]Hello World\\c[${sencondColor}]\nHello World\\c[${thirdColor}] Hello World`;
+      this.assert('Esta renderizado?', this.subject.processText()).toBe(textColor);
     });
   }
+
 }
-class UpdatingPointsGameBoardTest extends SceneTest {
-  gameboard;
+
+// tests GAME BOARD WINDOW
+class OpenBoardWindowTest extends SceneTest {
+  name = 'OpenBoardWindowTest';
 
   create() {
-    this.gameboard = GameBoardWindow.createWindowFullSize(0, 0);
-    this.gameboard.setcenteredPosition();
+    this.subject = BoardWindow.createWindowFullSize(0, 0);
+    this.addWindow(this.subject);
   }
 
   start() {
-    return new Promise(async resolve => {
-      this.scene.addWindow(this.gameboard);
-      this.gameboard.refresh();
-      this.gameboard.open();
-      const updateRedPoints = GameBoardWindow.createValueUpdate(GameBoardValues.RED_POINTS, 10);
-      const updateBluePoints = GameBoardWindow.createValueUpdate(GameBoardValues.BLUE_POINTS, 10);
-      const updateGreenPoints = GameBoardWindow.createValueUpdate(GameBoardValues.GREEN_POINTS, 10);
-      const updateBlackPoints = GameBoardWindow.createValueUpdate(GameBoardValues.BLACK_POINTS, 10);
-      const updateWhitePoints = GameBoardWindow.createValueUpdate(GameBoardValues.WHITE_POINTS, 10);
-      const updateDeckPoints = GameBoardWindow.createValueUpdate(GameBoardValues.NUM_CARDS_IN_DECK, 10);
-      const updateHandPoints = GameBoardWindow.createValueUpdate(GameBoardValues.NUM_CARDS_IN_HAND, 10);
-      await this.timertoTrue(5000, () => {
-        this.gameboard.updateValues(updateWhitePoints);
-        this.gameboard.updateValues(updateRedPoints);
-        this.gameboard.updateValues(updateBluePoints);
-        this.gameboard.updateValues(updateGreenPoints);
-        this.gameboard.updateValues(updateBlackPoints);
-        this.gameboard.updateValues(updateDeckPoints);
-        this.gameboard.updateValues(updateHandPoints);
+    this.test('Deve abrir e renderizar!', () => {
+      this.subject.setCenteredPosition();
+      this.subject.refresh();
+      this.subject.open();
+    }, () => {
+      this.assertTrue('Esta aberta?', this.subject.isOpen());
+    });
+  }
+
+}
+class UpdatingPointsBoardWindowTest extends SceneTest {
+  name = 'UpdatingPointsBoardWindowTest';
+
+  create() {
+    this.subject = BoardWindow.createWindowFullSize(0, 0);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.setCenteredPosition();
+    this.subject.refresh();
+    this.subject.open();
+    const updateRedPoints = BoardWindow.createValueUpdate(BoardWindowValues.RED_POINTS, 10);
+    const updateBluePoints = BoardWindow.createValueUpdate(BoardWindowValues.BLUE_POINTS, 10);
+    const updateGreenPoints = BoardWindow.createValueUpdate(BoardWindowValues.GREEN_POINTS, 10);
+    const updateBlackPoints = BoardWindow.createValueUpdate(BoardWindowValues.BLACK_POINTS, 10);
+    const updateWhitePoints = BoardWindow.createValueUpdate(BoardWindowValues.WHITE_POINTS, 10);
+    const updateDeckPoints = BoardWindow.createValueUpdate(BoardWindowValues.NUM_CARDS_IN_DECK, 10);
+    const updateHandPoints = BoardWindow.createValueUpdate(BoardWindowValues.NUM_CARDS_IN_HAND, 10);
+    const manyUpdates = [
+      updateRedPoints,
+      updateBluePoints,
+      updateGreenPoints,
+      updateBlackPoints,
+      updateWhitePoints,
+      updateDeckPoints,
+      updateHandPoints
+    ];
+    manyUpdates.forEach(update => {
+      this.test('Deve atualizar os pontos!', () => {
+        this.subject.updateValues(update);
+      }, () => {
+        this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
       });
-      await this.timertoTrue(600, () => {
-        this.gameboard.reset();
-      });
-      await this.timertoTrue(1000, () => {
-        const manyUpdates = [
-          updateRedPoints,
-          updateBluePoints,
-          updateGreenPoints,
-          updateBlackPoints,
-          updateWhitePoints,
-          updateDeckPoints,
-          updateHandPoints
-        ];
-        this.gameboard.updateValues(manyUpdates);
-      });
-      await this.timertoTrue(600, () => {
-        this.gameboard.close();
-      });
-      resolve(true);
+    });
+    this.test('Deve atualizar todos os pontos!', () => {
+      this.subject.reset();
+      this.subject.updateValues(manyUpdates);
+    }, () => {
+      this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
     });
   }
 
@@ -5234,22 +5215,23 @@ class CardBattleTestScene extends Scene_Message {
       // SetFullSizeTextWindowTest,
       // SetMiddleSizeTextWindowTest,
       // SetTextTextWindowTest,
-      TextColorTextWindowTest,
+      // TextColorTextWindowTest,
+      // TextExColorTextWindowTest,
     ];
-    const gameBoardTests = [
-      RefreshAndOpenGameBoardWindowTest,
-      UpdatingPointsGameBoardTest,
+    const boardWindowTests = [
+      OpenBoardWindowTest,
+      UpdatingPointsBoardWindowTest,
     ];
-    const gamePointsTests = [
+    const battlePointsWindow = [
       RefreshAndOpenGamePointsWindowTest,
       UpdatingPointsGamePointsWindowTest,
     ];
     return [
       // ...cardSpriteTests,
       // ...cardsetTests,
-      ...textWindowTests,
-    //   ...gameBoardTests,
-    //   ...gamePointsTests,
+      // ...textWindowTests,
+      ...boardWindowTests,
+    //   ...battlePointsWindow,
     ];
   }
 
@@ -5292,7 +5274,7 @@ class CardBattleTestScene extends Scene_Message {
         assertsResult.forEach(allAsserts => {
           const { passed: isAssertsPassed, assertsName, asserts } = allAsserts;
           if (!isAssertsPassed) {
-              this.printError(`Assert: ${assertsName}`);
+              this.printAssertError(`Assert: ${assertsName}`);
               asserts.forEach(assert => {
                 const { passed: isAssertPassed, title, message } = assert;
                 if (!isAssertPassed) {
@@ -5319,10 +5301,14 @@ class CardBattleTestScene extends Scene_Message {
   }
 
   printError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #FF0000; ${this.css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #AA0000; ${this.css}`);
   }
 
   printTestError(...msg) {
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #800000; ${this.css}`);
+  }
+
+  printAssertError(...msg) {
     console.log(`%c${msg.map(t => t.toString())}`,`background: #800000; ${this.css}`);
   }
 

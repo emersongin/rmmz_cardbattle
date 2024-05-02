@@ -57,22 +57,23 @@ class CardBattleTestScene extends Scene_Message {
       // SetFullSizeTextWindowTest,
       // SetMiddleSizeTextWindowTest,
       // SetTextTextWindowTest,
-      TextColorTextWindowTest,
+      // TextColorTextWindowTest,
+      // TextExColorTextWindowTest,
     ];
-    const gameBoardTests = [
-      RefreshAndOpenGameBoardWindowTest,
-      UpdatingPointsGameBoardTest,
+    const boardWindowTests = [
+      OpenBoardWindowTest,
+      UpdatingPointsBoardWindowTest,
     ];
-    const gamePointsTests = [
+    const battlePointsWindow = [
       RefreshAndOpenGamePointsWindowTest,
       UpdatingPointsGamePointsWindowTest,
     ];
     return [
       // ...cardSpriteTests,
       // ...cardsetTests,
-      ...textWindowTests,
-    //   ...gameBoardTests,
-    //   ...gamePointsTests,
+      // ...textWindowTests,
+      ...boardWindowTests,
+    //   ...battlePointsWindow,
     ];
   }
 
@@ -115,7 +116,7 @@ class CardBattleTestScene extends Scene_Message {
         assertsResult.forEach(allAsserts => {
           const { passed: isAssertsPassed, assertsName, asserts } = allAsserts;
           if (!isAssertsPassed) {
-              this.printError(`Assert: ${assertsName}`);
+              this.printAssertError(`Assert: ${assertsName}`);
               asserts.forEach(assert => {
                 const { passed: isAssertPassed, title, message } = assert;
                 if (!isAssertPassed) {
@@ -142,10 +143,14 @@ class CardBattleTestScene extends Scene_Message {
   }
 
   printError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #FF0000; ${this.css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #AA0000; ${this.css}`);
   }
 
   printTestError(...msg) {
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #800000; ${this.css}`);
+  }
+
+  printAssertError(...msg) {
     console.log(`%c${msg.map(t => t.toString())}`,`background: #800000; ${this.css}`);
   }
 

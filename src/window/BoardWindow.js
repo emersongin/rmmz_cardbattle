@@ -1,0 +1,101 @@
+class BoardWindow extends ValuesWindow {
+  static create(x, y, width, height) {
+    return new BoardWindow(new Rectangle(x, y, width, height));
+  }
+
+  static createWindowMiddleSize(x, y) {
+    const width = Graphics.boxWidth / 2;
+    const height = ValuesWindow.minHeight();
+    return BoardWindow.create(x, y, width, height);
+  }
+
+  static createWindowFullSize(x, y) {
+    const width = Graphics.boxWidth;
+    const height = ValuesWindow.minHeight();
+    return BoardWindow.create(x, y, width, height);
+  }
+
+  static createValueUpdate(name, value) {
+    return ValuesWindow.createValueUpdate(name, value);
+  }
+
+  reset() {
+    this.addValue(BoardWindowValues.RED_POINTS, 0);
+    this.addValue(BoardWindowValues.BLUE_POINTS, 0);
+    this.addValue(BoardWindowValues.GREEN_POINTS, 0);
+    this.addValue(BoardWindowValues.BLACK_POINTS, 0);
+    this.addValue(BoardWindowValues.WHITE_POINTS, 0);
+    this.addValue(BoardWindowValues.NUM_CARDS_IN_DECK, 0);
+    this.addValue(BoardWindowValues.NUM_CARDS_IN_HAND, 0);
+    super.reset();
+  }
+
+  refresh() {
+    super.refresh();
+    this.drawIcons();
+    this.drawDisplay();
+  }
+
+  drawIcons() {
+    this.drawColorBoxIcons();
+    this.drawAllIcons();
+  }
+
+  drawColorBoxIcons() {
+    const indexOne = 0;
+    const indexTwo = 96;
+    const indexThree = 192;
+    const indexFour = 288;
+    const indexFive = 384;
+    this.drawIcon(IconSet.WHITEBOX, indexOne, 0);
+    this.drawIcon(IconSet.REDBOX, indexTwo, 0);
+    this.drawIcon(IconSet.BLUEBOX, indexThree, 0);
+    this.drawIcon(IconSet.GREENBOX, indexFour, 0);
+    this.drawIcon(IconSet.BLACKBOX, indexFive, 0);
+  }
+
+  drawAllIcons() {
+    const floatRightIndexOne = this.contents.width - 96;
+    const floatRightIndexTwo = this.contents.width - 192;
+    this.drawIcon(IconSet.HAND, floatRightIndexOne, 0);
+    this.drawIcon(IconSet.DECK, floatRightIndexTwo, 0);
+  }
+
+  drawDisplay() {
+    this.drawEnergiesPoints();
+    this.drawCardsPoints();
+  }
+
+  drawEnergiesPoints() {
+    const width = 64;
+    const height = 32;
+    const yPosition = 0;
+    const xPositionWhitePoints = 40;
+    const xPositonRedPoints = 136;
+    const xPositionBluePoints = 232;
+    const xPositionGreenPoints = 328;
+    const xPositionBlackPoints = 424;
+    const redPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.RED_POINTS);
+    const bluePoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.BLUE_POINTS);
+    const greenPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.GREEN_POINTS);
+    const blackPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.BLACK_POINTS);
+    const whitePoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.WHITE_POINTS);
+    this.contents.drawText(whitePoints, xPositionWhitePoints, yPosition, width, height);
+    this.contents.drawText(redPoints, xPositonRedPoints, yPosition, width, height);
+    this.contents.drawText(bluePoints, xPositionBluePoints, yPosition, width, height);
+    this.contents.drawText(greenPoints, xPositionGreenPoints, yPosition, width, height);
+    this.contents.drawText(blackPoints, xPositionBlackPoints, yPosition, width, height);
+  }
+
+  drawCardsPoints() {
+    const width = 64;
+    const height = 32;
+    const yPosition = 0;
+    const xPositionHand = this.contents.width - 96 + 40;
+    const xPositionDeck = this.contents.width - 192 + 40;
+    const handPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.NUM_CARDS_IN_HAND);
+    const deckPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.NUM_CARDS_IN_DECK);
+    this.contents.drawText(handPoints, xPositionHand, yPosition, width, height);
+    this.contents.drawText(deckPoints, xPositionDeck, yPosition, width, height);
+  }
+}

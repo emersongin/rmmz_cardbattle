@@ -6,15 +6,15 @@
 // include ./constant/CardTypes.js
 // include ./constant/HexColors.js
 // include ./constant/IconSet.js
-// include ./constant/GameBoardValues.js
-// include ./constant/GameBattlePointsValues.js
+// include ./constant/BoardWindowValues.js
+// include ./constant/BattlePointsWindowValues.js
 // include ./data/playerDecksData.js
 // include ./helper/Helpers.js
 // include ./helper/Generators.js
-// include ./window/CardBattleWindow.js
+// include ./window/ValuesWindow.js
 // include ./window/TextWindow.js
-// include ./window/GameBoardWindow.js
-// include ./window/GamePointsWindow.js
+// include ./window/BoardWindow.js
+// include ./window/BattlePointsWindow.js
 // include ./window/ChooseFolderWindow.js
 // include ./object/PowerAction.js
 // include ./object/Energy.js
@@ -72,13 +72,14 @@
 // include ../test/integration/textwindow/SetMiddleSizeTextWindowTest.js
 // include ../test/integration/textwindow/SetTextTextWindowTest.js
 // include ../test/integration/textwindow/TextColorTextWindowTest.js
+// include ../test/integration/textwindow/TextExColorTextWindowTest.js
 
 // tests GAME BOARD WINDOW
-// include ../test/integration/gameboardwindow/RefreshAndOpenGameBoardWindowTest.js
-// include ../test/integration/gameboardwindow/UpdatingPointsGameBoardTest.js
+// include ../test/integration/boardwindow/OpenBoardWindowTest.js
+// include ../test/integration/boardwindow/UpdatingPointsBoardWindowTest.js
 // tests GAME POINTS WINDOW
-// include ../test/integration/gamepointswindow/RefreshAndOpenGamePointsWindowTest.js
-// include ../test/integration/gamepointswindow/UpdatingPointsGamePointsWindowTest.js
+// include ../test/integration/battlepointswindow/RefreshAndOpenGamePointsWindowTest.js
+// include ../test/integration/battlepointswindow/UpdatingPointsGamePointsWindowTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./scene/CardBattleTestScene.js

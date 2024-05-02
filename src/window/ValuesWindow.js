@@ -1,7 +1,7 @@
 // include ./state/WindowStoppedState.js
 // include ./state/WindowUpdatedState.js
 
-class CardBattleWindow extends Window_Base { 
+class ValuesWindow extends Window_Base { 
   initialize(rect) {
     super.initialize(rect);
     this._iconset = "IconSet";
@@ -10,8 +10,9 @@ class CardBattleWindow extends Window_Base {
     this._updates = [];
     this.closed();
     this.stop();
+    this.reset();
   }
-  
+
   closed() {
     this._openness = 0;
   }
@@ -24,25 +25,33 @@ class CardBattleWindow extends Window_Base {
     this._status = new status(this, ...params);
   }
 
-  static create(x, y, width, height) {
-    return new CardBattleWindow(new Rectangle(x, y, width, height));
-  }
-
-  static createWindowMiddleSize(x, y) {
-    const width = Graphics.boxWidth / 2;
-    const height = CardBattleWindow.minHeight();
-    return CardBattleWindow.create(x, y, width, height);
-  }
-
   static minHeight() {
     return 60;
   }
 
-  static createWindowFullSize(x, y) {
-    const width = Graphics.boxWidth;
-    const height = CardBattleWindow.minHeight();
-    return CardBattleWindow.create(x, y, width, height);
+  reset() {
+    this.refresh();
   }
+
+  refresh() {
+    this.contents.clear();
+  }
+
+  setCenteredPosition() {
+    this.x = (Graphics.boxWidth / 2) - (this.width / 2);
+    this.y = (Graphics.boxHeight / 2) - (this.height / 2);
+  }
+
+
+
+
+
+
+
+
+  
+  
+
 
   update() {
     if (this.hasUpdates() && this.isStopped()) this.executeUpdate();
@@ -117,26 +126,15 @@ class CardBattleWindow extends Window_Base {
     this.x = (Graphics.boxWidth / 2) * position;
   }
 
-  setCenteredPosition() {
-    this.x = (Graphics.boxWidth / 2) - (this.width / 2);
-    this.y = (Graphics.boxHeight / 2) - (this.height / 2);
-  }
 
-  isAvailable() {
-    return !this.isBusy();
-  }
 
-  isBusy() {
-    return this.isOpening() || this.isClosing() || this.isUpdating();
-  }
+
 
   isUpdating() {
     return this.getStatus() instanceof WindowUpdatedState;
   }
 
-  refresh() {
-    this.contents.clear();
-  }
+
 
   addValue(name, value) {
     if (this._values.hasOwnProperty(name)) {
@@ -173,8 +171,12 @@ class CardBattleWindow extends Window_Base {
 
 
 
-
-  setTextColor(color) {
-    this.changeTextColor(color || ColorManager.normalColor());
+  isAvailable() {
+    return !this.isBusy();
   }
+
+  isBusy() {
+    return this.isOpening() || this.isClosing() || this.isUpdating();
+  }
+
 }
