@@ -15,26 +15,39 @@ Scene_Boot.prototype.start = function() {
 ImageManager.loadCard = function(filename) {
   return this.loadBitmap("img/cards/", filename);
 };
+const GameConst = {
+  ATTACK_POINTS: 'ATTACK_POINTS',
+  HEALTH_POINTS: 'HEALTH_POINTS',
+  RED_POINTS: 'RED_POINTS',
+  BLUE_POINTS: 'BLUE_POINTS',
+  GREEN_POINTS: 'GREEN_POINTS',
+  BLACK_POINTS: 'BLACK_POINTS',
+  WHITE_POINTS: 'WHITE_POINTS',
+  NUM_CARDS_IN_DECK: 'NUM_CARDS_IN_DECK',
+  NUM_CARDS_IN_HAND: 'NUM_CARDS_IN_HAND',
+  TEXT_EX: 'TEXT_EX',
+  CHANGE_COLOR: 'CHANGE_COLOR',
+  LEFT_ALIGN: 'LEFT_ALIGN',
+  CENTER_ALIGN: 'CENTER_ALIGN',
+  RIGHT_ALIGN: 'RIGHT_ALIGN',
+};
+
 const CardTypes = {
   BATTLE: 1,
   POWER: 2,
   GAME: 3
 };
-const HexColors = {
-  RED: '#ff0000',
-  GREEN: '#00ff00',
-  BLUE: '#0000ff',
-  WHITE: '#e5e5e5',
-  BLACK: '#191919',
-  BROWN: '#a52a2a',
-  FADEDRED: '#990000',
-  FADEDGREEN: '#009900',
-  FADEDBLUE: '#000099',
-  FADEDWHITE: '#959595',
-  FADEDBLACK: '#101010',
-  FADEDBROWN: '#852828',
+
+const ColorTypes = {
+  RED: 1,
+  GREEN: 2,
+  BLUE: 3,
+  WHITE: 4,
+  BLACK: 5,
+  BROWN: 6,
 };
-const IconSet = {
+
+const IconSetConst = {
   REDBOX: 309,
   BLUEBOX: 312,
   GREENBOX: 311,
@@ -50,19 +63,22 @@ const IconSet = {
   SWORD: 76,
   SHIELD: 81,
 };
-const BoardWindowValues = {
-  RED_POINTS: 'RED_POINTS',
-  BLUE_POINTS: 'BLUE_POINTS',
-  GREEN_POINTS: 'GREEN_POINTS',
-  BLACK_POINTS: 'BLACK_POINTS',
-  WHITE_POINTS: 'WHITE_POINTS',
-  NUM_CARDS_IN_DECK: 'NUM_CARDS_IN_DECK',
-  NUM_CARDS_IN_HAND: 'NUM_CARDS_IN_HAND'
+
+const HexColors = {
+  RED: '#ff0000',
+  GREEN: '#00ff00',
+  BLUE: '#0000ff',
+  WHITE: '#e5e5e5',
+  BLACK: '#191919',
+  BROWN: '#a52a2a',
+  FADEDRED: '#990000',
+  FADEDGREEN: '#009900',
+  FADEDBLUE: '#000099',
+  FADEDWHITE: '#959595',
+  FADEDBLACK: '#101010',
+  FADEDBROWN: '#852828',
 };
-const BattlePointsWindowValues = {
-  ATTACK_POINTS: 'ATTACK_POINTS',
-  HEALTH_POINTS: 'HEALTH_POINTS'
-};
+
 const playerDecksData = [
   {
     name: 'Folder 1',
@@ -134,7 +150,18 @@ class ObjectHelper {
     Object.defineProperties(copiedObj, descriptors);
     return copiedObj;
   }
+
+  static parseReference(params, reference) {
+    let obj = {};
+    Object.keys(params).forEach((key, index) => {
+      if (reference) return obj[reference[index]] = params[key];
+      obj[index] = params[key];
+    });
+    return obj;
+  }
 }
+
+
 class CardGenerator {
   static generateCards(amount = 1) {
     const cards = [];
@@ -165,10 +192,10 @@ class HashGenerator {
   }
 }
 class WindowStoppedState {
-  _board;
+  _window;
 
   constructor(window) {
-    this._board = window;
+    this._window = window;
   }
 
   updateStatus() {
@@ -271,12 +298,28 @@ class ValuesWindow extends Window_Base {
     this.reset();
   }
 
+  closed() {
+    this._openness = 0;
+  }
+
+  stop() {
+    this.changeStatus(WindowStoppedState);
+  }
+
+  changeStatus(status, ...params) {
+    this._status = new status(this, ...params);
+  }
+
   static minHeight() {
     return 60;
   }
 
   reset() {
-    // to be implemented by the child class
+    this.refresh();
+  }
+
+  refresh() {
+    this.contents.clear();
   }
 
   setCenteredPosition() {
@@ -293,17 +336,7 @@ class ValuesWindow extends Window_Base {
 
   
   
-  closed() {
-    this._openness = 0;
-  }
 
-  stop() {
-    this.changeStatus(WindowStoppedState);
-  }
-
-  changeStatus(status, ...params) {
-    this._status = new status(this, ...params);
-  }
 
   update() {
     if (this.hasUpdates() && this.isStopped()) this.executeUpdate();
@@ -380,21 +413,13 @@ class ValuesWindow extends Window_Base {
 
 
 
-  isAvailable() {
-    return !this.isBusy();
-  }
 
-  isBusy() {
-    return this.isOpening() || this.isClosing() || this.isUpdating();
-  }
 
   isUpdating() {
     return this.getStatus() instanceof WindowUpdatedState;
   }
 
-  refresh() {
-    this.contents.clear();
-  }
+
 
   addValue(name, value) {
     if (this._values.hasOwnProperty(name)) {
@@ -427,9 +452,21 @@ class ValuesWindow extends Window_Base {
     return StringHelper.convertPointsDisplayPad(points, pad);
   }
 
+
+
+
+
+  isAvailable() {
+    return !this.isBusy();
+  }
+
+  isBusy() {
+    return this.isOpening() || this.isClosing() || this.isUpdating();
+  }
+
 }
 class TextWindow extends Window_Base {
-  _text = [];
+  _content = [];
   _align = 'LEFT';
 
   initialize(rect) {
@@ -447,43 +484,63 @@ class TextWindow extends Window_Base {
 
   static createWindowMiddleSize(x, y) {
     const width = Graphics.boxWidth / 2;
-    const height = CardBattleWindow.minHeight();
+    const height = TextWindow.minHeight();
     return TextWindow.create(x, y, width, height);
   }
 
   static createWindowFullSize(x, y) {
     const width = Graphics.boxWidth;
-    const height = CardBattleWindow.minHeight();
+    const height = TextWindow.minHeight();
     return TextWindow.create(x, y, width, height);
   }
 
-  renderTextCenter() {
-    this.renderText('CENTER');
-    this._align = 'CENTER';
+  static minHeight() {
+    return 60;
   }
 
-  renderText(align = this._align) {
-    if (this._text.length) {
-      const text = this.processText();
-      const textWidth = this.getTextWidth(text);
-      const xPosition = this.getAlignText(textWidth, align);
-      const yPosition = 0;
-      this.resize(text);
-      this.drawText(text, xPosition, yPosition, align);
+  setAlignContent(align = 'LEFT') {
+    this._align = align;
+  }
+
+  getContentIndex(index) {
+    return this.getContent()[index];
+  }
+
+  getContent() {
+    return this._content.map(({ type, ...params }) => {
+      const objData = ObjectHelper.parseReference(params, ['text', 'x', 'y', 'align']);
+      const { text, x, y, align } = objData;
+      return { type, text, x, y, align };
+    });
+  }
+
+  renderContent() {
+    if (this._content.length) {
+      this.getContent().forEach(({ type, text, x, y, align }, index) => {
+        x = this.getTextAlignXPosition(text, align);
+        this.setContentX(index, x);
+        this.drawTextEx(text, x, y);
+      });
     }
   }
 
-  processText() {
-    let content = [];
-    const length = this._text.length;
-    this._text.forEach((text, index) => { 
-      content.push(text);
-      const isGreaterThanOne = length > 1;
-      const isNotLast = length !== (index + 1);
-      const isNotSpecialLine = text[0] != '\\';
-      if (isGreaterThanOne && isNotLast && isNotSpecialLine) content.push('\n');
-    });
-    return content.join('');
+  addTextline(text = '', align = this._align) {
+    text = this.processTextLine(text);
+    this.addToRender(GameConst.TEXT_EX, text, 0, 0, align);
+  }
+
+  getTextAlignXPosition(text, align) {
+    const textWidth = this.getTextWidth(text);
+    const x = this.getAlignText(textWidth, align);
+    return x;
+  }
+
+  processTextLine(text) {
+    const length = this._content.length;
+    const isGreaterThanZero = length > 0;
+    const isNotSpecialLine = this._content[length - 1]?.type != GameConst.CHANGE_COLOR;
+    if (isGreaterThanZero && isNotSpecialLine) text = `${'\n'.repeat(length)}${text}`;
+    return text;
   }
 
   getTextWidth(text) {
@@ -495,13 +552,18 @@ class TextWindow extends Window_Base {
 
   getAlignText(textWidth, align) {
     switch (align) {
-      case 'CENTER':
-        return (this.contentsWidth() / 2) - (textWidth / 2);
-      case 'RIGHT':
-        return this.contentsWidth() - textWidth;
+      case GameConst.CENTER_ALIGN:
+        return (Math.max(this.contentsWidth(), textWidth, this.width) / 2) - (textWidth / 2);
+      case GameConst.RIGHT_ALIGN:
+        return Math.max(this.contentsWidth(), textWidth, this.width) - textWidth;
       default:
         return 0;
     }
+  }
+
+  addToRender(type, ...params) {
+    this._content.push({ type, ...params });
+    this.resize(params[0]);
   }
 
   resize(text) {
@@ -510,13 +572,12 @@ class TextWindow extends Window_Base {
   }
 
   resizeContent(text) {
-    const contentWidth = this.calculeTextMinHeight(text);
+    const contentWidth = Math.max(this.calculeTextWidth(text), this.width);
     this.contents.resize(contentWidth, this.calculeTextHeight());
   }
 
-  calculeTextMinHeight(text) {
-    const textWidth = this.calculeTextWidth(text);
-    return this.width > textWidth ? this.width : textWidth;
+  calculeTextHeight() {
+    return Math.max(this.fittingHeight(this.numLines()), this.height);
   }
 
   calculeTextWidth(text) {
@@ -525,17 +586,13 @@ class TextWindow extends Window_Base {
     return Math.min(width, Graphics.boxWidth);
   }
 
-  calculeTextHeight() {
-    return this.fittingHeight(this.numLines());
-  }
-
   numLines() {
-    const lines = this._text.filter(text => text[0] !== "\\");
+    const lines = this.getContent().filter(content => content.type != GameConst.CHANGE_COLOR);
     return lines.length;
   }
 
   resizeWindow(text) {
-    const contentWidth = this.calculeTextMinHeight(text);
+    const contentWidth = this.calculeTextMinWidth(text);
     const windowPadding = this.padding + this.itemPadding();
     let width = Math.ceil(contentWidth) + windowPadding + 6;
     let windowWidth = Math.max(width, this.width);
@@ -543,47 +600,67 @@ class TextWindow extends Window_Base {
     this.move(this.x, this.y, windowWidth, this.calculeTextHeight());
   }
 
-  drawText(text = '', x = 0, y = 0, align = 'left', width = this.width) {
-    super.drawText(text, x, y, width, align);
-  }
-
-  renderTextExCenter() {
-    this.renderTextEx('CENTER');
-    this._align = 'CENTER';
-  }
-
-  renderTextEx(align = this._align) {
-    if (this._text.length) {
-      const text = this.processText();
-      const textWidth = this.getTextWidth(text);
-      const xPosition = this.getAlignText(textWidth, align);
-      this.resize(text);
-      this.drawTextEx(text, xPosition);
-    }
+  calculeTextMinWidth(text) {
+    const textWidth = this.calculeTextWidth(text);
+    return Math.max(this.width, textWidth);
   }
 
   drawTextEx(text = '', x = 0, y = 0, width = this.width) {
     super.drawTextEx(text, x, y, width);
   }
 
-  changeTextColorHere(colorIndex) {
-    const colorText = `\\c[${colorIndex}]`;
-    const noSpace = false;
-    this.appendText(colorText, noSpace);
+  isCenterAlignedText(xAling) {
+    return this.getContent().every(content => {
+      const x = this.getTextAlignXPosition(content.text, GameConst.CENTER_ALIGN);
+      return x === xAling;
+    });
   }
 
-  appendText(text, space = true) {
-    const length = this._text.length;
-    const lastText = this._text[length - 1];
-    if (length && lastText && lastText[0] !== '\\') {
-      this._text[length - 1] = `${lastText}${space ? ' ' : ''}${text.trim()}`;
+  changeTextExColor(colorIndex) {
+    const colorText = `\\c[${colorIndex}]`;
+    const noSpace = false;
+    const lastIndex = this._content.length - 1;
+    const content = this.getContentIndex(lastIndex);
+    if (content) {
+      content.text = `${content.text}${colorText}`;
+      this.appendToRender(GameConst.TEXT_EX, content.text, lastIndex);
     } else {
-      this.addText(text);
+      this.addToRender(GameConst.CHANGE_COLOR, colorText, 0, 0, this._align);
     }
   }
 
-  addText(text = '') {
-    this._text.push(text.trim());
+  appendText(text, space = true) {
+    const lastIndex = this._content.length - 1;
+    const content = this.getContentIndex(lastIndex);
+    const isNotSpecialLine = content?.type != GameConst.CHANGE_COLOR;
+    if (content) {
+      content.text = `${content.text}${space && isNotSpecialLine ? ' ' : ''}${text.trim()}`;
+      this.appendToRender(GameConst.TEXT_EX, content.text, lastIndex);
+    } else {
+      this.addTextline(text);
+    }
+  }
+
+  appendToRender(type, text, lastIndex) {
+    if (type == GameConst.TEXT_EX) {
+      this.setContentType(lastIndex, type);
+      this.setContentText(lastIndex, text);
+      this.resize(text);
+    } else {
+      this.setContentText(lastIndex, text);
+    }
+  }
+
+  setContentType(index, type) {
+    this._content[index].type = type;
+  }
+
+  setContentText(index, text) {
+    this._content[index][0] = text;
+  }
+
+  setContentX(index, x) {
+    this._content[index][1] = x;
   }
 
   setCenteredPosition() {
@@ -594,10 +671,6 @@ class TextWindow extends Window_Base {
   isCenterAlign() {
     return this.x === (Graphics.boxWidth / 2) - (this.width / 2) && 
       this.y === (Graphics.boxHeight / 2) - (this.height / 2);
-  }
-
-  isCenterAlignedText() {
-    return this._align === 'CENTER';
   }
 
   static getVerticalPosition(position) {
@@ -626,12 +699,12 @@ class TextWindow extends Window_Base {
     return this.width === Graphics.boxWidth / 2;
   }
 
-  setTextColor(color) {
-    this.changeTextColor(color || ColorManager.normalColor());
-  }
-
   getTextColor() {
     return this.contents.textColor;
+  }
+
+  isSetColorContent(colorIndex) {
+    return this.getContent().some(content => content.text.includes(`\\c[${colorIndex}]`));
   }
 }
 class BoardWindow extends ValuesWindow {
@@ -656,14 +729,14 @@ class BoardWindow extends ValuesWindow {
   }
 
   reset() {
-    this.addValue(BoardWindowValues.RED_POINTS, 0);
-    this.addValue(BoardWindowValues.BLUE_POINTS, 0);
-    this.addValue(BoardWindowValues.GREEN_POINTS, 0);
-    this.addValue(BoardWindowValues.BLACK_POINTS, 0);
-    this.addValue(BoardWindowValues.WHITE_POINTS, 0);
-    this.addValue(BoardWindowValues.NUM_CARDS_IN_DECK, 0);
-    this.addValue(BoardWindowValues.NUM_CARDS_IN_HAND, 0);
-    this.refresh();
+    this.addValue(GameConst.RED_POINTS, 0);
+    this.addValue(GameConst.BLUE_POINTS, 0);
+    this.addValue(GameConst.GREEN_POINTS, 0);
+    this.addValue(GameConst.BLACK_POINTS, 0);
+    this.addValue(GameConst.WHITE_POINTS, 0);
+    this.addValue(GameConst.NUM_CARDS_IN_DECK, 0);
+    this.addValue(GameConst.NUM_CARDS_IN_HAND, 0);
+    super.reset();
   }
 
   refresh() {
@@ -699,7 +772,7 @@ class BoardWindow extends ValuesWindow {
 
   drawDisplay() {
     this.drawEnergiesPoints();
-    this.drawCardsPoints();
+    this.drawAllPoints();
   }
 
   drawEnergiesPoints() {
@@ -711,11 +784,11 @@ class BoardWindow extends ValuesWindow {
     const xPositionBluePoints = 232;
     const xPositionGreenPoints = 328;
     const xPositionBlackPoints = 424;
-    const redPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.RED_POINTS);
-    const bluePoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.BLUE_POINTS);
-    const greenPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.GREEN_POINTS);
-    const blackPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.BLACK_POINTS);
-    const whitePoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.WHITE_POINTS);
+    const redPoints = this.getValueAndconvertToDisplayPad(GameConst.RED_POINTS);
+    const bluePoints = this.getValueAndconvertToDisplayPad(GameConst.BLUE_POINTS);
+    const greenPoints = this.getValueAndconvertToDisplayPad(GameConst.GREEN_POINTS);
+    const blackPoints = this.getValueAndconvertToDisplayPad(GameConst.BLACK_POINTS);
+    const whitePoints = this.getValueAndconvertToDisplayPad(GameConst.WHITE_POINTS);
     this.contents.drawText(whitePoints, xPositionWhitePoints, yPosition, width, height);
     this.contents.drawText(redPoints, xPositonRedPoints, yPosition, width, height);
     this.contents.drawText(bluePoints, xPositionBluePoints, yPosition, width, height);
@@ -723,26 +796,23 @@ class BoardWindow extends ValuesWindow {
     this.contents.drawText(blackPoints, xPositionBlackPoints, yPosition, width, height);
   }
 
-  drawCardsPoints() {
+  drawAllPoints() {
     const width = 64;
     const height = 32;
     const yPosition = 0;
     const xPositionHand = this.contents.width - 96 + 40;
     const xPositionDeck = this.contents.width - 192 + 40;
-    const handPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.NUM_CARDS_IN_HAND);
-    const deckPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.NUM_CARDS_IN_DECK);
+    const handPoints = this.getValueAndconvertToDisplayPad(GameConst.NUM_CARDS_IN_HAND);
+    const deckPoints = this.getValueAndconvertToDisplayPad(GameConst.NUM_CARDS_IN_DECK);
     this.contents.drawText(handPoints, xPositionHand, yPosition, width, height);
     this.contents.drawText(deckPoints, xPositionDeck, yPosition, width, height);
-  }
-
-  isRendered() {
-    return this._isRendered;
   }
 }
 class BattlePointsWindow extends ValuesWindow {
   reset() {
-    this.addValue(GameBattlePointsValues.ATTACK_POINTS, 0);
-    this.addValue(GameBattlePointsValues.HEALTH_POINTS, 0);
+    this.addValue(GameConst.ATTACK_POINTS, 0);
+    this.addValue(GameConst.HEALTH_POINTS, 0);
+    super.reset();
   }
 
   static create(x, y) {
@@ -761,8 +831,8 @@ class BattlePointsWindow extends ValuesWindow {
   }
 
   drawPoints() {
-    const attack = this.getValueAndconvertToDisplay(GameBattlePointsValues.ATTACK_POINTS);
-    const health = this.getValueAndconvertToDisplay(GameBattlePointsValues.HEALTH_POINTS);
+    const attack = this.getValueAndconvertToDisplay(GameConst.ATTACK_POINTS);
+    const health = this.getValueAndconvertToDisplay(GameConst.HEALTH_POINTS);
     const points = `AP ${attack} HP ${health}`;
     this.contents.drawText(
       points, 
@@ -1870,19 +1940,19 @@ class CardSprite extends ActionSprite {
 
   getBorderColor() {
     switch (this._color) {
-      case 1:
+      case ColorTypes.RED:
         return HexColors.FADEDRED;
         break;
-      case 2:
+      case ColorTypes.GREEN:
         return HexColors.FADEDGREEN;
         break;
-      case 3:
+      case ColorTypes.BLUE:
         return HexColors.FADEDBLUE;
         break;
-      case 4:
+      case ColorTypes.WHITE:
         return HexColors.FADEDWHITE;
         break;
-      case 5:
+      case ColorTypes.BLACK:
         return HexColors.FADEDBLACK;
         break;
       default:
@@ -1893,19 +1963,19 @@ class CardSprite extends ActionSprite {
 
   getBackgroundColor() {
     switch (this._color) {
-      case 1:
+      case ColorTypes.RED:
         return HexColors.RED;
         break;
-      case 2:
+      case ColorTypes.GREEN:
         return HexColors.GREEN;
         break;
-      case 3:
+      case ColorTypes.BLUE:
         return HexColors.BLUE;
         break;
-      case 4:
+      case ColorTypes.WHITE:
         return HexColors.WHITE;
         break;
-      case 5:
+      case ColorTypes.BLACK:
         return HexColors.BLACK;
         break;
       default:
@@ -4719,8 +4789,9 @@ class AlignCenterMiddleSizeTextWindowTest extends SceneTest {
   }
 
   start() {
-    this.subject.addText("Hello World!");
-    this.subject.renderTextCenter();
+    this.subject.addTextline("Hello World!");
+    this.subject.setAlignContent(GameConst.CENTER_ALIGN);
+    this.subject.renderContent();
     this.subject.show();
     this.test('Deve alinhar no centro!', () => {
       this.subject.setCenteredPosition();
@@ -4741,8 +4812,9 @@ class AlignCenterFullSizeTextWindowTest extends SceneTest {
   }
 
   start() {
-    this.subject.addText("Hello World!");
-    this.subject.renderTextCenter();
+    this.subject.addTextline("Hello World!");
+    this.subject.setAlignContent(GameConst.CENTER_ALIGN);
+    this.subject.renderContent();
     this.subject.show();
     this.test('Deve alinhar no centro!', () => {
       this.subject.setCenteredPosition();
@@ -4766,11 +4838,16 @@ class DrawTextCenterFullSizeTextWindowTest extends SceneTest {
     this.subject.setCenteredPosition();
     this.subject.show();
     this.test('Deve alinhar o texto no centro!', () => {
-      this.subject.addText("Hello World");
-      this.subject.renderTextCenter();
+      this.subject.setAlignContent(GameConst.CENTER_ALIGN);
+      this.subject.addTextline("Hello World");
+      this.subject.addTextline("Hello World");
+      this.subject.addTextline("Hello World");
+      this.subject.addTextline("Hello World");
+      this.subject.renderContent();
       this.subject.open();
     }, () => {
-      this.assertTrue('Esta com texto alinhado no centro?', this.subject.isCenterAlignedText());
+      const xAlign = 332.5;
+      this.assertTrue('Esta com texto alinhado no centro?', this.subject.isCenterAlignedText(xAlign));
     });
   }
 }
@@ -4813,8 +4890,8 @@ class PositionMoveTextWindowTest extends SceneTest {
   start() {
     this.subject.setCenteredPosition();
     this.subject.show();
-    this.subject.addText("Hello World");
-    this.subject.renderText();
+    this.subject.addTextline("Hello World");
+    this.subject.renderContent();
     this.subject.open();
     const maxTop = 0;
     const middle = 4;
@@ -4906,16 +4983,22 @@ class SetTextTextWindowTest extends SceneTest {
 
   start() {
     this.subject.show();
+    const line1 = "Hello World Hello World Hello World Hello World";
+    const line2 = "Hello World";
+    const line3 = "Hello World Hello World Hello World";
     this.test('Deve apresentar o texto definido!', () => {
-      this.subject.addText("Hello World Hello World Hello World Hello World");
-      this.subject.addText("Hello World");
-      this.subject.addText("Hello World Hello World Hello World");
-      this.subject.renderTextEx();
+      this.subject.setAlignContent(GameConst.CENTER_ALIGN);
+      this.subject.addTextline(line1);
+      this.subject.addTextline(line2);
+      this.subject.addTextline(line3);
+      this.subject.renderContent();
       this.subject.setCenteredPosition();
       this.subject.open();
     }, () => {
-      const text = "Hello World Hello World Hello World Hello World\nHello World\nHello World Hello World Hello World";
-      this.assert('Esta renderizado?', this.subject.processText()).toBe(text);
+      const [content1, content2, content3] = this.subject.getContent();
+      this.assert('Esta renderizado?', content1.text).toBe(line1);
+      this.assert('Esta renderizado?', content2.text).toBe('\n'.repeat(1)+line2);
+      this.assert('Esta renderizado?', content3.text).toBe('\n'.repeat(2)+line3);
     });
   }
 
@@ -4932,49 +5015,27 @@ class TextColorTextWindowTest extends SceneTest {
 
   start() {
     this.subject.show();
-    const textColor = "#ff0000";
-    this.test('Deve apresentar o texto com a cor definida!', () => {
-      this.subject.setTextColor(textColor);
-      this.subject.addText("Hello World");
-      this.subject.renderTextCenter();
-      this.subject.open();
-    }, () => {
-      this.assert('Esta renderizado?', this.subject.getTextColor()).toBe(textColor);
-    });
-  }
-
-}
-class TextExColorTextWindowTest extends SceneTest {
-  name = 'TextExColorTextWindowTest';
-
-  create() {
-    const x = 0;
-    const y = 0;
-    this.subject = TextWindow.createWindowFullSize(x, y);
-    this.addWindow(this.subject);
-  }
-
-  start() {
-    this.subject.show();
     const primaryColor = 2;
     const sencondColor = 5;
     const thirdColor = 8;
-    this.test('Deve apresentar o texto com a cor definida!', () => {
-      this.subject.changeTextColorHere(primaryColor);
+    this.test('Deve apresentar o texto com as cores definidas!', () => {
+      this.subject.setAlignContent(GameConst.CENTER_ALIGN);
+      this.subject.changeTextExColor(primaryColor);
       this.subject.appendText("Hello World");
-      this.subject.changeTextColorHere(sencondColor);
-      this.subject.addText("Hello World");
-      this.subject.changeTextColorHere(thirdColor);
+      this.subject.changeTextExColor(sencondColor);
       this.subject.appendText("Hello World");
-      this.subject.renderTextExCenter();
+      this.subject.changeTextExColor(thirdColor);
+      this.subject.addTextline("Hello World");
+      this.subject.appendText("Hello World");
+      this.subject.renderContent();
       this.subject.setCenteredPosition();
       this.subject.open();
     }, () => {
-      const textColor = `\\c[${primaryColor}]Hello World\\c[${sencondColor}]\nHello World\\c[${thirdColor}] Hello World`;
-      this.assert('Esta renderizado?', this.subject.processText()).toBe(textColor);
+      this.assertTrue('Esta com testo na cor primaryColor?', this.subject.isSetColorContent(primaryColor));
+      this.assertTrue('Esta com testo na cor sencondColor?', this.subject.isSetColorContent(sencondColor));
+      this.assertTrue('Esta com testo na cor thirdColor?', this.subject.isSetColorContent(thirdColor));
     });
   }
-
 }
 
 // tests GAME BOARD WINDOW
@@ -4987,12 +5048,17 @@ class OpenBoardWindowTest extends SceneTest {
   }
 
   start() {
+    this.subject.setCenteredPosition();
+    this.subject.refresh();
     this.test('Deve abrir e renderizar!', () => {
-      this.subject.setCenteredPosition();
-      this.subject.refresh();
       this.subject.open();
     }, () => {
       this.assertTrue('Esta aberta?', this.subject.isOpen());
+    });
+    this.test('Deve abrir e renderizar!', () => {
+      this.subject.close();
+    }, () => {
+      this.assertTrue('Esta fechada?', this.subject.isCloded());
     });
   }
 
@@ -5009,13 +5075,13 @@ class UpdatingPointsBoardWindowTest extends SceneTest {
     this.subject.setCenteredPosition();
     this.subject.refresh();
     this.subject.open();
-    const updateRedPoints = BoardWindow.createValueUpdate(BoardWindowValues.RED_POINTS, 10);
-    const updateBluePoints = BoardWindow.createValueUpdate(BoardWindowValues.BLUE_POINTS, 10);
-    const updateGreenPoints = BoardWindow.createValueUpdate(BoardWindowValues.GREEN_POINTS, 10);
-    const updateBlackPoints = BoardWindow.createValueUpdate(BoardWindowValues.BLACK_POINTS, 10);
-    const updateWhitePoints = BoardWindow.createValueUpdate(BoardWindowValues.WHITE_POINTS, 10);
-    const updateDeckPoints = BoardWindow.createValueUpdate(BoardWindowValues.NUM_CARDS_IN_DECK, 10);
-    const updateHandPoints = BoardWindow.createValueUpdate(BoardWindowValues.NUM_CARDS_IN_HAND, 10);
+    const updateRedPoints = BoardWindow.createValueUpdate(GameConst.RED_POINTS, 10);
+    const updateBluePoints = BoardWindow.createValueUpdate(GameConst.BLUE_POINTS, 10);
+    const updateGreenPoints = BoardWindow.createValueUpdate(GameConst.GREEN_POINTS, 10);
+    const updateBlackPoints = BoardWindow.createValueUpdate(GameConst.BLACK_POINTS, 10);
+    const updateWhitePoints = BoardWindow.createValueUpdate(GameConst.WHITE_POINTS, 10);
+    const updateDeckPoints = BoardWindow.createValueUpdate(GameConst.NUM_CARDS_IN_DECK, 10);
+    const updateHandPoints = BoardWindow.createValueUpdate(GameConst.NUM_CARDS_IN_HAND, 10);
     const manyUpdates = [
       updateRedPoints,
       updateBluePoints,
@@ -5207,16 +5273,15 @@ class CardBattleTestScene extends Scene_Message {
       AnimateDamageCardsCardsetSpriteTest,
     ];
     const textWindowTests = [
-      // AlignCenterMiddleSizeTextWindowTest,
-      // AlignCenterFullSizeTextWindowTest,
-      // DrawTextCenterFullSizeTextWindowTest,
-      // OpenAndCloseTextWindowTest,
-      // PositionMoveTextWindowTest,
-      // SetFullSizeTextWindowTest,
-      // SetMiddleSizeTextWindowTest,
-      // SetTextTextWindowTest,
-      // TextColorTextWindowTest,
-      // TextExColorTextWindowTest,
+      SetMiddleSizeTextWindowTest,
+      SetFullSizeTextWindowTest,
+      AlignCenterMiddleSizeTextWindowTest,
+      AlignCenterFullSizeTextWindowTest,
+      OpenAndCloseTextWindowTest,
+      PositionMoveTextWindowTest,
+      DrawTextCenterFullSizeTextWindowTest,
+      SetTextTextWindowTest,
+      TextColorTextWindowTest,
     ];
     const boardWindowTests = [
       OpenBoardWindowTest,
@@ -5229,8 +5294,8 @@ class CardBattleTestScene extends Scene_Message {
     return [
       // ...cardSpriteTests,
       // ...cardsetTests,
-      // ...textWindowTests,
-      ...boardWindowTests,
+      ...textWindowTests,
+      // ...boardWindowTests,
     //   ...battlePointsWindow,
     ];
   }

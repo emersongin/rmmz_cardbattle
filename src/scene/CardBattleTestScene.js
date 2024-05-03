@@ -49,16 +49,15 @@ class CardBattleTestScene extends Scene_Message {
       AnimateDamageCardsCardsetSpriteTest,
     ];
     const textWindowTests = [
-      // AlignCenterMiddleSizeTextWindowTest,
-      // AlignCenterFullSizeTextWindowTest,
-      // DrawTextCenterFullSizeTextWindowTest,
-      // OpenAndCloseTextWindowTest,
-      // PositionMoveTextWindowTest,
-      // SetFullSizeTextWindowTest,
-      // SetMiddleSizeTextWindowTest,
-      // SetTextTextWindowTest,
-      // TextColorTextWindowTest,
-      // TextExColorTextWindowTest,
+      SetMiddleSizeTextWindowTest,
+      SetFullSizeTextWindowTest,
+      AlignCenterMiddleSizeTextWindowTest,
+      AlignCenterFullSizeTextWindowTest,
+      OpenAndCloseTextWindowTest,
+      PositionMoveTextWindowTest,
+      DrawTextCenterFullSizeTextWindowTest,
+      SetTextTextWindowTest,
+      TextColorTextWindowTest,
     ];
     const boardWindowTests = [
       OpenBoardWindowTest,
@@ -71,8 +70,8 @@ class CardBattleTestScene extends Scene_Message {
     return [
       // ...cardSpriteTests,
       // ...cardsetTests,
-      // ...textWindowTests,
-      ...boardWindowTests,
+      ...textWindowTests,
+      // ...boardWindowTests,
     //   ...battlePointsWindow,
     ];
   }

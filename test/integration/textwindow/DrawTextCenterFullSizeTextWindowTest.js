@@ -12,11 +12,16 @@ class DrawTextCenterFullSizeTextWindowTest extends SceneTest {
     this.subject.setCenteredPosition();
     this.subject.show();
     this.test('Deve alinhar o texto no centro!', () => {
-      this.subject.addText("Hello World");
-      this.subject.renderTextCenter();
+      this.subject.setAlignContent(GameConst.CENTER_ALIGN);
+      this.subject.addTextline("Hello World");
+      this.subject.addTextline("Hello World");
+      this.subject.addTextline("Hello World");
+      this.subject.addTextline("Hello World");
+      this.subject.renderContent();
       this.subject.open();
     }, () => {
-      this.assertTrue('Esta com texto alinhado no centro?', this.subject.isCenterAlignedText());
+      const xAlign = 332.5;
+      this.assertTrue('Esta com texto alinhado no centro?', this.subject.isCenterAlignedText(xAlign));
     });
   }
 }

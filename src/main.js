@@ -3,11 +3,7 @@
 // include ./core/Input.js
 // include ./core/Scene_Boot.js
 // include ./core/ImageManager.js
-// include ./constant/CardTypes.js
-// include ./constant/HexColors.js
-// include ./constant/IconSet.js
-// include ./constant/BoardWindowValues.js
-// include ./constant/BattlePointsWindowValues.js
+// include ./constant/GameConst.js
 // include ./data/playerDecksData.js
 // include ./helper/Helpers.js
 // include ./helper/Generators.js
@@ -72,7 +68,6 @@
 // include ../test/integration/textwindow/SetMiddleSizeTextWindowTest.js
 // include ../test/integration/textwindow/SetTextTextWindowTest.js
 // include ../test/integration/textwindow/TextColorTextWindowTest.js
-// include ../test/integration/textwindow/TextExColorTextWindowTest.js
 
 // tests GAME BOARD WINDOW
 // include ../test/integration/boardwindow/OpenBoardWindowTest.js

@@ -10,13 +10,13 @@ class UpdatingPointsBoardWindowTest extends SceneTest {
     this.subject.setCenteredPosition();
     this.subject.refresh();
     this.subject.open();
-    const updateRedPoints = BoardWindow.createValueUpdate(BoardWindowValues.RED_POINTS, 10);
-    const updateBluePoints = BoardWindow.createValueUpdate(BoardWindowValues.BLUE_POINTS, 10);
-    const updateGreenPoints = BoardWindow.createValueUpdate(BoardWindowValues.GREEN_POINTS, 10);
-    const updateBlackPoints = BoardWindow.createValueUpdate(BoardWindowValues.BLACK_POINTS, 10);
-    const updateWhitePoints = BoardWindow.createValueUpdate(BoardWindowValues.WHITE_POINTS, 10);
-    const updateDeckPoints = BoardWindow.createValueUpdate(BoardWindowValues.NUM_CARDS_IN_DECK, 10);
-    const updateHandPoints = BoardWindow.createValueUpdate(BoardWindowValues.NUM_CARDS_IN_HAND, 10);
+    const updateRedPoints = BoardWindow.createValueUpdate(GameConst.RED_POINTS, 10);
+    const updateBluePoints = BoardWindow.createValueUpdate(GameConst.BLUE_POINTS, 10);
+    const updateGreenPoints = BoardWindow.createValueUpdate(GameConst.GREEN_POINTS, 10);
+    const updateBlackPoints = BoardWindow.createValueUpdate(GameConst.BLACK_POINTS, 10);
+    const updateWhitePoints = BoardWindow.createValueUpdate(GameConst.WHITE_POINTS, 10);
+    const updateDeckPoints = BoardWindow.createValueUpdate(GameConst.NUM_CARDS_IN_DECK, 10);
+    const updateHandPoints = BoardWindow.createValueUpdate(GameConst.NUM_CARDS_IN_HAND, 10);
     const manyUpdates = [
       updateRedPoints,
       updateBluePoints,

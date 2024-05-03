@@ -20,13 +20,13 @@ class BoardWindow extends ValuesWindow {
   }
 
   reset() {
-    this.addValue(BoardWindowValues.RED_POINTS, 0);
-    this.addValue(BoardWindowValues.BLUE_POINTS, 0);
-    this.addValue(BoardWindowValues.GREEN_POINTS, 0);
-    this.addValue(BoardWindowValues.BLACK_POINTS, 0);
-    this.addValue(BoardWindowValues.WHITE_POINTS, 0);
-    this.addValue(BoardWindowValues.NUM_CARDS_IN_DECK, 0);
-    this.addValue(BoardWindowValues.NUM_CARDS_IN_HAND, 0);
+    this.addValue(GameConst.RED_POINTS, 0);
+    this.addValue(GameConst.BLUE_POINTS, 0);
+    this.addValue(GameConst.GREEN_POINTS, 0);
+    this.addValue(GameConst.BLACK_POINTS, 0);
+    this.addValue(GameConst.WHITE_POINTS, 0);
+    this.addValue(GameConst.NUM_CARDS_IN_DECK, 0);
+    this.addValue(GameConst.NUM_CARDS_IN_HAND, 0);
     super.reset();
   }
 
@@ -63,7 +63,7 @@ class BoardWindow extends ValuesWindow {
 
   drawDisplay() {
     this.drawEnergiesPoints();
-    this.drawCardsPoints();
+    this.drawAllPoints();
   }
 
   drawEnergiesPoints() {
@@ -75,11 +75,11 @@ class BoardWindow extends ValuesWindow {
     const xPositionBluePoints = 232;
     const xPositionGreenPoints = 328;
     const xPositionBlackPoints = 424;
-    const redPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.RED_POINTS);
-    const bluePoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.BLUE_POINTS);
-    const greenPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.GREEN_POINTS);
-    const blackPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.BLACK_POINTS);
-    const whitePoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.WHITE_POINTS);
+    const redPoints = this.getValueAndconvertToDisplayPad(GameConst.RED_POINTS);
+    const bluePoints = this.getValueAndconvertToDisplayPad(GameConst.BLUE_POINTS);
+    const greenPoints = this.getValueAndconvertToDisplayPad(GameConst.GREEN_POINTS);
+    const blackPoints = this.getValueAndconvertToDisplayPad(GameConst.BLACK_POINTS);
+    const whitePoints = this.getValueAndconvertToDisplayPad(GameConst.WHITE_POINTS);
     this.contents.drawText(whitePoints, xPositionWhitePoints, yPosition, width, height);
     this.contents.drawText(redPoints, xPositonRedPoints, yPosition, width, height);
     this.contents.drawText(bluePoints, xPositionBluePoints, yPosition, width, height);
@@ -87,14 +87,14 @@ class BoardWindow extends ValuesWindow {
     this.contents.drawText(blackPoints, xPositionBlackPoints, yPosition, width, height);
   }
 
-  drawCardsPoints() {
+  drawAllPoints() {
     const width = 64;
     const height = 32;
     const yPosition = 0;
     const xPositionHand = this.contents.width - 96 + 40;
     const xPositionDeck = this.contents.width - 192 + 40;
-    const handPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.NUM_CARDS_IN_HAND);
-    const deckPoints = this.getValueAndconvertToDisplayPad(BoardWindowValues.NUM_CARDS_IN_DECK);
+    const handPoints = this.getValueAndconvertToDisplayPad(GameConst.NUM_CARDS_IN_HAND);
+    const deckPoints = this.getValueAndconvertToDisplayPad(GameConst.NUM_CARDS_IN_DECK);
     this.contents.drawText(handPoints, xPositionHand, yPosition, width, height);
     this.contents.drawText(deckPoints, xPositionDeck, yPosition, width, height);
   }

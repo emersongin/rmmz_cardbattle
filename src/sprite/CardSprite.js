@@ -180,19 +180,19 @@ class CardSprite extends ActionSprite {
 
   getBorderColor() {
     switch (this._color) {
-      case 1:
+      case ColorTypes.RED:
         return HexColors.FADEDRED;
         break;
-      case 2:
+      case ColorTypes.GREEN:
         return HexColors.FADEDGREEN;
         break;
-      case 3:
+      case ColorTypes.BLUE:
         return HexColors.FADEDBLUE;
         break;
-      case 4:
+      case ColorTypes.WHITE:
         return HexColors.FADEDWHITE;
         break;
-      case 5:
+      case ColorTypes.BLACK:
         return HexColors.FADEDBLACK;
         break;
       default:
@@ -203,19 +203,19 @@ class CardSprite extends ActionSprite {
 
   getBackgroundColor() {
     switch (this._color) {
-      case 1:
+      case ColorTypes.RED:
         return HexColors.RED;
         break;
-      case 2:
+      case ColorTypes.GREEN:
         return HexColors.GREEN;
         break;
-      case 3:
+      case ColorTypes.BLUE:
         return HexColors.BLUE;
         break;
-      case 4:
+      case ColorTypes.WHITE:
         return HexColors.WHITE;
         break;
-      case 5:
+      case ColorTypes.BLACK:
         return HexColors.BLACK;
         break;
       default:

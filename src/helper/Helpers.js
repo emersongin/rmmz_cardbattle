@@ -27,4 +27,14 @@ class ObjectHelper {
     Object.defineProperties(copiedObj, descriptors);
     return copiedObj;
   }
+
+  static parseReference(params, reference) {
+    let obj = {};
+    Object.keys(params).forEach((key, index) => {
+      if (reference) return obj[reference[index]] = params[key];
+      obj[index] = params[key];
+    });
+    return obj;
+  }
 }
+

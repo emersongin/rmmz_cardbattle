@@ -11,8 +11,8 @@ class PositionMoveTextWindowTest extends SceneTest {
   start() {
     this.subject.setCenteredPosition();
     this.subject.show();
-    this.subject.addText("Hello World");
-    this.subject.renderText();
+    this.subject.addTextline("Hello World");
+    this.subject.renderContent();
     this.subject.open();
     const maxTop = 0;
     const middle = 4;

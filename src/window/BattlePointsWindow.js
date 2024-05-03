@@ -1,7 +1,7 @@
 class BattlePointsWindow extends ValuesWindow {
   reset() {
-    this.addValue(GameBattlePointsValues.ATTACK_POINTS, 0);
-    this.addValue(GameBattlePointsValues.HEALTH_POINTS, 0);
+    this.addValue(GameConst.ATTACK_POINTS, 0);
+    this.addValue(GameConst.HEALTH_POINTS, 0);
     super.reset();
   }
 
@@ -21,8 +21,8 @@ class BattlePointsWindow extends ValuesWindow {
   }
 
   drawPoints() {
-    const attack = this.getValueAndconvertToDisplay(GameBattlePointsValues.ATTACK_POINTS);
-    const health = this.getValueAndconvertToDisplay(GameBattlePointsValues.HEALTH_POINTS);
+    const attack = this.getValueAndconvertToDisplay(GameConst.ATTACK_POINTS);
+    const health = this.getValueAndconvertToDisplay(GameConst.HEALTH_POINTS);
     const points = `AP ${attack} HP ${health}`;
     this.contents.drawText(
       points, 

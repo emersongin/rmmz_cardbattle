@@ -7,12 +7,17 @@ class OpenBoardWindowTest extends SceneTest {
   }
 
   start() {
+    this.subject.setCenteredPosition();
+    this.subject.refresh();
     this.test('Deve abrir e renderizar!', () => {
-      this.subject.setCenteredPosition();
-      this.subject.refresh();
       this.subject.open();
     }, () => {
       this.assertTrue('Esta aberta?', this.subject.isOpen());
+    });
+    this.test('Deve abrir e renderizar!', () => {
+      this.subject.close();
+    }, () => {
+      this.assertTrue('Esta fechada?', this.subject.isCloded());
     });
   }
 
