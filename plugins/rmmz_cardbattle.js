@@ -756,18 +756,18 @@ class BoardWindow extends ValuesWindow {
     const indexThree = 192;
     const indexFour = 288;
     const indexFive = 384;
-    this.drawIcon(IconSet.WHITEBOX, indexOne, 0);
-    this.drawIcon(IconSet.REDBOX, indexTwo, 0);
-    this.drawIcon(IconSet.BLUEBOX, indexThree, 0);
-    this.drawIcon(IconSet.GREENBOX, indexFour, 0);
-    this.drawIcon(IconSet.BLACKBOX, indexFive, 0);
+    this.drawIcon(IconSetConst.WHITEBOX, indexOne, 0);
+    this.drawIcon(IconSetConst.REDBOX, indexTwo, 0);
+    this.drawIcon(IconSetConst.BLUEBOX, indexThree, 0);
+    this.drawIcon(IconSetConst.GREENBOX, indexFour, 0);
+    this.drawIcon(IconSetConst.BLACKBOX, indexFive, 0);
   }
 
   drawAllIcons() {
     const floatRightIndexOne = this.contents.width - 96;
     const floatRightIndexTwo = this.contents.width - 192;
-    this.drawIcon(IconSet.HAND, floatRightIndexOne, 0);
-    this.drawIcon(IconSet.DECK, floatRightIndexTwo, 0);
+    this.drawIcon(IconSetConst.HAND, floatRightIndexOne, 0);
+    this.drawIcon(IconSetConst.DECK, floatRightIndexTwo, 0);
   }
 
   drawDisplay() {
@@ -817,12 +817,12 @@ class BattlePointsWindow extends ValuesWindow {
 
   static create(x, y) {
     const width = Graphics.boxWidth / 4;
-    const height = CardBattleWindow.minHeight();
-    return new GamePointsWindow(new Rectangle(x, y, width, height));
+    const height = ValuesWindow.minHeight();
+    return new BattlePointsWindow(new Rectangle(x, y, width, height));
   }
 
   static createValueUpdate(name, value) {
-    return CardBattleWindow.createValueUpdate(name, value);
+    return ValuesWindow.createValueUpdate(name, value);
   }
 
   refresh() {
@@ -5037,10 +5037,9 @@ class TextColorTextWindowTest extends SceneTest {
     });
   }
 }
-
-// tests GAME BOARD WINDOW
-class OpenBoardWindowTest extends SceneTest {
-  name = 'OpenBoardWindowTest';
+// tests BOARD WINDOW
+class OpenAndCloseBoardWindowTest extends SceneTest {
+  name = 'OpenAndCloseBoardWindowTest';
 
   create() {
     this.subject = BoardWindow.createWindowFullSize(0, 0);
@@ -5058,13 +5057,13 @@ class OpenBoardWindowTest extends SceneTest {
     this.test('Deve abrir e renderizar!', () => {
       this.subject.close();
     }, () => {
-      this.assertTrue('Esta fechada?', this.subject.isCloded());
+      this.assertTrue('Esta fechada?', this.subject.isClosed());
     });
   }
 
 }
-class UpdatingPointsBoardWindowTest extends SceneTest {
-  name = 'UpdatingPointsBoardWindowTest';
+class UpdatingBoardWindowTest extends SceneTest {
+  name = 'UpdatingBoardWindowTest';
 
   create() {
     this.subject = BoardWindow.createWindowFullSize(0, 0);
@@ -5107,69 +5106,62 @@ class UpdatingPointsBoardWindowTest extends SceneTest {
   }
 
 }
-// tests GAME POINTS WINDOW
-class RefreshAndOpenGamePointsWindowTest extends SceneTest {
-  gamePoints;
+// tests BATTLE POINTS WINDOW
+class OpenAndCloseBattlePointsWindowTest extends SceneTest {
+  name = 'OpenAndCloseBattlePointsWindowTest';
 
   create() {
-    this.gamePoints = GamePointsWindow.create(0, 0);
-    this.gamePoints.setcenteredPosition();
+    this.subject = BattlePointsWindow.create(0, 0);
+    this.addWindow(this.subject);
   }
 
   start() {
-    return new Promise(async resolve => {
-      await this.timertoTrue(600, () => {
-        this.scene.addWindow(this.gamePoints);
-        this.gamePoints.refresh();
-        this.gamePoints.open();
-      });
-      await this.timertoTrue(600, () => {
-        this.gamePoints.close();
-      });
-      resolve(true);
+    this.subject.setCenteredPosition();
+    this.subject.refresh();
+    this.test('Deve abrir e renderizar!', () => {
+      this.subject.open();
+    }, () => {
+      this.assertTrue('Esta aberta?', this.subject.isOpen());
+    });
+    this.test('Deve abrir e renderizar!', () => {
+      this.subject.close();
+    }, () => {
+      this.assertTrue('Esta fechada?', this.subject.isClosed());
     });
   }
 }
-class UpdatingPointsGamePointsWindowTest extends SceneTest {
-  gamePoints;
+class UpdatingBattlePointsWindowTest extends SceneTest {
+  name = 'UpdatingBattlePointsWindowTest';
 
   create() {
-    this.gamePoints = GamePointsWindow.create(0, 0);
-    this.gamePoints.setcenteredPosition();
+    this.subject = BattlePointsWindow.create(0, 0);
+    this.addWindow(this.subject);
   }
 
   start() {
-    return new Promise(async resolve => {
-      this.scene.addWindow(this.gamePoints);
-      this.gamePoints.refresh();
-      this.gamePoints.open();
-      const updateAttackPoints = GamePointsWindow.createValueUpdate(GameBattlePointsValues.ATTACK_POINTS, 30);
-      const updateHealtPoints = GamePointsWindow.createValueUpdate(GameBattlePointsValues.HEALTH_POINTS, 30);
-      await this.timertoTrue(1200, () => {
-        this.gamePoints.updateValues(updateAttackPoints);
+    this.subject.setCenteredPosition();
+    this.subject.refresh();
+    this.subject.open();
+    const updateAttackPoints = BattlePointsWindow.createValueUpdate(GameConst.ATTACK_POINTS, 30);
+    const updateHealtPoints = BattlePointsWindow.createValueUpdate(GameConst.HEALTH_POINTS, 30);
+    const manyUpdates = [
+      updateAttackPoints,
+      updateHealtPoints
+    ];
+    manyUpdates.forEach(update => {
+      this.test('Deve atualizar os pontos!', () => {
+        this.subject.updateValues(update);
+      }, () => {
+        this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
       });
-      await this.timertoTrue(1200, () => {
-        this.gamePoints.reset();
-      });
-      await this.timertoTrue(1200, () => {
-        this.gamePoints.updateValues(updateHealtPoints);
-      });
-      await this.timertoTrue(1200, () => {
-        this.gamePoints.reset();
-      });
-      await this.timertoTrue(1200, () => {
-        this.gamePoints.updateValues([
-          updateAttackPoints,
-          updateHealtPoints
-        ]);
-      });
-      await this.timertoTrue(1200, () => {
-        this.gamePoints.reset();
-      });
-      resolve(true);
+    });
+    this.test('Deve atualizar todos os pontos!', () => {
+      this.subject.reset();
+      this.subject.updateValues(manyUpdates);
+    }, () => {
+      this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
     });
   }
-
 }
 
 class CardBattleScene extends Scene_Message {
@@ -5284,19 +5276,19 @@ class CardBattleTestScene extends Scene_Message {
       TextColorTextWindowTest,
     ];
     const boardWindowTests = [
-      OpenBoardWindowTest,
-      UpdatingPointsBoardWindowTest,
+      OpenAndCloseBoardWindowTest,
+      UpdatingBoardWindowTest,
     ];
     const battlePointsWindow = [
-      RefreshAndOpenGamePointsWindowTest,
-      UpdatingPointsGamePointsWindowTest,
+      // OpenAndCloseBattlePointsWindowTest,
+      UpdatingBattlePointsWindowTest,
     ];
     return [
       // ...cardSpriteTests,
       // ...cardsetTests,
-      ...textWindowTests,
+      // ...textWindowTests,
       // ...boardWindowTests,
-    //   ...battlePointsWindow,
+      ...battlePointsWindow,
     ];
   }
 

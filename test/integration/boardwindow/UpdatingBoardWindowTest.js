@@ -1,5 +1,5 @@
-class UpdatingPointsBoardWindowTest extends SceneTest {
-  name = 'UpdatingPointsBoardWindowTest';
+class UpdatingBoardWindowTest extends SceneTest {
+  name = 'UpdatingBoardWindowTest';
 
   create() {
     this.subject = BoardWindow.createWindowFullSize(0, 0);

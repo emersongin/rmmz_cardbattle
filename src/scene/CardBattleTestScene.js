@@ -60,19 +60,19 @@ class CardBattleTestScene extends Scene_Message {
       TextColorTextWindowTest,
     ];
     const boardWindowTests = [
-      OpenBoardWindowTest,
-      UpdatingPointsBoardWindowTest,
+      OpenAndCloseBoardWindowTest,
+      UpdatingBoardWindowTest,
     ];
     const battlePointsWindow = [
-      RefreshAndOpenGamePointsWindowTest,
-      UpdatingPointsGamePointsWindowTest,
+      // OpenAndCloseBattlePointsWindowTest,
+      UpdatingBattlePointsWindowTest,
     ];
     return [
       // ...cardSpriteTests,
       // ...cardsetTests,
-      ...textWindowTests,
+      // ...textWindowTests,
       // ...boardWindowTests,
-    //   ...battlePointsWindow,
+      ...battlePointsWindow,
     ];
   }
 

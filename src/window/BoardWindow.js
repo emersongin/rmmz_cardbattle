@@ -47,18 +47,18 @@ class BoardWindow extends ValuesWindow {
     const indexThree = 192;
     const indexFour = 288;
     const indexFive = 384;
-    this.drawIcon(IconSet.WHITEBOX, indexOne, 0);
-    this.drawIcon(IconSet.REDBOX, indexTwo, 0);
-    this.drawIcon(IconSet.BLUEBOX, indexThree, 0);
-    this.drawIcon(IconSet.GREENBOX, indexFour, 0);
-    this.drawIcon(IconSet.BLACKBOX, indexFive, 0);
+    this.drawIcon(IconSetConst.WHITEBOX, indexOne, 0);
+    this.drawIcon(IconSetConst.REDBOX, indexTwo, 0);
+    this.drawIcon(IconSetConst.BLUEBOX, indexThree, 0);
+    this.drawIcon(IconSetConst.GREENBOX, indexFour, 0);
+    this.drawIcon(IconSetConst.BLACKBOX, indexFive, 0);
   }
 
   drawAllIcons() {
     const floatRightIndexOne = this.contents.width - 96;
     const floatRightIndexTwo = this.contents.width - 192;
-    this.drawIcon(IconSet.HAND, floatRightIndexOne, 0);
-    this.drawIcon(IconSet.DECK, floatRightIndexTwo, 0);
+    this.drawIcon(IconSetConst.HAND, floatRightIndexOne, 0);
+    this.drawIcon(IconSetConst.DECK, floatRightIndexTwo, 0);
   }
 
   drawDisplay() {

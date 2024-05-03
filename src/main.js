@@ -68,13 +68,12 @@
 // include ../test/integration/textwindow/SetMiddleSizeTextWindowTest.js
 // include ../test/integration/textwindow/SetTextTextWindowTest.js
 // include ../test/integration/textwindow/TextColorTextWindowTest.js
-
-// tests GAME BOARD WINDOW
-// include ../test/integration/boardwindow/OpenBoardWindowTest.js
-// include ../test/integration/boardwindow/UpdatingPointsBoardWindowTest.js
-// tests GAME POINTS WINDOW
-// include ../test/integration/battlepointswindow/RefreshAndOpenGamePointsWindowTest.js
-// include ../test/integration/battlepointswindow/UpdatingPointsGamePointsWindowTest.js
+// tests BOARD WINDOW
+// include ../test/integration/boardwindow/OpenAndCloseBoardWindowTest.js
+// include ../test/integration/boardwindow/UpdatingBoardWindowTest.js
+// tests BATTLE POINTS WINDOW
+// include ../test/integration/battlepointswindow/OpenAndCloseBattlePointsWindowTest.js
+// include ../test/integration/battlepointswindow/UpdatingBattlePointsWindowTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./scene/CardBattleTestScene.js

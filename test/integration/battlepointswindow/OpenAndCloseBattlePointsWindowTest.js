@@ -1,8 +1,8 @@
-class OpenBoardWindowTest extends SceneTest {
-  name = 'OpenBoardWindowTest';
+class OpenAndCloseBattlePointsWindowTest extends SceneTest {
+  name = 'OpenAndCloseBattlePointsWindowTest';
 
   create() {
-    this.subject = BoardWindow.createWindowFullSize(0, 0);
+    this.subject = BattlePointsWindow.create(0, 0);
     this.addWindow(this.subject);
   }
 
@@ -17,8 +17,7 @@ class OpenBoardWindowTest extends SceneTest {
     this.test('Deve abrir e renderizar!', () => {
       this.subject.close();
     }, () => {
-      this.assertTrue('Esta fechada?', this.subject.isCloded());
+      this.assertTrue('Esta fechada?', this.subject.isClosed());
     });
   }
-
 }
