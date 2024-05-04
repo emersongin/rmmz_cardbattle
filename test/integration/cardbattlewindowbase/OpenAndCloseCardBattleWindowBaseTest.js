@@ -1,14 +1,13 @@
-class OpenAndCloseBoardWindowTest extends SceneTest {
-  name = 'OpenAndCloseBoardWindowTest';
+class OpenAndCloseCardBattleWindowBaseTest extends SceneTest {
+  name = 'OpenAndCloseCardBattleWindowBaseTest';
 
   create() {
-    this.subject = BoardWindow.createWindowFullSize(0, 0);
+    this.subject = CardBattleWindowBase.create(0, 0, Graphics.width, Graphics.height);
     this.addWindow(this.subject);
   }
 
   start() {
     this.subject.setCenteredAlignment();
-    this.subject.refresh();
     this.test('Deve abrir e renderizar!', () => {
       this.subject.open();
     }, () => {
@@ -20,5 +19,4 @@ class OpenAndCloseBoardWindowTest extends SceneTest {
       this.assertTrue('Esta fechada?', this.subject.isClosed());
     });
   }
-
 }

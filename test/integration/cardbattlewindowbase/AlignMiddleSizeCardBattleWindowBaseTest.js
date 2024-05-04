@@ -1,23 +1,19 @@
-class MoveTextWindowTest extends SceneTest {
-  name = 'MoveTextWindowTest';
+class AlignMiddleSizeCardBattleWindowBaseTest extends SceneTest {
+  name = 'AlignMiddleSizeCardBattleWindowBaseTest';
 
   create() {
     const x = 0;
     const y = 0;
-    this.subject = TextWindow.createWindowMiddleSize(x, y);
+    this.subject = CardBattleWindowBase.createWindowMiddleSize(x, y);
     this.addWindow(this.subject);
   }
 
   start() {
-    this.subject.setCenteredAlignment();
     this.subject.show();
-    this.subject.addText("Hello World");
-    this.subject.addText("Hello World");
-    this.subject.renderContents();
+    this.subject.open();
     this.test('Deve move para inicio no top!', () => {
       this.subject.setHorizontalAlign(GameConst.START);
       this.subject.setVerticalAlign(GameConst.TOP);
-      this.subject.open();
     }, () => {
       this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.START, this.subject));
       this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.TOP, this.subject));
@@ -44,8 +40,7 @@ class MoveTextWindowTest extends SceneTest {
       this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.TOP, this.subject));
     });
     this.test('Deve move para centro no meio!', () => {
-      this.subject.setHorizontalAlign(GameConst.CENTER);
-      this.subject.setVerticalAlign(GameConst.MIDDLE);
+      this.subject.setCenteredAlignment();
     }, () => {
       this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
       this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));

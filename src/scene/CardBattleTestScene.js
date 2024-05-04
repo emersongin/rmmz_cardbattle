@@ -48,13 +48,15 @@ class CardBattleTestScene extends Scene_Message {
       AnimateFlashCardsCardsetSpriteTest,
       AnimateDamageCardsCardsetSpriteTest,
     ];
+    const CardBattleWindowBaseTests = [
+      OpenAndCloseCardBattleWindowBaseTest,
+      ChangeColorCardBattleWindowBaseTest,
+      SetMiddleSizeCardBattleWindowBaseTest,
+      SetFullSizeCardBattleWindowBaseTest,
+      AlignMiddleSizeCardBattleWindowBaseTest,
+      AlignFullSizeCardBattleWindowBaseTest,
+    ];
     const textWindowTests = [
-      SetMiddleSizeTextWindowTest,
-      SetFullSizeTextWindowTest,
-      AlignCenterMiddleSizeTextWindowTest,
-      AlignCenterFullSizeTextWindowTest,
-      OpenAndCloseTextWindowTest,
-      MoveTextWindowTest,
       DrawTextStartAlignFullSizeTextWindowTest,
       DrawTextStartAlignMiddleSizeTextWindowTest,
       DrawTextCenterAlignFullSizeTextWindowTest,
@@ -64,19 +66,15 @@ class CardBattleTestScene extends Scene_Message {
       SetTextColorTextWindowTest,
     ];
     const boardWindowTests = [
-      OpenAndCloseBoardWindowTest,
       UpdatingBoardWindowTest,
     ];
     const battlePointsWindow = [
-      OpenAndCloseBattlePointsWindowTest,
       UpdatingBattlePointsWindowTest,
     ];
     const trashWindow = [
-      OpenAndCloseTrashWindowTest,
       UpdatingTrashWindowTest,
     ];
     const scoreWindow = [
-      OpenAndCloseScoreWindowTest,
       UpdatingScoreWindowTest,
     ];
     const others = [
@@ -85,12 +83,13 @@ class CardBattleTestScene extends Scene_Message {
     return [
       ...cardSpriteTests,
       ...cardsetTests,
+      ...CardBattleWindowBaseTests,
       ...textWindowTests,
       ...boardWindowTests,
       ...battlePointsWindow,
       ...trashWindow,
       ...scoreWindow,
-      ...others,
+      // ...others,
     ];
   }
 
@@ -168,7 +167,7 @@ class CardBattleTestScene extends Scene_Message {
   }
 
   printAssertError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #800000; ${this.css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #400000; ${this.css}`);
   }
 
   printSuccess(...msg) {

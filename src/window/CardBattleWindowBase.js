@@ -23,19 +23,6 @@ class CardBattleWindowBase extends Window_Base {
     this._status = new status(this, ...params);
   }
 
-  getStatus() {
-    return this._status;
-  }
-
-  drawIcon(iconIndex, x, y) {
-    const bitmap = ImageManager.loadSystem(this._iconset);
-    const pw = ImageManager.iconWidth;
-    const ph = ImageManager.iconHeight;
-    const sx = (iconIndex % 16) * pw;
-    const sy = Math.floor(iconIndex / 16) * ph;
-    this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
-  };
-
   reset() {
     this.refresh();
   }
@@ -44,22 +31,34 @@ class CardBattleWindowBase extends Window_Base {
     this.contents.clear();
   }
 
-  setBlueColor() {
-    this._windowColor = GameConst.BLUE_COLOR;
+  static create(x, y, width, height) {
+    return new CardBattleWindowBase(new Rectangle(x, y, width, height));
   }
 
-  setRedColor() {
-    this._windowColor = GameConst.RED_COLOR;
+  static createWindowMiddleSize(x, y) {
+    const width = Graphics.boxWidth / 2;
+    const height = CardBattleWindowBase.minHeight();
+    return CardBattleWindowBase.create(x, y, width, height);
   }
 
-  setDefaultColor() {
-    this._windowColor = GameConst.DEFAULT;
+  static minHeight() {
+    return 60;
+  }
+
+  static createWindowFullSize(x, y) {
+    const width = Graphics.boxWidth;
+    const height = CardBattleWindowBase.minHeight();
+    return CardBattleWindowBase.create(x, y, width, height);
   }
 
   update() {
     super.update();
     if (this.isOpen() && this.getStatus()) this._status.updateStatus();
     this.updateTone();
+  }
+
+  getStatus() {
+    return this._status;
   }
 
   updateTone() {
@@ -75,8 +74,50 @@ class CardBattleWindowBase extends Window_Base {
     }
   }
 
-  static minHeight() {
-    return 60;
+  drawIcon(iconIndex, x, y) {
+    const bitmap = ImageManager.loadSystem(this._iconset);
+    const pw = ImageManager.iconWidth;
+    const ph = ImageManager.iconHeight;
+    const sx = (iconIndex % 16) * pw;
+    const sy = Math.floor(iconIndex / 16) * ph;
+    this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
+  };
+
+  setBlueColor() {
+    this._windowColor = GameConst.BLUE_COLOR;
+  }
+
+  setRedColor() {
+    this._windowColor = GameConst.RED_COLOR;
+  }
+
+  setDefaultColor() {
+    this._windowColor = GameConst.DEFAULT;
+  }
+
+  isBlueColor() {
+    return this._windowColor === GameConst.BLUE_COLOR;
+  }
+
+  isRedColor() {
+    return this._windowColor === GameConst.RED_COLOR;
+  }
+
+  isDefaultColor() {
+    return this._windowColor === GameConst.DEFAULT;
+  }
+
+  setCenteredAlignment() {
+    this.setVerticalAlign(GameConst.MIDDLE);
+    this.setHorizontalAlign(GameConst.CENTER);
+  }
+
+  setVerticalAlign(position) {
+    this.y = CardBattleWindowBase.getVerticalAlign(position, this);
+  }
+
+  setHorizontalAlign(position) {
+    this.x = CardBattleWindowBase.getHorizontalAlign(position, this);
   }
 
   static getVerticalAlign(position, window) {
@@ -103,19 +144,6 @@ class CardBattleWindowBase extends Window_Base {
       default: //START
         return 0;
     }
-  }
-
-  setCenteredAlignment() {
-    this.x = CardBattleWindowBase.getHorizontalAlign(GameConst.CENTER, this);
-    this.y = CardBattleWindowBase.getVerticalAlign(GameConst.MIDDLE, this);
-  }
-
-  setVerticalAlign(position) {
-    this.y = CardBattleWindowBase.getVerticalAlign(position, this);
-  }
-
-  setHorizontalAlign(position) {
-    this.x = CardBattleWindowBase.getHorizontalAlign(position, this);
   }
 
   isFullsize() {

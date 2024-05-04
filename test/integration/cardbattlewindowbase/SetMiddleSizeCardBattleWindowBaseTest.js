@@ -1,10 +1,10 @@
-class SetMiddleSizeTextWindowTest extends SceneTest {
-  name = 'SetMiddleSizeTextWindowTest';
+class SetMiddleSizeCardBattleWindowBaseTest extends SceneTest {
+  name = 'SetMiddleSizeCardBattleWindowBaseTest';
 
   create() {
     const x = 0;
     const y = 0;
-    this.subject = TextWindow.createWindowMiddleSize(x, y);
+    this.subject = CardBattleWindowBase.createWindowMiddleSize(x, y);
     this.addWindow(this.subject);
   }
 

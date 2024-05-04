@@ -82,7 +82,6 @@ class ValuesWindow extends CardBattleWindowBase {
 
   getValueAndConvertToDisplayPad(name) {
     const pad = 2;
-    console.log(this._values, name);
     const points = this.getValue(name) || 0;
     return StringHelper.convertPointsDisplayPad(points, pad);
   }

@@ -61,31 +61,28 @@
 // include ../test/integration/cardset/AnimateFlashCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/AnimateDamageCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/DisableAndEnableCardsCardsetSpriteTest.js
+// tests CARD BATTLE WINDOW BASE
+// include ../test/integration/cardbattlewindowbase/OpenAndCloseCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/ChangeColorCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/SetMiddleSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/SetFullSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/AlignMiddleSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/AlignFullSizeCardBattleWindowBaseTest.js
 // tests TEXT WINDOW
-// include ../test/integration/textwindow/AlignCenterMiddleSizeTextWindowTest.js
-// include ../test/integration/textwindow/AlignCenterFullSizeTextWindowTest.js
 // include ../test/integration/textwindow/DrawTextStartAlignFullSizeTextWindowTest.js
 // include ../test/integration/textwindow/DrawTextStartAlignMiddleSizeTextWindowTest.js
 // include ../test/integration/textwindow/DrawTextCenterAlignFullSizeTextWindowTest.js
 // include ../test/integration/textwindow/DrawTextCenterAlignMiddleSizeTextWindowTest.js
 // include ../test/integration/textwindow/DrawTextEndAlignFullSizeTextWindowTest.js
 // include ../test/integration/textwindow/DrawTextEndAlignMiddleSizeTextWindowTest.js
-// include ../test/integration/textwindow/OpenAndCloseTextWindowTest.js
-// include ../test/integration/textwindow/MoveTextWindowTest.js
-// include ../test/integration/textwindow/SetFullSizeTextWindowTest.js
-// include ../test/integration/textwindow/SetMiddleSizeTextWindowTest.js
 // include ../test/integration/textwindow/SetTextColorTextWindowTest.js
 // tests BOARD WINDOW
-// include ../test/integration/boardwindow/OpenAndCloseBoardWindowTest.js
 // include ../test/integration/boardwindow/UpdatingBoardWindowTest.js
 // tests BATTLE POINTS WINDOW
-// include ../test/integration/battlepointswindow/OpenAndCloseBattlePointsWindowTest.js
 // include ../test/integration/battlepointswindow/UpdatingBattlePointsWindowTest.js
 // tests TRASH WINDOW
-// include ../test/integration/trashwindow/OpenAndCloseTrashWindowTest.js
 // include ../test/integration/trashwindow/UpdatingTrashWindowTest.js
 // tests SCORE WINDOW
-// include ../test/integration/scorewindow/OpenAndCloseScoreWindowTest.js
 // include ../test/integration/scorewindow/UpdatingScoreWindowTest.js
 
 // include ../test/integration/window/WindowTest.js

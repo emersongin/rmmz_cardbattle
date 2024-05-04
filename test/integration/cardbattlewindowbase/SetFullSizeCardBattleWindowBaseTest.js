@@ -1,10 +1,10 @@
-class SetFullSizeTextWindowTest extends SceneTest {
-  name = 'SetFullSizeTextWindowTest';
+class SetFullSizeCardBattleWindowBaseTest extends SceneTest {
+  name = 'SetFullSizeCardBattleWindowBaseTest';
 
   create() {
     const x = 0;
     const y = 0;
-    this.subject = TextWindow.createWindowFullSize(x, y);
+    this.subject = CardBattleWindowBase.createWindowFullSize(x, y);
     this.addWindow(this.subject);
   }
 

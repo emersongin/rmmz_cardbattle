@@ -322,19 +322,6 @@ class CardBattleWindowBase extends Window_Base {
     this._status = new status(this, ...params);
   }
 
-  getStatus() {
-    return this._status;
-  }
-
-  drawIcon(iconIndex, x, y) {
-    const bitmap = ImageManager.loadSystem(this._iconset);
-    const pw = ImageManager.iconWidth;
-    const ph = ImageManager.iconHeight;
-    const sx = (iconIndex % 16) * pw;
-    const sy = Math.floor(iconIndex / 16) * ph;
-    this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
-  };
-
   reset() {
     this.refresh();
   }
@@ -343,22 +330,34 @@ class CardBattleWindowBase extends Window_Base {
     this.contents.clear();
   }
 
-  setBlueColor() {
-    this._windowColor = GameConst.BLUE_COLOR;
+  static create(x, y, width, height) {
+    return new CardBattleWindowBase(new Rectangle(x, y, width, height));
   }
 
-  setRedColor() {
-    this._windowColor = GameConst.RED_COLOR;
+  static createWindowMiddleSize(x, y) {
+    const width = Graphics.boxWidth / 2;
+    const height = CardBattleWindowBase.minHeight();
+    return CardBattleWindowBase.create(x, y, width, height);
   }
 
-  setDefaultColor() {
-    this._windowColor = GameConst.DEFAULT;
+  static minHeight() {
+    return 60;
+  }
+
+  static createWindowFullSize(x, y) {
+    const width = Graphics.boxWidth;
+    const height = CardBattleWindowBase.minHeight();
+    return CardBattleWindowBase.create(x, y, width, height);
   }
 
   update() {
     super.update();
     if (this.isOpen() && this.getStatus()) this._status.updateStatus();
     this.updateTone();
+  }
+
+  getStatus() {
+    return this._status;
   }
 
   updateTone() {
@@ -374,8 +373,50 @@ class CardBattleWindowBase extends Window_Base {
     }
   }
 
-  static minHeight() {
-    return 60;
+  drawIcon(iconIndex, x, y) {
+    const bitmap = ImageManager.loadSystem(this._iconset);
+    const pw = ImageManager.iconWidth;
+    const ph = ImageManager.iconHeight;
+    const sx = (iconIndex % 16) * pw;
+    const sy = Math.floor(iconIndex / 16) * ph;
+    this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
+  };
+
+  setBlueColor() {
+    this._windowColor = GameConst.BLUE_COLOR;
+  }
+
+  setRedColor() {
+    this._windowColor = GameConst.RED_COLOR;
+  }
+
+  setDefaultColor() {
+    this._windowColor = GameConst.DEFAULT;
+  }
+
+  isBlueColor() {
+    return this._windowColor === GameConst.BLUE_COLOR;
+  }
+
+  isRedColor() {
+    return this._windowColor === GameConst.RED_COLOR;
+  }
+
+  isDefaultColor() {
+    return this._windowColor === GameConst.DEFAULT;
+  }
+
+  setCenteredAlignment() {
+    this.setVerticalAlign(GameConst.MIDDLE);
+    this.setHorizontalAlign(GameConst.CENTER);
+  }
+
+  setVerticalAlign(position) {
+    this.y = CardBattleWindowBase.getVerticalAlign(position, this);
+  }
+
+  setHorizontalAlign(position) {
+    this.x = CardBattleWindowBase.getHorizontalAlign(position, this);
   }
 
   static getVerticalAlign(position, window) {
@@ -402,19 +443,6 @@ class CardBattleWindowBase extends Window_Base {
       default: //START
         return 0;
     }
-  }
-
-  setCenteredAlignment() {
-    this.x = CardBattleWindowBase.getHorizontalAlign(GameConst.CENTER, this);
-    this.y = CardBattleWindowBase.getVerticalAlign(GameConst.MIDDLE, this);
-  }
-
-  setVerticalAlign(position) {
-    this.y = CardBattleWindowBase.getVerticalAlign(position, this);
-  }
-
-  setHorizontalAlign(position) {
-    this.x = CardBattleWindowBase.getHorizontalAlign(position, this);
   }
 
   isFullsize() {
@@ -504,7 +532,6 @@ class ValuesWindow extends CardBattleWindowBase {
   }
 
   addValue(name, value) {
-    console.log(this._values);
     if (this._values.hasOwnProperty(name)) {
       return this.setValue(name, value);
     }
@@ -531,7 +558,6 @@ class ValuesWindow extends CardBattleWindowBase {
 
   getValueAndConvertToDisplayPad(name) {
     const pad = 2;
-    console.log(this._values, name);
     const points = this.getValue(name) || 0;
     return StringHelper.convertPointsDisplayPad(points, pad);
   }
@@ -4977,47 +5003,211 @@ class DisableAndEnableCardsCardsetSpriteTest extends SceneTest {
     });
   }
 }
+// tests CARD BATTLE WINDOW BASE
+class OpenAndCloseCardBattleWindowBaseTest extends SceneTest {
+  name = 'OpenAndCloseCardBattleWindowBaseTest';
+
+  create() {
+    this.subject = CardBattleWindowBase.create(0, 0, Graphics.width, Graphics.height);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.setCenteredAlignment();
+    this.test('Deve abrir e renderizar!', () => {
+      this.subject.open();
+    }, () => {
+      this.assertTrue('Esta aberta?', this.subject.isOpen());
+    });
+    this.test('Deve abrir e renderizar!', () => {
+      this.subject.close();
+    }, () => {
+      this.assertTrue('Esta fechada?', this.subject.isClosed());
+    });
+  }
+}
+class ChangeColorCardBattleWindowBaseTest extends SceneTest {
+  name = 'ChangeColorCardBattleWindowBaseTest';
+
+  create() {
+    this.subject = CardBattleWindowBase.create(0, 0, Graphics.width, Graphics.height);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.setCenteredAlignment();
+    this.subject.open();
+    this.test('Deve mudar para cor azul a janela!', () => {
+      this.subject.setBlueColor();
+    }, () => {
+      this.assertTrue('Esta na cor azul?', this.subject.isBlueColor());
+    });
+    this.test('Deve mudar para cor vermelha a janela!', () => {
+      this.subject.setRedColor();
+    }, () => {
+      this.assertTrue('Esta na cor vermelha?', this.subject.isRedColor());
+    });
+    this.test('Deve mudar para cor vermelha a janela!', () => {
+      this.subject.setDefaultColor();
+    }, () => {
+      this.assertTrue('Esta na cor default?', this.subject.isDefaultColor());
+    });
+  }
+}
+class SetMiddleSizeCardBattleWindowBaseTest extends SceneTest {
+  name = 'SetMiddleSizeCardBattleWindowBaseTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = CardBattleWindowBase.createWindowMiddleSize(x, y);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.show();
+    this.test('Deve abrir na largura média!', () => {
+      this.subject.open();
+    }, () => {
+      this.assertTrue('Esta na largura média?', this.subject.isMiddleSize());
+    });
+  }
+  
+}
+class SetFullSizeCardBattleWindowBaseTest extends SceneTest {
+  name = 'SetFullSizeCardBattleWindowBaseTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = CardBattleWindowBase.createWindowFullSize(x, y);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.show();
+    this.test('Deve abrir na largura total!', () => {
+      this.subject.open();
+    }, () => {
+      this.assertTrue('Esta na largura total?', this.subject.isFullsize());
+    });
+  }
+
+}
+class AlignMiddleSizeCardBattleWindowBaseTest extends SceneTest {
+  name = 'AlignMiddleSizeCardBattleWindowBaseTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = CardBattleWindowBase.createWindowMiddleSize(x, y);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.show();
+    this.subject.open();
+    this.test('Deve move para inicio no top!', () => {
+      this.subject.setHorizontalAlign(GameConst.START);
+      this.subject.setVerticalAlign(GameConst.TOP);
+    }, () => {
+      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.START, this.subject));
+      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.TOP, this.subject));
+    });
+    this.test('Deve move para inicio no meio!', () => {
+      this.subject.setHorizontalAlign(GameConst.START);
+      this.subject.setVerticalAlign(GameConst.MIDDLE);
+    }, () => {
+      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.START, this.subject));
+      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
+    });
+    this.test('Deve move para inicio embaixo!', () => {
+      this.subject.setHorizontalAlign(GameConst.START);
+      this.subject.setVerticalAlign(GameConst.BOTTOM);
+    }, () => {
+      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.START, this.subject));
+      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
+    });
+    this.test('Deve move para centro no top!', () => {
+      this.subject.setHorizontalAlign(GameConst.CENTER);
+      this.subject.setVerticalAlign(GameConst.TOP);
+    }, () => {
+      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
+      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.TOP, this.subject));
+    });
+    this.test('Deve move para centro no meio!', () => {
+      this.subject.setCenteredAlignment();
+    }, () => {
+      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
+      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
+    });
+    this.test('Deve move para centro embaixo!', () => {
+      this.subject.setHorizontalAlign(GameConst.CENTER);
+      this.subject.setVerticalAlign(GameConst.BOTTOM);
+    }, () => {
+      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
+      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
+    });
+    this.test('Deve move para final no top!', () => {
+      this.subject.setHorizontalAlign(GameConst.END);
+      this.subject.setVerticalAlign(GameConst.TOP);
+    }, () => {
+      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.END, this.subject));
+      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.TOP, this.subject));
+    });
+    this.test('Deve move para final no meio!', () => {
+      this.subject.setHorizontalAlign(GameConst.END);
+      this.subject.setVerticalAlign(GameConst.MIDDLE);
+    }, () => {
+      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.END, this.subject));
+      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
+    });
+    this.test('Deve move para final no embaixo!', () => {
+      this.subject.setHorizontalAlign(GameConst.END);
+      this.subject.setVerticalAlign(GameConst.BOTTOM);
+    }, () => {
+      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.END, this.subject));
+      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
+    });
+  }
+
+}
+class AlignFullSizeCardBattleWindowBaseTest extends SceneTest {
+  name = 'AlignFullSizeCardBattleWindowBaseTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = CardBattleWindowBase.createWindowFullSize(x, y);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.show();
+    this.subject.open();
+    this.test('Deve move para centro no top!', () => {
+      this.subject.setHorizontalAlign(GameConst.CENTER);
+      this.subject.setVerticalAlign(GameConst.TOP);
+    }, () => {
+      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
+      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.TOP, this.subject));
+    });
+    this.test('Deve move para centro no meio!', () => {
+      this.subject.setCenteredAlignment();
+    }, () => {
+      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
+      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
+    });
+    this.test('Deve move para centro embaixo!', () => {
+      this.subject.setHorizontalAlign(GameConst.CENTER);
+      this.subject.setVerticalAlign(GameConst.BOTTOM);
+    }, () => {
+      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
+      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
+    });
+  }
+}
 // tests TEXT WINDOW
-class AlignCenterMiddleSizeTextWindowTest extends SceneTest {
-  name = 'AlignCenterMiddleSizeTextWindowTest';
-
-  create() {
-    const x = 0;
-    const y = 0;
-    this.subject = TextWindow.createWindowMiddleSize(x, y);
-    this.addWindow(this.subject);
-  }
-
-  start() {
-    this.subject.show();
-    this.test('Deve alinhar no centro!', () => {
-      this.subject.setCenteredAlignment();
-      this.subject.open();
-    }, () => {
-      this.assertTrue('Esta alinhado no centro?', this.subject.isCenterAligned());
-    });
-  }
-}
-class AlignCenterFullSizeTextWindowTest extends SceneTest {
-  name = 'AlignCenterFullSizeTextWindowTest';
-
-  create() {
-    const x = 0;
-    const y = 0;
-    this.subject = TextWindow.createWindowFullSize(x, y);
-    this.addWindow(this.subject);
-  }
-
-  start() {
-    this.subject.show();
-    this.test('Deve alinhar no centro!', () => {
-      this.subject.setCenteredAlignment();
-      this.subject.open();
-    }, () => {
-      this.assertTrue('Esta alinhado no centro?', this.subject.isCenterAligned());
-    });
-  }
-}
 class DrawTextStartAlignFullSizeTextWindowTest extends SceneTest {
   name = 'DrawTextStartAlignFullSizeTextWindowTest';
 
@@ -5246,155 +5436,6 @@ class DrawTextEndAlignMiddleSizeTextWindowTest extends SceneTest {
     });
   }
 }
-class OpenAndCloseTextWindowTest extends SceneTest {
-  name = 'OpenAndCloseTextWindowTest';
-
-  create() {
-    const x = 0;
-    const y = 0;
-    this.subject = TextWindow.createWindowMiddleSize(x, y);
-    this.addWindow(this.subject);
-  }
-  
-  start() {
-    this.subject.setCenteredAlignment();
-    this.subject.show();
-    this.test('Deve abrir!', () => {
-      this.subject.open();
-    }, () => {
-      this.assertTrue('Esta aberta?', this.subject.isOpen());
-    });
-    this.test('Deve fechar!', () => {
-      this.subject.close();
-    }, () => {
-      this.assertTrue('Esta fechada?', this.subject.isClosed());
-    });
-  }
-
-}
-class MoveTextWindowTest extends SceneTest {
-  name = 'MoveTextWindowTest';
-
-  create() {
-    const x = 0;
-    const y = 0;
-    this.subject = TextWindow.createWindowMiddleSize(x, y);
-    this.addWindow(this.subject);
-  }
-
-  start() {
-    this.subject.setCenteredAlignment();
-    this.subject.show();
-    this.subject.addText("Hello World");
-    this.subject.addText("Hello World");
-    this.subject.renderContents();
-    this.test('Deve move para inicio no top!', () => {
-      this.subject.setHorizontalAlign(GameConst.START);
-      this.subject.setVerticalAlign(GameConst.TOP);
-      this.subject.open();
-    }, () => {
-      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.START, this.subject));
-      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.TOP, this.subject));
-    });
-    this.test('Deve move para inicio no meio!', () => {
-      this.subject.setHorizontalAlign(GameConst.START);
-      this.subject.setVerticalAlign(GameConst.MIDDLE);
-    }, () => {
-      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.START, this.subject));
-      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
-    });
-    this.test('Deve move para inicio embaixo!', () => {
-      this.subject.setHorizontalAlign(GameConst.START);
-      this.subject.setVerticalAlign(GameConst.BOTTOM);
-    }, () => {
-      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.START, this.subject));
-      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
-    });
-    this.test('Deve move para centro no top!', () => {
-      this.subject.setHorizontalAlign(GameConst.CENTER);
-      this.subject.setVerticalAlign(GameConst.TOP);
-    }, () => {
-      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
-      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.TOP, this.subject));
-    });
-    this.test('Deve move para centro no meio!', () => {
-      this.subject.setHorizontalAlign(GameConst.CENTER);
-      this.subject.setVerticalAlign(GameConst.MIDDLE);
-    }, () => {
-      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
-      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
-    });
-    this.test('Deve move para centro embaixo!', () => {
-      this.subject.setHorizontalAlign(GameConst.CENTER);
-      this.subject.setVerticalAlign(GameConst.BOTTOM);
-    }, () => {
-      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
-      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
-    });
-    this.test('Deve move para final no top!', () => {
-      this.subject.setHorizontalAlign(GameConst.END);
-      this.subject.setVerticalAlign(GameConst.TOP);
-    }, () => {
-      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.END, this.subject));
-      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.TOP, this.subject));
-    });
-    this.test('Deve move para final no meio!', () => {
-      this.subject.setHorizontalAlign(GameConst.END);
-      this.subject.setVerticalAlign(GameConst.MIDDLE);
-    }, () => {
-      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.END, this.subject));
-      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
-    });
-    this.test('Deve move para final no embaixo!', () => {
-      this.subject.setHorizontalAlign(GameConst.END);
-      this.subject.setVerticalAlign(GameConst.BOTTOM);
-    }, () => {
-      this.assert('Esta na posição x?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.END, this.subject));
-      this.assert('Esta na posição y?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
-    });
-  }
-
-}
-class SetFullSizeTextWindowTest extends SceneTest {
-  name = 'SetFullSizeTextWindowTest';
-
-  create() {
-    const x = 0;
-    const y = 0;
-    this.subject = TextWindow.createWindowFullSize(x, y);
-    this.addWindow(this.subject);
-  }
-
-  start() {
-    this.subject.show();
-    this.test('Deve abrir na largura total!', () => {
-      this.subject.open();
-    }, () => {
-      this.assertTrue('Esta na largura total?', this.subject.isFullsize());
-    });
-  }
-
-}
-class SetMiddleSizeTextWindowTest extends SceneTest {
-  name = 'SetMiddleSizeTextWindowTest';
-
-  create() {
-    const x = 0;
-    const y = 0;
-    this.subject = TextWindow.createWindowMiddleSize(x, y);
-    this.addWindow(this.subject);
-  }
-
-  start() {
-    this.subject.show();
-    this.test('Deve abrir na largura média!', () => {
-      this.subject.open();
-    }, () => {
-      this.assertTrue('Esta na largura média?', this.subject.isMiddleSize());
-    });
-  }
-  
-}
 class SetTextColorTextWindowTest extends SceneTest {
   name = 'SetTextColorTextWindowTest';
 
@@ -5434,30 +5475,6 @@ class SetTextColorTextWindowTest extends SceneTest {
   }
 }
 // tests BOARD WINDOW
-class OpenAndCloseBoardWindowTest extends SceneTest {
-  name = 'OpenAndCloseBoardWindowTest';
-
-  create() {
-    this.subject = BoardWindow.createWindowFullSize(0, 0);
-    this.addWindow(this.subject);
-  }
-
-  start() {
-    this.subject.setCenteredAlignment();
-    this.subject.refresh();
-    this.test('Deve abrir e renderizar!', () => {
-      this.subject.open();
-    }, () => {
-      this.assertTrue('Esta aberta?', this.subject.isOpen());
-    });
-    this.test('Deve abrir e renderizar!', () => {
-      this.subject.close();
-    }, () => {
-      this.assertTrue('Esta fechada?', this.subject.isClosed());
-    });
-  }
-
-}
 class UpdatingBoardWindowTest extends SceneTest {
   name = 'UpdatingBoardWindowTest';
 
@@ -5503,29 +5520,6 @@ class UpdatingBoardWindowTest extends SceneTest {
 
 }
 // tests BATTLE POINTS WINDOW
-class OpenAndCloseBattlePointsWindowTest extends SceneTest {
-  name = 'OpenAndCloseBattlePointsWindowTest';
-
-  create() {
-    this.subject = BattlePointsWindow.create(0, 0);
-    this.addWindow(this.subject);
-  }
-
-  start() {
-    this.subject.setCenteredAlignment();
-    this.subject.refresh();
-    this.test('Deve abrir e renderizar!', () => {
-      this.subject.open();
-    }, () => {
-      this.assertTrue('Esta aberta?', this.subject.isOpen());
-    });
-    this.test('Deve abrir e renderizar!', () => {
-      this.subject.close();
-    }, () => {
-      this.assertTrue('Esta fechada?', this.subject.isClosed());
-    });
-  }
-}
 class UpdatingBattlePointsWindowTest extends SceneTest {
   name = 'UpdatingBattlePointsWindowTest';
 
@@ -5560,29 +5554,6 @@ class UpdatingBattlePointsWindowTest extends SceneTest {
   }
 }
 // tests TRASH WINDOW
-class OpenAndCloseTrashWindowTest extends SceneTest {
-  name = 'OpenAndCloseTrashWindowTest';
-
-  create() {
-    this.subject = TrashWindow.create(0, 0);
-    this.addWindow(this.subject);
-  }
-
-  start() {
-    this.subject.setCenteredAlignment();
-    this.subject.refresh();
-    this.test('Deve abrir e renderizar!', () => {
-      this.subject.open();
-    }, () => {
-      this.assertTrue('Esta aberta?', this.subject.isOpen());
-    });
-    this.test('Deve abrir e renderizar!', () => {
-      this.subject.close();
-    }, () => {
-      this.assertTrue('Esta fechada?', this.subject.isClosed());
-    });
-  }
-}
 class UpdatingTrashWindowTest extends SceneTest {
   name = 'UpdatingTrashWindowTest';
 
@@ -5604,28 +5575,6 @@ class UpdatingTrashWindowTest extends SceneTest {
   }
 }
 // tests SCORE WINDOW
-class OpenAndCloseScoreWindowTest extends SceneTest {
-  name = 'OpenAndCloseScoreWindowTest';
-
-  create() {
-    this.subject = ScoreWindow.create(0, 0);
-    this.addWindow(this.subject);
-  }
-
-  start() {
-    this.subject.setCenteredAlignment();
-    this.test('Deve abrir e renderizar!', () => {
-      this.subject.open();
-    }, () => {
-      this.assertTrue('Esta aberta?', this.subject.isOpen());
-    });
-    this.test('Deve abrir e renderizar!', () => {
-      this.subject.close();
-    }, () => {
-      this.assertTrue('Esta fechada?', this.subject.isClosed());
-    });
-  }
-}
 class UpdatingScoreWindowTest extends SceneTest {
   name = 'UpdatingScoreWindowTest';
 
@@ -5774,13 +5723,15 @@ class CardBattleTestScene extends Scene_Message {
       AnimateFlashCardsCardsetSpriteTest,
       AnimateDamageCardsCardsetSpriteTest,
     ];
+    const CardBattleWindowBaseTests = [
+      OpenAndCloseCardBattleWindowBaseTest,
+      ChangeColorCardBattleWindowBaseTest,
+      SetMiddleSizeCardBattleWindowBaseTest,
+      SetFullSizeCardBattleWindowBaseTest,
+      AlignMiddleSizeCardBattleWindowBaseTest,
+      AlignFullSizeCardBattleWindowBaseTest,
+    ];
     const textWindowTests = [
-      SetMiddleSizeTextWindowTest,
-      SetFullSizeTextWindowTest,
-      AlignCenterMiddleSizeTextWindowTest,
-      AlignCenterFullSizeTextWindowTest,
-      OpenAndCloseTextWindowTest,
-      MoveTextWindowTest,
       DrawTextStartAlignFullSizeTextWindowTest,
       DrawTextStartAlignMiddleSizeTextWindowTest,
       DrawTextCenterAlignFullSizeTextWindowTest,
@@ -5790,19 +5741,15 @@ class CardBattleTestScene extends Scene_Message {
       SetTextColorTextWindowTest,
     ];
     const boardWindowTests = [
-      OpenAndCloseBoardWindowTest,
       UpdatingBoardWindowTest,
     ];
     const battlePointsWindow = [
-      OpenAndCloseBattlePointsWindowTest,
       UpdatingBattlePointsWindowTest,
     ];
     const trashWindow = [
-      OpenAndCloseTrashWindowTest,
       UpdatingTrashWindowTest,
     ];
     const scoreWindow = [
-      OpenAndCloseScoreWindowTest,
       UpdatingScoreWindowTest,
     ];
     const others = [
@@ -5811,12 +5758,13 @@ class CardBattleTestScene extends Scene_Message {
     return [
       ...cardSpriteTests,
       ...cardsetTests,
+      ...CardBattleWindowBaseTests,
       ...textWindowTests,
       ...boardWindowTests,
       ...battlePointsWindow,
       ...trashWindow,
       ...scoreWindow,
-      ...others,
+      // ...others,
     ];
   }
 
@@ -5894,7 +5842,7 @@ class CardBattleTestScene extends Scene_Message {
   }
 
   printAssertError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #800000; ${this.css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #400000; ${this.css}`);
   }
 
   printSuccess(...msg) {
