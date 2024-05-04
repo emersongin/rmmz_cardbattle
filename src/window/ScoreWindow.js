@@ -54,43 +54,8 @@ class ScoreWindow extends Window_Base {
 
   static create(x, y) {
     const width = Graphics.boxWidth / 4;
-    const height = ScoreWindow.minHeight();
+    const height = CardBattleWindowBase.minHeight();
     return new ScoreWindow(new Rectangle(x, y, width, height));
-  }
-
-  static minHeight() {
-    return 60;
-  }
-
-  static getVerticalAlign(position, window) {
-    switch (position) {
-      case GameConst.MIDDLE:
-        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
-        break;
-      case GameConst.BOTTOM:
-        return Graphics.boxHeight - (window.height || 0);
-        break;
-      default: //TOP
-        return 0;
-    }
-  }
-
-  static getHorizontalAlign(position, window) {
-    switch (position) {
-      case GameConst.CENTER:
-        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
-        break;
-      case GameConst.END:
-        return (Graphics.boxWidth - (window.width || 0));
-        break;
-      default: //START
-        return 0;
-    }
-  }
-
-  setCenteredAlignment() {
-    this.x = ScoreWindow.getHorizontalAlign(GameConst.CENTER, this);
-    this.y = ScoreWindow.getVerticalAlign(GameConst.MIDDLE, this);
   }
 
   isUpdating() {

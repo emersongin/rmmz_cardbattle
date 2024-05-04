@@ -7,7 +7,7 @@ class BattlePointsWindow extends ValuesWindow {
 
   static create(x, y) {
     const width = Graphics.boxWidth / 4;
-    const height = ValuesWindow.minHeight();
+    const height = CardBattleWindowBase.minHeight();
     return new BattlePointsWindow(new Rectangle(x, y, width, height));
   }
 

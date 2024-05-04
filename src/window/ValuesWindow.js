@@ -33,43 +33,8 @@ class ValuesWindow extends Window_Base {
     this.contents.clear();
   }
 
-  static minHeight() {
-    return 60;
-  }
-
   static createValueUpdate(name, value) {
     return { name, value };
-  }
-
-  static getVerticalAlign(position, window) {
-    switch (position) {
-      case GameConst.MIDDLE:
-        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
-        break;
-      case GameConst.BOTTOM:
-        return Graphics.boxHeight - (window.height || 0);
-        break;
-      default: //TOP
-        return 0;
-    }
-  }
-
-  static getHorizontalAlign(position, window) {
-    switch (position) {
-      case GameConst.CENTER:
-        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
-        break;
-      case GameConst.END:
-        return (Graphics.boxWidth - (window.width || 0));
-        break;
-      default: //START
-        return 0;
-    }
-  }
-
-  setCenteredAlignment() {
-    this.x = ValuesWindow.getHorizontalAlign(GameConst.CENTER, this);
-    this.y = ValuesWindow.getVerticalAlign(GameConst.MIDDLE, this);
   }
 
   update() {
@@ -130,14 +95,6 @@ class ValuesWindow extends Window_Base {
       execute: () => fn.call(this, ...params)
     };
     return action;
-  }
-
-  setVerticalAlign(position) {
-    this.y = ValuesWindow.getVerticalAlign(position, this);
-  }
-
-  setHorizontalAlign(position) {
-    this.x = ValuesWindow.getHorizontalAlign(position, this);
   }
 
   isAvailable() {

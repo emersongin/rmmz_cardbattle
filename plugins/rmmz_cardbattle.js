@@ -242,11 +242,11 @@ class CardBattleWindowBase extends  Window_Base {
   }
 
   setBlueColor() {
-    this._colorTone = GameConst.BLUE_COLOR;
+    this._windowColor = GameConst.BLUE_COLOR;
   }
 
   setRedColor() {
-    this._colorTone = GameConst.RED_COLOR;
+    this._windowColor = GameConst.RED_COLOR;
   }
 
   update() {
@@ -266,6 +266,66 @@ class CardBattleWindowBase extends  Window_Base {
       default:
         this.setTone(0, 0, 0);
     }
+  }
+
+  static minHeight() {
+    return 60;
+  }
+
+  static getVerticalAlign(position, window) {
+    switch (position) {
+      case GameConst.MIDDLE:
+        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
+        break;
+      case GameConst.BOTTOM:
+        return Graphics.boxHeight - (window.height || 0);
+        break;
+      default: //TOP
+        return 0;
+    }
+  }
+
+  static getHorizontalAlign(position, window) {
+    switch (position) {
+      case GameConst.CENTER:
+        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
+        break;
+      case GameConst.END:
+        return (Graphics.boxWidth - (window.width || 0));
+        break;
+      default: //START
+        return 0;
+    }
+  }
+
+  setCenteredAlignment() {
+    this.x = CardBattleWindowBase.getHorizontalAlign(GameConst.CENTER, this);
+    this.y = CardBattleWindowBase.getVerticalAlign(GameConst.MIDDLE, this);
+  }
+
+  setVerticalAlign(position) {
+    this.y = CardBattleWindowBase.getVerticalAlign(position, this);
+  }
+
+  setHorizontalAlign(position) {
+    this.x = CardBattleWindowBase.getHorizontalAlign(position, this);
+  }
+
+  isFullsize() {
+    return this.width === Graphics.boxWidth;
+  }
+
+  isMiddleSize() {
+    return this.width === Graphics.boxWidth / 2;
+  }
+
+  isCenterAligned() {
+    return this.x === (Graphics.boxWidth / 2) - (this.width / 2) && 
+      this.y === (Graphics.boxHeight / 2) - (this.height / 2);
+  }
+
+  itemHeightByIndex(index) {
+    return this.itemHeight() * index;
   }
 }
 class WindowStoppedState {
@@ -395,43 +455,8 @@ class ValuesWindow extends Window_Base {
     this.contents.clear();
   }
 
-  static minHeight() {
-    return 60;
-  }
-
   static createValueUpdate(name, value) {
     return { name, value };
-  }
-
-  static getVerticalAlign(position, window) {
-    switch (position) {
-      case GameConst.MIDDLE:
-        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
-        break;
-      case GameConst.BOTTOM:
-        return Graphics.boxHeight - (window.height || 0);
-        break;
-      default: //TOP
-        return 0;
-    }
-  }
-
-  static getHorizontalAlign(position, window) {
-    switch (position) {
-      case GameConst.CENTER:
-        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
-        break;
-      case GameConst.END:
-        return (Graphics.boxWidth - (window.width || 0));
-        break;
-      default: //START
-        return 0;
-    }
-  }
-
-  setCenteredAlignment() {
-    this.x = ValuesWindow.getHorizontalAlign(GameConst.CENTER, this);
-    this.y = ValuesWindow.getVerticalAlign(GameConst.MIDDLE, this);
   }
 
   update() {
@@ -494,14 +519,6 @@ class ValuesWindow extends Window_Base {
     return action;
   }
 
-  setVerticalAlign(position) {
-    this.y = ValuesWindow.getVerticalAlign(position, this);
-  }
-
-  setHorizontalAlign(position) {
-    this.x = ValuesWindow.getHorizontalAlign(position, this);
-  }
-
   isAvailable() {
     return !this.isBusy();
   }
@@ -545,24 +562,25 @@ class ValuesWindow extends Window_Base {
     return StringHelper.convertPointsDisplayPad(points, pad);
   }
 }
-class TextWindow extends Window_Base {
-  _contents = [];
-  _history = [];
-  _textColorIndex = GameColorIndexs.NORMAL_COLOR;
-  _textHorizontalAlign = '';
+class TextWindow extends CardBattleWindowBase {
+  // initialize(rect) {
+  //   super.initialize(rect);
+  //   this._contents = [];
+  //   this._history = [];
+  //   this._textColorIndex = GameColorIndexs.NORMAL_COLOR;
+  //   this._textHorizontalAlign = '';
+  // }
 
-  initialize(rect) {
-    super.initialize(rect);
+  reset() {
+    super.reset();
+    this._contents = [];
+    this._history = [];
+    this._textColorIndex = GameColorIndexs.NORMAL_COLOR;
     this.setHorizontalAlignContent(GameConst.TEXT_START);
-    this.closed();
   }
 
   setHorizontalAlignContent(align) {
     this._textHorizontalAlign = align;
-  }
-
-  closed() {
-    this._openness = 0;
   }
 
   static create(x, y, width, height) {
@@ -571,48 +589,18 @@ class TextWindow extends Window_Base {
 
   static createWindowMiddleSize(x, y) {
     const width = Graphics.boxWidth / 2;
-    const height = TextWindow.minHeight();
+    const height = CardBattleWindowBase.minHeight();
     return TextWindow.create(x, y, width, height);
   }
 
   static createWindowFullSize(x, y) {
     const width = Graphics.boxWidth;
-    const height = TextWindow.minHeight();
+    const height = CardBattleWindowBase.minHeight();
     return TextWindow.create(x, y, width, height);
-  }
-
-  static minHeight() {
-    return 60;
   }
 
   static appendChangeColor(colorIndex = GameColorIndexs.NORMAL_COLOR) {
     return `\\c[${colorIndex}]`;
-  }
-
-  static getVerticalAlign(position, window) {
-    switch (position) {
-      case GameConst.MIDDLE:
-        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
-        break;
-      case GameConst.BOTTOM:
-        return Graphics.boxHeight - (window.height || 0);
-        break;
-      default: //TOP
-        return 0;
-    }
-  }
-
-  static getHorizontalAlign(position, window) {
-    switch (position) {
-      case GameConst.CENTER:
-        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
-        break;
-      case GameConst.END:
-        return (Graphics.boxWidth - (window.width || 0));
-        break;
-      default: //START
-        return 0;
-    }
   }
 
   changeTextColorHere(colorIndex) {
@@ -757,36 +745,6 @@ class TextWindow extends Window_Base {
     return this._textHorizontalAlign;
   }
 
-  itemHeightByIndex(index) {
-    return this.itemHeight() * index;
-  }
-
-  setCenteredAlignment() {
-    this.x = TextWindow.getHorizontalAlign(GameConst.CENTER, this);
-    this.y = TextWindow.getVerticalAlign(GameConst.MIDDLE, this);
-  }
-
-  isCenterAligned() {
-    return this.x === (Graphics.boxWidth / 2) - (this.width / 2) && 
-      this.y === (Graphics.boxHeight / 2) - (this.height / 2);
-  }
-
-  setVerticalAlign(position) {
-    this.y = TextWindow.getVerticalAlign(position, this);
-  }
-
-  setHorizontalAlign(position) {
-    this.x = TextWindow.getHorizontalAlign(position, this);
-  }
-
-  isFullsize() {
-    return this.width === Graphics.boxWidth;
-  }
-
-  isMiddleSize() {
-    return this.width === Graphics.boxWidth / 2;
-  }
-
   isWasTextDrawnPositions(x, y) {
     return this._history.some(history => {
       return history.x === x && history.y === y;
@@ -804,13 +762,13 @@ class BoardWindow extends ValuesWindow {
 
   static createWindowMiddleSize(x, y) {
     const width = Graphics.boxWidth / 2;
-    const height = ValuesWindow.minHeight();
+    const height = CardBattleWindowBase.minHeight();
     return BoardWindow.create(x, y, width, height);
   }
 
   static createWindowFullSize(x, y) {
     const width = Graphics.boxWidth;
-    const height = ValuesWindow.minHeight();
+    const height = CardBattleWindowBase.minHeight();
     return BoardWindow.create(x, y, width, height);
   }
 
@@ -907,7 +865,7 @@ class BattlePointsWindow extends ValuesWindow {
 
   static create(x, y) {
     const width = Graphics.boxWidth / 4;
-    const height = ValuesWindow.minHeight();
+    const height = CardBattleWindowBase.minHeight();
     return new BattlePointsWindow(new Rectangle(x, y, width, height));
   }
 
@@ -955,7 +913,7 @@ class TrashWindow extends ValuesWindow {
 
   static create(x, y) {
     const width = (Graphics.boxWidth / 4) / 2;
-    const height = ValuesWindow.minHeight() * 2;
+    const height = CardBattleWindowBase.minHeight() * 2;
     return new TrashWindow(new Rectangle(x, y, width, height));
   }
 
@@ -1099,43 +1057,8 @@ class ScoreWindow extends Window_Base {
 
   static create(x, y) {
     const width = Graphics.boxWidth / 4;
-    const height = ScoreWindow.minHeight();
+    const height = CardBattleWindowBase.minHeight();
     return new ScoreWindow(new Rectangle(x, y, width, height));
-  }
-
-  static minHeight() {
-    return 60;
-  }
-
-  static getVerticalAlign(position, window) {
-    switch (position) {
-      case GameConst.MIDDLE:
-        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
-        break;
-      case GameConst.BOTTOM:
-        return Graphics.boxHeight - (window.height || 0);
-        break;
-      default: //TOP
-        return 0;
-    }
-  }
-
-  static getHorizontalAlign(position, window) {
-    switch (position) {
-      case GameConst.CENTER:
-        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
-        break;
-      case GameConst.END:
-        return (Graphics.boxWidth - (window.width || 0));
-        break;
-      default: //START
-        return 0;
-    }
-  }
-
-  setCenteredAlignment() {
-    this.x = ScoreWindow.getHorizontalAlign(GameConst.CENTER, this);
-    this.y = ScoreWindow.getVerticalAlign(GameConst.MIDDLE, this);
   }
 
   isUpdating() {
@@ -5888,19 +5811,19 @@ class CardBattleTestScene extends Scene_Message {
       AnimateDamageCardsCardsetSpriteTest,
     ];
     const textWindowTests = [
-      // SetMiddleSizeTextWindowTest,
-      // SetFullSizeTextWindowTest,
-      // AlignCenterMiddleSizeTextWindowTest,
-      // AlignCenterFullSizeTextWindowTest,
-      // OpenAndCloseTextWindowTest,
+      SetMiddleSizeTextWindowTest,
+      SetFullSizeTextWindowTest,
+      AlignCenterMiddleSizeTextWindowTest,
+      AlignCenterFullSizeTextWindowTest,
+      OpenAndCloseTextWindowTest,
       MoveTextWindowTest,
-      // DrawTextStartAlignFullSizeTextWindowTest,
-      // DrawTextStartAlignMiddleSizeTextWindowTest,
-      // DrawTextCenterAlignFullSizeTextWindowTest,
-      // DrawTextCenterAlignMiddleSizeTextWindowTest,
-      // DrawTextEndAlignFullSizeTextWindowTest,
-      // DrawTextEndAlignMiddleSizeTextWindowTest,
-      // SetTextColorTextWindowTest,
+      DrawTextStartAlignFullSizeTextWindowTest,
+      DrawTextStartAlignMiddleSizeTextWindowTest,
+      DrawTextCenterAlignFullSizeTextWindowTest,
+      DrawTextCenterAlignMiddleSizeTextWindowTest,
+      DrawTextEndAlignFullSizeTextWindowTest,
+      DrawTextEndAlignMiddleSizeTextWindowTest,
+      SetTextColorTextWindowTest,
     ];
     const boardWindowTests = [
       OpenAndCloseBoardWindowTest,
@@ -5925,10 +5848,10 @@ class CardBattleTestScene extends Scene_Message {
       // ...cardSpriteTests,
       // ...cardsetTests,
       ...textWindowTests,
-      ...boardWindowTests,
-      ...battlePointsWindow,
-      ...trashWindow,
-      ...scoreWindow,
+      // ...boardWindowTests,
+      // ...battlePointsWindow,
+      // ...trashWindow,
+      // ...scoreWindow,
       // ...others,
     ];
   }

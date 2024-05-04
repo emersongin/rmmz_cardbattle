@@ -19,7 +19,7 @@ class TrashWindow extends ValuesWindow {
 
   static create(x, y) {
     const width = (Graphics.boxWidth / 4) / 2;
-    const height = ValuesWindow.minHeight() * 2;
+    const height = CardBattleWindowBase.minHeight() * 2;
     return new TrashWindow(new Rectangle(x, y, width, height));
   }
 
