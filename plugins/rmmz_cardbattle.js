@@ -25,7 +25,8 @@ const GameConst = {
   WHITE_POINTS: 'WHITE_POINTS',
   NUM_CARDS_IN_DECK: 'NUM_CARDS_IN_DECK',
   NUM_CARDS_IN_HAND: 'NUM_CARDS_IN_HAND',
-  TEXT_EX: 'TEXT_EX',
+  LINE_TEXT: 'LINE_TEXT',
+  TEXT_START: 'TEXT_START',
   CHANGE_COLOR: 'CHANGE_COLOR',
   START: 'START',
   CENTER: 'CENTER',
@@ -478,13 +479,19 @@ class ValuesWindow extends Window_Base {
 
 }
 class TextWindow extends Window_Base {
-  _content = [];
-  _horizontalAlign = '';
+  _contents = [];
+  _history = [];
+  _textColorIndex = GameColorIndexs.NORMAL_COLOR;
+  _textHorizontalAlign = '';
 
   initialize(rect) {
     super.initialize(rect);
-    this.setHorizontalAlignContent(GameConst.START);
+    this.setHorizontalAlignContent(GameConst.TEXT_START);
     this.closed();
+  }
+
+  setHorizontalAlignContent(align) {
+    this._textHorizontalAlign = align;
   }
 
   closed() {
@@ -511,30 +518,75 @@ class TextWindow extends Window_Base {
     return 60;
   }
 
-  setHorizontalAlignContent(align) {
-    this._horizontalAlign = align;
+  changeTextColorHere(colorIndex) {
+    this.addContent({ 
+      type: GameConst.CHANGE_COLOR, 
+      colorIndex 
+    });
+  }
+
+  addContent(data = {}) {
+    const { type, text, colorIndex } = data;
+    this._contents.push({ type, text, colorIndex });
+  }
+
+  addText(text = '') {
+    this.addContent({ 
+      type: GameConst.LINE_TEXT, 
+      text 
+    });
+  }
+
+  renderContents() {
+    const contents = this.getContents();
+    this.contents.clear();
+    this.processContents(contents);
+  }
+
+  getContents() {
+    return this._contents;
+  }
+
+  processContents(contents) {
+    const contentsProsseced = [];
+    contents.forEach((content, index) => {
+      const text = this.processContentType(content, index);
+      if (text) contentsProsseced.push(text);
+    });
+    const maxWidth = this.getMaxWidthContentsProcessed(contentsProsseced);
+    this.resize(maxWidth);
+    contentsProsseced.forEach((content, index) => {
+      const x = this.getXAlign(content, this.getAlignContent(), maxWidth);
+      const y = this.itemHeightByIndex(index);
+      const width = this.getTextWidth(content);
+      this._history.push({ content, x, y, width });
+      super.drawTextEx(content, x, y, width);
+    });
   }
 
   getAlignContent() {
-    return this._horizontalAlign;
+    return this._textHorizontalAlign;
   }
 
-  changeTextExColor(colorIndex) {
-    const colorText = `\\c[${colorIndex}]`;
-    const noSpace = false;
-    const lastIndex = this.getIndexLastContent();
-    const content = this.geContentByIndex(lastIndex);
-    if (content) {
-      content.text = `${content.text}${colorText}`;
-      const x = this.getXPositionTextAlign(content.text, this.getAlignContent());
-      this.appendToRender(GameConst.TEXT_EX, content.text, x, lastIndex);
-    } else {
-      this.addToRender(GameConst.CHANGE_COLOR, colorText, 0, 0, this.getAlignContent());
+  processContentType(content, index) {
+    const { type, text, colorIndex } = content;
+    switch (type) {
+      case GameConst.CHANGE_COLOR:
+        this._textColorIndex = colorIndex;
+        return;
+      default:
+        return this.addTextLine(text, index);
     }
   }
 
-  getIndexLastContent() {
-    return this._content.length - 1;
+  addTextLine(text = '', index) {
+    const color = this.appendChangeColor(this._textColorIndex);
+    text = `${color}${text}`;
+    return text;
+  }
+
+  appendChangeColor(colorIndex = GameColorIndexs.NORMAL_COLOR) {
+    return `\\c[${colorIndex}]`;
   }
 
   getLastContent(index) {
@@ -542,19 +594,105 @@ class TextWindow extends Window_Base {
   }
 
   geContentByIndex(index) {
-    return this.getContent()[index];
+    return this.getContents()[index];
   }
 
-  getContent() {
-    return this._content.map(({ type, ...params }) => {
-      const objData = ObjectHelper.parseReference(params, ['text', 'x', 'y', 'align']);
-      const { text, x, y, align } = objData;
-      return { type, text, x, y, align };
+  getIndexLastContent() {
+    return this.getContents().length - 1;
+  }
+
+  getMaxWidthContentsProcessed(contents) {
+    return contents.reduce((max, content) => {
+      const width = this.getTextWidth(content);
+      return Math.max(max, width);
+    }, 0);
+  }
+
+  itemHeightByIndex(index) {
+    return this.itemHeight() * index;
+  }
+
+  isWasTextDrawnPositions(x, y) {
+    return this._history.some(history => {
+      return history.x === x && history.y === y;
     });
   }
 
+
+
+
+
+
+
+
+  getXAlign(content, align, maxWidth) {
+    const textWidth = this.getTextWidth(content);
+    const x = this.getTextXByAlign(textWidth, maxWidth, align);
+    return x;
+  }
+
+  getTextWidth(text) {
+    const textState = this.createTextState(text, 0, 0, 0);
+    textState.drawing = false;
+    this.processAllText(textState);
+    return textState.outputWidth;
+  }
+
+  getTextXByAlign(textWidth, maxWidth, align) {
+    maxWidth = Math.max(maxWidth, Graphics.boxWidth - this.padding * 2);
+    switch (align) {
+      case GameConst.CENTER:
+        return (maxWidth / 2) - (textWidth / 2);
+      case GameConst.END:
+        return maxWidth - textWidth;
+      default:
+        return 0;
+    }
+  }
+
+  resize(maxWidth) {
+    this.resizeContent(maxWidth);
+    this.resizeWindow(maxWidth);
+  }
+
+  resizeContent(maxWidth) {
+    const contentWidth = Math.max(maxWidth, this.width);
+    this.contents.resize(contentWidth, this.calculeTextHeight());
+  }
+
+  calculeTextHeight() {
+    return Math.max(this.fittingHeight(this.numLines()), this.height);
+  }
+
+  numLines() {
+    return this.getLines().length;
+  }
+
+  getLines() {
+    return this.getContents().filter(content => content.type == GameConst.LINE_TEXT);
+  }
+
+  resizeWindow(maxWidth) {
+    const windowPadding = this.padding + this.itemPadding();
+    let width = Math.ceil(maxWidth) + windowPadding + 6;
+    let windowWidth = Math.max(width, this.width);
+    windowWidth = Math.min(windowWidth, Graphics.boxWidth);
+    this.move(this.x, this.y, windowWidth, this.calculeTextHeight());
+  }
+
+
+
+
+
+
+
+
+
+
+
+
   appendToRender(type, text, x, lastIndex) {
-    if (this.getContent().length === 0) return this.addToRender(type, text, x);
+    if (this.getContents().length === 0) return this.addToRender(type, text, x);
     if (type == GameConst.TEXT_EX) {
       this.setContentType(lastIndex, type);
       this.setContentText(lastIndex, text);
@@ -563,6 +701,11 @@ class TextWindow extends Window_Base {
     } else {
       this.setContentText(lastIndex, text);
     }
+  }
+
+  calculeTextMinWidth(text) {
+    const textWidth = this.calculeTextWidth(text);
+    return Math.max(this.width, textWidth);
   }
 
   setContentType(index, type) {
@@ -574,15 +717,9 @@ class TextWindow extends Window_Base {
     this._content[index][textIndex] = text;
   }
 
-  resize(text) {
-    this.resizeContent(text);
-    this.resizeWindow(text);
-  }
 
-  resizeContent(text) {
-    const contentWidth = Math.max(this.calculeTextWidth(text), this.width);
-    this.contents.resize(contentWidth, this.calculeTextHeight());
-  }
+
+
 
   calculeTextWidth(text) {
     let width = this.getTextWidth(text);
@@ -590,35 +727,13 @@ class TextWindow extends Window_Base {
     return Math.min(width, Graphics.boxWidth);
   }
 
-  getTextWidth(text) {
-    const textState = this.createTextState(text, 0, 0, 0);
-    textState.drawing = false;
-    this.processAllText(textState);
-    return textState.outputWidth;
-  }
 
-  calculeTextHeight() {
-    return Math.max(this.fittingHeight(this.numLines()), this.height);
-  }
 
-  numLines() {
-    const lines = this.getContent().filter(content => content.type == GameConst.TEXT_EX);
-    return lines.length;
-  }
 
-  resizeWindow(text) {
-    const contentWidth = this.calculeTextMinWidth(text);
-    const windowPadding = this.padding + this.itemPadding();
-    let width = Math.ceil(contentWidth) + windowPadding + 6;
-    let windowWidth = Math.max(width, this.width);
-    windowWidth = Math.min(windowWidth, Graphics.boxWidth);
-    this.move(this.x, this.y, windowWidth, this.calculeTextHeight());
-  }
 
-  calculeTextMinWidth(text) {
-    const textWidth = this.calculeTextWidth(text);
-    return Math.max(this.width, textWidth);
-  }
+
+
+
 
   addToRender(type, ...params) {
     this._content.push({ type, ...params });
@@ -626,45 +741,18 @@ class TextWindow extends Window_Base {
     const text = params[textIndex];
   }
 
-  renderContent() {
-    const contents = this.getContent();
-    console.log(contents)
-    if (contents.length) {
-      contents.forEach((content, index) => {
-        const { type, text, x, y, align } = content;
-        this.resize(text);
-        this.drawTextEx(text, x, y);
-      });
-    }
-  }
 
-  getXPositionTextAlign(text, align) {
-    const textWidth = this.getTextWidth(text);
-    const x = this.getAlignText(textWidth, align);
-    return x;
-  }
 
-  getAlignText(textWidth, align) {
-    const contentWidth = this.contentsWidth();
-    console.log(this.width, contentWidth, textWidth);
-    switch (align) {
-      case GameConst.CENTER:
-        return (contentWidth / 2) - (textWidth / 2);
-      case GameConst.RIGHT:
-        return this.contentsWidth() - textWidth;
-      default:
-        return 0;
-    }
-  }
+
+
+
 
   setContentX(index, x) {
     const xPosition = 1;
     this._content[index][xPosition] = x;
   }
 
-  drawTextEx(text = '', x = 0, y = 0, width = this.width) {
-    super.drawTextEx(text, x, y, width);
-  }
+
 
   appendText(text, space = true) {
     const lastContent = this.getLastContent();
@@ -678,24 +766,19 @@ class TextWindow extends Window_Base {
     }
   }
 
-  addTextline(text = '', align = this._horizontalAlign) {
-    text = this.processTextLine(text);
-    const x = this.getXPositionTextAlign(text, this.getAlignContent());
-    this.addToRender(GameConst.TEXT_EX, text, x, 0, align);
-  }
+
 
   updateXpositionContent(x) {
-    this.getContent().forEach((content, index) => {
+    this.getContents().forEach((content, index) => {
       this.setContentX(index, x);
     });
   }
 
   processTextLine(text) {
-    const length = this.getContent().length;
+    const length = this.getContents().length;
     const isGreaterThanZero = length > 0;
     const lastContent = this.getLastContent();
     const isNotSpecialLine = lastContent?.type != GameConst.CHANGE_COLOR;
-    console.log(lastContent?.type);
     if (isGreaterThanZero && (lastContent && isNotSpecialLine)) text = `${'\n'.repeat(length)}${text}`;
     return text;
   }
@@ -710,12 +793,12 @@ class TextWindow extends Window_Base {
       this.y === (Graphics.boxHeight / 2) - (this.height / 2);
   }
 
-  isContentCenteredCenter(xAling) {
-    return this.getContent().every(content => {
-      const x = this.getXPositionTextAlign(content.text, GameConst.CENTER);
-      return x === xAling;
-    });
-  }
+  // isContentCenteredCenter(xAling) {
+  //   return this.getContents().every(content => {
+  //     const x = this.getXPositionTextAlign(content.text, GameConst.CENTER);
+  //     return x === xAling;
+  //   });
+  // }
 
   static getVerticalAlign(position, window) {
     switch (position) {
@@ -760,7 +843,7 @@ class TextWindow extends Window_Base {
   }
 
   isColorContentByIndex(colorIndex) {
-    return this.getContent().some(content => content.text.includes(`\\c[${colorIndex}]`));
+    return this.getContents().some(content => content.text.includes(`\\c[${colorIndex}]`));
   }
 }
 class BoardWindow extends ValuesWindow {
@@ -4880,8 +4963,8 @@ class AlignCenterFullSizeTextWindowTest extends SceneTest {
     });
   }
 }
-class DrawTextCenterFullSizeTextWindowTest extends SceneTest {
-  name = 'DrawTextCenterFullSizeTextWindowTest';
+class DrawTextStartAlignFullSizeTextWindowTest extends SceneTest {
+  name = 'DrawTextStartAlignFullSizeTextWindowTest';
 
   create() {
     const x = 0;
@@ -4894,23 +4977,30 @@ class DrawTextCenterFullSizeTextWindowTest extends SceneTest {
     this.subject.setCenteredAlignment();
     this.subject.show();
     const line = "Hello World";
-    this.test('Deve alinhar o texto no centro!', () => {
-      this.subject.setHorizontalAlignContent(GameConst.CENTER);
-      this.subject.addTextline(line);
-      this.subject.addTextline(line);
-      // this.subject.addTextline(line);
-      // this.subject.addTextline(line);
-      this.subject.renderContent();
+    this.subject.addText(line.repeat(1) + ' 0');
+    this.subject.addText(line.repeat(5) + ' 1');
+    this.subject.addText(line.repeat(3) + ' 2');
+    this.subject.addText(line.repeat(2) + ' 3');
+    this.test('Deve alinhar o texto no início!', () => {
+      this.subject.setHorizontalAlignContent(GameConst.START);
+      this.subject.renderContents();
       this.subject.setCenteredAlignment();
       this.subject.open();
     }, () => {
-      const xAlign = 320.5;
-      this.assertTrue('Esta com texto alinhado no centro?', this.subject.isContentCenteredCenter(xAlign));
+      const xStartAlign = 0;
+      const yStartAlignPrimaryLine = 0;
+      const yStartAlignSecondaryLine = 36;
+      const yStartAlignTertiaryLine = 72;
+      const yStartAlignQuaternaryLine = 108;
+      this.assertTrue('Foi alinhado no início?', this.subject.isWasTextDrawnPositions(xStartAlign, yStartAlignPrimaryLine));
+      this.assertTrue('Foi alinhado no início?', this.subject.isWasTextDrawnPositions(xStartAlign, yStartAlignSecondaryLine));
+      this.assertTrue('Foi alinhado no início?', this.subject.isWasTextDrawnPositions(xStartAlign, yStartAlignTertiaryLine));
+      this.assertTrue('Foi alinhado no início?', this.subject.isWasTextDrawnPositions(xStartAlign, yStartAlignQuaternaryLine));
     });
   }
 }
-class DrawTextCenterMiddleSizeTextWindowTest extends SceneTest {
-  name = 'DrawTextCenterMiddleSizeTextWindowTest';
+class DrawTextStartAlignMiddleSizeTextWindowTest extends SceneTest {
+  name = 'DrawTextStartAlignMiddleSizeTextWindowTest';
 
   create() {
     const x = 0;
@@ -4923,21 +5013,30 @@ class DrawTextCenterMiddleSizeTextWindowTest extends SceneTest {
     this.subject.setCenteredAlignment();
     this.subject.show();
     const line = "Hello World";
-    this.test('Deve alinhar o texto no centro!', () => {
-      this.subject.setHorizontalAlignContent(GameConst.CENTER);
-      this.subject.addTextline(line);
-      this.subject.addTextline(line);
-      this.subject.addTextline(line);
-      this.subject.addTextline(line);
-      this.subject.renderContent();
+    this.subject.addText(line.repeat(1) + ' 0');
+    this.subject.addText(line.repeat(1) + ' 1');
+    this.subject.addText(line.repeat(1) + ' 2');
+    this.subject.addText(line.repeat(1) + ' 3');
+    this.test('Deve alinhar o texto no início!', () => {
+      this.subject.setHorizontalAlignContent(GameConst.START);
+      this.subject.renderContents();
       this.subject.setCenteredAlignment();
       this.subject.open();
     }, () => {
-      const xAlign = 320.5;
-      this.assertTrue('Esta com texto alinhado no centro?', this.subject.isContentCenteredCenter(xAlign));
+      const xStartAlign = 0;
+      const yStartAlignPrimaryLine = 0;
+      const yStartAlignSecondaryLine = 36;
+      const yStartAlignTertiaryLine = 72;
+      const yStartAlignQuaternaryLine = 108;
+      this.assertTrue('Foi alinhado no início?', this.subject.isWasTextDrawnPositions(xStartAlign, yStartAlignPrimaryLine));
+      this.assertTrue('Foi alinhado no início?', this.subject.isWasTextDrawnPositions(xStartAlign, yStartAlignSecondaryLine));
+      this.assertTrue('Foi alinhado no início?', this.subject.isWasTextDrawnPositions(xStartAlign, yStartAlignTertiaryLine));
+      this.assertTrue('Foi alinhado no início?', this.subject.isWasTextDrawnPositions(xStartAlign, yStartAlignQuaternaryLine));
     });
   }
 }
+
+
 class OpenAndCloseTextWindowTest extends SceneTest {
   name = 'OpenAndCloseTextWindowTest';
 
@@ -5390,8 +5489,8 @@ class CardBattleTestScene extends Scene_Message {
       // AlignCenterFullSizeTextWindowTest,
       // OpenAndCloseTextWindowTest,
       // MoveTextWindowTest,
-      DrawTextCenterFullSizeTextWindowTest,
-      // DrawTextCenterMiddleSizeTextWindowTest,
+      // DrawTextStartAlignFullSizeTextWindowTest,
+      DrawTextStartAlignMiddleSizeTextWindowTest,
       // SetTextTextWindowTest,
       // TextColorTextWindowTest,
     ];
