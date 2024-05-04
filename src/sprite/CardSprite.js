@@ -110,13 +110,13 @@ class CardSprite extends ActionSprite {
   }
 
   update() {
+    super.update();
     if (this.hasActions() && this.isStopped()) this.executeAction();
     if (this.isMoving() && this.isHidden()) this.commandShow();
     if (this.isVisible()) {
       this.updateStatus();
       this.updateBehaviors();
     }
-    super.update();
   }
 
   isStopped() {
@@ -671,13 +671,14 @@ class CardSprite extends ActionSprite {
     const moves = movements || this.generateQuakeMoves(times, distance);
     const cardXPosition = this.x;
     const cardYPosition = this.y; 
-    moves.forEach((move, index) => {
+    const directionsMoves = moves.map((move, index) => {
       const xMove = cardXPosition + move.x;
       const yMove = cardYPosition + move.y;
       const duration = 0;
       const directionMove = CardSprite.createMove(xMove, yMove, cardXPosition, cardYPosition, duration);
-      this.toMove(directionMove);
+      return directionMove;
     });
+    this.toMove(directionsMoves);
     return true;
   }
 
@@ -697,11 +698,11 @@ class CardSprite extends ActionSprite {
     return this.getBehavior(CardSpriteUpdatedBehavior) instanceof CardSpriteUpdatedBehavior;
   }
   
-  isAnimationPlaying() {
-    const behavior = this.getBehavior(CardSpriteAnimatedBehavior);
-    if (behavior) return behavior.isPlayingAnimation();
-    return false;
-  }
+  // isAnimationPlaying() {
+  //   const behavior = this.getBehavior(CardSpriteAnimatedBehavior);
+  //   if (behavior) return behavior.isPlayingAnimation();
+  //   return false;
+  // }
 
   setPosition(xPosition, yPosition) {
     this.x = xPosition;

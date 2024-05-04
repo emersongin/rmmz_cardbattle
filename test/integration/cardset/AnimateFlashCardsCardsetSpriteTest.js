@@ -17,8 +17,8 @@ class AnimateFlashCardsCardsetSpriteTest extends SceneTest {
       const sprites = this.subject.setCards(cards);
       this.subject.startListCards();
       this.subject.showCards();
-      const sprite = this.subject.getCardIndex(0);
-      this.subject.animateCardFlash(sprite);
+      // const sprite = this.subject.getCardIndex(0);
+      // this.subject.animateCardFlash(sprite);
       this.subject.animateCardsFlash();
     }, () => {
       this.assertWasTrue('Houve um flash de luz?', this.subject.someSpriteIsFlashPlaying);

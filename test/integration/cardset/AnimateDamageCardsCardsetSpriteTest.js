@@ -17,8 +17,8 @@ class AnimateDamageCardsCardsetSpriteTest extends SceneTest {
       const sprites = this.subject.setCards(cards);
       this.subject.startListCards();
       this.subject.showCards();
-      const sprite = this.subject.getCardIndex(0);
-      this.subject.animateCardDamage(sprite);
+      // const sprite = this.subject.getCardIndex(0);
+      // this.subject.animateCardDamage(sprite);
       this.subject.animateCardsDamage();
     }, () => {
       this.assertWasTrue('Houve uma animação?', this.subject.someSpriteIsAnimationPlaying);

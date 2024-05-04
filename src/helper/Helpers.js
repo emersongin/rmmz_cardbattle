@@ -21,10 +21,23 @@ class IntegerHelper {
 }
 
 class ObjectHelper {
+  // static copyObject(obj) {
+  //   const copiedObj = Object.create(Object.getPrototypeOf(obj));
+  //   const descriptors = Object.getOwnPropertyDescriptors(obj);
+  //   Object.defineProperties(copiedObj, descriptors);
+  //   return copiedObj;
+  // }
+
   static copyObject(obj) {
     const copiedObj = Object.create(Object.getPrototypeOf(obj));
     const descriptors = Object.getOwnPropertyDescriptors(obj);
-    Object.defineProperties(copiedObj, descriptors);
+    for (let key in descriptors) {
+        if (typeof descriptors[key].value === 'function') {
+            copiedObj[key] = descriptors[key].value.call(obj);
+        } else {
+            Object.defineProperty(copiedObj, key, descriptors[key]);
+        }
+    }
     return copiedObj;
   }
 

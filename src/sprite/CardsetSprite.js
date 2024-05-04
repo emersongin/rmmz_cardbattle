@@ -293,12 +293,12 @@ class CardsetSprite extends ActionSprite {
   }
 
   update() {
+    super.update();
     if (this.hasActions() && this.isAvailable()) this.executeAction();
     if (this.numberOfChildren() && this.isHidden()) this.commandShow();
     if (this.isVisible()) {
       this.updateStatus();
     }
-    super.update();
   }
 
   isBusy() {
@@ -398,7 +398,7 @@ class CardsetSprite extends ActionSprite {
     this.animateCardsQuake(times, distance, sprite);
   }
 
-  animateCardsQuake(times = 1, distance = 2, sprites = this._sprites) {
+  animateCardsQuake(times, distance, sprites = this._sprites) {
     sprites = this.toArray(sprites);
     this.addAction(this.commandAnimateCardsQuake, sprites, times, distance);
   }

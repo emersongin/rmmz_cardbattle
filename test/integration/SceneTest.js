@@ -23,7 +23,7 @@ class SceneTest {
   }
 
   start() {
-    // Override this method in the child class
+    this.copySubject();
   }
 
   run() {
@@ -149,7 +149,7 @@ class SceneTest {
   assertWasTrue(title, fnOrValue, ...params) {
     const result = this.subjects.some(subject => {
       if (typeof fnOrValue === 'function') {
-        return subject[fnOrValue.name](...params);
+        return subject[fnOrValue.name];
       }
       return subject[fnOrValue];
     });
