@@ -14,19 +14,25 @@ class SetTextColorTextWindowTest extends SceneTest {
     const line = "Hello World";
     const normalColor = TextWindow.appendChangeColor(GameColorIndexs.NORMAL_COLOR); 
     const systemColor = TextWindow.appendChangeColor(GameColorIndexs.SYSTEM_COLOR); 
-    this.subject.addText(`Texto${systemColor} Mudar Cor${normalColor} Texto!`);
-    this.subject.changeTextColorHere(GameColorIndexs.SYSTEM_COLOR);
+    this.subject.changeTextColorHere(GameColorIndexs.DAMAGE_COLOR);
+    this.subject.addText(`Primeira linha deve ser de cor!`);
+    this.subject.changeTextColorHere(GameColorIndexs.NORMAL_COLOR);
+    this.subject.addText(`Texto normal${systemColor} mudança de cor${normalColor} texto normal!`);
     this.test('Deve mudar cor do texto!', () => {
       this.subject.setHorizontalAlignContent(GameConst.START);
       this.subject.renderContents();
       this.subject.setCenteredAlignment();
       this.subject.open();
     }, () => {
-      const regex = /^\\c\[0\]Texto\\c\[16\] Mudar Cor\\c\[0\] Texto!$/;
-      const line = this.subject.getHistory().shift();
-      const content = line.content;
-      const validate = regex.test(content);
-      this.assertTrue('Texto mudou de cor?', validate);
+      const assertOne = /^\\c\[(\d+)\](.*)$/;
+      const assertTwo = /^\\c\[(\d+)\](.*?)\\c\[(\d+)\](.*?)\\c\[(\d+)\](.*?)!$/;
+      const history = this.subject.getHistory();
+      const lineOne = history[0].content;
+      const lineTwo = history[1].content;
+      const validateOne = assertOne.test(lineOne);
+      const validateTwo = assertTwo.test(lineTwo);
+      this.assertTrue('A primeira linha é colorida?', validateOne);
+      this.assertTrue('O texto mudou de cor no centro?', validateTwo);
     });
   }
 }

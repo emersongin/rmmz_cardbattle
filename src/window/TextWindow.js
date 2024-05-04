@@ -38,6 +38,36 @@ class TextWindow extends Window_Base {
     return 60;
   }
 
+  static appendChangeColor(colorIndex = GameColorIndexs.NORMAL_COLOR) {
+    return `\\c[${colorIndex}]`;
+  }
+
+  static getVerticalAlign(position, window) {
+    switch (position) {
+      case GameConst.MIDDLE:
+        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
+        break;
+      case GameConst.BOTTOM:
+        return Graphics.boxHeight - (window.height || 0);
+        break;
+      default: //TOP
+        return 0;
+    }
+  }
+
+  static getHorizontalAlign(position, window) {
+    switch (position) {
+      case GameConst.CENTER:
+        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
+        break;
+      case GameConst.END:
+        return (Graphics.boxWidth - (window.width || 0));
+        break;
+      default: //START
+        return 0;
+    }
+  }
+
   changeTextColorHere(colorIndex) {
     this.addContent({ 
       type: GameConst.CHANGE_COLOR, 
@@ -58,9 +88,13 @@ class TextWindow extends Window_Base {
   }
 
   renderContents() {
+    this.clearContentRendered();
     const contents = this.getContents();
+    if (contents.length) this.processContents(contents);
+  }
+
+  clearContentRendered() {
     this.contents.clear();
-    this.processContents(contents);
   }
 
   getContents() {
@@ -68,20 +102,50 @@ class TextWindow extends Window_Base {
   }
 
   processContents(contents) {
-    const contentsProsseced = [];
-    contents.forEach((content, index) => {
-      const text = this.processContentType(content, index);
-      if (text) contentsProsseced.push(text);
-    });
+    const contentsProsseced = this.processLines(contents);
     const maxWidth = this.getMaxWidthContentsProcessed(contentsProsseced);
     this.resize(maxWidth);
-    contentsProsseced.forEach((content, index) => {
-      const x = this.getXAlign(content, this.getAlignContent(), maxWidth);
-      const y = this.itemHeightByIndex(index);
-      const width = this.getTextWidth(content);
-      this._history.push({ content, x, y, width });
-      super.drawTextEx(content, x, y, width);
+    this.drawContents(contentsProsseced, maxWidth);
+  }
+
+  processLines(contents) {
+    const linesProcessed = [];
+    contents.forEach((content, index) => {
+      const text = this.processLine(content, index);
+      if (text) linesProcessed.push(text);
     });
+    return linesProcessed;
+  }
+
+  processLine(content, index) {
+    const { type, text, colorIndex } = content;
+    switch (type) {
+      case GameConst.CHANGE_COLOR:
+        this._textColorIndex = colorIndex;
+        return;
+      default:
+        return this.addTextLine(text, index);
+    }
+  }
+
+  addTextLine(text = '', index) {
+    const color = TextWindow.appendChangeColor(this._textColorIndex);
+    text = `${color}${text}`;
+    return text;
+  }
+
+  getMaxWidthContentsProcessed(contents) {
+    return contents.reduce((max, content) => {
+      const width = this.getTextWidth(content);
+      return Math.max(max, width);
+    }, 0);
+  }
+
+  getTextWidth(text) {
+    const textState = this.createTextState(text, 0, 0, 0);
+    textState.drawing = false;
+    this.processAllText(textState);
+    return textState.outputWidth;
   }
 
   resize(maxWidth) {
@@ -114,11 +178,14 @@ class TextWindow extends Window_Base {
     this.move(this.x, this.y, windowWidth, this.calculeTextHeight());
   }
 
-  getTextWidth(text) {
-    const textState = this.createTextState(text, 0, 0, 0);
-    textState.drawing = false;
-    this.processAllText(textState);
-    return textState.outputWidth;
+  drawContents(contentsProsseced, maxWidth) {
+    contentsProsseced.forEach((content, index) => {
+      const x = this.getXAlign(content, this.getAlignContent(), maxWidth);
+      const y = this.itemHeightByIndex(index);
+      const width = this.getTextWidth(content);
+      this._history.push({ content, x, y, width });
+      super.drawTextEx(content, x, y, width);
+    });
   }
 
   getXAlign(content, align, maxWidth) {
@@ -143,46 +210,6 @@ class TextWindow extends Window_Base {
     return this._textHorizontalAlign;
   }
 
-  processContentType(content, index) {
-    const { type, text, colorIndex } = content;
-    switch (type) {
-      case GameConst.CHANGE_COLOR:
-        this._textColorIndex = colorIndex;
-        return;
-      default:
-        return this.addTextLine(text, index);
-    }
-  }
-
-  addTextLine(text = '', index) {
-    const color = TextWindow.appendChangeColor(this._textColorIndex);
-    text = `${color}${text}`;
-    return text;
-  }
-
-  static appendChangeColor(colorIndex = GameColorIndexs.NORMAL_COLOR) {
-    return `\\c[${colorIndex}]`;
-  }
-
-  getLastContent(index) {
-    return this.geContentByIndex(this.getIndexLastContent())
-  }
-
-  geContentByIndex(index) {
-    return this.getContents()[index];
-  }
-
-  getIndexLastContent() {
-    return this.getContents().length - 1;
-  }
-
-  getMaxWidthContentsProcessed(contents) {
-    return contents.reduce((max, content) => {
-      const width = this.getTextWidth(content);
-      return Math.max(max, width);
-    }, 0);
-  }
-
   itemHeightByIndex(index) {
     return this.itemHeight() * index;
   }
@@ -195,32 +222,6 @@ class TextWindow extends Window_Base {
   isCenterAligned() {
     return this.x === (Graphics.boxWidth / 2) - (this.width / 2) && 
       this.y === (Graphics.boxHeight / 2) - (this.height / 2);
-  }
-
-  static getVerticalAlign(position, window) {
-    switch (position) {
-      case GameConst.MIDDLE:
-        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
-        break;
-      case GameConst.BOTTOM:
-        return Graphics.boxHeight - (window.height || 0);
-        break;
-      default: //TOP
-        return 0;
-    }
-  }
-
-  static getHorizontalAlign(position, window) {
-    switch (position) {
-      case GameConst.CENTER:
-        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
-        break;
-      case GameConst.END:
-        return (Graphics.boxWidth - (window.width || 0));
-        break;
-      default: //START
-        return 0;
-    }
   }
 
   setVerticalAlign(position) {
