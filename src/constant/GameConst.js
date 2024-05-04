@@ -55,10 +55,8 @@ const IconSetConst = {
   HAND: 142,
   TRASH: 235,
   SAPPHIRE: 161,
-  REDSAPPHIRE: 162,
-  BLUESAPPHIRE: 165,
-  SWORD: 76,
-  SHIELD: 81,
+  RUBY: 162,
+  BLUESAPPHIRE: 165
 };
 
 const HexColors = {

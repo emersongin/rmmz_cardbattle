@@ -140,8 +140,6 @@ class ValuesWindow extends Window_Base {
     this.x = ValuesWindow.getHorizontalAlign(position, this);
   }
 
-
-
   isAvailable() {
     return !this.isBusy();
   }
@@ -153,8 +151,6 @@ class ValuesWindow extends Window_Base {
   isUpdating() {
     return this.getStatus() instanceof WindowUpdatedState;
   }
-
-
 
   addValue(name, value) {
     if (this._values.hasOwnProperty(name)) {
