@@ -9,7 +9,6 @@ class SetMiddleSizeTextWindowTest extends SceneTest {
   }
 
   start() {
-    this.subject.setCenteredAlignment();
     this.subject.show();
     this.test('Deve abrir na largura média!', () => {
       this.subject.open();

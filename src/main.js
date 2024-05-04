@@ -67,14 +67,11 @@
 // include ../test/integration/textwindow/DrawTextCenterAlignMiddleSizeTextWindowTest.js
 // include ../test/integration/textwindow/DrawTextEndAlignFullSizeTextWindowTest.js
 // include ../test/integration/textwindow/DrawTextEndAlignMiddleSizeTextWindowTest.js
-
-
 // include ../test/integration/textwindow/OpenAndCloseTextWindowTest.js
 // include ../test/integration/textwindow/MoveTextWindowTest.js
 // include ../test/integration/textwindow/SetFullSizeTextWindowTest.js
 // include ../test/integration/textwindow/SetMiddleSizeTextWindowTest.js
-// include ../test/integration/textwindow/SetTextTextWindowTest.js
-// include ../test/integration/textwindow/TextColorTextWindowTest.js
+// include ../test/integration/textwindow/SetTextColorTextWindowTest.js
 // tests BOARD WINDOW
 // include ../test/integration/boardwindow/OpenAndCloseBoardWindowTest.js
 // include ../test/integration/boardwindow/UpdatingBoardWindowTest.js

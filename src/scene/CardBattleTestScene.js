@@ -60,9 +60,8 @@ class CardBattleTestScene extends Scene_Message {
       // DrawTextCenterAlignFullSizeTextWindowTest,
       // DrawTextCenterAlignMiddleSizeTextWindowTest,
       // DrawTextEndAlignFullSizeTextWindowTest,
-      DrawTextEndAlignMiddleSizeTextWindowTest,
-      // SetTextTextWindowTest,
-      // TextColorTextWindowTest,
+      // DrawTextEndAlignMiddleSizeTextWindowTest,
+      SetTextColorTextWindowTest,
     ];
     const boardWindowTests = [
       OpenAndCloseBoardWindowTest,

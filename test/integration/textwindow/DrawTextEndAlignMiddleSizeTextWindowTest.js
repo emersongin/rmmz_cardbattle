@@ -22,7 +22,6 @@ class DrawTextEndAlignMiddleSizeTextWindowTest extends SceneTest {
       this.subject.setCenteredAlignment();
       this.subject.open();
     }, () => {
-      console.log(this.subject._history)
       const xCenterAlignPrimaryLine = 288;
       const xCenterAlignSecondaryLine = 288;
       const xCenterAlignTertiaryLine = 145;;

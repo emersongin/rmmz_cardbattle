@@ -11,9 +11,9 @@ class MoveTextWindowTest extends SceneTest {
   start() {
     this.subject.setCenteredAlignment();
     this.subject.show();
-    this.subject.addTextline("Hello World");
-    this.subject.addTextline("Hello World");
-    this.subject.renderContent();
+    this.subject.addText("Hello World");
+    this.subject.addText("Hello World");
+    this.subject.renderContents();
     this.test('Deve move para inicio no top!', () => {
       this.subject.setHorizontalAlign(GameConst.START);
       this.subject.setVerticalAlign(GameConst.TOP);

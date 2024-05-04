@@ -9,9 +9,6 @@ class AlignCenterMiddleSizeTextWindowTest extends SceneTest {
   }
 
   start() {
-    this.subject.addTextline("Hello World!");
-    this.subject.setHorizontalAlignContent(GameConst.CENTER);
-    this.subject.renderContent();
     this.subject.show();
     this.test('Deve alinhar no centro!', () => {
       this.subject.setCenteredAlignment();
