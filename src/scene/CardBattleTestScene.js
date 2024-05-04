@@ -55,8 +55,10 @@ class CardBattleTestScene extends Scene_Message {
       // AlignCenterFullSizeTextWindowTest,
       // OpenAndCloseTextWindowTest,
       // MoveTextWindowTest,
-      // DrawTextStartAlignFullSizeTextWindowTest,
+      DrawTextStartAlignFullSizeTextWindowTest,
       DrawTextStartAlignMiddleSizeTextWindowTest,
+      DrawTextCenterAlignFullSizeTextWindowTest,
+      DrawTextCenterAlignMiddleSizeTextWindowTest,
       // SetTextTextWindowTest,
       // TextColorTextWindowTest,
     ];

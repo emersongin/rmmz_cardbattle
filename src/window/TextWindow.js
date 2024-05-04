@@ -159,7 +159,7 @@ class TextWindow extends Window_Base {
   }
 
   getTextXByAlign(textWidth, maxWidth, align) {
-    maxWidth = Math.max(maxWidth, Graphics.boxWidth - this.padding * 2);
+    maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
     switch (align) {
       case GameConst.CENTER:
         return (maxWidth / 2) - (textWidth / 2);

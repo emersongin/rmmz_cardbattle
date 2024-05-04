@@ -13,8 +13,8 @@ class DrawTextStartAlignMiddleSizeTextWindowTest extends SceneTest {
     this.subject.show();
     const line = "Hello World";
     this.subject.addText(line.repeat(1) + ' 0');
-    this.subject.addText(line.repeat(1) + ' 1');
-    this.subject.addText(line.repeat(1) + ' 2');
+    this.subject.addText(line.repeat(2) + ' 1');
+    this.subject.addText(line.repeat(3) + ' 2');
     this.subject.addText(line.repeat(1) + ' 3');
     this.test('Deve alinhar o texto no início!', () => {
       this.subject.setHorizontalAlignContent(GameConst.START);
