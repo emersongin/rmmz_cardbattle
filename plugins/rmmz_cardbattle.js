@@ -25,6 +25,7 @@ const GameConst = {
   WHITE_POINTS: 'WHITE_POINTS',
   NUM_CARDS_IN_DECK: 'NUM_CARDS_IN_DECK',
   NUM_CARDS_IN_HAND: 'NUM_CARDS_IN_HAND',
+  NUM_CARDS_IN_TRASH: 'NUM_CARDS_IN_TRASH',
   LINE_TEXT: 'LINE_TEXT',
   TEXT_START: 'TEXT_START',
   CHANGE_COLOR: 'CHANGE_COLOR',
@@ -868,6 +869,67 @@ class BattlePointsWindow extends ValuesWindow {
       points, 
       0, 
       0, 
+      this.contents.width, 
+      this.contents.height,
+      'center'
+    );
+  }
+}
+class TrashWindow extends ValuesWindow {
+  initialize(rect) {
+    super.initialize(rect);
+    this._startIcon = true;
+  }
+
+  reset() {
+    this.addValue(GameConst.NUM_CARDS_IN_TRASH, 0);
+    super.reset();
+  }
+
+  startIcon() {
+    this._startIcon = true;
+  }
+
+  startValues() {
+    this._startIcon = false;
+  }
+
+  static create(x, y) {
+    const width = (Graphics.boxWidth / 4) / 2;
+    const height = ValuesWindow.minHeight() * 2;
+    return new TrashWindow(new Rectangle(x, y, width, height));
+  }
+
+  static createValueUpdate(name, value) {
+    return ValuesWindow.createValueUpdate(name, value);
+  }
+
+  refresh() {
+    super.refresh();
+    this.drawIcons();
+    this.drawPoints();
+  }
+
+  drawIcons() {
+    const x = (this.contents.width / 2) - (ImageManager.iconWidth / 2);
+    const y = this.getYItemHeight(this._startIcon ? 0 : 1) + this.getMiddleIconHeight();
+    this.drawIcon(IconSetConst.TRASH, x, y);
+  }
+
+  getYItemHeight(number) {
+    return this.itemHeight() * number;
+  }
+
+  getMiddleIconHeight() {
+    return ImageManager.iconHeight / 2;
+  }
+
+  drawPoints() {
+    const numCards = this.getValueAndConvertToDisplayPad(GameConst.NUM_CARDS_IN_TRASH);
+    this.contents.drawText(
+      numCards, 
+      0, 
+      this.getYItemHeight(this._startIcon ? 1 : 0) - this.getMiddleIconHeight(), 
       this.contents.width, 
       this.contents.height,
       'center'
@@ -5389,6 +5451,50 @@ class UpdatingBattlePointsWindowTest extends SceneTest {
     });
   }
 }
+// tests TRASH WINDOW
+class OpenAndCloseTrashWindowTest extends SceneTest {
+  name = 'OpenAndCloseTrashWindowTest';
+
+  create() {
+    this.subject = TrashWindow.create(0, 0);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.setCenteredAlignment();
+    this.subject.refresh();
+    this.test('Deve abrir e renderizar!', () => {
+      this.subject.open();
+    }, () => {
+      this.assertTrue('Esta aberta?', this.subject.isOpen());
+    });
+    this.test('Deve abrir e renderizar!', () => {
+      this.subject.close();
+    }, () => {
+      this.assertTrue('Esta fechada?', this.subject.isClosed());
+    });
+  }
+}
+class UpdatingTrashWindowTest extends SceneTest {
+  name = 'UpdatingTrashWindowTest';
+
+  create() {
+    this.subject = TrashWindow.create(0, 0);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.setCenteredAlignment();
+    this.subject.refresh();
+    this.subject.open();
+    const updateCardsNumber = TrashWindow.createValueUpdate(GameConst.NUM_CARDS_IN_TRASH, 10);
+    this.test('Deve atualizar os pontos!', () => {
+      this.subject.updateValues(updateCardsNumber);
+    }, () => {
+      this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
+    });
+  }
+}
 
 class CardBattleScene extends Scene_Message {
   initialize() {
@@ -5513,12 +5619,17 @@ class CardBattleTestScene extends Scene_Message {
       OpenAndCloseBattlePointsWindowTest,
       UpdatingBattlePointsWindowTest,
     ];
+    const trashWindow = [
+      OpenAndCloseTrashWindowTest,
+      UpdatingTrashWindowTest,
+    ];
     return [
       // ...cardSpriteTests,
       // ...cardsetTests,
       // ...textWindowTests,
-      ...boardWindowTests,
-      ...battlePointsWindow,
+      // ...boardWindowTests,
+      // ...battlePointsWindow,
+      ...trashWindow
     ];
   }
 

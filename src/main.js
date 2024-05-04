@@ -11,6 +11,7 @@
 // include ./window/TextWindow.js
 // include ./window/BoardWindow.js
 // include ./window/BattlePointsWindow.js
+// include ./window/TrashWindow.js
 // include ./window/ChooseFolderWindow.js
 // include ./object/PowerAction.js
 // include ./object/Energy.js
@@ -78,6 +79,9 @@
 // tests BATTLE POINTS WINDOW
 // include ../test/integration/battlepointswindow/OpenAndCloseBattlePointsWindowTest.js
 // include ../test/integration/battlepointswindow/UpdatingBattlePointsWindowTest.js
+// tests TRASH WINDOW
+// include ../test/integration/trashwindow/OpenAndCloseTrashWindowTest.js
+// include ../test/integration/trashwindow/UpdatingTrashWindowTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./scene/CardBattleTestScene.js
