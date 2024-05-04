@@ -7,6 +7,7 @@
 // include ./data/playerDecksData.js
 // include ./helper/Helpers.js
 // include ./helper/Generators.js
+// include ./window/CardBattleWindowBase.js
 // include ./window/ValuesWindow.js
 // include ./window/TextWindow.js
 // include ./window/BoardWindow.js
@@ -86,6 +87,8 @@
 // tests SCORE WINDOW
 // include ../test/integration/scorewindow/OpenAndCloseScoreWindowTest.js
 // include ../test/integration/scorewindow/UpdatingScoreWindowTest.js
+
+// include ../test/integration/window/WindowTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./scene/CardBattleTestScene.js

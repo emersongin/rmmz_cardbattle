@@ -49,19 +49,19 @@ class CardBattleTestScene extends Scene_Message {
       AnimateDamageCardsCardsetSpriteTest,
     ];
     const textWindowTests = [
-      SetMiddleSizeTextWindowTest,
-      SetFullSizeTextWindowTest,
-      AlignCenterMiddleSizeTextWindowTest,
-      AlignCenterFullSizeTextWindowTest,
-      OpenAndCloseTextWindowTest,
+      // SetMiddleSizeTextWindowTest,
+      // SetFullSizeTextWindowTest,
+      // AlignCenterMiddleSizeTextWindowTest,
+      // AlignCenterFullSizeTextWindowTest,
+      // OpenAndCloseTextWindowTest,
       MoveTextWindowTest,
-      DrawTextStartAlignFullSizeTextWindowTest,
-      DrawTextStartAlignMiddleSizeTextWindowTest,
-      DrawTextCenterAlignFullSizeTextWindowTest,
-      DrawTextCenterAlignMiddleSizeTextWindowTest,
-      DrawTextEndAlignFullSizeTextWindowTest,
-      DrawTextEndAlignMiddleSizeTextWindowTest,
-      SetTextColorTextWindowTest,
+      // DrawTextStartAlignFullSizeTextWindowTest,
+      // DrawTextStartAlignMiddleSizeTextWindowTest,
+      // DrawTextCenterAlignFullSizeTextWindowTest,
+      // DrawTextCenterAlignMiddleSizeTextWindowTest,
+      // DrawTextEndAlignFullSizeTextWindowTest,
+      // DrawTextEndAlignMiddleSizeTextWindowTest,
+      // SetTextColorTextWindowTest,
     ];
     const boardWindowTests = [
       OpenAndCloseBoardWindowTest,
@@ -76,17 +76,21 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingTrashWindowTest,
     ];
     const scoreWindow = [
-      // OpenAndCloseScoreWindowTest,
+      OpenAndCloseScoreWindowTest,
       UpdatingScoreWindowTest,
+    ];
+    const others = [
+      WindowTest
     ];
     return [
       // ...cardSpriteTests,
       // ...cardsetTests,
-      // ...textWindowTests,
-      // ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow
-      ...scoreWindow
+      ...textWindowTests,
+      ...boardWindowTests,
+      ...battlePointsWindow,
+      ...trashWindow,
+      ...scoreWindow,
+      // ...others,
     ];
   }
 

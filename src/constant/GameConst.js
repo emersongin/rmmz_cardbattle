@@ -18,6 +18,8 @@ const GameConst = {
   TOP: 'TOP',
   MIDDLE: 'MIDDLE',
   BOTTOM: 'BOTTOM',
+  RED_COLOR: 'RED_COLOR',
+  BLUE_COLOR: 'BLUE_COLOR',
 };
 
 const CardTypes = {
