@@ -75,13 +75,18 @@ class CardBattleTestScene extends Scene_Message {
       OpenAndCloseTrashWindowTest,
       UpdatingTrashWindowTest,
     ];
+    const scoreWindow = [
+      // OpenAndCloseScoreWindowTest,
+      UpdatingScoreWindowTest,
+    ];
     return [
       // ...cardSpriteTests,
       // ...cardsetTests,
       // ...textWindowTests,
       // ...boardWindowTests,
       // ...battlePointsWindow,
-      ...trashWindow
+      // ...trashWindow
+      ...scoreWindow
     ];
   }
 

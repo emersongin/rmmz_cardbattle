@@ -72,10 +72,8 @@ const IconSetConst = {
   HAND: 142,
   TRASH: 235,
   SAPPHIRE: 161,
-  REDSAPPHIRE: 162,
-  BLUESAPPHIRE: 165,
-  SWORD: 76,
-  SHIELD: 81,
+  RUBY: 162,
+  BLUESAPPHIRE: 165
 };
 
 const HexColors = {
@@ -439,8 +437,6 @@ class ValuesWindow extends Window_Base {
     this.x = ValuesWindow.getHorizontalAlign(position, this);
   }
 
-
-
   isAvailable() {
     return !this.isBusy();
   }
@@ -452,8 +448,6 @@ class ValuesWindow extends Window_Base {
   isUpdating() {
     return this.getStatus() instanceof WindowUpdatedState;
   }
-
-
 
   addValue(name, value) {
     if (this._values.hasOwnProperty(name)) {
@@ -934,6 +928,168 @@ class TrashWindow extends ValuesWindow {
       this.contents.height,
       'center'
     );
+  }
+}
+class WindowUpdatedScoreState {
+  _window;
+  _lastScore = 0;
+  _score = 0;
+  _toggleFps = 6;
+  _interval = 0;
+  _counter = 60;
+  _blink = false;
+
+  constructor(window, lastScore, score) {
+    this._window = window;
+    this.restore(lastScore);
+    this.newScore(score);
+  }
+
+  restore(score) {
+    this._lastScore = score;
+  }
+
+  newScore(score) {
+    this._score = score;
+  }
+
+  updateStatus() {
+    const that = this._window;
+    this.updateBlinkEffect();
+    if (this._counter) return this._counter--;
+    that.refresh(this._score);
+    that.stop();
+  }
+
+  updateBlinkEffect() {
+    const that = this._window;
+    if (!this._blink && this._interval <= this._toggleFps) {
+      this._interval++;
+      if (this._interval >= this._toggleFps) {
+        this._blink = true;
+        that.refresh(this._lastScore);
+      }
+    }
+    if (this._blink && this._interval >= 0) {
+      this._interval--;
+      if (this._interval <= 0) {
+        this._blink = false;
+        that.refresh(this._score);
+      }
+    }
+  }
+}
+
+class ScoreWindow extends Window_Base { 
+  initialize(rect) {
+    super.initialize(rect);
+    this._iconset = "IconSet";
+    this._status = {};
+    this._score = 0;
+    this.closed();
+    this.stop();
+    this.reset();
+  }
+
+  closed() {
+    this._openness = 0;
+  }
+
+  stop() {
+    this.changeStatus(WindowStoppedState);
+  }
+
+  changeStatus(status, ...params) {
+    this._status = new status(this, ...params);
+  }
+
+  reset() {
+    this._score = 0;
+    this.refresh(this._score);
+  }
+
+  refresh(score = 0) {
+    this.contents.clear();
+    this.drawScore(score);
+  }
+
+  drawScore(score) {
+    const padding = 4;
+    const centerX = (this.contents.width / 2) - ((ImageManager.iconWidth * 2) / 2);
+    for (let index = 0; index < 2; index++) {
+      const x = centerX + (ImageManager.iconWidth + padding) * index;
+      const icone = index <= (score - 1) ? IconSetConst.RUBY : IconSetConst.SAPPHIRE;
+      this.drawIcon(icone, x, 0);
+    }
+  }
+
+  drawIcon(iconIndex, x, y) {
+    const bitmap = ImageManager.loadSystem(this._iconset);
+    const pw = ImageManager.iconWidth;
+    const ph = ImageManager.iconHeight;
+    const sx = (iconIndex % 16) * pw;
+    const sy = Math.floor(iconIndex / 16) * ph;
+    this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
+  };
+
+  static create(x, y) {
+    const width = Graphics.boxWidth / 4;
+    const height = ScoreWindow.minHeight();
+    return new ScoreWindow(new Rectangle(x, y, width, height));
+  }
+
+  static minHeight() {
+    return 60;
+  }
+
+  static getVerticalAlign(position, window) {
+    switch (position) {
+      case GameConst.MIDDLE:
+        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
+        break;
+      case GameConst.BOTTOM:
+        return Graphics.boxHeight - (window.height || 0);
+        break;
+      default: //TOP
+        return 0;
+    }
+  }
+
+  static getHorizontalAlign(position, window) {
+    switch (position) {
+      case GameConst.CENTER:
+        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
+        break;
+      case GameConst.END:
+        return (Graphics.boxWidth - (window.width || 0));
+        break;
+      default: //START
+        return 0;
+    }
+  }
+
+  setCenteredAlignment() {
+    this.x = ScoreWindow.getHorizontalAlign(GameConst.CENTER, this);
+    this.y = ScoreWindow.getVerticalAlign(GameConst.MIDDLE, this);
+  }
+
+  isUpdating() {
+    return this.getStatus() instanceof WindowUpdatedScoreState;
+  }
+
+  getStatus() {
+    return this._status;
+  }
+
+  updateScore(score) {
+    const lastScore = this._score;
+    this._score = score;
+    this.changeStatus(WindowUpdatedScoreState, lastScore, score);
+  }
+
+  update() {
+    if (this.isOpen() && this.getStatus()) this._status.updateStatus();
+    super.update();
   }
 }
 class ChooseFolderWindow extends Window_Command {
@@ -5495,6 +5651,52 @@ class UpdatingTrashWindowTest extends SceneTest {
     });
   }
 }
+// tests SCORE WINDOW
+class OpenAndCloseScoreWindowTest extends SceneTest {
+  name = 'OpenAndCloseScoreWindowTest';
+
+  create() {
+    this.subject = ScoreWindow.create(0, 0);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.setCenteredAlignment();
+    this.test('Deve abrir e renderizar!', () => {
+      this.subject.open();
+    }, () => {
+      this.assertTrue('Esta aberta?', this.subject.isOpen());
+    });
+    this.test('Deve abrir e renderizar!', () => {
+      this.subject.close();
+    }, () => {
+      this.assertTrue('Esta fechada?', this.subject.isClosed());
+    });
+  }
+}
+class UpdatingScoreWindowTest extends SceneTest {
+  name = 'UpdatingScoreWindowTest';
+
+  create() {
+    this.subject = ScoreWindow.create(0, 0);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.setCenteredAlignment();
+    this.subject.open();
+    this.test('Deve abrir e renderizar!', () => {
+      this.subject.updateScore(1);
+    }, () => {
+      this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
+    }, 2);
+    this.test('Deve abrir e renderizar!', () => {
+      this.subject.updateScore(2);
+    }, () => {
+      this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
+    }, 2);
+  }
+}
 
 class CardBattleScene extends Scene_Message {
   initialize() {
@@ -5623,13 +5825,18 @@ class CardBattleTestScene extends Scene_Message {
       OpenAndCloseTrashWindowTest,
       UpdatingTrashWindowTest,
     ];
+    const scoreWindow = [
+      // OpenAndCloseScoreWindowTest,
+      UpdatingScoreWindowTest,
+    ];
     return [
       // ...cardSpriteTests,
       // ...cardsetTests,
       // ...textWindowTests,
       // ...boardWindowTests,
       // ...battlePointsWindow,
-      ...trashWindow
+      // ...trashWindow
+      ...scoreWindow
     ];
   }
 
