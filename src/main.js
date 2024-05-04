@@ -65,6 +65,8 @@
 // include ../test/integration/textwindow/DrawTextStartAlignMiddleSizeTextWindowTest.js
 // include ../test/integration/textwindow/DrawTextCenterAlignFullSizeTextWindowTest.js
 // include ../test/integration/textwindow/DrawTextCenterAlignMiddleSizeTextWindowTest.js
+// include ../test/integration/textwindow/DrawTextEndAlignFullSizeTextWindowTest.js
+// include ../test/integration/textwindow/DrawTextEndAlignMiddleSizeTextWindowTest.js
 
 
 // include ../test/integration/textwindow/OpenAndCloseTextWindowTest.js

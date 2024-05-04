@@ -16,7 +16,7 @@ class DrawTextCenterAlignFullSizeTextWindowTest extends SceneTest {
     this.subject.addText(line.repeat(5) + ' 1');
     this.subject.addText(line.repeat(3) + ' 2');
     this.subject.addText(line.repeat(2) + ' 3');
-    this.test('Deve alinhar o texto no início!', () => {
+    this.test('Deve alinhar o texto no centro!', () => {
       this.subject.setHorizontalAlignContent(GameConst.CENTER);
       this.subject.renderContents();
       this.subject.setCenteredAlignment();
@@ -30,10 +30,10 @@ class DrawTextCenterAlignFullSizeTextWindowTest extends SceneTest {
       const yCenterAlignSecondaryLine = 36;
       const yCenterAlignTertiaryLine = 72;
       const yCenterAlignQuaternaryLine = 108;
-      this.assertTrue('Foi alinhado no início?', this.subject.isWasTextDrawnPositions(xCenterAlignPrimaryLine, yCenterAlignPrimaryLine));
-      this.assertTrue('Foi alinhado no início?', this.subject.isWasTextDrawnPositions(xCenterAlignSecondaryLine, yCenterAlignSecondaryLine));
-      this.assertTrue('Foi alinhado no início?', this.subject.isWasTextDrawnPositions(xCenterAlignTertiaryLine, yCenterAlignTertiaryLine));
-      this.assertTrue('Foi alinhado no início?', this.subject.isWasTextDrawnPositions(xCenterAlignQuaternaryLine, yCenterAlignQuaternaryLine));
+      this.assertTrue('Foi alinhado no centro?', this.subject.isWasTextDrawnPositions(xCenterAlignPrimaryLine, yCenterAlignPrimaryLine));
+      this.assertTrue('Foi alinhado no centro?', this.subject.isWasTextDrawnPositions(xCenterAlignSecondaryLine, yCenterAlignSecondaryLine));
+      this.assertTrue('Foi alinhado no centro?', this.subject.isWasTextDrawnPositions(xCenterAlignTertiaryLine, yCenterAlignTertiaryLine));
+      this.assertTrue('Foi alinhado no centro?', this.subject.isWasTextDrawnPositions(xCenterAlignQuaternaryLine, yCenterAlignQuaternaryLine));
     });
   }
 }
