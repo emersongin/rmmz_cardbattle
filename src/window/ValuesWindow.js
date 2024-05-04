@@ -37,7 +37,7 @@ class ValuesWindow extends Window_Base {
     this.contents.clear();
   }
 
-  setCenteredPosition() {
+  setCenteredAlignment() {
     this.x = (Graphics.boxWidth / 2) - (this.width / 2);
     this.y = (Graphics.boxHeight / 2) - (this.height / 2);
   }
@@ -117,12 +117,12 @@ class ValuesWindow extends Window_Base {
     return { name, value };
   }
 
-  setVerticalPosition(position) {
+  setVerticalAlign(position) {
     const paddingTop = 12;
     this.y = (60 * position) + paddingTop;
   }
 
-  setHorizontalPosition(position) {
+  setHorizontalAlign(position) {
     this.x = (Graphics.boxWidth / 2) * position;
   }
 

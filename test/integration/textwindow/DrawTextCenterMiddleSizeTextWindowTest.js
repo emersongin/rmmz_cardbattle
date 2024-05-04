@@ -1,10 +1,10 @@
-class DrawTextCenterFullSizeTextWindowTest extends SceneTest {
-  name = 'DrawTextCenterFullSizeTextWindowTest';
+class DrawTextCenterMiddleSizeTextWindowTest extends SceneTest {
+  name = 'DrawTextCenterMiddleSizeTextWindowTest';
 
   create() {
     const x = 0;
     const y = 0;
-    this.subject = TextWindow.createWindowFullSize(x, y);
+    this.subject = TextWindow.createWindowMiddleSize(x, y);
     this.addWindow(this.subject);
   }
 
@@ -16,8 +16,8 @@ class DrawTextCenterFullSizeTextWindowTest extends SceneTest {
       this.subject.setHorizontalAlignContent(GameConst.CENTER);
       this.subject.addTextline(line);
       this.subject.addTextline(line);
-      // this.subject.addTextline(line);
-      // this.subject.addTextline(line);
+      this.subject.addTextline(line);
+      this.subject.addTextline(line);
       this.subject.renderContent();
       this.subject.setCenteredAlignment();
       this.subject.open();

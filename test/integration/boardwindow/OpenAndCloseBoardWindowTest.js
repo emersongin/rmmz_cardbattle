@@ -7,7 +7,7 @@ class OpenAndCloseBoardWindowTest extends SceneTest {
   }
 
   start() {
-    this.subject.setCenteredPosition();
+    this.subject.setCenteredAlignment();
     this.subject.refresh();
     this.test('Deve abrir e renderizar!', () => {
       this.subject.open();

@@ -9,7 +9,7 @@ class OpenAndCloseTextWindowTest extends SceneTest {
   }
   
   start() {
-    this.subject.setCenteredPosition();
+    this.subject.setCenteredAlignment();
     this.subject.show();
     this.test('Deve abrir!', () => {
       this.subject.open();

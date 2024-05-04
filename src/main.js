@@ -62,8 +62,9 @@
 // include ../test/integration/textwindow/AlignCenterMiddleSizeTextWindowTest.js
 // include ../test/integration/textwindow/AlignCenterFullSizeTextWindowTest.js
 // include ../test/integration/textwindow/DrawTextCenterFullSizeTextWindowTest.js
+// include ../test/integration/textwindow/DrawTextCenterMiddleSizeTextWindowTest.js
 // include ../test/integration/textwindow/OpenAndCloseTextWindowTest.js
-// include ../test/integration/textwindow/PositionMoveTextWindowTest.js
+// include ../test/integration/textwindow/MoveTextWindowTest.js
 // include ../test/integration/textwindow/SetFullSizeTextWindowTest.js
 // include ../test/integration/textwindow/SetMiddleSizeTextWindowTest.js
 // include ../test/integration/textwindow/SetTextTextWindowTest.js

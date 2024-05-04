@@ -7,7 +7,7 @@ class UpdatingBoardWindowTest extends SceneTest {
   }
 
   start() {
-    this.subject.setCenteredPosition();
+    this.subject.setCenteredAlignment();
     this.subject.refresh();
     this.subject.open();
     const updateRedPoints = BoardWindow.createValueUpdate(GameConst.RED_POINTS, 10);

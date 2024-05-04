@@ -1,9 +1,10 @@
 class TextWindow extends Window_Base {
   _content = [];
-  _align = 'LEFT';
+  _horizontalAlign = '';
 
   initialize(rect) {
     super.initialize(rect);
+    this.setHorizontalAlignContent(GameConst.START);
     this.closed();
   }
 
@@ -31,11 +32,37 @@ class TextWindow extends Window_Base {
     return 60;
   }
 
-  setAlignContent(align = 'LEFT') {
-    this._align = align;
+  setHorizontalAlignContent(align) {
+    this._horizontalAlign = align;
   }
 
-  getContentIndex(index) {
+  getAlignContent() {
+    return this._horizontalAlign;
+  }
+
+  changeTextExColor(colorIndex) {
+    const colorText = `\\c[${colorIndex}]`;
+    const noSpace = false;
+    const lastIndex = this.getIndexLastContent();
+    const content = this.geContentByIndex(lastIndex);
+    if (content) {
+      content.text = `${content.text}${colorText}`;
+      const x = this.getXPositionTextAlign(content.text, this.getAlignContent());
+      this.appendToRender(GameConst.TEXT_EX, content.text, x, lastIndex);
+    } else {
+      this.addToRender(GameConst.CHANGE_COLOR, colorText, 0, 0, this.getAlignContent());
+    }
+  }
+
+  getIndexLastContent() {
+    return this._content.length - 1;
+  }
+
+  getLastContent(index) {
+    return this.geContentByIndex(this.getIndexLastContent())
+  }
+
+  geContentByIndex(index) {
     return this.getContent()[index];
   }
 
@@ -47,56 +74,25 @@ class TextWindow extends Window_Base {
     });
   }
 
-  renderContent() {
-    if (this._content.length) {
-      this.getContent().forEach(({ type, text, x, y, align }, index) => {
-        x = this.getTextAlignXPosition(text, align);
-        this.setContentX(index, x);
-        this.drawTextEx(text, x, y);
-      });
+  appendToRender(type, text, x, lastIndex) {
+    if (this.getContent().length === 0) return this.addToRender(type, text, x);
+    if (type == GameConst.TEXT_EX) {
+      this.setContentType(lastIndex, type);
+      this.setContentText(lastIndex, text);
+      this.setContentX(lastIndex, x);
+      this.resize(text);
+    } else {
+      this.setContentText(lastIndex, text);
     }
   }
 
-  addTextline(text = '', align = this._align) {
-    text = this.processTextLine(text);
-    this.addToRender(GameConst.TEXT_EX, text, 0, 0, align);
+  setContentType(index, type) {
+    this._content[index].type = type;
   }
 
-  getTextAlignXPosition(text, align) {
-    const textWidth = this.getTextWidth(text);
-    const x = this.getAlignText(textWidth, align);
-    return x;
-  }
-
-  processTextLine(text) {
-    const length = this._content.length;
-    const isGreaterThanZero = length > 0;
-    const isNotSpecialLine = this._content[length - 1]?.type != GameConst.CHANGE_COLOR;
-    if (isGreaterThanZero && isNotSpecialLine) text = `${'\n'.repeat(length)}${text}`;
-    return text;
-  }
-
-  getTextWidth(text) {
-    const textState = this.createTextState(text, 0, 0, 0);
-    textState.drawing = false;
-    this.processAllText(textState);
-    return textState.outputWidth;
-  }
-
-  getAlignText(textWidth, align) {
-    switch (align) {
-      case GameConst.CENTER_ALIGN:
-        return (Math.max(this.contentsWidth(), textWidth, this.width) / 2) - (textWidth / 2);
-      case GameConst.RIGHT_ALIGN:
-        return Math.max(this.contentsWidth(), textWidth, this.width) - textWidth;
-      default:
-        return 0;
-    }
-  }
-
-  addToRender(type, ...params) {
-    this._content.push({ type, ...params });
-    this.resize(params[0]);
+  setContentText(index, text) {
+    const textIndex = 0;
+    this._content[index][textIndex] = text;
   }
 
   resize(text) {
@@ -109,18 +105,25 @@ class TextWindow extends Window_Base {
     this.contents.resize(contentWidth, this.calculeTextHeight());
   }
 
-  calculeTextHeight() {
-    return Math.max(this.fittingHeight(this.numLines()), this.height);
-  }
-
   calculeTextWidth(text) {
     let width = this.getTextWidth(text);
     width = Math.ceil(width);
     return Math.min(width, Graphics.boxWidth);
   }
 
+  getTextWidth(text) {
+    const textState = this.createTextState(text, 0, 0, 0);
+    textState.drawing = false;
+    this.processAllText(textState);
+    return textState.outputWidth;
+  }
+
+  calculeTextHeight() {
+    return Math.max(this.fittingHeight(this.numLines()), this.height);
+  }
+
   numLines() {
-    const lines = this.getContent().filter(content => content.type != GameConst.CHANGE_COLOR);
+    const lines = this.getContent().filter(content => content.type == GameConst.TEXT_EX);
     return lines.length;
   }
 
@@ -138,90 +141,135 @@ class TextWindow extends Window_Base {
     return Math.max(this.width, textWidth);
   }
 
+  addToRender(type, ...params) {
+    this._content.push({ type, ...params });
+    const textIndex = 0;
+    const text = params[textIndex];
+  }
+
+  renderContent() {
+    const contents = this.getContent();
+    console.log(contents)
+    if (contents.length) {
+      contents.forEach((content, index) => {
+        const { type, text, x, y, align } = content;
+        this.resize(text);
+        this.drawTextEx(text, x, y);
+      });
+    }
+  }
+
+  getXPositionTextAlign(text, align) {
+    const textWidth = this.getTextWidth(text);
+    const x = this.getAlignText(textWidth, align);
+    return x;
+  }
+
+  getAlignText(textWidth, align) {
+    const contentWidth = this.contentsWidth();
+    console.log(this.width, contentWidth, textWidth);
+    switch (align) {
+      case GameConst.CENTER:
+        return (contentWidth / 2) - (textWidth / 2);
+      case GameConst.RIGHT:
+        return this.contentsWidth() - textWidth;
+      default:
+        return 0;
+    }
+  }
+
+  setContentX(index, x) {
+    const xPosition = 1;
+    this._content[index][xPosition] = x;
+  }
+
   drawTextEx(text = '', x = 0, y = 0, width = this.width) {
     super.drawTextEx(text, x, y, width);
   }
 
-  isCenterAlignedText(xAling) {
-    return this.getContent().every(content => {
-      const x = this.getTextAlignXPosition(content.text, GameConst.CENTER_ALIGN);
-      return x === xAling;
-    });
-  }
-
-  changeTextExColor(colorIndex) {
-    const colorText = `\\c[${colorIndex}]`;
-    const noSpace = false;
-    const lastIndex = this._content.length - 1;
-    const content = this.getContentIndex(lastIndex);
-    if (content) {
-      content.text = `${content.text}${colorText}`;
-      this.appendToRender(GameConst.TEXT_EX, content.text, lastIndex);
-    } else {
-      this.addToRender(GameConst.CHANGE_COLOR, colorText, 0, 0, this._align);
-    }
-  }
-
   appendText(text, space = true) {
-    const lastIndex = this._content.length - 1;
-    const content = this.getContentIndex(lastIndex);
-    const isNotSpecialLine = content?.type != GameConst.CHANGE_COLOR;
-    if (content) {
-      content.text = `${content.text}${space && isNotSpecialLine ? ' ' : ''}${text.trim()}`;
-      this.appendToRender(GameConst.TEXT_EX, content.text, lastIndex);
+    const lastContent = this.getLastContent();
+    const isNotSpecialLine = lastContent?.type != GameConst.CHANGE_COLOR;
+    if (lastContent) {
+      lastContent.text = `${lastContent.text}${space && isNotSpecialLine ? ' ' : ''}${text.trim()}`;
+      const x = this.getXPositionTextAlign(lastContent.text, this.getAlignContent());
+      this.appendToRender(GameConst.TEXT_EX, lastContent.text, x, lastIndex);
     } else {
       this.addTextline(text);
     }
   }
 
-  appendToRender(type, text, lastIndex) {
-    if (type == GameConst.TEXT_EX) {
-      this.setContentType(lastIndex, type);
-      this.setContentText(lastIndex, text);
-      this.resize(text);
-    } else {
-      this.setContentText(lastIndex, text);
-    }
+  addTextline(text = '', align = this._horizontalAlign) {
+    text = this.processTextLine(text);
+    const x = this.getXPositionTextAlign(text, this.getAlignContent());
+    this.addToRender(GameConst.TEXT_EX, text, x, 0, align);
   }
 
-  setContentType(index, type) {
-    this._content[index].type = type;
+  updateXpositionContent(x) {
+    this.getContent().forEach((content, index) => {
+      this.setContentX(index, x);
+    });
   }
 
-  setContentText(index, text) {
-    this._content[index][0] = text;
+  processTextLine(text) {
+    const length = this.getContent().length;
+    const isGreaterThanZero = length > 0;
+    const lastContent = this.getLastContent();
+    const isNotSpecialLine = lastContent?.type != GameConst.CHANGE_COLOR;
+    console.log(lastContent?.type);
+    if (isGreaterThanZero && (lastContent && isNotSpecialLine)) text = `${'\n'.repeat(length)}${text}`;
+    return text;
   }
 
-  setContentX(index, x) {
-    this._content[index][1] = x;
+  setCenteredAlignment() {
+    this.x = TextWindow.getHorizontalAlign(GameConst.CENTER, this);
+    this.y = TextWindow.getVerticalAlign(GameConst.MIDDLE, this);
   }
 
-  setCenteredPosition() {
-    this.x = (Graphics.boxWidth / 2) - (this.width / 2);
-    this.y = (Graphics.boxHeight / 2) - (this.height / 2);
-  }
-
-  isCenterAlign() {
+  isCenterAligned() {
     return this.x === (Graphics.boxWidth / 2) - (this.width / 2) && 
       this.y === (Graphics.boxHeight / 2) - (this.height / 2);
   }
 
-  static getVerticalPosition(position) {
-    const paddingTop = 12;
-    return (60 * position) + paddingTop;
+  isContentCenteredCenter(xAling) {
+    return this.getContent().every(content => {
+      const x = this.getXPositionTextAlign(content.text, GameConst.CENTER);
+      return x === xAling;
+    });
   }
 
-  static getHorizontalPosition(position) {
-    return (Graphics.boxWidth / 2) * position;
+  static getVerticalAlign(position, window) {
+    switch (position) {
+      case GameConst.MIDDLE:
+        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
+        break;
+      case GameConst.BOTTOM:
+        return Graphics.boxHeight - (window.height || 0);
+        break;
+      default: //TOP
+        return 0;
+    }
   }
 
-  setVerticalPosition(position) {
-    const paddingTop = 12;
-    this.y = (60 * position) + paddingTop;
+  static getHorizontalAlign(position, window) {
+    switch (position) {
+      case GameConst.CENTER:
+        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
+        break;
+      case GameConst.END:
+        return (Graphics.boxWidth - (window.width || 0));
+        break;
+      default: //START
+        return 0;
+    }
   }
 
-  setHorizontalPosition(position) {
-    this.x = (Graphics.boxWidth / 2) * position;
+  setVerticalAlign(position) {
+    this.y = TextWindow.getVerticalAlign(position, this);
+  }
+
+  setHorizontalAlign(position) {
+    this.x = TextWindow.getHorizontalAlign(position, this);
   }
 
   isFullsize() {
@@ -232,11 +280,7 @@ class TextWindow extends Window_Base {
     return this.width === Graphics.boxWidth / 2;
   }
 
-  getTextColor() {
-    return this.contents.textColor;
-  }
-
-  isSetColorContent(colorIndex) {
+  isColorContentByIndex(colorIndex) {
     return this.getContent().some(content => content.text.includes(`\\c[${colorIndex}]`));
   }
 }

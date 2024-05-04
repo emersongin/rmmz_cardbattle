@@ -10,11 +10,11 @@ class TextColorTextWindowTest extends SceneTest {
 
   start() {
     this.subject.show();
-    const primaryColor = 2;
-    const sencondColor = 5;
-    const thirdColor = 8;
+    const primaryColor = GameColorIndexs.NORMAL_COLOR;
+    const sencondColor = GameColorIndexs.SYSTEM_COLOR;
+    const thirdColor = GameColorIndexs.CRISIS_COLOR;
     this.test('Deve apresentar o texto com as cores definidas!', () => {
-      this.subject.setAlignContent(GameConst.CENTER_ALIGN);
+      this.subject.setHorizontalAlignContent(GameConst.CENTER);
       this.subject.changeTextExColor(primaryColor);
       this.subject.appendText("Hello World");
       this.subject.changeTextExColor(sencondColor);
@@ -23,12 +23,12 @@ class TextColorTextWindowTest extends SceneTest {
       this.subject.addTextline("Hello World");
       this.subject.appendText("Hello World");
       this.subject.renderContent();
-      this.subject.setCenteredPosition();
+      this.subject.setCenteredAlignment();
       this.subject.open();
     }, () => {
-      this.assertTrue('Esta com testo na cor primaryColor?', this.subject.isSetColorContent(primaryColor));
-      this.assertTrue('Esta com testo na cor sencondColor?', this.subject.isSetColorContent(sencondColor));
-      this.assertTrue('Esta com testo na cor thirdColor?', this.subject.isSetColorContent(thirdColor));
+      this.assertTrue('Esta com testo na cor primaryColor?', this.subject.isColorContentByIndex(primaryColor));
+      this.assertTrue('Esta com testo na cor sencondColor?', this.subject.isColorContentByIndex(sencondColor));
+      this.assertTrue('Esta com testo na cor thirdColor?', this.subject.isColorContentByIndex(thirdColor));
     });
   }
 }

@@ -9,7 +9,7 @@ class SetFullSizeTextWindowTest extends SceneTest {
   }
 
   start() {
-    this.subject.setCenteredPosition();
+    this.subject.setCenteredAlignment();
     this.subject.show();
     this.test('Deve abrir na largura total!', () => {
       this.subject.open();

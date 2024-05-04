@@ -7,7 +7,7 @@ class UpdatingBattlePointsWindowTest extends SceneTest {
   }
 
   start() {
-    this.subject.setCenteredPosition();
+    this.subject.setCenteredAlignment();
     this.subject.refresh();
     this.subject.open();
     const updateAttackPoints = BattlePointsWindow.createValueUpdate(GameConst.ATTACK_POINTS, 30);

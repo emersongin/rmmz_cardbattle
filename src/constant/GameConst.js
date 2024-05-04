@@ -10,9 +10,12 @@ const GameConst = {
   NUM_CARDS_IN_HAND: 'NUM_CARDS_IN_HAND',
   TEXT_EX: 'TEXT_EX',
   CHANGE_COLOR: 'CHANGE_COLOR',
-  LEFT_ALIGN: 'LEFT_ALIGN',
-  CENTER_ALIGN: 'CENTER_ALIGN',
-  RIGHT_ALIGN: 'RIGHT_ALIGN',
+  START: 'START',
+  CENTER: 'CENTER',
+  END: 'END',
+  TOP: 'TOP',
+  MIDDLE: 'MIDDLE',
+  BOTTOM: 'BOTTOM',
 };
 
 const CardTypes = {
@@ -28,6 +31,15 @@ const ColorTypes = {
   WHITE: 4,
   BLACK: 5,
   BROWN: 6,
+};
+
+const GameColorIndexs = {
+  NORMAL_COLOR: 0,
+  SYSTEM_COLOR: 16,
+  CRISIS_COLOR: 17,
+  DEATH_COLOR: 18,
+  GAIN_COLOR: 19,
+  DAMAGE_COLOR: 20,
 };
 
 const IconSetConst = {

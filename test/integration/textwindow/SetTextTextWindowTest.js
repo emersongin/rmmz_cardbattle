@@ -9,17 +9,18 @@ class SetTextTextWindowTest extends SceneTest {
   }
 
   start() {
+    this.subject.setCenteredAlignment();
     this.subject.show();
     const line1 = "Hello World Hello World Hello World Hello World";
     const line2 = "Hello World";
     const line3 = "Hello World Hello World Hello World";
     this.test('Deve apresentar o texto definido!', () => {
-      this.subject.setAlignContent(GameConst.CENTER_ALIGN);
-      this.subject.addTextline(line1);
-      this.subject.addTextline(line2);
-      this.subject.addTextline(line3);
+      this.subject.setHorizontalAlignContent(GameConst.CENTER);
+      this.subject.appendText(line1);
+      this.subject.appendText(line2);
+      this.subject.appendText(line3);
       this.subject.renderContent();
-      this.subject.setCenteredPosition();
+      this.subject.setCenteredAlignment();
       this.subject.open();
     }, () => {
       const [content1, content2, content3] = this.subject.getContent();
