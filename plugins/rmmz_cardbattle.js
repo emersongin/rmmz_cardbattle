@@ -323,10 +323,6 @@ class ValuesWindow extends Window_Base {
     this._status = new status(this, ...params);
   }
 
-  static minHeight() {
-    return 60;
-  }
-
   reset() {
     this.refresh();
   }
@@ -335,21 +331,44 @@ class ValuesWindow extends Window_Base {
     this.contents.clear();
   }
 
-  setCenteredAlignment() {
-    this.x = (Graphics.boxWidth / 2) - (this.width / 2);
-    this.y = (Graphics.boxHeight / 2) - (this.height / 2);
+  static minHeight() {
+    return 60;
   }
 
+  static createValueUpdate(name, value) {
+    return { name, value };
+  }
 
+  static getVerticalAlign(position, window) {
+    switch (position) {
+      case GameConst.MIDDLE:
+        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
+        break;
+      case GameConst.BOTTOM:
+        return Graphics.boxHeight - (window.height || 0);
+        break;
+      default: //TOP
+        return 0;
+    }
+  }
 
+  static getHorizontalAlign(position, window) {
+    switch (position) {
+      case GameConst.CENTER:
+        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
+        break;
+      case GameConst.END:
+        return (Graphics.boxWidth - (window.width || 0));
+        break;
+      default: //START
+        return 0;
+    }
+  }
 
-
-
-
-
-  
-  
-
+  setCenteredAlignment() {
+    this.x = ValuesWindow.getHorizontalAlign(GameConst.CENTER, this);
+    this.y = ValuesWindow.getVerticalAlign(GameConst.MIDDLE, this);
+  }
 
   update() {
     if (this.hasUpdates() && this.isStopped()) this.executeUpdate();
@@ -411,22 +430,23 @@ class ValuesWindow extends Window_Base {
     return action;
   }
 
-  static createValueUpdate(name, value) {
-    return { name, value };
-  }
-
   setVerticalAlign(position) {
-    const paddingTop = 12;
-    this.y = (60 * position) + paddingTop;
+    this.y = ValuesWindow.getVerticalAlign(position, this);
   }
 
   setHorizontalAlign(position) {
-    this.x = (Graphics.boxWidth / 2) * position;
+    this.x = ValuesWindow.getHorizontalAlign(position, this);
   }
 
 
 
+  isAvailable() {
+    return !this.isBusy();
+  }
 
+  isBusy() {
+    return this.isOpening() || this.isClosing() || this.isUpdating();
+  }
 
   isUpdating() {
     return this.getStatus() instanceof WindowUpdatedState;
@@ -450,33 +470,20 @@ class ValuesWindow extends Window_Base {
     this._values[name] = value;
   }
 
-  getValue(name) {
-    return this._values[name];
-  }
-
-  getValueAndconvertToDisplay(name) {
+  getValueAndConvertToDisplay(name) {
     const points = this.getValue(name) || 0;
     return StringHelper.convertPointsDisplay(points);
   }
 
-  getValueAndconvertToDisplayPad(name) {
+  getValue(name) {
+    return this._values[name];
+  }
+
+  getValueAndConvertToDisplayPad(name) {
     const pad = 2;
     const points = this.getValue(name) || 0;
     return StringHelper.convertPointsDisplayPad(points, pad);
   }
-
-
-
-
-
-  isAvailable() {
-    return !this.isBusy();
-  }
-
-  isBusy() {
-    return this.isOpening() || this.isClosing() || this.isUpdating();
-  }
-
 }
 class TextWindow extends Window_Base {
   _contents = [];
@@ -694,48 +701,6 @@ class TextWindow extends Window_Base {
     return this.itemHeight() * index;
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // getLastContent(index) {
-  //   return this.geContentByIndex(this.getIndexLastContent())
-  // }
-
-  // geContentByIndex(index) {
-  //   return this.getContents()[index];
-  // }
-
-  // getIndexLastContent() {
-  //   return this.getContents().length - 1;
-  // }
-
-
-
-
-
   setCenteredAlignment() {
     this.x = TextWindow.getHorizontalAlign(GameConst.CENTER, this);
     this.y = TextWindow.getVerticalAlign(GameConst.MIDDLE, this);
@@ -849,11 +814,11 @@ class BoardWindow extends ValuesWindow {
     const xPositionBluePoints = 232;
     const xPositionGreenPoints = 328;
     const xPositionBlackPoints = 424;
-    const redPoints = this.getValueAndconvertToDisplayPad(GameConst.RED_POINTS);
-    const bluePoints = this.getValueAndconvertToDisplayPad(GameConst.BLUE_POINTS);
-    const greenPoints = this.getValueAndconvertToDisplayPad(GameConst.GREEN_POINTS);
-    const blackPoints = this.getValueAndconvertToDisplayPad(GameConst.BLACK_POINTS);
-    const whitePoints = this.getValueAndconvertToDisplayPad(GameConst.WHITE_POINTS);
+    const redPoints = this.getValueAndConvertToDisplayPad(GameConst.RED_POINTS);
+    const bluePoints = this.getValueAndConvertToDisplayPad(GameConst.BLUE_POINTS);
+    const greenPoints = this.getValueAndConvertToDisplayPad(GameConst.GREEN_POINTS);
+    const blackPoints = this.getValueAndConvertToDisplayPad(GameConst.BLACK_POINTS);
+    const whitePoints = this.getValueAndConvertToDisplayPad(GameConst.WHITE_POINTS);
     this.contents.drawText(whitePoints, xPositionWhitePoints, yPosition, width, height);
     this.contents.drawText(redPoints, xPositonRedPoints, yPosition, width, height);
     this.contents.drawText(bluePoints, xPositionBluePoints, yPosition, width, height);
@@ -867,8 +832,8 @@ class BoardWindow extends ValuesWindow {
     const yPosition = 0;
     const xPositionHand = this.contents.width - 96 + 40;
     const xPositionDeck = this.contents.width - 192 + 40;
-    const handPoints = this.getValueAndconvertToDisplayPad(GameConst.NUM_CARDS_IN_HAND);
-    const deckPoints = this.getValueAndconvertToDisplayPad(GameConst.NUM_CARDS_IN_DECK);
+    const handPoints = this.getValueAndConvertToDisplayPad(GameConst.NUM_CARDS_IN_HAND);
+    const deckPoints = this.getValueAndConvertToDisplayPad(GameConst.NUM_CARDS_IN_DECK);
     this.contents.drawText(handPoints, xPositionHand, yPosition, width, height);
     this.contents.drawText(deckPoints, xPositionDeck, yPosition, width, height);
   }
@@ -896,8 +861,8 @@ class BattlePointsWindow extends ValuesWindow {
   }
 
   drawPoints() {
-    const attack = this.getValueAndconvertToDisplay(GameConst.ATTACK_POINTS);
-    const health = this.getValueAndconvertToDisplay(GameConst.HEALTH_POINTS);
+    const attack = this.getValueAndConvertToDisplay(GameConst.ATTACK_POINTS);
+    const health = this.getValueAndConvertToDisplay(GameConst.HEALTH_POINTS);
     const points = `AP ${attack} HP ${health}`;
     this.contents.drawText(
       points, 
@@ -5551,9 +5516,9 @@ class CardBattleTestScene extends Scene_Message {
     return [
       // ...cardSpriteTests,
       // ...cardsetTests,
-      ...textWindowTests,
-      // ...boardWindowTests,
-      // ...battlePointsWindow,
+      // ...textWindowTests,
+      ...boardWindowTests,
+      ...battlePointsWindow,
     ];
   }
 

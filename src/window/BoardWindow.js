@@ -75,11 +75,11 @@ class BoardWindow extends ValuesWindow {
     const xPositionBluePoints = 232;
     const xPositionGreenPoints = 328;
     const xPositionBlackPoints = 424;
-    const redPoints = this.getValueAndconvertToDisplayPad(GameConst.RED_POINTS);
-    const bluePoints = this.getValueAndconvertToDisplayPad(GameConst.BLUE_POINTS);
-    const greenPoints = this.getValueAndconvertToDisplayPad(GameConst.GREEN_POINTS);
-    const blackPoints = this.getValueAndconvertToDisplayPad(GameConst.BLACK_POINTS);
-    const whitePoints = this.getValueAndconvertToDisplayPad(GameConst.WHITE_POINTS);
+    const redPoints = this.getValueAndConvertToDisplayPad(GameConst.RED_POINTS);
+    const bluePoints = this.getValueAndConvertToDisplayPad(GameConst.BLUE_POINTS);
+    const greenPoints = this.getValueAndConvertToDisplayPad(GameConst.GREEN_POINTS);
+    const blackPoints = this.getValueAndConvertToDisplayPad(GameConst.BLACK_POINTS);
+    const whitePoints = this.getValueAndConvertToDisplayPad(GameConst.WHITE_POINTS);
     this.contents.drawText(whitePoints, xPositionWhitePoints, yPosition, width, height);
     this.contents.drawText(redPoints, xPositonRedPoints, yPosition, width, height);
     this.contents.drawText(bluePoints, xPositionBluePoints, yPosition, width, height);
@@ -93,8 +93,8 @@ class BoardWindow extends ValuesWindow {
     const yPosition = 0;
     const xPositionHand = this.contents.width - 96 + 40;
     const xPositionDeck = this.contents.width - 192 + 40;
-    const handPoints = this.getValueAndconvertToDisplayPad(GameConst.NUM_CARDS_IN_HAND);
-    const deckPoints = this.getValueAndconvertToDisplayPad(GameConst.NUM_CARDS_IN_DECK);
+    const handPoints = this.getValueAndConvertToDisplayPad(GameConst.NUM_CARDS_IN_HAND);
+    const deckPoints = this.getValueAndConvertToDisplayPad(GameConst.NUM_CARDS_IN_DECK);
     this.contents.drawText(handPoints, xPositionHand, yPosition, width, height);
     this.contents.drawText(deckPoints, xPositionDeck, yPosition, width, height);
   }

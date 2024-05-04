@@ -25,10 +25,6 @@ class ValuesWindow extends Window_Base {
     this._status = new status(this, ...params);
   }
 
-  static minHeight() {
-    return 60;
-  }
-
   reset() {
     this.refresh();
   }
@@ -37,21 +33,44 @@ class ValuesWindow extends Window_Base {
     this.contents.clear();
   }
 
-  setCenteredAlignment() {
-    this.x = (Graphics.boxWidth / 2) - (this.width / 2);
-    this.y = (Graphics.boxHeight / 2) - (this.height / 2);
+  static minHeight() {
+    return 60;
   }
 
+  static createValueUpdate(name, value) {
+    return { name, value };
+  }
 
+  static getVerticalAlign(position, window) {
+    switch (position) {
+      case GameConst.MIDDLE:
+        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
+        break;
+      case GameConst.BOTTOM:
+        return Graphics.boxHeight - (window.height || 0);
+        break;
+      default: //TOP
+        return 0;
+    }
+  }
 
+  static getHorizontalAlign(position, window) {
+    switch (position) {
+      case GameConst.CENTER:
+        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
+        break;
+      case GameConst.END:
+        return (Graphics.boxWidth - (window.width || 0));
+        break;
+      default: //START
+        return 0;
+    }
+  }
 
-
-
-
-
-  
-  
-
+  setCenteredAlignment() {
+    this.x = ValuesWindow.getHorizontalAlign(GameConst.CENTER, this);
+    this.y = ValuesWindow.getVerticalAlign(GameConst.MIDDLE, this);
+  }
 
   update() {
     if (this.hasUpdates() && this.isStopped()) this.executeUpdate();
@@ -113,22 +132,23 @@ class ValuesWindow extends Window_Base {
     return action;
   }
 
-  static createValueUpdate(name, value) {
-    return { name, value };
-  }
-
   setVerticalAlign(position) {
-    const paddingTop = 12;
-    this.y = (60 * position) + paddingTop;
+    this.y = ValuesWindow.getVerticalAlign(position, this);
   }
 
   setHorizontalAlign(position) {
-    this.x = (Graphics.boxWidth / 2) * position;
+    this.x = ValuesWindow.getHorizontalAlign(position, this);
   }
 
 
 
+  isAvailable() {
+    return !this.isBusy();
+  }
 
+  isBusy() {
+    return this.isOpening() || this.isClosing() || this.isUpdating();
+  }
 
   isUpdating() {
     return this.getStatus() instanceof WindowUpdatedState;
@@ -152,31 +172,18 @@ class ValuesWindow extends Window_Base {
     this._values[name] = value;
   }
 
-  getValue(name) {
-    return this._values[name];
-  }
-
-  getValueAndconvertToDisplay(name) {
+  getValueAndConvertToDisplay(name) {
     const points = this.getValue(name) || 0;
     return StringHelper.convertPointsDisplay(points);
   }
 
-  getValueAndconvertToDisplayPad(name) {
+  getValue(name) {
+    return this._values[name];
+  }
+
+  getValueAndConvertToDisplayPad(name) {
     const pad = 2;
     const points = this.getValue(name) || 0;
     return StringHelper.convertPointsDisplayPad(points, pad);
   }
-
-
-
-
-
-  isAvailable() {
-    return !this.isBusy();
-  }
-
-  isBusy() {
-    return this.isOpening() || this.isClosing() || this.isUpdating();
-  }
-
 }

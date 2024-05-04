@@ -21,8 +21,8 @@ class BattlePointsWindow extends ValuesWindow {
   }
 
   drawPoints() {
-    const attack = this.getValueAndconvertToDisplay(GameConst.ATTACK_POINTS);
-    const health = this.getValueAndconvertToDisplay(GameConst.HEALTH_POINTS);
+    const attack = this.getValueAndConvertToDisplay(GameConst.ATTACK_POINTS);
+    const health = this.getValueAndConvertToDisplay(GameConst.HEALTH_POINTS);
     const points = `AP ${attack} HP ${health}`;
     this.contents.drawText(
       points, 
