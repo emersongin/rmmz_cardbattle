@@ -1,4 +1,24 @@
 class BoardWindow extends ValuesWindow {
+  initialize(rect) {
+    super.initialize(rect);
+    this.resetPoints();
+  }
+
+  resetPoints() {
+    this.addValue(GameConst.RED_POINTS, 0);
+    this.addValue(GameConst.BLUE_POINTS, 0);
+    this.addValue(GameConst.GREEN_POINTS, 0);
+    this.addValue(GameConst.BLACK_POINTS, 0);
+    this.addValue(GameConst.WHITE_POINTS, 0);
+    this.addValue(GameConst.NUM_CARDS_IN_DECK, 0);
+    this.addValue(GameConst.NUM_CARDS_IN_HAND, 0);
+  }
+
+  reset() {
+    super.reset();
+    this.resetPoints();
+  }
+
   static create(x, y, width, height) {
     return new BoardWindow(new Rectangle(x, y, width, height));
   }
@@ -17,17 +37,6 @@ class BoardWindow extends ValuesWindow {
 
   static createValueUpdate(name, value) {
     return ValuesWindow.createValueUpdate(name, value);
-  }
-
-  reset() {
-    this.addValue(GameConst.RED_POINTS, 0);
-    this.addValue(GameConst.BLUE_POINTS, 0);
-    this.addValue(GameConst.GREEN_POINTS, 0);
-    this.addValue(GameConst.BLACK_POINTS, 0);
-    this.addValue(GameConst.WHITE_POINTS, 0);
-    this.addValue(GameConst.NUM_CARDS_IN_DECK, 0);
-    this.addValue(GameConst.NUM_CARDS_IN_HAND, 0);
-    super.reset();
   }
 
   refresh() {

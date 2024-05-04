@@ -205,129 +205,6 @@ class HashGenerator {
     });
   }
 }
-class CardBattleWindowBase extends  Window_Base {
-  initialize(rect) {
-    super.initialize(rect);
-    this._iconset = "IconSet";
-    this._status = {};
-    this._windowColor = GameConst.BLUE_COLOR;
-    this.closed();
-    this.stop();
-    this.reset();
-    this.setBlueColor();
-  }
-
-  closed() {
-    this._openness = 0;
-  }
-
-  stop() {
-    this.changeStatus(WindowStoppedState);
-  }
-
-  changeStatus(status, ...params) {
-    this._status = new status(this, ...params);
-  }
-
-  getStatus() {
-    return this._status;
-  }
-
-  reset() {
-    this.refresh();
-  }
-
-  refresh() {
-    this.contents.clear();
-  }
-
-  setBlueColor() {
-    this._windowColor = GameConst.BLUE_COLOR;
-  }
-
-  setRedColor() {
-    this._windowColor = GameConst.RED_COLOR;
-  }
-
-  update() {
-    super.update();
-    if (this.isOpen() && this.getStatus()) this._status.updateStatus();
-    this.updateTone();
-  }
-
-  updateTone() {
-    switch (this._windowColor) {
-      case GameConst.BLUE_COLOR:
-        this.setTone(0, 0, 255);
-        break;
-      case GameConst.RED_COLOR:
-        this.setTone(255, 0, 0);
-        break;
-      default:
-        this.setTone(0, 0, 0);
-    }
-  }
-
-  static minHeight() {
-    return 60;
-  }
-
-  static getVerticalAlign(position, window) {
-    switch (position) {
-      case GameConst.MIDDLE:
-        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
-        break;
-      case GameConst.BOTTOM:
-        return Graphics.boxHeight - (window.height || 0);
-        break;
-      default: //TOP
-        return 0;
-    }
-  }
-
-  static getHorizontalAlign(position, window) {
-    switch (position) {
-      case GameConst.CENTER:
-        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
-        break;
-      case GameConst.END:
-        return (Graphics.boxWidth - (window.width || 0));
-        break;
-      default: //START
-        return 0;
-    }
-  }
-
-  setCenteredAlignment() {
-    this.x = CardBattleWindowBase.getHorizontalAlign(GameConst.CENTER, this);
-    this.y = CardBattleWindowBase.getVerticalAlign(GameConst.MIDDLE, this);
-  }
-
-  setVerticalAlign(position) {
-    this.y = CardBattleWindowBase.getVerticalAlign(position, this);
-  }
-
-  setHorizontalAlign(position) {
-    this.x = CardBattleWindowBase.getHorizontalAlign(position, this);
-  }
-
-  isFullsize() {
-    return this.width === Graphics.boxWidth;
-  }
-
-  isMiddleSize() {
-    return this.width === Graphics.boxWidth / 2;
-  }
-
-  isCenterAligned() {
-    return this.x === (Graphics.boxWidth / 2) - (this.width / 2) && 
-      this.y === (Graphics.boxHeight / 2) - (this.height / 2);
-  }
-
-  itemHeightByIndex(index) {
-    return this.itemHeight() * index;
-  }
-}
 class WindowStoppedState {
   _window;
 
@@ -423,16 +300,14 @@ class WindowUpdatedState {
   }
 }
 
-class ValuesWindow extends Window_Base { 
+class CardBattleWindowBase extends Window_Base {
   initialize(rect) {
     super.initialize(rect);
     this._iconset = "IconSet";
-    this._values = {};
     this._status = {};
-    this._updates = [];
+    this._windowColor = GameConst.BLUE_COLOR;
     this.closed();
     this.stop();
-    this.reset();
   }
 
   closed() {
@@ -447,43 +322,8 @@ class ValuesWindow extends Window_Base {
     this._status = new status(this, ...params);
   }
 
-  reset() {
-    this.refresh();
-  }
-
-  refresh() {
-    this.contents.clear();
-  }
-
-  static createValueUpdate(name, value) {
-    return { name, value };
-  }
-
-  update() {
-    if (this.hasUpdates() && this.isStopped()) this.executeUpdate();
-    if (this.isOpen() && this.getStatus()) this._status.updateStatus();
-    super.update();
-  }
-
-  hasUpdates() {
-    return this._updates.length > 0;
-  }
-
-  isStopped() {
-    return this.getStatus() instanceof WindowStoppedState;
-  }
-
   getStatus() {
     return this._status;
-  }
-
-  executeUpdate() {
-    const updates = this._updates;
-    if (updates.length > 0) {
-      const update = updates[0];
-      const executed = update.execute();
-      if (executed) updates.shift();
-    }
   }
 
   drawIcon(iconIndex, x, y) {
@@ -494,6 +334,150 @@ class ValuesWindow extends Window_Base {
     const sy = Math.floor(iconIndex / 16) * ph;
     this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
   };
+
+  reset() {
+    this.refresh();
+  }
+
+  refresh() {
+    this.contents.clear();
+  }
+
+  setBlueColor() {
+    this._windowColor = GameConst.BLUE_COLOR;
+  }
+
+  setRedColor() {
+    this._windowColor = GameConst.RED_COLOR;
+  }
+
+  setDefaultColor() {
+    this._windowColor = GameConst.DEFAULT;
+  }
+
+  update() {
+    super.update();
+    if (this.isOpen() && this.getStatus()) this._status.updateStatus();
+    this.updateTone();
+  }
+
+  updateTone() {
+    switch (this._windowColor) {
+      case GameConst.BLUE_COLOR:
+        this.setTone(0, 0, 255);
+        break;
+      case GameConst.RED_COLOR:
+        this.setTone(255, 0, 0);
+        break;
+      default:
+        this.setTone(0, 0, 0);
+    }
+  }
+
+  static minHeight() {
+    return 60;
+  }
+
+  static getVerticalAlign(position, window) {
+    switch (position) {
+      case GameConst.MIDDLE:
+        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
+        break;
+      case GameConst.BOTTOM:
+        return Graphics.boxHeight - (window.height || 0);
+        break;
+      default: //TOP
+        return 0;
+    }
+  }
+
+  static getHorizontalAlign(position, window) {
+    switch (position) {
+      case GameConst.CENTER:
+        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
+        break;
+      case GameConst.END:
+        return (Graphics.boxWidth - (window.width || 0));
+        break;
+      default: //START
+        return 0;
+    }
+  }
+
+  setCenteredAlignment() {
+    this.x = CardBattleWindowBase.getHorizontalAlign(GameConst.CENTER, this);
+    this.y = CardBattleWindowBase.getVerticalAlign(GameConst.MIDDLE, this);
+  }
+
+  setVerticalAlign(position) {
+    this.y = CardBattleWindowBase.getVerticalAlign(position, this);
+  }
+
+  setHorizontalAlign(position) {
+    this.x = CardBattleWindowBase.getHorizontalAlign(position, this);
+  }
+
+  isFullsize() {
+    return this.width === Graphics.boxWidth;
+  }
+
+  isMiddleSize() {
+    return this.width === Graphics.boxWidth / 2;
+  }
+
+  isCenterAligned() {
+    return this.x === (Graphics.boxWidth / 2) - (this.width / 2) && 
+      this.y === (Graphics.boxHeight / 2) - (this.height / 2);
+  }
+
+  itemHeightByIndex(index) {
+    return this.itemHeight() * index;
+  }
+
+  isAvailable() {
+    return !this.isBusy();
+  }
+
+  isBusy() {
+    return this.isOpening() || this.isClosing() || this.isUpdating();
+  }
+
+  isUpdating() {
+    return this.getStatus() instanceof WindowUpdatedState;
+  }
+}
+class ValuesWindow extends CardBattleWindowBase {
+  initialize(rect) {
+    super.initialize(rect);
+    this._values = {};
+    this._updates = [];
+  }
+
+  static createValueUpdate(name, value) {
+    return { name, value };
+  }
+
+  update() {
+    super.update();
+    if (this.hasUpdates() && this.isStopped()) this.executeUpdate();
+  }
+
+  hasUpdates() {
+    return this._updates.length > 0;
+  }
+
+  isStopped() {
+    return this.getStatus() instanceof WindowStoppedState;
+  }
+
+  executeUpdate() {
+    const updates = this._updates;
+    if (updates.length > 0) {
+      const update = updates[0];
+      const executed = update.execute();
+      if (executed) updates.shift();
+    }
+  }
 
   updateValues(updates) {
     updates = Array.isArray(updates) ? updates : [updates];
@@ -519,19 +503,8 @@ class ValuesWindow extends Window_Base {
     return action;
   }
 
-  isAvailable() {
-    return !this.isBusy();
-  }
-
-  isBusy() {
-    return this.isOpening() || this.isClosing() || this.isUpdating();
-  }
-
-  isUpdating() {
-    return this.getStatus() instanceof WindowUpdatedState;
-  }
-
   addValue(name, value) {
+    console.log(this._values);
     if (this._values.hasOwnProperty(name)) {
       return this.setValue(name, value);
     }
@@ -558,25 +531,28 @@ class ValuesWindow extends Window_Base {
 
   getValueAndConvertToDisplayPad(name) {
     const pad = 2;
+    console.log(this._values, name);
     const points = this.getValue(name) || 0;
     return StringHelper.convertPointsDisplayPad(points, pad);
   }
 }
 class TextWindow extends CardBattleWindowBase {
-  // initialize(rect) {
-  //   super.initialize(rect);
-  //   this._contents = [];
-  //   this._history = [];
-  //   this._textColorIndex = GameColorIndexs.NORMAL_COLOR;
-  //   this._textHorizontalAlign = '';
-  // }
+  initialize(rect) {
+    super.initialize(rect);
+    this.resetContent();
+  }
 
-  reset() {
-    super.reset();
+  resetContent() {
     this._contents = [];
     this._history = [];
     this._textColorIndex = GameColorIndexs.NORMAL_COLOR;
     this.setHorizontalAlignContent(GameConst.TEXT_START);
+    this.setDefaultColor(GameConst.DEFAULT);
+  }
+
+  reset() {
+    super.reset();
+    this.resetContent();
   }
 
   setHorizontalAlignContent(align) {
@@ -756,6 +732,26 @@ class TextWindow extends CardBattleWindowBase {
   }
 }
 class BoardWindow extends ValuesWindow {
+  initialize(rect) {
+    super.initialize(rect);
+    this.resetPoints();
+  }
+
+  resetPoints() {
+    this.addValue(GameConst.RED_POINTS, 0);
+    this.addValue(GameConst.BLUE_POINTS, 0);
+    this.addValue(GameConst.GREEN_POINTS, 0);
+    this.addValue(GameConst.BLACK_POINTS, 0);
+    this.addValue(GameConst.WHITE_POINTS, 0);
+    this.addValue(GameConst.NUM_CARDS_IN_DECK, 0);
+    this.addValue(GameConst.NUM_CARDS_IN_HAND, 0);
+  }
+
+  reset() {
+    super.reset();
+    this.resetPoints();
+  }
+
   static create(x, y, width, height) {
     return new BoardWindow(new Rectangle(x, y, width, height));
   }
@@ -774,17 +770,6 @@ class BoardWindow extends ValuesWindow {
 
   static createValueUpdate(name, value) {
     return ValuesWindow.createValueUpdate(name, value);
-  }
-
-  reset() {
-    this.addValue(GameConst.RED_POINTS, 0);
-    this.addValue(GameConst.BLUE_POINTS, 0);
-    this.addValue(GameConst.GREEN_POINTS, 0);
-    this.addValue(GameConst.BLACK_POINTS, 0);
-    this.addValue(GameConst.WHITE_POINTS, 0);
-    this.addValue(GameConst.NUM_CARDS_IN_DECK, 0);
-    this.addValue(GameConst.NUM_CARDS_IN_HAND, 0);
-    super.reset();
   }
 
   refresh() {
@@ -857,10 +842,19 @@ class BoardWindow extends ValuesWindow {
   }
 }
 class BattlePointsWindow extends ValuesWindow {
-  reset() {
+  initialize(rect) {
+    super.initialize(rect);
+    this.resetPoints();
+  }
+
+  resetPoints() {
     this.addValue(GameConst.ATTACK_POINTS, 0);
     this.addValue(GameConst.HEALTH_POINTS, 0);
+  }
+
+  reset() {
     super.reset();
+    this.resetPoints();
   }
 
   static create(x, y) {
@@ -895,12 +889,17 @@ class BattlePointsWindow extends ValuesWindow {
 class TrashWindow extends ValuesWindow {
   initialize(rect) {
     super.initialize(rect);
-    this._startIcon = true;
+    this.resetPoints();
+  }
+
+  resetPoints() {
+    this.addValue(GameConst.NUM_CARDS_IN_TRASH, 0);
+    this.startIcon();
   }
 
   reset() {
-    this.addValue(GameConst.NUM_CARDS_IN_TRASH, 0);
     super.reset();
+    this.resetPoints();
   }
 
   startIcon() {
@@ -1003,27 +1002,10 @@ class WindowUpdatedScoreState {
   }
 }
 
-class ScoreWindow extends Window_Base { 
+class ScoreWindow extends CardBattleWindowBase { 
   initialize(rect) {
     super.initialize(rect);
-    this._iconset = "IconSet";
-    this._status = {};
-    this._score = 0;
-    this.closed();
-    this.stop();
     this.reset();
-  }
-
-  closed() {
-    this._openness = 0;
-  }
-
-  stop() {
-    this.changeStatus(WindowStoppedState);
-  }
-
-  changeStatus(status, ...params) {
-    this._status = new status(this, ...params);
   }
 
   reset() {
@@ -1032,7 +1014,7 @@ class ScoreWindow extends Window_Base {
   }
 
   refresh(score = 0) {
-    this.contents.clear();
+    super.refresh();
     this.drawScore(score);
   }
 
@@ -1046,15 +1028,6 @@ class ScoreWindow extends Window_Base {
     }
   }
 
-  drawIcon(iconIndex, x, y) {
-    const bitmap = ImageManager.loadSystem(this._iconset);
-    const pw = ImageManager.iconWidth;
-    const ph = ImageManager.iconHeight;
-    const sx = (iconIndex % 16) * pw;
-    const sy = Math.floor(iconIndex / 16) * ph;
-    this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
-  };
-
   static create(x, y) {
     const width = Graphics.boxWidth / 4;
     const height = CardBattleWindowBase.minHeight();
@@ -1065,19 +1038,10 @@ class ScoreWindow extends Window_Base {
     return this.getStatus() instanceof WindowUpdatedScoreState;
   }
 
-  getStatus() {
-    return this._status;
-  }
-
-  updateScore(score) {
+  changeScore(score) {
     const lastScore = this._score;
     this._score = score;
     this.changeStatus(WindowUpdatedScoreState, lastScore, score);
-  }
-
-  update() {
-    if (this.isOpen() && this.getStatus()) this._status.updateStatus();
-    super.update();
   }
 }
 class ChooseFolderWindow extends Window_Command {
@@ -5674,12 +5638,12 @@ class UpdatingScoreWindowTest extends SceneTest {
     this.subject.setCenteredAlignment();
     this.subject.open();
     this.test('Deve abrir e renderizar!', () => {
-      this.subject.updateScore(1);
+      this.subject.changeScore(1);
     }, () => {
       this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
     }, 2);
     this.test('Deve abrir e renderizar!', () => {
-      this.subject.updateScore(2);
+      this.subject.changeScore(2);
     }, () => {
       this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
     }, 2);
@@ -5845,14 +5809,14 @@ class CardBattleTestScene extends Scene_Message {
       WindowTest
     ];
     return [
-      // ...cardSpriteTests,
-      // ...cardsetTests,
+      ...cardSpriteTests,
+      ...cardsetTests,
       ...textWindowTests,
-      // ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow,
-      // ...scoreWindow,
-      // ...others,
+      ...boardWindowTests,
+      ...battlePointsWindow,
+      ...trashWindow,
+      ...scoreWindow,
+      ...others,
     ];
   }
 

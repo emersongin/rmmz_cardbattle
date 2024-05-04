@@ -1,4 +1,7 @@
-class CardBattleWindowBase extends  Window_Base {
+// include ./state/WindowStoppedState.js
+// include ./state/WindowUpdatedState.js
+
+class CardBattleWindowBase extends Window_Base {
   initialize(rect) {
     super.initialize(rect);
     this._iconset = "IconSet";
@@ -6,8 +9,6 @@ class CardBattleWindowBase extends  Window_Base {
     this._windowColor = GameConst.BLUE_COLOR;
     this.closed();
     this.stop();
-    this.reset();
-    this.setBlueColor();
   }
 
   closed() {
@@ -26,6 +27,15 @@ class CardBattleWindowBase extends  Window_Base {
     return this._status;
   }
 
+  drawIcon(iconIndex, x, y) {
+    const bitmap = ImageManager.loadSystem(this._iconset);
+    const pw = ImageManager.iconWidth;
+    const ph = ImageManager.iconHeight;
+    const sx = (iconIndex % 16) * pw;
+    const sy = Math.floor(iconIndex / 16) * ph;
+    this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
+  };
+
   reset() {
     this.refresh();
   }
@@ -40,6 +50,10 @@ class CardBattleWindowBase extends  Window_Base {
 
   setRedColor() {
     this._windowColor = GameConst.RED_COLOR;
+  }
+
+  setDefaultColor() {
+    this._windowColor = GameConst.DEFAULT;
   }
 
   update() {
@@ -119,5 +133,17 @@ class CardBattleWindowBase extends  Window_Base {
 
   itemHeightByIndex(index) {
     return this.itemHeight() * index;
+  }
+
+  isAvailable() {
+    return !this.isBusy();
+  }
+
+  isBusy() {
+    return this.isOpening() || this.isClosing() || this.isUpdating();
+  }
+
+  isUpdating() {
+    return this.getStatus() instanceof WindowUpdatedState;
   }
 }

@@ -10,12 +10,12 @@ class UpdatingScoreWindowTest extends SceneTest {
     this.subject.setCenteredAlignment();
     this.subject.open();
     this.test('Deve abrir e renderizar!', () => {
-      this.subject.updateScore(1);
+      this.subject.changeScore(1);
     }, () => {
       this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
     }, 2);
     this.test('Deve abrir e renderizar!', () => {
-      this.subject.updateScore(2);
+      this.subject.changeScore(2);
     }, () => {
       this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
     }, 2);

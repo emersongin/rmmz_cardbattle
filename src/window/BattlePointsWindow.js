@@ -1,8 +1,17 @@
 class BattlePointsWindow extends ValuesWindow {
-  reset() {
+  initialize(rect) {
+    super.initialize(rect);
+    this.resetPoints();
+  }
+
+  resetPoints() {
     this.addValue(GameConst.ATTACK_POINTS, 0);
     this.addValue(GameConst.HEALTH_POINTS, 0);
+  }
+
+  reset() {
     super.reset();
+    this.resetPoints();
   }
 
   static create(x, y) {

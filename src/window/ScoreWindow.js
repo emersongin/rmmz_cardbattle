@@ -1,26 +1,9 @@
 // include ./state/WindowUpdatedScoreState.js
 
-class ScoreWindow extends Window_Base { 
+class ScoreWindow extends CardBattleWindowBase { 
   initialize(rect) {
     super.initialize(rect);
-    this._iconset = "IconSet";
-    this._status = {};
-    this._score = 0;
-    this.closed();
-    this.stop();
     this.reset();
-  }
-
-  closed() {
-    this._openness = 0;
-  }
-
-  stop() {
-    this.changeStatus(WindowStoppedState);
-  }
-
-  changeStatus(status, ...params) {
-    this._status = new status(this, ...params);
   }
 
   reset() {
@@ -29,7 +12,7 @@ class ScoreWindow extends Window_Base {
   }
 
   refresh(score = 0) {
-    this.contents.clear();
+    super.refresh();
     this.drawScore(score);
   }
 
@@ -43,15 +26,6 @@ class ScoreWindow extends Window_Base {
     }
   }
 
-  drawIcon(iconIndex, x, y) {
-    const bitmap = ImageManager.loadSystem(this._iconset);
-    const pw = ImageManager.iconWidth;
-    const ph = ImageManager.iconHeight;
-    const sx = (iconIndex % 16) * pw;
-    const sy = Math.floor(iconIndex / 16) * ph;
-    this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
-  };
-
   static create(x, y) {
     const width = Graphics.boxWidth / 4;
     const height = CardBattleWindowBase.minHeight();
@@ -62,18 +36,9 @@ class ScoreWindow extends Window_Base {
     return this.getStatus() instanceof WindowUpdatedScoreState;
   }
 
-  getStatus() {
-    return this._status;
-  }
-
-  updateScore(score) {
+  changeScore(score) {
     const lastScore = this._score;
     this._score = score;
     this.changeStatus(WindowUpdatedScoreState, lastScore, score);
-  }
-
-  update() {
-    if (this.isOpen() && this.getStatus()) this._status.updateStatus();
-    super.update();
   }
 }

@@ -1,10 +1,20 @@
 class TextWindow extends CardBattleWindowBase {
-  reset() {
-    super.reset();
+  initialize(rect) {
+    super.initialize(rect);
+    this.resetContent();
+  }
+
+  resetContent() {
     this._contents = [];
     this._history = [];
     this._textColorIndex = GameColorIndexs.NORMAL_COLOR;
     this.setHorizontalAlignContent(GameConst.TEXT_START);
+    this.setDefaultColor(GameConst.DEFAULT);
+  }
+
+  reset() {
+    super.reset();
+    this.resetContent();
   }
 
   setHorizontalAlignContent(align) {

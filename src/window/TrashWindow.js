@@ -1,12 +1,17 @@
 class TrashWindow extends ValuesWindow {
   initialize(rect) {
     super.initialize(rect);
-    this._startIcon = true;
+    this.resetPoints();
+  }
+
+  resetPoints() {
+    this.addValue(GameConst.NUM_CARDS_IN_TRASH, 0);
+    this.startIcon();
   }
 
   reset() {
-    this.addValue(GameConst.NUM_CARDS_IN_TRASH, 0);
     super.reset();
+    this.resetPoints();
   }
 
   startIcon() {
