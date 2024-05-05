@@ -64,9 +64,10 @@
 // tests CARD BATTLE WINDOW BASE
 // include ../test/integration/cardbattlewindowbase/OpenAndCloseCardBattleWindowBaseTest.js
 // include ../test/integration/cardbattlewindowbase/ChangeColorCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/SetMiddleSizeCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/SetFullSizeCardBattleWindowBaseTest.js
 // include ../test/integration/cardbattlewindowbase/OneFourthSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/MiddleSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/ThreeFourthSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/SetFullSizeCardBattleWindowBaseTest.js
 // include ../test/integration/cardbattlewindowbase/AlignMiddleSizeCardBattleWindowBaseTest.js
 // include ../test/integration/cardbattlewindowbase/AlignFullSizeCardBattleWindowBaseTest.js
 // tests TEXT WINDOW

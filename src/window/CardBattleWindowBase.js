@@ -51,6 +51,12 @@ class CardBattleWindowBase extends Window_Base {
     return CardBattleWindowBase.create(x, y, width, height);
   }
 
+  static createWindowThreeFourthSize(x, y) {
+    const width = Graphics.boxWidth * 3 / 4;
+    const height = CardBattleWindowBase.minHeight();
+    return CardBattleWindowBase.create(x, y, width, height);
+  }
+
   static createWindowFullSize(x, y) {
     const width = Graphics.boxWidth;
     const height = CardBattleWindowBase.minHeight();
@@ -158,6 +164,10 @@ class CardBattleWindowBase extends Window_Base {
 
   isMiddleSize() {
     return this.width === Graphics.boxWidth / 2;
+  }
+
+  isThreeFourthSize() {
+    return this.width === Graphics.boxWidth * 3 / 4;
   }
 
   isFullsize() {

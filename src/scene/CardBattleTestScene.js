@@ -51,8 +51,9 @@ class CardBattleTestScene extends Scene_Message {
     const CardBattleWindowBaseTests = [
       // OpenAndCloseCardBattleWindowBaseTest,
       // ChangeColorCardBattleWindowBaseTest,
-      OneFourthSizeCardBattleWindowBaseTest,
-      // SetMiddleSizeCardBattleWindowBaseTest,
+      // OneFourthSizeCardBattleWindowBaseTest,
+      // MiddleSizeCardBattleWindowBaseTest,
+      ThreeFourthSizeCardBattleWindowBaseTest,
       // SetFullSizeCardBattleWindowBaseTest,
       // AlignMiddleSizeCardBattleWindowBaseTest,
       // AlignFullSizeCardBattleWindowBaseTest,
