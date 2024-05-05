@@ -318,6 +318,7 @@ class CardBattleWindowBase extends Window_Base {
     super.initialize(rect);
     this._iconset = "IconSet";
     this._status = {};
+    this._actions = [];
     this._windowColor = GameConst.BLUE_COLOR;
     this.closed();
     this.stop();
@@ -375,10 +376,40 @@ class CardBattleWindowBase extends Window_Base {
     return CardBattleWindowBase.create(x, y, width, height);
   }
 
+  addAction(fn, ...params) {
+    const action = this.createAction(fn, ...params);
+    this._actions.push(action);
+  }
+
+  createAction(fn, ...params) {
+    const action = { 
+      fn: fn.name || 'anonymous',
+      execute: () => fn.call(this, ...params)
+    };
+    return action;
+  }
+
   update() {
     super.update();
+    if (this.hasActions() && this.isStopped()) this.executeAction();
     if (this.isOpen() && this.getStatus()) this._status.updateStatus();
     this.updateTone();
+  }
+
+  hasActions() {
+    return this._actions.length > 0;
+  }
+
+  isStopped() {
+    return this.getStatus() instanceof WindowStoppedState;
+  }
+
+  executeAction() {
+    const action = this._actions[0];
+    const executed = action.execute();
+    if (executed) {
+      this._actions.shift();
+    }
   }
 
   getStatus() {
@@ -396,6 +427,30 @@ class CardBattleWindowBase extends Window_Base {
       default:
         this.setTone(0, 0, 0);
     }
+  }
+
+  open() {
+    this.addAction(this.commandOpen);
+  }
+
+  commandOpen() {
+    if (!(this.isStopped() && this.isClosed())) return;
+    super.open();
+    return true;
+  }
+
+  close() {
+    this.addAction(this.commandClose);
+  }
+
+  commandClose() {
+    if (!(this.isStopped() && this.isOpened())) return;
+    super.close();
+    return true;
+  }
+
+  isOpened() {
+    return this._openness === 255;
   }
 
   drawIcon(iconIndex, x, y) {
@@ -525,10 +580,6 @@ class ValuesWindow extends CardBattleWindowBase {
 
   hasUpdates() {
     return this._updates.length > 0;
-  }
-
-  isStopped() {
-    return this.getStatus() instanceof WindowStoppedState;
   }
 
   executeUpdate() {
@@ -5071,53 +5122,38 @@ class DisableAndEnableCardsCardsetSpriteTest extends SceneTest {
   }
 }
 // tests CARD BATTLE WINDOW BASE
-class OpenAndCloseCardBattleWindowBaseTest extends SceneTest {
-  name = 'OpenAndCloseCardBattleWindowBaseTest';
+class OpenCardBattleWindowBaseTest extends SceneTest {
+  name = 'OpenCardBattleWindowBaseTest';
 
   create() {
-    this.subject = CardBattleWindowBase.create(0, 0, Graphics.width, Graphics.height);
+    this.subject = CardBattleWindowBase.createWindowFullSize(0, 0);
+    this.subject.setCenteredAlignment();
     this.addWindow(this.subject);
   }
 
   start() {
-    this.subject.setCenteredAlignment();
-    this.test('Deve abrir e renderizar!', () => {
+    this.test('Deve abrir!', () => {
       this.subject.open();
     }, () => {
       this.assertTrue('Esta aberta?', this.subject.isOpen());
     });
-    this.test('Deve abrir e renderizar!', () => {
-      this.subject.close();
-    }, () => {
-      this.assertTrue('Esta fechada?', this.subject.isClosed());
-    });
   }
 }
-class ChangeColorCardBattleWindowBaseTest extends SceneTest {
-  name = 'ChangeColorCardBattleWindowBaseTest';
+class CloseCardBattleWindowBaseTest extends SceneTest {
+  name = 'CloseCardBattleWindowBaseTest';
 
   create() {
-    this.subject = CardBattleWindowBase.create(0, 0, Graphics.width, Graphics.height);
+    this.subject = CardBattleWindowBase.createWindowFullSize(0, 0);
+    this.subject.setCenteredAlignment();
     this.addWindow(this.subject);
   }
 
   start() {
-    this.subject.setCenteredAlignment();
     this.subject.open();
-    this.test('Deve mudar para cor azul a janela!', () => {
-      this.subject.setBlueColor();
+    this.test('Deve fechar!', () => {
+      this.subject.close();
     }, () => {
-      this.assertTrue('Esta na cor azul?', this.subject.isBlueColor());
-    });
-    this.test('Deve mudar para cor vermelha a janela!', () => {
-      this.subject.setRedColor();
-    }, () => {
-      this.assertTrue('Esta na cor vermelha?', this.subject.isRedColor());
-    });
-    this.test('Deve mudar para cor vermelha a janela!', () => {
-      this.subject.setDefaultColor();
-    }, () => {
-      this.assertTrue('Esta na cor default?', this.subject.isDefaultColor());
+      this.assertTrue('Esta fechada?', this.subject.isClosed());
     });
   }
 }
@@ -5181,8 +5217,8 @@ class ThreeFourthSizeCardBattleWindowBaseTest extends SceneTest {
   }
   
 }
-class SetFullSizeCardBattleWindowBaseTest extends SceneTest {
-  name = 'SetFullSizeCardBattleWindowBaseTest';
+class FullSizeCardBattleWindowBaseTest extends SceneTest {
+  name = 'FullSizeCardBattleWindowBaseTest';
 
   create() {
     const x = 0;
@@ -5193,13 +5229,42 @@ class SetFullSizeCardBattleWindowBaseTest extends SceneTest {
 
   start() {
     this.subject.show();
-    this.test('Deve abrir na largura total!', () => {
+    this.test('Deve ter a largura total da tela!', () => {
       this.subject.open();
     }, () => {
-      this.assertTrue('Esta na largura total?', this.subject.isFullsize());
+      this.assertTrue('Esta na largura total da tela?', this.subject.isFullsize());
     });
   }
 
+}
+
+class ChangeColorCardBattleWindowBaseTest extends SceneTest {
+  name = 'ChangeColorCardBattleWindowBaseTest';
+
+  create() {
+    this.subject = CardBattleWindowBase.create(0, 0, Graphics.width, Graphics.height);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.setCenteredAlignment();
+    this.subject.open();
+    this.test('Deve mudar para cor azul a janela!', () => {
+      this.subject.setBlueColor();
+    }, () => {
+      this.assertTrue('Esta na cor azul?', this.subject.isBlueColor());
+    });
+    this.test('Deve mudar para cor vermelha a janela!', () => {
+      this.subject.setRedColor();
+    }, () => {
+      this.assertTrue('Esta na cor vermelha?', this.subject.isRedColor());
+    });
+    this.test('Deve mudar para cor vermelha a janela!', () => {
+      this.subject.setDefaultColor();
+    }, () => {
+      this.assertTrue('Esta na cor default?', this.subject.isDefaultColor());
+    });
+  }
 }
 class AlignMiddleSizeCardBattleWindowBaseTest extends SceneTest {
   name = 'AlignMiddleSizeCardBattleWindowBaseTest';
@@ -5856,12 +5921,14 @@ class CardBattleTestScene extends Scene_Message {
       AnimateDamageCardsCardsetSpriteTest,
     ];
     const CardBattleWindowBaseTests = [
-      // OpenAndCloseCardBattleWindowBaseTest,
-      // ChangeColorCardBattleWindowBaseTest,
+      OpenCardBattleWindowBaseTest,
+      CloseCardBattleWindowBaseTest,
       // OneFourthSizeCardBattleWindowBaseTest,
       // MiddleSizeCardBattleWindowBaseTest,
-      ThreeFourthSizeCardBattleWindowBaseTest,
-      // SetFullSizeCardBattleWindowBaseTest,
+      // ThreeFourthSizeCardBattleWindowBaseTest,
+      // FullSizeCardBattleWindowBaseTest,
+
+      // ChangeColorCardBattleWindowBaseTest,
       // AlignMiddleSizeCardBattleWindowBaseTest,
       // AlignFullSizeCardBattleWindowBaseTest,
     ];

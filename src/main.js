@@ -62,12 +62,14 @@
 // include ../test/integration/cardset/AnimateDamageCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/DisableAndEnableCardsCardsetSpriteTest.js
 // tests CARD BATTLE WINDOW BASE
-// include ../test/integration/cardbattlewindowbase/OpenAndCloseCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/ChangeColorCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/OpenCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/CloseCardBattleWindowBaseTest.js
 // include ../test/integration/cardbattlewindowbase/OneFourthSizeCardBattleWindowBaseTest.js
 // include ../test/integration/cardbattlewindowbase/MiddleSizeCardBattleWindowBaseTest.js
 // include ../test/integration/cardbattlewindowbase/ThreeFourthSizeCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/SetFullSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/FullSizeCardBattleWindowBaseTest.js
+
+// include ../test/integration/cardbattlewindowbase/ChangeColorCardBattleWindowBaseTest.js
 // include ../test/integration/cardbattlewindowbase/AlignMiddleSizeCardBattleWindowBaseTest.js
 // include ../test/integration/cardbattlewindowbase/AlignFullSizeCardBattleWindowBaseTest.js
 // tests TEXT WINDOW
