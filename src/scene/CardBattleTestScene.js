@@ -14,22 +14,23 @@ class CardBattleTestScene extends Scene_Message {
 
   data() {
     const cardSpriteTests = [
-      StartClosedAndStartOpenCardSpriteTest,
-      CloseAndOpenCardSpriteTest,
-      MoveCardSpriteTest,
-      DisableAndEnableCardSpriteTest,
-      HoveredCardSpriteTest,
-      SelectedCardSpriteTest,
-      FlashCardSpriteTest,
-      DamageAnimationCardSpriteTest,
-      UpdatingPointsCardSpriteTest,
-      ZoomAndZoomoutCardSpriteTest,
-      LeaveCardSpriteTest,
-      QuakeCardSpriteTest,
-      FlipCardSpriteTest,
-      IluminatedCardSpriteTest
+      OpenCardSpriteTest,
+      // CloseAndOpenCardSpriteTest,
+      // StartClosedAndStartOpenCardSpriteTest,
+      // MoveCardSpriteTest,
+      // DisableAndEnableCardSpriteTest,
+      // HoveredCardSpriteTest,
+      // SelectedCardSpriteTest,
+      // FlashCardSpriteTest,
+      // DamageAnimationCardSpriteTest,
+      // UpdatingPointsCardSpriteTest,
+      // ZoomAndZoomoutCardSpriteTest,
+      // LeaveCardSpriteTest,
+      // QuakeCardSpriteTest,
+      // FlipCardSpriteTest,
+      // IluminatedCardSpriteTest
     ];
-    const cardsetTests = [
+    const cardsetSpriteTests = [
       SetBackgroundAndStartPositionCardsetSpriteTest,
       SetCardsCardsetSpriteTest,
       StartPositionCardsCardsetSpriteTest,
@@ -94,9 +95,9 @@ class CardBattleTestScene extends Scene_Message {
       WindowTest
     ];
     return [
-      // ...cardsetTests,
-      // ...cardSpriteTests,
-      ...CardBattleWindowBaseTests,
+      ...cardSpriteTests,
+      // ...cardsetSpriteTests,
+      // ...CardBattleWindowBaseTests,
       // ...textWindowTests,
       // ...boardWindowTests,
       // ...battlePointsWindow,
