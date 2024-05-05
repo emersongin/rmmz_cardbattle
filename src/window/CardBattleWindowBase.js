@@ -35,14 +35,20 @@ class CardBattleWindowBase extends Window_Base {
     return new CardBattleWindowBase(new Rectangle(x, y, width, height));
   }
 
-  static createWindowMiddleSize(x, y) {
-    const width = Graphics.boxWidth / 2;
+  static createWindowOneFourthSize(x, y) {
+    const width = Graphics.boxWidth / 4;
     const height = CardBattleWindowBase.minHeight();
     return CardBattleWindowBase.create(x, y, width, height);
   }
 
   static minHeight() {
     return 60;
+  }
+
+  static createWindowMiddleSize(x, y) {
+    const width = Graphics.boxWidth / 2;
+    const height = CardBattleWindowBase.minHeight();
+    return CardBattleWindowBase.create(x, y, width, height);
   }
 
   static createWindowFullSize(x, y) {
@@ -146,12 +152,16 @@ class CardBattleWindowBase extends Window_Base {
     }
   }
 
-  isFullsize() {
-    return this.width === Graphics.boxWidth;
+  isOneFourthSize() {
+    return this.width === Graphics.boxWidth / 4;
   }
 
   isMiddleSize() {
     return this.width === Graphics.boxWidth / 2;
+  }
+
+  isFullsize() {
+    return this.width === Graphics.boxWidth;
   }
 
   isCenterAligned() {

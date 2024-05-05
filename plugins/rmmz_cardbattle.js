@@ -347,14 +347,20 @@ class CardBattleWindowBase extends Window_Base {
     return new CardBattleWindowBase(new Rectangle(x, y, width, height));
   }
 
-  static createWindowMiddleSize(x, y) {
-    const width = Graphics.boxWidth / 2;
+  static createWindowOneFourthSize(x, y) {
+    const width = Graphics.boxWidth / 4;
     const height = CardBattleWindowBase.minHeight();
     return CardBattleWindowBase.create(x, y, width, height);
   }
 
   static minHeight() {
     return 60;
+  }
+
+  static createWindowMiddleSize(x, y) {
+    const width = Graphics.boxWidth / 2;
+    const height = CardBattleWindowBase.minHeight();
+    return CardBattleWindowBase.create(x, y, width, height);
   }
 
   static createWindowFullSize(x, y) {
@@ -458,12 +464,16 @@ class CardBattleWindowBase extends Window_Base {
     }
   }
 
-  isFullsize() {
-    return this.width === Graphics.boxWidth;
+  isOneFourthSize() {
+    return this.width === Graphics.boxWidth / 4;
   }
 
   isMiddleSize() {
     return this.width === Graphics.boxWidth / 2;
+  }
+
+  isFullsize() {
+    return this.width === Graphics.boxWidth;
   }
 
   isCenterAligned() {
@@ -5141,6 +5151,26 @@ class SetFullSizeCardBattleWindowBaseTest extends SceneTest {
   }
 
 }
+class OneFourthSizeCardBattleWindowBaseTest extends SceneTest {
+  name = 'OneFourthSizeCardBattleWindowBaseTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = CardBattleWindowBase.createWindowOneFourthSize(x, y);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.show();
+    this.test('Deve ter o tamanho de 1/4 da tela!', () => {
+      this.subject.open();
+    }, () => {
+      this.assertTrue('Esta na largura de 1/4 da tela?', this.subject.isOneFourthSize());
+    });
+  }
+  
+}
 class AlignMiddleSizeCardBattleWindowBaseTest extends SceneTest {
   name = 'AlignMiddleSizeCardBattleWindowBaseTest';
 
@@ -5796,12 +5826,13 @@ class CardBattleTestScene extends Scene_Message {
       AnimateDamageCardsCardsetSpriteTest,
     ];
     const CardBattleWindowBaseTests = [
-      OpenAndCloseCardBattleWindowBaseTest,
-      ChangeColorCardBattleWindowBaseTest,
-      SetMiddleSizeCardBattleWindowBaseTest,
-      SetFullSizeCardBattleWindowBaseTest,
-      AlignMiddleSizeCardBattleWindowBaseTest,
-      AlignFullSizeCardBattleWindowBaseTest,
+      // OpenAndCloseCardBattleWindowBaseTest,
+      // ChangeColorCardBattleWindowBaseTest,
+      OneFourthSizeCardBattleWindowBaseTest,
+      // SetMiddleSizeCardBattleWindowBaseTest,
+      // SetFullSizeCardBattleWindowBaseTest,
+      // AlignMiddleSizeCardBattleWindowBaseTest,
+      // AlignFullSizeCardBattleWindowBaseTest,
     ];
     const textWindowTests = [
       DrawTextStartAlignFullSizeTextWindowTest,
@@ -5831,9 +5862,9 @@ class CardBattleTestScene extends Scene_Message {
     return [
       // ...cardsetTests,
       // ...cardSpriteTests,
-      // ...CardBattleWindowBaseTests,
+      ...CardBattleWindowBaseTests,
       // ...textWindowTests,
-      ...boardWindowTests,
+      // ...boardWindowTests,
       // ...battlePointsWindow,
       // ...trashWindow,
       // ...scoreWindow,
