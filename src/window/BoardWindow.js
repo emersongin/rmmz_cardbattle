@@ -12,6 +12,12 @@ class BoardWindow extends ValuesWindow {
     this.addValue(GameConst.WHITE_POINTS, 0);
     this.addValue(GameConst.NUM_CARDS_IN_DECK, 0);
     this.addValue(GameConst.NUM_CARDS_IN_HAND, 0);
+    this.noPass();
+  }
+
+  noPass() {
+    this._pass = false;
+    this.refresh();
   }
 
   reset() {
@@ -43,6 +49,7 @@ class BoardWindow extends ValuesWindow {
     super.refresh();
     this.drawIcons();
     this.drawDisplay();
+    if (this._pass) this.drawPass();
   }
 
   drawIcons() {
@@ -106,5 +113,26 @@ class BoardWindow extends ValuesWindow {
     const deckPoints = this.getValueAndConvertToDisplayPad(GameConst.NUM_CARDS_IN_DECK);
     this.contents.drawText(handPoints, xPositionHand, yPosition, width, height);
     this.contents.drawText(deckPoints, xPositionDeck, yPosition, width, height);
+  }
+
+  drawPass() {
+    const x = this.contents.width - 336 + 40;
+    const y = 0;
+    const width = 64;
+    const height = 32;
+    this.contents.drawText('Pass', x, y, width, height);
+  }
+
+  pass() {
+    this._pass = true;
+    this.refresh();
+  }
+
+  isNoPass() {
+    return !this.isPass();
+  }
+
+  isPass() {
+    return this._pass;
   }
 }
