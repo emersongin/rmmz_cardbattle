@@ -38,6 +38,8 @@
 // include ../test/integration/card/UnhoveredCardSpriteTest.js
 // include ../test/integration/card/SelectedCardSpriteTest.js
 // include ../test/integration/card/UnselectedCardSpriteTest.js
+// include ../test/integration/card/IluminatedCardSpriteTest.js
+// include ../test/integration/card/UniluminatedCardSpriteTest.js
 
 
 
@@ -50,7 +52,6 @@
 // include ../test/integration/card/LeaveCardSpriteTest.js
 // include ../test/integration/card/QuakeCardSpriteTest.js
 // include ../test/integration/card/FlipCardSpriteTest.js
-// include ../test/integration/card/IluminatedCardSpriteTest.js
 // tests CARDSET
 // include ../test/integration/cardset/SetBackgroundAndStartPositionCardsetSpriteTest.js
 // include ../test/integration/cardset/SetCardsCardsetSpriteTest.js

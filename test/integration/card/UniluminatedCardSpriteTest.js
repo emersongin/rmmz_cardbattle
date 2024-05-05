@@ -1,5 +1,5 @@
-class IluminatedCardSpriteTest extends SceneTest {
-  name = 'IluminatedCardSpriteTest';
+class UniluminatedCardSpriteTest extends SceneTest {
+  name = 'UniluminatedCardSpriteTest';
 
   create() {
     const card = CardGenerator.generateCard();
@@ -18,10 +18,11 @@ class IluminatedCardSpriteTest extends SceneTest {
   }
 
   start() {
-    this.test('Deve estar no comportamento de iluminado!', () => {
-      this.subject.iluminate();
+    this.subject.iluminate();
+    this.test('Deve retirar o comportamento de iluminado!', () => {
+      this.subject.uniluminate();
     }, () => {
-      this.assertTrue('Esta em iluminado?', this.subject.isIluminated());
+      this.assertTrue('Esta sem iluminado?', this.subject.isUniluminated());
     });
   }
 }

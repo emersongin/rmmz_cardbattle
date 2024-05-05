@@ -21,8 +21,10 @@ class CardBattleTestScene extends Scene_Message {
       // MoveCardSpriteTest,
       // HoveredCardSpriteTest,
       // UnhoveredCardSpriteTest,
-      SelectedCardSpriteTest,
-      UnselectedCardSpriteTest,
+      // SelectedCardSpriteTest,
+      // UnselectedCardSpriteTest,
+      IluminatedCardSpriteTest,
+      UniluminatedCardSpriteTest,
 
       // StartClosedAndStartOpenCardSpriteTest,
       // FlashCardSpriteTest,
@@ -32,7 +34,6 @@ class CardBattleTestScene extends Scene_Message {
       // LeaveCardSpriteTest,
       // QuakeCardSpriteTest,
       // FlipCardSpriteTest,
-      // IluminatedCardSpriteTest
     ];
     const cardsetSpriteTests = [
       SetBackgroundAndStartPositionCardsetSpriteTest,

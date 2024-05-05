@@ -372,10 +372,6 @@ class CardSprite extends ActionSprite {
     return true;
   }
 
-  isMoving() {
-    return this.getStatus() instanceof CardSpriteMovingState;
-  }
-
   hover() {
     this.addAction(this.commandHover);
   }
@@ -437,6 +433,57 @@ class CardSprite extends ActionSprite {
   isUnselected() {
     return !this.isSelected();
   }
+
+  iluminate() {
+    this.addAction(this.commandIluminate);
+  }
+
+  commandIluminate() {
+    const isStatus = (this.isStopped() || this.isMoving() || this.isZooming());
+    if (!(this.isOpened() && isStatus) || this.isIluminated()) return; 
+    this.addBehavior(CardSpriteIluminatedBehavior);
+    return true;
+  }
+
+  isMoving() {
+    return this.getStatus() instanceof CardSpriteMovingState;
+  }
+
+  isZooming() {
+    return this.getStatus() instanceof CardSpriteZoomState;
+  }
+
+  isIluminated() {
+    return this.getBehavior(CardSpriteIluminatedBehavior) instanceof CardSpriteIluminatedBehavior;
+  }
+
+  uniluminate() {
+    this.addAction(this.commandUniluminate);
+  }
+
+  commandUniluminate() {
+    if (this.isUniluminated()) return;
+    this._selectedLayer.bitmap.clear();
+    this.removeBehavior(CardSpriteIluminatedBehavior);
+    return true;
+  }
+
+  isUniluminated() {
+    return !this.isIluminated();
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -557,9 +604,7 @@ class CardSprite extends ActionSprite {
 
 
 
-  isZooming() {
-    return this.getStatus() && this.getStatus() instanceof CardSpriteZoomState;
-  }
+
 
   isOpening() {
     return this.getStatus() && this.getStatus() instanceof CardSpriteOpeningState;
@@ -821,20 +866,9 @@ class CardSprite extends ActionSprite {
     this._turned = false;
   }
 
-  iluminate() {
-    this.addAction(this.commandIluminate);
-  }
 
-  commandIluminate() {
-    if (!(this.isVisible() && 
-      (this.isStopped() || this.isOpening() || this.isMoving() || this.isZooming()))) return; 
-    this.addBehavior(CardSpriteIluminatedBehavior);
-    return true;
-  }
 
-  isIluminated() {
-    return this.getBehavior(CardSpriteIluminatedBehavior) instanceof CardSpriteIluminatedBehavior;
-  }
+
 
   static createPosition(x, y, index) {
     return { x, y, index };
