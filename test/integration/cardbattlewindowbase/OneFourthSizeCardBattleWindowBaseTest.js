@@ -9,7 +9,6 @@ class OneFourthSizeCardBattleWindowBaseTest extends SceneTest {
   }
 
   start() {
-    this.subject.show();
     this.test('Deve ter o tamanho de 1/4 da tela!', () => {
       this.subject.open();
     }, () => {

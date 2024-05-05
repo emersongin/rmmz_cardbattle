@@ -9,7 +9,6 @@ class AlignFullSizeCardBattleWindowBaseTest extends SceneTest {
   }
 
   start() {
-    this.subject.show();
     this.subject.open();
     this.test('Deve move para centro no top!', () => {
       this.subject.setHorizontalAlign(GameConst.CENTER);

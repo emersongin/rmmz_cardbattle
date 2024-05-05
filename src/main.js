@@ -72,6 +72,17 @@
 // include ../test/integration/cardbattlewindowbase/RedColorCardBattleWindowBaseTest.js
 // include ../test/integration/cardbattlewindowbase/DefaultColorCardBattleWindowBaseTest.js
 
+// include ../test/integration/cardbattlewindowbase/StartTopAlignOneFourthSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/CenterTopAlignOneFourthSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/EndTopAlignOneFourthSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/StartMiddleAlignOneFourthSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/CenterMiddleAlignOneFourthSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/EndMiddleAlignOneFourthSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/StartBottomAlignOneFourthSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/CenterBottomAlignOneFourthSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/EndBottomAlignOneFourthSizeCardBattleWindowBaseTest.js
+
+
 // include ../test/integration/cardbattlewindowbase/AlignMiddleSizeCardBattleWindowBaseTest.js
 // include ../test/integration/cardbattlewindowbase/AlignFullSizeCardBattleWindowBaseTest.js
 // tests TEXT WINDOW

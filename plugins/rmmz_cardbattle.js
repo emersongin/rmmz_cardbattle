@@ -326,6 +326,7 @@ class CardBattleWindowBase extends Window_Base {
 
   closed() {
     this._openness = 0;
+    this.visible = false;
   }
 
   stop() {
@@ -435,6 +436,7 @@ class CardBattleWindowBase extends Window_Base {
 
   commandOpen() {
     if (!(this.isStopped() && this.isClosed())) return;
+    this.visible = true;
     super.open();
     return true;
   }
@@ -445,6 +447,7 @@ class CardBattleWindowBase extends Window_Base {
 
   commandClose() {
     if (!(this.isStopped() && this.isOpened())) return;
+    this.visible = false;
     super.close();
     return true;
   }
@@ -504,9 +507,47 @@ class CardBattleWindowBase extends Window_Base {
     return this._windowColor === GameConst.DEFAULT;
   }
 
-  setCenteredAlignment() {
-    this.setVerticalAlign(GameConst.MIDDLE);
-    this.setHorizontalAlign(GameConst.CENTER);
+  alignStartTop() {
+    this.addAction(this.commandAlign, GameConst.START, GameConst.TOP);
+  }
+
+  alignCenterTop() {
+    this.addAction(this.commandAlign, GameConst.CENTER, GameConst.TOP);
+  }
+
+  alignEndTop() {
+    this.addAction(this.commandAlign, GameConst.END, GameConst.TOP);
+  }
+
+  alignStartMiddle() {
+    this.addAction(this.commandAlign, GameConst.START, GameConst.MIDDLE);
+  }
+
+  alignCenterMiddle() {
+    this.addAction(this.commandAlign, GameConst.CENTER, GameConst.MIDDLE);
+  }
+
+  alignEndMiddle() {
+    this.addAction(this.commandAlign, GameConst.END, GameConst.MIDDLE);
+  }
+
+  alignStartBottom() {
+    this.addAction(this.commandAlign, GameConst.START, GameConst.BOTTOM);
+  }
+
+  alignCenterBottom() {
+    this.addAction(this.commandAlign, GameConst.CENTER, GameConst.BOTTOM);
+  }
+
+  alignEndBottom() {
+    this.addAction(this.commandAlign, GameConst.END, GameConst.BOTTOM);
+  }
+
+  commandAlign(horizontalAlign, verticalAlign) {
+    if (!this.isStopped()) return;
+    this.setHorizontalAlign(horizontalAlign);
+    this.setVerticalAlign(verticalAlign);
+    return true;
   }
 
   setVerticalAlign(position) {
@@ -5186,7 +5227,6 @@ class OneFourthSizeCardBattleWindowBaseTest extends SceneTest {
   }
 
   start() {
-    this.subject.show();
     this.test('Deve ter o tamanho de 1/4 da tela!', () => {
       this.subject.open();
     }, () => {
@@ -5206,7 +5246,6 @@ class MiddleSizeCardBattleWindowBaseTest extends SceneTest {
   }
 
   start() {
-    this.subject.show();
     this.test('Deve ter o tamanho da metade da tela!', () => {
       this.subject.open();
     }, () => {
@@ -5226,7 +5265,6 @@ class ThreeFourthSizeCardBattleWindowBaseTest extends SceneTest {
   }
 
   start() {
-    this.subject.show();
     this.test('Deve ter o tamanho de 3/4 da tela!', () => {
       this.subject.open();
     }, () => {
@@ -5246,7 +5284,6 @@ class FullSizeCardBattleWindowBaseTest extends SceneTest {
   }
 
   start() {
-    this.subject.show();
     this.test('Deve ter a largura total da tela!', () => {
       this.subject.open();
     }, () => {
@@ -5310,6 +5347,188 @@ class DefaultColorCardBattleWindowBaseTest extends SceneTest {
   }
 }
 
+class StartTopAlignOneFourthSizeCardBattleWindowBaseTest extends SceneTest {
+  name = 'StartTopAlignOneFourthSizeCardBattleWindowBaseTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = CardBattleWindowBase.createWindowOneFourthSize(x, y);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.open();
+    this.test('Deve mostrar na posição início e no topo!', () => {
+      this.subject.alignStartTop();
+    }, () => {
+      this.assert('Esta na posição horizontal do início?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.START, this.subject));
+      this.assert('Esta na posição vertical do topo?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.TOP, this.subject));
+    });
+  }
+}
+class CenterTopAlignOneFourthSizeCardBattleWindowBaseTest extends SceneTest {
+  name = 'CenterTopAlignOneFourthSizeCardBattleWindowBaseTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = CardBattleWindowBase.createWindowOneFourthSize(x, y);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.open();
+    this.test('Deve mostrar na posição centro e no topo!', () => {
+      this.subject.alignCenterTop();
+    }, () => {
+      this.assert('Esta na posição horizontal do centro?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
+      this.assert('Esta na posição vertical do topo?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.TOP, this.subject));
+    });
+  }
+}
+class EndTopAlignOneFourthSizeCardBattleWindowBaseTest extends SceneTest {
+  name = 'EndTopAlignOneFourthSizeCardBattleWindowBaseTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = CardBattleWindowBase.createWindowOneFourthSize(x, y);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.open();
+    this.test('Deve mostrar na posição final e no topo!', () => {
+      this.subject.alignEndTop();
+    }, () => {
+      this.assert('Esta na posição horizontal do final?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.END, this.subject));
+      this.assert('Esta na posição vertical do topo?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.TOP, this.subject));
+    });
+  }
+}
+class StartMiddleAlignOneFourthSizeCardBattleWindowBaseTest extends SceneTest {
+  name = 'StartMiddleAlignOneFourthSizeCardBattleWindowBaseTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = CardBattleWindowBase.createWindowOneFourthSize(x, y);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.open();
+    this.test('Deve mostrar na posição início e no meio!', () => {
+      this.subject.alignStartMiddle();
+    }, () => {
+      this.assert('Esta na posição horizontal do início?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.START, this.subject));
+      this.assert('Esta na posição vertical do meio?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
+    });
+  }
+}
+class CenterMiddleAlignOneFourthSizeCardBattleWindowBaseTest extends SceneTest {
+  name = 'CenterMiddleAlignOneFourthSizeCardBattleWindowBaseTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = CardBattleWindowBase.createWindowOneFourthSize(x, y);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.open();
+    this.test('Deve mostrar na posição centro e no meio!', () => {
+      this.subject.alignCenterMiddle();
+    }, () => {
+      this.assert('Esta na posição horizontal do centro?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
+      this.assert('Esta na posição vertical do meio?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
+    });
+  }
+}
+class EndMiddleAlignOneFourthSizeCardBattleWindowBaseTest extends SceneTest {
+  name = 'EndMiddleAlignOneFourthSizeCardBattleWindowBaseTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = CardBattleWindowBase.createWindowOneFourthSize(x, y);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.open();
+    this.test('Deve mostrar na posição final e no meio!', () => {
+      this.subject.alignEndMiddle();
+    }, () => {
+      this.assert('Esta na posição horizontal do final?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.END, this.subject));
+      this.assert('Esta na posição vertical do meio?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
+    });
+  }
+}
+class StartBottomAlignOneFourthSizeCardBattleWindowBaseTest  extends SceneTest {
+  name = 'StartBottomAlignOneFourthSizeCardBattleWindowBaseTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = CardBattleWindowBase.createWindowOneFourthSize(x, y);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.open();
+    this.test('Deve mostrar na posição início e embaixo!', () => {
+      this.subject.alignStartBottom();
+    }, () => {
+      this.assert('Esta na posição horizontal do início?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.START, this.subject));
+      this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
+    });
+  }
+}
+class CenterBottomAlignOneFourthSizeCardBattleWindowBaseTest extends SceneTest {
+  name = 'CenterBottomAlignOneFourthSizeCardBattleWindowBaseTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = CardBattleWindowBase.createWindowOneFourthSize(x, y);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.open();
+    this.test('Deve mostrar na posição centro e embaixo!', () => {
+      this.subject.alignCenterBottom();
+    }, () => {
+      this.assert('Esta na posição horizontal do centro?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
+      this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
+    });
+  }
+}
+class EndBottomAlignOneFourthSizeCardBattleWindowBaseTest extends SceneTest {
+  name = 'EndBottomAlignOneFourthSizeCardBattleWindowBaseTest';
+
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = CardBattleWindowBase.createWindowOneFourthSize(x, y);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.open();
+    this.test('Deve mostrar na posição final e embaixo!', () => {
+      this.subject.alignEndBottom();
+    }, () => {
+      this.assert('Esta na posição horizontal do final?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.END, this.subject));
+      this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
+    });
+  }
+}
+
+
 class AlignMiddleSizeCardBattleWindowBaseTest extends SceneTest {
   name = 'AlignMiddleSizeCardBattleWindowBaseTest';
 
@@ -5321,7 +5540,6 @@ class AlignMiddleSizeCardBattleWindowBaseTest extends SceneTest {
   }
 
   start() {
-    this.subject.show();
     this.subject.open();
     this.test('Deve move para inicio no top!', () => {
       this.subject.setHorizontalAlign(GameConst.START);
@@ -5399,7 +5617,6 @@ class AlignFullSizeCardBattleWindowBaseTest extends SceneTest {
   }
 
   start() {
-    this.subject.show();
     this.subject.open();
     this.test('Deve move para centro no top!', () => {
       this.subject.setHorizontalAlign(GameConst.CENTER);
@@ -5971,10 +6188,20 @@ class CardBattleTestScene extends Scene_Message {
       // MiddleSizeCardBattleWindowBaseTest,
       // ThreeFourthSizeCardBattleWindowBaseTest,
       // FullSizeCardBattleWindowBaseTest,
-      BlueColorCardBattleWindowBaseTest,
-      RedColorCardBattleWindowBaseTest,
-      DefaultColorCardBattleWindowBaseTest,
-      // ChangeColorCardBattleWindowBaseTest,
+      // BlueColorCardBattleWindowBaseTest,
+      // RedColorCardBattleWindowBaseTest,
+      // DefaultColorCardBattleWindowBaseTest,
+
+      StartTopAlignOneFourthSizeCardBattleWindowBaseTest,
+      CenterTopAlignOneFourthSizeCardBattleWindowBaseTest,
+      EndTopAlignOneFourthSizeCardBattleWindowBaseTest,
+      StartMiddleAlignOneFourthSizeCardBattleWindowBaseTest,
+      CenterMiddleAlignOneFourthSizeCardBattleWindowBaseTest,
+      EndMiddleAlignOneFourthSizeCardBattleWindowBaseTest,
+      StartBottomAlignOneFourthSizeCardBattleWindowBaseTest,
+      CenterBottomAlignOneFourthSizeCardBattleWindowBaseTest,
+      EndBottomAlignOneFourthSizeCardBattleWindowBaseTest,
+      
       // AlignMiddleSizeCardBattleWindowBaseTest,
       // AlignFullSizeCardBattleWindowBaseTest,
     ];

@@ -9,7 +9,6 @@ class FullSizeCardBattleWindowBaseTest extends SceneTest {
   }
 
   start() {
-    this.subject.show();
     this.test('Deve ter a largura total da tela!', () => {
       this.subject.open();
     }, () => {

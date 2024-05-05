@@ -9,7 +9,6 @@ class MiddleSizeCardBattleWindowBaseTest extends SceneTest {
   }
 
   start() {
-    this.subject.show();
     this.test('Deve ter o tamanho da metade da tela!', () => {
       this.subject.open();
     }, () => {
