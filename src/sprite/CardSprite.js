@@ -409,12 +409,34 @@ class CardSprite extends ActionSprite {
     return true;
   }
 
+  select() {
+    this.addAction(this.commandSelect);
+  }
 
+  commandSelect() {
+    if (!(this.isOpened() && this.isStopped()) || this.isSelected()) return; 
+    this.addBehavior(CardSpriteSelectedBehavior);
+    return true;
+  }
 
+  isSelected() {
+    return this.getBehavior(CardSpriteSelectedBehavior) instanceof CardSpriteSelectedBehavior;
+  }
 
+  unselect() {
+    this.addAction(this.commandUnselect);
+  }
 
+  commandUnselect() {
+    if (this.isUnselected()) return;
+    this._selectedLayer.bitmap.clear();
+    this.removeBehavior(CardSpriteSelectedBehavior);
+    return true;
+  }
 
-
+  isUnselected() {
+    return !this.isSelected();
+  }
 
 
 
@@ -533,16 +555,7 @@ class CardSprite extends ActionSprite {
 
 
 
-  select() {
-    this.addAction(this.commandSelect);
-  }
 
-  commandSelect() {
-    if (!(this.isVisible() && 
-      (this.isStopped() || this.isOpening() || this.isMoving() || this.isZooming()))) return; 
-    this.addBehavior(CardSpriteSelectedBehavior);
-    return true;
-  }
 
   isZooming() {
     return this.getStatus() && this.getStatus() instanceof CardSpriteZoomState;
@@ -552,15 +565,7 @@ class CardSprite extends ActionSprite {
     return this.getStatus() && this.getStatus() instanceof CardSpriteOpeningState;
   }
 
-  unselect() {
-    this.addAction(this.commandUnselect);
-  }
 
-  commandUnselect() {
-    this._selectedLayer.bitmap.clear();
-    this.removeBehavior(CardSpriteSelectedBehavior);
-    return true;
-  }
 
   flash(color = 'white', duration = 60, times = 1) {
     this.addAction(this.commandFlash, color, duration, times);
@@ -814,10 +819,6 @@ class CardSprite extends ActionSprite {
 
   setToDown() {
     this._turned = false;
-  }
-
-  isSelected() {
-    return this.getBehavior(CardSpriteSelectedBehavior) instanceof CardSpriteSelectedBehavior;
   }
 
   iluminate() {

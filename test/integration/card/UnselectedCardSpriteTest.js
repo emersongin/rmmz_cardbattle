@@ -1,5 +1,5 @@
-class HoveredCardSpriteTest extends SceneTest {
-  name = 'HoveredCardSpriteTest';
+class UnselectedCardSpriteTest extends SceneTest {
+  name = 'UnselectedCardSpriteTest';
 
   create() {
     const card = CardGenerator.generateCard();
@@ -18,10 +18,11 @@ class HoveredCardSpriteTest extends SceneTest {
   }
 
   start() {
-    this.test('Deve estar no comportamento de hovered!', () => {
-      this.subject.hover();
+    this.subject.select();
+    this.test('Deve retirar o comportamento de seleção!', () => {
+      this.subject.unselect();
     }, () => {
-      this.assertTrue('Esta em hovered?', this.subject.isHovered());
+      this.assertTrue('Esta sem seleção?', this.subject.isUnselected());
     });
-  } 
+  }
 }

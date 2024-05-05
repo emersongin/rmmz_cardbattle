@@ -33,15 +33,16 @@
 // include ../test/integration/card/CloseCardSpriteTest.js
 // include ../test/integration/card/DisableCardSpriteTest.js
 // include ../test/integration/card/EnableCardSpriteTest.js
+// include ../test/integration/card/MoveCardSpriteTest.js
 // include ../test/integration/card/HoveredCardSpriteTest.js
 // include ../test/integration/card/UnhoveredCardSpriteTest.js
+// include ../test/integration/card/SelectedCardSpriteTest.js
+// include ../test/integration/card/UnselectedCardSpriteTest.js
 
 
 
 
 // include ../test/integration/card/StartClosedAndStartOpenCardSpriteTest.js
-// include ../test/integration/card/MoveCardSpriteTest.js
-// include ../test/integration/card/SelectedCardSpriteTest.js
 // include ../test/integration/card/FlashCardSpriteTest.js
 // include ../test/integration/card/DamageAnimationCardSpriteTest.js
 // include ../test/integration/card/UpdatingPointsCardSpriteTest.js
