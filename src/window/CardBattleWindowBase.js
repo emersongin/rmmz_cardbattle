@@ -14,6 +14,7 @@ class CardBattleWindowBase extends Window_Base {
 
   closed() {
     this._openness = 0;
+    this.visible = false;
   }
 
   stop() {
@@ -123,6 +124,7 @@ class CardBattleWindowBase extends Window_Base {
 
   commandOpen() {
     if (!(this.isStopped() && this.isClosed())) return;
+    this.visible = true;
     super.open();
     return true;
   }
@@ -133,6 +135,7 @@ class CardBattleWindowBase extends Window_Base {
 
   commandClose() {
     if (!(this.isStopped() && this.isOpened())) return;
+    this.visible = false;
     super.close();
     return true;
   }
@@ -192,9 +195,47 @@ class CardBattleWindowBase extends Window_Base {
     return this._windowColor === GameConst.DEFAULT;
   }
 
-  setCenteredAlignment() {
-    this.setVerticalAlign(GameConst.MIDDLE);
-    this.setHorizontalAlign(GameConst.CENTER);
+  alignStartTop() {
+    this.addAction(this.commandAlign, GameConst.START, GameConst.TOP);
+  }
+
+  alignCenterTop() {
+    this.addAction(this.commandAlign, GameConst.CENTER, GameConst.TOP);
+  }
+
+  alignEndTop() {
+    this.addAction(this.commandAlign, GameConst.END, GameConst.TOP);
+  }
+
+  alignStartMiddle() {
+    this.addAction(this.commandAlign, GameConst.START, GameConst.MIDDLE);
+  }
+
+  alignCenterMiddle() {
+    this.addAction(this.commandAlign, GameConst.CENTER, GameConst.MIDDLE);
+  }
+
+  alignEndMiddle() {
+    this.addAction(this.commandAlign, GameConst.END, GameConst.MIDDLE);
+  }
+
+  alignStartBottom() {
+    this.addAction(this.commandAlign, GameConst.START, GameConst.BOTTOM);
+  }
+
+  alignCenterBottom() {
+    this.addAction(this.commandAlign, GameConst.CENTER, GameConst.BOTTOM);
+  }
+
+  alignEndBottom() {
+    this.addAction(this.commandAlign, GameConst.END, GameConst.BOTTOM);
+  }
+
+  commandAlign(horizontalAlign, verticalAlign) {
+    if (!this.isStopped()) return;
+    this.setHorizontalAlign(horizontalAlign);
+    this.setVerticalAlign(verticalAlign);
+    return true;
   }
 
   setVerticalAlign(position) {
