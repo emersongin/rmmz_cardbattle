@@ -68,8 +68,10 @@
 // include ../test/integration/cardbattlewindowbase/MiddleSizeCardBattleWindowBaseTest.js
 // include ../test/integration/cardbattlewindowbase/ThreeFourthSizeCardBattleWindowBaseTest.js
 // include ../test/integration/cardbattlewindowbase/FullSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/BlueColorCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/RedColorCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/DefaultColorCardBattleWindowBaseTest.js
 
-// include ../test/integration/cardbattlewindowbase/ChangeColorCardBattleWindowBaseTest.js
 // include ../test/integration/cardbattlewindowbase/AlignMiddleSizeCardBattleWindowBaseTest.js
 // include ../test/integration/cardbattlewindowbase/AlignFullSizeCardBattleWindowBaseTest.js
 // tests TEXT WINDOW
