@@ -6,6 +6,7 @@ class CardBattleWindowBase extends Window_Base {
     super.initialize(rect);
     this._iconset = "IconSet";
     this._status = {};
+    this._actions = [];
     this._windowColor = GameConst.BLUE_COLOR;
     this.closed();
     this.stop();
@@ -63,10 +64,40 @@ class CardBattleWindowBase extends Window_Base {
     return CardBattleWindowBase.create(x, y, width, height);
   }
 
+  addAction(fn, ...params) {
+    const action = this.createAction(fn, ...params);
+    this._actions.push(action);
+  }
+
+  createAction(fn, ...params) {
+    const action = { 
+      fn: fn.name || 'anonymous',
+      execute: () => fn.call(this, ...params)
+    };
+    return action;
+  }
+
   update() {
     super.update();
+    if (this.hasActions() && this.isStopped()) this.executeAction();
     if (this.isOpen() && this.getStatus()) this._status.updateStatus();
     this.updateTone();
+  }
+
+  hasActions() {
+    return this._actions.length > 0;
+  }
+
+  isStopped() {
+    return this.getStatus() instanceof WindowStoppedState;
+  }
+
+  executeAction() {
+    const action = this._actions[0];
+    const executed = action.execute();
+    if (executed) {
+      this._actions.shift();
+    }
   }
 
   getStatus() {
@@ -84,6 +115,30 @@ class CardBattleWindowBase extends Window_Base {
       default:
         this.setTone(0, 0, 0);
     }
+  }
+
+  open() {
+    this.addAction(this.commandOpen);
+  }
+
+  commandOpen() {
+    if (!(this.isStopped() && this.isClosed())) return;
+    super.open();
+    return true;
+  }
+
+  close() {
+    this.addAction(this.commandClose);
+  }
+
+  commandClose() {
+    if (!(this.isStopped() && this.isOpened())) return;
+    super.close();
+    return true;
+  }
+
+  isOpened() {
+    return this._openness === 255;
   }
 
   drawIcon(iconIndex, x, y) {

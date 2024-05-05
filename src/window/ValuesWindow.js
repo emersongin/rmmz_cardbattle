@@ -18,10 +18,6 @@ class ValuesWindow extends CardBattleWindowBase {
     return this._updates.length > 0;
   }
 
-  isStopped() {
-    return this.getStatus() instanceof WindowStoppedState;
-  }
-
   executeUpdate() {
     const updates = this._updates;
     if (updates.length > 0) {
