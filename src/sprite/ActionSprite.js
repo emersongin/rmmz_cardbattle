@@ -2,7 +2,7 @@ class ActionSprite extends Sprite {
   initialize() { 
     super.initialize();
     this._duration = 0.3;
-    this._status = {};
+    this._status = null;
     this._actions = [];
     this._delayActions = [];
     this._positiveIntensityEffect = false;
@@ -66,9 +66,13 @@ class ActionSprite extends Sprite {
   }
 
   update() {
-    this.updateDelayActions();
-    this.updateChildrenEffect();
     super.update();
+    if (this.hasActions() && this.isAvailable()) this.executeAction();
+    if (this.isVisible()) {
+      this.updateStatus();
+      this.updateDelayActions();
+      this.updateChildrenEffect();
+    }
   }
 
   updateDelayActions() {
@@ -110,7 +114,7 @@ class ActionSprite extends Sprite {
   }
 
   updateStatus() {
-    if (this._status) this._status.updateStatus();
+    if (this._status && this._status.updateStatus) this._status.updateStatus();
   }
 
   isAvailable() {
@@ -118,8 +122,12 @@ class ActionSprite extends Sprite {
   }
 
   isBusy() {
-    return this._delayActions.some(action => action.delay > 0);
+    return this.getStatus() !== null;
   }
+
+  // isBusy() {
+  //   return this._delayActions.some(action => action.delay > 0);
+  // }
 
   hasDelayActions() {
     return this._delayActions.length > 0;
