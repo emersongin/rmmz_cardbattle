@@ -150,16 +150,34 @@ class CardBattleWindowBase extends Window_Base {
     this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
   };
 
-  setBlueColor() {
+  changeBlueColor() {
+    this.addAction(this.commandChangeBlueColor);
+  }
+
+  commandChangeBlueColor() {
+    if (!this.isStopped()) return;
     this._windowColor = GameConst.BLUE_COLOR;
+    return true;
   }
 
-  setRedColor() {
+  changeRedColor() {
+    this.addAction(this.commandChangeRedColor);
+  }
+
+  commandChangeRedColor() {
+    if (!this.isStopped()) return;
     this._windowColor = GameConst.RED_COLOR;
+    return true;
   }
 
-  setDefaultColor() {
-    this._windowColor = GameConst.DEFAULT;
+  changeDefaultColor() {
+    this.addAction(this.commandChangeDefaultColor);
+  }
+
+  commandChangeDefaultColor() {
+    if (!this.isStopped()) return;
+    this._windowColor = GameConst.DEFAULT_COLOR;
+    return true;
   }
 
   isBlueColor() {

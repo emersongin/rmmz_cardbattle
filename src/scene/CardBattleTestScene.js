@@ -49,13 +49,15 @@ class CardBattleTestScene extends Scene_Message {
       AnimateDamageCardsCardsetSpriteTest,
     ];
     const CardBattleWindowBaseTests = [
-      OpenCardBattleWindowBaseTest,
-      CloseCardBattleWindowBaseTest,
+      // OpenCardBattleWindowBaseTest,
+      // CloseCardBattleWindowBaseTest,
       // OneFourthSizeCardBattleWindowBaseTest,
       // MiddleSizeCardBattleWindowBaseTest,
       // ThreeFourthSizeCardBattleWindowBaseTest,
       // FullSizeCardBattleWindowBaseTest,
-
+      BlueColorCardBattleWindowBaseTest,
+      RedColorCardBattleWindowBaseTest,
+      DefaultColorCardBattleWindowBaseTest,
       // ChangeColorCardBattleWindowBaseTest,
       // AlignMiddleSizeCardBattleWindowBaseTest,
       // AlignFullSizeCardBattleWindowBaseTest,
