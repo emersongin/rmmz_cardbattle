@@ -7,9 +7,14 @@ class CardAnimationSprite extends Sprite_Animation {
   //   super.setup(targets, animation, mirror, delay);
   // }
 
-  update() {
-    super.update();
-    if (!this.isPlaying()) this.destroy();
-  }
+  // update() {
+  //   if (!this.isPlaying()) this.destroy();
+  //   super.update();
+  // }
+
+  // destroy() {
+  //   super.destroy();
+  //   this.parent?.removeChild(this);
+  // }
 }
 

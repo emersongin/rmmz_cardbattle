@@ -18,14 +18,14 @@ class CardSpriteAnimatedBehavior {
     const that = this._card;
     if (this.hasTimes() || this.isPlayingAnimation()) {
       if (this.noHasAnimationSprite()) {
-        this._animationSprite = new CardAnimationSprite();
+        this._animationSprite = new Sprite_Animation();
         this._animationSprite.setup([that], this._animation);
         this._parent.addChild(this._animationSprite);
         this._times--;
-      } else {
-        if (this.isNoPlayingAnimation()) this._animationSprite = null;
       }
     } else {
+      this._parent.removeChild(this._animationSprite);
+      this._animationSprite.destroy();
       that.removeBehavior(this);
     }
   }
