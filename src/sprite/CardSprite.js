@@ -376,7 +376,38 @@ class CardSprite extends ActionSprite {
     return this.getStatus() instanceof CardSpriteMovingState;
   }
 
+  hover() {
+    this.addAction(this.commandHover);
+  }
 
+  commandHover() {
+    if (!(this.isOpened() && this.isStopped()) || this.isHovered()) return;
+    this.addBehavior(CardSpriteHoveredBehavior);
+    return true;
+  }
+
+  addBehavior(behavior, ...params) {
+    this._behaviors.push(new behavior(this, ...params));
+  }
+
+  isHovered() {
+    return this.getBehavior(CardSpriteHoveredBehavior) instanceof CardSpriteHoveredBehavior;
+  }
+
+  isUnhovered() {
+    return !this.isHovered();
+  }
+
+  unhover() {
+    this.addAction(this.commandUnhover);
+  }
+
+  commandUnhover() {
+    if (this.isUnhovered()) return;
+    this._hoveredLayer.bitmap.clear();
+    this.removeBehavior(CardSpriteHoveredBehavior);
+    return true;
+  }
 
 
 
@@ -408,9 +439,7 @@ class CardSprite extends ActionSprite {
     }
   }
 
-  addBehavior(behavior, ...params) {
-    this._behaviors.push(new behavior(this, ...params));
-  }
+
 
   removeBehavior(behavior) {
     behavior = this.getBehavior(behavior);
@@ -502,25 +531,7 @@ class CardSprite extends ActionSprite {
 
 
 
-  hover() {
-    this.addAction(this.commandHover);
-  }
 
-  commandHover() {
-    if (!(this.isVisible() && this.isStopped())) return;
-    this.addBehavior(CardSpriteHoveredBehavior);
-    return true;
-  }
-
-  unhover() {
-    this.addAction(this.commandUnhover);
-  }
-
-  commandUnhover() {
-    this._hoveredLayer.bitmap.clear();
-    this.removeBehavior(CardSpriteHoveredBehavior);
-    return true;
-  }
 
   select() {
     this.addAction(this.commandSelect);
@@ -803,10 +814,6 @@ class CardSprite extends ActionSprite {
 
   setToDown() {
     this._turned = false;
-  }
-
-  isHovered() {
-    return this.getBehavior(CardSpriteHoveredBehavior) instanceof CardSpriteHoveredBehavior;
   }
 
   isSelected() {

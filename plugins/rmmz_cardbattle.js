@@ -1909,6 +1909,7 @@ class CardSpriteZoomState {
       this.updateYScale();
     } else {
       that.stop();
+      that.removeStatus();
     }
   }
 
@@ -2579,7 +2580,38 @@ class CardSprite extends ActionSprite {
     return this.getStatus() instanceof CardSpriteMovingState;
   }
 
+  hover() {
+    this.addAction(this.commandHover);
+  }
 
+  commandHover() {
+    if (!(this.isOpened() && this.isStopped()) || this.isHovered()) return;
+    this.addBehavior(CardSpriteHoveredBehavior);
+    return true;
+  }
+
+  addBehavior(behavior, ...params) {
+    this._behaviors.push(new behavior(this, ...params));
+  }
+
+  isHovered() {
+    return this.getBehavior(CardSpriteHoveredBehavior) instanceof CardSpriteHoveredBehavior;
+  }
+
+  isUnhovered() {
+    return !this.isHovered();
+  }
+
+  unhover() {
+    this.addAction(this.commandUnhover);
+  }
+
+  commandUnhover() {
+    if (this.isUnhovered()) return;
+    this._hoveredLayer.bitmap.clear();
+    this.removeBehavior(CardSpriteHoveredBehavior);
+    return true;
+  }
 
 
 
@@ -2599,8 +2631,6 @@ class CardSprite extends ActionSprite {
     if (this.isVisible()) this.updateBehaviors();
   }
 
-
-
   isTurnedToDown() {
     return !this._turned;
   }
@@ -2613,9 +2643,7 @@ class CardSprite extends ActionSprite {
     }
   }
 
-  addBehavior(behavior, ...params) {
-    this._behaviors.push(new behavior(this, ...params));
-  }
+
 
   removeBehavior(behavior) {
     behavior = this.getBehavior(behavior);
@@ -2699,7 +2727,6 @@ class CardSprite extends ActionSprite {
   closed() {
     this.visible = false;
     this.width = 0;
-    // this.stop();
   }
 
 
@@ -2708,25 +2735,7 @@ class CardSprite extends ActionSprite {
 
 
 
-  hover() {
-    this.addAction(this.commandHover);
-  }
 
-  commandHover() {
-    if (!(this.isVisible() && this.isStopped())) return;
-    this.addBehavior(CardSpriteHoveredBehavior);
-    return true;
-  }
-
-  unhover() {
-    this.addAction(this.commandUnhover);
-  }
-
-  commandUnhover() {
-    this._hoveredLayer.bitmap.clear();
-    this.removeBehavior(CardSpriteHoveredBehavior);
-    return true;
-  }
 
   select() {
     this.addAction(this.commandSelect);
@@ -3009,10 +3018,6 @@ class CardSprite extends ActionSprite {
 
   setToDown() {
     this._turned = false;
-  }
-
-  isHovered() {
-    return this.getBehavior(CardSpriteHoveredBehavior) instanceof CardSpriteHoveredBehavior;
   }
 
   isSelected() {
@@ -4406,6 +4411,63 @@ class EnableCardSpriteTest extends SceneTest {
     });
   }
 }
+class HoveredCardSpriteTest extends SceneTest {
+  name = 'HoveredCardSpriteTest';
+
+  create() {
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
+    );
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.subject.show();
+    this.addChild(this.subject);
+  }
+
+  start() {
+    this.test('Deve estar em estado de hovered!', () => {
+      this.subject.hover();
+    }, () => {
+      this.assertTrue('esta hovered?', this.subject.isHovered());
+    });
+  } 
+}
+class UnhoveredCardSpriteTest extends SceneTest {
+  name = 'UnhoveredCardSpriteTest';
+
+  create() {
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
+    );
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.subject.show();
+    this.addChild(this.subject);
+  }
+
+  start() {
+    this.subject.hover();
+    this.test('Deve retirar o comportamento de hovered!', () => {
+      this.subject.unhover();
+    }, () => {
+      this.assertTrue('Esta sem hovered?', this.subject.isUnhovered());
+    });
+  } 
+}
+
+
 
 
 class StartClosedAndStartOpenCardSpriteTest extends SceneTest {
@@ -4478,38 +4540,6 @@ class MoveCardSpriteTest extends SceneTest {
       this.assert('Esta no destino y', this.subject.y).toBe(destinyYPosition);
     }, moves.length * 0.3);
   }
-}
-class HoveredCardSpriteTest extends SceneTest {
-  name = 'HoveredCardSpriteTest';
-
-  create() {
-    const card = CardGenerator.generateCard();
-    this.subject = CardSprite.create(
-      card.type,
-      card.color,
-      card.figureName,
-      card.attack,
-      card.health
-    );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
-    this.addChild(this.subject);
-  }
-
-  start() {
-    this.subject.show();
-    this.test('Deve estar em estado de hover!', () => {
-      this.subject.hover();
-    }, () => {
-      this.assertTrue('esta hover?', this.subject.isHovered());
-    });
-    this.test('Deve retornar ao normal!', () => {
-      this.subject.unhover();
-    }, () => {
-      this.assertTrue('Esta normal?', this.subject.isNormal());
-    });
-  } 
 }
 class SelectedCardSpriteTest extends SceneTest {
   name = 'SelectedCardSpriteTest';
@@ -6171,12 +6201,13 @@ class CardBattleTestScene extends Scene_Message {
 
   data() {
     const cardSpriteTests = [
-      OpenCardSpriteTest,
-      CloseCardSpriteTest,
-      DisableCardSpriteTest,
-      EnableCardSpriteTest,
-      MoveCardSpriteTest,
-
+      // OpenCardSpriteTest,
+      // CloseCardSpriteTest,
+      // DisableCardSpriteTest,
+      // EnableCardSpriteTest,
+      // MoveCardSpriteTest,
+      HoveredCardSpriteTest,
+      UnhoveredCardSpriteTest,
 
       // StartClosedAndStartOpenCardSpriteTest,
       // HoveredCardSpriteTest,
