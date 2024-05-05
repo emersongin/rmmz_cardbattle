@@ -55,6 +55,7 @@ class CardSpriteZoomState {
       this.updateYScale();
     } else {
       that.stop();
+      that.removeStatus();
     }
   }
 

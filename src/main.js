@@ -30,17 +30,18 @@
 // include ../test/integration/SceneTest.js
 // tests CARD Sprite
 // include ../test/integration/card/OpenCardSpriteTest.js
+// include ../test/integration/card/CloseCardSpriteTest.js
+// include ../test/integration/card/DisableCardSpriteTest.js
+// include ../test/integration/card/EnableCardSpriteTest.js
 
 
 // include ../test/integration/card/StartClosedAndStartOpenCardSpriteTest.js
-// include ../test/integration/card/CloseAndOpenCardSpriteTest.js
 // include ../test/integration/card/MoveCardSpriteTest.js
 // include ../test/integration/card/HoveredCardSpriteTest.js
 // include ../test/integration/card/SelectedCardSpriteTest.js
 // include ../test/integration/card/FlashCardSpriteTest.js
 // include ../test/integration/card/DamageAnimationCardSpriteTest.js
 // include ../test/integration/card/UpdatingPointsCardSpriteTest.js
-// include ../test/integration/card/DisableAndEnableCardSpriteTest.js
 // include ../test/integration/card/ZoomAndZoomoutCardSpriteTest.js
 // include ../test/integration/card/LeaveCardSpriteTest.js
 // include ../test/integration/card/QuakeCardSpriteTest.js

@@ -10,13 +10,20 @@ class ActionSprite extends Sprite {
     this._opacityEffect = 255;
   }
 
-  addAction(fn, ...params) {
-    const action = this.createAction({ fn, delay: 0 }, ...params);
-    this.addActions(action);
+  removeStatus() {
+    this._status = null;
   }
 
-  addDelayAction(fn, delay, ...params) {
-    const action = this.createAction({ fn, delay }, ...params);
+  changeStatus(status, ...params) {
+    this._status = new status(this, ...params);
+  }
+
+  hide() {
+    this.addAction(this.commandHide);
+  }
+
+  addAction(fn, ...params) {
+    const action = this.createAction({ fn, delay: 0 }, ...params);
     this.addActions(action);
   }
 
@@ -39,8 +46,74 @@ class ActionSprite extends Sprite {
     return (Array.isArray(items) === false) ? [items] : items;
   }
 
+  commandHide() {
+    this.visible = false;
+    return true;
+  }
+
+  show() {
+    this.addAction(this.commandShow);
+  }
+
+  commandShow() {
+    this.visible = true;
+    return true;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  addDelayAction(fn, delay, ...params) {
+    const action = this.createAction({ fn, delay }, ...params);
+    this.addActions(action);
+  }
+
+  update() {
+    super.update();
+    console.log(this._actions);
+    if (this.hasActions() && this.isAvailable()) this.executeAction();
+    if (this.isVisible()) {
+      this.updateStatus();
+      this.updateDelayActions();
+      this.updateChildrenEffect();
+    }
+  }
+
+  isAvailable() {
+    return !this.isBusy();
+  }
+
+  isBusy() {
+    return this.getStatus() !== null;
+  }
+
+  getStatus() {
+    return this._status;
+  }
+
   executeAction() {
     const actions = this._actions[0];
+    console.log(actions);
     if (actions.length > 0) {
       for (const action of actions) {
         if (action.delay > 0) {
@@ -54,24 +127,6 @@ class ActionSprite extends Sprite {
         }
         break;
       }
-    }
-  }
-
-  changeStatus(status, ...params) {
-    this._status = new status(this, ...params);
-  }
-
-  getStatus() {
-    return this._status;
-  }
-
-  update() {
-    super.update();
-    if (this.hasActions() && this.isAvailable()) this.executeAction();
-    if (this.isVisible()) {
-      this.updateStatus();
-      this.updateDelayActions();
-      this.updateChildrenEffect();
     }
   }
 
@@ -117,13 +172,7 @@ class ActionSprite extends Sprite {
     if (this._status && this._status.updateStatus) this._status.updateStatus();
   }
 
-  isAvailable() {
-    return !this.isBusy();
-  }
 
-  isBusy() {
-    return this.getStatus() !== null;
-  }
 
   // isBusy() {
   //   return this._delayActions.some(action => action.delay > 0);
@@ -143,24 +192,6 @@ class ActionSprite extends Sprite {
 
   numberOfChildren() {
     return this.children.length;
-  }
-
-  show() {
-    this.addAction(this.commandShow);
-  }
-
-  commandShow() {
-    this.visible = true;
-    return true;
-  }
-
-  hide() {
-    this.addAction(this.commandHide);
-  }
-
-  commandHide() {
-    this.visible = false;
-    return true;
   }
 
   isHidden() {

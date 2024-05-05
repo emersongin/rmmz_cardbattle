@@ -1,5 +1,5 @@
-class CloseAndOpenCardSpriteTest extends SceneTest {
-  name = 'CloseAndOpenCardSpriteTest';
+class CloseCardSpriteTest extends SceneTest {
+  name = 'CloseCardSpriteTest';
 
   create() {
     const card = CardGenerator.generateCard();
@@ -17,23 +17,10 @@ class CloseAndOpenCardSpriteTest extends SceneTest {
   }
 
   start() {
-    this.subject.show();
     this.test('Deve fechar!', () => {
       this.subject.close();
     }, () => {
       this.assertTrue('Esta fechado?', this.subject.isClosed());
     });
-    this.test('Deve abrir o cartão!', () => {
-      this.subject.open();
-    }, () => {
-      this.assertTrue('Esta aberto?', this.subject.isOpened());
-    });
   }
-
-  // exemplo de teste de unidade
-  // this.update(() => {
-  //   this.subject.update();
-  // });
-  // this.assert(this.subject._status).toBeInstanceof(CardSpriteStoppedState);
-  // this.assert(this.subject.width).toBe(0);
 }

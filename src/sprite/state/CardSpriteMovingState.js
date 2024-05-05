@@ -21,6 +21,7 @@ class CardSpriteMovingState {
       this.updateYPosition();
     } else {
       that.stop();
+      that.removeStatus();
     }
   }
 

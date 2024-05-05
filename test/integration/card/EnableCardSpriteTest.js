@@ -1,5 +1,5 @@
-class DisableAndEnableCardSpriteTest extends SceneTest {
-  name = 'DisableAndEnableCardSpriteTest';
+class EnableCardSpriteTest extends SceneTest {
+  name = 'EnableCardSpriteTest';
 
   create() {
     const card = CardGenerator.generateCard();
@@ -13,16 +13,12 @@ class DisableAndEnableCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
+    this.subject.show();
     this.addChild(this.subject);
   }
 
   start() {
-    this.subject.show();
-    this.test('Deve desabilitar!', () => {
-      this.subject.disable();
-    }, () => {
-      this.assertTrue('Esta disabilitado?', this.subject.isDisabled());
-    });
+    this.subject.disable();
     this.test('Deve habilitar!', () => {
       this.subject.enable();
     }, () => {

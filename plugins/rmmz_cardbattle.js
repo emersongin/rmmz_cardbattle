@@ -1383,13 +1383,20 @@ class ActionSprite extends Sprite {
     this._opacityEffect = 255;
   }
 
-  addAction(fn, ...params) {
-    const action = this.createAction({ fn, delay: 0 }, ...params);
-    this.addActions(action);
+  removeStatus() {
+    this._status = null;
   }
 
-  addDelayAction(fn, delay, ...params) {
-    const action = this.createAction({ fn, delay }, ...params);
+  changeStatus(status, ...params) {
+    this._status = new status(this, ...params);
+  }
+
+  hide() {
+    this.addAction(this.commandHide);
+  }
+
+  addAction(fn, ...params) {
+    const action = this.createAction({ fn, delay: 0 }, ...params);
     this.addActions(action);
   }
 
@@ -1412,8 +1419,74 @@ class ActionSprite extends Sprite {
     return (Array.isArray(items) === false) ? [items] : items;
   }
 
+  commandHide() {
+    this.visible = false;
+    return true;
+  }
+
+  show() {
+    this.addAction(this.commandShow);
+  }
+
+  commandShow() {
+    this.visible = true;
+    return true;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  addDelayAction(fn, delay, ...params) {
+    const action = this.createAction({ fn, delay }, ...params);
+    this.addActions(action);
+  }
+
+  update() {
+    super.update();
+    console.log(this._actions);
+    if (this.hasActions() && this.isAvailable()) this.executeAction();
+    if (this.isVisible()) {
+      this.updateStatus();
+      this.updateDelayActions();
+      this.updateChildrenEffect();
+    }
+  }
+
+  isAvailable() {
+    return !this.isBusy();
+  }
+
+  isBusy() {
+    return this.getStatus() !== null;
+  }
+
+  getStatus() {
+    return this._status;
+  }
+
   executeAction() {
     const actions = this._actions[0];
+    console.log(actions);
     if (actions.length > 0) {
       for (const action of actions) {
         if (action.delay > 0) {
@@ -1427,24 +1500,6 @@ class ActionSprite extends Sprite {
         }
         break;
       }
-    }
-  }
-
-  changeStatus(status, ...params) {
-    this._status = new status(this, ...params);
-  }
-
-  getStatus() {
-    return this._status;
-  }
-
-  update() {
-    super.update();
-    if (this.hasActions() && this.isAvailable()) this.executeAction();
-    if (this.isVisible()) {
-      this.updateStatus();
-      this.updateDelayActions();
-      this.updateChildrenEffect();
     }
   }
 
@@ -1490,13 +1545,7 @@ class ActionSprite extends Sprite {
     if (this._status && this._status.updateStatus) this._status.updateStatus();
   }
 
-  isAvailable() {
-    return !this.isBusy();
-  }
 
-  isBusy() {
-    return this.getStatus() !== null;
-  }
 
   // isBusy() {
   //   return this._delayActions.some(action => action.delay > 0);
@@ -1516,24 +1565,6 @@ class ActionSprite extends Sprite {
 
   numberOfChildren() {
     return this.children.length;
-  }
-
-  show() {
-    this.addAction(this.commandShow);
-  }
-
-  commandShow() {
-    this.visible = true;
-    return true;
-  }
-
-  hide() {
-    this.addAction(this.commandHide);
-  }
-
-  commandHide() {
-    this.visible = false;
-    return true;
   }
 
   isHidden() {
@@ -1640,6 +1671,7 @@ class CardSpriteMovingState {
       this.updateYPosition();
     } else {
       that.stop();
+      that.removeStatus();
     }
   }
 
@@ -1724,6 +1756,7 @@ class CardSpriteOpeningState {
     }
     if (that.isOpened()) that.opened();
     if (that.isClosed()) that.closed();
+    that.removeStatus();
   }
 
   isUpdatingPosition() {
@@ -2201,6 +2234,7 @@ class CardSprite extends ActionSprite {
 
   setup() {
     this.hide();
+    this.enable();
     this.stop();
     this.setTurnToUp();
     this.setOriginalSize();
@@ -2275,30 +2309,35 @@ class CardSprite extends ActionSprite {
   }
 
   enable() {
+    this.addAction(this.commandEnable);
+  }
+
+  commandEnable() {
     this._disabled = false;
     this._disabledLayer.visible = false;
-    this.refresh();
+    if (this.isVisible()) this.refresh();
+    return true;
   }
 
-  update() {
-    super.update();
-    if (this.isVisible()) this.updateBehaviors();
+  disable() {
+    this.addAction(this.commandDisable);
   }
 
-  isMoving() {
-    return this.getStatus() && this.getStatus() instanceof CardSpriteMovingState;
-  }
-
-  commandShow() {
-    super.commandShow();
-    if (this.isOpened()) this.refresh();
+  commandDisable() {
+    this._disabled = true;
+    this._disabledLayer.visible = true;
+    if (this.isVisible()) this.refresh();
     return true;
   }
 
   refresh() {
     this.clearContent();
     this.drawCard();
-    this.drawFilter();
+    this.drawDisableFilter();
+  }
+
+  clearContent() {
+    this._contentLayer.bitmap.clear();
   }
 
   drawCard() {
@@ -2309,22 +2348,6 @@ class CardSprite extends ActionSprite {
     } else {
       this.drawBack();
     }
-  }
-
-  drawFilter() {
-    if (this.isDisabled()) {
-      this._contentLayer.setColorTone([0, 0, 0, 255]);
-    } else {
-      this._contentLayer.setColorTone([0, 0, 0, 0]);
-    }
-  }
-
-  clearContent() {
-    this._contentLayer.bitmap.clear();
-  }
-
-  isTurnedToDown() {
-    return !this._turned;
   }
 
   isTurnedToUp() {
@@ -2478,12 +2501,108 @@ class CardSprite extends ActionSprite {
     this._contentLayer.bitmap.blt(this._backImage, 0, 0, this.width, this.height, 0, 0);
   }
 
+  drawDisableFilter() {
+    if (this.isDisabled()) {
+      this._contentLayer.setColorTone([0, 0, 0, 255]);
+    } else {
+      this._contentLayer.setColorTone([0, 0, 0, 0]);
+    }
+  }
+
   isEnabled() {
     return !this.isDisabled();
   }
 
   isDisabled() {
     return this._disabled;
+  }
+
+  commandShow() {
+    super.commandShow();
+    if (this.isOpened()) this.refresh();
+    return true;
+  }
+
+  isOpened() {
+    return this.width === this.contentOriginalWidth() && this.visible;
+  }
+
+  open() {
+    this.show();
+    this.addAction(this.commandOpen);
+  }
+
+  commandOpen() {
+    if (!(this.isStopped() && this.isClosed())) return;
+    const xPositionOpening = this.x - (this.contentOriginalWidth() / 2);
+    const yPositionOpening = this.y;
+    this.changeStatus(CardSpriteOpeningState, xPositionOpening, yPositionOpening);
+    return true;
+  }
+
+  isStopped() {
+    return this.getStatus() instanceof CardSpriteStoppedState;
+  }
+
+  isClosed() {
+    return this.width === 0;
+  }
+
+  static createMove(destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration) {
+    return { 
+      destinyXPosition, 
+      destinyYPosition, 
+      originXPosition, 
+      originYPosition, 
+      duration 
+    };
+  }
+
+  toMove(moves) {
+    moves = this.toArray(moves);
+    this.addAction(
+      this.commandMoving,
+      moves
+    );
+  }
+
+  commandMoving(moves) {
+    if (!(this.isOpened() && this.isStopped())) return;
+    this.changeStatus( 
+      CardSpriteMovingState,
+      moves
+    );
+    return true;
+  }
+
+  isMoving() {
+    return this.getStatus() instanceof CardSpriteMovingState;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  update() {
+    super.update();
+    if (this.isVisible()) this.updateBehaviors();
+  }
+
+
+
+  isTurnedToDown() {
+    return !this._turned;
   }
 
   updateBehaviors() {
@@ -2553,26 +2672,13 @@ class CardSprite extends ActionSprite {
     this._backImage.gradientFillRect (0, 0, this.width, this.height, '#555', '#000');
   }
 
-  open() {
-    this.show();
-    this.addAction(this.commandOpen);
-  }
 
-  commandOpen() {
-    if (!(this.isStopped() && this.isClosed())) return;
-    const xPositionOpening = this.x - (this.contentOriginalWidth() / 2);
-    const yPositionOpening = this.y;
-    this.changeStatus(CardSpriteOpeningState, xPositionOpening, yPositionOpening);
-    return true;
-  }
 
-  isClosed() {
-    return this.width === 0;
-  }
+
 
   opened() {
+    this.visible = true;
     this.setOriginalSize();
-    this.stop();
   }
 
   close() {
@@ -2581,43 +2687,26 @@ class CardSprite extends ActionSprite {
   }
 
   commandClose() {
-    if (!(this.isVisible() && this.isStopped() && this.isOpened())) return;
+    if (!(this.isOpened() && this.isStopped())) return;
     const xPositionClosing = this.x + (this.contentOriginalWidth() / 2);
     const yPositionOpening = this.y;
     this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionOpening);
     return true;
   }
 
-  isOpened() {
-    return this.width === this.contentOriginalWidth();
-  }
+
 
   closed() {
-    this.width = 0;
     this.visible = false;
-    this.stop();
+    this.width = 0;
+    // this.stop();
   }
 
-  static createMove(destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration) {
-    return { destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration };
-  }
 
-  toMove(moves) {
-    moves = this.toArray(moves);
-    this.addAction(
-      this.commandMoving,
-      moves
-    );
-  }
 
-  commandMoving(moves) {
-    if (!(this.isVisible() && this.isStopped())) return;
-    this.changeStatus( 
-      CardSpriteMovingState,
-      moves
-    );
-    return true;
-  }
+
+
+
 
   hover() {
     this.addAction(this.commandHover);
@@ -2751,12 +2840,6 @@ class CardSprite extends ActionSprite {
     return true;
   }
 
-  disable() {
-    this._disabled = true;
-    this._disabledLayer.visible = true;
-    this.refresh();
-  }
-
   isBusy() {
     return super.isBusy() && (this.isNotStopped() || this.isAnimated());
   }
@@ -2765,9 +2848,7 @@ class CardSprite extends ActionSprite {
     return !this.isStopped();
   }
 
-  isStopped() {
-    return this.getStatus() instanceof CardSpriteStoppedState;
-  }
+
 
   zoom() {
     this.addAction(this.commandZoom);
@@ -2871,25 +2952,33 @@ class CardSprite extends ActionSprite {
   //   return false;
   // }
 
+  startOpen(xPosition = this.x, yPosition = this.y) {
+    this.addAction(this.commandStartOpen, xPosition, yPosition);
+  }
+
+  commandStartOpen(xPosition, yPosition) {
+    if (this.isOpened()) return;
+    this.setPosition(xPosition, yPosition);
+    this.opened();
+    return true;
+  }
+
   setPosition(xPosition, yPosition) {
     this.x = xPosition;
     this.y = yPosition;
   }
 
-  startOpen(xPosition = this.x, yPosition = this.y) {
-    this.x = xPosition;
-    this.y = yPosition;
-    if (this.width !== 0) return;
-    this.opened();
+  startClosed(xPosition = this.x, yPosition = this.y) {
+    this.addAction(this.commandStartClosed, xPosition, yPosition);
   }
 
-  startClosed(xPosition = this.x, yPosition = this.y) {
-    this.x = xPosition;
-    this.y = yPosition;
-    if (this.width === 0) return;
+  commandStartClosed(xPosition, yPosition) {
+    if (this.isClosed()) return;
+    this.setPosition(xPosition, yPosition);
     const cardWidthHalf = (this.contentOriginalWidth() / 2);
     this.x = this.x + cardWidthHalf;
     this.closed();
+    return true;
   }
 
   flipToUp() {
@@ -4235,6 +4324,88 @@ class OpenCardSpriteTest extends SceneTest {
     });
   }
 }
+class CloseCardSpriteTest extends SceneTest {
+  name = 'CloseCardSpriteTest';
+
+  create() {
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
+    );
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.addChild(this.subject);
+  }
+
+  start() {
+    this.test('Deve fechar!', () => {
+      this.subject.close();
+    }, () => {
+      this.assertTrue('Esta fechado?', this.subject.isClosed());
+    });
+  }
+}
+class DisableCardSpriteTest extends SceneTest {
+  name = 'DisableCardSpriteTest';
+
+  create() {
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
+    );
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.subject.show();
+    this.addChild(this.subject);
+  }
+
+  start() {
+    this.subject.enable();
+    this.test('Deve desabilitar!', () => {
+      this.subject.disable();
+    }, () => {
+      this.assertTrue('Esta disabilitado?', this.subject.isDisabled());
+    });
+  }
+}
+class EnableCardSpriteTest extends SceneTest {
+  name = 'EnableCardSpriteTest';
+
+  create() {
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
+    );
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.subject.show();
+    this.addChild(this.subject);
+  }
+
+  start() {
+    this.subject.disable();
+    this.test('Deve habilitar!', () => {
+      this.subject.enable();
+    }, () => {
+      this.assertTrue('Esta habilitado?', this.subject.isEnabled());
+    });
+  }
+}
 
 
 class StartClosedAndStartOpenCardSpriteTest extends SceneTest {
@@ -4269,45 +4440,6 @@ class StartClosedAndStartOpenCardSpriteTest extends SceneTest {
     });
   }
 }
-class CloseAndOpenCardSpriteTest extends SceneTest {
-  name = 'CloseAndOpenCardSpriteTest';
-
-  create() {
-    const card = CardGenerator.generateCard();
-    this.subject = CardSprite.create(
-      card.type,
-      card.color,
-      card.figureName,
-      card.attack,
-      card.health
-    );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
-    this.addChild(this.subject);
-  }
-
-  start() {
-    this.subject.show();
-    this.test('Deve fechar!', () => {
-      this.subject.close();
-    }, () => {
-      this.assertTrue('Esta fechado?', this.subject.isClosed());
-    });
-    this.test('Deve abrir o cartão!', () => {
-      this.subject.open();
-    }, () => {
-      this.assertTrue('Esta aberto?', this.subject.isOpened());
-    });
-  }
-
-  // exemplo de teste de unidade
-  // this.update(() => {
-  //   this.subject.update();
-  // });
-  // this.assert(this.subject._status).toBeInstanceof(CardSpriteStoppedState);
-  // this.assert(this.subject.width).toBe(0);
-}
 class MoveCardSpriteTest extends SceneTest {
   name = 'MoveCardSpriteTest';
 
@@ -4341,8 +4473,9 @@ class MoveCardSpriteTest extends SceneTest {
     this.test('Deve mover!', () => {
       this.subject.toMove(moves);
     }, () => {
-      this.assert('Esta na Posição x?', this.subject.x).toBe(destinyXPosition);
-      this.assert('Esta na Posição x?', this.subject.y).toBe(destinyYPosition);
+      this.assertWasTrue('Estava em movimento?', this.subject.isMoving);
+      this.assert('Esta no destino x?', this.subject.x).toBe(destinyXPosition);
+      this.assert('Esta no destino y', this.subject.y).toBe(destinyYPosition);
     }, moves.length * 0.3);
   }
 }
@@ -4492,38 +4625,6 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
       this.subject.changePoints(18, 17);
     }, () => {
       this.assertWasTrue('Foi atualizando?', this.subject.isUpdating);
-    });
-  }
-}
-class DisableAndEnableCardSpriteTest extends SceneTest {
-  name = 'DisableAndEnableCardSpriteTest';
-
-  create() {
-    const card = CardGenerator.generateCard();
-    this.subject = CardSprite.create(
-      card.type,
-      card.color,
-      card.figureName,
-      card.attack,
-      card.health
-    );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
-    this.addChild(this.subject);
-  }
-
-  start() {
-    this.subject.show();
-    this.test('Deve desabilitar!', () => {
-      this.subject.disable();
-    }, () => {
-      this.assertTrue('Esta disabilitado?', this.subject.isDisabled());
-    });
-    this.test('Deve habilitar!', () => {
-      this.subject.enable();
-    }, () => {
-      this.assertTrue('Esta habilitado?', this.subject.isEnabled());
     });
   }
 }
@@ -6071,10 +6172,13 @@ class CardBattleTestScene extends Scene_Message {
   data() {
     const cardSpriteTests = [
       OpenCardSpriteTest,
-      // CloseAndOpenCardSpriteTest,
+      CloseCardSpriteTest,
+      DisableCardSpriteTest,
+      EnableCardSpriteTest,
+      MoveCardSpriteTest,
+
+
       // StartClosedAndStartOpenCardSpriteTest,
-      // MoveCardSpriteTest,
-      // DisableAndEnableCardSpriteTest,
       // HoveredCardSpriteTest,
       // SelectedCardSpriteTest,
       // FlashCardSpriteTest,

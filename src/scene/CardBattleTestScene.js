@@ -15,10 +15,13 @@ class CardBattleTestScene extends Scene_Message {
   data() {
     const cardSpriteTests = [
       OpenCardSpriteTest,
-      // CloseAndOpenCardSpriteTest,
+      CloseCardSpriteTest,
+      DisableCardSpriteTest,
+      EnableCardSpriteTest,
+      MoveCardSpriteTest,
+
+
       // StartClosedAndStartOpenCardSpriteTest,
-      // MoveCardSpriteTest,
-      // DisableAndEnableCardSpriteTest,
       // HoveredCardSpriteTest,
       // SelectedCardSpriteTest,
       // FlashCardSpriteTest,
