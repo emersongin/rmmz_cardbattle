@@ -784,6 +784,12 @@ class BoardWindow extends ValuesWindow {
     this.addValue(GameConst.WHITE_POINTS, 0);
     this.addValue(GameConst.NUM_CARDS_IN_DECK, 0);
     this.addValue(GameConst.NUM_CARDS_IN_HAND, 0);
+    this.noPass();
+  }
+
+  noPass() {
+    this._pass = false;
+    this.refresh();
   }
 
   reset() {
@@ -815,6 +821,7 @@ class BoardWindow extends ValuesWindow {
     super.refresh();
     this.drawIcons();
     this.drawDisplay();
+    if (this._pass) this.drawPass();
   }
 
   drawIcons() {
@@ -878,6 +885,27 @@ class BoardWindow extends ValuesWindow {
     const deckPoints = this.getValueAndConvertToDisplayPad(GameConst.NUM_CARDS_IN_DECK);
     this.contents.drawText(handPoints, xPositionHand, yPosition, width, height);
     this.contents.drawText(deckPoints, xPositionDeck, yPosition, width, height);
+  }
+
+  drawPass() {
+    const x = this.contents.width - 336 + 40;
+    const y = 0;
+    const width = 64;
+    const height = 32;
+    this.contents.drawText('Pass', x, y, width, height);
+  }
+
+  pass() {
+    this._pass = true;
+    this.refresh();
+  }
+
+  isNoPass() {
+    return !this.isPass();
+  }
+
+  isPass() {
+    return this._pass;
   }
 }
 class BattlePointsWindow extends ValuesWindow {
@@ -1818,7 +1846,6 @@ class CardSpriteAnimatedBehavior {
     } else {
       this._parent.removeChild(this._animationSprite);
       this._animationSprite.destroy();
-      console.log('destroyed');
       that.removeBehavior(this);
     }
   }
@@ -5539,6 +5566,31 @@ class UpdatingBoardWindowTest extends SceneTest {
   }
 
 }
+class PassBoardWindowTest extends SceneTest {
+  name = 'PassBoardWindowTest';
+
+  create() {
+    this.subject = BoardWindow.createWindowFullSize(0, 0);
+    this.addWindow(this.subject);
+  }
+
+  start() {
+    this.subject.setCenteredAlignment();
+    this.subject.refresh();
+    this.subject.open();
+    this.test('Deve mostrar mensagem de pass!', () => {
+      this.subject.pass();
+    }, () => {
+      this.assertTrue('Foi mostrado a mensagem de pass?', this.subject.isPass());
+    });
+    this.test('Deve retirar mensagem de pass!', () => {
+      this.subject.noPass();
+    }, () => {
+      this.assertTrue('Foi retirada a mensagem de pass?', this.subject.isNoPass());
+    });
+  }
+
+}
 // tests BATTLE POINTS WINDOW
 class UpdatingBattlePointsWindowTest extends SceneTest {
   name = 'UpdatingBattlePointsWindowTest';
@@ -5709,38 +5761,38 @@ class CardBattleTestScene extends Scene_Message {
 
   data() {
     const cardSpriteTests = [
-      // StartClosedAndStartOpenCardSpriteTest,
-      // CloseAndOpenCardSpriteTest,
-      // MoveCardSpriteTest,
-      // DisableAndEnableCardSpriteTest,
-      // HoveredCardSpriteTest,
-      // SelectedCardSpriteTest,
-      // FlashCardSpriteTest,
+      StartClosedAndStartOpenCardSpriteTest,
+      CloseAndOpenCardSpriteTest,
+      MoveCardSpriteTest,
+      DisableAndEnableCardSpriteTest,
+      HoveredCardSpriteTest,
+      SelectedCardSpriteTest,
+      FlashCardSpriteTest,
       DamageAnimationCardSpriteTest,
-      // UpdatingPointsCardSpriteTest,
-      // ZoomAndZoomoutCardSpriteTest,
-      // LeaveCardSpriteTest,
-      // QuakeCardSpriteTest,
-      // FlipCardSpriteTest,
-      // IluminatedCardSpriteTest
+      UpdatingPointsCardSpriteTest,
+      ZoomAndZoomoutCardSpriteTest,
+      LeaveCardSpriteTest,
+      QuakeCardSpriteTest,
+      FlipCardSpriteTest,
+      IluminatedCardSpriteTest
     ];
     const cardsetTests = [
-      // SetBackgroundAndStartPositionCardsetSpriteTest,
-      // SetCardsCardsetSpriteTest,
-      // StartPositionCardsCardsetSpriteTest,
-      // StartListCardsCardsetSpriteTest,
-      // StartClosedAndOpenCardsCardsetSpriteTest,
-      // StartClosedAndOpenCardsDelayCardsetSpriteTest,
-      // MoveCardsToListCardsetSpriteTest,
-      // MoveCardsToListDelayCardsetSpriteTest,
-      // MoveCardsToPositionCardsetSpriteTest,
-      // AddCardAndMoveToListCardsetSpriteTest,
-      // AddCardAndMoveToListDelayCardsetSpriteTest,
-      // SelectModeCardsetSpriteTest,
-      // DisableAndEnableCardsCardsetSpriteTest,
-      // SelectModeAndEnableChoiceCardsetSpriteTest,
-      // AnimateQuakeCardsCardsetSpriteTest,
-      // AnimateFlashCardsCardsetSpriteTest,
+      SetBackgroundAndStartPositionCardsetSpriteTest,
+      SetCardsCardsetSpriteTest,
+      StartPositionCardsCardsetSpriteTest,
+      StartListCardsCardsetSpriteTest,
+      StartClosedAndOpenCardsCardsetSpriteTest,
+      StartClosedAndOpenCardsDelayCardsetSpriteTest,
+      MoveCardsToListCardsetSpriteTest,
+      MoveCardsToListDelayCardsetSpriteTest,
+      MoveCardsToPositionCardsetSpriteTest,
+      AddCardAndMoveToListCardsetSpriteTest,
+      AddCardAndMoveToListDelayCardsetSpriteTest,
+      SelectModeCardsetSpriteTest,
+      DisableAndEnableCardsCardsetSpriteTest,
+      SelectModeAndEnableChoiceCardsetSpriteTest,
+      AnimateQuakeCardsCardsetSpriteTest,
+      AnimateFlashCardsCardsetSpriteTest,
       AnimateDamageCardsCardsetSpriteTest,
     ];
     const CardBattleWindowBaseTests = [
@@ -5761,6 +5813,7 @@ class CardBattleTestScene extends Scene_Message {
       SetTextColorTextWindowTest,
     ];
     const boardWindowTests = [
+      PassBoardWindowTest,
       UpdatingBoardWindowTest,
     ];
     const battlePointsWindow = [
@@ -5776,11 +5829,11 @@ class CardBattleTestScene extends Scene_Message {
       WindowTest
     ];
     return [
-      ...cardsetTests,
-      ...cardSpriteTests,
+      // ...cardsetTests,
+      // ...cardSpriteTests,
       // ...CardBattleWindowBaseTests,
       // ...textWindowTests,
-      // ...boardWindowTests,
+      ...boardWindowTests,
       // ...battlePointsWindow,
       // ...trashWindow,
       // ...scoreWindow,

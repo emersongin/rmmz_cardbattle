@@ -78,6 +78,7 @@
 // include ../test/integration/textwindow/SetTextColorTextWindowTest.js
 // tests BOARD WINDOW
 // include ../test/integration/boardwindow/UpdatingBoardWindowTest.js
+// include ../test/integration/boardwindow/PassBoardWindowTest.js
 // tests BATTLE POINTS WINDOW
 // include ../test/integration/battlepointswindow/UpdatingBattlePointsWindowTest.js
 // tests TRASH WINDOW

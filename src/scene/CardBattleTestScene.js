@@ -14,38 +14,38 @@ class CardBattleTestScene extends Scene_Message {
 
   data() {
     const cardSpriteTests = [
-      // StartClosedAndStartOpenCardSpriteTest,
-      // CloseAndOpenCardSpriteTest,
-      // MoveCardSpriteTest,
-      // DisableAndEnableCardSpriteTest,
-      // HoveredCardSpriteTest,
-      // SelectedCardSpriteTest,
-      // FlashCardSpriteTest,
+      StartClosedAndStartOpenCardSpriteTest,
+      CloseAndOpenCardSpriteTest,
+      MoveCardSpriteTest,
+      DisableAndEnableCardSpriteTest,
+      HoveredCardSpriteTest,
+      SelectedCardSpriteTest,
+      FlashCardSpriteTest,
       DamageAnimationCardSpriteTest,
-      // UpdatingPointsCardSpriteTest,
-      // ZoomAndZoomoutCardSpriteTest,
-      // LeaveCardSpriteTest,
-      // QuakeCardSpriteTest,
-      // FlipCardSpriteTest,
-      // IluminatedCardSpriteTest
+      UpdatingPointsCardSpriteTest,
+      ZoomAndZoomoutCardSpriteTest,
+      LeaveCardSpriteTest,
+      QuakeCardSpriteTest,
+      FlipCardSpriteTest,
+      IluminatedCardSpriteTest
     ];
     const cardsetTests = [
-      // SetBackgroundAndStartPositionCardsetSpriteTest,
-      // SetCardsCardsetSpriteTest,
-      // StartPositionCardsCardsetSpriteTest,
-      // StartListCardsCardsetSpriteTest,
-      // StartClosedAndOpenCardsCardsetSpriteTest,
-      // StartClosedAndOpenCardsDelayCardsetSpriteTest,
-      // MoveCardsToListCardsetSpriteTest,
-      // MoveCardsToListDelayCardsetSpriteTest,
-      // MoveCardsToPositionCardsetSpriteTest,
-      // AddCardAndMoveToListCardsetSpriteTest,
-      // AddCardAndMoveToListDelayCardsetSpriteTest,
-      // SelectModeCardsetSpriteTest,
-      // DisableAndEnableCardsCardsetSpriteTest,
-      // SelectModeAndEnableChoiceCardsetSpriteTest,
-      // AnimateQuakeCardsCardsetSpriteTest,
-      // AnimateFlashCardsCardsetSpriteTest,
+      SetBackgroundAndStartPositionCardsetSpriteTest,
+      SetCardsCardsetSpriteTest,
+      StartPositionCardsCardsetSpriteTest,
+      StartListCardsCardsetSpriteTest,
+      StartClosedAndOpenCardsCardsetSpriteTest,
+      StartClosedAndOpenCardsDelayCardsetSpriteTest,
+      MoveCardsToListCardsetSpriteTest,
+      MoveCardsToListDelayCardsetSpriteTest,
+      MoveCardsToPositionCardsetSpriteTest,
+      AddCardAndMoveToListCardsetSpriteTest,
+      AddCardAndMoveToListDelayCardsetSpriteTest,
+      SelectModeCardsetSpriteTest,
+      DisableAndEnableCardsCardsetSpriteTest,
+      SelectModeAndEnableChoiceCardsetSpriteTest,
+      AnimateQuakeCardsCardsetSpriteTest,
+      AnimateFlashCardsCardsetSpriteTest,
       AnimateDamageCardsCardsetSpriteTest,
     ];
     const CardBattleWindowBaseTests = [
@@ -66,6 +66,7 @@ class CardBattleTestScene extends Scene_Message {
       SetTextColorTextWindowTest,
     ];
     const boardWindowTests = [
+      PassBoardWindowTest,
       UpdatingBoardWindowTest,
     ];
     const battlePointsWindow = [
@@ -81,11 +82,11 @@ class CardBattleTestScene extends Scene_Message {
       WindowTest
     ];
     return [
-      ...cardsetTests,
-      ...cardSpriteTests,
+      // ...cardsetTests,
+      // ...cardSpriteTests,
       // ...CardBattleWindowBaseTests,
       // ...textWindowTests,
-      // ...boardWindowTests,
+      ...boardWindowTests,
       // ...battlePointsWindow,
       // ...trashWindow,
       // ...scoreWindow,
