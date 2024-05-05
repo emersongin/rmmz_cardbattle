@@ -1,5 +1,5 @@
-class FullSizeCardBattleWindowBaseTest extends SceneTest {
-  name = 'FullSizeCardBattleWindowBaseTest';
+class CreateFullSizeCardBattleWindowBaseTest extends SceneTest {
+  name = 'CreateFullSizeCardBattleWindowBaseTest';
 
   create() {
     const x = 0;

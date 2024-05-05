@@ -1,9 +1,9 @@
-class RedColorCardBattleWindowBaseTest extends SceneTest {
-  name = 'RedColorCardBattleWindowBaseTest';
+class ChangeRedColorCardBattleWindowBaseTest extends SceneTest {
+  name = 'ChangeRedColorCardBattleWindowBaseTest';
 
   create() {
     this.subject = CardBattleWindowBase.createWindowFullSize(0, 0);
-    this.subject.setCenteredAlignment();
+    this.subject.alignCenterMiddle();
     this.addWindow(this.subject);
   }
 

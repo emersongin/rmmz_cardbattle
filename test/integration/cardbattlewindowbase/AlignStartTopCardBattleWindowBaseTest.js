@@ -1,5 +1,5 @@
-class StartTopAlignOneFourthSizeCardBattleWindowBaseTest extends SceneTest {
-  name = 'StartTopAlignOneFourthSizeCardBattleWindowBaseTest';
+class AlignStartTopCardBattleWindowBaseTest extends SceneTest {
+  name = 'AlignStartTopCardBattleWindowBaseTest';
 
   create() {
     const x = 0;

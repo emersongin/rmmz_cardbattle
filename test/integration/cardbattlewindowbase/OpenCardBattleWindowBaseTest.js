@@ -3,7 +3,7 @@ class OpenCardBattleWindowBaseTest extends SceneTest {
 
   create() {
     this.subject = CardBattleWindowBase.createWindowFullSize(0, 0);
-    this.subject.setCenteredAlignment();
+    this.subject.alignCenterMiddle();
     this.addWindow(this.subject);
   }
 

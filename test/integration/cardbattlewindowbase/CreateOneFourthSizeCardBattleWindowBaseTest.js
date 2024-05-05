@@ -1,5 +1,5 @@
-class OneFourthSizeCardBattleWindowBaseTest extends SceneTest {
-  name = 'OneFourthSizeCardBattleWindowBaseTest';
+class CreateOneFourthSizeCardBattleWindowBaseTest extends SceneTest {
+  name = 'CreateOneFourthSizeCardBattleWindowBaseTest';
 
   create() {
     const x = 0;

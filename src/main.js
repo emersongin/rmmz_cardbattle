@@ -64,27 +64,22 @@
 // tests CARD BATTLE WINDOW BASE
 // include ../test/integration/cardbattlewindowbase/OpenCardBattleWindowBaseTest.js
 // include ../test/integration/cardbattlewindowbase/CloseCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/OneFourthSizeCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/MiddleSizeCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/ThreeFourthSizeCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/FullSizeCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/BlueColorCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/RedColorCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/DefaultColorCardBattleWindowBaseTest.js
-
-// include ../test/integration/cardbattlewindowbase/StartTopAlignOneFourthSizeCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/CenterTopAlignOneFourthSizeCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/EndTopAlignOneFourthSizeCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/StartMiddleAlignOneFourthSizeCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/CenterMiddleAlignOneFourthSizeCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/EndMiddleAlignOneFourthSizeCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/StartBottomAlignOneFourthSizeCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/CenterBottomAlignOneFourthSizeCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/EndBottomAlignOneFourthSizeCardBattleWindowBaseTest.js
-
-
-// include ../test/integration/cardbattlewindowbase/AlignMiddleSizeCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/AlignFullSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/CreateOneFourthSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/CreateMiddleSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/CreateThreeFourthSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/CreateFullSizeCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/ChangeBlueColorCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/ChangeRedColorCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/ChangeDefaultColorCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/AlignStartTopCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/AlignStartMiddleCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/AlignStartBottomCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/AlignCenterTopCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/AlignCenterMiddleCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/AlignCenterBottomCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/AlignEndTopCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/AlignEndMiddleCardBattleWindowBaseTest.js
+// include ../test/integration/cardbattlewindowbase/AlignEndBottomCardBattleWindowBaseTest.js
 // tests TEXT WINDOW
 // include ../test/integration/textwindow/DrawTextStartAlignFullSizeTextWindowTest.js
 // include ../test/integration/textwindow/DrawTextStartAlignMiddleSizeTextWindowTest.js
