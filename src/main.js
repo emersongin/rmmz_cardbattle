@@ -48,10 +48,10 @@
 // include ../test/integration/card/ZoomCardSpriteTest.js
 // include ../test/integration/card/ZoomOutCardSpriteTest.js
 // include ../test/integration/card/LeaveCardSpriteTest.js
-
+// include ../test/integration/card/FlipTurnToUpCardSpriteTest.js
+// include ../test/integration/card/FlipTurnToDownCardSpriteTest.js
 
 // include ../test/integration/card/UpdatingPointsCardSpriteTest.js
-// include ../test/integration/card/FlipCardSpriteTest.js
 // tests CARDSET
 // include ../test/integration/cardset/SetBackgroundAndStartPositionCardsetSpriteTest.js
 // include ../test/integration/cardset/SetCardsCardsetSpriteTest.js

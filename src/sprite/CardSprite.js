@@ -414,6 +414,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandOpen() {
+    console.log(this.isClosed() , this.isStopped() , this.isTurnedToUp());
     if (!(this.isStopped() && this.isClosed())) return;
     const xPositionOpening = this.x - (this.contentOriginalWidth() / 2);
     const yPositionOpening = this.y;
@@ -729,14 +730,39 @@ class CardSprite extends ActionSprite {
     return true;
   }
 
+  flipTurnToUp() {
+    this.close();
+    this.addAction(this.commandFlipTurnToUp);
+    this.open();
+  }
 
+  commandFlipTurnToUp() {
+    if (!(this.isClosed() && this.isStopped() && this.isTurnedToDown())) return;
+    this.setTurnToUp();
+    this.refresh();
+    return true;
+  }
 
+  isTurnedToDown() {
+    return !this._turned;
+  }
 
+  flipTurnToDown() {
+    this.close();
+    this.addAction(this.commandFlipTurnToDown);
+    this.open();
+  }
 
+  commandFlipTurnToDown() {
+    if (!(this.isClosed() && this.isStopped() && this.isTurnedToUp())) return;
+    this.setTurnToDown();
+    this.refresh();
+    return true;
+  }
 
-
-
-
+  setTurnToDown() {
+    this._turned = false;
+  }
 
 
 
@@ -749,10 +775,6 @@ class CardSprite extends ActionSprite {
   update() {
     super.update();
     if (this.isVisible()) this.updateBehaviors();
-  }
-
-  isTurnedToDown() {
-    return !this._turned;
   }
 
   updateBehaviors() {
@@ -825,35 +847,11 @@ class CardSprite extends ActionSprite {
   //   return false;
   // }
 
-  flipToUp() {
-    this.addAction(this.commandClose);
-    this.addAction(this.commandFlipToUp);
-    this.addAction(this.commandOpen);
-  }
 
-  commandFlipToUp() {
-    if (!(this.isHidden() && this.isStopped() && this.isClosed() && this.isTurnedToDown())) return;
-    this.setTurnToUp();
-    this.refresh();
-    return true;
-  }
 
-  flipToDown() {
-    this.addAction(this.commandClose);
-    this.addAction(this.commandFlipToDown);
-    this.addAction(this.commandOpen);
-  }
 
-  commandFlipToDown() {
-    if (!(this.isHidden() && this.isStopped() && this.isClosed() && this.isTurnedToUp())) return;
-    this.setToDown();
-    this.refresh();
-    return true;
-  }
 
-  setToDown() {
-    this._turned = false;
-  }
+
 
   static createPosition(x, y, index) {
     return { x, y, index };

@@ -1670,8 +1670,7 @@ class CardSpriteMovingState {
       this.updateXPosition();
       this.updateYPosition();
     } else {
-      that.stop();
-      that.removeStatus();
+      that.changeStatus(CardSpriteStoppedState);
     }
   }
 
@@ -1756,7 +1755,7 @@ class CardSpriteOpeningState {
     }
     if (that.isOpened()) that.opened();
     if (that.isClosed()) that.closed();
-    that.removeStatus();
+    that.changeStatus(CardSpriteStoppedState);
   }
 
   isUpdatingPosition() {
@@ -1908,8 +1907,7 @@ class CardSpriteZoomState {
       this.updateXScale();
       this.updateYScale();
     } else {
-      that.stop();
-      that.removeStatus();
+      that.changeStatus(CardSpriteStoppedState);
     }
   }
 
@@ -2618,6 +2616,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandOpen() {
+    console.log(this.isClosed() , this.isStopped() , this.isTurnedToUp());
     if (!(this.isStopped() && this.isClosed())) return;
     const xPositionOpening = this.x - (this.contentOriginalWidth() / 2);
     const yPositionOpening = this.y;
@@ -2933,14 +2932,40 @@ class CardSprite extends ActionSprite {
     return true;
   }
 
+  setTurnToDown() {
+    this._turned = false;
+  }
 
+  flipTurnToUp() {
+    this.close();
+    this.addAction(this.commandFlipTurnToUp);
+    this.open();
+  }
 
+  commandFlipTurnToUp() {
+    console.log('commandFlipTurnToUp', this.isClosed() , this.isStopped() , this.isTurnedToDown())
+    if (!(this.isClosed() && this.isStopped() && this.isTurnedToDown())) return;
+    this.setTurnToUp();
+    this.refresh();
+    return true;
+  }
 
+  isTurnedToDown() {
+    return !this._turned;
+  }
 
+  flipTurnToDown() {
+    this.close();
+    this.addAction(this.commandFlipTurnToDown);
+    this.open();
+  }
 
-
-
-
+  commandFlipTurnToDown() {
+    if (!(this.isClosed() && this.isStopped() && this.isTurnedToUp())) return;
+    this.setTurnToDown();
+    this.refresh();
+    return true;
+  }
 
 
 
@@ -2955,9 +2980,7 @@ class CardSprite extends ActionSprite {
     if (this.isVisible()) this.updateBehaviors();
   }
 
-  isTurnedToDown() {
-    return !this._turned;
-  }
+
 
   updateBehaviors() {
     if (Array.isArray(this._behaviors)) {
@@ -3029,35 +3052,11 @@ class CardSprite extends ActionSprite {
   //   return false;
   // }
 
-  flipToUp() {
-    this.addAction(this.commandClose);
-    this.addAction(this.commandFlipToUp);
-    this.addAction(this.commandOpen);
-  }
 
-  commandFlipToUp() {
-    if (!(this.isHidden() && this.isStopped() && this.isClosed() && this.isTurnedToDown())) return;
-    this.setTurnToUp();
-    this.refresh();
-    return true;
-  }
 
-  flipToDown() {
-    this.addAction(this.commandClose);
-    this.addAction(this.commandFlipToDown);
-    this.addAction(this.commandOpen);
-  }
 
-  commandFlipToDown() {
-    if (!(this.isHidden() && this.isStopped() && this.isClosed() && this.isTurnedToUp())) return;
-    this.setToDown();
-    this.refresh();
-    return true;
-  }
 
-  setToDown() {
-    this._turned = false;
-  }
+
 
   static createPosition(x, y, index) {
     return { x, y, index };
@@ -4857,7 +4856,64 @@ class LeaveCardSpriteTest extends SceneTest {
     })
   }
 }
+class FlipTurnToUpCardSpriteTest extends SceneTest {
+  name = 'FlipTurnToUpCardSpriteTest';
 
+  create() {
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
+    );
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.subject.setTurnToDown();
+    this.subject.show();
+    this.addChild(this.subject);
+  }
+
+  start() {
+    this.test('Deve virar para cima!', () => {
+      this.subject.flipTurnToUp();
+    }, () => {
+      this.assertTrue('Esta virado para cima?', this.subject.isTurnedToUp());
+      this.assertTrue('Esta aberto?', this.subject.isOpened());
+    });
+  }
+}
+class FlipTurnToDownCardSpriteTest extends SceneTest {
+  name = 'FlipTurnToDownCardSpriteTest';
+
+  create() {
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
+    );
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.subject.setTurnToUp();
+    this.subject.show();
+    this.addChild(this.subject);
+  }
+
+  start() {
+    this.test('Deve virar para baixo!', () => {
+      this.subject.flipTurnToDown();
+    }, () => {
+      this.assertTrue('Esta virado para baixo?', this.subject.isTurnedToDown());
+      this.assertTrue('Esta aberto?', this.subject.isOpened());
+    });
+  }
+}
 
 class UpdatingPointsCardSpriteTest extends SceneTest {
   name = 'UpdatingPointsCardSpriteTest';
@@ -4883,41 +4939,6 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
       this.subject.changePoints(18, 17);
     }, () => {
       this.assertWasTrue('Foi atualizando?', this.subject.isUpdating);
-    });
-  }
-}
-class FlipCardSpriteTest extends SceneTest {
-  name = 'FlipCardSpriteTest';
-
-  create() {
-    const card = CardGenerator.generateCard();
-    this.subject = CardSprite.create(
-      card.type,
-      card.color,
-      card.figureName,
-      card.attack,
-      card.health
-    );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
-    this.subject.setToDown();
-    this.addChild(this.subject);
-  }
-
-  start() {
-    this.subject.show();
-    this.test('Deve estar em estado virado para cima!', () => {
-      this.subject.flipToUp();
-    }, () => {
-      this.assertTrue('Esta virado para cima?', this.subject.isTurnedToUp());
-      this.assertTrue('Esta aberto?', this.subject.isOpened());
-    });
-    this.test('Deve estar em estado virado para baixo!', () => {
-      this.subject.flipToDown();
-    }, () => {
-      this.assertTrue('Esta virado para baixo?', this.subject.isTurnedToDown());
-      this.assertTrue('Esta aberto?', this.subject.isOpened());
     });
   }
 }
@@ -6327,9 +6348,10 @@ class CardBattleTestScene extends Scene_Message {
       // QuakeCardSpriteTest,
       // ZoomCardSpriteTest,
       // ZoomOutCardSpriteTest,
-      LeaveCardSpriteTest,
+      // LeaveCardSpriteTest,
+      FlipTurnToUpCardSpriteTest,
+      FlipTurnToDownCardSpriteTest,
 
-      // FlipCardSpriteTest,
       // UpdatingPointsCardSpriteTest,
     ];
     const cardsetSpriteTests = [
