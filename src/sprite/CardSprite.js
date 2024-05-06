@@ -716,7 +716,18 @@ class CardSprite extends ActionSprite {
     return this.scale.x > 1 || this.scale.y > 1;
   }
 
+  leave() {
+    this.addAction(this.commandLeave);
+    this.hide();
+  }
 
+  commandLeave() {
+    if (!this.isOpened() && this.isStopped()) return;
+    const xPositionClosing = this.x + (this.contentOriginalWidth() / 2);
+    const yPositionClosing = this.y + (this.contentOriginalHeight() / 2);
+    this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionClosing);
+    return true;
+  }
 
 
 
@@ -792,17 +803,7 @@ class CardSprite extends ActionSprite {
 
 
 
-  leave() {
-    this.addAction(this.commandLeave);
-  }
 
-  commandLeave() {
-    if (!(this.isVisible() && this.isStopped() && this.isOpened())) return;
-    const xPositionClosing = this.x + (this.contentOriginalWidth() / 2);
-    const yPositionClosing = this.y + (this.contentOriginalHeight() / 2);
-    this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionClosing);
-    return true;
-  }
 
 
 

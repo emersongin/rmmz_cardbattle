@@ -13,16 +13,17 @@ class LeaveCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
+    this.subject.show();
     this.addChild(this.subject);
   }
 
   start() {
-    this.subject.show();
-    this.test('Deve aplicar um zoom até sumir!', () => {
+    this.test('Deve sumir!', () => {
       this.subject.leave();
     }, () => {
-      this.assert('Largura é zero?', this.subject.width).toBe(0);
-      this.assert('Altura é zero?', this.subject.height).toBe(0);
+      this.assert('Esta em largura zerada?', this.subject.width).toBe(0);
+      this.assert('Esta em altura zerada?', this.subject.height).toBe(0);
+      this.assertTrue('Esta invisível?', this.subject.isHidden());
     })
   }
 }

@@ -2920,7 +2920,18 @@ class CardSprite extends ActionSprite {
     return this.scale.x > 1 || this.scale.y > 1;
   }
 
+  leave() {
+    this.addAction(this.commandLeave);
+    this.hide();
+  }
 
+  commandLeave() {
+    if (!this.isOpened() && this.isStopped()) return;
+    const xPositionClosing = this.x + (this.contentOriginalWidth() / 2);
+    const yPositionClosing = this.y + (this.contentOriginalHeight() / 2);
+    this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionClosing);
+    return true;
+  }
 
 
 
@@ -2996,17 +3007,7 @@ class CardSprite extends ActionSprite {
 
 
 
-  leave() {
-    this.addAction(this.commandLeave);
-  }
 
-  commandLeave() {
-    if (!(this.isVisible() && this.isStopped() && this.isOpened())) return;
-    const xPositionClosing = this.x + (this.contentOriginalWidth() / 2);
-    const yPositionClosing = this.y + (this.contentOriginalHeight() / 2);
-    this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionClosing);
-    return true;
-  }
 
 
 
@@ -4827,6 +4828,35 @@ class ZoomOutCardSpriteTest extends SceneTest {
     });
   }
 }
+class LeaveCardSpriteTest extends SceneTest {
+  name = 'LeaveCardSpriteTest';
+
+  create() {
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
+    );
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.subject.show();
+    this.addChild(this.subject);
+  }
+
+  start() {
+    this.test('Deve sumir!', () => {
+      this.subject.leave();
+    }, () => {
+      this.assert('Esta em largura zerada?', this.subject.width).toBe(0);
+      this.assert('Esta em altura zerada?', this.subject.height).toBe(0);
+      this.assertTrue('Esta invisível?', this.subject.isHidden());
+    })
+  }
+}
 
 
 class UpdatingPointsCardSpriteTest extends SceneTest {
@@ -4854,34 +4884,6 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
     }, () => {
       this.assertWasTrue('Foi atualizando?', this.subject.isUpdating);
     });
-  }
-}
-class LeaveCardSpriteTest extends SceneTest {
-  name = 'LeaveCardSpriteTest';
-
-  create() {
-    const card = CardGenerator.generateCard();
-    this.subject = CardSprite.create(
-      card.type,
-      card.color,
-      card.figureName,
-      card.attack,
-      card.health
-    );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
-    this.addChild(this.subject);
-  }
-
-  start() {
-    this.subject.show();
-    this.test('Deve aplicar um zoom até sumir!', () => {
-      this.subject.leave();
-    }, () => {
-      this.assert('Largura é zero?', this.subject.width).toBe(0);
-      this.assert('Altura é zero?', this.subject.height).toBe(0);
-    })
   }
 }
 class FlipCardSpriteTest extends SceneTest {
@@ -6323,12 +6325,12 @@ class CardBattleTestScene extends Scene_Message {
       // FlashCardSpriteTest,
       // AnimationCardSpriteTest,
       // QuakeCardSpriteTest,
-      ZoomCardSpriteTest,
-      ZoomOutCardSpriteTest,
+      // ZoomCardSpriteTest,
+      // ZoomOutCardSpriteTest,
+      LeaveCardSpriteTest,
 
       // FlipCardSpriteTest,
       // UpdatingPointsCardSpriteTest,
-      // LeaveCardSpriteTest,
     ];
     const cardsetSpriteTests = [
       SetBackgroundAndStartPositionCardsetSpriteTest,
