@@ -42,9 +42,9 @@
 // include ../test/integration/card/UnselectedCardSpriteTest.js
 // include ../test/integration/card/IluminatedCardSpriteTest.js
 // include ../test/integration/card/UniluminatedCardSpriteTest.js
-
-
 // include ../test/integration/card/FlashCardSpriteTest.js
+
+
 // include ../test/integration/card/DamageAnimationCardSpriteTest.js
 // include ../test/integration/card/UpdatingPointsCardSpriteTest.js
 // include ../test/integration/card/ZoomAndZoomoutCardSpriteTest.js

@@ -14,8 +14,8 @@ class CardBattleTestScene extends Scene_Message {
 
   data() {
     const cardSpriteTests = [
-      StartOpenCardSpriteTest,
-      StartClosedCardSpriteTest,
+      // StartOpenCardSpriteTest,
+      // StartClosedCardSpriteTest,
       // OpenCardSpriteTest,
       // CloseCardSpriteTest,
       // DisableCardSpriteTest,
@@ -27,9 +27,9 @@ class CardBattleTestScene extends Scene_Message {
       // UnselectedCardSpriteTest,
       // IluminatedCardSpriteTest,
       // UniluminatedCardSpriteTest,
+      FlashCardSpriteTest,
 
       // StartClosedAndStartOpenCardSpriteTest,
-      // FlashCardSpriteTest,
       // DamageAnimationCardSpriteTest,
       // UpdatingPointsCardSpriteTest,
       // ZoomAndZoomoutCardSpriteTest,

@@ -425,7 +425,18 @@ class CardSprite extends ActionSprite {
     return this.getStatus() instanceof CardSpriteStoppedState;
   }
 
+  close() {
+    this.addAction(this.commandClose);
+    this.hide();
+  }
 
+  commandClose() {
+    if (!(this.isOpened() && this.isStopped())) return;
+    const xPositionClosing = this.x + (this.contentOriginalWidth() / 2);
+    const yPositionOpening = this.y;
+    this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionOpening);
+    return true;
+  }
 
   static createMove(destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration) {
     return { 
@@ -568,8 +579,25 @@ class CardSprite extends ActionSprite {
     return !this.isIluminated();
   }
 
+  flash(color = 'white', duration = 60, times = 1) {
+    this.addAction(this.commandFlash, color, duration, times);
+  }
 
+  commandFlash(color, duration, times) {
+    const isStatus = (this.isStopped() || this.isMoving() || this.isZooming());
+    if (!(this.isOpened() && isStatus) || this.isFlashPlaying()) return; 
+    this.addBehavior(
+      CardSpriteFlashedBehavior,
+      color, 
+      duration, 
+      times
+    );
+    return true;
+  }
 
+  isFlashPlaying() {
+    return this.getBehavior(CardSpriteFlashedBehavior) instanceof CardSpriteFlashedBehavior;
+  }
 
 
 
@@ -604,66 +632,11 @@ class CardSprite extends ActionSprite {
     }
   }
 
-
-
-
-
-
-
-
-
-
-
-  close() {
-    this.addAction(this.commandClose);
-    this.hide();
-  }
-
-  commandClose() {
-    if (!(this.isOpened() && this.isStopped())) return;
-    const xPositionClosing = this.x + (this.contentOriginalWidth() / 2);
-    const yPositionOpening = this.y;
-    this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionOpening);
-    return true;
-  }
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
   isOpening() {
     return this.getStatus() && this.getStatus() instanceof CardSpriteOpeningState;
   }
 
 
-
-  flash(color = 'white', duration = 60, times = 1) {
-    this.addAction(this.commandFlash, color, duration, times);
-  }
-
-  commandFlash(color, duration, times) {
-    if (!(this.isVisible() 
-      && (this.isStopped() || this.isOpening() || this.isMoving() || this.isZooming()))) return;
-    this.addBehavior(
-      CardSpriteFlashedBehavior,
-      color, 
-      duration, 
-      times
-    );
-    return true;
-  }
 
   damage(times = 1, anchorParent = this.parent) {
     const animation = this.damageAnimation();
@@ -739,8 +712,6 @@ class CardSprite extends ActionSprite {
   isNotStopped() {
     return !this.isStopped();
   }
-
-
 
   zoom() {
     this.addAction(this.commandZoom);
@@ -830,9 +801,7 @@ class CardSprite extends ActionSprite {
     return this.getBehavior(CardSpriteAnimatedBehavior) instanceof CardSpriteAnimatedBehavior;
   }
 
-  isFlashPlaying() {
-    return this.getBehavior(CardSpriteFlashedBehavior) instanceof CardSpriteFlashedBehavior;
-  }
+
 
   isUpdating() {
     return this.getBehavior(CardSpriteUpdatedBehavior) instanceof CardSpriteUpdatedBehavior;
@@ -873,10 +842,6 @@ class CardSprite extends ActionSprite {
   setToDown() {
     this._turned = false;
   }
-
-
-
-
 
   static createPosition(x, y, index) {
     return { x, y, index };

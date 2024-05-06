@@ -1391,8 +1391,22 @@ class ActionSprite extends Sprite {
     this._status = new status(this, ...params);
   }
 
+  show() {
+    this.addAction(this.commandShow);
+  }
+
+  commandShow() {
+    this.visible = true;
+    return true;
+  }
+
   hide() {
     this.addAction(this.commandHide);
+  }
+
+  commandHide() {
+    this.visible = false;
+    return true;
   }
 
   addAction(fn, ...params) {
@@ -1417,20 +1431,6 @@ class ActionSprite extends Sprite {
 
   toArray(items = []) {
     return (Array.isArray(items) === false) ? [items] : items;
-  }
-
-  commandHide() {
-    this.visible = false;
-    return true;
-  }
-
-  show() {
-    this.addAction(this.commandShow);
-  }
-
-  commandShow() {
-    this.visible = true;
-    return true;
   }
 
 
@@ -1486,7 +1486,7 @@ class ActionSprite extends Sprite {
 
   executeAction() {
     const actions = this._actions[0];
-    console.log(actions);
+    // console.log(actions);
     if (actions.length > 0) {
       for (const action of actions) {
         if (action.delay > 0) {
@@ -2629,7 +2629,18 @@ class CardSprite extends ActionSprite {
     return this.getStatus() instanceof CardSpriteStoppedState;
   }
 
+  close() {
+    this.addAction(this.commandClose);
+    this.hide();
+  }
 
+  commandClose() {
+    if (!(this.isOpened() && this.isStopped())) return;
+    const xPositionClosing = this.x + (this.contentOriginalWidth() / 2);
+    const yPositionOpening = this.y;
+    this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionOpening);
+    return true;
+  }
 
   static createMove(destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration) {
     return { 
@@ -2772,7 +2783,21 @@ class CardSprite extends ActionSprite {
     return !this.isIluminated();
   }
 
+  flash(color = 'white', duration = 60, times = 1) {
+    this.addAction(this.commandFlash, color, duration, times);
+  }
 
+  commandFlash(color, duration, times) {
+    const isStatus = (this.isStopped() || this.isMoving() || this.isZooming());
+    if (!(this.isOpened() && isStatus) || this.isFlashPlaying()) return; 
+    this.addBehavior(
+      CardSpriteFlashedBehavior,
+      color, 
+      duration, 
+      times
+    );
+    return true;
+  }
 
 
 
@@ -2808,66 +2833,11 @@ class CardSprite extends ActionSprite {
     }
   }
 
-
-
-
-
-
-
-
-
-
-
-  close() {
-    this.addAction(this.commandClose);
-    this.hide();
-  }
-
-  commandClose() {
-    if (!(this.isOpened() && this.isStopped())) return;
-    const xPositionClosing = this.x + (this.contentOriginalWidth() / 2);
-    const yPositionOpening = this.y;
-    this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionOpening);
-    return true;
-  }
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
   isOpening() {
     return this.getStatus() && this.getStatus() instanceof CardSpriteOpeningState;
   }
 
 
-
-  flash(color = 'white', duration = 60, times = 1) {
-    this.addAction(this.commandFlash, color, duration, times);
-  }
-
-  commandFlash(color, duration, times) {
-    if (!(this.isVisible() 
-      && (this.isStopped() || this.isOpening() || this.isMoving() || this.isZooming()))) return;
-    this.addBehavior(
-      CardSpriteFlashedBehavior,
-      color, 
-      duration, 
-      times
-    );
-    return true;
-  }
 
   damage(times = 1, anchorParent = this.parent) {
     const animation = this.damageAnimation();
@@ -2943,8 +2913,6 @@ class CardSprite extends ActionSprite {
   isNotStopped() {
     return !this.isStopped();
   }
-
-
 
   zoom() {
     this.addAction(this.commandZoom);
@@ -3077,10 +3045,6 @@ class CardSprite extends ActionSprite {
   setToDown() {
     this._turned = false;
   }
-
-
-
-
 
   static createPosition(x, y, index) {
     return { x, y, index };
@@ -4710,8 +4674,6 @@ class UniluminatedCardSpriteTest extends SceneTest {
     });
   }
 }
-
-
 class FlashCardSpriteTest extends SceneTest {
   name = 'FlashCardSpriteTest';
 
@@ -4742,6 +4704,8 @@ class FlashCardSpriteTest extends SceneTest {
     });
   } 
 }
+
+
 class DamageAnimationCardSpriteTest extends SceneTest {
   name = 'DamageAnimationCardSpriteTest';
 
@@ -6308,8 +6272,8 @@ class CardBattleTestScene extends Scene_Message {
 
   data() {
     const cardSpriteTests = [
-      StartOpenCardSpriteTest,
-      StartClosedCardSpriteTest,
+      // StartOpenCardSpriteTest,
+      // StartClosedCardSpriteTest,
       // OpenCardSpriteTest,
       // CloseCardSpriteTest,
       // DisableCardSpriteTest,
@@ -6321,9 +6285,9 @@ class CardBattleTestScene extends Scene_Message {
       // UnselectedCardSpriteTest,
       // IluminatedCardSpriteTest,
       // UniluminatedCardSpriteTest,
+      FlashCardSpriteTest,
 
       // StartClosedAndStartOpenCardSpriteTest,
-      // FlashCardSpriteTest,
       // DamageAnimationCardSpriteTest,
       // UpdatingPointsCardSpriteTest,
       // ZoomAndZoomoutCardSpriteTest,

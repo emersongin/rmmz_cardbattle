@@ -18,8 +18,22 @@ class ActionSprite extends Sprite {
     this._status = new status(this, ...params);
   }
 
+  show() {
+    this.addAction(this.commandShow);
+  }
+
+  commandShow() {
+    this.visible = true;
+    return true;
+  }
+
   hide() {
     this.addAction(this.commandHide);
+  }
+
+  commandHide() {
+    this.visible = false;
+    return true;
   }
 
   addAction(fn, ...params) {
@@ -44,20 +58,6 @@ class ActionSprite extends Sprite {
 
   toArray(items = []) {
     return (Array.isArray(items) === false) ? [items] : items;
-  }
-
-  commandHide() {
-    this.visible = false;
-    return true;
-  }
-
-  show() {
-    this.addAction(this.commandShow);
-  }
-
-  commandShow() {
-    this.visible = true;
-    return true;
   }
 
 
@@ -113,7 +113,7 @@ class ActionSprite extends Sprite {
 
   executeAction() {
     const actions = this._actions[0];
-    console.log(actions);
+    // console.log(actions);
     if (actions.length > 0) {
       for (const action of actions) {
         if (action.delay > 0) {
