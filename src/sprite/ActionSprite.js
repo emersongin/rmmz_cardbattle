@@ -56,41 +56,17 @@ class ActionSprite extends Sprite {
     this._actions.push(actions);
   }
 
-  toArray(items = []) {
-    return (Array.isArray(items) === false) ? [items] : items;
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   addDelayAction(fn, delay, ...params) {
     const action = this.createAction({ fn, delay }, ...params);
     this.addActions(action);
   }
 
+  toArray(items = []) {
+    return (Array.isArray(items) === false) ? [items] : items;
+  }
+
   update() {
     super.update();
-    console.log(this._actions);
     if (this.hasActions() && this.isAvailable()) this.executeAction();
     if (this.isVisible()) {
       this.updateStatus();
@@ -99,12 +75,20 @@ class ActionSprite extends Sprite {
     }
   }
 
+  hasActions() {
+    return this._actions.length > 0;
+  }
+
   isAvailable() {
     return !this.isBusy();
   }
 
   isBusy() {
-    return this.getStatus() !== null;
+    return this.getStatus() !== null || this.someDelayAction();
+  }
+
+  someDelayAction() {
+    return this._delayActions.some(action => action.delay > 0);
   }
 
   getStatus() {
@@ -113,7 +97,6 @@ class ActionSprite extends Sprite {
 
   executeAction() {
     const actions = this._actions[0];
-    // console.log(actions);
     if (actions.length > 0) {
       for (const action of actions) {
         if (action.delay > 0) {
@@ -130,6 +113,18 @@ class ActionSprite extends Sprite {
     }
   }
 
+  isVisible() {
+    return this.visible;
+  }
+
+  isHidden() {
+    return !this.isVisible();
+  }
+
+  updateStatus() {
+    if (this._status && this._status.updateStatus) this._status.updateStatus();
+  }
+
   updateDelayActions() {
     if (this.hasDelayActions()) {
       const action = this._delayActions[0];
@@ -139,6 +134,10 @@ class ActionSprite extends Sprite {
         this._delayActions.shift();
       }
     }
+  }
+
+  hasDelayActions() {
+    return this._delayActions.length > 0;
   }
 
   updateChildrenEffect() {
@@ -168,23 +167,7 @@ class ActionSprite extends Sprite {
     }
   }
 
-  updateStatus() {
-    if (this._status && this._status.updateStatus) this._status.updateStatus();
-  }
-
-
-
-  // isBusy() {
-  //   return this._delayActions.some(action => action.delay > 0);
-  // }
-
-  hasDelayActions() {
-    return this._delayActions.length > 0;
-  }
-
-  hasActions() {
-    return this._actions.length > 0;
-  }
+  // interface cardset
 
   hasChildren() {
     return this.numberOfChildren() > 0;
@@ -194,41 +177,13 @@ class ActionSprite extends Sprite {
     return this.children.length;
   }
 
-  isHidden() {
-    return !this.isVisible();
-  }
-
-  isVisible() {
-    return this.visible;
-  }
-
-  calculateTimeInterval(origin = 0, destiny = 0, duration = 0) {
-    const distance = Math.abs(origin - destiny);
-    const time = Math.abs(duration * 60);
-    return (distance / (time || 1)) || (Graphics.width / 30);
-  }
-
   indexOfSprite(sprite) {
     for (let i = 0; i < this.numberOfChildren(); i++) {
-      if (this.compareObjects(this.children[i], sprite)) {
+      if (ObjectHelper.compareObjects(this.children[i], sprite)) {
         return i;
       }
     }
     return -1;
-  }
-  
-  compareObjects(object1, object2) {
-    const keys1 = Object.keys(object1);
-    const keys2 = Object.keys(object2);
-    if (keys1.length !== keys2.length) {
-      return false;
-    }
-    for (let key of keys1) {
-      if (object1[key] !== object2[key]) {
-        return false;
-      }
-    }
-    return true;
   }
 
   clear() {
@@ -237,30 +192,5 @@ class ActionSprite extends Sprite {
         await this.removeChild(child);
       });
     }
-  }
-
-  generateQuakeMoves(times = 1, distance = 2) {
-    const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
-    const moves = [];
-    let direction = '';
-    for (let index = 0; index < (times * 3); index++) {
-      const dirs = directions.filter(dir => dir !== direction);
-      direction = dirs[Math.randomInt(3)];
-      switch (direction) {
-        case 'TOP':
-          moves.push({x: 0, y: -distance}, {x: 0, y: 0});
-          break;
-        case 'BOTTOM':
-          moves.push({x: 0, y: distance}, {x: 0, y: 0});
-          break;
-        case 'LEFT':
-          moves.push({x: -distance, y: 0}, {x: 0, y: 0});
-          break;
-        case 'RIGHT':
-          moves.push({x: distance, y: 0}, {x: 0, y: 0});
-          break;
-      }
-    }
-    return moves;
   }
 }

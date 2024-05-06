@@ -145,7 +145,7 @@ class StringHelper {
   }
 }
 
-class IntegerHelper {
+class NumberHelper {
   static findBigger() {
     let bigger = arguments[0];
     for (let i = 1; i < arguments.length; i++) {
@@ -154,6 +154,12 @@ class IntegerHelper {
         }
     }
     return bigger;
+  }
+
+  static calculateTimeInterval(origin = 0, destiny = 0, duration = 0) {
+    const distance = Math.abs(origin - destiny);
+    const time = Math.abs(duration * 60);
+    return (distance / (time || 1)) || (Graphics.width / 30);
   }
 }
 
@@ -187,7 +193,6 @@ class ObjectHelper {
     return obj;
   }
 }
-
 
 class CardGenerator {
   static generateCards(amount = 1) {
@@ -269,7 +274,7 @@ class WindowUpdatedState {
       const currentValue = that.getValue(name);
       return Math.abs(currentValue - newValue);
     });
-    const highValue = IntegerHelper.findBigger(...values);
+    const highValue = NumberHelper.findBigger(...values);
     const fps = 30;
     this._interval = Math.floor(fps / (highValue || 1)) || 1;
   }
@@ -1429,41 +1434,17 @@ class ActionSprite extends Sprite {
     this._actions.push(actions);
   }
 
-  toArray(items = []) {
-    return (Array.isArray(items) === false) ? [items] : items;
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   addDelayAction(fn, delay, ...params) {
     const action = this.createAction({ fn, delay }, ...params);
     this.addActions(action);
   }
 
+  toArray(items = []) {
+    return (Array.isArray(items) === false) ? [items] : items;
+  }
+
   update() {
     super.update();
-    console.log(this._actions);
     if (this.hasActions() && this.isAvailable()) this.executeAction();
     if (this.isVisible()) {
       this.updateStatus();
@@ -1472,12 +1453,20 @@ class ActionSprite extends Sprite {
     }
   }
 
+  hasActions() {
+    return this._actions.length > 0;
+  }
+
   isAvailable() {
     return !this.isBusy();
   }
 
   isBusy() {
-    return this.getStatus() !== null;
+    return this.getStatus() !== null || this.someDelayAction();
+  }
+
+  someDelayAction() {
+    return this._delayActions.some(action => action.delay > 0);
   }
 
   getStatus() {
@@ -1486,7 +1475,6 @@ class ActionSprite extends Sprite {
 
   executeAction() {
     const actions = this._actions[0];
-    // console.log(actions);
     if (actions.length > 0) {
       for (const action of actions) {
         if (action.delay > 0) {
@@ -1503,6 +1491,18 @@ class ActionSprite extends Sprite {
     }
   }
 
+  isVisible() {
+    return this.visible;
+  }
+
+  isHidden() {
+    return !this.isVisible();
+  }
+
+  updateStatus() {
+    if (this._status && this._status.updateStatus) this._status.updateStatus();
+  }
+
   updateDelayActions() {
     if (this.hasDelayActions()) {
       const action = this._delayActions[0];
@@ -1512,6 +1512,10 @@ class ActionSprite extends Sprite {
         this._delayActions.shift();
       }
     }
+  }
+
+  hasDelayActions() {
+    return this._delayActions.length > 0;
   }
 
   updateChildrenEffect() {
@@ -1541,44 +1545,10 @@ class ActionSprite extends Sprite {
     }
   }
 
-  updateStatus() {
-    if (this._status && this._status.updateStatus) this._status.updateStatus();
-  }
-
-
-
-  // isBusy() {
-  //   return this._delayActions.some(action => action.delay > 0);
-  // }
-
-  hasDelayActions() {
-    return this._delayActions.length > 0;
-  }
-
-  hasActions() {
-    return this._actions.length > 0;
-  }
+  // interface cardset
 
   hasChildren() {
     return this.numberOfChildren() > 0;
-  }
-
-  numberOfChildren() {
-    return this.children.length;
-  }
-
-  isHidden() {
-    return !this.isVisible();
-  }
-
-  isVisible() {
-    return this.visible;
-  }
-
-  calculateTimeInterval(origin = 0, destiny = 0, duration = 0) {
-    const distance = Math.abs(origin - destiny);
-    const time = Math.abs(duration * 60);
-    return (distance / (time || 1)) || (Graphics.width / 30);
   }
 
   indexOfSprite(sprite) {
@@ -1588,6 +1558,10 @@ class ActionSprite extends Sprite {
       }
     }
     return -1;
+  }
+
+  numberOfChildren() {
+    return this.children.length;
   }
   
   compareObjects(object1, object2) {
@@ -1610,31 +1584,6 @@ class ActionSprite extends Sprite {
         await this.removeChild(child);
       });
     }
-  }
-
-  generateQuakeMoves(times = 1, distance = 2) {
-    const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
-    const moves = [];
-    let direction = '';
-    for (let index = 0; index < (times * 3); index++) {
-      const dirs = directions.filter(dir => dir !== direction);
-      direction = dirs[Math.randomInt(3)];
-      switch (direction) {
-        case 'TOP':
-          moves.push({x: 0, y: -distance}, {x: 0, y: 0});
-          break;
-        case 'BOTTOM':
-          moves.push({x: 0, y: distance}, {x: 0, y: 0});
-          break;
-        case 'LEFT':
-          moves.push({x: -distance, y: 0}, {x: 0, y: 0});
-          break;
-        case 'RIGHT':
-          moves.push({x: distance, y: 0}, {x: 0, y: 0});
-          break;
-      }
-    }
-    return moves;
   }
 }
 class CardSpriteStoppedState {
@@ -1691,8 +1640,8 @@ class CardSpriteMovingState {
       duration = duration >= 0 ? duration : this._card._duration;
       this._x = destinyXPosition;
       this._y = destinyYPosition;
-      this._xInterval = this._card.calculateTimeInterval(originXPosition, destinyXPosition, duration);
-      this._yInterval = this._card.calculateTimeInterval(originYPosition, destinyYPosition, duration);
+      this._xInterval = NumberHelper.calculateTimeInterval(originXPosition, destinyXPosition, duration);
+      this._yInterval = NumberHelper.calculateTimeInterval(originYPosition, destinyYPosition, duration);
       this._moves.shift();
     }
   }
@@ -1742,7 +1691,7 @@ class CardSpriteOpeningState {
     this._isUpdateVertically = this._y !== that.y;
     this._isToOpenHorizontally = this._x < that.x;
     this._isToOpenVertically = this._y < that.y;
-    this._interval = that.calculateTimeInterval(0, that.contentOriginalWidth(), that._duration);
+    this._interval = NumberHelper.calculateTimeInterval(0, that.contentOriginalWidth(), that._duration);
   }
 
   updateStatus() {
@@ -1879,8 +1828,8 @@ class CardSpriteZoomState {
     const originYPosition = that.y;
     const destinyXPosition = this._x;
     const destinyYPosition = this._y;
-    this._xInterval = that.calculateTimeInterval(originXPosition, destinyXPosition, duration);
-    this._yInterval = that.calculateTimeInterval(originYPosition, destinyYPosition, duration);
+    this._xInterval = NumberHelper.calculateTimeInterval(originXPosition, destinyXPosition, duration);
+    this._yInterval = NumberHelper.calculateTimeInterval(originYPosition, destinyYPosition, duration);
   }
 
   defineScale(duration) {
@@ -1889,8 +1838,8 @@ class CardSpriteZoomState {
     const originYScale = that.scale.y;
     const destinyXScale = this._xScale;
     const destinyYScale = this._yScale;
-    this._xScaleInterval = that.calculateTimeInterval(originXScale, destinyXScale, duration);
-    this._yScaleInterval = that.calculateTimeInterval(originYScale, destinyYScale, duration);
+    this._xScaleInterval = NumberHelper.calculateTimeInterval(originXScale, destinyXScale, duration);
+    this._yScaleInterval = NumberHelper.calculateTimeInterval(originYScale, destinyYScale, duration);
 
   }
 
@@ -2616,7 +2565,6 @@ class CardSprite extends ActionSprite {
   }
 
   commandOpen() {
-    console.log(this.isClosed() , this.isStopped() , this.isTurnedToUp());
     if (!(this.isStopped() && this.isClosed())) return;
     const xPositionOpening = this.x - (this.contentOriginalWidth() / 2);
     const yPositionOpening = this.y;
@@ -2857,7 +2805,7 @@ class CardSprite extends ActionSprite {
 
   commandQuake(times, distance, movements) {
     if (!this.isOpened() && this.isStopped()) return;
-    const moves = movements || this.generateQuakeMoves(times, distance);
+    const moves = movements || CardSprite.generateQuakeMoves(times, distance);
     const cardXPosition = this.x;
     const cardYPosition = this.y; 
     const directionsMoves = moves.map((move, index) => {
@@ -3005,6 +2953,31 @@ class CardSprite extends ActionSprite {
 
   static createPosition(x, y, index) {
     return { x, y, index };
+  }
+
+  static generateQuakeMoves(times = 1, distance = 2) {
+    const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
+    const moves = [];
+    let direction = '';
+    for (let index = 0; index < (times * 3); index++) {
+      const dirs = directions.filter(dir => dir !== direction);
+      direction = dirs[Math.randomInt(3)];
+      switch (direction) {
+        case 'TOP':
+          moves.push({x: 0, y: -distance}, {x: 0, y: 0});
+          break;
+        case 'BOTTOM':
+          moves.push({x: 0, y: distance}, {x: 0, y: 0});
+          break;
+        case 'LEFT':
+          moves.push({x: -distance, y: 0}, {x: 0, y: 0});
+          break;
+        case 'RIGHT':
+          moves.push({x: distance, y: 0}, {x: 0, y: 0});
+          break;
+      }
+    }
+    return moves;
   }
 
   isOpening() {
@@ -6296,27 +6269,27 @@ class CardBattleTestScene extends Scene_Message {
 
   data() {
     const cardSpriteTests = [
-      // StartOpenCardSpriteTest,
-      // StartClosedCardSpriteTest,
-      // OpenCardSpriteTest,
-      // CloseCardSpriteTest,
-      // DisableCardSpriteTest,
-      // EnableCardSpriteTest,
-      // MoveCardSpriteTest,
-      // HoveredCardSpriteTest,
-      // UnhoveredCardSpriteTest,
-      // SelectedCardSpriteTest,
-      // UnselectedCardSpriteTest,
-      // IluminatedCardSpriteTest,
-      // UniluminatedCardSpriteTest,
-      // FlashCardSpriteTest,
-      // AnimationCardSpriteTest,
-      // QuakeCardSpriteTest,
-      // ZoomCardSpriteTest,
-      // ZoomOutCardSpriteTest,
-      // LeaveCardSpriteTest,
-      // FlipTurnToUpCardSpriteTest,
-      // FlipTurnToDownCardSpriteTest,
+      StartOpenCardSpriteTest,
+      StartClosedCardSpriteTest,
+      OpenCardSpriteTest,
+      CloseCardSpriteTest,
+      DisableCardSpriteTest,
+      EnableCardSpriteTest,
+      MoveCardSpriteTest,
+      HoveredCardSpriteTest,
+      UnhoveredCardSpriteTest,
+      SelectedCardSpriteTest,
+      UnselectedCardSpriteTest,
+      IluminatedCardSpriteTest,
+      UniluminatedCardSpriteTest,
+      FlashCardSpriteTest,
+      AnimationCardSpriteTest,
+      QuakeCardSpriteTest,
+      ZoomCardSpriteTest,
+      ZoomOutCardSpriteTest,
+      LeaveCardSpriteTest,
+      FlipTurnToUpCardSpriteTest,
+      FlipTurnToDownCardSpriteTest,
       UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [

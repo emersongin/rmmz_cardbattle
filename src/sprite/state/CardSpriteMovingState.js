@@ -41,8 +41,8 @@ class CardSpriteMovingState {
       duration = duration >= 0 ? duration : this._card._duration;
       this._x = destinyXPosition;
       this._y = destinyYPosition;
-      this._xInterval = this._card.calculateTimeInterval(originXPosition, destinyXPosition, duration);
-      this._yInterval = this._card.calculateTimeInterval(originYPosition, destinyYPosition, duration);
+      this._xInterval = NumberHelper.calculateTimeInterval(originXPosition, destinyXPosition, duration);
+      this._yInterval = NumberHelper.calculateTimeInterval(originYPosition, destinyYPosition, duration);
       this._moves.shift();
     }
   }

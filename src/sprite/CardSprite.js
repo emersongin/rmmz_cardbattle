@@ -414,7 +414,6 @@ class CardSprite extends ActionSprite {
   }
 
   commandOpen() {
-    console.log(this.isClosed() , this.isStopped() , this.isTurnedToUp());
     if (!(this.isStopped() && this.isClosed())) return;
     const xPositionOpening = this.x - (this.contentOriginalWidth() / 2);
     const yPositionOpening = this.y;
@@ -655,7 +654,7 @@ class CardSprite extends ActionSprite {
 
   commandQuake(times, distance, movements) {
     if (!this.isOpened() && this.isStopped()) return;
-    const moves = movements || this.generateQuakeMoves(times, distance);
+    const moves = movements || CardSprite.generateQuakeMoves(times, distance);
     const cardXPosition = this.x;
     const cardYPosition = this.y; 
     const directionsMoves = moves.map((move, index) => {
@@ -803,6 +802,31 @@ class CardSprite extends ActionSprite {
 
   static createPosition(x, y, index) {
     return { x, y, index };
+  }
+
+  static generateQuakeMoves(times = 1, distance = 2) {
+    const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
+    const moves = [];
+    let direction = '';
+    for (let index = 0; index < (times * 3); index++) {
+      const dirs = directions.filter(dir => dir !== direction);
+      direction = dirs[Math.randomInt(3)];
+      switch (direction) {
+        case 'TOP':
+          moves.push({x: 0, y: -distance}, {x: 0, y: 0});
+          break;
+        case 'BOTTOM':
+          moves.push({x: 0, y: distance}, {x: 0, y: 0});
+          break;
+        case 'LEFT':
+          moves.push({x: -distance, y: 0}, {x: 0, y: 0});
+          break;
+        case 'RIGHT':
+          moves.push({x: distance, y: 0}, {x: 0, y: 0});
+          break;
+      }
+    }
+    return moves;
   }
 
   isOpening() {

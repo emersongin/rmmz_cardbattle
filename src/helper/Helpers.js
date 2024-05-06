@@ -8,7 +8,7 @@ class StringHelper {
   }
 }
 
-class IntegerHelper {
+class NumberHelper {
   static findBigger() {
     let bigger = arguments[0];
     for (let i = 1; i < arguments.length; i++) {
@@ -18,16 +18,15 @@ class IntegerHelper {
     }
     return bigger;
   }
+
+  static calculateTimeInterval(origin = 0, destiny = 0, duration = 0) {
+    const distance = Math.abs(origin - destiny);
+    const time = Math.abs(duration * 60);
+    return (distance / (time || 1)) || (Graphics.width / 30);
+  }
 }
 
 class ObjectHelper {
-  // static copyObject(obj) {
-  //   const copiedObj = Object.create(Object.getPrototypeOf(obj));
-  //   const descriptors = Object.getOwnPropertyDescriptors(obj);
-  //   Object.defineProperties(copiedObj, descriptors);
-  //   return copiedObj;
-  // }
-
   static copyObject(obj) {
     const copiedObj = Object.create(Object.getPrototypeOf(obj));
     const descriptors = Object.getOwnPropertyDescriptors(obj);
@@ -41,13 +40,26 @@ class ObjectHelper {
     return copiedObj;
   }
 
-  static parseReference(params, reference) {
-    let obj = {};
-    Object.keys(params).forEach((key, index) => {
-      if (reference) return obj[reference[index]] = params[key];
-      obj[index] = params[key];
-    });
-    return obj;
+  static compareObjects(object1, object2) {
+    const keys1 = Object.keys(object1);
+    const keys2 = Object.keys(object2);
+    if (keys1.length !== keys2.length) {
+      return false;
+    }
+    for (let key of keys1) {
+      if (object1[key] !== object2[key]) {
+        return false;
+      }
+    }
+    return true;
   }
-}
 
+    // static parseReference(params, reference) {
+  //   let obj = {};
+  //   Object.keys(params).forEach((key, index) => {
+  //     if (reference) return obj[reference[index]] = params[key];
+  //     obj[index] = params[key];
+  //   });
+  //   return obj;
+  // }
+}

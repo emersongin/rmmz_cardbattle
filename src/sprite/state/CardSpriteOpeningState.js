@@ -17,7 +17,7 @@ class CardSpriteOpeningState {
     this._isUpdateVertically = this._y !== that.y;
     this._isToOpenHorizontally = this._x < that.x;
     this._isToOpenVertically = this._y < that.y;
-    this._interval = that.calculateTimeInterval(0, that.contentOriginalWidth(), that._duration);
+    this._interval = NumberHelper.calculateTimeInterval(0, that.contentOriginalWidth(), that._duration);
   }
 
   updateStatus() {

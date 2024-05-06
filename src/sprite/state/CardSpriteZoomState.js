@@ -26,8 +26,8 @@ class CardSpriteZoomState {
     const originYPosition = that.y;
     const destinyXPosition = this._x;
     const destinyYPosition = this._y;
-    this._xInterval = that.calculateTimeInterval(originXPosition, destinyXPosition, duration);
-    this._yInterval = that.calculateTimeInterval(originYPosition, destinyYPosition, duration);
+    this._xInterval = NumberHelper.calculateTimeInterval(originXPosition, destinyXPosition, duration);
+    this._yInterval = NumberHelper.calculateTimeInterval(originYPosition, destinyYPosition, duration);
   }
 
   defineScale(duration) {
@@ -36,8 +36,8 @@ class CardSpriteZoomState {
     const originYScale = that.scale.y;
     const destinyXScale = this._xScale;
     const destinyYScale = this._yScale;
-    this._xScaleInterval = that.calculateTimeInterval(originXScale, destinyXScale, duration);
-    this._yScaleInterval = that.calculateTimeInterval(originYScale, destinyYScale, duration);
+    this._xScaleInterval = NumberHelper.calculateTimeInterval(originXScale, destinyXScale, duration);
+    this._yScaleInterval = NumberHelper.calculateTimeInterval(originYScale, destinyYScale, duration);
 
   }
 
