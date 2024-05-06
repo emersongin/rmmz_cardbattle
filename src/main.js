@@ -45,10 +45,11 @@
 // include ../test/integration/card/FlashCardSpriteTest.js
 // include ../test/integration/card/AnimationCardSpriteTest.js
 // include ../test/integration/card/QuakeCardSpriteTest.js
+// include ../test/integration/card/ZoomCardSpriteTest.js
+// include ../test/integration/card/ZoomOutCardSpriteTest.js
 
 
 // include ../test/integration/card/UpdatingPointsCardSpriteTest.js
-// include ../test/integration/card/ZoomAndZoomoutCardSpriteTest.js
 // include ../test/integration/card/LeaveCardSpriteTest.js
 // include ../test/integration/card/FlipCardSpriteTest.js
 // tests CARDSET

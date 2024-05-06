@@ -2857,7 +2857,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandQuake(times, distance, movements) {
-    if (!this.isVisible() && this.isStopped() && this.isOpened()) return;
+    if (!this.isOpened() && this.isStopped()) return;
     const moves = movements || this.generateQuakeMoves(times, distance);
     const cardXPosition = this.x;
     const cardYPosition = this.y; 
@@ -2872,9 +2872,53 @@ class CardSprite extends ActionSprite {
     return true;
   }
 
+  zoom() {
+    this.addAction(this.commandZoom);
+  }
 
+  commandZoom() {
+    if (!this.isOpened() && this.isStopped() && this.isOriginalScale()) return;
+    const destinyXPosition = this.x - ((this.width / 2) / 2);
+    const destinyYPosition = this.y - ((this.height / 2) / 2);
+    const destinyXScale = (this.scale.x / 2) * 3;
+    const destinyYScale = (this.scale.y / 2) * 3;
+    this.changeStatus(
+      CardSpriteZoomState,
+      destinyXPosition,
+      destinyYPosition,
+      destinyXScale,
+      destinyYScale
+    );
+    return true;
+  }
 
+  isOriginalScale() {
+    return this.scale.x === 1 && this.scale.y === 1;
+  }
 
+  zoomOut() {
+    this.addAction(this.commandZoomOut);
+  }
+
+  commandZoomOut() {
+    if (!this.isOpened() && this.isStopped() && this.isZoom()) return;
+    const destinyXPosition = this.x + ((this.width / 2) / 2);
+    const destinyYPosition = this.y + ((this.height / 2) / 2);
+    const destinyXScale = ((this.scale.x / 3) * 2);
+    const destinyYScale = ((this.scale.y / 3) * 2);
+    this.changeStatus(
+      CardSpriteZoomState,
+      destinyXPosition,
+      destinyYPosition, 
+      destinyXScale,
+      destinyYScale        
+    );
+    return true;
+  }
+
+  isZoom() {
+    return this.scale.x > 1 || this.scale.y > 1;
+  }
 
 
 
@@ -2948,53 +2992,9 @@ class CardSprite extends ActionSprite {
     return !this.isStopped();
   }
 
-  zoom() {
-    this.addAction(this.commandZoom);
-  }
 
-  commandZoom() {
-    if (!(this.isVisible() && this.isStopped() && this.isOpened() && this.isOriginalScale())) return;
-    const destinyXPosition = this.x - ((this.width / 2) / 2);
-    const destinyYPosition = this.y - ((this.height / 2) / 2);
-    const destinyXScale = (this.scale.x / 2) * 3;
-    const destinyYScale = (this.scale.y / 2) * 3;
-    this.changeStatus(
-      CardSpriteZoomState,
-      destinyXPosition,
-      destinyYPosition,
-      destinyXScale,
-      destinyYScale
-    );
-    return true;
-  }
 
-  isOriginalScale() {
-    return this.scale.x === 1 && this.scale.y === 1;
-  }
 
-  zoomOut() {
-    this.addAction(this.commandZoomOut);
-  }
-
-  commandZoomOut() {
-    if (!(this.isVisible() && this.isStopped() && this.isOpened() && this.isZoom())) return;
-    const destinyXPosition = this.x + ((this.width / 2) / 2);
-    const destinyYPosition = this.y + ((this.height / 2) / 2);
-    const destinyXScale = ((this.scale.x / 3) * 2);
-    const destinyYScale = ((this.scale.y / 3) * 2);
-    this.changeStatus(
-      CardSpriteZoomState,
-      destinyXPosition,
-      destinyYPosition, 
-      destinyXScale,
-      destinyYScale        
-    );
-    return true;
-  }
-
-  isZoom() {
-    return this.scale.x > 1 || this.scale.y > 1;
-  }
 
   leave() {
     this.addAction(this.commandLeave);
@@ -4701,6 +4701,7 @@ class FlashCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
+    this.subject.show();
     this.addChild(this.subject);
   }
 
@@ -4708,7 +4709,6 @@ class FlashCardSpriteTest extends SceneTest {
     const color = 'white';
     const duration = 60;
     const infinity = -1;
-    this.subject.show();
     this.test('Deve receber um flash de luz!', () => {
       this.subject.flash(color, duration, infinity);
     }, () => {
@@ -4731,12 +4731,12 @@ class AnimationCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
+    this.subject.show();
     this.addChild(this.subject);
   }
 
   start() {
     const times = 1;
-    this.subject.show();
     this.test('Deve receber uma animação!', () => {
       this.subject.damage(times);
     }, () => {
@@ -4759,16 +4759,71 @@ class QuakeCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
+    this.subject.show();
     this.addChild(this.subject);
   }
 
   start() {
-    this.subject.show();
     const times = 10;
     this.test('Deve aplicar um movimento de chacoalhar!', () => {
       this.subject.quake(times);
     }, () => {
       this.assertWasTrue('Houve um movimento?', this.subject.isMoving);
+    });
+  }
+}
+class ZoomCardSpriteTest extends SceneTest {
+  name = 'ZoomCardSpriteTest';
+
+  create() {
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
+    );
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.subject.show();
+    this.addChild(this.subject);
+  }
+
+  start() {
+    this.test('Deve ampliar!', () => {
+      this.subject.zoom();
+    }, () => {
+      this.assertTrue('Esta ampliado?', this.subject.isZoom());
+    });
+  }
+}
+class ZoomOutCardSpriteTest extends SceneTest {
+  name = 'ZoomOutCardSpriteTest';
+
+  create() {
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
+    );
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.subject.show();
+    this.addChild(this.subject);
+  }
+
+  start() {
+    this.subject.zoom();
+    this.test('Deve retonar a escala normal!', () => {
+      this.subject.zoomOut();
+    }, () => {
+      this.assertTrue('Esta em escala original?', this.subject.isOriginalScale());
     });
   }
 }
@@ -4798,38 +4853,6 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
       this.subject.changePoints(18, 17);
     }, () => {
       this.assertWasTrue('Foi atualizando?', this.subject.isUpdating);
-    });
-  }
-}
-class ZoomAndZoomoutCardSpriteTest extends SceneTest {
-  name = 'ZoomAndZoomoutCardSpriteTest';
-
-  create() {
-    const card = CardGenerator.generateCard();
-    this.subject = CardSprite.create(
-      card.type,
-      card.color,
-      card.figureName,
-      card.attack,
-      card.health
-    );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
-    this.addChild(this.subject);
-  }
-
-  start() {
-    this.subject.show();
-    this.test('Deve amplicar!', () => {
-      this.subject.zoom();
-    }, () => {
-      this.assertTrue('Esta ampliado?', this.subject.isZoom());
-    });
-    this.test('Deve retonar a escala normal!', () => {
-      this.subject.zoomOut();
-    }, () => {
-      this.assertTrue('Esta em escala original?', this.subject.isOriginalScale());
     });
   }
 }
@@ -6299,11 +6322,12 @@ class CardBattleTestScene extends Scene_Message {
       // UniluminatedCardSpriteTest,
       // FlashCardSpriteTest,
       // AnimationCardSpriteTest,
-      QuakeCardSpriteTest,
+      // QuakeCardSpriteTest,
+      ZoomCardSpriteTest,
+      ZoomOutCardSpriteTest,
 
       // FlipCardSpriteTest,
       // UpdatingPointsCardSpriteTest,
-      // ZoomAndZoomoutCardSpriteTest,
       // LeaveCardSpriteTest,
     ];
     const cardsetSpriteTests = [

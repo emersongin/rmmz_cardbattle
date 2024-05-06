@@ -1,5 +1,5 @@
-class ZoomAndZoomoutCardSpriteTest extends SceneTest {
-  name = 'ZoomAndZoomoutCardSpriteTest';
+class ZoomCardSpriteTest extends SceneTest {
+  name = 'ZoomCardSpriteTest';
 
   create() {
     const card = CardGenerator.generateCard();
@@ -13,20 +13,15 @@ class ZoomAndZoomoutCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
+    this.subject.show();
     this.addChild(this.subject);
   }
 
   start() {
-    this.subject.show();
-    this.test('Deve amplicar!', () => {
+    this.test('Deve ampliar!', () => {
       this.subject.zoom();
     }, () => {
       this.assertTrue('Esta ampliado?', this.subject.isZoom());
-    });
-    this.test('Deve retonar a escala normal!', () => {
-      this.subject.zoomOut();
-    }, () => {
-      this.assertTrue('Esta em escala original?', this.subject.isOriginalScale());
     });
   }
 }

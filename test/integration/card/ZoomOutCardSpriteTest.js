@@ -1,5 +1,5 @@
-class FlashCardSpriteTest extends SceneTest {
-  name = 'FlashCardSpriteTest';
+class ZoomOutCardSpriteTest extends SceneTest {
+  name = 'ZoomOutCardSpriteTest';
 
   create() {
     const card = CardGenerator.generateCard();
@@ -18,13 +18,11 @@ class FlashCardSpriteTest extends SceneTest {
   }
 
   start() {
-    const color = 'white';
-    const duration = 60;
-    const infinity = -1;
-    this.test('Deve receber um flash de luz!', () => {
-      this.subject.flash(color, duration, infinity);
+    this.subject.zoom();
+    this.test('Deve retonar a escala normal!', () => {
+      this.subject.zoomOut();
     }, () => {
-      this.assertWasTrue('Houve flash de luz?', this.subject.isFlashPlaying);
+      this.assertTrue('Esta em escala original?', this.subject.isOriginalScale());
     });
-  } 
+  }
 }

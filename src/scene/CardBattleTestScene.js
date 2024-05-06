@@ -29,11 +29,12 @@ class CardBattleTestScene extends Scene_Message {
       // UniluminatedCardSpriteTest,
       // FlashCardSpriteTest,
       // AnimationCardSpriteTest,
-      QuakeCardSpriteTest,
+      // QuakeCardSpriteTest,
+      ZoomCardSpriteTest,
+      ZoomOutCardSpriteTest,
 
       // FlipCardSpriteTest,
       // UpdatingPointsCardSpriteTest,
-      // ZoomAndZoomoutCardSpriteTest,
       // LeaveCardSpriteTest,
     ];
     const cardsetSpriteTests = [

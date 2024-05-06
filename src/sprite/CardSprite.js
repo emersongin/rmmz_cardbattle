@@ -653,7 +653,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandQuake(times, distance, movements) {
-    if (!this.isVisible() && this.isStopped() && this.isOpened()) return;
+    if (!this.isOpened() && this.isStopped()) return;
     const moves = movements || this.generateQuakeMoves(times, distance);
     const cardXPosition = this.x;
     const cardYPosition = this.y; 
@@ -668,9 +668,53 @@ class CardSprite extends ActionSprite {
     return true;
   }
 
+  zoom() {
+    this.addAction(this.commandZoom);
+  }
 
+  commandZoom() {
+    if (!this.isOpened() && this.isStopped() && this.isOriginalScale()) return;
+    const destinyXPosition = this.x - ((this.width / 2) / 2);
+    const destinyYPosition = this.y - ((this.height / 2) / 2);
+    const destinyXScale = (this.scale.x / 2) * 3;
+    const destinyYScale = (this.scale.y / 2) * 3;
+    this.changeStatus(
+      CardSpriteZoomState,
+      destinyXPosition,
+      destinyYPosition,
+      destinyXScale,
+      destinyYScale
+    );
+    return true;
+  }
 
+  isOriginalScale() {
+    return this.scale.x === 1 && this.scale.y === 1;
+  }
 
+  zoomOut() {
+    this.addAction(this.commandZoomOut);
+  }
+
+  commandZoomOut() {
+    if (!this.isOpened() && this.isStopped() && this.isZoom()) return;
+    const destinyXPosition = this.x + ((this.width / 2) / 2);
+    const destinyYPosition = this.y + ((this.height / 2) / 2);
+    const destinyXScale = ((this.scale.x / 3) * 2);
+    const destinyYScale = ((this.scale.y / 3) * 2);
+    this.changeStatus(
+      CardSpriteZoomState,
+      destinyXPosition,
+      destinyYPosition, 
+      destinyXScale,
+      destinyYScale        
+    );
+    return true;
+  }
+
+  isZoom() {
+    return this.scale.x > 1 || this.scale.y > 1;
+  }
 
 
 
@@ -744,53 +788,9 @@ class CardSprite extends ActionSprite {
     return !this.isStopped();
   }
 
-  zoom() {
-    this.addAction(this.commandZoom);
-  }
 
-  commandZoom() {
-    if (!(this.isVisible() && this.isStopped() && this.isOpened() && this.isOriginalScale())) return;
-    const destinyXPosition = this.x - ((this.width / 2) / 2);
-    const destinyYPosition = this.y - ((this.height / 2) / 2);
-    const destinyXScale = (this.scale.x / 2) * 3;
-    const destinyYScale = (this.scale.y / 2) * 3;
-    this.changeStatus(
-      CardSpriteZoomState,
-      destinyXPosition,
-      destinyYPosition,
-      destinyXScale,
-      destinyYScale
-    );
-    return true;
-  }
 
-  isOriginalScale() {
-    return this.scale.x === 1 && this.scale.y === 1;
-  }
 
-  zoomOut() {
-    this.addAction(this.commandZoomOut);
-  }
-
-  commandZoomOut() {
-    if (!(this.isVisible() && this.isStopped() && this.isOpened() && this.isZoom())) return;
-    const destinyXPosition = this.x + ((this.width / 2) / 2);
-    const destinyYPosition = this.y + ((this.height / 2) / 2);
-    const destinyXScale = ((this.scale.x / 3) * 2);
-    const destinyYScale = ((this.scale.y / 3) * 2);
-    this.changeStatus(
-      CardSpriteZoomState,
-      destinyXPosition,
-      destinyYPosition, 
-      destinyXScale,
-      destinyYScale        
-    );
-    return true;
-  }
-
-  isZoom() {
-    return this.scale.x > 1 || this.scale.y > 1;
-  }
 
   leave() {
     this.addAction(this.commandLeave);
