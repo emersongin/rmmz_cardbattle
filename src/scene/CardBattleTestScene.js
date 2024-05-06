@@ -28,13 +28,13 @@ class CardBattleTestScene extends Scene_Message {
       // IluminatedCardSpriteTest,
       // UniluminatedCardSpriteTest,
       // FlashCardSpriteTest,
-      AnimationCardSpriteTest,
+      // AnimationCardSpriteTest,
+      QuakeCardSpriteTest,
 
+      // FlipCardSpriteTest,
       // UpdatingPointsCardSpriteTest,
       // ZoomAndZoomoutCardSpriteTest,
       // LeaveCardSpriteTest,
-      // QuakeCardSpriteTest,
-      // FlipCardSpriteTest,
     ];
     const cardsetSpriteTests = [
       SetBackgroundAndStartPositionCardsetSpriteTest,

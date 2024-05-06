@@ -648,7 +648,25 @@ class CardSprite extends ActionSprite {
     return this.getBehavior(CardSpriteAnimatedBehavior) instanceof CardSpriteAnimatedBehavior;
   }
 
+  quake(times = 1, distance = 8, movements = null) {
+    this.addAction(this.commandQuake, times, distance, movements);
+  }
 
+  commandQuake(times, distance, movements) {
+    if (!this.isVisible() && this.isStopped() && this.isOpened()) return;
+    const moves = movements || this.generateQuakeMoves(times, distance);
+    const cardXPosition = this.x;
+    const cardYPosition = this.y; 
+    const directionsMoves = moves.map((move, index) => {
+      const xMove = cardXPosition + move.x;
+      const yMove = cardYPosition + move.y;
+      const duration = 0;
+      const directionMove = CardSprite.createMove(xMove, yMove, cardXPosition, cardYPosition, duration);
+      return directionMove;
+    });
+    this.toMove(directionsMoves);
+    return true;
+  }
 
 
 
@@ -786,25 +804,7 @@ class CardSprite extends ActionSprite {
     return true;
   }
 
-  quake(times = 1, distance = 8, movements = null) {
-    this.addAction(this.commandQuake, times, distance, movements);
-  }
 
-  commandQuake(times, distance, movements) {
-    if (!this.isVisible() && this.isStopped() && this.isOpened()) return;
-    const moves = movements || this.generateQuakeMoves(times, distance);
-    const cardXPosition = this.x;
-    const cardYPosition = this.y; 
-    const directionsMoves = moves.map((move, index) => {
-      const xMove = cardXPosition + move.x;
-      const yMove = cardYPosition + move.y;
-      const duration = 0;
-      const directionMove = CardSprite.createMove(xMove, yMove, cardXPosition, cardYPosition, duration);
-      return directionMove;
-    });
-    this.toMove(directionsMoves);
-    return true;
-  }
 
   isAnimated() {
     return this.isUpdating() || this.isAnimationPlaying() || this.isFlashPlaying();

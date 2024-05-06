@@ -2852,7 +2852,25 @@ class CardSprite extends ActionSprite {
     return this.getBehavior(CardSpriteAnimatedBehavior) instanceof CardSpriteAnimatedBehavior;
   }
 
+  quake(times = 1, distance = 8, movements = null) {
+    this.addAction(this.commandQuake, times, distance, movements);
+  }
 
+  commandQuake(times, distance, movements) {
+    if (!this.isVisible() && this.isStopped() && this.isOpened()) return;
+    const moves = movements || this.generateQuakeMoves(times, distance);
+    const cardXPosition = this.x;
+    const cardYPosition = this.y; 
+    const directionsMoves = moves.map((move, index) => {
+      const xMove = cardXPosition + move.x;
+      const yMove = cardYPosition + move.y;
+      const duration = 0;
+      const directionMove = CardSprite.createMove(xMove, yMove, cardXPosition, cardYPosition, duration);
+      return directionMove;
+    });
+    this.toMove(directionsMoves);
+    return true;
+  }
 
 
 
@@ -2990,25 +3008,7 @@ class CardSprite extends ActionSprite {
     return true;
   }
 
-  quake(times = 1, distance = 8, movements = null) {
-    this.addAction(this.commandQuake, times, distance, movements);
-  }
 
-  commandQuake(times, distance, movements) {
-    if (!this.isVisible() && this.isStopped() && this.isOpened()) return;
-    const moves = movements || this.generateQuakeMoves(times, distance);
-    const cardXPosition = this.x;
-    const cardYPosition = this.y; 
-    const directionsMoves = moves.map((move, index) => {
-      const xMove = cardXPosition + move.x;
-      const yMove = cardYPosition + move.y;
-      const duration = 0;
-      const directionMove = CardSprite.createMove(xMove, yMove, cardXPosition, cardYPosition, duration);
-      return directionMove;
-    });
-    this.toMove(directionsMoves);
-    return true;
-  }
 
   isAnimated() {
     return this.isUpdating() || this.isAnimationPlaying() || this.isFlashPlaying();
@@ -4744,6 +4744,34 @@ class AnimationCardSpriteTest extends SceneTest {
     });
   }
 }
+class QuakeCardSpriteTest extends SceneTest {
+  name = 'QuakeCardSpriteTest';
+
+  create() {
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
+    );
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.addChild(this.subject);
+  }
+
+  start() {
+    this.subject.show();
+    const times = 10;
+    this.test('Deve aplicar um movimento de chacoalhar!', () => {
+      this.subject.quake(times);
+    }, () => {
+      this.assertWasTrue('Houve um movimento?', this.subject.isMoving);
+    });
+  }
+}
 
 
 class UpdatingPointsCardSpriteTest extends SceneTest {
@@ -4831,34 +4859,6 @@ class LeaveCardSpriteTest extends SceneTest {
       this.assert('Largura é zero?', this.subject.width).toBe(0);
       this.assert('Altura é zero?', this.subject.height).toBe(0);
     })
-  }
-}
-class QuakeCardSpriteTest extends SceneTest {
-  name = 'QuakeCardSpriteTest';
-
-  create() {
-    const card = CardGenerator.generateCard();
-    this.subject = CardSprite.create(
-      card.type,
-      card.color,
-      card.figureName,
-      card.attack,
-      card.health
-    );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
-    this.addChild(this.subject);
-  }
-
-  start() {
-    this.subject.show();
-    const infinity = 10;
-    this.test('Deve aplicar um chacoalhar!', () => {
-      this.subject.quake(3);
-    }, () => {
-      this.assertWasTrue('Esta chacoalhando?', this.subject.isMoving);
-    });
   }
 }
 class FlipCardSpriteTest extends SceneTest {
@@ -6298,13 +6298,13 @@ class CardBattleTestScene extends Scene_Message {
       // IluminatedCardSpriteTest,
       // UniluminatedCardSpriteTest,
       // FlashCardSpriteTest,
-      AnimationCardSpriteTest,
+      // AnimationCardSpriteTest,
+      QuakeCardSpriteTest,
 
+      // FlipCardSpriteTest,
       // UpdatingPointsCardSpriteTest,
       // ZoomAndZoomoutCardSpriteTest,
       // LeaveCardSpriteTest,
-      // QuakeCardSpriteTest,
-      // FlipCardSpriteTest,
     ];
     const cardsetSpriteTests = [
       SetBackgroundAndStartPositionCardsetSpriteTest,

@@ -18,11 +18,11 @@ class QuakeCardSpriteTest extends SceneTest {
 
   start() {
     this.subject.show();
-    const infinity = 10;
-    this.test('Deve aplicar um chacoalhar!', () => {
-      this.subject.quake(3);
+    const times = 10;
+    this.test('Deve aplicar um movimento de chacoalhar!', () => {
+      this.subject.quake(times);
     }, () => {
-      this.assertWasTrue('Esta chacoalhando?', this.subject.isMoving);
+      this.assertWasTrue('Houve um movimento?', this.subject.isMoving);
     });
   }
 }
