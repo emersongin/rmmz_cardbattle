@@ -2146,7 +2146,7 @@ class CardSpriteHoveredBehavior {
     layer.opacity = opacity;
   }
 }
-class CardSpriteUpdatedBehavior {
+class CardSpriteUpdatedPointsBehavior {
   _card;
   _attack;
   _health;
@@ -2981,18 +2981,12 @@ class CardSprite extends ActionSprite {
   commandChangePoints(attackPoints, healtPoints) {
     if (!(this.isOpened() && this.isStopped())) return;
     this.addBehavior(
-      CardSpriteUpdatedBehavior, 
+      CardSpriteUpdatedPointsBehavior, 
       attackPoints,
       healtPoints
     );
     return true;
   }
-
-
-
-
-
-
 
   update() {
     super.update();
@@ -3005,6 +2999,12 @@ class CardSprite extends ActionSprite {
         if (behavior) behavior.updateBehavior();
       });
     }
+  }
+
+  // interface cardset
+
+  static createPosition(x, y, index) {
+    return { x, y, index };
   }
 
   isOpening() {
@@ -3020,11 +3020,11 @@ class CardSprite extends ActionSprite {
   }
 
   isAnimated() {
-    return this.isUpdating() || this.isAnimationPlaying() || this.isFlashPlaying();
+    return this.isAnimationPlaying() || this.isFlashPlaying() || this.isUpdatingPoints();
   }
 
-  isUpdating() {
-    return this.getBehavior(CardSpriteUpdatedBehavior) instanceof CardSpriteUpdatedBehavior;
+  isUpdatingPoints() {
+    return this.getBehavior(CardSpriteUpdatedPointsBehavior) instanceof CardSpriteUpdatedPointsBehavior;
   }
   
   // isAnimationPlaying() {
@@ -3032,14 +3032,6 @@ class CardSprite extends ActionSprite {
   //   if (behavior) return behavior.isPlayingAnimation();
   //   return false;
   // }
-
-  static createPosition(x, y, index) {
-    return { x, y, index };
-  }
-
-  isNormal() {
-    return !this.isHovered() && !this.isSelected() && !this.isIluminated();
-  }
 }
 class CardsetSpriteStaticModeState {
   _cardset;
@@ -4912,7 +4904,7 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
     this.test('Deve atualizar os pontos!', () => {
       this.subject.changePoints(25, 18);
     }, () => {
-      this.assertWasTrue('Foram atualizandos?', this.subject.isUpdating);
+      this.assertWasTrue('Foram atualizandos?', this.subject.isUpdatingPoints);
     });
   }
 }

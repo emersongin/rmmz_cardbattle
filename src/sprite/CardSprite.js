@@ -6,7 +6,7 @@
 // include ./behavior/CardSpriteFlashedBehavior.js
 // include ./behavior/CardSpriteSelectedBehavior.js
 // include ./behavior/CardSpriteHoveredBehavior.js
-// include ./behavior/CardSpriteUpdatedBehavior.js
+// include ./behavior/CardSpriteUpdatedPointsBehavior.js
 // include ./behavior/CardSpriteIluminatedBehavior.js
 
 class CardSprite extends ActionSprite {
@@ -779,18 +779,12 @@ class CardSprite extends ActionSprite {
   commandChangePoints(attackPoints, healtPoints) {
     if (!(this.isOpened() && this.isStopped())) return;
     this.addBehavior(
-      CardSpriteUpdatedBehavior, 
+      CardSpriteUpdatedPointsBehavior, 
       attackPoints,
       healtPoints
     );
     return true;
   }
-
-
-
-
-
-
 
   update() {
     super.update();
@@ -803,6 +797,12 @@ class CardSprite extends ActionSprite {
         if (behavior) behavior.updateBehavior();
       });
     }
+  }
+
+  // interface cardset
+
+  static createPosition(x, y, index) {
+    return { x, y, index };
   }
 
   isOpening() {
@@ -818,11 +818,11 @@ class CardSprite extends ActionSprite {
   }
 
   isAnimated() {
-    return this.isUpdating() || this.isAnimationPlaying() || this.isFlashPlaying();
+    return this.isAnimationPlaying() || this.isFlashPlaying() || this.isUpdatingPoints();
   }
 
-  isUpdating() {
-    return this.getBehavior(CardSpriteUpdatedBehavior) instanceof CardSpriteUpdatedBehavior;
+  isUpdatingPoints() {
+    return this.getBehavior(CardSpriteUpdatedPointsBehavior) instanceof CardSpriteUpdatedPointsBehavior;
   }
   
   // isAnimationPlaying() {
@@ -830,12 +830,4 @@ class CardSprite extends ActionSprite {
   //   if (behavior) return behavior.isPlayingAnimation();
   //   return false;
   // }
-
-  static createPosition(x, y, index) {
-    return { x, y, index };
-  }
-
-  isNormal() {
-    return !this.isHovered() && !this.isSelected() && !this.isIluminated();
-  }
 }
