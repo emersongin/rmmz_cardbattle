@@ -1,5 +1,5 @@
-class DamageAnimationCardSpriteTest extends SceneTest {
-  name = 'DamageAnimationCardSpriteTest';
+class AnimationCardSpriteTest extends SceneTest {
+  name = 'AnimationCardSpriteTest';
 
   create() {
     const card = CardGenerator.generateCard();
@@ -19,7 +19,7 @@ class DamageAnimationCardSpriteTest extends SceneTest {
   start() {
     const times = 1;
     this.subject.show();
-    this.test('Deve receber animação de dano!', () => {
+    this.test('Deve receber uma animação!', () => {
       this.subject.damage(times);
     }, () => {
       this.assertWasTrue('Houve animação?', this.subject.isAnimationPlaying);

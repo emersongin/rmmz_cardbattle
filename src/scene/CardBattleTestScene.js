@@ -27,10 +27,9 @@ class CardBattleTestScene extends Scene_Message {
       // UnselectedCardSpriteTest,
       // IluminatedCardSpriteTest,
       // UniluminatedCardSpriteTest,
-      FlashCardSpriteTest,
+      // FlashCardSpriteTest,
+      AnimationCardSpriteTest,
 
-      // StartClosedAndStartOpenCardSpriteTest,
-      // DamageAnimationCardSpriteTest,
       // UpdatingPointsCardSpriteTest,
       // ZoomAndZoomoutCardSpriteTest,
       // LeaveCardSpriteTest,

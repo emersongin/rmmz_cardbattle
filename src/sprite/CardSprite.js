@@ -599,6 +599,64 @@ class CardSprite extends ActionSprite {
     return this.getBehavior(CardSpriteFlashedBehavior) instanceof CardSpriteFlashedBehavior;
   }
 
+  damage(times = 1, anchorParent = this.parent) {
+    const animation = this.damageAnimation();
+    this.addAction(this.commandAnimate, animation, times, anchorParent);
+  }
+
+  damageAnimation() {
+    return {
+      id: 45,
+      displayType: 0,
+      effectName: "CureOne1",
+      flashTimings:  [
+        {frame: 0, duration: 10, color: [0,255,0,102]},
+        {frame: 9, duration: 30, color: [102,255,0,102]},
+        {frame: 19, duration: 30, color: [136,255,0,102]},
+        {frame: 29, duration: 30, color: [136,255,0,102]}
+      ],
+      name: "Curar 1",
+      offsetX: 48,
+      offsetY: 128,
+      rotation:  { x: 0, y: 0, z: 0 },
+      scale: 100,
+      soundTimings:  [
+        // {frame: 1, se:  { name: "Ice1", pan: 0, pitch: 100, volume: 90}},
+        // {frame: 2, se:  { name: "Recovery", pan: 0, pitch: 70, volume: 90}},
+        // {frame: 6, se:  { name: "Ice4", pan: 0, pitch: 100, volume: 90}}
+      ],
+      speed: 100,
+      timings: [],
+      alignBottom: false,
+      quakeEffect: false
+    };
+  }
+
+  commandAnimate(animation, times, anchorParent) {
+    const isStatus = (this.isStopped() || this.isMoving() || this.isZooming());
+    if (!(this.isOpened() && isStatus) || this.isAnimationPlaying()) return; 
+    this.addBehavior(
+      CardSpriteAnimatedBehavior, 
+      animation,
+      times,
+      anchorParent
+    );
+    return true;
+  }
+
+  isAnimationPlaying() {
+    return this.getBehavior(CardSpriteAnimatedBehavior) instanceof CardSpriteAnimatedBehavior;
+  }
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -637,51 +695,6 @@ class CardSprite extends ActionSprite {
   }
 
 
-
-  damage(times = 1, anchorParent = this.parent) {
-    const animation = this.damageAnimation();
-    this.addAction(this.commandAnimate, animation, times, anchorParent);
-  }
-
-  damageAnimation() {
-    return {
-      id: 45,
-      displayType: 0,
-      effectName: "CureOne1",
-      flashTimings:  [
-        {frame: 0, duration: 10, color: [0,255,0,102]},
-        {frame: 9, duration: 30, color: [102,255,0,102]},
-        {frame: 19, duration: 30, color: [136,255,0,102]},
-        {frame: 29, duration: 30, color: [136,255,0,102]}
-      ],
-      name: "Curar 1",
-      offsetX: 48,
-      offsetY: 128,
-      rotation:  { x: 0, y: 0, z: 0 },
-      scale: 100,
-      soundTimings:  [
-        // {frame: 1, se:  { name: "Ice1", pan: 0, pitch: 100, volume: 90}},
-        // {frame: 2, se:  { name: "Recovery", pan: 0, pitch: 70, volume: 90}},
-        // {frame: 6, se:  { name: "Ice4", pan: 0, pitch: 100, volume: 90}}
-      ],
-      speed: 100,
-      timings: [],
-      alignBottom: false,
-      quakeEffect: false
-    };
-  }
-
-  commandAnimate(animation, times, anchorParent) {
-    if (this.isVisible() && (this.isStopped() || this.isOpening() || this.isMoving() || this.isZooming())) {
-      this.addBehavior(
-        CardSpriteAnimatedBehavior, 
-        animation,
-        times,
-        anchorParent
-      );
-    }
-    return true;
-  }
 
   changeAttackPoints(attackPoints) {
     this.changePoints(attackPoints);
@@ -797,9 +810,7 @@ class CardSprite extends ActionSprite {
     return this.isUpdating() || this.isAnimationPlaying() || this.isFlashPlaying();
   }
 
-  isAnimationPlaying() {
-    return this.getBehavior(CardSpriteAnimatedBehavior) instanceof CardSpriteAnimatedBehavior;
-  }
+
 
 
 
