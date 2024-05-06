@@ -2932,10 +2932,6 @@ class CardSprite extends ActionSprite {
     return true;
   }
 
-  setTurnToDown() {
-    this._turned = false;
-  }
-
   flipTurnToUp() {
     this.close();
     this.addAction(this.commandFlipTurnToUp);
@@ -2943,7 +2939,6 @@ class CardSprite extends ActionSprite {
   }
 
   commandFlipTurnToUp() {
-    console.log('commandFlipTurnToUp', this.isClosed() , this.isStopped() , this.isTurnedToDown())
     if (!(this.isClosed() && this.isStopped() && this.isTurnedToDown())) return;
     this.setTurnToUp();
     this.refresh();
@@ -2967,34 +2962,9 @@ class CardSprite extends ActionSprite {
     return true;
   }
 
-
-
-
-
-
-
-
-
-  update() {
-    super.update();
-    if (this.isVisible()) this.updateBehaviors();
+  setTurnToDown() {
+    this._turned = false;
   }
-
-
-
-  updateBehaviors() {
-    if (Array.isArray(this._behaviors)) {
-      this._behaviors.forEach(behavior => {
-        if (behavior) behavior.updateBehavior();
-      });
-    }
-  }
-
-  isOpening() {
-    return this.getStatus() && this.getStatus() instanceof CardSpriteOpeningState;
-  }
-
-
 
   changeAttackPoints(attackPoints) {
     this.changePoints(attackPoints);
@@ -3009,13 +2979,36 @@ class CardSprite extends ActionSprite {
   }
 
   commandChangePoints(attackPoints, healtPoints) {
-    if (!(this.isVisible() && this.isStopped())) return;
+    if (!(this.isOpened() && this.isStopped())) return;
     this.addBehavior(
       CardSpriteUpdatedBehavior, 
       attackPoints,
       healtPoints
     );
     return true;
+  }
+
+
+
+
+
+
+
+  update() {
+    super.update();
+    if (this.isVisible()) this.updateBehaviors();
+  }
+
+  updateBehaviors() {
+    if (Array.isArray(this._behaviors)) {
+      this._behaviors.forEach(behavior => {
+        if (behavior) behavior.updateBehavior();
+      });
+    }
+  }
+
+  isOpening() {
+    return this.getStatus() && this.getStatus() instanceof CardSpriteOpeningState;
   }
 
   isBusy() {
@@ -3026,21 +3019,9 @@ class CardSprite extends ActionSprite {
     return !this.isStopped();
   }
 
-
-
-
-
-
-
-
-
   isAnimated() {
     return this.isUpdating() || this.isAnimationPlaying() || this.isFlashPlaying();
   }
-
-
-
-
 
   isUpdating() {
     return this.getBehavior(CardSpriteUpdatedBehavior) instanceof CardSpriteUpdatedBehavior;
@@ -3051,12 +3032,6 @@ class CardSprite extends ActionSprite {
   //   if (behavior) return behavior.isPlayingAnimation();
   //   return false;
   // }
-
-
-
-
-
-
 
   static createPosition(x, y, index) {
     return { x, y, index };
@@ -4914,7 +4889,6 @@ class FlipTurnToDownCardSpriteTest extends SceneTest {
     });
   }
 }
-
 class UpdatingPointsCardSpriteTest extends SceneTest {
   name = 'UpdatingPointsCardSpriteTest';
 
@@ -4930,15 +4904,15 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
+    this.subject.show();
     this.addChild(this.subject);
   }
 
   start() {
-    this.subject.show();
     this.test('Deve atualizar os pontos!', () => {
-      this.subject.changePoints(18, 17);
+      this.subject.changePoints(25, 18);
     }, () => {
-      this.assertWasTrue('Foi atualizando?', this.subject.isUpdating);
+      this.assertWasTrue('Foram atualizandos?', this.subject.isUpdating);
     });
   }
 }
@@ -6349,10 +6323,9 @@ class CardBattleTestScene extends Scene_Message {
       // ZoomCardSpriteTest,
       // ZoomOutCardSpriteTest,
       // LeaveCardSpriteTest,
-      FlipTurnToUpCardSpriteTest,
-      FlipTurnToDownCardSpriteTest,
-
-      // UpdatingPointsCardSpriteTest,
+      // FlipTurnToUpCardSpriteTest,
+      // FlipTurnToDownCardSpriteTest,
+      UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
       SetBackgroundAndStartPositionCardsetSpriteTest,

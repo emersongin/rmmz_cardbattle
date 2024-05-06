@@ -50,7 +50,6 @@
 // include ../test/integration/card/LeaveCardSpriteTest.js
 // include ../test/integration/card/FlipTurnToUpCardSpriteTest.js
 // include ../test/integration/card/FlipTurnToDownCardSpriteTest.js
-
 // include ../test/integration/card/UpdatingPointsCardSpriteTest.js
 // tests CARDSET
 // include ../test/integration/cardset/SetBackgroundAndStartPositionCardsetSpriteTest.js

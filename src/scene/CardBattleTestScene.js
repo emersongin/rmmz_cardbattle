@@ -33,10 +33,9 @@ class CardBattleTestScene extends Scene_Message {
       // ZoomCardSpriteTest,
       // ZoomOutCardSpriteTest,
       // LeaveCardSpriteTest,
-      FlipTurnToUpCardSpriteTest,
-      FlipTurnToDownCardSpriteTest,
-
-      // UpdatingPointsCardSpriteTest,
+      // FlipTurnToUpCardSpriteTest,
+      // FlipTurnToDownCardSpriteTest,
+      UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
       SetBackgroundAndStartPositionCardsetSpriteTest,

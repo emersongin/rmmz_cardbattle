@@ -764,7 +764,27 @@ class CardSprite extends ActionSprite {
     this._turned = false;
   }
 
+  changeAttackPoints(attackPoints) {
+    this.changePoints(attackPoints);
+  }
 
+  changeHealthPoints(healtPoints) {
+    this.changePoints(this._attackPoints, healtPoints);
+  }
+
+  changePoints(attackPoints = this._attackPoints, healtPoints = this._healthPoints) {
+    this.addAction(this.commandChangePoints, attackPoints, healtPoints);
+  }
+
+  commandChangePoints(attackPoints, healtPoints) {
+    if (!(this.isOpened() && this.isStopped())) return;
+    this.addBehavior(
+      CardSpriteUpdatedBehavior, 
+      attackPoints,
+      healtPoints
+    );
+    return true;
+  }
 
 
 
@@ -789,30 +809,6 @@ class CardSprite extends ActionSprite {
     return this.getStatus() && this.getStatus() instanceof CardSpriteOpeningState;
   }
 
-
-
-  changeAttackPoints(attackPoints) {
-    this.changePoints(attackPoints);
-  }
-
-  changeHealthPoints(healtPoints) {
-    this.changePoints(this._attackPoints, healtPoints);
-  }
-
-  changePoints(attackPoints = this._attackPoints, healtPoints = this._healthPoints) {
-    this.addAction(this.commandChangePoints, attackPoints, healtPoints);
-  }
-
-  commandChangePoints(attackPoints, healtPoints) {
-    if (!(this.isVisible() && this.isStopped())) return;
-    this.addBehavior(
-      CardSpriteUpdatedBehavior, 
-      attackPoints,
-      healtPoints
-    );
-    return true;
-  }
-
   isBusy() {
     return super.isBusy() && (this.isNotStopped() || this.isAnimated());
   }
@@ -821,21 +817,9 @@ class CardSprite extends ActionSprite {
     return !this.isStopped();
   }
 
-
-
-
-
-
-
-
-
   isAnimated() {
     return this.isUpdating() || this.isAnimationPlaying() || this.isFlashPlaying();
   }
-
-
-
-
 
   isUpdating() {
     return this.getBehavior(CardSpriteUpdatedBehavior) instanceof CardSpriteUpdatedBehavior;
@@ -846,12 +830,6 @@ class CardSprite extends ActionSprite {
   //   if (behavior) return behavior.isPlayingAnimation();
   //   return false;
   // }
-
-
-
-
-
-
 
   static createPosition(x, y, index) {
     return { x, y, index };
