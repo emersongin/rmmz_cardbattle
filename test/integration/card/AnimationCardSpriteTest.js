@@ -14,7 +14,7 @@ class AnimationCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {

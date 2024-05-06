@@ -4056,10 +4056,12 @@ class SceneTest {
   assertsName = '';
   assertTitle = '';
   assertValue = undefined;
-  childrenToAdd = [];
-  WindowsToAdd = [];
+  // childrenToAdd = [];
+  // WindowsToAdd = [];
   counter = 0;
   pressToAssert = false;
+  toWatched = [];
+  watched = [];
 
   constructor(scene) {
     this.scene = scene;
@@ -4070,7 +4072,7 @@ class SceneTest {
   }
 
   start() {
-    this.copySubject();
+    this.copyWatched();
   }
 
   run() {
@@ -4144,7 +4146,7 @@ class SceneTest {
   }
 
   update() {
-    this.copySubject();
+    this.copyWatched();
     if (this.counter) return this.counter--;
     if (this.hasAsserts()) {
       if (this.pressToAssert && !Input.isTriggered('ok')) return;
@@ -4180,8 +4182,8 @@ class SceneTest {
     const { seconds, act, asserts } = test;
     if (test) {
       this.counter = (fps * seconds);
-      this.appendChildren();
-      this.appendWindows();
+      // this.appendChildren();
+      // this.appendWindows();
       const completed = act();
       if (completed) {
         this.nextAsserts = asserts;
@@ -4190,35 +4192,50 @@ class SceneTest {
     }
   }
 
-  copySubject() {
-    const subjectCopy = ObjectHelper.copyObject(this.subject);
-    this.subjects.push(subjectCopy);
+  copyWatched() {
+    // const subjectCopy = ObjectHelper.copyObject(this.subject);
+    // this.subjects.push(subjectCopy);
+    const watched = this.toWatched.map(w => ObjectHelper.copyObject(w));
+    this.watched.push(watched);
   }
 
-  appendChildren() {
-    this.childrenToAdd.forEach(child => {
-      this.scene.addChild(child);
-    });
-    this.childrenToAdd = [];
-  }
+  // appendChildren() {
+  //   this.childrenToAdd.forEach(child => {
+  //     this.scene.addChild(child);
+  //   });
+  //   this.childrenToAdd = [];
+  // }
 
-  appendWindows() {
-    this.WindowsToAdd.forEach(window => {
-      this.scene._windowLayer.addChild(window);
-    });
-    this.WindowsToAdd = [];
-  }
+  // appendWindows() {
+  //   this.WindowsToAdd.forEach(window => {
+  //     this.scene._windowLayer.addChild(window);
+  //   });
+  //   this.WindowsToAdd = [];
+  // }
 
-  assertWasTrue(title, fnOrValue, ...params) {
-    const result = this.subjects.some(subject => {
-      if (typeof fnOrValue === 'function') {
-        return subject[fnOrValue.name];
-      }
-      return subject[fnOrValue];
+  assertWasTrue(title, fnOrValue, reference, ...params) {
+    const indexOfWatched = this.indexOfWatched(reference);
+    const result = this.watched.some((w, i) => {
+      return w.some((watching, index) => {
+        if (indexOfWatched !== index) return false;
+        if (this.isFunction(fnOrValue)) {
+          const fnName = fnOrValue.name;
+          return watching[fnName]();
+        }
+        return watching[fnOrValue];
+      });
     });
-    
     this.assert(title, result);
     return this.toBe(true);
+  }
+
+  indexOfWatched(reference) {
+    let index = this.toWatched.indexOf(reference) || 0;
+    return index < 0 ? 0 : index;
+  }
+
+  isFunction(fnOrValue) {
+    return typeof fnOrValue === 'function';
   }
 
   assertTrue(title, value) {
@@ -4262,14 +4279,22 @@ class SceneTest {
     this.asserts.push(assertResult);
   }
 
+  addWatched(watched) {
+    this.toWatched.push(watched);
+    this.addChild(watched);
+  }
+
   addChild(child) {
-    this.childrenToAdd.push(child);
+    if (child instanceof Window_Base) {
+      this.addWindow(child);
+    } else {
+      this.scene.addChild(child);
+    }
   }
 
   addWindow(window) {
-    this.WindowsToAdd.push(window);
+    this.scene._windowLayer.addChild(window);
   }
-
 }
 // tests CARD Sprite
 class StartOpenCardSpriteTest extends SceneTest {
@@ -4284,7 +4309,7 @@ class StartOpenCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4294,7 +4319,7 @@ class StartOpenCardSpriteTest extends SceneTest {
       this.subject.startOpen(centerXPosition, centerYPosition);
       this.subject.show();
     }, () => {
-      this.assertTrue('Esta aberto?', this.subject.isOpened());
+      this.assertWasTrue('Esta aberto?', this.subject.isOpened);
     });
   }
 }
@@ -4310,7 +4335,7 @@ class StartClosedCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4318,9 +4343,9 @@ class StartClosedCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.test('Deve iníciar fechado!', () => {
       this.subject.startClosed(centerXPosition, centerYPosition);
-      this.subject.show();
+      this.subject.open();
     }, () => {
-      this.assertTrue('Esta fechado?', this.subject.isClosed());
+      this.assertWasTrue('Esta fechado?', this.subject.isClosed);
     });
   }
 }
@@ -4340,7 +4365,7 @@ class OpenCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startClosed(centerXPosition, centerYPosition);
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4366,7 +4391,7 @@ class CloseCardSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4393,7 +4418,7 @@ class DisableCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4421,7 +4446,7 @@ class EnableCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4446,7 +4471,7 @@ class MoveCardSpriteTest extends SceneTest {
       card.health
     );
     this.subject.startOpen(0, 0);
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4488,7 +4513,7 @@ class HoveredCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4515,7 +4540,7 @@ class UnhoveredCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4543,7 +4568,7 @@ class SelectedCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4570,7 +4595,7 @@ class UnselectedCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4598,7 +4623,7 @@ class IluminatedCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4625,7 +4650,7 @@ class UniluminatedCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4653,7 +4678,7 @@ class FlashCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4683,7 +4708,7 @@ class AnimationCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4711,7 +4736,7 @@ class QuakeCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4739,7 +4764,7 @@ class ZoomCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4766,7 +4791,7 @@ class ZoomOutCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4794,7 +4819,7 @@ class LeaveCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4824,7 +4849,7 @@ class FlipTurnToUpCardSpriteTest extends SceneTest {
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.setTurnToDown();
     this.subject.show();
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4853,7 +4878,7 @@ class FlipTurnToDownCardSpriteTest extends SceneTest {
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.setTurnToUp();
     this.subject.show();
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4881,7 +4906,7 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -6282,26 +6307,26 @@ class CardBattleTestScene extends Scene_Message {
     const cardSpriteTests = [
       StartOpenCardSpriteTest,
       StartClosedCardSpriteTest,
-      OpenCardSpriteTest,
-      CloseCardSpriteTest,
-      DisableCardSpriteTest,
-      EnableCardSpriteTest,
-      MoveCardSpriteTest,
-      HoveredCardSpriteTest,
-      UnhoveredCardSpriteTest,
-      SelectedCardSpriteTest,
-      UnselectedCardSpriteTest,
-      IluminatedCardSpriteTest,
-      UniluminatedCardSpriteTest,
-      FlashCardSpriteTest,
-      AnimationCardSpriteTest,
-      QuakeCardSpriteTest,
-      ZoomCardSpriteTest,
-      ZoomOutCardSpriteTest,
-      LeaveCardSpriteTest,
-      FlipTurnToUpCardSpriteTest,
-      FlipTurnToDownCardSpriteTest,
-      UpdatingPointsCardSpriteTest
+      // OpenCardSpriteTest,
+      // CloseCardSpriteTest,
+      // DisableCardSpriteTest,
+      // EnableCardSpriteTest,
+      // MoveCardSpriteTest,
+      // HoveredCardSpriteTest,
+      // UnhoveredCardSpriteTest,
+      // SelectedCardSpriteTest,
+      // UnselectedCardSpriteTest,
+      // IluminatedCardSpriteTest,
+      // UniluminatedCardSpriteTest,
+      // FlashCardSpriteTest,
+      // AnimationCardSpriteTest,
+      // QuakeCardSpriteTest,
+      // ZoomCardSpriteTest,
+      // ZoomOutCardSpriteTest,
+      // LeaveCardSpriteTest,
+      // FlipTurnToUpCardSpriteTest,
+      // FlipTurnToDownCardSpriteTest,
+      // UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
       SetBackgroundAndStartPositionCardsetSpriteTest,

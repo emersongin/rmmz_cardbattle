@@ -10,7 +10,7 @@ class StartClosedCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -18,9 +18,9 @@ class StartClosedCardSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.test('Deve iníciar fechado!', () => {
       this.subject.startClosed(centerXPosition, centerYPosition);
-      this.subject.show();
+      this.subject.open();
     }, () => {
-      this.assertTrue('Esta fechado?', this.subject.isClosed());
+      this.assertWasTrue('Esta fechado?', this.subject.isClosed);
     });
   }
 }

@@ -10,10 +10,12 @@ class SceneTest {
   assertsName = '';
   assertTitle = '';
   assertValue = undefined;
-  childrenToAdd = [];
-  WindowsToAdd = [];
+  // childrenToAdd = [];
+  // WindowsToAdd = [];
   counter = 0;
   pressToAssert = false;
+  toWatched = [];
+  watched = [];
 
   constructor(scene) {
     this.scene = scene;
@@ -24,7 +26,7 @@ class SceneTest {
   }
 
   start() {
-    this.copySubject();
+    this.copyWatched();
   }
 
   run() {
@@ -98,7 +100,7 @@ class SceneTest {
   }
 
   update() {
-    this.copySubject();
+    this.copyWatched();
     if (this.counter) return this.counter--;
     if (this.hasAsserts()) {
       if (this.pressToAssert && !Input.isTriggered('ok')) return;
@@ -134,8 +136,8 @@ class SceneTest {
     const { seconds, act, asserts } = test;
     if (test) {
       this.counter = (fps * seconds);
-      this.appendChildren();
-      this.appendWindows();
+      // this.appendChildren();
+      // this.appendWindows();
       const completed = act();
       if (completed) {
         this.nextAsserts = asserts;
@@ -144,35 +146,50 @@ class SceneTest {
     }
   }
 
-  copySubject() {
-    const subjectCopy = ObjectHelper.copyObject(this.subject);
-    this.subjects.push(subjectCopy);
+  copyWatched() {
+    // const subjectCopy = ObjectHelper.copyObject(this.subject);
+    // this.subjects.push(subjectCopy);
+    const watched = this.toWatched.map(w => ObjectHelper.copyObject(w));
+    this.watched.push(watched);
   }
 
-  appendChildren() {
-    this.childrenToAdd.forEach(child => {
-      this.scene.addChild(child);
-    });
-    this.childrenToAdd = [];
-  }
+  // appendChildren() {
+  //   this.childrenToAdd.forEach(child => {
+  //     this.scene.addChild(child);
+  //   });
+  //   this.childrenToAdd = [];
+  // }
 
-  appendWindows() {
-    this.WindowsToAdd.forEach(window => {
-      this.scene._windowLayer.addChild(window);
-    });
-    this.WindowsToAdd = [];
-  }
+  // appendWindows() {
+  //   this.WindowsToAdd.forEach(window => {
+  //     this.scene._windowLayer.addChild(window);
+  //   });
+  //   this.WindowsToAdd = [];
+  // }
 
-  assertWasTrue(title, fnOrValue, ...params) {
-    const result = this.subjects.some(subject => {
-      if (typeof fnOrValue === 'function') {
-        return subject[fnOrValue.name];
-      }
-      return subject[fnOrValue];
+  assertWasTrue(title, fnOrValue, reference, ...params) {
+    const indexOfWatched = this.indexOfWatched(reference);
+    const result = this.watched.some((w, i) => {
+      return w.some((watching, index) => {
+        if (indexOfWatched !== index) return false;
+        if (this.isFunction(fnOrValue)) {
+          const fnName = fnOrValue.name;
+          return watching[fnName]();
+        }
+        return watching[fnOrValue];
+      });
     });
-    
     this.assert(title, result);
     return this.toBe(true);
+  }
+
+  indexOfWatched(reference) {
+    let index = this.toWatched.indexOf(reference) || 0;
+    return index < 0 ? 0 : index;
+  }
+
+  isFunction(fnOrValue) {
+    return typeof fnOrValue === 'function';
   }
 
   assertTrue(title, value) {
@@ -216,12 +233,20 @@ class SceneTest {
     this.asserts.push(assertResult);
   }
 
+  addWatched(watched) {
+    this.toWatched.push(watched);
+    this.addChild(watched);
+  }
+
   addChild(child) {
-    this.childrenToAdd.push(child);
+    if (child instanceof Window_Base) {
+      this.addWindow(child);
+    } else {
+      this.scene.addChild(child);
+    }
   }
 
   addWindow(window) {
-    this.WindowsToAdd.push(window);
+    this.scene._windowLayer.addChild(window);
   }
-
 }

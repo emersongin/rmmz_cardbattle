@@ -11,7 +11,7 @@ class MoveCardSpriteTest extends SceneTest {
       card.health
     );
     this.subject.startOpen(0, 0);
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {

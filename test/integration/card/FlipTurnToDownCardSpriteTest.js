@@ -15,7 +15,7 @@ class FlipTurnToDownCardSpriteTest extends SceneTest {
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.setTurnToUp();
     this.subject.show();
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
