@@ -13,6 +13,7 @@ class SceneTest {
   childrenToAdd = [];
   WindowsToAdd = [];
   counter = 0;
+  pressToAssert = false;
 
   constructor(scene) {
     this.scene = scene;
@@ -35,14 +36,27 @@ class SceneTest {
 
   finish() {
     return new Promise(async res => {
-      const total = this.totalSeconds();
-      await this.timertoTrue((1000 * total) + 200);
-      res({
-        passed: this.results.every(result => result.passed),
-        testName: this.name,
-        assertsResult: this.results
-      });
+      // const total = this.totalSeconds();
+      // await this.timertoTrue((1000 * total) + 200);
+
+      setInterval(() => {
+        if (this.noHasTests() && this.noHasNextAsserts()) {
+          res({
+            passed: (this.results.length && this.results.every(result => result.passed)),
+            testName: this.name,
+            assertsResult: this.results
+          });
+        }
+      }, 100);
     });
+  }
+
+  noHasTests() {
+    return this.tests.length === 0;
+  }
+
+  noHasNextAsserts() {
+    return !this.nextAsserts;
   }
 
   async test(assertsName, act, asserts, seconds = 1) {
@@ -70,9 +84,9 @@ class SceneTest {
     });
   }
 
-  totalSeconds() {
-    return this.tests.reduce((acc, test) => acc + test.seconds, 0);
-  }
+  // totalSeconds() {
+  //   return this.tests.reduce((acc, test) => acc + test.seconds, 0);
+  // }
 
   timertoTrue(milliseconds = 600, callback) {
     if (callback) callback();
@@ -86,7 +100,10 @@ class SceneTest {
   update() {
     this.copySubject();
     if (this.counter) return this.counter--;
-    if (this.hasAsserts()) return this.startAsserts();
+    if (this.hasAsserts()) {
+      if (this.pressToAssert && !Input.isTriggered('ok')) return;
+      return this.startAsserts();
+    }
     if (this.hasTests()) this.startTest();
   }
 

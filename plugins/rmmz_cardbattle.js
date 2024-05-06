@@ -164,13 +164,6 @@ class NumberHelper {
 }
 
 class ObjectHelper {
-  // static copyObject(obj) {
-  //   const copiedObj = Object.create(Object.getPrototypeOf(obj));
-  //   const descriptors = Object.getOwnPropertyDescriptors(obj);
-  //   Object.defineProperties(copiedObj, descriptors);
-  //   return copiedObj;
-  // }
-
   static copyObject(obj) {
     const copiedObj = Object.create(Object.getPrototypeOf(obj));
     const descriptors = Object.getOwnPropertyDescriptors(obj);
@@ -184,14 +177,28 @@ class ObjectHelper {
     return copiedObj;
   }
 
-  static parseReference(params, reference) {
-    let obj = {};
-    Object.keys(params).forEach((key, index) => {
-      if (reference) return obj[reference[index]] = params[key];
-      obj[index] = params[key];
-    });
-    return obj;
+  static compareObjects(object1, object2) {
+    const keys1 = Object.keys(object1);
+    const keys2 = Object.keys(object2);
+    if (keys1.length !== keys2.length) {
+      return false;
+    }
+    for (let key of keys1) {
+      if (object1[key] !== object2[key]) {
+        return false;
+      }
+    }
+    return true;
   }
+
+    // static parseReference(params, reference) {
+  //   let obj = {};
+  //   Object.keys(params).forEach((key, index) => {
+  //     if (reference) return obj[reference[index]] = params[key];
+  //     obj[index] = params[key];
+  //   });
+  //   return obj;
+  // }
 }
 
 class CardGenerator {
@@ -1551,31 +1558,17 @@ class ActionSprite extends Sprite {
     return this.numberOfChildren() > 0;
   }
 
+  numberOfChildren() {
+    return this.children.length;
+  }
+
   indexOfSprite(sprite) {
     for (let i = 0; i < this.numberOfChildren(); i++) {
-      if (this.compareObjects(this.children[i], sprite)) {
+      if (ObjectHelper.compareObjects(this.children[i], sprite)) {
         return i;
       }
     }
     return -1;
-  }
-
-  numberOfChildren() {
-    return this.children.length;
-  }
-  
-  compareObjects(object1, object2) {
-    const keys1 = Object.keys(object1);
-    const keys2 = Object.keys(object2);
-    if (keys1.length !== keys2.length) {
-      return false;
-    }
-    for (let key of keys1) {
-      if (object1[key] !== object2[key]) {
-        return false;
-      }
-    }
-    return true;
   }
 
   clear() {
@@ -4066,6 +4059,7 @@ class SceneTest {
   childrenToAdd = [];
   WindowsToAdd = [];
   counter = 0;
+  pressToAssert = false;
 
   constructor(scene) {
     this.scene = scene;
@@ -4088,14 +4082,27 @@ class SceneTest {
 
   finish() {
     return new Promise(async res => {
-      const total = this.totalSeconds();
-      await this.timertoTrue((1000 * total) + 200);
-      res({
-        passed: this.results.every(result => result.passed),
-        testName: this.name,
-        assertsResult: this.results
-      });
+      // const total = this.totalSeconds();
+      // await this.timertoTrue((1000 * total) + 200);
+
+      setInterval(() => {
+        if (this.noHasTests() && this.noHasNextAsserts()) {
+          res({
+            passed: (this.results.length && this.results.every(result => result.passed)),
+            testName: this.name,
+            assertsResult: this.results
+          });
+        }
+      }, 100);
     });
+  }
+
+  noHasTests() {
+    return this.tests.length === 0;
+  }
+
+  noHasNextAsserts() {
+    return !this.nextAsserts;
   }
 
   async test(assertsName, act, asserts, seconds = 1) {
@@ -4123,9 +4130,9 @@ class SceneTest {
     });
   }
 
-  totalSeconds() {
-    return this.tests.reduce((acc, test) => acc + test.seconds, 0);
-  }
+  // totalSeconds() {
+  //   return this.tests.reduce((acc, test) => acc + test.seconds, 0);
+  // }
 
   timertoTrue(milliseconds = 600, callback) {
     if (callback) callback();
@@ -4139,7 +4146,10 @@ class SceneTest {
   update() {
     this.copySubject();
     if (this.counter) return this.counter--;
-    if (this.hasAsserts()) return this.startAsserts();
+    if (this.hasAsserts()) {
+      if (this.pressToAssert && !Input.isTriggered('ok')) return;
+      return this.startAsserts();
+    }
     if (this.hasTests()) this.startTest();
   }
 
@@ -4316,6 +4326,7 @@ class StartClosedCardSpriteTest extends SceneTest {
 }
 class OpenCardSpriteTest extends SceneTest {
   name = 'OpenCardSpriteTest';
+  // pressToAssert = true;
 
   create() {
     const card = CardGenerator.generateCard();
@@ -4458,7 +4469,7 @@ class MoveCardSpriteTest extends SceneTest {
       this.assertWasTrue('Estava em movimento?', this.subject.isMoving);
       this.assert('Esta no destino x?', this.subject.x).toBe(destinyXPosition);
       this.assert('Esta no destino y', this.subject.y).toBe(destinyYPosition);
-    }, moves.length * 0.3);
+    }, 3);
   }
 }
 class HoveredCardSpriteTest extends SceneTest {

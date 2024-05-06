@@ -1,5 +1,6 @@
 class OpenCardSpriteTest extends SceneTest {
   name = 'OpenCardSpriteTest';
+  // pressToAssert = true;
 
   create() {
     const card = CardGenerator.generateCard();
