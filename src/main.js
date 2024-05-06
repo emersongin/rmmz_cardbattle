@@ -29,6 +29,8 @@
 
 // include ../test/integration/SceneTest.js
 // tests CARD Sprite
+// include ../test/integration/card/StartOpenCardSpriteTest.js
+// include ../test/integration/card/StartClosedCardSpriteTest.js
 // include ../test/integration/card/OpenCardSpriteTest.js
 // include ../test/integration/card/CloseCardSpriteTest.js
 // include ../test/integration/card/DisableCardSpriteTest.js
@@ -42,9 +44,6 @@
 // include ../test/integration/card/UniluminatedCardSpriteTest.js
 
 
-
-
-// include ../test/integration/card/StartClosedAndStartOpenCardSpriteTest.js
 // include ../test/integration/card/FlashCardSpriteTest.js
 // include ../test/integration/card/DamageAnimationCardSpriteTest.js
 // include ../test/integration/card/UpdatingPointsCardSpriteTest.js

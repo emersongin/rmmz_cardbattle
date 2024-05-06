@@ -10,6 +10,47 @@
 // include ./behavior/CardSpriteIluminatedBehavior.js
 
 class CardSprite extends ActionSprite {
+  static create(type, color, figureName, attack, health) {
+    const card = new CardSprite();
+    card.setCard(
+      type || CardTypes.BATTLE, 
+      color || HexColors.BROWN, 
+      figureName || 'default', 
+      attack || 0, 
+      health || 0
+    );
+    return card;
+  }
+
+  setCard(type, color, figureName, attack, health) {
+    this.setType(type);
+    this.setColor(color);
+    this.setFigure(figureName);
+    this.setBackImage();
+    this._attackPoints = attack;
+    this._healthPoints = health;
+  }
+
+  setType(type) {
+    this._type = type;
+  }
+
+  setColor(color) {
+    this._color = color;
+  }
+
+  setFigure(figureName) {
+    this._figure = ImageManager.loadCard(figureName);
+    // test
+    // this._figure = new Bitmap(this.width, this.height);
+    // this._figure.fillAll('yellow');
+  }
+
+  setBackImage() {
+    this._backImage = new Bitmap(this.width, this.height);
+    this._backImage.gradientFillRect (0, 0, this.width, this.height, '#555', '#000');
+  }
+
   initialize() {
     super.initialize();
     this._type = 0;
@@ -314,6 +355,49 @@ class CardSprite extends ActionSprite {
     return this._disabled;
   }
 
+  startOpen(xPosition = this.x, yPosition = this.y) {
+    this.addAction(this.commandStartOpen, xPosition, yPosition);
+  }
+
+  commandStartOpen(xPosition, yPosition) {
+    if (this.isOpened()) return;
+    this.setPosition(xPosition, yPosition);
+    this.opened();
+    return true;
+  }
+
+  setPosition(xPosition, yPosition) {
+    this.x = xPosition;
+    this.y = yPosition;
+  }
+
+  opened() {
+    this.visible = true;
+    this.setOriginalSize();
+  }
+
+  startClosed(xPosition = this.x, yPosition = this.y) {
+    this.addAction(this.commandStartClosed, xPosition, yPosition);
+  }
+
+  commandStartClosed(xPosition, yPosition) {
+    if (this.isClosed()) return;
+    this.setPosition(xPosition, yPosition);
+    const cardWidthHalf = (this.contentOriginalWidth() / 2);
+    this.x = this.x + cardWidthHalf;
+    this.closed();
+    return true;
+  }
+
+  isClosed() {
+    return this.width === 0;
+  }
+
+  closed() {
+    this.visible = false;
+    this.width = 0;
+  }
+
   commandShow() {
     super.commandShow();
     if (this.isOpened()) this.refresh();
@@ -341,9 +425,7 @@ class CardSprite extends ActionSprite {
     return this.getStatus() instanceof CardSpriteStoppedState;
   }
 
-  isClosed() {
-    return this.width === 0;
-  }
+
 
   static createMove(destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration) {
     return { 
@@ -390,6 +472,14 @@ class CardSprite extends ActionSprite {
     return this.getBehavior(CardSpriteHoveredBehavior) instanceof CardSpriteHoveredBehavior;
   }
 
+  getBehavior(behavior) {
+    if (typeof behavior === 'function') {
+      return this._behaviors.find(b => b.constructor === behavior) || false;
+    } else {
+      return this._behaviors.find(b => b === behavior) || false;
+    }
+  }
+
   isUnhovered() {
     return !this.isHovered();
   }
@@ -403,6 +493,12 @@ class CardSprite extends ActionSprite {
     this._hoveredLayer.bitmap.clear();
     this.removeBehavior(CardSpriteHoveredBehavior);
     return true;
+  }
+
+  removeBehavior(behavior) {
+    behavior = this.getBehavior(behavior);
+    if (!behavior) return;
+    this._behaviors = this._behaviors.filter(b => b !== behavior);
   }
 
   select() {
@@ -510,69 +606,13 @@ class CardSprite extends ActionSprite {
 
 
 
-  removeBehavior(behavior) {
-    behavior = this.getBehavior(behavior);
-    if (!behavior) return;
-    this._behaviors = this._behaviors.filter(b => b !== behavior);
-  }
-
-  getBehavior(behavior) {
-    if (typeof behavior === 'function') {
-      return this._behaviors.find(b => b.constructor === behavior) || false;
-    } else {
-      return this._behaviors.find(b => b === behavior) || false;
-    }
-  }
-
-  static create(type, color, figureName, attack, health) {
-    const card = new CardSprite();
-    card.setCard(
-      type || CardTypes.BATTLE, 
-      color || HexColors.BROWN, 
-      figureName || 'default', 
-      attack || 0, 
-      health || 0
-    );
-    return card;
-  }
-
-  setCard(type, color, figureName, attack, health) {
-    this.setType(type);
-    this.setColor(color);
-    this.setFigure(figureName);
-    this.setBackImage();
-    this._attackPoints = attack;
-    this._healthPoints = health;
-  }
-
-  setType(type) {
-    this._type = type;
-  }
-
-  setColor(color) {
-    this._color = color;
-  }
-
-  setFigure(figureName) {
-    this._figure = ImageManager.loadCard(figureName);
-    // test
-    // this._figure = new Bitmap(this.width, this.height);
-    // this._figure.fillAll('yellow');
-  }
-
-  setBackImage() {
-    this._backImage = new Bitmap(this.width, this.height);
-    this._backImage.gradientFillRect (0, 0, this.width, this.height, '#555', '#000');
-  }
 
 
 
 
 
-  opened() {
-    this.visible = true;
-    this.setOriginalSize();
-  }
+
+
 
   close() {
     this.addAction(this.commandClose);
@@ -589,10 +629,7 @@ class CardSprite extends ActionSprite {
 
 
 
-  closed() {
-    this.visible = false;
-    this.width = 0;
-  }
+ 
 
 
 
@@ -806,35 +843,6 @@ class CardSprite extends ActionSprite {
   //   if (behavior) return behavior.isPlayingAnimation();
   //   return false;
   // }
-
-  startOpen(xPosition = this.x, yPosition = this.y) {
-    this.addAction(this.commandStartOpen, xPosition, yPosition);
-  }
-
-  commandStartOpen(xPosition, yPosition) {
-    if (this.isOpened()) return;
-    this.setPosition(xPosition, yPosition);
-    this.opened();
-    return true;
-  }
-
-  setPosition(xPosition, yPosition) {
-    this.x = xPosition;
-    this.y = yPosition;
-  }
-
-  startClosed(xPosition = this.x, yPosition = this.y) {
-    this.addAction(this.commandStartClosed, xPosition, yPosition);
-  }
-
-  commandStartClosed(xPosition, yPosition) {
-    if (this.isClosed()) return;
-    this.setPosition(xPosition, yPosition);
-    const cardWidthHalf = (this.contentOriginalWidth() / 2);
-    this.x = this.x + cardWidthHalf;
-    this.closed();
-    return true;
-  }
 
   flipToUp() {
     this.addAction(this.commandClose);

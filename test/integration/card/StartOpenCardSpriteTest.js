@@ -1,5 +1,5 @@
-class StartClosedAndStartOpenCardSpriteTest extends SceneTest {
-  name = 'StartClosedAndStartOpenCardSpriteTest';
+class StartOpenCardSpriteTest extends SceneTest {
+  name = 'StartOpenCardSpriteTest';
 
   create() {
     const card = CardGenerator.generateCard();
@@ -16,13 +16,7 @@ class StartClosedAndStartOpenCardSpriteTest extends SceneTest {
   start() {
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.test('Deve apresentar o cartão fechado!', () => {
-      this.subject.startClosed(centerXPosition, centerYPosition);
-      this.subject.show();
-    }, () => {
-      this.assertTrue('Esta fechado?', this.subject.isClosed());
-    });
-    this.test('Deve apresentar o cartão aberto!', () => {
+    this.test('Deve iníciar aberto!', () => {
       this.subject.startOpen(centerXPosition, centerYPosition);
       this.subject.show();
     }, () => {
