@@ -16,26 +16,26 @@ class CardBattleTestScene extends Scene_Message {
     const cardSpriteTests = [
       StartOpenCardSpriteTest,
       StartClosedCardSpriteTest,
-      // OpenCardSpriteTest,
-      // CloseCardSpriteTest,
-      // DisableCardSpriteTest,
-      // EnableCardSpriteTest,
-      // MoveCardSpriteTest,
-      // HoveredCardSpriteTest,
-      // UnhoveredCardSpriteTest,
-      // SelectedCardSpriteTest,
-      // UnselectedCardSpriteTest,
-      // IluminatedCardSpriteTest,
-      // UniluminatedCardSpriteTest,
-      // FlashCardSpriteTest,
-      // AnimationCardSpriteTest,
-      // QuakeCardSpriteTest,
-      // ZoomCardSpriteTest,
-      // ZoomOutCardSpriteTest,
-      // LeaveCardSpriteTest,
-      // FlipTurnToUpCardSpriteTest,
-      // FlipTurnToDownCardSpriteTest,
-      // UpdatingPointsCardSpriteTest
+      OpenCardSpriteTest,
+      CloseCardSpriteTest,
+      DisableCardSpriteTest,
+      EnableCardSpriteTest,
+      MoveCardSpriteTest,
+      HoveredCardSpriteTest,
+      UnhoveredCardSpriteTest,
+      SelectedCardSpriteTest,
+      UnselectedCardSpriteTest,
+      IluminatedCardSpriteTest,
+      UniluminatedCardSpriteTest,
+      FlashCardSpriteTest,
+      AnimationCardSpriteTest,
+      QuakeCardSpriteTest,
+      ZoomCardSpriteTest,
+      ZoomOutCardSpriteTest,
+      LeaveCardSpriteTest,
+      FlipTurnToUpCardSpriteTest,
+      FlipTurnToDownCardSpriteTest,
+      UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
       SetBackgroundAndStartPositionCardsetSpriteTest,
@@ -134,11 +134,12 @@ class CardBattleTestScene extends Scene_Message {
     for (const test of this.tests) {
       this._test = test;
       const result = await this._test.run();
+      this._test = null;
       results.push(result);
       await this.clearScene();
-      this._test = null;
       index++;
     }
+    console.log(this.tests);
     this.printResults(results);
     this.printResultsTotals(results);
   }

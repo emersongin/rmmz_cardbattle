@@ -1,21 +1,18 @@
 class SceneTest {
   scene;
   name;
-  subject;
   tests = [];
   asserts = [];
   results = [];
-  subjects = [];
   nextAsserts = {};
   assertsName = '';
   assertTitle = '';
   assertValue = undefined;
-  // childrenToAdd = [];
-  // WindowsToAdd = [];
   counter = 0;
   pressToAssert = false;
   toWatched = [];
   watched = [];
+  childrenToAdd = [];
 
   constructor(scene) {
     this.scene = scene;
@@ -26,11 +23,12 @@ class SceneTest {
   }
 
   start() {
-    this.copyWatched();
+    // Override this method in the child class
   }
 
   run() {
     return new Promise(async res => {
+      this.copyWatched();
       this.start();
       res(await this.finish());
     });
@@ -38,16 +36,15 @@ class SceneTest {
 
   finish() {
     return new Promise(async res => {
-      // const total = this.totalSeconds();
-      // await this.timertoTrue((1000 * total) + 200);
-
-      setInterval(() => {
+      const intervalId = setInterval(() => {
+        console.log(this.name, this.toWatched);
         if (this.noHasTests() && this.noHasNextAsserts()) {
           res({
             passed: (this.results.length && this.results.every(result => result.passed)),
             testName: this.name,
             assertsResult: this.results
           });
+          clearInterval(intervalId);
         }
       }, 100);
     });
@@ -58,7 +55,7 @@ class SceneTest {
   }
 
   noHasNextAsserts() {
-    return !this.nextAsserts;
+    return this.nextAsserts === null;
   }
 
   async test(assertsName, act, asserts, seconds = 1) {
@@ -85,10 +82,6 @@ class SceneTest {
       }
     });
   }
-
-  // totalSeconds() {
-  //   return this.tests.reduce((acc, test) => acc + test.seconds, 0);
-  // }
 
   timertoTrue(milliseconds = 600, callback) {
     if (callback) callback();
@@ -136,8 +129,7 @@ class SceneTest {
     const { seconds, act, asserts } = test;
     if (test) {
       this.counter = (fps * seconds);
-      // this.appendChildren();
-      // this.appendWindows();
+      this.childrenToAdd.forEach(child => this.addChild(child));
       const completed = act();
       if (completed) {
         this.nextAsserts = asserts;
@@ -147,37 +139,19 @@ class SceneTest {
   }
 
   copyWatched() {
-    // const subjectCopy = ObjectHelper.copyObject(this.subject);
-    // this.subjects.push(subjectCopy);
     const watched = this.toWatched.map(w => ObjectHelper.copyObject(w));
     this.watched.push(watched);
   }
 
-  // appendChildren() {
-  //   this.childrenToAdd.forEach(child => {
-  //     this.scene.addChild(child);
-  //   });
-  //   this.childrenToAdd = [];
-  // }
-
-  // appendWindows() {
-  //   this.WindowsToAdd.forEach(window => {
-  //     this.scene._windowLayer.addChild(window);
-  //   });
-  //   this.WindowsToAdd = [];
-  // }
-
   assertWasTrue(title, fnOrValue, reference, ...params) {
     const indexOfWatched = this.indexOfWatched(reference);
-    const result = this.watched.some((w, i) => {
-      return w.some((watching, index) => {
-        if (indexOfWatched !== index) return false;
-        if (this.isFunction(fnOrValue)) {
-          const fnName = fnOrValue.name;
-          return watching[fnName]();
-        }
-        return watching[fnOrValue];
-      });
+    const watched = this.watched.map((wat, index) => wat[indexOfWatched || 0]);
+    const result = watched.some(watching => {
+      if (this.isFunction(fnOrValue)) {
+        const fnName = fnOrValue.name;
+        return watching[fnName](...params) === true;
+      }
+      return watching[fnOrValue] === true;
     });
     this.assert(title, result);
     return this.toBe(true);
@@ -235,7 +209,11 @@ class SceneTest {
 
   addWatched(watched) {
     this.toWatched.push(watched);
-    this.addChild(watched);
+    this.attachChild(watched);
+  }
+
+  attachChild(child) {
+    this.childrenToAdd.push(child);
   }
 
   addChild(child) {

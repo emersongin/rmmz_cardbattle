@@ -20,7 +20,7 @@ class StartOpenCardSpriteTest extends SceneTest {
       this.subject.startOpen(centerXPosition, centerYPosition);
       this.subject.show();
     }, () => {
-      this.assertWasTrue('Esta aberto?', this.subject.isOpened);
+      this.assertTrue('Esta aberto?', this.subject.isOpened());
     });
   }
 }
