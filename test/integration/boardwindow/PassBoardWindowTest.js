@@ -10,15 +10,10 @@ class PassBoardWindowTest extends SceneTest {
     this.subject.alignCenterMiddle();
     this.subject.refresh();
     this.subject.open();
-    this.test('Deve mostrar mensagem de pass!', () => {
+    this.test('Deve mostrar mensagem de passo!', () => {
       this.subject.pass();
     }, () => {
-      this.assertTrue('Foi mostrado a mensagem de pass?', this.subject.isPass());
-    });
-    this.test('Deve retirar mensagem de pass!', () => {
-      this.subject.noPass();
-    }, () => {
-      this.assertTrue('Foi retirada a mensagem de pass?', this.subject.isNoPass());
+      this.assertTrue('Foi mostrado a mensagem de passo?', this.subject.isPass());
     });
   }
 

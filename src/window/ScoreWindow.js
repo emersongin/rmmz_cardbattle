@@ -37,8 +37,14 @@ class ScoreWindow extends CardBattleWindowBase {
   }
 
   changeScore(score) {
+    this.addAction(this.commandChangeScore, score);
+  }
+
+  commandChangeScore(score) {
     const lastScore = this._score;
     this._score = score;
     this.changeStatus(WindowUpdatedScoreState, lastScore, score);
   }
+
+
 }

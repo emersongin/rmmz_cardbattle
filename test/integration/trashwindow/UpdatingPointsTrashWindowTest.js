@@ -1,13 +1,13 @@
-class UpdatingTrashWindowTest extends SceneTest {
-  name = 'UpdatingTrashWindowTest';
+class UpdatingPointsTrashWindowTest extends SceneTest {
+  name = 'UpdatingPointsTrashWindowTest';
 
   create() {
     this.subject = TrashWindow.create(0, 0);
-    this.addWindow(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
-    this.subject.setCenteredAlignment();
+    this.subject.alignCenterMiddle();
     this.subject.refresh();
     this.subject.open();
     const updateCardsNumber = TrashWindow.createValueUpdate(GameConst.NUM_CARDS_IN_TRASH, 10);

@@ -87,16 +87,18 @@ class CardBattleTestScene extends Scene_Message {
     ];
     const boardWindowTests = [
       PassBoardWindowTest,
+      NoPassBoardWindowTest,
       UpdatingPointsBoardWindowTest,
     ];
     const battlePointsWindow = [
-      UpdatingBattlePointsWindowTest,
+      UpdatingPointsBattlePointsWindowTest,
     ];
     const trashWindow = [
-      UpdatingTrashWindowTest,
+      UpdatingPointsTrashWindowTest,
     ];
     const scoreWindow = [
-      UpdatingScoreWindowTest,
+      OneWinUpdatingScoreWindowTest,
+      TwoWinsUpdatingScoreWindowTest
     ];
     const others = [
       WindowTest
@@ -104,12 +106,12 @@ class CardBattleTestScene extends Scene_Message {
     return [
       // ...cardSpriteTests,
       // ...cardsetSpriteTests,
-      // ...CardBattleWindowBaseTests,
-      // ...textWindowTests,
+      ...CardBattleWindowBaseTests,
+      ...textWindowTests,
       ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow,
-      // ...scoreWindow,
+      ...battlePointsWindow,
+      ...trashWindow,
+      ...scoreWindow,
       // ...others,
     ];
   }

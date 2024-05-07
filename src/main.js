@@ -98,13 +98,15 @@
 // include ../test/integration/textwindow/SetTextColorTextWindowTest.js
 // tests BOARD WINDOW
 // include ../test/integration/boardwindow/PassBoardWindowTest.js
+// include ../test/integration/boardwindow/NoPassBoardWindowTest.js
 // include ../test/integration/boardwindow/UpdatingPointsBoardWindowTest.js
 // tests BATTLE POINTS WINDOW
-// include ../test/integration/battlepointswindow/UpdatingBattlePointsWindowTest.js
+// include ../test/integration/battlepointswindow/UpdatingPointsBattlePointsWindowTest.js
 // tests TRASH WINDOW
-// include ../test/integration/trashwindow/UpdatingTrashWindowTest.js
+// include ../test/integration/trashwindow/UpdatingPointsTrashWindowTest.js
 // tests SCORE WINDOW
-// include ../test/integration/scorewindow/UpdatingScoreWindowTest.js
+// include ../test/integration/scorewindow/OneWinUpdatingScoreWindowTest.js
+// include ../test/integration/scorewindow/TwoWinsUpdatingScoreWindowTest.js
 
 // include ../test/integration/window/WindowTest.js
 

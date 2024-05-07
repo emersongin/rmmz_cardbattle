@@ -26,18 +26,11 @@ class UpdatingPointsBoardWindowTest extends SceneTest {
       updateDeckPoints,
       updateHandPoints
     ];
-    manyUpdates.forEach(update => {
-      this.test('Deve atualizar os pontos!', () => {
-        this.subject.updateValues(update);
-      }, () => {
-        this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
-      });
-    });
-    this.test('Deve atualizar todos os pontos!', () => {
+    this.test('Deve atualizar os pontos!', () => {
       this.subject.reset();
       this.subject.updateValues(manyUpdates);
     }, () => {
-      this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
+      this.assertWasTrue('Foram atualizado?', this.subject.isUpdating);
     });
   }
 

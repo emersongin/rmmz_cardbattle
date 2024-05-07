@@ -1239,10 +1239,16 @@ class ScoreWindow extends CardBattleWindowBase {
   }
 
   changeScore(score) {
+    this.addAction(this.commandChangeScore, score);
+  }
+
+  commandChangeScore(score) {
     const lastScore = this._score;
     this._score = score;
     this.changeStatus(WindowUpdatedScoreState, lastScore, score);
   }
+
+
 }
 class ChooseFolderWindow extends Window_Command {
   initialize() {
@@ -6039,15 +6045,31 @@ class PassBoardWindowTest extends SceneTest {
     this.subject.alignCenterMiddle();
     this.subject.refresh();
     this.subject.open();
-    this.test('Deve mostrar mensagem de pass!', () => {
+    this.test('Deve mostrar mensagem de passo!', () => {
       this.subject.pass();
     }, () => {
-      this.assertTrue('Foi mostrado a mensagem de pass?', this.subject.isPass());
+      this.assertTrue('Foi mostrado a mensagem de passo?', this.subject.isPass());
     });
-    this.test('Deve retirar mensagem de pass!', () => {
+  }
+
+}
+class NoPassBoardWindowTest extends SceneTest {
+  name = 'NoPassBoardWindowTest';
+
+  create() {
+    this.subject = BoardWindow.createWindowFullSize(0, 0);
+    this.addWatched(this.subject);
+  }
+
+  start() {
+    this.subject.alignCenterMiddle();
+    this.subject.refresh();
+    this.subject.open();
+    this.subject.pass();
+    this.test('Deve retirar mensagem de passo!', () => {
       this.subject.noPass();
     }, () => {
-      this.assertTrue('Foi retirada a mensagem de pass?', this.subject.isNoPass());
+      this.assertTrue('Foi retirada a mensagem de passo?', this.subject.isNoPass());
     });
   }
 
@@ -6080,33 +6102,26 @@ class UpdatingPointsBoardWindowTest extends SceneTest {
       updateDeckPoints,
       updateHandPoints
     ];
-    manyUpdates.forEach(update => {
-      this.test('Deve atualizar os pontos!', () => {
-        this.subject.updateValues(update);
-      }, () => {
-        this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
-      });
-    });
-    this.test('Deve atualizar todos os pontos!', () => {
+    this.test('Deve atualizar os pontos!', () => {
       this.subject.reset();
       this.subject.updateValues(manyUpdates);
     }, () => {
-      this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
+      this.assertWasTrue('Foram atualizado?', this.subject.isUpdating);
     });
   }
 
 }
 // tests BATTLE POINTS WINDOW
-class UpdatingBattlePointsWindowTest extends SceneTest {
-  name = 'UpdatingBattlePointsWindowTest';
+class UpdatingPointsBattlePointsWindowTest extends SceneTest {
+  name = 'UpdatingPointsBattlePointsWindowTest';
 
   create() {
     this.subject = BattlePointsWindow.create(0, 0);
-    this.addWindow(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
-    this.subject.setCenteredAlignment();
+    this.subject.alignCenterMiddle();
     this.subject.refresh();
     this.subject.open();
     const updateAttackPoints = BattlePointsWindow.createValueUpdate(GameConst.ATTACK_POINTS, 30);
@@ -6115,32 +6130,25 @@ class UpdatingBattlePointsWindowTest extends SceneTest {
       updateAttackPoints,
       updateHealtPoints
     ];
-    manyUpdates.forEach(update => {
-      this.test('Deve atualizar os pontos!', () => {
-        this.subject.updateValues(update);
-      }, () => {
-        this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
-      });
-    });
-    this.test('Deve atualizar todos os pontos!', () => {
+    this.test('Deve atualizar os pontos!', () => {
       this.subject.reset();
       this.subject.updateValues(manyUpdates);
     }, () => {
-      this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
+      this.assertWasTrue('Foram atualizado?', this.subject.isUpdating);
     });
   }
 }
 // tests TRASH WINDOW
-class UpdatingTrashWindowTest extends SceneTest {
-  name = 'UpdatingTrashWindowTest';
+class UpdatingPointsTrashWindowTest extends SceneTest {
+  name = 'UpdatingPointsTrashWindowTest';
 
   create() {
     this.subject = TrashWindow.create(0, 0);
-    this.addWindow(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
-    this.subject.setCenteredAlignment();
+    this.subject.alignCenterMiddle();
     this.subject.refresh();
     this.subject.open();
     const updateCardsNumber = TrashWindow.createValueUpdate(GameConst.NUM_CARDS_IN_TRASH, 10);
@@ -6152,27 +6160,40 @@ class UpdatingTrashWindowTest extends SceneTest {
   }
 }
 // tests SCORE WINDOW
-class UpdatingScoreWindowTest extends SceneTest {
-  name = 'UpdatingScoreWindowTest';
+class OneWinUpdatingScoreWindowTest extends SceneTest {
+  name = 'OneWinUpdatingScoreWindowTest';
 
   create() {
     this.subject = ScoreWindow.create(0, 0);
-    this.addWindow(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
-    this.subject.setCenteredAlignment();
+    this.subject.alignCenterMiddle();
     this.subject.open();
-    this.test('Deve abrir e renderizar!', () => {
+    this.test('Deve atualizar para 1 vitória!', () => {
       this.subject.changeScore(1);
     }, () => {
       this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
-    }, 2);
-    this.test('Deve abrir e renderizar!', () => {
+    });
+  }
+}
+class TwoWinsUpdatingScoreWindowTest extends SceneTest {
+  name = 'TwoWinsUpdatingScoreWindowTest';
+
+  create() {
+    this.subject = ScoreWindow.create(0, 0);
+    this.addWatched(this.subject);
+  }
+
+  start() {
+    this.subject.alignCenterMiddle();
+    this.subject.open();
+    this.test('Deve atualizar para 2 vitória!', () => {
       this.subject.changeScore(2);
     }, () => {
       this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
-    }, 2);
+    });
   }
 }
 
@@ -6339,16 +6360,18 @@ class CardBattleTestScene extends Scene_Message {
     ];
     const boardWindowTests = [
       PassBoardWindowTest,
+      NoPassBoardWindowTest,
       UpdatingPointsBoardWindowTest,
     ];
     const battlePointsWindow = [
-      UpdatingBattlePointsWindowTest,
+      UpdatingPointsBattlePointsWindowTest,
     ];
     const trashWindow = [
-      UpdatingTrashWindowTest,
+      UpdatingPointsTrashWindowTest,
     ];
     const scoreWindow = [
-      UpdatingScoreWindowTest,
+      OneWinUpdatingScoreWindowTest,
+      TwoWinsUpdatingScoreWindowTest
     ];
     const others = [
       WindowTest
@@ -6356,12 +6379,12 @@ class CardBattleTestScene extends Scene_Message {
     return [
       // ...cardSpriteTests,
       // ...cardsetSpriteTests,
-      // ...CardBattleWindowBaseTests,
-      // ...textWindowTests,
+      ...CardBattleWindowBaseTests,
+      ...textWindowTests,
       ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow,
-      // ...scoreWindow,
+      ...battlePointsWindow,
+      ...trashWindow,
+      ...scoreWindow,
       // ...others,
     ];
   }
