@@ -4,7 +4,7 @@ class CloseCardBattleWindowBaseTest extends SceneTest {
   create() {
     this.subject = CardBattleWindowBase.createWindowFullSize(0, 0);
     this.subject.alignCenterMiddle();
-    this.addWindow(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {

@@ -37,7 +37,6 @@ class SceneTest {
   finish() {
     return new Promise(async res => {
       const intervalId = setInterval(() => {
-        console.log(this.name, this.toWatched);
         if (this.noHasTests() && this.noHasNextAsserts()) {
           res({
             passed: (this.results.length && this.results.every(result => result.passed)),

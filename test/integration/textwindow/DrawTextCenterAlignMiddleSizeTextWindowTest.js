@@ -5,11 +5,11 @@ class DrawTextCenterAlignMiddleSizeTextWindowTest extends SceneTest {
     const x = 0;
     const y = 0;
     this.subject = TextWindow.createWindowMiddleSize(x, y);
-    this.addWindow(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
-    this.subject.setCenteredAlignment();
+    this.subject.alignCenterMiddle();
     this.subject.show();
     const line = "Hello World";
     this.subject.addText(line.repeat(1) + ' 0');
@@ -19,7 +19,6 @@ class DrawTextCenterAlignMiddleSizeTextWindowTest extends SceneTest {
     this.test('Deve alinhar o texto no centro!', () => {
       this.subject.setHorizontalAlignContent(GameConst.CENTER);
       this.subject.renderContents();
-      this.subject.setCenteredAlignment();
       this.subject.open();
     }, () => {
       const xCenterAlignPrimaryLine = 144;

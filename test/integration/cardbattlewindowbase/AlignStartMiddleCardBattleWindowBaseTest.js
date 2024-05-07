@@ -5,7 +5,7 @@ class AlignStartMiddleCardBattleWindowBaseTest extends SceneTest {
     const x = 0;
     const y = 0;
     this.subject = CardBattleWindowBase.createWindowOneFourthSize(x, y);
-    this.addWindow(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {

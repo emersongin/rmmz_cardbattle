@@ -9,7 +9,7 @@ class TextWindow extends CardBattleWindowBase {
     this._history = [];
     this._textColorIndex = GameColorIndexs.NORMAL_COLOR;
     this.setHorizontalAlignContent(GameConst.TEXT_START);
-    this.setDefaultColor(GameConst.DEFAULT);
+    this.changeDefaultColor();
   }
 
   reset() {

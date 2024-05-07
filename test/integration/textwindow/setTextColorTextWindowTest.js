@@ -5,11 +5,11 @@ class SetTextColorTextWindowTest extends SceneTest {
     const x = 0;
     const y = 0;
     this.subject = TextWindow.createWindowMiddleSize(x, y);
-    this.addWindow(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
-    this.subject.setCenteredAlignment();
+    this.subject.alignCenterMiddle();
     this.subject.show();
     const line = "Hello World";
     const normalColor = TextWindow.appendChangeColor(GameColorIndexs.NORMAL_COLOR); 
@@ -21,7 +21,6 @@ class SetTextColorTextWindowTest extends SceneTest {
     this.test('Deve mudar cor do texto!', () => {
       this.subject.setHorizontalAlignContent(GameConst.START);
       this.subject.renderContents();
-      this.subject.setCenteredAlignment();
       this.subject.open();
     }, () => {
       const assertOne = /^\\c\[(\d+)\](.*)$/;
