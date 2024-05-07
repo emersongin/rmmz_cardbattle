@@ -52,8 +52,11 @@
 // include ../test/integration/card/FlipTurnToDownCardSpriteTest.js
 // include ../test/integration/card/UpdatingPointsCardSpriteTest.js
 // tests CARDSET
-// include ../test/integration/cardset/SetBackgroundAndStartPositionCardsetSpriteTest.js
+// include ../test/integration/cardset/StartPositionCardsetSpriteTest.js
 // include ../test/integration/cardset/SetCardsCardsetSpriteTest.js
+// include ../test/integration/cardset/InlineCardsCardsetSpriteTest.js
+
+
 // include ../test/integration/cardset/StartPositionCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/StartListCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/StartClosedAndOpenCardsCardsetSpriteTest.js

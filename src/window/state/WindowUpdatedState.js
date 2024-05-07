@@ -38,7 +38,7 @@ class WindowUpdatedState {
       const currentValue = that.getValue(name);
       return Math.abs(currentValue - newValue);
     });
-    const highValue = NumberHelper.findBigger(...values);
+    const highValue = Math.max(...values);
     const fps = 30;
     this._interval = Math.floor(fps / (highValue || 1)) || 1;
   }

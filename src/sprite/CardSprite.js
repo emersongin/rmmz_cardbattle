@@ -10,8 +10,8 @@
 // include ./behavior/CardSpriteIluminatedBehavior.js
 
 class CardSprite extends ActionSprite {
-  static create(type, color, figureName, attack, health) {
-    const card = new CardSprite();
+  static create(type, color, figureName, attack, health, x, y) {
+    const card = new CardSprite(x, y);
     card.setCard(
       type || CardTypes.BATTLE, 
       color || HexColors.BROWN, 
@@ -51,8 +51,8 @@ class CardSprite extends ActionSprite {
     this._backImage.gradientFillRect (0, 0, this.width, this.height, '#555', '#000');
   }
 
-  initialize() {
-    super.initialize();
+  initialize(x, y) {
+    super.initialize(x, y);
     this._type = 0;
     this._color = 0;
     this._figure = {};
@@ -93,15 +93,15 @@ class CardSprite extends ActionSprite {
   }
 
   setOriginalSize() {
-    this.width = this.contentOriginalWidth();
-    this.height = this.contentOriginalHeight();
+    this.width = CardSprite.contentOriginalWidth();
+    this.height = CardSprite.contentOriginalHeight();
   }
 
-  contentOriginalWidth() {
+  static contentOriginalWidth() {
     return 96;
   }
 
-  contentOriginalHeight() {
+  static contentOriginalHeight() {
     return 128;
   }
 
@@ -113,7 +113,7 @@ class CardSprite extends ActionSprite {
 
   createContentLayer() {
     this._contentLayer = new Sprite();
-    this._contentLayer.bitmap = new Bitmap(this.contentOriginalWidth(), this.contentOriginalHeight());
+    this._contentLayer.bitmap = new Bitmap(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight());
     this.createDisableLayer();
     this.createFlashLayer();
     this.addChild(this._contentLayer);
@@ -123,26 +123,26 @@ class CardSprite extends ActionSprite {
     this._disabledLayer = new Sprite();
     this._disabledLayer.visible = false;
     this._disabledLayer.opacity = 128;
-    this._disabledLayer.bitmap = new Bitmap(this.contentOriginalWidth(), this.contentOriginalHeight());
+    this._disabledLayer.bitmap = new Bitmap(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight());
     this._disabledLayer.bitmap.fillAll('black');
     this._contentLayer.addChild(this._disabledLayer);
   }
 
   createFlashLayer() {
     this._flashedLayer = new Sprite();
-    this._flashedLayer.bitmap = new Bitmap(this.contentOriginalWidth(), this.contentOriginalHeight());
+    this._flashedLayer.bitmap = new Bitmap(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight());
     this._contentLayer.addChild(this._flashedLayer);
   }
 
   createHoveredLayer() {
     this._hoveredLayer = new Sprite();
-    this._hoveredLayer.bitmap = new Bitmap(this.contentOriginalWidth(), this.contentOriginalHeight());
+    this._hoveredLayer.bitmap = new Bitmap(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight());
     this.addChild(this._hoveredLayer);
   }
 
   createSelectedLayer() {
     this._selectedLayer = new Sprite();
-    this._selectedLayer.bitmap = new Bitmap(this.contentOriginalWidth(), this.contentOriginalHeight());
+    this._selectedLayer.bitmap = new Bitmap(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight());
     this.addChild(this._selectedLayer);
   }
 
@@ -250,10 +250,10 @@ class CardSprite extends ActionSprite {
   drawFigure() {
     const contentX = 4;
     const contentY = 4;
-    const contentWidth = this.contentOriginalWidth() - 8;
-    const contentHeight = this.contentOriginalHeight() - 28;
-    const openWidthPercent = Math.floor((this.width / this.contentOriginalWidth()) * 100);
-    const openHeightPercent = Math.floor((this.height / this.contentOriginalHeight()) * 100);
+    const contentWidth = CardSprite.contentOriginalWidth() - 8;
+    const contentHeight = CardSprite.contentOriginalHeight() - 28;
+    const openWidthPercent = Math.floor((this.width / CardSprite.contentOriginalWidth()) * 100);
+    const openHeightPercent = Math.floor((this.height / CardSprite.contentOriginalHeight()) * 100);
     const openWidth = Math.floor((contentWidth * openWidthPercent) / 100);
     const openHeight = Math.floor((contentHeight * openHeightPercent) / 100);
     const figureX = 0;
@@ -383,7 +383,7 @@ class CardSprite extends ActionSprite {
   commandStartClosed(xPosition, yPosition) {
     if (this.isClosed()) return;
     this.setPosition(xPosition, yPosition);
-    const cardWidthHalf = (this.contentOriginalWidth() / 2);
+    const cardWidthHalf = (CardSprite.contentOriginalWidth() / 2);
     this.x = this.x + cardWidthHalf;
     this.closed();
     return true;
@@ -405,7 +405,7 @@ class CardSprite extends ActionSprite {
   }
 
   isOpened() {
-    return this.width === this.contentOriginalWidth() && this.visible;
+    return this.width === CardSprite.contentOriginalWidth() && this.visible;
   }
 
   open() {
@@ -415,7 +415,7 @@ class CardSprite extends ActionSprite {
 
   commandOpen() {
     if (!(this.isStopped() && this.isClosed())) return;
-    const xPositionOpening = this.x - (this.contentOriginalWidth() / 2);
+    const xPositionOpening = this.x - (CardSprite.contentOriginalWidth() / 2);
     const yPositionOpening = this.y;
     this.changeStatus(CardSpriteOpeningState, xPositionOpening, yPositionOpening);
     return true;
@@ -432,7 +432,7 @@ class CardSprite extends ActionSprite {
 
   commandClose() {
     if (!(this.isOpened() && this.isStopped())) return;
-    const xPositionClosing = this.x + (this.contentOriginalWidth() / 2);
+    const xPositionClosing = this.x + (CardSprite.contentOriginalWidth() / 2);
     const yPositionOpening = this.y;
     this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionOpening);
     return true;
@@ -723,8 +723,8 @@ class CardSprite extends ActionSprite {
 
   commandLeave() {
     if (!this.isOpened() && this.isStopped()) return;
-    const xPositionClosing = this.x + (this.contentOriginalWidth() / 2);
-    const yPositionClosing = this.y + (this.contentOriginalHeight() / 2);
+    const xPositionClosing = this.x + (CardSprite.contentOriginalWidth() / 2);
+    const yPositionClosing = this.y + (CardSprite.contentOriginalHeight() / 2);
     this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionClosing);
     return true;
   }

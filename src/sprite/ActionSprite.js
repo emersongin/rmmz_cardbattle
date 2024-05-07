@@ -1,5 +1,5 @@
 class ActionSprite extends Sprite {
-  initialize() { 
+  initialize(x, y) { 
     super.initialize();
     this._duration = 0.3;
     this._status = null;
@@ -8,6 +8,12 @@ class ActionSprite extends Sprite {
     this._positiveIntensityEffect = false;
     this._intensityEffect = 255;
     this._opacityEffect = 255;
+    this.startPosition(x || 0, y || 0);
+  }
+
+  startPosition(xPosition, yPosition) {
+    this.x = xPosition || this.x;
+    this.y = yPosition || this.y;
   }
 
   removeStatus() {
@@ -166,8 +172,6 @@ class ActionSprite extends Sprite {
       this._opacityEffect = 255;
     }
   }
-
-  // interface cardset
 
   hasChildren() {
     return this.numberOfChildren() > 0;

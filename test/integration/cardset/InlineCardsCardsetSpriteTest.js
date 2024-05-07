@@ -1,5 +1,5 @@
-class SetCardsCardsetSpriteTest extends SceneTest {
-  name = 'SetCardsCardsetSpriteTest';
+class InlineCardsCardsetSpriteTest extends SceneTest {
+  name = 'InlineCardsCardsetSpriteTest';
 
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
@@ -10,16 +10,15 @@ class SetCardsCardsetSpriteTest extends SceneTest {
   }
 
   start() {
-    const cards = CardGenerator.generateCards(1);
-    const sprites = this.subject.setCards(cards);
-    this.test('Deve mostrar os cartões do set na posição inícial!', () => {
+    const numCards = 6;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.inlineCards(cards);
+    this.test('Deve mostrar os cartões do set em posição de linha!', () => {
       this.subject.showCards(sprites);
     }, () => {
-      const numCards = 1;
-      const padding = 0;
-      const x = 0;
-      const y = 0;
-      const positions = CardsetSprite.createPositions(numCards, padding, x, y);
+      const spaceBetween = 1;
+      const padding = CardSprite.contentOriginalWidth() + spaceBetween;
+      const positions = CardsetSprite.createPositions(numCards, padding);
       this.assertTrue('Esta mostrando na posição inícial?', this.subject.allCardsAreVisible());
       this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, sprites));
     });

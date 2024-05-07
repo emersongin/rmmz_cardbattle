@@ -38,7 +38,10 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
-      SetBackgroundAndStartPositionCardsetSpriteTest,
+      // StartPositionCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      InlineCardsCardsetSpriteTest,
+
       // SetCardsCardsetSpriteTest,
       // StartPositionCardsCardsetSpriteTest,
       // StartListCardsCardsetSpriteTest,

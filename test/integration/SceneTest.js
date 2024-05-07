@@ -139,6 +139,7 @@ class SceneTest {
 
   copyWatched() {
     const watched = this.toWatched.map(w => ObjectHelper.copyObject(w));
+    // console.log(watched[0]._actions);
     this.watched.push(watched);
   }
 

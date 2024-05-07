@@ -2,93 +2,171 @@
 // include ./state/CardsetSpriteSelectModeState.js
 
 class CardsetSprite extends ActionSprite {
-  initialize() { 
-    super.initialize();
+  static create(x, y) {
+    const cardset = new CardsetSprite(x, y);
+    return cardset;
+  }
+
+  static createPositions(numCards = 1, padingLeftToAdd = 13, x, y) {
+    const positions = [];
+    let padingLeft = 0;
+    for (let i = 0; i < numCards; i++) {
+      positions.push(CardSprite.createPosition(x || padingLeft, y || 0, i));
+      padingLeft += padingLeftToAdd;
+    }
+    return positions;
+  }
+
+  initialize(x, y) { 
+    super.initialize(x, y);
     this._sprites = [];
     this._enableSelected = false;
     this._selectedIndexs = [];
     this.setup();
   }
 
-//  tranformar ações em commands
-
-
-
-
-
-
-
-
-
   setup() {
-    this.startPosition(0, 0);
-    this.setBackgroundColor('none');
+    this.setBackgroundColor('white' || 'none');
     this.setSize();
+    this.hide();
     this.staticMode();
-    this.commandHide();
-  }
-
-  startPosition(xPosition, yPosition) {
-    this.x = xPosition || this.x;
-    this.y = yPosition || this.y;
   }
 
   setBackgroundColor(color) {
-    this.bitmap = new Bitmap(this.contentOriginalWidth(), this.contentOriginalHeight());
+    this.bitmap = new Bitmap(CardsetSprite.contentOriginalWidth(), CardsetSprite.contentOriginalHeight());
     if (color.toLowerCase() == 'none') return this.bitmap.clear();
     this.bitmap.fillAll(color || 'white');
   }
 
   setSize() {
-    this.width = this.contentOriginalWidth();
-    this.height = this.contentOriginalHeight();
+    this.width = CardsetSprite.contentOriginalWidth();
+    this.height = CardsetSprite.contentOriginalHeight();
   }
 
-  contentOriginalWidth() {
+  static contentOriginalWidth() {
     const widthLimit = 576;
     const padding = 1;
     return widthLimit + padding;
   }
 
-  contentOriginalHeight() {
+  static contentOriginalHeight() {
     const heightLimit = 128;
     return heightLimit;
   }
 
   staticMode() {
+    this.addAction(this.commandStaticMode);
+  }
+
+  commandStaticMode() {
     this.changeStatus(CardsetSpriteStaticModeState);
+    return true;
   }
 
-  static create() {
-    const cardset = new CardsetSprite();
-    return cardset;
-  }
-
-  setCard(card) {
-    return this.setCards(card).shift();
-  }
-
-  setCards(cards) {
-    this.clear();
+  setCards(cards, x, y) {
     cards = this.toArray(cards);
-    const sprites = cards.map(card => this.createCardSprite(card));
-    this.addSprites(sprites);
-    this._sprites = sprites;
+    const sprites = cards.map(card => this.createCardSprite(card, x, y));
+    this.addAction(this.commandSetCards, sprites);
     return sprites;
   }
 
+  createCardSprite(card, x, y) {
+    const { type, color, figureName, attack, health } = card;
+    const sprite = CardSprite.create(type, color, figureName, attack, health, x, y);
+    return sprite;
+  }
+
+  commandSetCards(sprites) {
+    if (this.isHidden() || this.isSelectMode()) return;
+    this.clear();
+    this._sprites = sprites;
+    this.addSprites(sprites);
+    return true;
+  }
+
   addSprites(sprites) {
+    sprites.forEach((sprite, index) => this.addChild(sprite));
+  }
+
+  showCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
-    sprites.forEach((sprite, index) => {
-      sprite.setPosition(0, 0);
-      this.addChild(sprite);
+    this.addAction(this.commandShowCards, sprites);
+  }
+
+  commandShowCards(sprites) {
+    if (this.isHidden()) return;
+    sprites.forEach((sprite, index) => sprite.show());
+    return true;
+  }
+
+  allCardsAreVisible() {
+    return this._sprites.every(sprite => sprite.isVisible());
+  }
+
+  isSpritesPositions(positions, sprites = this.children) {
+    return sprites.every((sprite, index) => {
+      const position = positions.find(position => position.index === index);
+      if (!position) return true;
+      const { x, y } = position;
+      return sprite.x === x && sprite.y === y;
     });
   }
 
-  createCardSprite(card) {
-    const { type, color, figureName, attack, health } = card;
-    const sprite = CardSprite.create(type, color, figureName, attack, health);
-    return sprite;
+  inlineCards(cards) {
+    cards = this.toArray(cards);
+    const numCards = cards.length;
+    const padding = CardSprite.contentOriginalWidth();
+    const spaceBetween = 1;
+    const positions = CardsetSprite.createPositions(numCards, padding + spaceBetween);
+    const sprites = positions.map(({ x, y }, index) => {
+      const card = cards[index];
+      return this.createCardSprite(card, x, y);
+    });
+    this.addAction(this.commandSetCards, sprites);
+    return sprites;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+  update() {
+    // console.log(this._sprites, this.children);
+    super.update();
+    if (this.numberOfChildren() && this.isHidden()) this.show();
+  }
+
+  isBusy() {
+    return (super.isBusy() && this.isSelectMode()) || this.someSpriteIsBusy();
+  }
+
+  someSpriteIsBusy() {
+    return this._sprites.some(sprite => sprite.isBusy());
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  setCard(card) {
+    return this.setCards(card).shift();
   }
 
   addCard(card) {
@@ -140,7 +218,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   spaceBetweenCards(total) {
-    const contentLimit = this.contentOriginalWidth();
+    const contentLimit = CardsetSprite.contentOriginalWidth();
     const padding = 1;
     const cardWidth = 96;
     const space = (contentLimit - (padding * total)) / (total || 1);
@@ -173,18 +251,7 @@ class CardsetSprite extends ActionSprite {
     this.showCards(sprite);
   }
 
-  showCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
-    this.addAction(this.commandShowCards, sprites);
-  }
 
-  commandShowCards(sprites) {
-    if (this.isHidden()) return;
-    sprites.forEach((sprite, index) => {
-      sprite.show();
-    });
-    return true;
-  }
 
   openCard(sprite) {
     this.openCards(sprite);
@@ -300,19 +367,6 @@ class CardsetSprite extends ActionSprite {
       sprite.toMove(move);
     });
     return true;
-  }
-
-  update() {
-    super.update();
-    if (this.hasActions() && this.isAvailable()) this.executeAction();
-    if (this.numberOfChildren() && this.isHidden()) this.commandShow();
-    if (this.isVisible()) {
-      this.updateStatus();
-    }
-  }
-
-  isBusy() {
-    return this._sprites.some(sprite => sprite.isBusy()) || super.isBusy();
   }
 
   selectMode() {
@@ -468,14 +522,7 @@ class CardsetSprite extends ActionSprite {
     return this._enableSelected;
   }
 
-  isSpritesPositions(positions, sprites = this.children) {
-    return sprites.every((sprite, index) => {
-      const position = positions.find(position => position.index === index);
-      if (!position) return true;
-      const { x, y } = position;
-      return sprite.x === x && sprite.y === y;
-    });
-  }
+
 
   someSpriteIsAnimationPlaying() {
     return this.children.some(sprite => sprite.isAnimationPlaying());
@@ -497,15 +544,7 @@ class CardsetSprite extends ActionSprite {
     return indexs.every(index => this.getCardIndex(index).isDisabled());
   }
 
-  static createPositions(numCards = 1, padingLeftToAdd = 13, x, y) {
-    const positions = [];
-    let padingLeft = 0;
-    for (let i = 0; i < numCards; i++) {
-      positions.push(CardSprite.createPosition(x || padingLeft, y || 0, i));
-      padingLeft += padingLeftToAdd;
-    }
-    return positions;
-  }
+
 
   isStaticMode() {
     return this.getStatus() instanceof CardsetSpriteStaticModeState;
