@@ -10,7 +10,7 @@ class WindowTest extends SceneTest {
   create() {
     this.subject = new Window_BaseTest(new Rectangle(0, 0, 100, 100));
     this.subject.setTone(255, 0, 0);
-    this.addWindow(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -18,6 +18,6 @@ class WindowTest extends SceneTest {
       this.subject.open();
     }, () => {
       this.assertTrue('Esta aberta?', this.subject.isOpen());
-    }, 5);
+    });
   }
 }

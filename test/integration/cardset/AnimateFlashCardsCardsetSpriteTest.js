@@ -7,7 +7,7 @@ class AnimateFlashCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startPosition(centerXPosition, centerYPosition);
     this.subject.setBackgroundColor('white');
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {

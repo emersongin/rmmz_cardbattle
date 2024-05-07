@@ -10,6 +10,16 @@ class CardsetSprite extends ActionSprite {
     this.setup();
   }
 
+//  tranformar ações em commands
+
+
+
+
+
+
+
+
+
   setup() {
     this.startPosition(0, 0);
     this.setBackgroundColor('none');

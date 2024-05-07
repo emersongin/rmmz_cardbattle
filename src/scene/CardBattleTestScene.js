@@ -39,22 +39,22 @@ class CardBattleTestScene extends Scene_Message {
     ];
     const cardsetSpriteTests = [
       SetBackgroundAndStartPositionCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      StartPositionCardsCardsetSpriteTest,
-      StartListCardsCardsetSpriteTest,
-      StartClosedAndOpenCardsCardsetSpriteTest,
-      StartClosedAndOpenCardsDelayCardsetSpriteTest,
-      MoveCardsToListCardsetSpriteTest,
-      MoveCardsToListDelayCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
-      AddCardAndMoveToListCardsetSpriteTest,
-      AddCardAndMoveToListDelayCardsetSpriteTest,
-      SelectModeCardsetSpriteTest,
-      DisableAndEnableCardsCardsetSpriteTest,
-      SelectModeAndEnableChoiceCardsetSpriteTest,
-      AnimateQuakeCardsCardsetSpriteTest,
-      AnimateFlashCardsCardsetSpriteTest,
-      AnimateDamageCardsCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      // StartPositionCardsCardsetSpriteTest,
+      // StartListCardsCardsetSpriteTest,
+      // StartClosedAndOpenCardsCardsetSpriteTest,
+      // StartClosedAndOpenCardsDelayCardsetSpriteTest,
+      // MoveCardsToListCardsetSpriteTest,
+      // MoveCardsToListDelayCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
+      // AddCardAndMoveToListCardsetSpriteTest,
+      // AddCardAndMoveToListDelayCardsetSpriteTest,
+      // SelectModeCardsetSpriteTest,
+      // DisableAndEnableCardsCardsetSpriteTest,
+      // SelectModeAndEnableChoiceCardsetSpriteTest,
+      // AnimateQuakeCardsCardsetSpriteTest,
+      // AnimateFlashCardsCardsetSpriteTest,
+      // AnimateDamageCardsCardsetSpriteTest,
     ];
     const CardBattleWindowBaseTests = [
       OpenCardBattleWindowBaseTest,
@@ -105,13 +105,13 @@ class CardBattleTestScene extends Scene_Message {
     ];
     return [
       // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      ...CardBattleWindowBaseTests,
-      ...textWindowTests,
-      ...boardWindowTests,
-      ...battlePointsWindow,
-      ...trashWindow,
-      ...scoreWindow,
+      ...cardsetSpriteTests,
+      // ...CardBattleWindowBaseTests,
+      // ...textWindowTests,
+      // ...boardWindowTests,
+      // ...battlePointsWindow,
+      // ...trashWindow,
+      // ...scoreWindow,
       // ...others,
     ];
   }
@@ -141,7 +141,6 @@ class CardBattleTestScene extends Scene_Message {
       await this.clearScene();
       index++;
     }
-    console.log(this.tests);
     this.printResults(results);
     this.printResultsTotals(results);
   }

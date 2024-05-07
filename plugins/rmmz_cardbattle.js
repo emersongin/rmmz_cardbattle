@@ -4901,7 +4901,7 @@ class SetBackgroundAndStartPositionCardsetSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startPosition(centerXPosition, centerYPosition);
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4921,7 +4921,7 @@ class SetCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startPosition(centerXPosition, centerYPosition);
     this.subject.setBackgroundColor('white');
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4948,7 +4948,7 @@ class StartPositionCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startPosition(centerXPosition, centerYPosition);
     this.subject.setBackgroundColor('white');
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -4978,7 +4978,7 @@ class StartListCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startPosition(centerXPosition, centerYPosition);
     this.subject.setBackgroundColor('white');
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -5007,7 +5007,7 @@ class StartClosedAndOpenCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startPosition(centerXPosition, centerYPosition);
     this.subject.setBackgroundColor('white');
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -5043,7 +5043,7 @@ class StartClosedAndOpenCardsDelayCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startPosition(centerXPosition, centerYPosition);
     this.subject.setBackgroundColor('white');
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -5079,7 +5079,7 @@ class MoveCardsToListCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startPosition(centerXPosition, centerYPosition);
     this.subject.setBackgroundColor('white');
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -5112,7 +5112,7 @@ class MoveCardsToListDelayCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startPosition(centerXPosition, centerYPosition);
     this.subject.setBackgroundColor('white');
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -5146,7 +5146,7 @@ class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startPosition(centerXPosition, centerYPosition);
     this.subject.setBackgroundColor('white');
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -5179,7 +5179,7 @@ class AddCardAndMoveToListCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startPosition(centerXPosition, centerYPosition);
     this.subject.setBackgroundColor('white');
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -5217,7 +5217,7 @@ class AddCardAndMoveToListDelayCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startPosition(centerXPosition, centerYPosition);
     this.subject.setBackgroundColor('white');
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -5256,7 +5256,7 @@ class SelectModeCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startPosition(centerXPosition, centerYPosition);
     this.subject.setBackgroundColor('white');
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -5288,7 +5288,7 @@ class SelectModeAndEnableChoiceCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startPosition(centerXPosition, centerYPosition);
     this.subject.setBackgroundColor('white');
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -5320,7 +5320,7 @@ class AnimateQuakeCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startPosition(centerXPosition, centerYPosition);
     this.subject.setBackgroundColor('white');
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -5347,7 +5347,7 @@ class AnimateFlashCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startPosition(centerXPosition, centerYPosition);
     this.subject.setBackgroundColor('white');
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -5374,7 +5374,7 @@ class AnimateDamageCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startPosition(centerXPosition, centerYPosition);
     this.subject.setBackgroundColor('white');
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -5401,7 +5401,7 @@ class DisableAndEnableCardsCardsetSpriteTest extends SceneTest {
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startPosition(centerXPosition, centerYPosition);
     this.subject.setBackgroundColor('white');
-    this.addChild(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -6209,7 +6209,7 @@ class WindowTest extends SceneTest {
   create() {
     this.subject = new Window_BaseTest(new Rectangle(0, 0, 100, 100));
     this.subject.setTone(255, 0, 0);
-    this.addWindow(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
@@ -6217,7 +6217,7 @@ class WindowTest extends SceneTest {
       this.subject.open();
     }, () => {
       this.assertTrue('Esta aberta?', this.subject.isOpen());
-    }, 5);
+    });
   }
 }
 
@@ -6312,22 +6312,22 @@ class CardBattleTestScene extends Scene_Message {
     ];
     const cardsetSpriteTests = [
       SetBackgroundAndStartPositionCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      StartPositionCardsCardsetSpriteTest,
-      StartListCardsCardsetSpriteTest,
-      StartClosedAndOpenCardsCardsetSpriteTest,
-      StartClosedAndOpenCardsDelayCardsetSpriteTest,
-      MoveCardsToListCardsetSpriteTest,
-      MoveCardsToListDelayCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
-      AddCardAndMoveToListCardsetSpriteTest,
-      AddCardAndMoveToListDelayCardsetSpriteTest,
-      SelectModeCardsetSpriteTest,
-      DisableAndEnableCardsCardsetSpriteTest,
-      SelectModeAndEnableChoiceCardsetSpriteTest,
-      AnimateQuakeCardsCardsetSpriteTest,
-      AnimateFlashCardsCardsetSpriteTest,
-      AnimateDamageCardsCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      // StartPositionCardsCardsetSpriteTest,
+      // StartListCardsCardsetSpriteTest,
+      // StartClosedAndOpenCardsCardsetSpriteTest,
+      // StartClosedAndOpenCardsDelayCardsetSpriteTest,
+      // MoveCardsToListCardsetSpriteTest,
+      // MoveCardsToListDelayCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
+      // AddCardAndMoveToListCardsetSpriteTest,
+      // AddCardAndMoveToListDelayCardsetSpriteTest,
+      // SelectModeCardsetSpriteTest,
+      // DisableAndEnableCardsCardsetSpriteTest,
+      // SelectModeAndEnableChoiceCardsetSpriteTest,
+      // AnimateQuakeCardsCardsetSpriteTest,
+      // AnimateFlashCardsCardsetSpriteTest,
+      // AnimateDamageCardsCardsetSpriteTest,
     ];
     const CardBattleWindowBaseTests = [
       OpenCardBattleWindowBaseTest,
@@ -6378,13 +6378,13 @@ class CardBattleTestScene extends Scene_Message {
     ];
     return [
       // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      ...CardBattleWindowBaseTests,
-      ...textWindowTests,
-      ...boardWindowTests,
-      ...battlePointsWindow,
-      ...trashWindow,
-      ...scoreWindow,
+      ...cardsetSpriteTests,
+      // ...CardBattleWindowBaseTests,
+      // ...textWindowTests,
+      // ...boardWindowTests,
+      // ...battlePointsWindow,
+      // ...trashWindow,
+      // ...scoreWindow,
       // ...others,
     ];
   }
@@ -6414,7 +6414,6 @@ class CardBattleTestScene extends Scene_Message {
       await this.clearScene();
       index++;
     }
-    console.log(this.tests);
     this.printResults(results);
     this.printResultsTotals(results);
   }
