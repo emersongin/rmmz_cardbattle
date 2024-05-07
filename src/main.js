@@ -97,8 +97,8 @@
 // include ../test/integration/textwindow/DrawTextEndAlignMiddleSizeTextWindowTest.js
 // include ../test/integration/textwindow/SetTextColorTextWindowTest.js
 // tests BOARD WINDOW
-// include ../test/integration/boardwindow/UpdatingBoardWindowTest.js
 // include ../test/integration/boardwindow/PassBoardWindowTest.js
+// include ../test/integration/boardwindow/UpdatingPointsBoardWindowTest.js
 // tests BATTLE POINTS WINDOW
 // include ../test/integration/battlepointswindow/UpdatingBattlePointsWindowTest.js
 // tests TRASH WINDOW

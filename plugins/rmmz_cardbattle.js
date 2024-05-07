@@ -6027,16 +6027,41 @@ class SetTextColorTextWindowTest extends SceneTest {
   }
 }
 // tests BOARD WINDOW
-class UpdatingBoardWindowTest extends SceneTest {
-  name = 'UpdatingBoardWindowTest';
+class PassBoardWindowTest extends SceneTest {
+  name = 'PassBoardWindowTest';
 
   create() {
     this.subject = BoardWindow.createWindowFullSize(0, 0);
-    this.addWindow(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
-    this.subject.setCenteredAlignment();
+    this.subject.alignCenterMiddle();
+    this.subject.refresh();
+    this.subject.open();
+    this.test('Deve mostrar mensagem de pass!', () => {
+      this.subject.pass();
+    }, () => {
+      this.assertTrue('Foi mostrado a mensagem de pass?', this.subject.isPass());
+    });
+    this.test('Deve retirar mensagem de pass!', () => {
+      this.subject.noPass();
+    }, () => {
+      this.assertTrue('Foi retirada a mensagem de pass?', this.subject.isNoPass());
+    });
+  }
+
+}
+class UpdatingPointsBoardWindowTest extends SceneTest {
+  name = 'UpdatingPointsBoardWindowTest';
+
+  create() {
+    this.subject = BoardWindow.createWindowFullSize(0, 0);
+    this.addWatched(this.subject);
+  }
+
+  start() {
+    this.subject.alignCenterMiddle();
     this.subject.refresh();
     this.subject.open();
     const updateRedPoints = BoardWindow.createValueUpdate(GameConst.RED_POINTS, 10);
@@ -6067,31 +6092,6 @@ class UpdatingBoardWindowTest extends SceneTest {
       this.subject.updateValues(manyUpdates);
     }, () => {
       this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
-    });
-  }
-
-}
-class PassBoardWindowTest extends SceneTest {
-  name = 'PassBoardWindowTest';
-
-  create() {
-    this.subject = BoardWindow.createWindowFullSize(0, 0);
-    this.addWindow(this.subject);
-  }
-
-  start() {
-    this.subject.setCenteredAlignment();
-    this.subject.refresh();
-    this.subject.open();
-    this.test('Deve mostrar mensagem de pass!', () => {
-      this.subject.pass();
-    }, () => {
-      this.assertTrue('Foi mostrado a mensagem de pass?', this.subject.isPass());
-    });
-    this.test('Deve retirar mensagem de pass!', () => {
-      this.subject.noPass();
-    }, () => {
-      this.assertTrue('Foi retirada a mensagem de pass?', this.subject.isNoPass());
     });
   }
 
@@ -6339,7 +6339,7 @@ class CardBattleTestScene extends Scene_Message {
     ];
     const boardWindowTests = [
       PassBoardWindowTest,
-      UpdatingBoardWindowTest,
+      UpdatingPointsBoardWindowTest,
     ];
     const battlePointsWindow = [
       UpdatingBattlePointsWindowTest,
@@ -6357,8 +6357,8 @@ class CardBattleTestScene extends Scene_Message {
       // ...cardSpriteTests,
       // ...cardsetSpriteTests,
       // ...CardBattleWindowBaseTests,
-      ...textWindowTests,
-      // ...boardWindowTests,
+      // ...textWindowTests,
+      ...boardWindowTests,
       // ...battlePointsWindow,
       // ...trashWindow,
       // ...scoreWindow,

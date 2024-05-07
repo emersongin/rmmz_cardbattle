@@ -3,11 +3,11 @@ class PassBoardWindowTest extends SceneTest {
 
   create() {
     this.subject = BoardWindow.createWindowFullSize(0, 0);
-    this.addWindow(this.subject);
+    this.addWatched(this.subject);
   }
 
   start() {
-    this.subject.setCenteredAlignment();
+    this.subject.alignCenterMiddle();
     this.subject.refresh();
     this.subject.open();
     this.test('Deve mostrar mensagem de pass!', () => {

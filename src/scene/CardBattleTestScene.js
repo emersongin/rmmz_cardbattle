@@ -87,7 +87,7 @@ class CardBattleTestScene extends Scene_Message {
     ];
     const boardWindowTests = [
       PassBoardWindowTest,
-      UpdatingBoardWindowTest,
+      UpdatingPointsBoardWindowTest,
     ];
     const battlePointsWindow = [
       UpdatingBattlePointsWindowTest,
@@ -105,8 +105,8 @@ class CardBattleTestScene extends Scene_Message {
       // ...cardSpriteTests,
       // ...cardsetSpriteTests,
       // ...CardBattleWindowBaseTests,
-      ...textWindowTests,
-      // ...boardWindowTests,
+      // ...textWindowTests,
+      ...boardWindowTests,
       // ...battlePointsWindow,
       // ...trashWindow,
       // ...scoreWindow,
