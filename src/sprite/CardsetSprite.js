@@ -214,11 +214,10 @@ class CardsetSprite extends ActionSprite {
     this.addActions(actions);
   }
 
-  moveCardsInlist(sprites = this._sprites, exceptSprites) {
+  moveAllCardsInlist(sprites = this._sprites, exceptSprites) {
     sprites = this.toArray(sprites);
     const numCards = sprites.length;
     const positions = CardsetSprite.createPositionsList(numCards);
-    console.log(positions);
     const moves = this.moveCardsPositions(positions, sprites);
     this.addAction(this.commandMoveCards, moves);
     // this.startListCards(this._sprites, exceptSprites || sprites);
@@ -243,6 +242,14 @@ class CardsetSprite extends ActionSprite {
     return true;
   }
 
+  moveCardsInlist(sprites = this._sprites, delay = 6) {
+    sprites = this.toArray(sprites);
+    const numCards = sprites.length;
+    const positions = CardsetSprite.createPositionsList(numCards);
+    const moves = this.moveCardsPositions(positions, sprites);
+    const actions = this.createDelayActions(this.commandMoveCards, delay, moves);
+    this.addActions(actions);
+  }
 
 
 

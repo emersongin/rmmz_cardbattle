@@ -61,9 +61,10 @@
 // include ../test/integration/cardset/OpenCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/CloseCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/MoveAllCardsInListCardsetSpriteTest.js
+// include ../test/integration/cardset/MoveCardsInListCardsetSpriteTest.js
 
 
-// include ../test/integration/cardset/MoveCardsToListDelayCardsetSpriteTest.js
+
 // include ../test/integration/cardset/MoveCardsToPositionCardsetSpriteTest.js
 // include ../test/integration/cardset/AddCardAndMoveToListCardsetSpriteTest.js
 // include ../test/integration/cardset/AddCardAndMoveToListDelayCardsetSpriteTest.js

@@ -1,5 +1,5 @@
-class MoveAllCardsInListCardsetSpriteTest extends SceneTest {
-  name = 'MoveAllCardsInListCardsetSpriteTest';
+class MoveCardsInListCardsetSpriteTest extends SceneTest {
+  name = 'MoveCardsInListCardsetSpriteTest';
 
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
@@ -15,8 +15,8 @@ class MoveAllCardsInListCardsetSpriteTest extends SceneTest {
     const screenWidth = Graphics.boxWidth;
     const sprites = this.subject.setCards(cards, screenWidth);
     this.subject.showCards(sprites);
-    this.test('Deve mover todos os cartões do set na posição em lista!', () => {
-      this.subject.moveAllCardsInlist(sprites);
+    this.test('Deve mover os cartões do set na posição em lista!', () => {
+      this.subject.moveCardsInlist(sprites);
     }, () => {
       const positions = CardsetSprite.createPositionsList(numCards);
       this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, sprites));

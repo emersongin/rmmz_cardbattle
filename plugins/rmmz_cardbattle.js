@@ -3403,11 +3403,10 @@ class CardsetSprite extends ActionSprite {
     this.addActions(actions);
   }
 
-  moveCardsInlist(sprites = this._sprites, exceptSprites) {
+  moveAllCardsInlist(sprites = this._sprites, exceptSprites) {
     sprites = this.toArray(sprites);
     const numCards = sprites.length;
     const positions = CardsetSprite.createPositionsList(numCards);
-    console.log(positions);
     const moves = this.moveCardsPositions(positions, sprites);
     this.addAction(this.commandMoveCards, moves);
     // this.startListCards(this._sprites, exceptSprites || sprites);
@@ -3432,6 +3431,14 @@ class CardsetSprite extends ActionSprite {
     return true;
   }
 
+  moveCardsInlist(sprites = this._sprites, delay = 6) {
+    sprites = this.toArray(sprites);
+    const numCards = sprites.length;
+    const positions = CardsetSprite.createPositionsList(numCards);
+    const moves = this.moveCardsPositions(positions, sprites);
+    const actions = this.createDelayActions(this.commandMoveCards, delay, moves);
+    this.addActions(actions);
+  }
 
 
 
@@ -5233,6 +5240,31 @@ class MoveAllCardsInListCardsetSpriteTest extends SceneTest {
     const screenWidth = Graphics.boxWidth;
     const sprites = this.subject.setCards(cards, screenWidth);
     this.subject.showCards(sprites);
+    this.test('Deve mover todos os cartões do set na posição em lista!', () => {
+      this.subject.moveAllCardsInlist(sprites);
+    }, () => {
+      const positions = CardsetSprite.createPositionsList(numCards);
+      this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, sprites));
+    });
+  }
+}
+class MoveCardsInListCardsetSpriteTest extends SceneTest {
+  name = 'MoveCardsInListCardsetSpriteTest';
+
+  create() {
+    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
+    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject.show();
+    this.addWatched(this.subject);
+  }
+
+  start() {
+    const numCards = 6;
+    const cards = CardGenerator.generateCards(numCards);
+    const screenWidth = Graphics.boxWidth;
+    const sprites = this.subject.setCards(cards, screenWidth);
+    this.subject.showCards(sprites);
     this.test('Deve mover os cartões do set na posição em lista!', () => {
       this.subject.moveCardsInlist(sprites);
     }, () => {
@@ -5243,40 +5275,7 @@ class MoveAllCardsInListCardsetSpriteTest extends SceneTest {
 }
 
 
-class MoveCardsToListDelayCardsetSpriteTest extends SceneTest {
-  name = 'MoveCardsToListDelayCardsetSpriteTest';
 
-  create() {
-    this.subject = CardsetSprite.create();
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startPosition(centerXPosition, centerYPosition);
-    this.subject.setBackgroundColor('white');
-    this.addWatched(this.subject);
-  }
-
-  start() {
-    this.subject.show();
-    let times = 40;
-    for (let i = 0; i < 1; i++) {
-      const cards = CardGenerator.generateCards(times);
-      const screenWidth = Graphics.boxWidth;
-      const positions = CardsetSprite.createPositions(6);
-      this.test('Deve mover todos os cartões do set na posição em lista com delay!', () => {
-        this.subject.setCards(cards);
-        this.subject.startOpenCards();
-        this.subject.startListCards();
-        this.subject.startPositionCards(screenWidth, 0);
-        this.subject.showCards();
-        const delay = 10;
-        this.subject.moveCardsToListDelay(delay);
-      }, () => {
-        this.assertTrue('Foram movidos em lista?', this.subject.isSpritesPositions(positions));
-      }, 8);
-      times++;
-    }
-  }
-}
 class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
   name = 'MoveCardsToPositionCardsetSpriteTest';
 
@@ -6459,10 +6458,9 @@ class CardBattleTestScene extends Scene_Message {
       // CloseAllCardsCardsetSpriteTest,
       // OpenCardsCardsetSpriteTest,
       // CloseCardsCardsetSpriteTest,
-      MoveAllCardsInListCardsetSpriteTest,
+      // MoveAllCardsInListCardsetSpriteTest,
+      MoveCardsInListCardsetSpriteTest
 
-      // MoveCardsToListCardsetSpriteTest,
-      // MoveCardsToListDelayCardsetSpriteTest,
       // MoveCardsToPositionCardsetSpriteTest,
       // AddCardAndMoveToListCardsetSpriteTest,
       // AddCardAndMoveToListDelayCardsetSpriteTest,
