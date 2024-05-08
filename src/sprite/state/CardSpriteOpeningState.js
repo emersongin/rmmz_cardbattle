@@ -7,6 +7,7 @@ class CardSpriteOpeningState {
   _isToOpenHorizontally;
   _isToOpenVertically;
   _interval;
+  _duration = 0.3;
   
   constructor(sprite, xPosition, yPosition) {
     this._card = sprite;
@@ -17,7 +18,7 @@ class CardSpriteOpeningState {
     this._isUpdateVertically = this._y !== that.y;
     this._isToOpenHorizontally = this._x < that.x;
     this._isToOpenVertically = this._y < that.y;
-    this._interval = NumberHelper.calculateTimeInterval(0, CardSprite.contentOriginalWidth(), that._duration);
+    this._interval = NumberHelper.calculateTimeInterval(0, CardSprite.contentOriginalWidth(), this._duration);
   }
 
   updateStatus() {

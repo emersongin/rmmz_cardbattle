@@ -1383,10 +1383,9 @@ class CardBattlePlayer {
 class ActionSprite extends Sprite {
   initialize(x, y) { 
     super.initialize();
-    this._duration = 0.3;
+    this._actionsQueue = [];
+    this._actionsQueueWithDelay = [];
     this._status = null;
-    this._actions = [];
-    this._delayActions = [];
     this._positiveIntensityEffect = false;
     this._intensityEffect = 255;
     this._opacityEffect = 255;
@@ -1398,12 +1397,65 @@ class ActionSprite extends Sprite {
     this.y = yPosition || this.y;
   }
 
+  changeStatus(status, ...params) {
+    this._status = new status(this, ...params);
+  }
+
   removeStatus() {
     this._status = null;
   }
 
-  changeStatus(status, ...params) {
-    this._status = new status(this, ...params);
+  addAction(fn, ...params) {
+    const action = this.createAction({ fn, delay: 0 }, ...params);
+    this.addActions(action);
+  }
+
+  createActionWithDelay(fn, delay, ...params) {
+    const action = this.createAction({ fn, delay }, ...params);
+    return action;
+  }
+
+  createAction(props, ...params) {
+    const { fn, delay } = props;
+    const action = { 
+      fn: fn.name || 'anonymous',
+      delay: delay || 0,
+      execute: () => fn.call(this, ...params)
+    };
+    return action;
+  }
+
+  addActions(actions) {
+    actions = this.toArray(actions);
+    this._actionsQueue.push(actions);
+  }
+
+  toArray(items = []) {
+    return (Array.isArray(items) === false) ? [items] : items;
+  }
+
+  createActions(fn, set) {
+    const actions = set.map((params, index) => {
+      const appliedDelay = 0;
+      const action = this.createAction({
+        fn,
+        delay: appliedDelay,
+      }, ...params);
+      return action;
+    });
+    return actions;
+  }
+
+  createActionsWithDelay(fn, delay, set) {
+    const actions = set.map((params, index) => {
+      const appliedDelay = (index > 0) ? delay : 0;
+      const action = this.createAction({
+        fn,
+        delay: appliedDelay,
+      }, ...params);
+      return action;
+    });
+    return actions;
   }
 
   show() {
@@ -1424,75 +1476,18 @@ class ActionSprite extends Sprite {
     return true;
   }
 
-  addAction(fn, ...params) {
-    const action = this.createAction({ fn, delay: 0 }, ...params);
-    this.addActions(action);
-  }
-
-  createDelayAction(fn, delay, ...params) {
-    const action = this.createAction({ fn, delay }, ...params);
-    return action;
-  }
-
-  createAction(props, ...params) {
-    const { fn, delay } = props;
-    const action = { 
-      fn: fn.name || 'anonymous',
-      delay: delay || 0,
-      execute: () => fn.call(this, ...params)
-    };
-    return action;
-  }
-
-  addActions(actions) {
-    actions = this.toArray(actions);
-    this._actions.push(actions);
-  }
-
-  createActions(fn, set, ...params) {
-    const actions = set.map((item, index) => {
-      const appliedDelay = 0;
-      const action = this.createDelayAction(
-        fn, 
-        appliedDelay, 
-        this.toArray(item), 
-        ...params
-      );
-      return action;
-    });
-    return actions;
-  }
-
-  createDelayActions(fn, delay, set, ...params) {
-    const actions = set.map((item, index) => {
-      const appliedDelay = (index > 0) ? delay : 0;
-      const action = this.createDelayAction(
-        fn, 
-        appliedDelay, 
-        this.toArray(item), 
-        ...params
-      );
-      return action;
-    });
-    return actions;
-  }
-
-  toArray(items = []) {
-    return (Array.isArray(items) === false) ? [items] : items;
-  }
-
   update() {
     super.update();
     if (this.hasActions() && this.isAvailable()) this.executeAction();
     if (this.isVisible()) {
       this.updateStatus();
       this.updateDelayActions();
-      this.updateChildrenEffect();
+      this.updateEffects();
     }
   }
 
   hasActions() {
-    return this._actions.length > 0;
+    return this._actionsQueue.length > 0;
   }
 
   isAvailable() {
@@ -1500,32 +1495,33 @@ class ActionSprite extends Sprite {
   }
 
   isBusy() {
-    return this.getStatus() !== null || this.someDelayAction();
-  }
-
-  someDelayAction() {
-    return this._delayActions.some(action => action.delay > 0);
+    return this.getStatus() || this.someDelayAction();
   }
 
   getStatus() {
     return this._status;
   }
 
+  someDelayAction() {
+    return this._actionsQueueWithDelay.some(action => action.delay > 0);
+  }
+
   executeAction() {
-    const actions = this._actions[0];
+    const actions = this._actionsQueue[0];
+    console.log(actions);
     if (actions.length > 0) {
-      for (const action of actions) {
-        if (action.delay > 0) {
-          this._delayActions.push(action);
-          continue;
-        }
-        const executed = action.execute();
-        if (executed) {
-          this._actions.shift();
-          continue;
-        }
-        break;
+      this.processActions(actions);
+      this._actionsQueue.shift();
+    }
+  }
+
+  processActions(actions) {
+    for (const action of actions) {
+      if (action.delay > 0) {
+        this._actionsQueueWithDelay.push(action);
+        continue;
       }
+      action.execute();
     }
   }
 
@@ -1538,25 +1534,25 @@ class ActionSprite extends Sprite {
   }
 
   updateStatus() {
-    if (this._status && this._status.updateStatus) this._status.updateStatus();
+    if (this._status) this._status?.updateStatus();
   }
 
   updateDelayActions() {
     if (this.hasDelayActions()) {
-      const action = this._delayActions[0];
+      const action = this._actionsQueueWithDelay[0];
       action.delay -= 1;
       if (action.delay <= 0) {
         action.execute();
-        this._delayActions.shift();
+        this._actionsQueueWithDelay.shift();
       }
     }
   }
 
   hasDelayActions() {
-    return this._delayActions.length > 0;
+    return this._actionsQueueWithDelay.length > 0;
   }
 
-  updateChildrenEffect() {
+  updateEffects() {
     this.updateIntensityEffect();
     this.updateOpacityEffect();
   }
@@ -1626,6 +1622,7 @@ class CardSpriteMovingState {
   _y;
   _xInterval;
   _yInterval;
+  _duration = 0.3;
   
   constructor(sprite, moves) {
     this._card = sprite;
@@ -1659,7 +1656,7 @@ class CardSpriteMovingState {
       let { destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration } = move;
       originXPosition = originXPosition || this._card.x;
       originYPosition = originYPosition || this._card.y;
-      duration = duration >= 0 ? duration : this._card._duration;
+      duration = duration >= 0 ? duration : this._duration;
       this._x = destinyXPosition;
       this._y = destinyYPosition;
       this._xInterval = NumberHelper.calculateTimeInterval(originXPosition, destinyXPosition, duration);
@@ -1703,6 +1700,7 @@ class CardSpriteOpeningState {
   _isToOpenHorizontally;
   _isToOpenVertically;
   _interval;
+  _duration = 0.3;
   
   constructor(sprite, xPosition, yPosition) {
     this._card = sprite;
@@ -1713,7 +1711,7 @@ class CardSpriteOpeningState {
     this._isUpdateVertically = this._y !== that.y;
     this._isToOpenHorizontally = this._x < that.x;
     this._isToOpenVertically = this._y < that.y;
-    this._interval = NumberHelper.calculateTimeInterval(0, CardSprite.contentOriginalWidth(), that._duration);
+    this._interval = NumberHelper.calculateTimeInterval(0, CardSprite.contentOriginalWidth(), this._duration);
   }
 
   updateStatus() {
@@ -1832,16 +1830,16 @@ class CardSpriteZoomState {
   _yInterval;
   _xScaleInterval;
   _yScaleInterval;
+  _duration = 0.3 / 2;
   
   constructor(sprite, destinyXPosition, destinyYPosition, destinyXScale, destinyYScale) {
     this._card = sprite;
-    const duration = this._card._duration / 2;
     this._x = destinyXPosition;
     this._y = destinyYPosition;
     this._xScale = destinyXScale;
     this._yScale = destinyYScale;
-    this.definePosition(duration);
-    this.defineScale(duration);
+    this.definePosition(this._duration);
+    this.defineScale(this._duration);
   }
 
   definePosition(duration) {
@@ -3366,8 +3364,24 @@ class CardsetSprite extends ActionSprite {
 
   openAllCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
-    this.addAction(this.commandOpenCards, sprites);
+    const actions = this.createActions(this.commandOpenCards, sprites);
+    // this.addAction(this.commandOpenCards, sprites);
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   commandOpenCards(sprites) {
     if (this.isHidden()) return;
@@ -6448,16 +6462,16 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
-      StartPositionCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      ListCardsCardsetSpriteTest,
-      StartClosedCardsCardsetSpriteTest,
+      // StartPositionCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      // ListCardsCardsetSpriteTest,
+      // StartClosedCardsCardsetSpriteTest,
       OpenAllCardsCardsetSpriteTest,
-      CloseAllCardsCardsetSpriteTest,
-      OpenCardsCardsetSpriteTest,
-      CloseCardsCardsetSpriteTest,
-      MoveAllCardsInListCardsetSpriteTest,
-      MoveCardsInListCardsetSpriteTest
+      // CloseAllCardsCardsetSpriteTest,
+      // OpenCardsCardsetSpriteTest,
+      // CloseCardsCardsetSpriteTest,
+      // MoveAllCardsInListCardsetSpriteTest,
+      // MoveCardsInListCardsetSpriteTest
 
       // MoveCardsToPositionCardsetSpriteTest,
       // AddCardAndMoveToListCardsetSpriteTest,
@@ -6517,8 +6531,8 @@ class CardBattleTestScene extends Scene_Message {
       WindowTest
     ];
     return [
-      // ...cardSpriteTests,
-      ...cardsetSpriteTests,
+      ...cardSpriteTests,
+      // ...cardsetSpriteTests,
       // ...CardBattleWindowBaseTests,
       // ...textWindowTests,
       // ...boardWindowTests,

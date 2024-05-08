@@ -113,7 +113,7 @@ class ActionSprite extends Sprite {
   }
 
   isBusy() {
-    return this.getStatus() !== null || this.someDelayAction();
+    return this.getStatus() || this.someDelayAction();
   }
 
   getStatus() {
@@ -126,30 +126,21 @@ class ActionSprite extends Sprite {
 
   executeAction() {
     const actions = this._actionsQueue[0];
+    console.log(actions);
     if (actions.length > 0) {
-      const processed = this.processActions(actions);
-      if (processed) {
-        this._actionsQueue.shift();
-      }
+      this.processActions(actions);
+      this._actionsQueue.shift();
     }
   }
 
   processActions(actions) {
-    let processed = false;
     for (const action of actions) {
-      if (processed && action.delay > 0) {
+      if (action.delay > 0) {
         this._actionsQueueWithDelay.push(action);
         continue;
       }
-      if (processed) continue;
-      const executed = action.execute();
-      if (executed) {
-        processed = true;
-        continue
-      };
-      break;
+      action.execute();
     }
-    return processed;
   }
 
   isVisible() {

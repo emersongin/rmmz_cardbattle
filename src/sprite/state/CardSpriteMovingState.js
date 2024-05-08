@@ -5,6 +5,7 @@ class CardSpriteMovingState {
   _y;
   _xInterval;
   _yInterval;
+  _duration = 0.3;
   
   constructor(sprite, moves) {
     this._card = sprite;
@@ -38,7 +39,7 @@ class CardSpriteMovingState {
       let { destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration } = move;
       originXPosition = originXPosition || this._card.x;
       originYPosition = originYPosition || this._card.y;
-      duration = duration >= 0 ? duration : this._card._duration;
+      duration = duration >= 0 ? duration : this._duration;
       this._x = destinyXPosition;
       this._y = destinyYPosition;
       this._xInterval = NumberHelper.calculateTimeInterval(originXPosition, destinyXPosition, duration);

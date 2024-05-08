@@ -8,16 +8,16 @@ class CardSpriteZoomState {
   _yInterval;
   _xScaleInterval;
   _yScaleInterval;
+  _duration = 0.3 / 2;
   
   constructor(sprite, destinyXPosition, destinyYPosition, destinyXScale, destinyYScale) {
     this._card = sprite;
-    const duration = this._card._duration / 2;
     this._x = destinyXPosition;
     this._y = destinyYPosition;
     this._xScale = destinyXScale;
     this._yScale = destinyYScale;
-    this.definePosition(duration);
-    this.defineScale(duration);
+    this.definePosition(this._duration);
+    this.defineScale(this._duration);
   }
 
   definePosition(duration) {
