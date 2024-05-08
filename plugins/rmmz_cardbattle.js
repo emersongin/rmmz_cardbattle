@@ -3344,7 +3344,6 @@ class CardsetSprite extends ActionSprite {
     let padding = Math.ceil(maxWidth / numCards);
     const spaceBetween = 1;
     const cardWidth = CardSprite.contentOriginalWidth() + spaceBetween;
-    console.log(padding, cardWidth);
     padding = Math.min(padding, cardWidth);
     padding = Math.max(padding, 1);
     return padding;
@@ -3447,7 +3446,6 @@ class CardsetSprite extends ActionSprite {
 
 
   update() {
-    // console.log(this._sprites, this.children);
     super.update();
     if (this.numberOfChildren() && this.isHidden()) this.show();
   }
@@ -6450,15 +6448,15 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
-      // StartPositionCardsetSpriteTest,
-      // SetCardsCardsetSpriteTest,
-      // ListCardsCardsetSpriteTest,
-      // StartClosedCardsCardsetSpriteTest,
-      // OpenAllCardsCardsetSpriteTest,
-      // CloseAllCardsCardsetSpriteTest,
-      // OpenCardsCardsetSpriteTest,
-      // CloseCardsCardsetSpriteTest,
-      // MoveAllCardsInListCardsetSpriteTest,
+      StartPositionCardsetSpriteTest,
+      SetCardsCardsetSpriteTest,
+      ListCardsCardsetSpriteTest,
+      StartClosedCardsCardsetSpriteTest,
+      OpenAllCardsCardsetSpriteTest,
+      CloseAllCardsCardsetSpriteTest,
+      OpenCardsCardsetSpriteTest,
+      CloseCardsCardsetSpriteTest,
+      MoveAllCardsInListCardsetSpriteTest,
       MoveCardsInListCardsetSpriteTest
 
       // MoveCardsToPositionCardsetSpriteTest,
