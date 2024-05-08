@@ -225,6 +225,52 @@ class CardsetSprite extends ActionSprite {
     return true;
   }
 
+  moveAllCardsInlist(sprites = this._sprites) {
+    sprites = this.toArray(sprites);
+    const numCards = sprites.length;
+    const positions = CardsetSprite.createPositionsList(numCards);
+    const moves = this.moveCardsPositions(positions, sprites);
+    this.addAction(this.commandMoveAllCards, moves);
+  }
+
+  commandMoveAllCards(moves) {
+    if (this.isHidden()) return;
+    moves.forEach(({ sprite, x, y }) => {
+      const move = CardSprite.createMove(x, y);
+      sprite.toMove(move);
+    });
+    return true;
+  }
+
+  moveCardsInlist(sprites = this._sprites, delay = 6) {
+    sprites = this.toArray(sprites);
+    const numCards = sprites.length;
+    const positions = CardsetSprite.createPositionsList(numCards);
+    let moves = this.moveCardsPositions(positions, sprites);
+    moves = moves.map(({ sprite, x, y }) => [sprite, x, y]);
+    const actions = this.createActionsWithDelay(this.commandMoveCard, delay, moves);
+    this.addActions(actions);
+  }
+
+  commandMoveCard(sprite, x, y) {
+    if (this.isHidden()) return;
+    const move = CardSprite.createMove(x, y);
+    sprite.toMove(move);
+    return true;
+  }
+
+  // moveAllCardsInlist(sprites = this._sprites) {
+  //   sprites = this.toArray(sprites);
+  //   const numCards = sprites.length;
+  //   const positions = CardsetSprite.createPositionsList(numCards);
+  //   const moves = this.moveCardsPositions(positions, sprites);
+  //   this.addAction(this.commandMoveCards, moves);
+  //   // this.startListCards(this._sprites, exceptSprites || sprites);
+  //   // const positions = this.calculateSpritesPositionsToList(sprites);
+  //   // this.addAction(this.commandMoveCardsToList, positions);
+  //   // return positions;
+  // }
+
 
 
 
@@ -259,17 +305,7 @@ class CardsetSprite extends ActionSprite {
 
 
 
-  moveAllCardsInlist(sprites = this._sprites, exceptSprites) {
-    sprites = this.toArray(sprites);
-    const numCards = sprites.length;
-    const positions = CardsetSprite.createPositionsList(numCards);
-    const moves = this.moveCardsPositions(positions, sprites);
-    this.addAction(this.commandMoveCards, moves);
-    // this.startListCards(this._sprites, exceptSprites || sprites);
-    // const positions = this.calculateSpritesPositionsToList(sprites);
-    // this.addAction(this.commandMoveCardsToList, positions);
-    // return positions;
-  }
+
 
   moveCardsPositions(positions, sprites) {
     return positions.map(({ x, y, index }) => {
@@ -287,14 +323,7 @@ class CardsetSprite extends ActionSprite {
     return true;
   }
 
-  moveCardsInlist(sprites = this._sprites, delay = 6) {
-    sprites = this.toArray(sprites);
-    const numCards = sprites.length;
-    const positions = CardsetSprite.createPositionsList(numCards);
-    const moves = this.moveCardsPositions(positions, sprites);
-    const actions = this.createDelayActions(this.commandMoveCards, delay, moves);
-    this.addActions(actions);
-  }
+
 
 
 
