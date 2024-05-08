@@ -177,57 +177,87 @@ class CardsetSprite extends ActionSprite {
 
   openAllCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
-    const actions = this.createActions(this.commandOpenCards, sprites);
-    // this.addAction(this.commandOpenCards, sprites);
+    this.addAction(this.commandOpenAllCards, sprites);
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  commandOpenCards(sprites) {
+  commandOpenAllCards(sprites) {
     if (this.isHidden()) return;
     sprites.forEach(sprite => sprite.open());
     return true;
   }
 
-  allCardsIsOpened(sprites = this._sprites) {
-    return sprites.every(sprite => sprite.isOpened());
-  }
-
   closeAllCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
-    this.addAction(this.commandCloseCards, sprites);
+    this.addAction(this.commandCloseAllCards, sprites);
   }
 
-  commandCloseCards(sprites) {
+  commandCloseAllCards(sprites) {
     if (this.isHidden()) return;
     sprites.forEach(sprite => sprite.close());
     return true;
   }
 
-  openCards(sprites = this._sprites, delay = 2) {
+  openCards(sprites = this._sprites, delay = 6, reverse = false) {
     sprites = this.toArray(sprites);
-    const actions = this.createDelayActions(this.commandOpenCards, delay, sprites);
+    sprites = sprites.map(sprite => [sprite]);
+    if (reverse) sprites.reverse();
+    const actions = this.createActionsWithDelay(this.commandOpenCard, delay, sprites);
     this.addActions(actions);
   }
 
-  closeCards(sprites = this._sprites, delay = 2) {
+  commandOpenCard(sprite) {
+    if (this.isHidden()) return;
+    sprite.open();
+    return true;
+  }
+
+  closeCards(sprites = this._sprites, delay = 6, reverse = false) {
     sprites = this.toArray(sprites);
-    const actions = this.createDelayActions(this.commandCloseCards, delay, sprites);
+    sprites = sprites.map(sprite => [sprite]);
+    if (reverse) sprites.reverse();
+    const actions = this.createActionsWithDelay(this.commandCloseCard, delay, sprites);
     this.addActions(actions);
   }
+
+  commandCloseCard(sprite) {
+    if (this.isHidden()) return;
+    sprite.close();
+    return true;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  allCardsIsOpened(sprites = this._sprites) {
+    return sprites.every(sprite => sprite.isOpened());
+  }
+
+
+
+
+
+
 
   moveAllCardsInlist(sprites = this._sprites, exceptSprites) {
     sprites = this.toArray(sprites);

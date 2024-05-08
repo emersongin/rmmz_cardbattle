@@ -42,10 +42,10 @@ class CardBattleTestScene extends Scene_Message {
       // SetCardsCardsetSpriteTest,
       // ListCardsCardsetSpriteTest,
       // StartClosedCardsCardsetSpriteTest,
-      OpenAllCardsCardsetSpriteTest,
+      // OpenAllCardsCardsetSpriteTest,
       // CloseAllCardsCardsetSpriteTest,
-      // OpenCardsCardsetSpriteTest,
-      // CloseCardsCardsetSpriteTest,
+      OpenCardsCardsetSpriteTest,
+      CloseCardsCardsetSpriteTest,
       // MoveAllCardsInListCardsetSpriteTest,
       // MoveCardsInListCardsetSpriteTest
 
@@ -107,8 +107,8 @@ class CardBattleTestScene extends Scene_Message {
       WindowTest
     ];
     return [
-      ...cardSpriteTests,
-      // ...cardsetSpriteTests,
+      // ...cardSpriteTests,
+      ...cardsetSpriteTests,
       // ...CardBattleWindowBaseTests,
       // ...textWindowTests,
       // ...boardWindowTests,
