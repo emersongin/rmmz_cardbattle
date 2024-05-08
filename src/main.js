@@ -57,15 +57,16 @@
 // include ../test/integration/cardset/ListCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/StartClosedCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/OpenAllCardsCardsetSpriteTest.js
-// include ../test/integration/cardset/CloseAllCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/OpenCardsCardsetSpriteTest.js
+// include ../test/integration/cardset/CloseAllCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/CloseCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/MoveAllCardsInListCardsetSpriteTest.js
 // include ../test/integration/cardset/MoveCardsInListCardsetSpriteTest.js
-
-
-
+// include ../test/integration/cardset/MoveAllCardsToPositionCardsetSpriteTest.js
 // include ../test/integration/cardset/MoveCardsToPositionCardsetSpriteTest.js
+
+
+
 // include ../test/integration/cardset/AddCardAndMoveToListCardsetSpriteTest.js
 // include ../test/integration/cardset/AddCardAndMoveToListDelayCardsetSpriteTest.js
 // include ../test/integration/cardset/SelectModeCardsetSpriteTest.js

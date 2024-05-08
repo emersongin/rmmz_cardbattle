@@ -82,7 +82,6 @@ class ActionSprite extends Sprite {
 
   commandShow() {
     this.visible = true;
-    return true;
   }
 
   hide() {
@@ -91,7 +90,6 @@ class ActionSprite extends Sprite {
 
   commandHide() {
     this.visible = false;
-    return true;
   }
 
   update() {
