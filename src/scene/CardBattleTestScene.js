@@ -49,12 +49,12 @@ class CardBattleTestScene extends Scene_Message {
       // MoveAllCardsInListCardsetSpriteTest,
       // MoveCardsInListCardsetSpriteTest
       // MoveAllCardsToPositionCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
+      // AddAllCardsToListCardsetSpriteTest,
+      // AddCardsToListCardsetSpriteTest,
+      DisableCardsCardsetSpriteTest,
       
-      // AddCardAndMoveToListCardsetSpriteTest,
-      // AddCardAndMoveToListDelayCardsetSpriteTest,
       // SelectModeCardsetSpriteTest,
-      // DisableAndEnableCardsCardsetSpriteTest,
       // SelectModeAndEnableChoiceCardsetSpriteTest,
       // AnimateQuakeCardsCardsetSpriteTest,
       // AnimateFlashCardsCardsetSpriteTest,

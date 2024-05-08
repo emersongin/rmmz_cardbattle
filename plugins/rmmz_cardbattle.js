@@ -3363,6 +3363,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   moveAllCardsInlist(sprites = this._sprites) {
+    console.log(sprites);
     sprites = this.toArray(sprites);
     const numCards = sprites.length;
     const positions = CardsetSprite.createPositionsList(numCards);
@@ -3370,7 +3371,7 @@ class CardsetSprite extends ActionSprite {
     this.addAction(this.commandMoveAllCards, moves);
   }
 
-  commandMoveAllCards(moves) {
+  commandMoveAllCards(moves) { console.log(moves);
     if (this.isHidden()) return;
     moves.forEach(({ sprite, x, y }) => {
       const move = CardSprite.createMove(x, y);
@@ -3414,11 +3415,35 @@ class CardsetSprite extends ActionSprite {
     this.addActions(actions);
   }
 
+  setAllCardsToPosition(sprites = this._sprites, x = 0, y = 0) {
+    sprites = this.toArray(sprites);
+    this.addAction(this.commandSetAllCardsToPosition, sprites, x, y);
+  }
 
+  commandSetAllCardsToPosition(sprites, x, y) {
+    if (this.isHidden()) return;
+    sprites.forEach(sprite => sprite.startPosition(x, y));
+  }
 
+  disableCards(sprites = this._sprites) {
+    sprites = this.toArray(sprites);
+    this.addAction(this.commandDisableCards, sprites);
+  }
 
+  commandDisableCards(sprites) {
+    if (this.isHidden()) return;
+    sprites.forEach(sprite => {
+      sprite.disable();
+    });
+  }
 
+  isEnabledCardIndexs(indexs) {
+    return indexs.every(index => this.getCardIndex(index).isEnabled());
+  }
 
+  isDisabledCardIndexs(indexs) {
+    return indexs.every(index => this.getCardIndex(index).isDisabled());
+  }
 
 
 
@@ -3441,14 +3466,6 @@ class CardsetSprite extends ActionSprite {
     return sprites.every(sprite => sprite.isOpened());
   }
 
-
-
-
-
-
-
-
-
   moveCardsPositions(positions, sprites) {
     return positions.map(({ x, y, index }) => {
       const sprite = sprites[index];
@@ -3464,14 +3481,6 @@ class CardsetSprite extends ActionSprite {
     });
   }
 
-
-
-
-
-
-
-
-
   update() {
     super.update();
     if (this.numberOfChildren() && this.isHidden()) this.show();
@@ -3484,19 +3493,6 @@ class CardsetSprite extends ActionSprite {
   someSpriteIsBusy() {
     return this._sprites.some(sprite => sprite.isBusy());
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   setCard(card) {
     return this.setCards(card).shift();
@@ -3752,17 +3748,7 @@ class CardsetSprite extends ActionSprite {
     this.disableCards(sprite);
   }
 
-  disableCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
-    this.addAction(this.commandDisableCards, sprites);
-  }
 
-  commandDisableCards(sprites) {
-    if (this.isHidden()) return;
-    sprites.forEach(sprite => {
-      sprite.disable();
-    });
-  }
 
   enableCard(sprite) {
     this.enableCards(sprite);
@@ -3800,13 +3786,7 @@ class CardsetSprite extends ActionSprite {
     return this.children.some(sprite => sprite.isMoving());
   }
 
-  isEnabledCardsIndex(indexs) {
-    return indexs.every(index => this.getCardIndex(index).isEnabled());
-  }
-
-  isDisabledCardsIndex(indexs) {
-    return indexs.every(index => this.getCardIndex(index).isDisabled());
-  }
+ 
 
   isStaticMode() {
     return this.getStatus() instanceof CardsetSpriteStaticModeState;
@@ -5339,86 +5319,90 @@ class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
     });
   }
 }
-
-
-
-class AddCardAndMoveToListCardsetSpriteTest extends SceneTest {
-  name = 'AddCardAndMoveToListCardsetSpriteTest';
+class AddAllCardsToListCardsetSpriteTest extends SceneTest {
+  name = 'AddAllCardsToListCardsetSpriteTest';
 
   create() {
-    this.subject = CardsetSprite.create();
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startPosition(centerXPosition, centerYPosition);
-    this.subject.setBackgroundColor('white');
+    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
+    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject.show();
     this.addWatched(this.subject);
   }
 
   start() {
-    this.subject.show();
-    let times = 1;
-    for (let i = 0; i < 3; i++) {
-      const cards = CardGenerator.generateCards(3);
-      const newCards = CardGenerator.generateCards(times);
-      const screenWidth = Graphics.boxWidth;
-      const positions = CardsetSprite.createPositions(6, 97);
-      positions.shift();
-      positions.shift();
-      positions.shift();
-      this.test('Deve adicionar e mover novos para set na posição em lista!', () => {
-        const sprites = this.subject.setCards(cards);
-        this.subject.startListCards(sprites);
-        this.subject.showCards(sprites);
-        const newSprites = this.subject.addCards(newCards);
-        this.subject.startPositionCards(screenWidth, 0, newSprites);
-        this.subject.showCards(newSprites);
-        this.subject.moveCardsToList(newSprites);
-      }, () => {
-        this.assertTrue('Foram movidos em lista?', this.subject.isSpritesPositions(positions));
-      });
-      times++;
-    }
+    const numCards = 6;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.listCards(cards);
+    const addSprites = sprites.filter((sprite, index) => index >= 4);
+    const screenWidth = Graphics.boxWidth;
+    this.subject.setAllCardsToPosition(addSprites, screenWidth);
+    this.subject.showCards(sprites);
+    this.test('Deve mover os cartões adicionados ao set na posição em lista!', () => {
+      this.subject.moveAllCardsInlist(sprites);
+    }, () => {
+      const positions = CardsetSprite.createPositionsList(numCards);
+      this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, sprites));
+    });
   }
 }
-class AddCardAndMoveToListDelayCardsetSpriteTest extends SceneTest {
-  name = 'AddCardAndMoveToListDelayCardsetSpriteTest';
+class AddCardsToListCardsetSpriteTest extends SceneTest {
+  name = 'AddCardsToListCardsetSpriteTest';
 
   create() {
-    this.subject = CardsetSprite.create();
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startPosition(centerXPosition, centerYPosition);
-    this.subject.setBackgroundColor('white');
+    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
+    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject.show();
     this.addWatched(this.subject);
   }
 
   start() {
-    this.subject.show();
-    let times = 1;
-    for (let i = 0; i < 3; i++) {
-      const cards = CardGenerator.generateCards(3);
-      const newCards = CardGenerator.generateCards(times);
-      const screenWidth = Graphics.boxWidth;
-      const positions = CardsetSprite.createPositions(6, 97);
-      positions.shift();
-      positions.shift();
-      positions.shift();
-      this.test('Deve adicionar e mover novos para set na posição em lista com delay!', () => {
-        const sprites = this.subject.setCards(cards);
-        this.subject.startListCards(sprites);
-        this.subject.showCards(sprites);
-        const newSprites = this.subject.addCards(newCards);
-        this.subject.startPositionCards(screenWidth, 0, newSprites);
-        this.subject.showCards(newSprites);
-        const delay = 10;
-        this.subject.moveCardsToListDelay(delay, newSprites);
-      }, () => {
-        this.assertTrue('Foram movidos em lista?', this.subject.isSpritesPositions(positions));
-      });
-      times++;
-    }
+    const numCards = 6;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.listCards(cards);
+    const addSprites = sprites.filter((sprite, index) => index >= 4);
+    const screenWidth = Graphics.boxWidth;
+    this.subject.setAllCardsToPosition(addSprites, screenWidth);
+    this.subject.showCards(sprites);
+    this.test('Deve mover os cartões adicionados ao set na posição em lista!', () => {
+      this.subject.moveCardsInlist(sprites);
+    }, () => {
+      const positions = CardsetSprite.createPositionsList(numCards);
+      this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, sprites));
+    });
   }
 }
+class DisableCardsCardsetSpriteTest extends SceneTest {
+  name = 'DisableCardsCardsetSpriteTest';
+
+  create() {
+    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
+    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject.show();
+    this.addWatched(this.subject);
+  }
+
+  start() {
+    const numCards = 10;
+    const cards = CardGenerator.generateCards(numCards);
+    const enableCardsIndex = [0, 3, 4, 5, 6];
+    const disableCardsIndex = [1, 2, 7, 8, 9];
+    const sprites = this.subject.listCards(cards);
+    const disableSprites = sprites.filter((sprite, index) => disableCardsIndex.includes(index));
+    this.test('Deve apresentar cartões desabilitados de acordo com os indices!', () => {
+      this.subject.disableCards(disableSprites);
+      this.subject.showCards(sprites);
+    }, () => {
+      const positions = CardsetSprite.createPositionsList(numCards);
+      this.assertTrue('Estão desabilitados?', this.subject.isDisabledCardIndexs(disableCardsIndex));
+      this.assertTrue('Estão habilitados?', this.subject.isEnabledCardIndexs(enableCardsIndex));
+    });
+  }
+}
+
+
 class SelectModeCardsetSpriteTest extends SceneTest {
   name = 'SelectModeCardsetSpriteTest';
 
@@ -5561,40 +5545,6 @@ class AnimateDamageCardsCardsetSpriteTest extends SceneTest {
       this.subject.animateCardsDamage();
     }, () => {
       this.assertWasTrue('Houve uma animação?', this.subject.someSpriteIsAnimationPlaying);
-    });
-  }
-}
-class DisableAndEnableCardsCardsetSpriteTest extends SceneTest {
-  name = 'DisableAndEnableCardsCardsetSpriteTest';
-
-  create() {
-    this.subject = CardsetSprite.create();
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startPosition(centerXPosition, centerYPosition);
-    this.subject.setBackgroundColor('white');
-    this.addWatched(this.subject);
-  }
-
-  start() {
-    return new Promise(async resolve => {
-      this.subject.show();
-      const cards = CardGenerator.generateCards(10);
-      const enableCardsIndex = [0, 3, 4, 5, 6];
-      const disableCardsIndex = [1, 2, 7, 8, 9];
-      this.test('Deve apresentar habilitados e desabilitados por indices!', () => {
-        this.subject.setCards(cards);
-        this.subject.startListCards();
-        this.subject.showCards();
-        this.subject.disableCards();
-        const sprite = this.subject.getCardIndex();
-        this.subject.enableCard(sprite);
-        const sprites = this.subject.getCardIndexs([3, 4, 5, 6]);
-        this.subject.enableCards(sprites);
-      }, () => {
-        this.assertTrue('Estão desabilitados?', this.subject.isDisabledCardsIndex(disableCardsIndex));
-        this.assertTrue('Estão habilitados?', this.subject.isEnabledCardsIndex(enableCardsIndex));
-      });
     });
   }
 }
@@ -6494,12 +6444,12 @@ class CardBattleTestScene extends Scene_Message {
       // MoveAllCardsInListCardsetSpriteTest,
       // MoveCardsInListCardsetSpriteTest
       // MoveAllCardsToPositionCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
+      // AddAllCardsToListCardsetSpriteTest,
+      // AddCardsToListCardsetSpriteTest,
+      DisableCardsCardsetSpriteTest,
       
-      // AddCardAndMoveToListCardsetSpriteTest,
-      // AddCardAndMoveToListDelayCardsetSpriteTest,
       // SelectModeCardsetSpriteTest,
-      // DisableAndEnableCardsCardsetSpriteTest,
       // SelectModeAndEnableChoiceCardsetSpriteTest,
       // AnimateQuakeCardsCardsetSpriteTest,
       // AnimateFlashCardsCardsetSpriteTest,

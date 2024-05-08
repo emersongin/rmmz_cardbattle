@@ -64,17 +64,16 @@
 // include ../test/integration/cardset/MoveCardsInListCardsetSpriteTest.js
 // include ../test/integration/cardset/MoveAllCardsToPositionCardsetSpriteTest.js
 // include ../test/integration/cardset/MoveCardsToPositionCardsetSpriteTest.js
+// include ../test/integration/cardset/AddAllCardsToListCardsetSpriteTest.js
+// include ../test/integration/cardset/AddCardsToListCardsetSpriteTest.js
+// include ../test/integration/cardset/DisableCardsCardsetSpriteTest.js
 
 
-
-// include ../test/integration/cardset/AddCardAndMoveToListCardsetSpriteTest.js
-// include ../test/integration/cardset/AddCardAndMoveToListDelayCardsetSpriteTest.js
 // include ../test/integration/cardset/SelectModeCardsetSpriteTest.js
 // include ../test/integration/cardset/SelectModeAndEnableChoiceCardsetSpriteTest.js
 // include ../test/integration/cardset/AnimateQuakeCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/AnimateFlashCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/AnimateDamageCardsCardsetSpriteTest.js
-// include ../test/integration/cardset/DisableAndEnableCardsCardsetSpriteTest.js
 // tests CARD BATTLE WINDOW BASE
 // include ../test/integration/cardbattlewindowbase/OpenCardBattleWindowBaseTest.js
 // include ../test/integration/cardbattlewindowbase/CloseCardBattleWindowBaseTest.js
