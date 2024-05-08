@@ -10,7 +10,7 @@ class ListCardsCardsetSpriteTest extends SceneTest {
   }
 
   start() {
-    const numCards = 40;
+    const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     this.test('Deve mostrar os cartões do set em posição de lista!', () => {

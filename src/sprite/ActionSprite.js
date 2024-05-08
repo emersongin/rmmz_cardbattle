@@ -67,6 +67,20 @@ class ActionSprite extends Sprite {
     this._actions.push(actions);
   }
 
+  createActions(fn, set, ...params) {
+    const actions = set.map((item, index) => {
+      const appliedDelay = 0;
+      const action = this.createDelayAction(
+        fn, 
+        appliedDelay, 
+        this.toArray(item), 
+        ...params
+      );
+      return action;
+    });
+    return actions;
+  }
+
   createDelayActions(fn, delay, set, ...params) {
     const actions = set.map((item, index) => {
       const appliedDelay = (index > 0) ? delay : 0;

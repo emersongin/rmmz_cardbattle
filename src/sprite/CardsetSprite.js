@@ -116,12 +116,12 @@ class CardsetSprite extends ActionSprite {
     cards = this.toArray(cards);
     const numCards = cards.length;
     const positions = CardsetSprite.createPositionsInline(numCards);
-    const sprites = this.createCardSpritesPositions(cards, positions);
+    const sprites = this.createCardSpritesPositions(positions, cards);
     this.addAction(this.commandSetCards, sprites);
     return sprites;
   }
 
-  createCardSpritesPositions(cards, positions) {
+  createCardSpritesPositions(positions, cards) {
     return positions.map(({ x, y, index }) => {
       const card = cards[index];
       return this.createCardSprite(card, x, y);
@@ -139,15 +139,26 @@ class CardsetSprite extends ActionSprite {
     cards = this.toArray(cards);
     const numCards = cards.length;
     const positions = CardsetSprite.createPositionsList(numCards);
-    const sprites = this.createCardSpritesPositions(cards, positions);
+    const sprites = this.createCardSpritesPositions(positions, cards);
     this.addAction(this.commandSetCards, sprites);
     return sprites;
   }
 
   static createPositionsList(numCards) {
-    const padding = 13;
+    const padding = CardsetSprite.getPaddingByNumCards(numCards);
     const positions = CardsetSprite.createPositions(numCards, padding);
     return positions;
+  }
+
+  static getPaddingByNumCards(numCards) {
+    const maxWidth = CardsetSprite.contentOriginalWidth();
+    let padding = Math.ceil(maxWidth / numCards);
+    const spaceBetween = 1;
+    const cardWidth = CardSprite.contentOriginalWidth() + spaceBetween;
+    console.log(padding, cardWidth);
+    padding = Math.min(padding, cardWidth);
+    padding = Math.max(padding, 1);
+    return padding;
   }
 
   startClosedCards(sprites = this._sprites) {
@@ -203,10 +214,34 @@ class CardsetSprite extends ActionSprite {
     this.addActions(actions);
   }
 
+  moveCardsInlist(sprites = this._sprites, exceptSprites) {
+    sprites = this.toArray(sprites);
+    const numCards = sprites.length;
+    const positions = CardsetSprite.createPositionsList(numCards);
+    console.log(positions);
+    const moves = this.moveCardsPositions(positions, sprites);
+    this.addAction(this.commandMoveCards, moves);
+    // this.startListCards(this._sprites, exceptSprites || sprites);
+    // const positions = this.calculateSpritesPositionsToList(sprites);
+    // this.addAction(this.commandMoveCardsToList, positions);
+    // return positions;
+  }
 
+  moveCardsPositions(positions, sprites) {
+    return positions.map(({ x, y, index }) => {
+      const sprite = sprites[index];
+      return { sprite, x, y };
+    });
+  }
 
-
-
+  commandMoveCards(moves) {
+    if (this.isHidden()) return;
+    moves.forEach(({ sprite, x, y }) => {
+      const move = CardSprite.createMove(x, y);
+      sprite.toMove(move);
+    });
+    return true;
+  }
 
 
 

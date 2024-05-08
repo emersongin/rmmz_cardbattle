@@ -40,13 +40,13 @@ class CardBattleTestScene extends Scene_Message {
     const cardsetSpriteTests = [
       // StartPositionCardsetSpriteTest,
       // SetCardsCardsetSpriteTest,
-      // InlineCardsCardsetSpriteTest,
       // ListCardsCardsetSpriteTest,
       // StartClosedCardsCardsetSpriteTest,
       // OpenAllCardsCardsetSpriteTest,
       // CloseAllCardsCardsetSpriteTest,
       // OpenCardsCardsetSpriteTest,
-      CloseCardsCardsetSpriteTest,
+      // CloseCardsCardsetSpriteTest,
+      MoveAllCardsInListCardsetSpriteTest,
 
       // MoveCardsToListCardsetSpriteTest,
       // MoveCardsToListDelayCardsetSpriteTest,
