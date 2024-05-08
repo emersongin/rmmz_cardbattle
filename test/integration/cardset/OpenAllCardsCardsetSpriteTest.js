@@ -16,7 +16,7 @@ class OpenAllCardsCardsetSpriteTest extends SceneTest {
     this.subject.startClosedCards(sprites);
     this.subject.showCards(sprites);
     this.test('Deve abrir todos os cartões do set!', () => {
-      this.subject.openCards(sprites);
+      this.subject.openAllCards(sprites);
     }, () => {
       this.assertTrue('Estão aberto?', this.subject.allCardsIsOpened(sprites));
     });

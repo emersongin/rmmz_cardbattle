@@ -1,5 +1,5 @@
-class CloseAllCardsCardsetSpriteTest extends SceneTest {
-  name = 'CloseAllCardsCardsetSpriteTest';
+class CloseCardsCardsetSpriteTest extends SceneTest {
+  name = 'CloseCardsCardsetSpriteTest';
 
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
@@ -14,8 +14,8 @@ class CloseAllCardsCardsetSpriteTest extends SceneTest {
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.inlineCards(cards);
     this.subject.showCards(sprites);
-    this.test('Deve fechar todos os cartões do set!', () => {
-      this.subject.closeAllCards(sprites);
+    this.test('Deve fechar os cartões do set!', () => {
+      this.subject.closeCards(sprites);
     }, () => {
       this.assertTrue('Estão fechados?', this.subject.allCardsIsClosed(sprites));
     });

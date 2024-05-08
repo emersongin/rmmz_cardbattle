@@ -47,6 +47,11 @@ class ActionSprite extends Sprite {
     this.addActions(action);
   }
 
+  createDelayAction(fn, delay, ...params) {
+    const action = this.createAction({ fn, delay }, ...params);
+    return action;
+  }
+
   createAction(props, ...params) {
     const { fn, delay } = props;
     const action = { 
@@ -62,9 +67,18 @@ class ActionSprite extends Sprite {
     this._actions.push(actions);
   }
 
-  addDelayAction(fn, delay, ...params) {
-    const action = this.createAction({ fn, delay }, ...params);
-    this.addActions(action);
+  createDelayActions(fn, delay, set, ...params) {
+    const actions = set.map((item, index) => {
+      const appliedDelay = (index > 0) ? delay : 0;
+      const action = this.createDelayAction(
+        fn, 
+        appliedDelay, 
+        this.toArray(item), 
+        ...params
+      );
+      return action;
+    });
+    return actions;
   }
 
   toArray(items = []) {

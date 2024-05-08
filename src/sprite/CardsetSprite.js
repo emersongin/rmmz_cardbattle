@@ -165,7 +165,7 @@ class CardsetSprite extends ActionSprite {
     return sprites.every(sprite => sprite.isClosed());
   }
 
-  openCards(sprites = this._sprites) {
+  openAllCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
     this.addAction(this.commandOpenCards, sprites);
   }
@@ -180,7 +180,7 @@ class CardsetSprite extends ActionSprite {
     return sprites.every(sprite => sprite.isOpened());
   }
 
-  closeCards(sprites = this._sprites) {
+  closeAllCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
     this.addAction(this.commandCloseCards, sprites);
   }
@@ -191,7 +191,17 @@ class CardsetSprite extends ActionSprite {
     return true;
   }
 
+  openCards(sprites = this._sprites, delay = 2) {
+    sprites = this.toArray(sprites);
+    const actions = this.createDelayActions(this.commandOpenCards, delay, sprites);
+    this.addActions(actions);
+  }
 
+  closeCards(sprites = this._sprites, delay = 2) {
+    sprites = this.toArray(sprites);
+    const actions = this.createDelayActions(this.commandCloseCards, delay, sprites);
+    this.addActions(actions);
+  }
 
 
 
@@ -317,22 +327,7 @@ class CardsetSprite extends ActionSprite {
     this.openCards(sprite);
   }
 
-  openCardsWithDelay(delay = 1, sprites = this._sprites) {
-    sprites = this.toArray(sprites);
-    const actions = this.createActionsWithDelay(this.commandOpenCards, delay, sprites);
-    this.addActions(actions);
-  }
 
-  createActionsWithDelay(fn, delay, sprites) {
-    sprites = this.toArray(sprites);
-    const actions = sprites.map((sprite, index) => {
-      return this.createAction({
-        fn, 
-        delay: (index === 0) ? 0 : delay
-      }, this.toArray(sprite));
-    });
-    return actions;
-  }
 
   closeCard(sprite) {
     this.closeCards(sprite);
@@ -340,11 +335,7 @@ class CardsetSprite extends ActionSprite {
 
 
 
-  closeCardsWithDelay(delay = 1, sprites = this._sprites) {
-    sprites = this.toArray(sprites);
-    const actions = this.createActionsWithDelay(this.commandCloseCards, delay, sprites);
-    this.addActions(actions);
-  }
+
 
   moveCardToList(sprite, exceptSprites) {
     return this.moveCardsToList(sprite, exceptSprites);

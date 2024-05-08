@@ -1429,6 +1429,11 @@ class ActionSprite extends Sprite {
     this.addActions(action);
   }
 
+  createDelayAction(fn, delay, ...params) {
+    const action = this.createAction({ fn, delay }, ...params);
+    return action;
+  }
+
   createAction(props, ...params) {
     const { fn, delay } = props;
     const action = { 
@@ -1444,9 +1449,18 @@ class ActionSprite extends Sprite {
     this._actions.push(actions);
   }
 
-  addDelayAction(fn, delay, ...params) {
-    const action = this.createAction({ fn, delay }, ...params);
-    this.addActions(action);
+  createDelayActions(fn, delay, set, ...params) {
+    const actions = set.map((item, index) => {
+      const appliedDelay = (index > 0) ? delay : 0;
+      const action = this.createDelayAction(
+        fn, 
+        appliedDelay, 
+        this.toArray(item), 
+        ...params
+      );
+      return action;
+    });
+    return actions;
   }
 
   toArray(items = []) {
@@ -3326,7 +3340,7 @@ class CardsetSprite extends ActionSprite {
     return sprites.every(sprite => sprite.isClosed());
   }
 
-  openCards(sprites = this._sprites) {
+  openAllCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
     this.addAction(this.commandOpenCards, sprites);
   }
@@ -3341,7 +3355,7 @@ class CardsetSprite extends ActionSprite {
     return sprites.every(sprite => sprite.isOpened());
   }
 
-  closeCards(sprites = this._sprites) {
+  closeAllCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
     this.addAction(this.commandCloseCards, sprites);
   }
@@ -3352,7 +3366,17 @@ class CardsetSprite extends ActionSprite {
     return true;
   }
 
+  openCards(sprites = this._sprites, delay = 2) {
+    sprites = this.toArray(sprites);
+    const actions = this.createDelayActions(this.commandOpenCards, delay, sprites);
+    this.addActions(actions);
+  }
 
+  closeCards(sprites = this._sprites, delay = 2) {
+    sprites = this.toArray(sprites);
+    const actions = this.createDelayActions(this.commandCloseCards, delay, sprites);
+    this.addActions(actions);
+  }
 
 
 
@@ -3478,22 +3502,7 @@ class CardsetSprite extends ActionSprite {
     this.openCards(sprite);
   }
 
-  openCardsWithDelay(delay = 1, sprites = this._sprites) {
-    sprites = this.toArray(sprites);
-    const actions = this.createActionsWithDelay(this.commandOpenCards, delay, sprites);
-    this.addActions(actions);
-  }
 
-  createActionsWithDelay(fn, delay, sprites) {
-    sprites = this.toArray(sprites);
-    const actions = sprites.map((sprite, index) => {
-      return this.createAction({
-        fn, 
-        delay: (index === 0) ? 0 : delay
-      }, this.toArray(sprite));
-    });
-    return actions;
-  }
 
   closeCard(sprite) {
     this.closeCards(sprite);
@@ -3501,11 +3510,7 @@ class CardsetSprite extends ActionSprite {
 
 
 
-  closeCardsWithDelay(delay = 1, sprites = this._sprites) {
-    sprites = this.toArray(sprites);
-    const actions = this.createActionsWithDelay(this.commandCloseCards, delay, sprites);
-    this.addActions(actions);
-  }
+
 
   moveCardToList(sprite, exceptSprites) {
     return this.moveCardsToList(sprite, exceptSprites);
@@ -5110,7 +5115,7 @@ class OpenAllCardsCardsetSpriteTest extends SceneTest {
     this.subject.startClosedCards(sprites);
     this.subject.showCards(sprites);
     this.test('Deve abrir todos os cartões do set!', () => {
-      this.subject.openCards(sprites);
+      this.subject.openAllCards(sprites);
     }, () => {
       this.assertTrue('Estão aberto?', this.subject.allCardsIsOpened(sprites));
     });
@@ -5132,51 +5137,62 @@ class CloseAllCardsCardsetSpriteTest extends SceneTest {
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.inlineCards(cards);
     this.subject.showCards(sprites);
-    this.test('Deve abrir todos os cartões do set!', () => {
+    this.test('Deve fechar todos os cartões do set!', () => {
+      this.subject.closeAllCards(sprites);
+    }, () => {
+      this.assertTrue('Estão fechados?', this.subject.allCardsIsClosed(sprites));
+    });
+  }
+}
+class OpenCardsCardsetSpriteTest extends SceneTest {
+  name = 'OpenCardsCardsetSpriteTest';
+
+  create() {
+    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
+    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject.show();
+    this.addWatched(this.subject);
+  }
+
+  start() {
+    const numCards = 6;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.inlineCards(cards);
+    this.subject.startClosedCards(sprites);
+    this.subject.showCards(sprites);
+    this.test('Deve abrir os cartões do set!', () => {
+      this.subject.openCards(sprites);
+    }, () => {
+      this.assertTrue('Estão aberto?', this.subject.allCardsIsOpened(sprites));
+    });
+  }
+}
+class CloseCardsCardsetSpriteTest extends SceneTest {
+  name = 'CloseCardsCardsetSpriteTest';
+
+  create() {
+    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
+    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject.show();
+    this.addWatched(this.subject);
+  }
+
+  start() {
+    const numCards = 6;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.inlineCards(cards);
+    this.subject.showCards(sprites);
+    this.test('Deve fechar os cartões do set!', () => {
       this.subject.closeCards(sprites);
     }, () => {
-      this.assertTrue('Estão aberto?', this.subject.allCardsIsClosed(sprites));
+      this.assertTrue('Estão fechados?', this.subject.allCardsIsClosed(sprites));
     });
   }
 }
 
 
-class StartClosedAndOpenCardsDelayCardsetSpriteTest extends SceneTest {
-  name = 'StartClosedAndOpenCardsDelayCardsetSpriteTest';
-
-  create() {
-    this.subject = CardsetSprite.create();
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startPosition(centerXPosition, centerYPosition);
-    this.subject.setBackgroundColor('white');
-    this.addWatched(this.subject);
-  }
-
-  start() {
-    this.subject.show();
-    let times = 40;
-    for (let i = 0; i < 1; i++) {
-      const cards = CardGenerator.generateCards(times);
-      this.test('Deve abrir todos os cartões do set com delay!', () => {
-        this.subject.setCards(cards);
-        this.subject.startListCards();
-        this.subject.startClosedCards();
-        this.subject.showCards();
-        this.subject.openCardsWithDelay();
-      }, () => {
-        this.assertTrue('Estão aberto?', this.subject.allCardsOpened());
-      });
-      this.test('Deve fechar todos os cartões do set com delay!', () => {
-        this.subject.startOpenCards();
-        this.subject.closeCardsWithDelay();
-      }, () => {
-        this.assertTrue('Estão fechados?', this.subject.allCardsClosed());
-      });
-      times++;
-    }
-  }
-}
 class MoveCardsToListCardsetSpriteTest extends SceneTest {
   name = 'MoveCardsToListCardsetSpriteTest';
 
@@ -6424,10 +6440,10 @@ class CardBattleTestScene extends Scene_Message {
       // ListCardsCardsetSpriteTest,
       // StartClosedCardsCardsetSpriteTest,
       // OpenAllCardsCardsetSpriteTest,
-      CloseAllCardsCardsetSpriteTest,
+      // CloseAllCardsCardsetSpriteTest,
+      // OpenCardsCardsetSpriteTest,
+      CloseCardsCardsetSpriteTest,
 
-      // StartClosedAndOpenCardsCardsetSpriteTest,
-      // StartClosedAndOpenCardsDelayCardsetSpriteTest,
       // MoveCardsToListCardsetSpriteTest,
       // MoveCardsToListDelayCardsetSpriteTest,
       // MoveCardsToPositionCardsetSpriteTest,
