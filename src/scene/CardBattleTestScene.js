@@ -55,10 +55,10 @@ class CardBattleTestScene extends Scene_Message {
       // DisableCardsCardsetSpriteTest,
       // StaticModeCardsetSpriteTest,
       // SelectModeCardsetSpriteTest,
-      SelectModeWithChoiceCardsetSpriteTest,
+      // SelectModeWithChoiceCardsetSpriteTest,
+      AnimateFlashCardsCardsetSpriteTest,
       
       // AnimateQuakeCardsCardsetSpriteTest,
-      // AnimateFlashCardsCardsetSpriteTest,
       // AnimateDamageCardsCardsetSpriteTest,
     ];
     const CardBattleWindowBaseTests = [

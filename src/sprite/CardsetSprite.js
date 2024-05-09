@@ -352,9 +352,17 @@ class CardsetSprite extends ActionSprite {
     return this._enableSelected;
   }
 
+  flashCardsAnimate(sprites = this._sprites, color = 'white', duration = 60, times = 1) {
+    sprites = this.toArray(sprites);
+    this.addAction(this.commandAnimateCardsFlash, sprites, color, duration, times);
+  }
 
-
-
+  commandAnimateCardsFlash(sprites, color, duration, times) {
+    if (this.isHidden() || this.isBusy()) return;
+    sprites.forEach(sprite => {
+      sprite.flash(color, duration, times);
+    });
+  }
 
 
 
@@ -567,17 +575,7 @@ class CardsetSprite extends ActionSprite {
     this.animateCardsFlash(color, duration, times, sprite);
   }
 
-  animateCardsFlash(color = 'white', duration = 60, times = 1, sprites = this._sprites) {
-    sprites = this.toArray(sprites);
-    this.addAction(this.commandAnimateCardsFlash, sprites, color, duration, times);
-  }
 
-  commandAnimateCardsFlash(sprites, color, duration, times) {
-    if (this.isHidden() || this.isBusy()) return;
-    sprites.forEach(sprite => {
-      sprite.flash(color, duration, times);
-    });
-  }
 
   animateCardDamage(sprite, times) {
     this.animateCardsDamage(times, sprite);
