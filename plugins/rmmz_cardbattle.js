@@ -3549,9 +3549,55 @@ class CardsetSprite extends ActionSprite {
     sprites.forEach(sprite => {
       sprite.flash(color, duration, times);
     });
+    return true;
+  }
+
+  someSpriteIsFlashPlaying() {
+    return this._sprites.some(sprite => sprite.isFlashPlaying());
+  }
+
+  quakeCardsAnimate(sprites = this._sprites, times = 2, distance = 3) {
+    sprites = this.toArray(sprites);
+    this.addAction(this.commandAnimateCardsQuake, sprites, times, distance);
+  }
+
+  commandAnimateCardsQuake(sprites, times, distance) {
+    if (this.isHidden() || this.isBusy()) return;
+    const movements = CardSprite.generateQuakeMoves(times, distance);
+    sprites.forEach(sprite => {
+      sprite.quake(times, distance, movements);
+    });
+    return true;
+  }
+
+  someSpriteIsMoving() {
+    return this._sprites.some(sprite => sprite.isMoving());
+  }
+
+  damageCardsAnimate(sprites = this._sprites, times = 1) {
+    sprites = this.toArray(sprites);
+    this.addAction(this.commandAnimateCardsDamage, sprites, times);
+  }
+
+  commandAnimateCardsDamage(sprites, times) {
+    if (this.isHidden() || this.isBusy()) return;
+    sprites.forEach(sprite => {
+      sprite.damage(times, this.parent);
+    });
+    return true;
   }
 
 
+
+
+
+
+
+
+
+  someSpriteIsAnimationPlaying() {
+    return this._sprites.some(sprite => sprite.isAnimationPlaying());
+  }
 
 
 
@@ -3768,34 +3814,13 @@ class CardsetSprite extends ActionSprite {
     this.animateCardsDamage(times, sprite);
   }
 
-  animateCardsDamage(times = 1, sprites = this._sprites) {
-    sprites = this.toArray(sprites);
-    this.addAction(this.commandAnimateCardsDamage, sprites, times);
-  }
 
-  commandAnimateCardsDamage(sprites, times) {
-    if (this.isHidden() || this.isBusy()) return;
-    sprites.forEach(sprite => {
-      sprite.damage(times, this.parent);
-    });
-  }
 
   animateCardQuake(sprite, times, distance) {
     this.animateCardsQuake(times, distance, sprite);
   }
 
-  animateCardsQuake(times, distance, sprites = this._sprites) {
-    sprites = this.toArray(sprites);
-    this.addAction(this.commandAnimateCardsQuake, sprites, times, distance);
-  }
 
-  commandAnimateCardsQuake(sprites, times, distance) {
-    if (this.isHidden() || this.isBusy()) return;
-    const movements = this.generateQuakeMoves(times, distance);
-    sprites.forEach(sprite => {
-      sprite.quake(times, distance, movements);
-    });
-  }
 
   disableCard(sprite) {
     this.disableCards(sprite);
@@ -3825,17 +3850,7 @@ class CardsetSprite extends ActionSprite {
 
 
 
-  someSpriteIsAnimationPlaying() {
-    return this.children.some(sprite => sprite.isAnimationPlaying());
-  }
 
-  someSpriteIsFlashPlaying() {
-    return this.children.some(sprite => sprite.isFlashPlaying());
-  }
-
-  someSpriteIsMoving() {
-    return this.children.some(sprite => sprite.isMoving());
-  }
 
  
 
@@ -5525,35 +5540,6 @@ class SelectModeWithChoiceCardsetSpriteTest extends SceneTest {
     }, 60);
   }
 }
-
-
-class AnimateQuakeCardsCardsetSpriteTest extends SceneTest {
-  name = 'AnimateQuakeCardsCardsetSpriteTest';
-
-  create() {
-    this.subject = CardsetSprite.create();
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startPosition(centerXPosition, centerYPosition);
-    this.subject.setBackgroundColor('white');
-    this.addWatched(this.subject);
-  }
-
-  start() {
-    this.subject.show();
-    const cards = CardGenerator.generateCards(6);
-    this.test('Deve realizar chacoalhar os cartões!', () => {
-      this.subject.setCards(cards);
-      this.subject.startListCards();
-      this.subject.showCards();
-      // const sprite = this.subject.getCardIndex(0);
-      // this.subject.animateCardQuake(sprite, 3);
-      this.subject.animateCardsQuake(9);
-    }, () => {
-      this.assertWasTrue('Houve um chacoalhar?', this.subject.someSpriteIsMoving);
-    });
-  }
-}
 class AnimateFlashCardsCardsetSpriteTest extends SceneTest {
   name = 'AnimateFlashCardsCardsetSpriteTest';
 
@@ -5569,7 +5555,7 @@ class AnimateFlashCardsCardsetSpriteTest extends SceneTest {
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    this.test('Deve mostrar os cartões do set em posição de lista!', () => {
+    this.test('Deve animar os cartões com flash!', () => {
       this.subject.showCards(sprites);
       this.subject.flashCardsAnimate(sprites);
     }, () => {
@@ -5577,30 +5563,49 @@ class AnimateFlashCardsCardsetSpriteTest extends SceneTest {
     });
   }
 }
-class AnimateDamageCardsCardsetSpriteTest extends SceneTest {
-  name = 'AnimateDamageCardsCardsetSpriteTest';
+class AnimateQuakeCardsCardsetSpriteTest extends SceneTest {
+  name = 'AnimateQuakeCardsCardsetSpriteTest';
 
   create() {
-    this.subject = CardsetSprite.create();
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startPosition(centerXPosition, centerYPosition);
-    this.subject.setBackgroundColor('white');
+    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
+    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject.show();
     this.addWatched(this.subject);
   }
 
   start() {
-    this.subject.show();
-    const cards = CardGenerator.generateCards(6);
-    this.test('Deve realizar animações nos cartões!', () => {
-      const sprites = this.subject.setCards(cards);
-      this.subject.startListCards();
-      this.subject.showCards();
-      // const sprite = this.subject.getCardIndex(0);
-      // this.subject.animateCardDamage(sprite);
-      this.subject.animateCardsDamage();
+    const numCards = 6;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.listCards(cards);
+    this.test('Deve animar os cartões com chacoalhar!', () => {
+      this.subject.showCards(sprites);
+      this.subject.quakeCardsAnimate(sprites);
     }, () => {
-      this.assertWasTrue('Houve uma animação?', this.subject.someSpriteIsAnimationPlaying);
+      this.assertWasTrue('Houve um chacoalhar?', this.subject.someSpriteIsMoving);
+    });
+  }
+}
+class AnimateDamageCardsCardsetSpriteTest extends SceneTest {
+  name = 'AnimateDamageCardsCardsetSpriteTest';
+
+  create() {
+    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
+    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject.show();
+    this.addWatched(this.subject);
+  }
+
+  start() {
+    const numCards = 6;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.listCards(cards);
+    this.test('Deve animar os cartões com frame de animação!', () => {
+      this.subject.showCards(sprites);
+      this.subject.damageCardsAnimate(sprites);
+    }, () => {
+      this.assertWasTrue('Houve um frame de aimação?', this.subject.someSpriteIsAnimationPlaying);
     });
   }
 }
@@ -6507,10 +6512,9 @@ class CardBattleTestScene extends Scene_Message {
       // StaticModeCardsetSpriteTest,
       // SelectModeCardsetSpriteTest,
       // SelectModeWithChoiceCardsetSpriteTest,
-      AnimateFlashCardsCardsetSpriteTest,
-      
+      // AnimateFlashCardsCardsetSpriteTest,
       // AnimateQuakeCardsCardsetSpriteTest,
-      // AnimateDamageCardsCardsetSpriteTest,
+      AnimateDamageCardsCardsetSpriteTest,
     ];
     const CardBattleWindowBaseTests = [
       OpenCardBattleWindowBaseTest,

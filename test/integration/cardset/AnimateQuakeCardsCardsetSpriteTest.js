@@ -2,24 +2,20 @@ class AnimateQuakeCardsCardsetSpriteTest extends SceneTest {
   name = 'AnimateQuakeCardsCardsetSpriteTest';
 
   create() {
-    this.subject = CardsetSprite.create();
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startPosition(centerXPosition, centerYPosition);
-    this.subject.setBackgroundColor('white');
+    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
+    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject.show();
     this.addWatched(this.subject);
   }
 
   start() {
-    this.subject.show();
-    const cards = CardGenerator.generateCards(6);
-    this.test('Deve realizar chacoalhar os cartões!', () => {
-      this.subject.setCards(cards);
-      this.subject.startListCards();
-      this.subject.showCards();
-      // const sprite = this.subject.getCardIndex(0);
-      // this.subject.animateCardQuake(sprite, 3);
-      this.subject.animateCardsQuake(9);
+    const numCards = 6;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.listCards(cards);
+    this.test('Deve animar os cartões com chacoalhar!', () => {
+      this.subject.showCards(sprites);
+      this.subject.quakeCardsAnimate(sprites);
     }, () => {
       this.assertWasTrue('Houve um chacoalhar?', this.subject.someSpriteIsMoving);
     });

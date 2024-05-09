@@ -13,7 +13,7 @@ class AnimateFlashCardsCardsetSpriteTest extends SceneTest {
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    this.test('Deve mostrar os cartões do set em posição de lista!', () => {
+    this.test('Deve animar os cartões com flash!', () => {
       this.subject.showCards(sprites);
       this.subject.flashCardsAnimate(sprites);
     }, () => {

@@ -362,9 +362,55 @@ class CardsetSprite extends ActionSprite {
     sprites.forEach(sprite => {
       sprite.flash(color, duration, times);
     });
+    return true;
+  }
+
+  someSpriteIsFlashPlaying() {
+    return this._sprites.some(sprite => sprite.isFlashPlaying());
+  }
+
+  quakeCardsAnimate(sprites = this._sprites, times = 2, distance = 3) {
+    sprites = this.toArray(sprites);
+    this.addAction(this.commandAnimateCardsQuake, sprites, times, distance);
+  }
+
+  commandAnimateCardsQuake(sprites, times, distance) {
+    if (this.isHidden() || this.isBusy()) return;
+    const movements = CardSprite.generateQuakeMoves(times, distance);
+    sprites.forEach(sprite => {
+      sprite.quake(times, distance, movements);
+    });
+    return true;
+  }
+
+  someSpriteIsMoving() {
+    return this._sprites.some(sprite => sprite.isMoving());
+  }
+
+  damageCardsAnimate(sprites = this._sprites, times = 1) {
+    sprites = this.toArray(sprites);
+    this.addAction(this.commandAnimateCardsDamage, sprites, times);
+  }
+
+  commandAnimateCardsDamage(sprites, times) {
+    if (this.isHidden() || this.isBusy()) return;
+    sprites.forEach(sprite => {
+      sprite.damage(times, this.parent);
+    });
+    return true;
   }
 
 
+
+
+
+
+
+
+
+  someSpriteIsAnimationPlaying() {
+    return this._sprites.some(sprite => sprite.isAnimationPlaying());
+  }
 
 
 
@@ -581,34 +627,13 @@ class CardsetSprite extends ActionSprite {
     this.animateCardsDamage(times, sprite);
   }
 
-  animateCardsDamage(times = 1, sprites = this._sprites) {
-    sprites = this.toArray(sprites);
-    this.addAction(this.commandAnimateCardsDamage, sprites, times);
-  }
 
-  commandAnimateCardsDamage(sprites, times) {
-    if (this.isHidden() || this.isBusy()) return;
-    sprites.forEach(sprite => {
-      sprite.damage(times, this.parent);
-    });
-  }
 
   animateCardQuake(sprite, times, distance) {
     this.animateCardsQuake(times, distance, sprite);
   }
 
-  animateCardsQuake(times, distance, sprites = this._sprites) {
-    sprites = this.toArray(sprites);
-    this.addAction(this.commandAnimateCardsQuake, sprites, times, distance);
-  }
 
-  commandAnimateCardsQuake(sprites, times, distance) {
-    if (this.isHidden() || this.isBusy()) return;
-    const movements = this.generateQuakeMoves(times, distance);
-    sprites.forEach(sprite => {
-      sprite.quake(times, distance, movements);
-    });
-  }
 
   disableCard(sprite) {
     this.disableCards(sprite);
@@ -638,17 +663,7 @@ class CardsetSprite extends ActionSprite {
 
 
 
-  someSpriteIsAnimationPlaying() {
-    return this.children.some(sprite => sprite.isAnimationPlaying());
-  }
 
-  someSpriteIsFlashPlaying() {
-    return this.children.some(sprite => sprite.isFlashPlaying());
-  }
-
-  someSpriteIsMoving() {
-    return this.children.some(sprite => sprite.isMoving());
-  }
 
  
 
