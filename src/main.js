@@ -68,6 +68,7 @@
 // include ../test/integration/cardset/AddCardsToListCardsetSpriteTest.js
 // include ../test/integration/cardset/DisableCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/SelectModeCardsetSpriteTest.js
+// include ../test/integration/cardset/StaticModeCardsetSpriteTest.js
 
 
 // include ../test/integration/cardset/SelectModeAndEnableChoiceCardsetSpriteTest.js

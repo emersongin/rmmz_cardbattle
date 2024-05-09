@@ -1,5 +1,5 @@
-class SelectModeCardsetSpriteTest extends SceneTest {
-  name = 'SelectModeCardsetSpriteTest';
+class StaticModeCardsetSpriteTest extends SceneTest {
+  name = 'StaticModeCardsetSpriteTest';
 
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
@@ -14,10 +14,11 @@ class SelectModeCardsetSpriteTest extends SceneTest {
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     this.subject.showCards(sprites);
-    this.test('Deve entrar em modo seleção!', () => {
-      this.subject.selectMode();
+    this.subject.selectMode();
+    this.test('Deve entrar em modo estático!', () => {
+      this.subject.unselectMode();
     }, () => {
-      this.assertTrue('Esta em modo seleção?', this.subject.isSelectMode());
+      this.assertTrue('Esta em modo estático?', this.subject.isStaticMode());
     });
   }
 }

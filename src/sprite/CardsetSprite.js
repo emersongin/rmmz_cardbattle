@@ -309,9 +309,39 @@ class CardsetSprite extends ActionSprite {
     return sprites.every(sprite => sprite.isOpened());
   }
 
+  isSelectMode() {
+    return this.getStatus() instanceof CardsetSpriteSelectModeState;
+  }
+
+  unselectMode() {
+    this.addAction(this.commandUnselectMode);
+  }
+
+  commandUnselectMode() {
+    if (this.isStaticMode()) return true;
+    this._enableSelected = false;
+    if (this._selectedIndexs.length) {
+      this._selectedIndexs.forEach(index => {
+        const sprite = this.getCardIndex(index);
+        sprite.unselect();
+        sprite.iluminate();
+      });
+    }
+    this.staticMode();
+    return true;
+  }
+
   isStaticMode() {
     return this.getStatus() instanceof CardsetSpriteStaticModeState;
   }
+
+
+
+
+
+
+
+
 
 
 
@@ -506,26 +536,9 @@ class CardsetSprite extends ActionSprite {
 
 
 
-  unselectMode() {
-    this.addAction(this.commandUnselectMode);
-  }
 
-  commandUnselectMode() {
-    if (!this.isVisible() && this.isSelectMode()) return;
-    this._enableSelected = false;
-    if (this._selectedIndexs.length) {
-      this._selectedIndexs.forEach(index => {
-        const sprite = this.getCardIndex(index);
-        sprite.unselect();
-        sprite.iluminate();
-      });
-    }
-    this.staticMode();
-  }
 
-  isSelectMode() {
-    return this.getStatus() instanceof CardsetSpriteSelectModeState;
-  }
+
 
   getCardIndexs(indexs) {
     return indexs.map(index => this.getCardIndex(index)) || this._sprites;

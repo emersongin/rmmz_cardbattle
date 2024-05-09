@@ -3496,9 +3496,40 @@ class CardsetSprite extends ActionSprite {
     return sprites.every(sprite => sprite.isOpened());
   }
 
+  isSelectMode() {
+    return this.getStatus() instanceof CardsetSpriteSelectModeState;
+  }
+
+  unselectMode() {
+    this.addAction(this.commandUnselectMode);
+  }
+
+  commandUnselectMode() {
+    if (this.isStaticMode()) return true;
+
+    this._enableSelected = false;
+    if (this._selectedIndexs.length) {
+      this._selectedIndexs.forEach(index => {
+        const sprite = this.getCardIndex(index);
+        sprite.unselect();
+        sprite.iluminate();
+      });
+    }
+    this.staticMode();
+    return true;
+  }
+
   isStaticMode() {
     return this.getStatus() instanceof CardsetSpriteStaticModeState;
   }
+
+
+
+
+
+
+
+
 
 
 
@@ -3693,26 +3724,9 @@ class CardsetSprite extends ActionSprite {
 
 
 
-  unselectMode() {
-    this.addAction(this.commandUnselectMode);
-  }
 
-  commandUnselectMode() {
-    if (!this.isVisible() && this.isSelectMode()) return;
-    this._enableSelected = false;
-    if (this._selectedIndexs.length) {
-      this._selectedIndexs.forEach(index => {
-        const sprite = this.getCardIndex(index);
-        sprite.unselect();
-        sprite.iluminate();
-      });
-    }
-    this.staticMode();
-  }
 
-  isSelectMode() {
-    return this.getStatus() instanceof CardsetSpriteSelectModeState;
-  }
+
 
   getCardIndexs(indexs) {
     return indexs.map(index => this.getCardIndex(index)) || this._sprites;
@@ -5455,26 +5469,32 @@ class SelectModeCardsetSpriteTest extends SceneTest {
     this.test('Deve entrar em modo seleção!', () => {
       this.subject.selectMode();
     }, () => {
-      this.assertTrue('Esta em modo estático?', this.subject.isStaticMode());
-    }, 20);
+      this.assertTrue('Esta em modo seleção?', this.subject.isSelectMode());
+    });
+  }
+}
+class StaticModeCardsetSpriteTest extends SceneTest {
+  name = 'StaticModeCardsetSpriteTest';
 
-    // return new Promise(async resolve => {
-    //   this.subject.show();
-    //   const cards = CardGenerator.generateCards(10);
-    //   this.test('Deve entrar em modo seleção!', () => {
-    //     this.subject.setCards(cards);
-    //     this.subject.startListCards();
-    //     this.subject.showCards();
-        
-    //   }, () => {
-    //     this.assertTrue('Esta em modo seleção?', this.subject.isSelectMode());
-    //   });
-    //   this.test('Deve entrar em modo estático!', () => {
-    //     this.subject.unselectMode();
-    //   }, () => {
-    //     this.assertTrue('esta em modo estático?', this.subject.isStaticMode());
-    //   });
-    // });
+  create() {
+    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
+    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject.show();
+    this.addWatched(this.subject);
+  }
+
+  start() {
+    const numCards = 10;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.listCards(cards);
+    this.subject.showCards(sprites);
+    this.subject.selectMode();
+    this.test('Deve entrar em modo estático!', () => {
+      this.subject.unselectMode();
+    }, () => {
+      this.assertTrue('Esta em modo estático?', this.subject.isStaticMode());
+    });
   }
 }
 
@@ -6492,7 +6512,8 @@ class CardBattleTestScene extends Scene_Message {
       // AddAllCardsToListCardsetSpriteTest,
       // AddCardsToListCardsetSpriteTest,
       // DisableCardsCardsetSpriteTest,
-      SelectModeCardsetSpriteTest,
+      // SelectModeCardsetSpriteTest,
+      StaticModeCardsetSpriteTest,
       
       // SelectModeAndEnableChoiceCardsetSpriteTest,
       // AnimateQuakeCardsCardsetSpriteTest,
