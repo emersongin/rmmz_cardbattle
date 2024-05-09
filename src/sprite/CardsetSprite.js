@@ -77,7 +77,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandSetCards(sprites) {
-    if (this.isHidden() || this.isSelectMode()) return;
+    if (this.isHidden()) return;
     this.clear();
     this._sprites = sprites;
     this.addSprites(sprites);
@@ -300,7 +300,8 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandSelectMode() {
-    if (!(this.isVisible() && this.allCardsIsOpened())) return;
+    const isNot = !(this.isVisible() && this.allCardsIsOpened());
+    if (isNot) return;
     this.changeStatus(CardsetSpriteSelectModeState);
     return true;
   }
@@ -335,9 +336,21 @@ class CardsetSprite extends ActionSprite {
     return this.getStatus() instanceof CardsetSpriteStaticModeState;
   }
 
+  enableChoice() {
+    this.addAction(this.commandEnableChoice);
+  }
 
+  commandEnableChoice() {
+    const isNot = !this.isSelectMode();
+    if (isNot) return;
+    this._enableSelected = true;
+    this._selectedIndexs = [];
+    return true;
+  }
 
-
+  isEnableChoice() {
+    return this._enableSelected;
+  }
 
 
 
@@ -548,15 +561,7 @@ class CardsetSprite extends ActionSprite {
     return this._sprites[index || 0];
   }
 
-  enableChoice() {
-    this.addAction(this.commandEnableChoice);
-  }
 
-  commandEnableChoice() {
-    if (!this.isSelectMode()) return;
-    this._enableSelected = true;
-    this._selectedIndexs = [];
-  }
 
   animateCardFlash(sprite, color, duration, times) {
     this.animateCardsFlash(color, duration, times, sprite);
@@ -633,9 +638,7 @@ class CardsetSprite extends ActionSprite {
     return this._sprites.every(sprite => sprite.isClosed());
   }
 
-  isEnableChoice() {
-    return this._enableSelected;
-  }
+
 
   someSpriteIsAnimationPlaying() {
     return this.children.some(sprite => sprite.isAnimationPlaying());

@@ -53,10 +53,10 @@ class CardBattleTestScene extends Scene_Message {
       // AddAllCardsToListCardsetSpriteTest,
       // AddCardsToListCardsetSpriteTest,
       // DisableCardsCardsetSpriteTest,
+      // StaticModeCardsetSpriteTest,
       // SelectModeCardsetSpriteTest,
-      StaticModeCardsetSpriteTest,
+      SelectModeWithChoiceCardsetSpriteTest,
       
-      // SelectModeAndEnableChoiceCardsetSpriteTest,
       // AnimateQuakeCardsCardsetSpriteTest,
       // AnimateFlashCardsCardsetSpriteTest,
       // AnimateDamageCardsCardsetSpriteTest,
