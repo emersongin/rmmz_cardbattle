@@ -12,7 +12,7 @@ class OpenCardsCardsetSpriteTest extends SceneTest {
   start() {
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
-    const sprites = this.subject.inlineCards(cards);
+    const sprites = this.subject.listCards(cards);
     this.subject.startClosedCards(sprites);
     this.subject.showCards(sprites);
     this.test('Deve abrir os cartões do set!', () => {

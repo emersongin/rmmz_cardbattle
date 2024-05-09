@@ -12,7 +12,7 @@ class CloseAllCardsCardsetSpriteTest extends SceneTest {
   start() {
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
-    const sprites = this.subject.inlineCards(cards);
+    const sprites = this.subject.listCards(cards);
     this.subject.showCards(sprites);
     this.test('Deve fechar todos os cartões do set!', () => {
       this.subject.closeAllCards(sprites);

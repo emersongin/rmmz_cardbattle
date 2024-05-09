@@ -11,11 +11,13 @@ class CardsetSpriteSelectModeState {
   updateStatus() {
     const cardset = this._cardset;
     const keys = ['right', 'left'];
-    if (cardset.isAvailable()) this.updateCursor();
-    if (Input.isAnyKeyActiveIn(keys) && cardset.isAvailable()) this.updateSpriteCards();
-    if (cardset.isAvailable() && cardset._enableSelected) {
-      if (Input.isTriggered('ok')) this.selectSprite();
-      if (Input.isTriggered('cancel') || this.selecteLimit()) cardset.unselectMode();
+    if (cardset.isAvailable()) {
+      this.updateCursor();
+      if (Input.isAnyKeyActiveIn(keys)) this.updateSpriteCards();
+      if (cardset._enableSelected) {
+        if (Input.isTriggered('ok')) this.selectSprite();
+        if (Input.isTriggered('cancel') || this.selecteLimit()) cardset.unselectMode();
+      }
     }
   }
 
@@ -79,18 +81,18 @@ class CardsetSpriteSelectModeState {
     const destinyXPosition = sprite.x;
     const destinyYPosition = -10;
     const duration = 0.03;
-    sprite.hover();
+    sprite.commandHover();
     const move = CardSprite.createMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
-    sprite.toMove(move);
+    sprite.commandMoving([move]);
   }
 
   unhoverSprite(sprite) {
     const destinyXPosition = sprite.x;
     const destinyYPosition = 0;
     const duration = 0.03;
-    sprite.unhover();
+    sprite.commandUnhover();
     const move = CardSprite.createMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
-    sprite.toMove(move);
+    sprite.commandMoving([move]);
   }
 
   selectSprite() {

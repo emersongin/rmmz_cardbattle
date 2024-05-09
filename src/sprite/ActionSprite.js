@@ -52,18 +52,6 @@ class ActionSprite extends Sprite {
     return (Array.isArray(items) === false) ? [items] : items;
   }
 
-  createActions(fn, set) {
-    const actions = set.map((params, index) => {
-      const appliedDelay = 0;
-      const action = this.createAction({
-        fn,
-        delay: appliedDelay,
-      }, ...params);
-      return action;
-    });
-    return actions;
-  }
-
   createActionsWithDelay(fn, delay, set) {
     const actions = set.map((params, index) => {
       const appliedDelay = (index > 0) ? delay : 0;
@@ -82,6 +70,7 @@ class ActionSprite extends Sprite {
 
   commandShow() {
     this.visible = true;
+    return true;
   }
 
   hide() {
@@ -90,6 +79,7 @@ class ActionSprite extends Sprite {
 
   commandHide() {
     this.visible = false;
+    return true;
   }
 
   update() {
@@ -111,7 +101,7 @@ class ActionSprite extends Sprite {
   }
 
   isBusy() {
-    return this.getStatus() || this.someDelayAction();
+    return this.someDelayAction();
   }
 
   getStatus() {
@@ -126,19 +116,28 @@ class ActionSprite extends Sprite {
     const actions = this._actionsQueue[0];
     console.log(actions);
     if (actions.length > 0) {
-      this.processActions(actions);
-      this._actionsQueue.shift();
+      const completed = this.processActions(actions);
+      if (completed) {
+        this._actionsQueue.shift();
+      }
     }
   }
 
   processActions(actions) {
+    let processed = false;
     for (const action of actions) {
       if (action.delay > 0) {
         this._actionsQueueWithDelay.push(action);
         continue;
       }
-      action.execute();
+      const completed = action.execute();
+      if (completed) {
+        processed = true;
+        continue;
+      }
+      break;
     }
+    return processed;
   }
 
   isVisible() {

@@ -60,6 +60,7 @@ class CardsetSprite extends ActionSprite {
 
   commandStaticMode() {
     this.changeStatus(CardsetSpriteStaticModeState);
+    return true;
   }
 
   setCards(cards, x, y) {
@@ -80,6 +81,7 @@ class CardsetSprite extends ActionSprite {
     this.clear();
     this._sprites = sprites;
     this.addSprites(sprites);
+    return true;
   }
 
   addSprites(sprites) {
@@ -94,6 +96,7 @@ class CardsetSprite extends ActionSprite {
   commandShowCards(sprites) {
     if (this.isHidden()) return;
     sprites.forEach((sprite, index) => sprite.show());
+    return true;
   }
 
   allCardsAreVisible() {
@@ -149,6 +152,7 @@ class CardsetSprite extends ActionSprite {
     if (this.isHidden()) return;
     sprites = this.toArray(sprites);
     sprites.forEach((sprite, index) => sprite.startClosed());
+    return true;
   }
 
   allCardsIsClosed(sprites = this._sprites) {
@@ -163,6 +167,7 @@ class CardsetSprite extends ActionSprite {
   commandOpenAllCards(sprites) {
     if (this.isHidden()) return;
     sprites.forEach(sprite => sprite.open());
+    return true;
   }
 
   closeAllCards(sprites = this._sprites) {
@@ -173,6 +178,7 @@ class CardsetSprite extends ActionSprite {
   commandCloseAllCards(sprites) {
     if (this.isHidden()) return;
     sprites.forEach(sprite => sprite.close());
+    return true;
   }
 
   openCards(sprites = this._sprites, delay = 6, reverse = false) {
@@ -186,6 +192,7 @@ class CardsetSprite extends ActionSprite {
   commandOpenCard(sprite) {
     if (this.isHidden()) return;
     sprite.open();
+    return true;
   }
 
   closeCards(sprites = this._sprites, delay = 6, reverse = false) {
@@ -199,10 +206,10 @@ class CardsetSprite extends ActionSprite {
   commandCloseCard(sprite) {
     if (this.isHidden()) return;
     sprite.close();
+    return true;
   }
 
   moveAllCardsInlist(sprites = this._sprites) {
-    console.log(sprites);
     sprites = this.toArray(sprites);
     const numCards = sprites.length;
     const positions = CardsetSprite.createPositionsList(numCards);
@@ -210,12 +217,13 @@ class CardsetSprite extends ActionSprite {
     this.addAction(this.commandMoveAllCards, moves);
   }
 
-  commandMoveAllCards(moves) { console.log(moves);
+  commandMoveAllCards(moves) {
     if (this.isHidden()) return;
     moves.forEach(({ sprite, x, y }) => {
       const move = CardSprite.createMove(x, y);
       sprite.toMove(move);
     });
+    return true;
   }
 
   moveCardsInlist(sprites = this._sprites, delay = 6) {
@@ -232,6 +240,7 @@ class CardsetSprite extends ActionSprite {
     if (this.isHidden()) return;
     const move = CardSprite.createMove(x, y);
     sprite.toMove(move);
+    return true;
   }
 
   moveAllCardsToPosition(sprites = this._sprites, x = 0, y = 0) {
@@ -262,6 +271,7 @@ class CardsetSprite extends ActionSprite {
   commandSetAllCardsToPosition(sprites, x, y) {
     if (this.isHidden()) return;
     sprites.forEach(sprite => sprite.startPosition(x, y));
+    return true;
   }
 
   disableCards(sprites = this._sprites) {
@@ -274,6 +284,7 @@ class CardsetSprite extends ActionSprite {
     sprites.forEach(sprite => {
       sprite.disable();
     });
+    return true;
   }
 
   isEnabledCardIndexs(indexs) {
@@ -284,26 +295,35 @@ class CardsetSprite extends ActionSprite {
     return indexs.every(index => this.getCardIndex(index).isDisabled());
   }
 
+  selectMode() {
+    this.addAction(this.commandSelectMode);
+  }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  commandSelectMode() {
+    if (!(this.isVisible() && this.allCardsIsOpened())) return;
+    this.changeStatus(CardsetSpriteSelectModeState);
+    return true;
+  }
 
   allCardsIsOpened(sprites = this._sprites) {
     return sprites.every(sprite => sprite.isOpened());
   }
+
+  isStaticMode() {
+    return this.getStatus() instanceof CardsetSpriteStaticModeState;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
 
   moveCardsPositions(positions, sprites) {
     return positions.map(({ x, y, index }) => {
@@ -326,7 +346,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   isBusy() {
-    return (super.isBusy() && this.isSelectMode()) || this.someSpriteIsBusy();
+    return super.isBusy() || this.someSpriteIsBusy();
   }
 
   someSpriteIsBusy() {
@@ -482,18 +502,9 @@ class CardsetSprite extends ActionSprite {
     });
   }
 
-  selectMode() {
-    this.addAction(this.commandSelectMode);
-  }
 
-  commandSelectMode() {
-    if (!(this.isVisible() && this.allSpritesIsOpened())) return;
-    this.changeStatus(CardsetSpriteSelectModeState);
-  }
 
-  allSpritesIsOpened() {
-    return this._sprites.every(sprite => sprite.isOpened());
-  }
+
 
   unselectMode() {
     this.addAction(this.commandUnselectMode);
@@ -627,8 +638,6 @@ class CardsetSprite extends ActionSprite {
 
  
 
-  isStaticMode() {
-    return this.getStatus() instanceof CardsetSpriteStaticModeState;
-  }
+
 
 }
