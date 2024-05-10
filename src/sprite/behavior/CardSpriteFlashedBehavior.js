@@ -18,12 +18,16 @@ class CardSpriteFlashedBehavior {
   }
 
   updateBehavior() {
-    if (this.hasTimesOrInfinity() && this.isNoPlaying()) {
-      if (this.hasTimes()) this._times--;
-      this._flashDuration = this._duration;
-    } else {
-      this.updateFlash();
+    const that = this._card;
+    if (this.isNoPlaying()) {
+      if (this.hasTimesOrInfinity()) {
+        if (this.hasTimes()) this._times--;
+        this._flashDuration = this._duration;
+      } else {
+        that.removeBehavior(this);
+      }
     }
+    this.updateFlash();
   }
 
   hasTimesOrInfinity() {

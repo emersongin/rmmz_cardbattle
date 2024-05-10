@@ -580,7 +580,7 @@ class CardSprite extends ActionSprite {
     return !this.isIluminated();
   }
 
-  flash(color = 'white', duration = 60, times = 1) {
+  flash(color = 'white', duration = 10, times = 1) {
     this.addAction(this.commandFlash, color, duration, times);
   }
 

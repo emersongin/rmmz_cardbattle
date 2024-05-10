@@ -2025,12 +2025,16 @@ class CardSpriteFlashedBehavior {
   }
 
   updateBehavior() {
-    if (this.hasTimesOrInfinity() && this.isNoPlaying()) {
-      if (this.hasTimes()) this._times--;
-      this._flashDuration = this._duration;
-    } else {
-      this.updateFlash();
+    const that = this._card;
+    if (this.isNoPlaying()) {
+      if (this.hasTimesOrInfinity()) {
+        if (this.hasTimes()) this._times--;
+        this._flashDuration = this._duration;
+      } else {
+        that.removeBehavior(this);
+      }
     }
+    this.updateFlash();
   }
 
   hasTimesOrInfinity() {
@@ -3016,12 +3020,6 @@ class CardSprite extends ActionSprite {
   isUpdatingPoints() {
     return this.getBehavior(CardSpriteUpdatedPointsBehavior) instanceof CardSpriteUpdatedPointsBehavior;
   }
-  
-  // isAnimationPlaying() {
-  //   const behavior = this.getBehavior(CardSpriteAnimatedBehavior);
-  //   if (behavior) return behavior.isPlayingAnimation();
-  //   return false;
-  // }
 }
 class CardsetSpriteStaticModeState {
   _cardset;
@@ -3289,7 +3287,7 @@ class CardsetSprite extends ActionSprite {
     return this._sprites.every(sprite => sprite.isVisible());
   }
 
-  isSpritesPositions(positions, sprites = this.children) {
+  isSpritesPositions(positions, sprites = this._sprites) {
     return sprites.every((sprite, index) => {
       const position = positions.find(position => position.index === index);
       if (!position) return true;
@@ -3549,7 +3547,7 @@ class CardsetSprite extends ActionSprite {
     return this._enableSelected;
   }
 
-  flashCardsAnimate(sprites = this._sprites, color = 'white', duration = 60, times = 1) {
+  flashCardsAnimate(sprites = this._sprites, color = 'white', duration = 10, times = 1) {
     sprites = this.toArray(sprites);
     this.addAction(this.commandAnimateCardsFlash, sprites, color, duration, times);
   }
@@ -4137,17 +4135,23 @@ class SceneTest {
 
   copyWatched() {
     const watched = this.toWatched.map(w => ObjectHelper.copyObject(w));
-    console.log('copy', watched[0].someSpriteIsMoving());
     this.watched.push(watched);
   }
 
   assertWasTrue(title, fnOrValue, reference, ...params) {
     const indexOfWatched = this.indexOfWatched(reference);
     const watched = this.watched.map((wat, index) => wat[indexOfWatched || 0]);
-    const result = watched.some(watching => {
+    const result = watched.some((watching, index) => {
       if (this.isFunction(fnOrValue)) {
         const fnName = fnOrValue.name;
-        console.log('assert', watching[fnName](...params));
+        
+        
+        console.log(fnName, watching[fnName](...params));
+        for (const sprite of watching._sprites) {
+          // console.log(sprite._behaviors);
+          console.log(sprite._status);
+        }
+
         return watching[fnName](...params) === true;
       }
       return watching[fnOrValue] === true;
@@ -4425,7 +4429,7 @@ class MoveCardSpriteTest extends SceneTest {
       this.assertWasTrue('Estava em movimento?', this.subject.isMoving);
       this.assert('Esta no destino x?', this.subject.x).toBe(destinyXPosition);
       this.assert('Esta no destino y', this.subject.y).toBe(destinyYPosition);
-    }, 3);
+    });
   }
 }
 class HoveredCardSpriteTest extends SceneTest {
@@ -6270,8 +6274,8 @@ class CardBattleTestScene extends Scene_Message {
       // StaticModeCardsetSpriteTest,
       // SelectModeCardsetSpriteTest,
       // SelectModeWithChoiceCardsetSpriteTest,
-      // AnimateFlashCardsCardsetSpriteTest,
-      AnimateQuakeCardsCardsetSpriteTest,
+      AnimateFlashCardsCardsetSpriteTest,
+      // AnimateQuakeCardsCardsetSpriteTest,
       // AnimateDamageCardsCardsetSpriteTest,
     ];
     const CardBattleWindowBaseTests = [
@@ -6322,7 +6326,7 @@ class CardBattleTestScene extends Scene_Message {
       WindowTest
     ];
     return [
-      // ...cardSpriteTests,
+      ...cardSpriteTests,
       ...cardsetSpriteTests,
       // ...CardBattleWindowBaseTests,
       // ...textWindowTests,

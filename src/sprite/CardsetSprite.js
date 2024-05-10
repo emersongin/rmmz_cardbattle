@@ -103,7 +103,7 @@ class CardsetSprite extends ActionSprite {
     return this._sprites.every(sprite => sprite.isVisible());
   }
 
-  isSpritesPositions(positions, sprites = this.children) {
+  isSpritesPositions(positions, sprites = this._sprites) {
     return sprites.every((sprite, index) => {
       const position = positions.find(position => position.index === index);
       if (!position) return true;
@@ -363,7 +363,7 @@ class CardsetSprite extends ActionSprite {
     return this._enableSelected;
   }
 
-  flashCardsAnimate(sprites = this._sprites, color = 'white', duration = 60, times = 1) {
+  flashCardsAnimate(sprites = this._sprites, color = 'white', duration = 10, times = 1) {
     sprites = this.toArray(sprites);
     this.addAction(this.commandAnimateCardsFlash, sprites, color, duration, times);
   }

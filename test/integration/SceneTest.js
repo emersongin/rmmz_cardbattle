@@ -139,17 +139,23 @@ class SceneTest {
 
   copyWatched() {
     const watched = this.toWatched.map(w => ObjectHelper.copyObject(w));
-    console.log('copy', watched[0].someSpriteIsMoving());
     this.watched.push(watched);
   }
 
   assertWasTrue(title, fnOrValue, reference, ...params) {
     const indexOfWatched = this.indexOfWatched(reference);
     const watched = this.watched.map((wat, index) => wat[indexOfWatched || 0]);
-    const result = watched.some(watching => {
+    const result = watched.some((watching, index) => {
       if (this.isFunction(fnOrValue)) {
         const fnName = fnOrValue.name;
-        console.log('assert', watching[fnName](...params));
+        
+        
+        console.log(fnName, watching[fnName](...params));
+        for (const sprite of watching._sprites) {
+          // console.log(sprite._behaviors);
+          console.log(sprite._status);
+        }
+
         return watching[fnName](...params) === true;
       }
       return watching[fnOrValue] === true;
