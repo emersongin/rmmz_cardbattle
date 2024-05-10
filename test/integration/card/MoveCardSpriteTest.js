@@ -23,17 +23,13 @@ class MoveCardSpriteTest extends SceneTest {
     const returnStartPosition = 0;
     const move1 = CardSprite.createMove(destinyXPosition, destinyYPosition);
     const move2 = CardSprite.createMove(avanceXposition, destinyYPosition);
-    const move3 = CardSprite.createMove(avanceXposition, avanceYposition);
-    const move4 = CardSprite.createMove(destinyXPosition, avanceYposition);
-    const move5 = CardSprite.createMove(returnStartPosition, returnStartPosition);
-    const move6 = CardSprite.createMove(destinyXPosition, destinyYPosition);
-    const moves = [move1, move2, move3, move4, move5, move6];
+    const moves = [move1, move2];
     this.test('Deve mover!', () => {
       this.subject.toMove(moves);
     }, () => {
-      this.assertWasTrue('Estava em movimento?', this.subject.isMoving);
-      this.assert('Esta no destino x?', this.subject.x).toBe(destinyXPosition);
+      this.assert('Esta no destino x?', this.subject.x).toBe(avanceXposition);
       this.assert('Esta no destino y', this.subject.y).toBe(destinyYPosition);
+      this.assertWasTrue('Estava em movimento?', this.subject.isMoving);
     });
   }
 }

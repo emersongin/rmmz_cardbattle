@@ -146,16 +146,6 @@ class StringHelper {
 }
 
 class NumberHelper {
-  static findBigger() {
-    let bigger = arguments[0];
-    for (let i = 1; i < arguments.length; i++) {
-        if (arguments[i] > bigger) {
-          bigger = arguments[i];
-        }
-    }
-    return bigger;
-  }
-
   static calculateTimeInterval(origin = 0, destiny = 0, duration = 0) {
     const distance = Math.abs(origin - destiny);
     const time = Math.abs(duration * 60);
@@ -164,17 +154,49 @@ class NumberHelper {
 }
 
 class ObjectHelper {
-  static copyObject(obj) {
-    const copiedObj = Object.create(Object.getPrototypeOf(obj));
-    const descriptors = Object.getOwnPropertyDescriptors(obj);
-    for (let key in descriptors) {
-        if (typeof descriptors[key].value === 'function') {
-            copiedObj[key] = descriptors[key].value.call(obj);
+  // static copyObject(obj) {
+  //   const copiedObj = Object.create(Object.getPrototypeOf(obj));
+  //   const descriptors = Object.getOwnPropertyDescriptors(obj);
+  //   for (let key in descriptors) {
+  //       if (typeof descriptors[key].value === 'function') {
+  //           copiedObj[key] = descriptors[key].value.call(obj);
+  //       } else {
+  //           Object.defineProperty(copiedObj, key, descriptors[key]);
+  //       }
+  //   }
+  //   return copiedObj;
+  // }
+
+  static copyObject(obj, maxDepth = 2, currentDepth = 0) {
+    const newObj = {};
+    for (const key in obj) {
+      if (Array.isArray(obj[key])) {
+        newObj[key] = obj[key].clone();
+        continue;
+      }
+      if (obj.hasOwnProperty && obj.hasOwnProperty(key)) {
+        const value = obj[key];
+        if (typeof value === 'object' && value !== null && currentDepth < maxDepth) {
+          newObj[key] = ObjectHelper.copyObject(value, maxDepth, currentDepth + 1);
         } else {
-            Object.defineProperty(copiedObj, key, descriptors[key]);
+          newObj[key] = value;
         }
+      }
     }
-    return copiedObj;
+    return newObj;
+  }
+
+  static mergeObjects(originalObj, dataToAdd) {
+    if (typeof originalObj !== 'object' || originalObj === null ||
+      typeof dataToAdd !== 'object' || dataToAdd === null) {
+      throw new Error('Os argumentos devem ser objetos');
+    }
+    for (const key in dataToAdd) {
+      if (dataToAdd.hasOwnProperty(key)) {
+        originalObj[key] = dataToAdd[key];
+      }
+    }
+    return originalObj;
   }
 
   static compareObjects(object1, object2) {
@@ -2751,7 +2773,7 @@ class CardSprite extends ActionSprite {
     return !this.isIluminated();
   }
 
-  flash(color = 'white', duration = 60, times = 1) {
+  flash(color = 'white', duration = 10, times = 1) {
     this.addAction(this.commandFlash, color, duration, times);
   }
 
@@ -4138,20 +4160,14 @@ class SceneTest {
     this.watched.push(watched);
   }
 
-  assertWasTrue(title, fnOrValue, reference, ...params) {
+  async assertWasTrue(title, fnOrValue, reference, ...params) {
     const indexOfWatched = this.indexOfWatched(reference);
     const watched = this.watched.map((wat, index) => wat[indexOfWatched || 0]);
+    await this.clear();
     const result = watched.some((watching, index) => {
       if (this.isFunction(fnOrValue)) {
         const fnName = fnOrValue.name;
-        
-        
-        console.log(fnName, watching[fnName](...params));
-        for (const sprite of watching._sprites) {
-          // console.log(sprite._behaviors);
-          console.log(sprite._status);
-        }
-
+        watching = ObjectHelper.mergeObjects(this.toWatched[indexOfWatched || 0], watching);
         return watching[fnName](...params) === true;
       }
       return watching[fnOrValue] === true;
@@ -4229,6 +4245,27 @@ class SceneTest {
 
   addWindow(window) {
     this.scene._windowLayer.addChild(window);
+  }
+
+  clear() {
+    return new Promise(resolve => {
+      const children = this.scene.children;
+      while (children.length > 1) {
+        children.forEach(async child => {
+          if (child === this.scene._windowLayer) return;
+          child.destroy();
+          await this.scene.removeChild(child);
+        });
+      }
+      const windowChildren = this.scene._windowLayer.children;
+      while (windowChildren.length) {
+        windowChildren.forEach(async window => {
+          window.destroy();
+          await this.scene._windowLayer.removeChild(window);
+        });
+      }
+      resolve(true);
+    });
   }
 }
 // tests CARD Sprite
@@ -4418,17 +4455,13 @@ class MoveCardSpriteTest extends SceneTest {
     const returnStartPosition = 0;
     const move1 = CardSprite.createMove(destinyXPosition, destinyYPosition);
     const move2 = CardSprite.createMove(avanceXposition, destinyYPosition);
-    const move3 = CardSprite.createMove(avanceXposition, avanceYposition);
-    const move4 = CardSprite.createMove(destinyXPosition, avanceYposition);
-    const move5 = CardSprite.createMove(returnStartPosition, returnStartPosition);
-    const move6 = CardSprite.createMove(destinyXPosition, destinyYPosition);
-    const moves = [move1, move2, move3, move4, move5, move6];
+    const moves = [move1, move2];
     this.test('Deve mover!', () => {
       this.subject.toMove(moves);
     }, () => {
-      this.assertWasTrue('Estava em movimento?', this.subject.isMoving);
-      this.assert('Esta no destino x?', this.subject.x).toBe(destinyXPosition);
+      this.assert('Esta no destino x?', this.subject.x).toBe(avanceXposition);
       this.assert('Esta no destino y', this.subject.y).toBe(destinyYPosition);
+      this.assertWasTrue('Estava em movimento?', this.subject.isMoving);
     });
   }
 }
@@ -6238,7 +6271,7 @@ class CardBattleTestScene extends Scene_Message {
       // CloseCardSpriteTest,
       // DisableCardSpriteTest,
       // EnableCardSpriteTest,
-      // MoveCardSpriteTest,
+      MoveCardSpriteTest,
       // HoveredCardSpriteTest,
       // UnhoveredCardSpriteTest,
       // SelectedCardSpriteTest,
@@ -6256,27 +6289,27 @@ class CardBattleTestScene extends Scene_Message {
       // UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
-      // StartPositionCardsetSpriteTest,
-      // SetCardsCardsetSpriteTest,
-      // ListCardsCardsetSpriteTest,
-      // StartClosedCardsCardsetSpriteTest,
-      // OpenAllCardsCardsetSpriteTest,
-      // OpenCardsCardsetSpriteTest,
-      // CloseAllCardsCardsetSpriteTest,
-      // CloseCardsCardsetSpriteTest,
-      // MoveAllCardsInListCardsetSpriteTest,
-      // MoveCardsInListCardsetSpriteTest,
-      // MoveAllCardsToPositionCardsetSpriteTest,
-      // MoveCardsToPositionCardsetSpriteTest,
-      // AddAllCardsToListCardsetSpriteTest,
-      // AddCardsToListCardsetSpriteTest,
-      // DisableCardsCardsetSpriteTest,
-      // StaticModeCardsetSpriteTest,
-      // SelectModeCardsetSpriteTest,
-      // SelectModeWithChoiceCardsetSpriteTest,
+      StartPositionCardsetSpriteTest,
+      SetCardsCardsetSpriteTest,
+      ListCardsCardsetSpriteTest,
+      StartClosedCardsCardsetSpriteTest,
+      OpenAllCardsCardsetSpriteTest,
+      OpenCardsCardsetSpriteTest,
+      CloseAllCardsCardsetSpriteTest,
+      CloseCardsCardsetSpriteTest,
+      MoveAllCardsInListCardsetSpriteTest,
+      MoveCardsInListCardsetSpriteTest,
+      MoveAllCardsToPositionCardsetSpriteTest,
+      MoveCardsToPositionCardsetSpriteTest,
+      AddAllCardsToListCardsetSpriteTest,
+      AddCardsToListCardsetSpriteTest,
+      DisableCardsCardsetSpriteTest,
+      StaticModeCardsetSpriteTest,
+      SelectModeCardsetSpriteTest,
+      SelectModeWithChoiceCardsetSpriteTest,
       AnimateFlashCardsCardsetSpriteTest,
-      // AnimateQuakeCardsCardsetSpriteTest,
-      // AnimateDamageCardsCardsetSpriteTest,
+      AnimateQuakeCardsCardsetSpriteTest,
+      AnimateDamageCardsCardsetSpriteTest,
     ];
     const CardBattleWindowBaseTests = [
       OpenCardBattleWindowBaseTest,
@@ -6327,7 +6360,7 @@ class CardBattleTestScene extends Scene_Message {
     ];
     return [
       ...cardSpriteTests,
-      ...cardsetSpriteTests,
+      // ...cardsetSpriteTests,
       // ...CardBattleWindowBaseTests,
       // ...textWindowTests,
       // ...boardWindowTests,

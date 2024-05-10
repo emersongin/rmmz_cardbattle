@@ -142,20 +142,14 @@ class SceneTest {
     this.watched.push(watched);
   }
 
-  assertWasTrue(title, fnOrValue, reference, ...params) {
+  async assertWasTrue(title, fnOrValue, reference, ...params) {
     const indexOfWatched = this.indexOfWatched(reference);
     const watched = this.watched.map((wat, index) => wat[indexOfWatched || 0]);
+    await this.clear();
     const result = watched.some((watching, index) => {
       if (this.isFunction(fnOrValue)) {
         const fnName = fnOrValue.name;
-        
-        
-        console.log(fnName, watching[fnName](...params));
-        for (const sprite of watching._sprites) {
-          // console.log(sprite._behaviors);
-          console.log(sprite._status);
-        }
-
+        watching = ObjectHelper.mergeObjects(this.toWatched[indexOfWatched || 0], watching);
         return watching[fnName](...params) === true;
       }
       return watching[fnOrValue] === true;
@@ -233,5 +227,26 @@ class SceneTest {
 
   addWindow(window) {
     this.scene._windowLayer.addChild(window);
+  }
+
+  clear() {
+    return new Promise(resolve => {
+      const children = this.scene.children;
+      while (children.length > 1) {
+        children.forEach(async child => {
+          if (child === this.scene._windowLayer) return;
+          child.destroy();
+          await this.scene.removeChild(child);
+        });
+      }
+      const windowChildren = this.scene._windowLayer.children;
+      while (windowChildren.length) {
+        windowChildren.forEach(async window => {
+          window.destroy();
+          await this.scene._windowLayer.removeChild(window);
+        });
+      }
+      resolve(true);
+    });
   }
 }

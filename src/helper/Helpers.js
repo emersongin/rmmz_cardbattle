@@ -9,16 +9,6 @@ class StringHelper {
 }
 
 class NumberHelper {
-  static findBigger() {
-    let bigger = arguments[0];
-    for (let i = 1; i < arguments.length; i++) {
-        if (arguments[i] > bigger) {
-          bigger = arguments[i];
-        }
-    }
-    return bigger;
-  }
-
   static calculateTimeInterval(origin = 0, destiny = 0, duration = 0) {
     const distance = Math.abs(origin - destiny);
     const time = Math.abs(duration * 60);
@@ -27,17 +17,49 @@ class NumberHelper {
 }
 
 class ObjectHelper {
-  static copyObject(obj) {
-    const copiedObj = Object.create(Object.getPrototypeOf(obj));
-    const descriptors = Object.getOwnPropertyDescriptors(obj);
-    for (let key in descriptors) {
-        if (typeof descriptors[key].value === 'function') {
-            copiedObj[key] = descriptors[key].value.call(obj);
+  // static copyObject(obj) {
+  //   const copiedObj = Object.create(Object.getPrototypeOf(obj));
+  //   const descriptors = Object.getOwnPropertyDescriptors(obj);
+  //   for (let key in descriptors) {
+  //       if (typeof descriptors[key].value === 'function') {
+  //           copiedObj[key] = descriptors[key].value.call(obj);
+  //       } else {
+  //           Object.defineProperty(copiedObj, key, descriptors[key]);
+  //       }
+  //   }
+  //   return copiedObj;
+  // }
+
+  static copyObject(obj, maxDepth = 2, currentDepth = 0) {
+    const newObj = {};
+    for (const key in obj) {
+      if (Array.isArray(obj[key])) {
+        newObj[key] = obj[key].clone();
+        continue;
+      }
+      if (obj.hasOwnProperty && obj.hasOwnProperty(key)) {
+        const value = obj[key];
+        if (typeof value === 'object' && value !== null && currentDepth < maxDepth) {
+          newObj[key] = ObjectHelper.copyObject(value, maxDepth, currentDepth + 1);
         } else {
-            Object.defineProperty(copiedObj, key, descriptors[key]);
+          newObj[key] = value;
         }
+      }
     }
-    return copiedObj;
+    return newObj;
+  }
+
+  static mergeObjects(originalObj, dataToAdd) {
+    if (typeof originalObj !== 'object' || originalObj === null ||
+      typeof dataToAdd !== 'object' || dataToAdd === null) {
+      throw new Error('Os argumentos devem ser objetos');
+    }
+    for (const key in dataToAdd) {
+      if (dataToAdd.hasOwnProperty(key)) {
+        originalObj[key] = dataToAdd[key];
+      }
+    }
+    return originalObj;
   }
 
   static compareObjects(object1, object2) {
