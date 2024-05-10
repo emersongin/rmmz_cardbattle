@@ -70,9 +70,9 @@
 // include ../test/integration/cardset/SelectModeCardsetSpriteTest.js
 // include ../test/integration/cardset/StaticModeCardsetSpriteTest.js
 // include ../test/integration/cardset/SelectModeWithChoiceCardsetSpriteTest.js
-// include ../test/integration/cardset/AnimateFlashCardsCardsetSpriteTest.js
-// include ../test/integration/cardset/AnimateQuakeCardsCardsetSpriteTest.js
-// include ../test/integration/cardset/AnimateDamageCardsCardsetSpriteTest.js
+// include ../test/integration/cardset/FlashCardsCardsetSpriteTest.js
+// include ../test/integration/cardset/QuakeCardsCardsetSpriteTest.js
+// include ../test/integration/cardset/AnimationCardsCardsetSpriteTest.js
 // tests CARD BATTLE WINDOW BASE
 // include ../test/integration/cardbattlewindowbase/OpenCardBattleWindowBaseTest.js
 // include ../test/integration/cardbattlewindowbase/CloseCardBattleWindowBaseTest.js

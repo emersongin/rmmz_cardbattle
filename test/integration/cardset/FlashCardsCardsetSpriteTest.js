@@ -1,5 +1,5 @@
-class AnimateFlashCardsCardsetSpriteTest extends SceneTest {
-  name = 'AnimateFlashCardsCardsetSpriteTest';
+class FlashCardsCardsetSpriteTest extends SceneTest {
+  name = 'FlashCardsCardsetSpriteTest';
 
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);

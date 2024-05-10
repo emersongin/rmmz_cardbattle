@@ -1,5 +1,5 @@
-class AnimateDamageCardsCardsetSpriteTest extends SceneTest {
-  name = 'AnimateDamageCardsCardsetSpriteTest';
+class QuakeCardsCardsetSpriteTest extends SceneTest {
+  name = 'QuakeCardsCardsetSpriteTest';
 
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
@@ -13,12 +13,11 @@ class AnimateDamageCardsCardsetSpriteTest extends SceneTest {
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    this.test('Deve animar os cartões com frame de animação!', () => {
+    this.test('Deve animar os cartões com chacoalhar!', () => {
       this.subject.showCards(sprites);
-      const times = 1;
-      this.subject.damageCardsAnimate(times, sprites, this.scene);
+      this.subject.quakeCardsAnimate(sprites);
     }, () => {
-      this.assertWasTrue('Houve um frame de aimação?', this.subject.someSpriteIsAnimationPlaying);
+      this.assertWasTrue('Houve um chacoalhar?', this.subject.someSpriteIsMoving);
     });
   }
 }
