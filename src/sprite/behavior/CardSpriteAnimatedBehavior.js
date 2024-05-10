@@ -18,16 +18,24 @@ class CardSpriteAnimatedBehavior {
     const that = this._card;
     if (this.hasTimes() || this.isPlayingAnimation()) {
       if (this.noHasAnimationSprite()) {
-        this._animationSprite = new Sprite_Animation();
-        this._animationSprite.setup([that], this._animation);
-        this._parent.addChild(this._animationSprite);
+        this.startAnimation();
         this._times--;
       }
     } else {
-      this._parent.removeChild(this._animationSprite);
-      this._animationSprite.destroy();
       that.removeBehavior(this);
     }
+  }
+
+  startAnimation() {
+    const that = this._card;
+    this._animationSprite = new Sprite_Animation();
+    const targets = [that];
+    const mirror = true;
+    const delay = 8;
+    const previus = this._parent.getLastAnimationSprite() || null;
+    this._animationSprite.setup(targets, this._animation, mirror, delay, previus);
+    this._parent.addChild(this._animationSprite);
+    this._parent.addAnimationSprite(this._animationSprite);
   }
 
   isNoPlayingAnimation() {

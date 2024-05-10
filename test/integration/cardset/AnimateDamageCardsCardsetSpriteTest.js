@@ -15,7 +15,8 @@ class AnimateDamageCardsCardsetSpriteTest extends SceneTest {
     const sprites = this.subject.listCards(cards);
     this.test('Deve animar os cartões com frame de animação!', () => {
       this.subject.showCards(sprites);
-      this.subject.damageCardsAnimate(sprites);
+      const times = 1;
+      this.subject.damageCardsAnimate(times, sprites, this.scene);
     }, () => {
       this.assertWasTrue('Houve um frame de aimação?', this.subject.someSpriteIsAnimationPlaying);
     });

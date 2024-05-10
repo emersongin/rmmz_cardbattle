@@ -398,15 +398,15 @@ class CardsetSprite extends ActionSprite {
     return this._sprites.some(sprite => sprite.isMoving());
   }
 
-  damageCardsAnimate(sprites = this._sprites, times = 1) {
+  damageCardsAnimate(times = 1, sprites = this._sprites, anchorParent = this.parent) {
     sprites = this.toArray(sprites);
-    this.addAction(this.commandAnimateCardsDamage, sprites, times);
+    this.addAction(this.commandAnimateCardsDamage, times, sprites, anchorParent);
   }
 
-  commandAnimateCardsDamage(sprites, times) {
+  commandAnimateCardsDamage(times, sprites, anchorParent) {
     if (this.isHidden() || this.isBusy()) return;
     sprites.forEach(sprite => {
-      sprite.damage(times, this.parent);
+      sprite.damage(times, anchorParent);
     });
     return true;
   }

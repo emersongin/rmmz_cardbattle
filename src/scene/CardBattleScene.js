@@ -2,6 +2,7 @@ class CardBattleScene extends Scene_Message {
   initialize() {
     super.initialize();
     this._phase = null;
+    this._animationSprites = [];
   }
 
   create() {
@@ -47,4 +48,12 @@ class CardBattleScene extends Scene_Message {
   removeWindow(window) {
     this._windowLayer.removeChild(window);
   };
+
+  addAnimationSprite(animationSprite) {
+    this._animationSprites.push(animationSprite);
+  }
+
+  getLastAnimationSprite() {
+    return this._animationSprites[this._animationSprites.length - 1];
+  }
 }

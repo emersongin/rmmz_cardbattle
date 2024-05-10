@@ -1995,16 +1995,24 @@ class CardSpriteAnimatedBehavior {
     const that = this._card;
     if (this.hasTimes() || this.isPlayingAnimation()) {
       if (this.noHasAnimationSprite()) {
-        this._animationSprite = new Sprite_Animation();
-        this._animationSprite.setup([that], this._animation);
-        this._parent.addChild(this._animationSprite);
+        this.startAnimation();
         this._times--;
       }
     } else {
-      this._parent.removeChild(this._animationSprite);
-      this._animationSprite.destroy();
       that.removeBehavior(this);
     }
+  }
+
+  startAnimation() {
+    const that = this._card;
+    this._animationSprite = new Sprite_Animation();
+    const targets = [that];
+    const mirror = true;
+    const delay = 8;
+    const previus = this._parent.getLastAnimationSprite() || null;
+    this._animationSprite.setup(targets, this._animation, mirror, delay, previus);
+    this._parent.addChild(this._animationSprite);
+    this._parent.addAnimationSprite(this._animationSprite);
   }
 
   isNoPlayingAnimation() {
@@ -3604,15 +3612,15 @@ class CardsetSprite extends ActionSprite {
     return this._sprites.some(sprite => sprite.isMoving());
   }
 
-  damageCardsAnimate(sprites = this._sprites, times = 1) {
+  damageCardsAnimate(times = 1, sprites = this._sprites, anchorParent = this.parent) {
     sprites = this.toArray(sprites);
-    this.addAction(this.commandAnimateCardsDamage, sprites, times);
+    this.addAction(this.commandAnimateCardsDamage, times, sprites, anchorParent);
   }
 
-  commandAnimateCardsDamage(sprites, times) {
+  commandAnimateCardsDamage(times, sprites, anchorParent) {
     if (this.isHidden() || this.isBusy()) return;
     sprites.forEach(sprite => {
-      sprite.damage(times, this.parent);
+      sprite.damage(times, anchorParent);
     });
     return true;
   }
@@ -4664,6 +4672,11 @@ class AnimationCardSpriteTest extends SceneTest {
   name = 'AnimationCardSpriteTest';
 
   create() {
+    const baseCenterXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
+    const baseCenterYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
+    this.base = CardsetSprite.create(baseCenterXPosition, baseCenterYPosition);
+    this.base.setBackgroundColor('black');
+    this.base.show();
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
       card.type,
@@ -4672,19 +4685,21 @@ class AnimationCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    const centerXPosition = (this.base.width / 2 - this.subject.width / 2);
+    const centerYPosition = 0;
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+
+    this.base.addChild(this.subject);
+    this.addWatched(this.base);
   }
 
   start() {
     const times = 1;
     this.test('Deve receber uma animação!', () => {
-      this.subject.damage(times);
+      this.subject.damage(times, this.scene);
     }, () => {
-      this.assertWasTrue('Houve animação?', this.subject.isAnimationPlaying);
+      this.assertWasTrue('Houve animação?', this.base.someSpriteIsAnimationPlaying);
     });
   }
 }
@@ -5398,7 +5413,8 @@ class AnimateDamageCardsCardsetSpriteTest extends SceneTest {
     const sprites = this.subject.listCards(cards);
     this.test('Deve animar os cartões com frame de animação!', () => {
       this.subject.showCards(sprites);
-      this.subject.damageCardsAnimate(sprites);
+      const times = 1;
+      this.subject.damageCardsAnimate(times, sprites, this.scene);
     }, () => {
       this.assertWasTrue('Houve um frame de aimação?', this.subject.someSpriteIsAnimationPlaying);
     });
@@ -6203,6 +6219,7 @@ class CardBattleScene extends Scene_Message {
   initialize() {
     super.initialize();
     this._phase = null;
+    this._animationSprites = [];
   }
 
   create() {
@@ -6248,12 +6265,21 @@ class CardBattleScene extends Scene_Message {
   removeWindow(window) {
     this._windowLayer.removeChild(window);
   };
+
+  addAnimationSprite(animationSprite) {
+    this._animationSprites.push(animationSprite);
+  }
+
+  getLastAnimationSprite() {
+    return this._animationSprites[this._animationSprites.length - 1];
+  }
 }
 class CardBattleTestScene extends Scene_Message {
   initialize() {
     super.initialize();
     this.css = 'color: #FFFFFF; font-size: 12px; padding: 5px;';
     this.tests = [];
+    this.animationSprites = [];
     this._test = null;
   }
 
@@ -6271,7 +6297,7 @@ class CardBattleTestScene extends Scene_Message {
       // CloseCardSpriteTest,
       // DisableCardSpriteTest,
       // EnableCardSpriteTest,
-      MoveCardSpriteTest,
+      // MoveCardSpriteTest,
       // HoveredCardSpriteTest,
       // UnhoveredCardSpriteTest,
       // SelectedCardSpriteTest,
@@ -6279,7 +6305,7 @@ class CardBattleTestScene extends Scene_Message {
       // IluminatedCardSpriteTest,
       // UniluminatedCardSpriteTest,
       // FlashCardSpriteTest,
-      // AnimationCardSpriteTest,
+      AnimationCardSpriteTest,
       // QuakeCardSpriteTest,
       // ZoomCardSpriteTest,
       // ZoomOutCardSpriteTest,
@@ -6289,26 +6315,27 @@ class CardBattleTestScene extends Scene_Message {
       // UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
-      StartPositionCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      ListCardsCardsetSpriteTest,
-      StartClosedCardsCardsetSpriteTest,
-      OpenAllCardsCardsetSpriteTest,
-      OpenCardsCardsetSpriteTest,
-      CloseAllCardsCardsetSpriteTest,
-      CloseCardsCardsetSpriteTest,
-      MoveAllCardsInListCardsetSpriteTest,
-      MoveCardsInListCardsetSpriteTest,
-      MoveAllCardsToPositionCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
-      AddAllCardsToListCardsetSpriteTest,
-      AddCardsToListCardsetSpriteTest,
-      DisableCardsCardsetSpriteTest,
-      StaticModeCardsetSpriteTest,
-      SelectModeCardsetSpriteTest,
-      SelectModeWithChoiceCardsetSpriteTest,
-      AnimateFlashCardsCardsetSpriteTest,
-      AnimateQuakeCardsCardsetSpriteTest,
+      // StartPositionCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      // ListCardsCardsetSpriteTest,
+      // StartClosedCardsCardsetSpriteTest,
+      // OpenAllCardsCardsetSpriteTest,
+      // OpenCardsCardsetSpriteTest,
+      // CloseAllCardsCardsetSpriteTest,
+      // CloseCardsCardsetSpriteTest,
+      // MoveAllCardsInListCardsetSpriteTest,
+      // MoveCardsInListCardsetSpriteTest,
+      // MoveAllCardsToPositionCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
+      // AddAllCardsToListCardsetSpriteTest,
+      // AddCardsToListCardsetSpriteTest,
+      // DisableCardsCardsetSpriteTest,
+      // StaticModeCardsetSpriteTest,
+      // SelectModeCardsetSpriteTest,
+      // SelectModeWithChoiceCardsetSpriteTest,
+      // AnimateFlashCardsCardsetSpriteTest,
+      // AnimateQuakeCardsCardsetSpriteTest,
+      // AnimateDamageCardsCardsetSpriteTest,
       AnimateDamageCardsCardsetSpriteTest,
     ];
     const CardBattleWindowBaseTests = [
@@ -6360,7 +6387,7 @@ class CardBattleTestScene extends Scene_Message {
     ];
     return [
       ...cardSpriteTests,
-      // ...cardsetSpriteTests,
+      ...cardsetSpriteTests,
       // ...CardBattleWindowBaseTests,
       // ...textWindowTests,
       // ...boardWindowTests,
@@ -6486,6 +6513,14 @@ class CardBattleTestScene extends Scene_Message {
       }
       resolve(true);
     });
+  }
+
+  addAnimationSprite(animationSprite) {
+    this.animationSprites.push(animationSprite);
+  }
+
+  getLastAnimationSprite() {
+    return this.animationSprites[this.animationSprites.length - 1];
   }
 }
 class CardBattleManagerDrawPhaseState {

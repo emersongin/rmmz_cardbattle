@@ -3,6 +3,7 @@ class CardBattleTestScene extends Scene_Message {
     super.initialize();
     this.css = 'color: #FFFFFF; font-size: 12px; padding: 5px;';
     this.tests = [];
+    this.animationSprites = [];
     this._test = null;
   }
 
@@ -14,50 +15,51 @@ class CardBattleTestScene extends Scene_Message {
 
   data() {
     const cardSpriteTests = [
-      StartOpenCardSpriteTest,
-      StartClosedCardSpriteTest,
-      OpenCardSpriteTest,
-      CloseCardSpriteTest,
-      DisableCardSpriteTest,
-      EnableCardSpriteTest,
-      MoveCardSpriteTest,
-      HoveredCardSpriteTest,
-      UnhoveredCardSpriteTest,
-      SelectedCardSpriteTest,
-      UnselectedCardSpriteTest,
-      IluminatedCardSpriteTest,
-      UniluminatedCardSpriteTest,
-      FlashCardSpriteTest,
+      // StartOpenCardSpriteTest,
+      // StartClosedCardSpriteTest,
+      // OpenCardSpriteTest,
+      // CloseCardSpriteTest,
+      // DisableCardSpriteTest,
+      // EnableCardSpriteTest,
+      // MoveCardSpriteTest,
+      // HoveredCardSpriteTest,
+      // UnhoveredCardSpriteTest,
+      // SelectedCardSpriteTest,
+      // UnselectedCardSpriteTest,
+      // IluminatedCardSpriteTest,
+      // UniluminatedCardSpriteTest,
+      // FlashCardSpriteTest,
       AnimationCardSpriteTest,
-      QuakeCardSpriteTest,
-      ZoomCardSpriteTest,
-      ZoomOutCardSpriteTest,
-      LeaveCardSpriteTest,
-      FlipTurnToUpCardSpriteTest,
-      FlipTurnToDownCardSpriteTest,
-      UpdatingPointsCardSpriteTest
+      // QuakeCardSpriteTest,
+      // ZoomCardSpriteTest,
+      // ZoomOutCardSpriteTest,
+      // LeaveCardSpriteTest,
+      // FlipTurnToUpCardSpriteTest,
+      // FlipTurnToDownCardSpriteTest,
+      // UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
-      StartPositionCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      ListCardsCardsetSpriteTest,
-      StartClosedCardsCardsetSpriteTest,
-      OpenAllCardsCardsetSpriteTest,
-      OpenCardsCardsetSpriteTest,
-      CloseAllCardsCardsetSpriteTest,
-      CloseCardsCardsetSpriteTest,
-      MoveAllCardsInListCardsetSpriteTest,
-      MoveCardsInListCardsetSpriteTest,
-      MoveAllCardsToPositionCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
-      AddAllCardsToListCardsetSpriteTest,
-      AddCardsToListCardsetSpriteTest,
-      DisableCardsCardsetSpriteTest,
-      StaticModeCardsetSpriteTest,
-      SelectModeCardsetSpriteTest,
-      SelectModeWithChoiceCardsetSpriteTest,
-      AnimateFlashCardsCardsetSpriteTest,
-      AnimateQuakeCardsCardsetSpriteTest,
+      // StartPositionCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      // ListCardsCardsetSpriteTest,
+      // StartClosedCardsCardsetSpriteTest,
+      // OpenAllCardsCardsetSpriteTest,
+      // OpenCardsCardsetSpriteTest,
+      // CloseAllCardsCardsetSpriteTest,
+      // CloseCardsCardsetSpriteTest,
+      // MoveAllCardsInListCardsetSpriteTest,
+      // MoveCardsInListCardsetSpriteTest,
+      // MoveAllCardsToPositionCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
+      // AddAllCardsToListCardsetSpriteTest,
+      // AddCardsToListCardsetSpriteTest,
+      // DisableCardsCardsetSpriteTest,
+      // StaticModeCardsetSpriteTest,
+      // SelectModeCardsetSpriteTest,
+      // SelectModeWithChoiceCardsetSpriteTest,
+      // AnimateFlashCardsCardsetSpriteTest,
+      // AnimateQuakeCardsCardsetSpriteTest,
+      // AnimateDamageCardsCardsetSpriteTest,
       AnimateDamageCardsCardsetSpriteTest,
     ];
     const CardBattleWindowBaseTests = [
@@ -110,13 +112,13 @@ class CardBattleTestScene extends Scene_Message {
     return [
       ...cardSpriteTests,
       ...cardsetSpriteTests,
-      ...CardBattleWindowBaseTests,
-      ...textWindowTests,
-      ...boardWindowTests,
-      ...battlePointsWindow,
-      ...trashWindow,
-      ...scoreWindow,
-      ...others,
+      // ...CardBattleWindowBaseTests,
+      // ...textWindowTests,
+      // ...boardWindowTests,
+      // ...battlePointsWindow,
+      // ...trashWindow,
+      // ...scoreWindow,
+      // ...others,
     ];
   }
 
@@ -235,5 +237,13 @@ class CardBattleTestScene extends Scene_Message {
       }
       resolve(true);
     });
+  }
+
+  addAnimationSprite(animationSprite) {
+    this.animationSprites.push(animationSprite);
+  }
+
+  getLastAnimationSprite() {
+    return this.animationSprites[this.animationSprites.length - 1];
   }
 }
