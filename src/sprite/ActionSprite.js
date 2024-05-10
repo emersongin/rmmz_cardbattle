@@ -114,7 +114,6 @@ class ActionSprite extends Sprite {
 
   executeAction() {
     const actions = this._actionsQueue[0];
-    console.log(actions);
     if (actions.length > 0) {
       const completed = this.processActions(actions);
       if (completed) {

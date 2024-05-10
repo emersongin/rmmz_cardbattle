@@ -217,6 +217,13 @@ class CardsetSprite extends ActionSprite {
     this.addAction(this.commandMoveAllCards, moves);
   }
 
+  moveCardsPositions(positions, sprites) {
+    return positions.map(({ x, y, index }) => {
+      const sprite = sprites[index];
+      return { sprite, x, y };
+    });
+  }
+
   commandMoveAllCards(moves) {
     if (this.isHidden()) return;
     moves.forEach(({ sprite, x, y }) => {
@@ -289,6 +296,10 @@ class CardsetSprite extends ActionSprite {
 
   isEnabledCardIndexs(indexs) {
     return indexs.every(index => this.getCardIndex(index).isEnabled());
+  }
+
+  getCardIndex(index) {
+    return this._sprites[index || 0];
   }
 
   isDisabledCardIndexs(indexs) {
@@ -400,41 +411,8 @@ class CardsetSprite extends ActionSprite {
     return true;
   }
 
-
-
-
-
-
-
-
-
   someSpriteIsAnimationPlaying() {
     return this._sprites.some(sprite => sprite.isAnimationPlaying());
-  }
-
-
-
-
-
-
-
-
-
-
-
-  moveCardsPositions(positions, sprites) {
-    return positions.map(({ x, y, index }) => {
-      const sprite = sprites[index];
-      return { sprite, x, y };
-    });
-  }
-
-  commandMoveCards(moves) {
-    if (this.isHidden()) return;
-    moves.forEach(({ sprite, x, y }) => {
-      const move = CardSprite.createMove(x, y);
-      sprite.toMove(move);
-    });
   }
 
   update() {
@@ -449,224 +427,4 @@ class CardsetSprite extends ActionSprite {
   someSpriteIsBusy() {
     return this._sprites.some(sprite => sprite.isBusy());
   }
-
-  setCard(card) {
-    return this.setCards(card).shift();
-  }
-
-  addCard(card) {
-    return this.addCards(card).shift();
-  }
-
-  addCards(cards) {
-    cards = this.toArray(cards);
-    const sprites = cards.map(card => this.createCardSprite(card));
-    this.addSprites(sprites);
-    sprites.forEach(sprite => this._sprites.push(sprite));
-    return sprites;
-  }
-
-  // startPositionCard(sprite, xPosition, yPosition) {
-  //   this.startPositionCards(xPosition, yPosition, sprite);
-  // }
-
-  // startPositionCards(xPosition, yPosition, sprites = this._sprites) {
-  //   sprites = this.toArray(sprites);
-  //   sprites.forEach(sprite => {
-  //     sprite.setPosition(xPosition, yPosition);
-  //   });
-  // }
-
-  // startListCard(sprite) {
-  //   return this.startListCards(sprite);
-  // }
-
-  // startListCards(sprites = this._sprites, exceptSprites = []) {
-  //   const positions = [];
-  //   sprites = this.toArray(sprites);
-  //   sprites.forEach(sprite => {
-  //     if (exceptSprites.includes(sprite)) return;
-  //     const index = this.indexOfSprite(sprite);
-  //     if (index < 0) return;
-  //     const { x, y } = this.getSpritePosition(index);
-  //     sprite.setPosition(x, y);
-  //     positions.push({ index, x, y });
-  //   });
-  //   return positions;
-  // }
-
-  getSpritePosition(index, numberOfChildren = this.numberOfChildren()) {
-    const spaceBetween = this.spaceBetweenCards(numberOfChildren) * index;
-    const x = index ? spaceBetween : 0;
-    const y = 0;
-    return { x, y };
-  }
-
-  spaceBetweenCards(total) {
-    const contentLimit = CardsetSprite.contentOriginalWidth();
-    const padding = 1;
-    const cardWidth = 96;
-    const space = (contentLimit - (padding * total)) / (total || 1);
-    return parseInt(Math.ceil(space) < cardWidth ? space : cardWidth + padding) || padding;
-  }
-
-  startOpenCard(sprite) {
-    this.startOpenCards(sprite);
-  }
-
-  startOpenCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
-    sprites.forEach(sprite => {
-      sprite.startOpen();
-    });
-  }
-
-  startClosedCard(sprite) {
-    this.startClosedCards(sprite);
-  }
-
-
-
-  showCard(sprite) {
-    this.showCards(sprite);
-  }
-
-  openCard(sprite) {
-    this.openCards(sprite);
-  }
-
-
-
-  closeCard(sprite) {
-    this.closeCards(sprite);
-  }
-
-
-
-
-
-  moveCardToList(sprite, exceptSprites) {
-    return this.moveCardsToList(sprite, exceptSprites);
-  }
-
-  moveCardsToList(sprites = this._sprites, exceptSprites) {
-    sprites = this.toArray(sprites);
-    this.startListCards(this._sprites, exceptSprites || sprites);
-    const positions = this.calculateSpritesPositionsToList(sprites);
-    this.addAction(this.commandMoveCardsToList, positions);
-    return positions;
-  }
-
-  calculateSpritesPositionsToList(sprites = this._sprites) {
-    const positions = [];
-    sprites.forEach(sprite => {
-      const index = this.indexOfSprite(sprite);
-      const { x, y } = this.getSpritePosition(index);
-      positions.push({ index, x, y });
-    });
-    return positions;
-  }
-
-  moveCardsToListDelay(delay = 10, sprites = this._sprites, exceptSprites) {
-    sprites = this.toArray(sprites);
-    this.startListCards(this._sprites, exceptSprites || sprites);
-    const positions = this.calculateSpritesPositionsToList(sprites);
-    const actions = this.createActionsWithDelay(this.commandMoveCardsToList, delay, positions);
-    this.addActions(actions);
-    return positions;
-  }
-
-  commandMoveCardsToList(positions) {
-    if (this.isHidden()) return;
-    positions.forEach(({ index, x, y }) => {
-      if (index < 0) return;
-      const move = CardSprite.createMove(x, y);
-      this._sprites[index].toMove(move);
-    });
-  }
-
-  moveCardToPosition(sprite, x, y) {
-    this.moveCardsToPosition(x, y, sprite);
-  }
-
-
-
-  commandMoveCardsToPosition(x, y, sprites) {
-    if (this.isHidden()) return;
-    sprites.forEach(sprite => {
-      const move = CardSprite.createMove(x, y);
-      sprite.toMove(move);
-    });
-  }
-
-
-
-
-
-
-
-
-
-  getCardIndexs(indexs) {
-    return indexs.map(index => this.getCardIndex(index)) || this._sprites;
-  }
-
-  getCardIndex(index) {
-    return this._sprites[index || 0];
-  }
-
-
-
-  animateCardFlash(sprite, color, duration, times) {
-    this.animateCardsFlash(color, duration, times, sprite);
-  }
-
-
-
-  animateCardDamage(sprite, times) {
-    this.animateCardsDamage(times, sprite);
-  }
-
-
-
-  animateCardQuake(sprite, times, distance) {
-    this.animateCardsQuake(times, distance, sprite);
-  }
-
-
-
-  disableCard(sprite) {
-    this.disableCards(sprite);
-  }
-
-
-
-  enableCard(sprite) {
-    this.enableCards(sprite);
-  }
-
-  enableCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
-    this.addAction(this.commandEnableCards, sprites);
-  }
-
-  commandEnableCards(sprites) {
-    if (this.isHidden()) return;
-    sprites.forEach(sprite => {
-      sprite.enable();
-    });
-  }
-
-  allCardsClosed() {
-    return this._sprites.every(sprite => sprite.isClosed());
-  }
-
-
-
-
-
- 
-
-
-
 }

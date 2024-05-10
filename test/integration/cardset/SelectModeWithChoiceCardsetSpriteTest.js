@@ -23,6 +23,6 @@ class SelectModeWithChoiceCardsetSpriteTest extends SceneTest {
     }, () => {
       this.assertTrue('Esta em modo seleção?', this.subject.isSelectMode());
       this.assertTrue('Esta com escolha habilitada?', this.subject.isEnableChoice());
-    }, 60);
+    });
   }
 }

@@ -849,10 +849,4 @@ class CardSprite extends ActionSprite {
   isUpdatingPoints() {
     return this.getBehavior(CardSpriteUpdatedPointsBehavior) instanceof CardSpriteUpdatedPointsBehavior;
   }
-  
-  // isAnimationPlaying() {
-  //   const behavior = this.getBehavior(CardSpriteAnimatedBehavior);
-  //   if (behavior) return behavior.isPlayingAnimation();
-  //   return false;
-  // }
 }

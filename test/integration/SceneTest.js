@@ -139,7 +139,7 @@ class SceneTest {
 
   copyWatched() {
     const watched = this.toWatched.map(w => ObjectHelper.copyObject(w));
-    // console.log(watched[0]._actions);
+    console.log('copy', watched[0].someSpriteIsMoving());
     this.watched.push(watched);
   }
 
@@ -149,6 +149,7 @@ class SceneTest {
     const result = watched.some(watching => {
       if (this.isFunction(fnOrValue)) {
         const fnName = fnOrValue.name;
+        console.log('assert', watching[fnName](...params));
         return watching[fnName](...params) === true;
       }
       return watching[fnOrValue] === true;
