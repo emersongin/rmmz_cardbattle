@@ -27,9 +27,9 @@ class MoveCardSpriteTest extends SceneTest {
     this.test('Deve mover!', () => {
       this.subject.toMove(moves);
     }, () => {
+      this.assertWasTrue('Estava em movimento?', this.subject.isMoving);
       this.assert('Esta no destino x?', this.subject.x).toBe(avanceXposition);
       this.assert('Esta no destino y', this.subject.y).toBe(destinyYPosition);
-      this.assertWasTrue('Estava em movimento?', this.subject.isMoving);
     });
   }
 }

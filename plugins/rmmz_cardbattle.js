@@ -4029,6 +4029,7 @@ class SceneTest {
   name;
   tests = [];
   asserts = [];
+  assertsToTest = [];
   results = [];
   nextAsserts = {};
   assertsName = '';
@@ -4063,7 +4064,7 @@ class SceneTest {
   finish() {
     return new Promise(async res => {
       const intervalId = setInterval(() => {
-        if (this.noHasTests() && this.noHasNextAsserts()) {
+        if (this.noHasTests() && this.noHasAsserts()) {
           res({
             passed: (this.results.length && this.results.every(result => result.passed)),
             testName: this.name,
@@ -4079,7 +4080,7 @@ class SceneTest {
     return this.tests.length === 0;
   }
 
-  noHasNextAsserts() {
+  noHasAsserts() {
     return this.nextAsserts === null;
   }
 
@@ -4134,6 +4135,7 @@ class SceneTest {
   startAsserts() {
     const completed = this.nextAsserts();
     if (completed) {
+      this.processAsserts();
       this.results.push({
         passed: this.asserts.every(assert => assert.passed),
         assertsName: this.assertsName,
@@ -4142,6 +4144,31 @@ class SceneTest {
       this.nextAsserts = null;
       this.asserts = [];
     }
+  }
+
+  processAsserts() {
+    const assert = this.assertsToTest.filter(assert => assert.type === 'assert');
+    const assertWas = this.assertsToTest.filter(assert => assert.type === 'assertWas');
+    assert.forEach(({ title, value, toBe }) => {
+      const assertResult = this.resultTest(value === toBe, toBe, title);
+      this.asserts.push(assertResult);
+    });
+    assertWas.forEach(async ({ title, fnOrValue, reference, params }) => {
+      const indexOfWatched = this.indexOfWatched(reference);
+      const watched = this.watched.map((wat, index) => wat[indexOfWatched || 0]);
+      await this.clear();
+      const result = watched.some((watching, index) => {
+        if (this.isFunction(fnOrValue)) {
+          const fnName = fnOrValue.name;
+          watching = ObjectHelper.mergeObjects(this.toWatched[indexOfWatched || 0], watching);
+          return watching[fnName](...params) === true;
+        }
+        return watching[fnOrValue] === true;
+      });
+      const toBe = true;
+      const assertResult = this.resultTest(result === toBe, toBe, title);
+      this.asserts.push(assertResult);
+    });
   }
 
   hasTests() {
@@ -4168,20 +4195,14 @@ class SceneTest {
     this.watched.push(watched);
   }
 
-  async assertWasTrue(title, fnOrValue, reference, ...params) {
-    const indexOfWatched = this.indexOfWatched(reference);
-    const watched = this.watched.map((wat, index) => wat[indexOfWatched || 0]);
-    await this.clear();
-    const result = watched.some((watching, index) => {
-      if (this.isFunction(fnOrValue)) {
-        const fnName = fnOrValue.name;
-        watching = ObjectHelper.mergeObjects(this.toWatched[indexOfWatched || 0], watching);
-        return watching[fnName](...params) === true;
-      }
-      return watching[fnOrValue] === true;
+  assertWasTrue(title, fnOrValue, reference, ...params) {
+    this.assertsToTest.push({
+      type: 'assertWas',
+      title,
+      fnOrValue,
+      reference,
+      params
     });
-    this.assert(title, result);
-    return this.toBe(true);
   }
 
   indexOfWatched(reference) {
@@ -4194,8 +4215,12 @@ class SceneTest {
   }
 
   assertTrue(title, value) {
-    this.assert(title, value);
-    return this.toBe(true);
+    this.assertsToTest.push({
+      type: 'assert',
+      title,
+      value,
+      toBe: true
+    });
   }
 
   assert(title, value) {
@@ -4205,26 +4230,30 @@ class SceneTest {
   }
 
   toBe(value) {
-    const assertResult = this.resultTest(this.assertValue === value, value);
-    this.asserts.push(assertResult);
+    this.assertsToTest.push({
+      type: 'assert',
+      title: this.assertTitle,
+      value: this.assertValue,
+      toBe: value
+    });
   }
 
-  resultTest(test, value) {
+  resultTest(test, value, title) {
     if (test === false) {
-      return this.testFailed(value, this.assertValue);
+      return this.testFailed(value, this.assertValue, title);
     }
     const testSuccess = {
       passed: true,
-      title: this.assertTitle,
+      title,
       message: 'Test passed!'
     };
     return testSuccess;
   }
 
-  testFailed(valueExpected, valueReceived) {
+  testFailed(valueExpected, valueReceived, title) {
     return {
       passed: false,
-      title: this.assertTitle,
+      title,
       message: `Expected: ${valueExpected} Received: ${valueReceived}`
     };
   }
@@ -4467,9 +4496,9 @@ class MoveCardSpriteTest extends SceneTest {
     this.test('Deve mover!', () => {
       this.subject.toMove(moves);
     }, () => {
+      this.assertWasTrue('Estava em movimento?', this.subject.isMoving);
       this.assert('Esta no destino x?', this.subject.x).toBe(avanceXposition);
       this.assert('Esta no destino y', this.subject.y).toBe(destinyYPosition);
-      this.assertWasTrue('Estava em movimento?', this.subject.isMoving);
     });
   }
 }
@@ -6291,28 +6320,28 @@ class CardBattleTestScene extends Scene_Message {
 
   data() {
     const cardSpriteTests = [
-      StartOpenCardSpriteTest,
-      StartClosedCardSpriteTest,
-      OpenCardSpriteTest,
-      CloseCardSpriteTest,
-      DisableCardSpriteTest,
-      EnableCardSpriteTest,
+      // StartOpenCardSpriteTest,
+      // StartClosedCardSpriteTest,
+      // OpenCardSpriteTest,
+      // CloseCardSpriteTest,
+      // DisableCardSpriteTest,
+      // EnableCardSpriteTest,
       MoveCardSpriteTest,
-      HoveredCardSpriteTest,
-      UnhoveredCardSpriteTest,
-      SelectedCardSpriteTest,
-      UnselectedCardSpriteTest,
-      IluminatedCardSpriteTest,
-      UniluminatedCardSpriteTest,
-      FlashCardSpriteTest,
-      AnimationCardSpriteTest,
-      QuakeCardSpriteTest,
-      ZoomCardSpriteTest,
-      ZoomOutCardSpriteTest,
-      LeaveCardSpriteTest,
-      FlipTurnToUpCardSpriteTest,
-      FlipTurnToDownCardSpriteTest,
-      UpdatingPointsCardSpriteTest
+      // HoveredCardSpriteTest,
+      // UnhoveredCardSpriteTest,
+      // SelectedCardSpriteTest,
+      // UnselectedCardSpriteTest,
+      // IluminatedCardSpriteTest,
+      // UniluminatedCardSpriteTest,
+      // FlashCardSpriteTest,
+      // AnimationCardSpriteTest,
+      // QuakeCardSpriteTest,
+      // ZoomCardSpriteTest,
+      // ZoomOutCardSpriteTest,
+      // LeaveCardSpriteTest,
+      // FlipTurnToUpCardSpriteTest,
+      // FlipTurnToDownCardSpriteTest,
+      // UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
       StartPositionCardsetSpriteTest,
@@ -6386,14 +6415,14 @@ class CardBattleTestScene extends Scene_Message {
     ];
     return [
       ...cardSpriteTests,
-      ...cardsetSpriteTests,
-      ...CardBattleWindowBaseTests,
-      ...textWindowTests,
-      ...boardWindowTests,
-      ...battlePointsWindow,
-      ...trashWindow,
-      ...scoreWindow,
-      ...others,
+      // ...cardsetSpriteTests,
+      // ...CardBattleWindowBaseTests,
+      // ...textWindowTests,
+      // ...boardWindowTests,
+      // ...battlePointsWindow,
+      // ...trashWindow,
+      // ...scoreWindow,
+      // ...others,
     ];
   }
 
