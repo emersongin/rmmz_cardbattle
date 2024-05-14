@@ -1,6 +1,4 @@
 class UnhoveredCardSpriteTest extends SceneTest {
-  name = 'UnhoveredCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -10,19 +8,17 @@ class UnhoveredCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.hover();
+    this.subject.unhover();
   }
 
-  start() {
-    this.subject.hover();
-    this.test('Deve retirar o comportamento de hovered!', () => {
-      this.subject.unhover();
-    }, () => {
-      this.assertTrue('Esta sem hovered?', this.subject.isUnhovered());
-    });
+  asserts() {
+    this.describe('Deve colocar o card em unhovered!');
+    this.assertTrue('Esta sem hovered?', this.subject.isUnhovered());
   } 
 }

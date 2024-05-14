@@ -1,6 +1,4 @@
 class FlipTurnToDownCardSpriteTest extends SceneTest {
-  name = 'FlipTurnToDownCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -10,20 +8,18 @@ class FlipTurnToDownCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.setTurnToUp();
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.flipTurnToDown();
   }
 
-  start() {
-    this.test('Deve virar para baixo!', () => {
-      this.subject.flipTurnToDown();
-    }, () => {
-      this.assertTrue('Esta virado para baixo?', this.subject.isTurnedToDown());
-      this.assertTrue('Esta aberto?', this.subject.isOpened());
-    });
+  asserts() {
+    this.describe('Deve virar o card para baixo!');
+    this.assertTrue('Esta virado para baixo?', this.subject.isTurnedToDown());
+    this.assertTrue('Esta aberto?', this.subject.isOpened());
   }
 }

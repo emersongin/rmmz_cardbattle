@@ -1,6 +1,4 @@
 class ZoomOutCardSpriteTest extends SceneTest {
-  name = 'ZoomOutCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -10,19 +8,17 @@ class ZoomOutCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.zoom();
+    this.subject.zoomOut();
   }
 
-  start() {
-    this.subject.zoom();
-    this.test('Deve retonar a escala normal!', () => {
-      this.subject.zoomOut();
-    }, () => {
-      this.assertTrue('Esta em escala original?', this.subject.isOriginalScale());
-    });
+  asserts() {
+    this.describe('Deve colocar o card em escala original!');
+    this.assertTrue('Esta em escala original?', this.subject.isOriginalScale());
   }
 }

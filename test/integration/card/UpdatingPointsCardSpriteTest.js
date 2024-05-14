@@ -1,6 +1,4 @@
 class UpdatingPointsCardSpriteTest extends SceneTest {
-  name = 'UpdatingPointsCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard(CardTypes.BATTLE);
     this.subject = CardSprite.create(
@@ -10,18 +8,16 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
       0,
       0
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.changePoints(25, 18);
   }
 
-  start() {
-    this.test('Deve atualizar os pontos!', () => {
-      this.subject.changePoints(25, 18);
-    }, () => {
-      this.assertWasTrue('Foram atualizandos?', this.subject.isUpdatingPoints);
-    });
+  asserts() {
+    this.describe('Deve atualizar os pontos do card!');
+    this.assertWasTrue('Foram atualizandos?', this.subject.isUpdatingPoints);
   }
 }

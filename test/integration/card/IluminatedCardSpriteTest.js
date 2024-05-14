@@ -1,6 +1,4 @@
 class IluminatedCardSpriteTest extends SceneTest {
-  name = 'IluminatedCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -10,18 +8,16 @@ class IluminatedCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.iluminate();
   }
 
-  start() {
-    this.test('Deve estar no comportamento de iluminado!', () => {
-      this.subject.iluminate();
-    }, () => {
-      this.assertTrue('Esta em iluminado?', this.subject.isIluminated());
-    });
+  asserts() {
+    this.describe('Deve colocar o card em iluminado!');
+    this.assertTrue('Esta em iluminado?', this.subject.isIluminated());
   }
 }

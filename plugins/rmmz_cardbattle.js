@@ -154,32 +154,19 @@ class NumberHelper {
 }
 
 class ObjectHelper {
-  // static copyObject(obj) {
-  //   const copiedObj = Object.create(Object.getPrototypeOf(obj));
-  //   const descriptors = Object.getOwnPropertyDescriptors(obj);
-  //   for (let key in descriptors) {
-  //       if (typeof descriptors[key].value === 'function') {
-  //           copiedObj[key] = descriptors[key].value.call(obj);
-  //       } else {
-  //           Object.defineProperty(copiedObj, key, descriptors[key]);
-  //       }
-  //   }
-  //   return copiedObj;
-  // }
-
   static copyObject(obj, maxDepth = 2, currentDepth = 0) {
-    const newObj = {};
+    const newObj = Object.create(Object.getPrototypeOf(obj));
     for (const key in obj) {
-      if (Array.isArray(obj[key])) {
-        newObj[key] = obj[key].clone();
-        continue;
-      }
       if (obj.hasOwnProperty && obj.hasOwnProperty(key)) {
         const value = obj[key];
-        if (typeof value === 'object' && value !== null && currentDepth < maxDepth) {
+        if (typeof value === 'object' && value !== null && currentDepth < maxDepth && !Array.isArray(value)) {
           newObj[key] = ObjectHelper.copyObject(value, maxDepth, currentDepth + 1);
         } else {
-          newObj[key] = value;
+          if (Array.isArray(value)) {
+            newObj[key] = value.clone();
+          } else {
+            newObj[key] = value;
+          }
         }
       }
     }
@@ -4025,18 +4012,17 @@ class CardBattlePhase {
 }
 
 class SceneTest {
-  scene;
-  name;
-  tests = [];
-  asserts = [];
-  assertsToTest = [];
-  results = [];
-  nextAsserts = {};
-  assertsName = '';
+  scene = {};
+  status = 'START';
+  seconds = 1;
+  counter = 0;
+  testDescription = '';
   assertTitle = '';
   assertValue = undefined;
-  counter = 0;
-  pressToAssert = false;
+  assertsToTest = [];
+  assertsResults = [];
+  pressToStartAsserts = false;
+  results = [];
   toWatched = [];
   watched = [];
   childrenToAdd = [];
@@ -4049,25 +4035,30 @@ class SceneTest {
     // Override this method in the child class
   }
 
-  start() {
-    // Override this method in the child class
-  }
-
   run() {
     return new Promise(async res => {
-      this.copyWatched();
-      this.start();
+      this.startTest();
       res(await this.finish());
     });
+  }
+
+  startTest() {
+    const fps = 60;
+    this.counter = (fps * this.seconds);
+    this.addChildren();
+  }
+
+  addChildren() {
+    this.childrenToAdd.forEach(child => this.addChild(child));
   }
 
   finish() {
     return new Promise(async res => {
       const intervalId = setInterval(() => {
-        if (this.noHasTests() && this.noHasAsserts()) {
+        if (this.status === 'FINISH') {
           res({
             passed: (this.results.length && this.results.every(result => result.passed)),
-            testName: this.name,
+            testName: this.constructor.name,
             assertsResult: this.results
           });
           clearInterval(intervalId);
@@ -4076,117 +4067,14 @@ class SceneTest {
     });
   }
 
-  noHasTests() {
-    return this.tests.length === 0;
-  }
-
-  noHasAsserts() {
-    return this.nextAsserts === null;
-  }
-
-  async test(assertsName, act, asserts, seconds = 1) {
-    const msgDefault = 'Nenhum titulo para asserts definido.';
-    const actDefault = () => { 
-      console.error('Nenhum act de asserts definido.');
-    };
-    const assertsDefault = () => { 
-      this.asserts.push({
-        passed: false,
-        message: 'Nenhuma assert definida!'
-      });
-    };
-    this.tests.push({
-      seconds,
-      act: () => {
-        act ? act() : actDefault();
-        return true;
-      },
-      asserts: () => {
-        this.assertsName = assertsName;
-        asserts ? asserts() : assertsDefault();
-        return true;
-      }
-    });
-  }
-
-  timertoTrue(milliseconds = 600, callback) {
-    if (callback) callback();
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve(true)
-      }, milliseconds)
-    });
-  }
-
   update() {
     this.copyWatched();
     if (this.counter) return this.counter--;
-    if (this.hasAsserts()) {
-      if (this.pressToAssert && !Input.isTriggered('ok')) return;
-      return this.startAsserts();
-    }
-    if (this.hasTests()) this.startTest();
-  }
-
-  hasAsserts() {
-    return typeof this.nextAsserts === 'function';
-  }
-
-  startAsserts() {
-    const completed = this.nextAsserts();
-    if (completed) {
+    if (this.pressToStartAsserts && !Input.isTriggered('ok')) return;
+    if (this.status === 'START') {
+      this.asserts();
       this.processAsserts();
-      this.results.push({
-        passed: this.asserts.every(assert => assert.passed),
-        assertsName: this.assertsName,
-        asserts: this.asserts
-      });
-      this.nextAsserts = null;
-      this.asserts = [];
-    }
-  }
-
-  processAsserts() {
-    const assert = this.assertsToTest.filter(assert => assert.type === 'assert');
-    const assertWas = this.assertsToTest.filter(assert => assert.type === 'assertWas');
-    assert.forEach(({ title, value, toBe }) => {
-      const assertResult = this.resultTest(value === toBe, toBe, title);
-      this.asserts.push(assertResult);
-    });
-    assertWas.forEach(async ({ title, fnOrValue, reference, params }) => {
-      const indexOfWatched = this.indexOfWatched(reference);
-      const watched = this.watched.map((wat, index) => wat[indexOfWatched || 0]);
-      await this.clear();
-      const result = watched.some((watching, index) => {
-        if (this.isFunction(fnOrValue)) {
-          const fnName = fnOrValue.name;
-          watching = ObjectHelper.mergeObjects(this.toWatched[indexOfWatched || 0], watching);
-          return watching[fnName](...params) === true;
-        }
-        return watching[fnOrValue] === true;
-      });
-      const toBe = true;
-      const assertResult = this.resultTest(result === toBe, toBe, title);
-      this.asserts.push(assertResult);
-    });
-  }
-
-  hasTests() {
-    return this.tests.length > 0;
-  }
-
-  startTest() {
-    const fps = 60;
-    const test = this.tests[0];
-    const { seconds, act, asserts } = test;
-    if (test) {
-      this.counter = (fps * seconds);
-      this.childrenToAdd.forEach(child => this.addChild(child));
-      const completed = act();
-      if (completed) {
-        this.nextAsserts = asserts;
-        this.tests.shift();
-      }
+      this.status = 'FINISH';
     }
   }
 
@@ -4195,52 +4083,68 @@ class SceneTest {
     this.watched.push(watched);
   }
 
-  assertWasTrue(title, fnOrValue, reference, ...params) {
-    this.assertsToTest.push({
-      type: 'assertWas',
-      title,
-      fnOrValue,
-      reference,
-      params
+  async processAsserts() {
+    await this.clear();
+    for (const assert of this.assertsToTest) {
+      const { type } = assert;
+      if (type === 'assert') {
+        this.processAssertsToBe(assert);
+      }
+      if (type === 'assertWas') {
+        this.processAssertsWas(assert);
+      }
+    }
+    this.results.push({
+      passed: this.assertsResults.every(assert => assert.passed),
+      assertsName: this.testDescription,
+      asserts: this.assertsResults
     });
   }
 
-  indexOfWatched(reference) {
-    let index = this.toWatched.indexOf(reference) || 0;
-    return index < 0 ? 0 : index;
-  }
-
-  isFunction(fnOrValue) {
-    return typeof fnOrValue === 'function';
-  }
-
-  assertTrue(title, value) {
-    this.assertsToTest.push({
-      type: 'assert',
-      title,
-      value,
-      toBe: true
+  clear() {
+    return new Promise(async resolve => {
+      await this.clearChildren();
+      await this.clearWindows();
+      resolve(true);
     });
   }
 
-  assert(title, value) {
-    this.assertTitle = title;
-    this.assertValue = value;
-    return this;
-  }
-
-  toBe(value) {
-    this.assertsToTest.push({
-      type: 'assert',
-      title: this.assertTitle,
-      value: this.assertValue,
-      toBe: value
+  clearChildren() {
+    return new Promise(resolve => {
+      const children = this.scene.children;
+      while (children.length > 1) {
+        children.forEach(async child => {
+          if (child === this.scene._windowLayer) return;
+          child.destroy();
+          await this.scene.removeChild(child);
+        });
+      }
+      resolve(true);
     });
   }
 
-  resultTest(test, value, title) {
+  clearWindows() {
+    return new Promise(resolve => {
+      const windowChildren = this.scene._windowLayer.children;
+      while (windowChildren.length) {
+        windowChildren.forEach(async window => {
+          window.destroy();
+          await this.scene._windowLayer.removeChild(window);
+        });
+      }
+      resolve(true);
+    });
+  }
+
+  processAssertsToBe(assert) {
+    const { type, title, value, toBe } = assert;
+    const assertResult = this.resultTest(value === toBe, toBe, value, title);
+    this.assertsResults.push(assertResult);
+  }
+
+  resultTest(test, valueExpected, valueReceived, title) {
     if (test === false) {
-      return this.testFailed(value, this.assertValue, title);
+      return this.testFailed(valueExpected, valueReceived, title);
     }
     const testSuccess = {
       passed: true,
@@ -4258,9 +4162,69 @@ class SceneTest {
     };
   }
 
-  toBeInstanceof(value) {
-    const assertResult = this.resultTest(this.assertValue instanceof value, value);
-    this.asserts.push(assertResult);
+  processAssertsWas(assert) {
+    const { type, title, fnOrValue, reference, params } = assert;
+    const indexOfWatched = this.indexOfWatched(reference);
+    const watched = this.watched.map((wat, index) => wat[indexOfWatched || 0]);
+    const result = watched.some((watching, index) => {
+      const obj = this.toWatched[indexOfWatched || 0];
+      return this.assertWatched(obj, watching, fnOrValue, params);
+    });
+    const toBe = true;
+    const assertResult = this.resultTest(result === toBe, toBe, result, title);
+    this.assertsResults.push(assertResult);
+  }
+
+  indexOfWatched(reference) {
+    let index = this.toWatched.indexOf(reference) || 0;
+    return index < 0 ? 0 : index;
+  }
+
+  assertWatched(reference, watching, fnOrValue, params) {
+    if (this.isFunction(fnOrValue)) {
+      const fnName = fnOrValue.name;
+      watching = ObjectHelper.mergeObjects(reference, watching);
+      return watching[fnName](...params) === true;
+    }
+    return watching[fnOrValue] === true;
+  }
+
+  isFunction(fnOrValue) {
+    return typeof fnOrValue === 'function';
+  }
+
+  describe(description = '') {
+    this.testDescription = description;
+  }
+
+  assert(title, value) {
+    this.assertTitle = title;
+    this.assertValue = value;
+    return this;
+  }
+
+  toBe(valueToBe, title, valueToCompare) {
+    this.assertsToTest.push({
+      type: 'assert',
+      title: title || this.assertTitle,
+      value: valueToCompare || this.assertValue,
+      toBe: valueToBe
+    });
+  }
+
+  assertTrue(title, value) {
+    const toBe = true;
+    this.toBe(toBe, title, value);
+  }
+
+  assertWasTrue(title, fnOrValue, reference, ...params) {
+    this.assertsToTest.push({
+      type: 'assertWas',
+      title,
+      fnOrValue,
+      reference,
+      params
+    });
   }
 
   addWatched(watched) {
@@ -4283,32 +4247,9 @@ class SceneTest {
   addWindow(window) {
     this.scene._windowLayer.addChild(window);
   }
-
-  clear() {
-    return new Promise(resolve => {
-      const children = this.scene.children;
-      while (children.length > 1) {
-        children.forEach(async child => {
-          if (child === this.scene._windowLayer) return;
-          child.destroy();
-          await this.scene.removeChild(child);
-        });
-      }
-      const windowChildren = this.scene._windowLayer.children;
-      while (windowChildren.length) {
-        windowChildren.forEach(async window => {
-          window.destroy();
-          await this.scene._windowLayer.removeChild(window);
-        });
-      }
-      resolve(true);
-    });
-  }
 }
 // tests CARD Sprite
 class StartOpenCardSpriteTest extends SceneTest {
-  name = 'StartOpenCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -4319,22 +4260,18 @@ class StartOpenCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-  }
-
-  start() {
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.test('Deve iníciar aberto!', () => {
-      this.subject.startOpen(centerXPosition, centerYPosition);
-      this.subject.show();
-    }, () => {
-      this.assertTrue('Esta aberto?', this.subject.isOpened());
-    });
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.subject.show();
+  }
+
+  asserts() {
+    this.describe('Deve iniciar o card aberto!');
+    this.assertTrue('Esta aberto?', this.subject.isOpened());
   }
 }
 class StartClosedCardSpriteTest extends SceneTest {
-  name = 'StartClosedCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -4345,49 +4282,40 @@ class StartClosedCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-  }
-
-  start() {
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.test('Deve iníciar fechado!', () => {
-      this.subject.startClosed(centerXPosition, centerYPosition);
-      this.subject.show();
-    }, () => {
-      this.assertTrue('Esta fechado?', this.subject.isClosed());
-    });
-  }
-}
-class OpenCardSpriteTest extends SceneTest {
-  name = 'OpenCardSpriteTest';
-  // pressToAssert = true;
-
-  create() {
-    const card = CardGenerator.generateCard();
-    this.subject = CardSprite.create(
-      card.type,
-      card.color,
-      card.figureName,
-      card.attack,
-      card.health
-    );
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startClosed(centerXPosition, centerYPosition);
-    this.addWatched(this.subject);
+    this.subject.show();
   }
 
-  start() {
-    this.test('Deve abrir!', () => {
-      this.subject.open();
-    }, () => {
-      this.assertTrue('Esta aberta?', this.subject.isOpened());
-    });
+  asserts() {
+    this.describe('Deve iniciar o card fechado!');
+    this.assertTrue('Esta fechado?', this.subject.isClosed());
+  }
+}
+class OpenCardSpriteTest extends SceneTest {
+  create() {
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
+    );
+    this.addWatched(this.subject);
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.subject.startClosed(centerXPosition, centerYPosition);
+    this.subject.open();
+  }
+
+  asserts() {
+    this.describe('Deve abrir o card!');
+    this.assertTrue('Esta aberta?', this.subject.isOpened());
   }
 }
 class CloseCardSpriteTest extends SceneTest {
-  name = 'CloseCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -4397,23 +4325,19 @@ class CloseCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
-    this.addWatched(this.subject);
+    this.subject.close();
   }
 
-  start() {
-    this.test('Deve fechar!', () => {
-      this.subject.close();
-    }, () => {
-      this.assertTrue('Esta fechado?', this.subject.isClosed());
-    });
+  asserts() {
+    this.describe('Deve fechar o card!');
+    this.assertTrue('Esta fechado?', this.subject.isClosed());
   }
 }
 class DisableCardSpriteTest extends SceneTest {
-  name = 'DisableCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -4423,25 +4347,21 @@ class DisableCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.enable();
+    this.subject.disable();
   }
 
-  start() {
-    this.subject.enable();
-    this.test('Deve desabilitar!', () => {
-      this.subject.disable();
-    }, () => {
-      this.assertTrue('Esta disabilitado?', this.subject.isDisabled());
-    });
+  asserts() {
+    this.describe('Deve desabilitar o card!');
+    this.assertTrue('Esta disabilitado?', this.subject.isDisabled());
   }
 }
 class EnableCardSpriteTest extends SceneTest {
-  name = 'EnableCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -4451,25 +4371,21 @@ class EnableCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.disable();
+    this.subject.enable();
   }
 
-  start() {
-    this.subject.disable();
-    this.test('Deve habilitar!', () => {
-      this.subject.enable();
-    }, () => {
-      this.assertTrue('Esta habilitado?', this.subject.isEnabled());
-    });
+  asserts() {
+    this.describe('Deve habilitar o card!');
+    this.assertTrue('Esta habilitado?', this.subject.isEnabled());
   }
 }
 class MoveCardSpriteTest extends SceneTest {
-  name = 'MoveCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -4479,11 +4395,8 @@ class MoveCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
-    this.subject.startOpen(0, 0);
     this.addWatched(this.subject);
-  }
-
-  start() {
+    this.subject.startOpen(0, 0);
     this.subject.show();
     const destinyXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const destinyYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
@@ -4493,18 +4406,19 @@ class MoveCardSpriteTest extends SceneTest {
     const move1 = CardSprite.createMove(destinyXPosition, destinyYPosition);
     const move2 = CardSprite.createMove(avanceXposition, destinyYPosition);
     const moves = [move1, move2];
-    this.test('Deve mover!', () => {
-      this.subject.toMove(moves);
-    }, () => {
-      this.assertWasTrue('Estava em movimento?', this.subject.isMoving);
-      this.assert('Esta no destino x?', this.subject.x).toBe(avanceXposition);
-      this.assert('Esta no destino y', this.subject.y).toBe(destinyYPosition);
-    });
+    this.subject.toMove(moves);
+  }
+
+  asserts() {
+    const destinyYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    const avanceXposition = (Graphics.boxWidth - this.subject.width);
+    this.describe('Deve mover cartão pela tela.');
+    this.assert('Esta no destino x?', this.subject.x).toBe(avanceXposition);
+    this.assert('Esta no destino y', this.subject.y).toBe(destinyYPosition);
+    this.assertWasTrue('Estava em movimento?', this.subject.isMoving);
   }
 }
 class HoveredCardSpriteTest extends SceneTest {
-  name = 'HoveredCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -4514,24 +4428,20 @@ class HoveredCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.hover();
   }
 
-  start() {
-    this.test('Deve estar no comportamento de hovered!', () => {
-      this.subject.hover();
-    }, () => {
-      this.assertTrue('Esta em hovered?', this.subject.isHovered());
-    });
+  asserts() {
+    this.describe('Deve colocar o card em hovered!');
+    this.assertTrue('Esta em hovered?', this.subject.isHovered());
   } 
 }
 class UnhoveredCardSpriteTest extends SceneTest {
-  name = 'UnhoveredCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -4541,25 +4451,21 @@ class UnhoveredCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.hover();
+    this.subject.unhover();
   }
 
-  start() {
-    this.subject.hover();
-    this.test('Deve retirar o comportamento de hovered!', () => {
-      this.subject.unhover();
-    }, () => {
-      this.assertTrue('Esta sem hovered?', this.subject.isUnhovered());
-    });
+  asserts() {
+    this.describe('Deve colocar o card em unhovered!');
+    this.assertTrue('Esta sem hovered?', this.subject.isUnhovered());
   } 
 }
 class SelectedCardSpriteTest extends SceneTest {
-  name = 'SelectedCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -4569,24 +4475,20 @@ class SelectedCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.select();
   }
 
-  start() {
-    this.test('Deve estar no comportamento de seleção!', () => {
-      this.subject.select();
-    }, () => {
-      this.assertTrue('Esta em seleção?', this.subject.isSelected());
-    });
+  asserts() {
+    this.describe('Deve colocar o card em seleção!');
+    this.assertTrue('Esta em seleção?', this.subject.isSelected());
   }
 }
 class UnselectedCardSpriteTest extends SceneTest {
-  name = 'UnselectedCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -4596,25 +4498,21 @@ class UnselectedCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.select();
+    this.subject.unselect();
   }
 
-  start() {
-    this.subject.select();
-    this.test('Deve retirar o comportamento de seleção!', () => {
-      this.subject.unselect();
-    }, () => {
-      this.assertTrue('Esta sem seleção?', this.subject.isUnselected());
-    });
+  asserts() {
+    this.describe('Deve retirar o card de seleção!');
+    this.assertTrue('Esta sem seleção?', this.subject.isUnselected());
   }
 }
 class IluminatedCardSpriteTest extends SceneTest {
-  name = 'IluminatedCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -4624,24 +4522,20 @@ class IluminatedCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.iluminate();
   }
 
-  start() {
-    this.test('Deve estar no comportamento de iluminado!', () => {
-      this.subject.iluminate();
-    }, () => {
-      this.assertTrue('Esta em iluminado?', this.subject.isIluminated());
-    });
+  asserts() {
+    this.describe('Deve colocar o card em iluminado!');
+    this.assertTrue('Esta em iluminado?', this.subject.isIluminated());
   }
 }
 class UniluminatedCardSpriteTest extends SceneTest {
-  name = 'UniluminatedCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -4651,25 +4545,21 @@ class UniluminatedCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.iluminate();
+    this.subject.uniluminate();
   }
 
-  start() {
-    this.subject.iluminate();
-    this.test('Deve retirar o comportamento de iluminado!', () => {
-      this.subject.uniluminate();
-    }, () => {
-      this.assertTrue('Esta sem iluminado?', this.subject.isUniluminated());
-    });
+  asserts() {
+    this.describe('Deve retirar a iluminação do card!');
+    this.assertTrue('Esta sem iluminado?', this.subject.isUniluminated());
   }
 }
 class FlashCardSpriteTest extends SceneTest {
-  name = 'FlashCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -4679,31 +4569,28 @@ class FlashCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
-  }
-
-  start() {
     const color = 'white';
     const duration = 60;
     const infinity = -1;
-    this.test('Deve receber um flash de luz!', () => {
-      this.subject.flash(color, duration, infinity);
-    }, () => {
-      this.assertWasTrue('Houve flash de luz?', this.subject.isFlashPlaying);
-    });
+    this.subject.flash(color, duration, infinity);
+  }
+
+  asserts() {
+    this.describe('Deve receber um flash de luz!');
+    this.assertWasTrue('Houve flash de luz?', this.subject.isFlashPlaying);
   } 
 }
 class AnimationCardSpriteTest extends SceneTest {
-  name = 'AnimationCardSpriteTest';
-
   create() {
     const baseCenterXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const baseCenterYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.base = CardsetSprite.create(baseCenterXPosition, baseCenterYPosition);
+    this.addWatched(this.base);
     this.base.setBackgroundColor('black');
     this.base.show();
     const card = CardGenerator.generateCard();
@@ -4718,23 +4605,17 @@ class AnimationCardSpriteTest extends SceneTest {
     const centerYPosition = 0;
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-
     this.base.addChild(this.subject);
-    this.addWatched(this.base);
+    const times = 1;
+    this.subject.damage(times, this.scene);
   }
 
-  start() {
-    const times = 1;
-    this.test('Deve receber uma animação!', () => {
-      this.subject.damage(times, this.scene);
-    }, () => {
-      this.assertWasTrue('Houve animação?', this.base.someSpriteIsAnimationPlaying);
-    });
+  asserts() {
+    this.describe('Deve receber uma animação!');
+    this.assertWasTrue('Houve animação?', this.base.someSpriteIsAnimationPlaying);
   }
 }
 class QuakeCardSpriteTest extends SceneTest {
-  name = 'QuakeCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -4744,25 +4625,21 @@ class QuakeCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    const times = 10;
+    this.subject.quake(times);
   }
 
-  start() {
-    const times = 10;
-    this.test('Deve aplicar um movimento de chacoalhar!', () => {
-      this.subject.quake(times);
-    }, () => {
-      this.assertWasTrue('Houve um movimento?', this.subject.isMoving);
-    });
+  asserts() {
+    this.describe('Deve tremer o card!');
+    this.assertWasTrue('Houve um movimento?', this.subject.isMoving);
   }
 }
 class ZoomCardSpriteTest extends SceneTest {
-  name = 'ZoomCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -4772,24 +4649,20 @@ class ZoomCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.zoom();
   }
 
-  start() {
-    this.test('Deve ampliar!', () => {
-      this.subject.zoom();
-    }, () => {
-      this.assertTrue('Esta ampliado?', this.subject.isZoom());
-    });
+  asserts() {
+    this.describe('Deve colocar o card em zoom!');
+    this.assertTrue('Esta ampliado?', this.subject.isZoom());
   }
 }
 class ZoomOutCardSpriteTest extends SceneTest {
-  name = 'ZoomOutCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -4799,25 +4672,21 @@ class ZoomOutCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.zoom();
+    this.subject.zoomOut();
   }
 
-  start() {
-    this.subject.zoom();
-    this.test('Deve retonar a escala normal!', () => {
-      this.subject.zoomOut();
-    }, () => {
-      this.assertTrue('Esta em escala original?', this.subject.isOriginalScale());
-    });
+  asserts() {
+    this.describe('Deve colocar o card em escala original!');
+    this.assertTrue('Esta em escala original?', this.subject.isOriginalScale());
   }
 }
 class LeaveCardSpriteTest extends SceneTest {
-  name = 'LeaveCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -4827,26 +4696,22 @@ class LeaveCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.leave();
   }
 
-  start() {
-    this.test('Deve sumir!', () => {
-      this.subject.leave();
-    }, () => {
-      this.assert('Esta em largura zerada?', this.subject.width).toBe(0);
-      this.assert('Esta em altura zerada?', this.subject.height).toBe(0);
-      this.assertTrue('Esta invisível?', this.subject.isHidden());
-    })
+  asserts() {
+    this.describe('Deve colocar o card em leave!');
+    this.assert('Esta em largura zerada?', this.subject.width).toBe(0);
+    this.assert('Esta em altura zerada?', this.subject.height).toBe(0);
+    this.assertTrue('Esta invisível?', this.subject.isHidden());
   }
 }
 class FlipTurnToUpCardSpriteTest extends SceneTest {
-  name = 'FlipTurnToUpCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -4856,26 +4721,22 @@ class FlipTurnToUpCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.setTurnToDown();
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.flipTurnToUp();
   }
 
-  start() {
-    this.test('Deve virar para cima!', () => {
-      this.subject.flipTurnToUp();
-    }, () => {
-      this.assertTrue('Esta virado para cima?', this.subject.isTurnedToUp());
-      this.assertTrue('Esta aberto?', this.subject.isOpened());
-    });
+  asserts() {
+    this.describe('Deve virar o card para cima!');
+    this.assertTrue('Esta virado para cima?', this.subject.isTurnedToUp());
+    this.assertTrue('Esta aberto?', this.subject.isOpened());
   }
 }
 class FlipTurnToDownCardSpriteTest extends SceneTest {
-  name = 'FlipTurnToDownCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -4885,26 +4746,22 @@ class FlipTurnToDownCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.setTurnToUp();
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.flipTurnToDown();
   }
 
-  start() {
-    this.test('Deve virar para baixo!', () => {
-      this.subject.flipTurnToDown();
-    }, () => {
-      this.assertTrue('Esta virado para baixo?', this.subject.isTurnedToDown());
-      this.assertTrue('Esta aberto?', this.subject.isOpened());
-    });
+  asserts() {
+    this.describe('Deve virar o card para baixo!');
+    this.assertTrue('Esta virado para baixo?', this.subject.isTurnedToDown());
+    this.assertTrue('Esta aberto?', this.subject.isOpened());
   }
 }
 class UpdatingPointsCardSpriteTest extends SceneTest {
-  name = 'UpdatingPointsCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard(CardTypes.BATTLE);
     this.subject = CardSprite.create(
@@ -4914,19 +4771,17 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
       0,
       0
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.changePoints(25, 18);
   }
 
-  start() {
-    this.test('Deve atualizar os pontos!', () => {
-      this.subject.changePoints(25, 18);
-    }, () => {
-      this.assertWasTrue('Foram atualizandos?', this.subject.isUpdatingPoints);
-    });
+  asserts() {
+    this.describe('Deve atualizar os pontos do card!');
+    this.assertWasTrue('Foram atualizandos?', this.subject.isUpdatingPoints);
   }
 }
 // tests CARDSET
@@ -6306,10 +6161,10 @@ class CardBattleScene extends Scene_Message {
 class CardBattleTestScene extends Scene_Message {
   initialize() {
     super.initialize();
-    this.css = 'color: #FFFFFF; font-size: 12px; padding: 5px;';
-    this.tests = [];
-    this.animationSprites = [];
-    this._test = null;
+    this._css = 'color: #FFFFFF; font-size: 12px; padding: 5px;';
+    this._tests = [];
+    this._nextTest = null;
+    this._animationSprites = [];
   }
 
   create() {
@@ -6318,30 +6173,39 @@ class CardBattleTestScene extends Scene_Message {
     this.createTests();
   }
 
-  data() {
+  async createTests() {
+    this._tests = this.testsData();
+    this._tests = this._tests.map(test => {
+      const instanceCreated = new test(this);
+      instanceCreated.create();
+      return instanceCreated;
+    });
+  }
+  
+  testsData() {
     const cardSpriteTests = [
-      // StartOpenCardSpriteTest,
-      // StartClosedCardSpriteTest,
-      // OpenCardSpriteTest,
-      // CloseCardSpriteTest,
-      // DisableCardSpriteTest,
-      // EnableCardSpriteTest,
+      StartOpenCardSpriteTest,
+      StartClosedCardSpriteTest,
+      OpenCardSpriteTest,
+      CloseCardSpriteTest,
+      DisableCardSpriteTest,
+      EnableCardSpriteTest,
       MoveCardSpriteTest,
-      // HoveredCardSpriteTest,
-      // UnhoveredCardSpriteTest,
-      // SelectedCardSpriteTest,
-      // UnselectedCardSpriteTest,
-      // IluminatedCardSpriteTest,
-      // UniluminatedCardSpriteTest,
-      // FlashCardSpriteTest,
-      // AnimationCardSpriteTest,
-      // QuakeCardSpriteTest,
-      // ZoomCardSpriteTest,
-      // ZoomOutCardSpriteTest,
-      // LeaveCardSpriteTest,
-      // FlipTurnToUpCardSpriteTest,
-      // FlipTurnToDownCardSpriteTest,
-      // UpdatingPointsCardSpriteTest
+      HoveredCardSpriteTest,
+      UnhoveredCardSpriteTest,
+      SelectedCardSpriteTest,
+      UnselectedCardSpriteTest,
+      IluminatedCardSpriteTest,
+      UniluminatedCardSpriteTest,
+      FlashCardSpriteTest,
+      AnimationCardSpriteTest,
+      QuakeCardSpriteTest,
+      ZoomCardSpriteTest,
+      ZoomOutCardSpriteTest,
+      LeaveCardSpriteTest,
+      FlipTurnToUpCardSpriteTest,
+      FlipTurnToDownCardSpriteTest,
+      UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
       StartPositionCardsetSpriteTest,
@@ -6426,33 +6290,57 @@ class CardBattleTestScene extends Scene_Message {
     ];
   }
 
-  async createTests() {
-    this.tests = this.data();
-    this.tests = this.tests.map(test => {
-      const instance = new test(this);
-      instance.create();
-      return instance;
-    });
-  }
-
   start() {
     super.start();
     this.startTests();
   }
 
   async startTests() {
-    let results = [];
-    let index = 0;
-    for (const test of this.tests) {
-      this._test = test;
-      const result = await this._test.run();
-      this._test = null;
-      results.push(result);
+    const testsResults = [];
+    for (const test of this._tests) {
+      this._nextTest = test;
+      const result = await this._nextTest.run();
+      this._nextTest = null;
+      testsResults.push(result);
       await this.clearScene();
-      index++;
     }
-    this.printResults(results);
-    this.printResultsTotals(results);
+    this.printResults(testsResults);
+    this.printTotals(testsResults);
+  }
+
+  clearScene() {
+    return new Promise(async resolve => {
+      await this.clearChildren();
+      await this.clearWindowLayer();
+      resolve(true);
+    });
+  }
+
+  clearChildren() {
+    return new Promise(resolve => {
+      const children = this.children;
+      while (children.length > 1) {
+        children.forEach(async child => {
+          if (child === this._windowLayer) return;
+          child.destroy();
+          await this.removeChild(child);
+        });
+      }
+      resolve(true);
+    });
+  }
+
+  clearWindowLayer() {
+    return new Promise(resolve => {
+      const windowChildren = this._windowLayer.children;
+      while (windowChildren.length) {
+        windowChildren.forEach(async window => {
+          window.destroy();
+          await this._windowLayer.removeChild(window);
+        });
+      }
+      resolve(true);
+    });
   }
 
   printResults(results) {
@@ -6478,7 +6366,7 @@ class CardBattleTestScene extends Scene_Message {
     });
   }
 
-  printResultsTotals(results) {
+  printTotals(results) {
     const total = results.length;
     const success = results.filter(result => result.passed === true).length;
     const failed = total - success;
@@ -6488,28 +6376,28 @@ class CardBattleTestScene extends Scene_Message {
   }
 
   printInfo(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #5DADE2; ${this.css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #5DADE2; ${this._css}`);
   }
 
   printError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #AA0000; ${this.css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #AA0000; ${this._css}`);
   }
 
   printTestError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #800000; ${this.css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #800000; ${this._css}`);
   }
 
   printAssertError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #400000; ${this.css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #400000; ${this._css}`);
   }
 
   printSuccess(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #008000; ${this.css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #008000; ${this._css}`);
   }
 
   update() {
     if (this.isActive()) {
-      if (this._test) this._test.update();
+      if (this._nextTest) this._nextTest.update();
     }
     super.update();
   }
@@ -6522,33 +6410,12 @@ class CardBattleTestScene extends Scene_Message {
     this._windowLayer.removeChild(window);
   };
 
-  clearScene() {
-    return new Promise(resolve => {
-      const children = this.children;
-      while (children.length > 1) {
-        children.forEach(async child => {
-          if (child === this._windowLayer) return;
-          child.destroy();
-          await this.removeChild(child);
-        });
-      }
-      const windowChildren = this._windowLayer.children;
-      while (windowChildren.length) {
-        windowChildren.forEach(async window => {
-          window.destroy();
-          await this._windowLayer.removeChild(window);
-        });
-      }
-      resolve(true);
-    });
-  }
-
   addAnimationSprite(animationSprite) {
-    this.animationSprites.push(animationSprite);
+    this._animationSprites.push(animationSprite);
   }
 
   getLastAnimationSprite() {
-    return this.animationSprites[this.animationSprites.length - 1];
+    return this._animationSprites[this._animationSprites.length - 1];
   }
 }
 class CardBattleManagerDrawPhaseState {

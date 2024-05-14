@@ -1,6 +1,4 @@
 class UnselectedCardSpriteTest extends SceneTest {
-  name = 'UnselectedCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -10,19 +8,17 @@ class UnselectedCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.select();
+    this.subject.unselect();
   }
 
-  start() {
-    this.subject.select();
-    this.test('Deve retirar o comportamento de seleção!', () => {
-      this.subject.unselect();
-    }, () => {
-      this.assertTrue('Esta sem seleção?', this.subject.isUnselected());
-    });
+  asserts() {
+    this.describe('Deve retirar o card de seleção!');
+    this.assertTrue('Esta sem seleção?', this.subject.isUnselected());
   }
 }

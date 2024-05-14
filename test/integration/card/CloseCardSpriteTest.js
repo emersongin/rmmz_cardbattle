@@ -1,6 +1,4 @@
 class CloseCardSpriteTest extends SceneTest {
-  name = 'CloseCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -10,17 +8,15 @@ class CloseCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
-    this.addWatched(this.subject);
+    this.subject.close();
   }
 
-  start() {
-    this.test('Deve fechar!', () => {
-      this.subject.close();
-    }, () => {
-      this.assertTrue('Esta fechado?', this.subject.isClosed());
-    });
+  asserts() {
+    this.describe('Deve fechar o card!');
+    this.assertTrue('Esta fechado?', this.subject.isClosed());
   }
 }

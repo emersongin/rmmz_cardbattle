@@ -1,6 +1,4 @@
 class UniluminatedCardSpriteTest extends SceneTest {
-  name = 'UniluminatedCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -10,19 +8,17 @@ class UniluminatedCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.iluminate();
+    this.subject.uniluminate();
   }
 
-  start() {
-    this.subject.iluminate();
-    this.test('Deve retirar o comportamento de iluminado!', () => {
-      this.subject.uniluminate();
-    }, () => {
-      this.assertTrue('Esta sem iluminado?', this.subject.isUniluminated());
-    });
+  asserts() {
+    this.describe('Deve retirar a iluminação do card!');
+    this.assertTrue('Esta sem iluminado?', this.subject.isUniluminated());
   }
 }

@@ -1,6 +1,4 @@
 class ZoomCardSpriteTest extends SceneTest {
-  name = 'ZoomCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -10,18 +8,16 @@ class ZoomCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
+    this.subject.zoom();
   }
 
-  start() {
-    this.test('Deve ampliar!', () => {
-      this.subject.zoom();
-    }, () => {
-      this.assertTrue('Esta ampliado?', this.subject.isZoom());
-    });
+  asserts() {
+    this.describe('Deve colocar o card em zoom!');
+    this.assertTrue('Esta ampliado?', this.subject.isZoom());
   }
 }

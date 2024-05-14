@@ -17,32 +17,19 @@ class NumberHelper {
 }
 
 class ObjectHelper {
-  // static copyObject(obj) {
-  //   const copiedObj = Object.create(Object.getPrototypeOf(obj));
-  //   const descriptors = Object.getOwnPropertyDescriptors(obj);
-  //   for (let key in descriptors) {
-  //       if (typeof descriptors[key].value === 'function') {
-  //           copiedObj[key] = descriptors[key].value.call(obj);
-  //       } else {
-  //           Object.defineProperty(copiedObj, key, descriptors[key]);
-  //       }
-  //   }
-  //   return copiedObj;
-  // }
-
   static copyObject(obj, maxDepth = 2, currentDepth = 0) {
-    const newObj = {};
+    const newObj = Object.create(Object.getPrototypeOf(obj));
     for (const key in obj) {
-      if (Array.isArray(obj[key])) {
-        newObj[key] = obj[key].clone();
-        continue;
-      }
       if (obj.hasOwnProperty && obj.hasOwnProperty(key)) {
         const value = obj[key];
-        if (typeof value === 'object' && value !== null && currentDepth < maxDepth) {
+        if (typeof value === 'object' && value !== null && currentDepth < maxDepth && !Array.isArray(value)) {
           newObj[key] = ObjectHelper.copyObject(value, maxDepth, currentDepth + 1);
         } else {
-          newObj[key] = value;
+          if (Array.isArray(value)) {
+            newObj[key] = value.clone();
+          } else {
+            newObj[key] = value;
+          }
         }
       }
     }

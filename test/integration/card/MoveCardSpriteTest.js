@@ -1,6 +1,4 @@
 class MoveCardSpriteTest extends SceneTest {
-  name = 'MoveCardSpriteTest';
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -10,11 +8,8 @@ class MoveCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
-    this.subject.startOpen(0, 0);
     this.addWatched(this.subject);
-  }
-
-  start() {
+    this.subject.startOpen(0, 0);
     this.subject.show();
     const destinyXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const destinyYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
@@ -24,12 +19,15 @@ class MoveCardSpriteTest extends SceneTest {
     const move1 = CardSprite.createMove(destinyXPosition, destinyYPosition);
     const move2 = CardSprite.createMove(avanceXposition, destinyYPosition);
     const moves = [move1, move2];
-    this.test('Deve mover!', () => {
-      this.subject.toMove(moves);
-    }, () => {
-      this.assertWasTrue('Estava em movimento?', this.subject.isMoving);
-      this.assert('Esta no destino x?', this.subject.x).toBe(avanceXposition);
-      this.assert('Esta no destino y', this.subject.y).toBe(destinyYPosition);
-    });
+    this.subject.toMove(moves);
+  }
+
+  asserts() {
+    const destinyYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    const avanceXposition = (Graphics.boxWidth - this.subject.width);
+    this.describe('Deve mover cartão pela tela.');
+    this.assert('Esta no destino x?', this.subject.x).toBe(avanceXposition);
+    this.assert('Esta no destino y', this.subject.y).toBe(destinyYPosition);
+    this.assertWasTrue('Estava em movimento?', this.subject.isMoving);
   }
 }

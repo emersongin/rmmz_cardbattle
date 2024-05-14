@@ -1,16 +1,15 @@
 class SceneTest {
-  scene;
-  name;
-  tests = [];
-  asserts = [];
-  assertsToTest = [];
-  results = [];
-  nextAsserts = {};
-  assertsName = '';
+  scene = {};
+  status = 'START';
+  seconds = 1;
+  counter = 0;
+  testDescription = '';
   assertTitle = '';
   assertValue = undefined;
-  counter = 0;
-  pressToAssert = false;
+  assertsToTest = [];
+  assertsResults = [];
+  pressToStartAsserts = false;
+  results = [];
   toWatched = [];
   watched = [];
   childrenToAdd = [];
@@ -23,25 +22,30 @@ class SceneTest {
     // Override this method in the child class
   }
 
-  start() {
-    // Override this method in the child class
-  }
-
   run() {
     return new Promise(async res => {
-      this.copyWatched();
-      this.start();
+      this.startTest();
       res(await this.finish());
     });
+  }
+
+  startTest() {
+    const fps = 60;
+    this.counter = (fps * this.seconds);
+    this.addChildren();
+  }
+
+  addChildren() {
+    this.childrenToAdd.forEach(child => this.addChild(child));
   }
 
   finish() {
     return new Promise(async res => {
       const intervalId = setInterval(() => {
-        if (this.noHasTests() && this.noHasAsserts()) {
+        if (this.status === 'FINISH') {
           res({
             passed: (this.results.length && this.results.every(result => result.passed)),
-            testName: this.name,
+            testName: this.constructor.name,
             assertsResult: this.results
           });
           clearInterval(intervalId);
@@ -50,117 +54,14 @@ class SceneTest {
     });
   }
 
-  noHasTests() {
-    return this.tests.length === 0;
-  }
-
-  noHasAsserts() {
-    return this.nextAsserts === null;
-  }
-
-  async test(assertsName, act, asserts, seconds = 1) {
-    const msgDefault = 'Nenhum titulo para asserts definido.';
-    const actDefault = () => { 
-      console.error('Nenhum act de asserts definido.');
-    };
-    const assertsDefault = () => { 
-      this.asserts.push({
-        passed: false,
-        message: 'Nenhuma assert definida!'
-      });
-    };
-    this.tests.push({
-      seconds,
-      act: () => {
-        act ? act() : actDefault();
-        return true;
-      },
-      asserts: () => {
-        this.assertsName = assertsName;
-        asserts ? asserts() : assertsDefault();
-        return true;
-      }
-    });
-  }
-
-  timertoTrue(milliseconds = 600, callback) {
-    if (callback) callback();
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve(true)
-      }, milliseconds)
-    });
-  }
-
   update() {
     this.copyWatched();
     if (this.counter) return this.counter--;
-    if (this.hasAsserts()) {
-      if (this.pressToAssert && !Input.isTriggered('ok')) return;
-      return this.startAsserts();
-    }
-    if (this.hasTests()) this.startTest();
-  }
-
-  hasAsserts() {
-    return typeof this.nextAsserts === 'function';
-  }
-
-  startAsserts() {
-    const completed = this.nextAsserts();
-    if (completed) {
+    if (this.pressToStartAsserts && !Input.isTriggered('ok')) return;
+    if (this.status === 'START') {
+      this.asserts();
       this.processAsserts();
-      this.results.push({
-        passed: this.asserts.every(assert => assert.passed),
-        assertsName: this.assertsName,
-        asserts: this.asserts
-      });
-      this.nextAsserts = null;
-      this.asserts = [];
-    }
-  }
-
-  processAsserts() {
-    const assert = this.assertsToTest.filter(assert => assert.type === 'assert');
-    const assertWas = this.assertsToTest.filter(assert => assert.type === 'assertWas');
-    assert.forEach(({ title, value, toBe }) => {
-      const assertResult = this.resultTest(value === toBe, toBe, title);
-      this.asserts.push(assertResult);
-    });
-    assertWas.forEach(async ({ title, fnOrValue, reference, params }) => {
-      const indexOfWatched = this.indexOfWatched(reference);
-      const watched = this.watched.map((wat, index) => wat[indexOfWatched || 0]);
-      await this.clear();
-      const result = watched.some((watching, index) => {
-        if (this.isFunction(fnOrValue)) {
-          const fnName = fnOrValue.name;
-          watching = ObjectHelper.mergeObjects(this.toWatched[indexOfWatched || 0], watching);
-          return watching[fnName](...params) === true;
-        }
-        return watching[fnOrValue] === true;
-      });
-      const toBe = true;
-      const assertResult = this.resultTest(result === toBe, toBe, title);
-      this.asserts.push(assertResult);
-    });
-  }
-
-  hasTests() {
-    return this.tests.length > 0;
-  }
-
-  startTest() {
-    const fps = 60;
-    const test = this.tests[0];
-    const { seconds, act, asserts } = test;
-    if (test) {
-      this.counter = (fps * seconds);
-      this.childrenToAdd.forEach(child => this.addChild(child));
-      const completed = act();
-      if (completed) {
-        this.nextAsserts = asserts;
-        this.tests.shift();
-      }
+      this.status = 'FINISH';
     }
   }
 
@@ -169,52 +70,68 @@ class SceneTest {
     this.watched.push(watched);
   }
 
-  assertWasTrue(title, fnOrValue, reference, ...params) {
-    this.assertsToTest.push({
-      type: 'assertWas',
-      title,
-      fnOrValue,
-      reference,
-      params
+  async processAsserts() {
+    await this.clear();
+    for (const assert of this.assertsToTest) {
+      const { type } = assert;
+      if (type === 'assert') {
+        this.processAssertsToBe(assert);
+      }
+      if (type === 'assertWas') {
+        this.processAssertsWas(assert);
+      }
+    }
+    this.results.push({
+      passed: this.assertsResults.every(assert => assert.passed),
+      assertsName: this.testDescription,
+      asserts: this.assertsResults
     });
   }
 
-  indexOfWatched(reference) {
-    let index = this.toWatched.indexOf(reference) || 0;
-    return index < 0 ? 0 : index;
-  }
-
-  isFunction(fnOrValue) {
-    return typeof fnOrValue === 'function';
-  }
-
-  assertTrue(title, value) {
-    this.assertsToTest.push({
-      type: 'assert',
-      title,
-      value,
-      toBe: true
+  clear() {
+    return new Promise(async resolve => {
+      await this.clearChildren();
+      await this.clearWindows();
+      resolve(true);
     });
   }
 
-  assert(title, value) {
-    this.assertTitle = title;
-    this.assertValue = value;
-    return this;
-  }
-
-  toBe(value) {
-    this.assertsToTest.push({
-      type: 'assert',
-      title: this.assertTitle,
-      value: this.assertValue,
-      toBe: value
+  clearChildren() {
+    return new Promise(resolve => {
+      const children = this.scene.children;
+      while (children.length > 1) {
+        children.forEach(async child => {
+          if (child === this.scene._windowLayer) return;
+          child.destroy();
+          await this.scene.removeChild(child);
+        });
+      }
+      resolve(true);
     });
   }
 
-  resultTest(test, value, title) {
+  clearWindows() {
+    return new Promise(resolve => {
+      const windowChildren = this.scene._windowLayer.children;
+      while (windowChildren.length) {
+        windowChildren.forEach(async window => {
+          window.destroy();
+          await this.scene._windowLayer.removeChild(window);
+        });
+      }
+      resolve(true);
+    });
+  }
+
+  processAssertsToBe(assert) {
+    const { type, title, value, toBe } = assert;
+    const assertResult = this.resultTest(value === toBe, toBe, value, title);
+    this.assertsResults.push(assertResult);
+  }
+
+  resultTest(test, valueExpected, valueReceived, title) {
     if (test === false) {
-      return this.testFailed(value, this.assertValue, title);
+      return this.testFailed(valueExpected, valueReceived, title);
     }
     const testSuccess = {
       passed: true,
@@ -232,9 +149,69 @@ class SceneTest {
     };
   }
 
-  toBeInstanceof(value) {
-    const assertResult = this.resultTest(this.assertValue instanceof value, value);
-    this.asserts.push(assertResult);
+  processAssertsWas(assert) {
+    const { type, title, fnOrValue, reference, params } = assert;
+    const indexOfWatched = this.indexOfWatched(reference);
+    const watched = this.watched.map((wat, index) => wat[indexOfWatched || 0]);
+    const result = watched.some((watching, index) => {
+      const obj = this.toWatched[indexOfWatched || 0];
+      return this.assertWatched(obj, watching, fnOrValue, params);
+    });
+    const toBe = true;
+    const assertResult = this.resultTest(result === toBe, toBe, result, title);
+    this.assertsResults.push(assertResult);
+  }
+
+  indexOfWatched(reference) {
+    let index = this.toWatched.indexOf(reference) || 0;
+    return index < 0 ? 0 : index;
+  }
+
+  assertWatched(reference, watching, fnOrValue, params) {
+    if (this.isFunction(fnOrValue)) {
+      const fnName = fnOrValue.name;
+      watching = ObjectHelper.mergeObjects(reference, watching);
+      return watching[fnName](...params) === true;
+    }
+    return watching[fnOrValue] === true;
+  }
+
+  isFunction(fnOrValue) {
+    return typeof fnOrValue === 'function';
+  }
+
+  describe(description = '') {
+    this.testDescription = description;
+  }
+
+  assert(title, value) {
+    this.assertTitle = title;
+    this.assertValue = value;
+    return this;
+  }
+
+  toBe(valueToBe, title, valueToCompare) {
+    this.assertsToTest.push({
+      type: 'assert',
+      title: title || this.assertTitle,
+      value: valueToCompare || this.assertValue,
+      toBe: valueToBe
+    });
+  }
+
+  assertTrue(title, value) {
+    const toBe = true;
+    this.toBe(toBe, title, value);
+  }
+
+  assertWasTrue(title, fnOrValue, reference, ...params) {
+    this.assertsToTest.push({
+      type: 'assertWas',
+      title,
+      fnOrValue,
+      reference,
+      params
+    });
   }
 
   addWatched(watched) {
@@ -256,26 +233,5 @@ class SceneTest {
 
   addWindow(window) {
     this.scene._windowLayer.addChild(window);
-  }
-
-  clear() {
-    return new Promise(resolve => {
-      const children = this.scene.children;
-      while (children.length > 1) {
-        children.forEach(async child => {
-          if (child === this.scene._windowLayer) return;
-          child.destroy();
-          await this.scene.removeChild(child);
-        });
-      }
-      const windowChildren = this.scene._windowLayer.children;
-      while (windowChildren.length) {
-        windowChildren.forEach(async window => {
-          window.destroy();
-          await this.scene._windowLayer.removeChild(window);
-        });
-      }
-      resolve(true);
-    });
   }
 }

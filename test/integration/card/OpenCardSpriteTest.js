@@ -1,7 +1,4 @@
 class OpenCardSpriteTest extends SceneTest {
-  name = 'OpenCardSpriteTest';
-  // pressToAssert = true;
-
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -11,17 +8,15 @@ class OpenCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addWatched(this.subject);
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.subject.startClosed(centerXPosition, centerYPosition);
-    this.addWatched(this.subject);
+    this.subject.open();
   }
 
-  start() {
-    this.test('Deve abrir!', () => {
-      this.subject.open();
-    }, () => {
-      this.assertTrue('Esta aberta?', this.subject.isOpened());
-    });
+  asserts() {
+    this.describe('Deve abrir o card!');
+    this.assertTrue('Esta aberta?', this.subject.isOpened());
   }
 }

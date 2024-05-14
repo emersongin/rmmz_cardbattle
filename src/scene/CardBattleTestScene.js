@@ -1,10 +1,10 @@
 class CardBattleTestScene extends Scene_Message {
   initialize() {
     super.initialize();
-    this.css = 'color: #FFFFFF; font-size: 12px; padding: 5px;';
-    this.tests = [];
-    this.animationSprites = [];
-    this._test = null;
+    this._css = 'color: #FFFFFF; font-size: 12px; padding: 5px;';
+    this._tests = [];
+    this._nextTest = null;
+    this._animationSprites = [];
   }
 
   create() {
@@ -13,30 +13,39 @@ class CardBattleTestScene extends Scene_Message {
     this.createTests();
   }
 
-  data() {
+  async createTests() {
+    this._tests = this.testsData();
+    this._tests = this._tests.map(test => {
+      const instanceCreated = new test(this);
+      instanceCreated.create();
+      return instanceCreated;
+    });
+  }
+  
+  testsData() {
     const cardSpriteTests = [
-      // StartOpenCardSpriteTest,
-      // StartClosedCardSpriteTest,
-      // OpenCardSpriteTest,
-      // CloseCardSpriteTest,
-      // DisableCardSpriteTest,
-      // EnableCardSpriteTest,
+      StartOpenCardSpriteTest,
+      StartClosedCardSpriteTest,
+      OpenCardSpriteTest,
+      CloseCardSpriteTest,
+      DisableCardSpriteTest,
+      EnableCardSpriteTest,
       MoveCardSpriteTest,
-      // HoveredCardSpriteTest,
-      // UnhoveredCardSpriteTest,
-      // SelectedCardSpriteTest,
-      // UnselectedCardSpriteTest,
-      // IluminatedCardSpriteTest,
-      // UniluminatedCardSpriteTest,
-      // FlashCardSpriteTest,
-      // AnimationCardSpriteTest,
-      // QuakeCardSpriteTest,
-      // ZoomCardSpriteTest,
-      // ZoomOutCardSpriteTest,
-      // LeaveCardSpriteTest,
-      // FlipTurnToUpCardSpriteTest,
-      // FlipTurnToDownCardSpriteTest,
-      // UpdatingPointsCardSpriteTest
+      HoveredCardSpriteTest,
+      UnhoveredCardSpriteTest,
+      SelectedCardSpriteTest,
+      UnselectedCardSpriteTest,
+      IluminatedCardSpriteTest,
+      UniluminatedCardSpriteTest,
+      FlashCardSpriteTest,
+      AnimationCardSpriteTest,
+      QuakeCardSpriteTest,
+      ZoomCardSpriteTest,
+      ZoomOutCardSpriteTest,
+      LeaveCardSpriteTest,
+      FlipTurnToUpCardSpriteTest,
+      FlipTurnToDownCardSpriteTest,
+      UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
       StartPositionCardsetSpriteTest,
@@ -121,33 +130,57 @@ class CardBattleTestScene extends Scene_Message {
     ];
   }
 
-  async createTests() {
-    this.tests = this.data();
-    this.tests = this.tests.map(test => {
-      const instance = new test(this);
-      instance.create();
-      return instance;
-    });
-  }
-
   start() {
     super.start();
     this.startTests();
   }
 
   async startTests() {
-    let results = [];
-    let index = 0;
-    for (const test of this.tests) {
-      this._test = test;
-      const result = await this._test.run();
-      this._test = null;
-      results.push(result);
+    const testsResults = [];
+    for (const test of this._tests) {
+      this._nextTest = test;
+      const result = await this._nextTest.run();
+      this._nextTest = null;
+      testsResults.push(result);
       await this.clearScene();
-      index++;
     }
-    this.printResults(results);
-    this.printResultsTotals(results);
+    this.printResults(testsResults);
+    this.printTotals(testsResults);
+  }
+
+  clearScene() {
+    return new Promise(async resolve => {
+      await this.clearChildren();
+      await this.clearWindowLayer();
+      resolve(true);
+    });
+  }
+
+  clearChildren() {
+    return new Promise(resolve => {
+      const children = this.children;
+      while (children.length > 1) {
+        children.forEach(async child => {
+          if (child === this._windowLayer) return;
+          child.destroy();
+          await this.removeChild(child);
+        });
+      }
+      resolve(true);
+    });
+  }
+
+  clearWindowLayer() {
+    return new Promise(resolve => {
+      const windowChildren = this._windowLayer.children;
+      while (windowChildren.length) {
+        windowChildren.forEach(async window => {
+          window.destroy();
+          await this._windowLayer.removeChild(window);
+        });
+      }
+      resolve(true);
+    });
   }
 
   printResults(results) {
@@ -173,7 +206,7 @@ class CardBattleTestScene extends Scene_Message {
     });
   }
 
-  printResultsTotals(results) {
+  printTotals(results) {
     const total = results.length;
     const success = results.filter(result => result.passed === true).length;
     const failed = total - success;
@@ -183,28 +216,28 @@ class CardBattleTestScene extends Scene_Message {
   }
 
   printInfo(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #5DADE2; ${this.css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #5DADE2; ${this._css}`);
   }
 
   printError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #AA0000; ${this.css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #AA0000; ${this._css}`);
   }
 
   printTestError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #800000; ${this.css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #800000; ${this._css}`);
   }
 
   printAssertError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #400000; ${this.css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #400000; ${this._css}`);
   }
 
   printSuccess(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #008000; ${this.css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #008000; ${this._css}`);
   }
 
   update() {
     if (this.isActive()) {
-      if (this._test) this._test.update();
+      if (this._nextTest) this._nextTest.update();
     }
     super.update();
   }
@@ -217,32 +250,11 @@ class CardBattleTestScene extends Scene_Message {
     this._windowLayer.removeChild(window);
   };
 
-  clearScene() {
-    return new Promise(resolve => {
-      const children = this.children;
-      while (children.length > 1) {
-        children.forEach(async child => {
-          if (child === this._windowLayer) return;
-          child.destroy();
-          await this.removeChild(child);
-        });
-      }
-      const windowChildren = this._windowLayer.children;
-      while (windowChildren.length) {
-        windowChildren.forEach(async window => {
-          window.destroy();
-          await this._windowLayer.removeChild(window);
-        });
-      }
-      resolve(true);
-    });
-  }
-
   addAnimationSprite(animationSprite) {
-    this.animationSprites.push(animationSprite);
+    this._animationSprites.push(animationSprite);
   }
 
   getLastAnimationSprite() {
-    return this.animationSprites[this.animationSprites.length - 1];
+    return this._animationSprites[this._animationSprites.length - 1];
   }
 }
