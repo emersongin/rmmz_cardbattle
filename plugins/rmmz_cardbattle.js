@@ -155,15 +155,40 @@ class NumberHelper {
 
 class ObjectHelper {
   static copyObject(obj, maxDepth = 3, currentDepth = 0) {
+    const propsToCopy = [
+      '_actionsQueue',
+      '_actionsQueueWithDelay',
+      '_status',
+      '_positiveIntensityEffect',
+      '_intensityEffect',
+      '_opacityEffect',
+      '_type',
+      '_color',
+      '_figure',
+      '_backImage',
+      '_behaviors',
+      '_turned',
+      '_disabled',
+      '_attackPoints',
+      '_healthPoints',
+      '_contentLayer',
+      '_disabledLayer',
+      '_flashedLayer',
+      '_hoveredLayer',
+      '_selectedLayer',
+      '_sprites',
+      '_enableSelected',
+      '_selectedIndexs',
+    ];
     const newObj = Object.create(Object.getPrototypeOf(obj));
     for (const key in obj) {
-      if (obj.hasOwnProperty && obj.hasOwnProperty(key)) {
+      if (obj.hasOwnProperty && obj.hasOwnProperty(key) && propsToCopy.includes(key)) {
         const value = obj[key];
         if (typeof value === 'object' && value !== null && currentDepth < maxDepth && !Array.isArray(value)) {
           newObj[key] = ObjectHelper.copyObject(value, maxDepth, currentDepth + 1);
         } else {
           if (Array.isArray(value)) {
-            newObj[key] = value.clone();
+            newObj[key] = value.map(item => ObjectHelper.copyObject(item, maxDepth, currentDepth + 1));
           } else {
             newObj[key] = value;
           }
@@ -3613,8 +3638,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   someSpriteIsAnimationPlaying() {
-    return this._sprites.some(sprite => sprite.isAnimationPlaying()) || 
-      this.children.some(child => child.isAnimationPlaying());
+    return this._sprites.some(sprite => sprite.isAnimationPlaying());
   }
 
   update() {
@@ -4597,7 +4621,7 @@ class AnimationCardSpriteTest extends SceneTest {
     const baseCenterXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const baseCenterYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.base = CardsetSprite.create(baseCenterXPosition, baseCenterYPosition);
-    this.addWatched(this.base);
+    this.attachChild(this.base);
     this.base.setBackgroundColor('black');
     this.base.show();
     const card = CardGenerator.generateCard();
@@ -4608,6 +4632,7 @@ class AnimationCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addHiddenWatched(this.subject);
     const centerXPosition = (this.base.width / 2 - this.subject.width / 2);
     const centerYPosition = 0;
     this.subject.startOpen(centerXPosition, centerYPosition);
@@ -4619,7 +4644,7 @@ class AnimationCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve receber uma animação!');
-    this.assertWasTrue('Houve animação?', this.base.someSpriteIsAnimationPlaying);
+    this.assertWasTrue('Houve animação?', this.subject.isAnimationPlaying);
   }
 }
 class QuakeCardSpriteTest extends SceneTest {
@@ -5202,20 +5227,18 @@ class FlashCardsCardsetSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.attachChild(this.subject);
+    this.addWatched(this.subject);
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    this.sprite = sprites[0];
-    this.addHiddenWatched(this.sprite);
     this.subject.showCards(sprites);
     this.subject.flashCardsAnimate(sprites, 'orange');
   }
 
   asserts() {
     this.describe('Deve animar as cartas!');
-    this.assertWasTrue('Houve um flash de luz?', this.sprite.isFlashPlaying);
+    this.assertWasTrue('Houve um flash de luz?', this.subject.someSpriteIsFlashPlaying);
   }
 }
 class QuakeCardsCardsetSpriteTest extends SceneTest {
@@ -5223,20 +5246,18 @@ class QuakeCardsCardsetSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.attachChild(this.subject);
+    this.addWatched(this.subject);
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    this.sprite = sprites[0];
-    this.addHiddenWatched(this.sprite);
     this.subject.showCards(sprites);
     this.subject.quakeCardsAnimate(sprites);
   }
 
   asserts() {
     this.describe('Deve tremer as cartas!');
-    this.assertWasTrue('Houve um chacoalhar?', this.sprite.isMoving);
+    this.assertWasTrue('Houve um chacoalhar?', this.subject.someSpriteIsMoving);
   }
 }
 class AnimationCardsCardsetSpriteTest extends SceneTest {
@@ -5244,13 +5265,11 @@ class AnimationCardsCardsetSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.attachChild(this.subject);
+    this.addWatched(this.subject);
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    this.sprite = sprites[0];
-    this.addHiddenWatched(this.sprite);
     this.subject.showCards(sprites);
     const times = 1;
     this.subject.damageCardsAnimate(times, sprites, this.scene);
@@ -5258,7 +5277,7 @@ class AnimationCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve animar as cartas!');
-    this.assertWasTrue('Houve um frame de aimação?', this.sprite.isAnimationPlaying);
+    this.assertWasTrue('Houve um frame de aimação?', this.subject.someSpriteIsAnimationPlaying);
   }
 }
 // tests CARD BATTLE WINDOW BASE
@@ -5985,50 +6004,50 @@ class CardBattleTestScene extends Scene_Message {
   
   testsData() {
     const cardSpriteTests = [
-      StartOpenCardSpriteTest,
-      StartClosedCardSpriteTest,
-      OpenCardSpriteTest,
-      CloseCardSpriteTest,
-      DisableCardSpriteTest,
-      EnableCardSpriteTest,
-      MoveCardSpriteTest,
-      HoveredCardSpriteTest,
-      UnhoveredCardSpriteTest,
-      SelectedCardSpriteTest,
-      UnselectedCardSpriteTest,
-      IluminatedCardSpriteTest,
-      UniluminatedCardSpriteTest,
-      FlashCardSpriteTest,
+      // StartOpenCardSpriteTest,
+      // StartClosedCardSpriteTest,
+      // OpenCardSpriteTest,
+      // CloseCardSpriteTest,
+      // DisableCardSpriteTest,
+      // EnableCardSpriteTest,
+      // MoveCardSpriteTest,
+      // HoveredCardSpriteTest,
+      // UnhoveredCardSpriteTest,
+      // SelectedCardSpriteTest,
+      // UnselectedCardSpriteTest,
+      // IluminatedCardSpriteTest,
+      // UniluminatedCardSpriteTest,
+      // FlashCardSpriteTest,
       AnimationCardSpriteTest,
-      QuakeCardSpriteTest,
-      ZoomCardSpriteTest,
-      ZoomOutCardSpriteTest,
-      LeaveCardSpriteTest,
-      FlipTurnToUpCardSpriteTest,
-      FlipTurnToDownCardSpriteTest,
-      UpdatingPointsCardSpriteTest
+      // QuakeCardSpriteTest,
+      // ZoomCardSpriteTest,
+      // ZoomOutCardSpriteTest,
+      // LeaveCardSpriteTest,
+      // FlipTurnToUpCardSpriteTest,
+      // FlipTurnToDownCardSpriteTest,
+      // UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
-      // StartPositionCardsetSpriteTest,
-      // SetCardsCardsetSpriteTest,
-      // ListCardsCardsetSpriteTest,
-      // StartClosedCardsCardsetSpriteTest,
-      // OpenAllCardsCardsetSpriteTest,
-      // OpenCardsCardsetSpriteTest,
-      // CloseAllCardsCardsetSpriteTest,
-      // CloseCardsCardsetSpriteTest,
-      // MoveAllCardsInListCardsetSpriteTest,
-      // MoveCardsInListCardsetSpriteTest,
-      // MoveAllCardsToPositionCardsetSpriteTest,
-      // MoveCardsToPositionCardsetSpriteTest,
-      // AddAllCardsToListCardsetSpriteTest,
-      // AddCardsToListCardsetSpriteTest,
-      // DisableCardsCardsetSpriteTest,
-      // StaticModeCardsetSpriteTest,
-      // SelectModeCardsetSpriteTest,
-      // SelectModeWithChoiceCardsetSpriteTest,
-      // FlashCardsCardsetSpriteTest,
-      // QuakeCardsCardsetSpriteTest,
+      StartPositionCardsetSpriteTest,
+      SetCardsCardsetSpriteTest,
+      ListCardsCardsetSpriteTest,
+      StartClosedCardsCardsetSpriteTest,
+      OpenAllCardsCardsetSpriteTest,
+      OpenCardsCardsetSpriteTest,
+      CloseAllCardsCardsetSpriteTest,
+      CloseCardsCardsetSpriteTest,
+      MoveAllCardsInListCardsetSpriteTest,
+      MoveCardsInListCardsetSpriteTest,
+      MoveAllCardsToPositionCardsetSpriteTest,
+      MoveCardsToPositionCardsetSpriteTest,
+      AddAllCardsToListCardsetSpriteTest,
+      AddCardsToListCardsetSpriteTest,
+      DisableCardsCardsetSpriteTest,
+      StaticModeCardsetSpriteTest,
+      SelectModeCardsetSpriteTest,
+      SelectModeWithChoiceCardsetSpriteTest,
+      FlashCardsCardsetSpriteTest,
+      QuakeCardsCardsetSpriteTest,
       AnimationCardsCardsetSpriteTest,
     ];
     const CardBattleWindowBaseTests = [
@@ -6076,8 +6095,8 @@ class CardBattleTestScene extends Scene_Message {
       TwoWinsUpdatingScoreWindowTest
     ];
     return [
-      // ...cardSpriteTests,
-      ...cardsetSpriteTests,
+      ...cardSpriteTests,
+      // ...cardsetSpriteTests,
       // ...CardBattleWindowBaseTests,
       // ...textWindowTests,
       // ...boardWindowTests,

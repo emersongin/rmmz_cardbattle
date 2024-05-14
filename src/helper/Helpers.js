@@ -18,15 +18,40 @@ class NumberHelper {
 
 class ObjectHelper {
   static copyObject(obj, maxDepth = 3, currentDepth = 0) {
+    const propsToCopy = [
+      '_actionsQueue',
+      '_actionsQueueWithDelay',
+      '_status',
+      '_positiveIntensityEffect',
+      '_intensityEffect',
+      '_opacityEffect',
+      '_type',
+      '_color',
+      '_figure',
+      '_backImage',
+      '_behaviors',
+      '_turned',
+      '_disabled',
+      '_attackPoints',
+      '_healthPoints',
+      '_contentLayer',
+      '_disabledLayer',
+      '_flashedLayer',
+      '_hoveredLayer',
+      '_selectedLayer',
+      '_sprites',
+      '_enableSelected',
+      '_selectedIndexs',
+    ];
     const newObj = Object.create(Object.getPrototypeOf(obj));
     for (const key in obj) {
-      if (obj.hasOwnProperty && obj.hasOwnProperty(key)) {
+      if (obj.hasOwnProperty && obj.hasOwnProperty(key) && propsToCopy.includes(key)) {
         const value = obj[key];
         if (typeof value === 'object' && value !== null && currentDepth < maxDepth && !Array.isArray(value)) {
           newObj[key] = ObjectHelper.copyObject(value, maxDepth, currentDepth + 1);
         } else {
           if (Array.isArray(value)) {
-            newObj[key] = value.clone();
+            newObj[key] = value.map(item => ObjectHelper.copyObject(item, maxDepth, currentDepth + 1));
           } else {
             newObj[key] = value;
           }

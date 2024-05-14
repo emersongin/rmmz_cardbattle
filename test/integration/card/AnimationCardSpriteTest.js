@@ -3,7 +3,7 @@ class AnimationCardSpriteTest extends SceneTest {
     const baseCenterXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const baseCenterYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.base = CardsetSprite.create(baseCenterXPosition, baseCenterYPosition);
-    this.addWatched(this.base);
+    this.attachChild(this.base);
     this.base.setBackgroundColor('black');
     this.base.show();
     const card = CardGenerator.generateCard();
@@ -14,6 +14,7 @@ class AnimationCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
+    this.addHiddenWatched(this.subject);
     const centerXPosition = (this.base.width / 2 - this.subject.width / 2);
     const centerYPosition = 0;
     this.subject.startOpen(centerXPosition, centerYPosition);
@@ -25,6 +26,6 @@ class AnimationCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve receber uma animação!');
-    this.assertWasTrue('Houve animação?', this.base.someSpriteIsAnimationPlaying);
+    this.assertWasTrue('Houve animação?', this.subject.isAnimationPlaying);
   }
 }
