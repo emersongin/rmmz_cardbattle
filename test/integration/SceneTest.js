@@ -67,6 +67,8 @@ class SceneTest {
 
   copyWatched() {
     const watched = this.toWatched.map(w => ObjectHelper.copyObject(w));
+    // console.log(this.subject.someSpriteIsFlashPlaying());
+    // console.log(watched[0]);
     this.watched.push(watched);
   }
 

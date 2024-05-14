@@ -17,7 +17,7 @@ class NumberHelper {
 }
 
 class ObjectHelper {
-  static copyObject(obj, maxDepth = 2, currentDepth = 0) {
+  static copyObject(obj, maxDepth = 3, currentDepth = 0) {
     const newObj = Object.create(Object.getPrototypeOf(obj));
     for (const key in obj) {
       if (obj.hasOwnProperty && obj.hasOwnProperty(key)) {

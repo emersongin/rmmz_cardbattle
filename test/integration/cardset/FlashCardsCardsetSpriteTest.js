@@ -9,7 +9,7 @@ class FlashCardsCardsetSpriteTest extends SceneTest {
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     this.subject.showCards(sprites);
-    this.subject.flashCardsAnimate(sprites);
+    this.subject.flashCardsAnimate(sprites, 'orange', 10, 100);
   }
 
   asserts() {

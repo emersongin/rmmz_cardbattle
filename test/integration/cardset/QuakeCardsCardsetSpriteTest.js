@@ -9,7 +9,7 @@ class QuakeCardsCardsetSpriteTest extends SceneTest {
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     this.subject.showCards(sprites);
-    this.subject.quakeCardsAnimate(sprites);
+    this.subject.quakeCardsAnimate(sprites, 20);
   }
 
   asserts() {

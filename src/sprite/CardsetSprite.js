@@ -412,7 +412,8 @@ class CardsetSprite extends ActionSprite {
   }
 
   someSpriteIsAnimationPlaying() {
-    return this._sprites.some(sprite => sprite.isAnimationPlaying());
+    return this._sprites.some(sprite => sprite.isAnimationPlaying()) || 
+      this.children.some(child => child.isAnimationPlaying());
   }
 
   update() {

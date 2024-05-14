@@ -115,8 +115,8 @@ class CardBattleTestScene extends Scene_Message {
       TwoWinsUpdatingScoreWindowTest
     ];
     return [
-      // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
+      ...cardSpriteTests,
+      ...cardsetSpriteTests,
       ...CardBattleWindowBaseTests,
       ...textWindowTests,
       ...boardWindowTests,
@@ -216,11 +216,11 @@ class CardBattleTestScene extends Scene_Message {
   }
 
   printError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #AA0000; ${this._css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #800000; ${this._css}`);
   }
 
   printTestError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #800000; ${this._css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #090000; ${this._css}`);
   }
 
   printAssertError(...msg) {

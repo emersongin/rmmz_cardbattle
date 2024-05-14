@@ -154,7 +154,7 @@ class NumberHelper {
 }
 
 class ObjectHelper {
-  static copyObject(obj, maxDepth = 2, currentDepth = 0) {
+  static copyObject(obj, maxDepth = 3, currentDepth = 0) {
     const newObj = Object.create(Object.getPrototypeOf(obj));
     for (const key in obj) {
       if (obj.hasOwnProperty && obj.hasOwnProperty(key)) {
@@ -3613,7 +3613,8 @@ class CardsetSprite extends ActionSprite {
   }
 
   someSpriteIsAnimationPlaying() {
-    return this._sprites.some(sprite => sprite.isAnimationPlaying());
+    return this._sprites.some(sprite => sprite.isAnimationPlaying()) || 
+      this.children.some(child => child.isAnimationPlaying());
   }
 
   update() {
@@ -4080,6 +4081,8 @@ class SceneTest {
 
   copyWatched() {
     const watched = this.toWatched.map(w => ObjectHelper.copyObject(w));
+    // console.log(this.subject.someSpriteIsFlashPlaying());
+    // console.log(watched[0]);
     this.watched.push(watched);
   }
 
@@ -5201,7 +5204,7 @@ class FlashCardsCardsetSpriteTest extends SceneTest {
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     this.subject.showCards(sprites);
-    this.subject.flashCardsAnimate(sprites);
+    this.subject.flashCardsAnimate(sprites, 'orange', 10, 100);
   }
 
   asserts() {
@@ -5220,7 +5223,7 @@ class QuakeCardsCardsetSpriteTest extends SceneTest {
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     this.subject.showCards(sprites);
-    this.subject.quakeCardsAnimate(sprites);
+    this.subject.quakeCardsAnimate(sprites, 20);
   }
 
   asserts() {
@@ -6063,8 +6066,8 @@ class CardBattleTestScene extends Scene_Message {
       TwoWinsUpdatingScoreWindowTest
     ];
     return [
-      // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
+      ...cardSpriteTests,
+      ...cardsetSpriteTests,
       ...CardBattleWindowBaseTests,
       ...textWindowTests,
       ...boardWindowTests,
@@ -6164,11 +6167,11 @@ class CardBattleTestScene extends Scene_Message {
   }
 
   printError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #AA0000; ${this._css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #800000; ${this._css}`);
   }
 
   printTestError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #800000; ${this._css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #090000; ${this._css}`);
   }
 
   printAssertError(...msg) {
