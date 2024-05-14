@@ -15,6 +15,7 @@
 // include ./window/TrashWindow.js
 // include ./window/ScoreWindow.js
 // include ./window/ChooseFolderWindow.js
+// include ./window/AskWindow.js
 // include ./object/PowerAction.js
 // include ./object/Energy.js
 // include ./object/Card.js
@@ -111,6 +112,9 @@
 // tests SCORE WINDOW
 // include ../test/integration/scorewindow/OneWinUpdatingScoreWindowTest.js
 // include ../test/integration/scorewindow/TwoWinsUpdatingScoreWindowTest.js
+// tests COMMAND WINDOW
+// include ../test/integration/askwindow/OpenAskWindowTest.js
+// include ../test/integration/askwindow/SetCommandsAskWindowTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./scene/CardBattleTestScene.js

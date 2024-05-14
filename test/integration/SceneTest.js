@@ -240,4 +240,8 @@ class SceneTest {
   addWindow(window) {
     this.scene._windowLayer.addChild(window);
   }
+
+  pressToAsserts() {
+    this.pressToStartAsserts = true;
+  }
 }

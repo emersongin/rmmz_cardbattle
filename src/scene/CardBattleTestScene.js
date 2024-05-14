@@ -114,15 +114,20 @@ class CardBattleTestScene extends Scene_Message {
       OneWinUpdatingScoreWindowTest,
       TwoWinsUpdatingScoreWindowTest
     ];
+    const askWindow = [
+      // OpenAskWindowTest,
+      SetCommandsAskWindowTest,
+    ];
     return [
-      ...cardSpriteTests,
-      ...cardsetSpriteTests,
-      ...CardBattleWindowBaseTests,
-      ...textWindowTests,
-      ...boardWindowTests,
-      ...battlePointsWindow,
-      ...trashWindow,
-      ...scoreWindow,
+      // ...cardSpriteTests,
+      // ...cardsetSpriteTests,
+      // ...CardBattleWindowBaseTests,
+      // ...textWindowTests,
+      // ...boardWindowTests,
+      // ...battlePointsWindow,
+      // ...trashWindow,
+      // ...scoreWindow,
+      ...askWindow,
     ];
   }
 

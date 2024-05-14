@@ -80,7 +80,7 @@ class CardBattleWindowBase extends Window_Base {
 
   update() {
     super.update();
-    if (this.hasActions() && this.isStopped()) this.executeAction();
+    if (this.hasActions() && this.isStopped() && this.isAvailable()) this.executeAction();
     if (this.isOpen() && this.getStatus()) this._status.updateStatus();
     this.updateTone();
   }
