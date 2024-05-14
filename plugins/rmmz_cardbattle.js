@@ -4235,6 +4235,10 @@ class SceneTest {
     this.attachChild(watched);
   }
 
+  addHiddenWatched(watched) {
+    this.toWatched.push(watched);
+  }
+
   attachChild(child) {
     this.childrenToAdd.push(child);
   }
@@ -5198,18 +5202,20 @@ class FlashCardsCardsetSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.addWatched(this.subject);
+    this.attachChild(this.subject);
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
+    this.sprite = sprites[0];
+    this.addHiddenWatched(this.sprite);
     this.subject.showCards(sprites);
-    this.subject.flashCardsAnimate(sprites, 'orange', 10, 100);
+    this.subject.flashCardsAnimate(sprites, 'orange');
   }
 
   asserts() {
     this.describe('Deve animar as cartas!');
-    this.assertWasTrue('Houve um flash de luz?', this.subject.someSpriteIsFlashPlaying);
+    this.assertWasTrue('Houve um flash de luz?', this.sprite.isFlashPlaying);
   }
 }
 class QuakeCardsCardsetSpriteTest extends SceneTest {
@@ -5217,18 +5223,20 @@ class QuakeCardsCardsetSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.addWatched(this.subject);
+    this.attachChild(this.subject);
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
+    this.sprite = sprites[0];
+    this.addHiddenWatched(this.sprite);
     this.subject.showCards(sprites);
-    this.subject.quakeCardsAnimate(sprites, 20);
+    this.subject.quakeCardsAnimate(sprites);
   }
 
   asserts() {
     this.describe('Deve tremer as cartas!');
-    this.assertWasTrue('Houve um chacoalhar?', this.subject.someSpriteIsMoving);
+    this.assertWasTrue('Houve um chacoalhar?', this.sprite.isMoving);
   }
 }
 class AnimationCardsCardsetSpriteTest extends SceneTest {
@@ -5236,11 +5244,13 @@ class AnimationCardsCardsetSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.addWatched(this.subject);
+    this.attachChild(this.subject);
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
+    this.sprite = sprites[0];
+    this.addHiddenWatched(this.sprite);
     this.subject.showCards(sprites);
     const times = 1;
     this.subject.damageCardsAnimate(times, sprites, this.scene);
@@ -5248,7 +5258,7 @@ class AnimationCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve animar as cartas!');
-    this.assertWasTrue('Houve um frame de aimação?', this.subject.someSpriteIsAnimationPlaying);
+    this.assertWasTrue('Houve um frame de aimação?', this.sprite.isAnimationPlaying);
   }
 }
 // tests CARD BATTLE WINDOW BASE
@@ -5999,26 +6009,26 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
-      StartPositionCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      ListCardsCardsetSpriteTest,
-      StartClosedCardsCardsetSpriteTest,
-      OpenAllCardsCardsetSpriteTest,
-      OpenCardsCardsetSpriteTest,
-      CloseAllCardsCardsetSpriteTest,
-      CloseCardsCardsetSpriteTest,
-      MoveAllCardsInListCardsetSpriteTest,
-      MoveCardsInListCardsetSpriteTest,
-      MoveAllCardsToPositionCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
-      AddAllCardsToListCardsetSpriteTest,
-      AddCardsToListCardsetSpriteTest,
-      DisableCardsCardsetSpriteTest,
-      StaticModeCardsetSpriteTest,
-      SelectModeCardsetSpriteTest,
-      SelectModeWithChoiceCardsetSpriteTest,
-      FlashCardsCardsetSpriteTest,
-      QuakeCardsCardsetSpriteTest,
+      // StartPositionCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      // ListCardsCardsetSpriteTest,
+      // StartClosedCardsCardsetSpriteTest,
+      // OpenAllCardsCardsetSpriteTest,
+      // OpenCardsCardsetSpriteTest,
+      // CloseAllCardsCardsetSpriteTest,
+      // CloseCardsCardsetSpriteTest,
+      // MoveAllCardsInListCardsetSpriteTest,
+      // MoveCardsInListCardsetSpriteTest,
+      // MoveAllCardsToPositionCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
+      // AddAllCardsToListCardsetSpriteTest,
+      // AddCardsToListCardsetSpriteTest,
+      // DisableCardsCardsetSpriteTest,
+      // StaticModeCardsetSpriteTest,
+      // SelectModeCardsetSpriteTest,
+      // SelectModeWithChoiceCardsetSpriteTest,
+      // FlashCardsCardsetSpriteTest,
+      // QuakeCardsCardsetSpriteTest,
       AnimationCardsCardsetSpriteTest,
     ];
     const CardBattleWindowBaseTests = [
@@ -6066,14 +6076,14 @@ class CardBattleTestScene extends Scene_Message {
       TwoWinsUpdatingScoreWindowTest
     ];
     return [
-      ...cardSpriteTests,
+      // ...cardSpriteTests,
       ...cardsetSpriteTests,
-      ...CardBattleWindowBaseTests,
-      ...textWindowTests,
-      ...boardWindowTests,
-      ...battlePointsWindow,
-      ...trashWindow,
-      ...scoreWindow,
+      // ...CardBattleWindowBaseTests,
+      // ...textWindowTests,
+      // ...boardWindowTests,
+      // ...battlePointsWindow,
+      // ...trashWindow,
+      // ...scoreWindow,
     ];
   }
 

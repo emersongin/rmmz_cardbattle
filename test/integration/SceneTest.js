@@ -221,6 +221,10 @@ class SceneTest {
     this.attachChild(watched);
   }
 
+  addHiddenWatched(watched) {
+    this.toWatched.push(watched);
+  }
+
   attachChild(child) {
     this.childrenToAdd.push(child);
   }
