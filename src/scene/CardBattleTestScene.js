@@ -118,8 +118,8 @@ class CardBattleTestScene extends Scene_Message {
       WindowTest
     ];
     return [
-      ...cardSpriteTests,
-      // ...cardsetSpriteTests,
+      // ...cardSpriteTests,
+      ...cardsetSpriteTests,
       // ...CardBattleWindowBaseTests,
       // ...textWindowTests,
       // ...boardWindowTests,

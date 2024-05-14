@@ -4786,309 +4786,278 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
 }
 // tests CARDSET
 class StartPositionCardsetSpriteTest extends SceneTest {
-  name = 'StartPositionCardsetSpriteTest';
-
   create() {
     this.subject = CardsetSprite.create();
     this.addWatched(this.subject);
-  }
-
-  start() {
     const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.test('Deve mostrar o set no meio!', () => {
-      this.subject.startPosition(centerXPosition, centerYPosition);
-      this.subject.show();
-    }, () => {
-      this.assertTrue('Esta no meio?', this.subject.isVisible());
-      this.assert('Esta na posição x?', this.subject.x).toBe(centerXPosition);
-      this.assert('Esta na posição y?', this.subject.y).toBe(centerYPosition);
-    });
+    this.subject.startPosition(centerXPosition, centerYPosition);
+    this.subject.show();
+  }
+
+  asserts() {
+    this.describe('Deve iniciar na posição central!');
+    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
+    this.assertTrue('Esta no meio?', this.subject.isVisible());
+    this.assert('Esta na posição x?', this.subject.x).toBe(centerXPosition);
+    this.assert('Esta na posição y?', this.subject.y).toBe(centerYPosition);
   }
 }
 class SetCardsCardsetSpriteTest extends SceneTest {
-  name = 'SetCardsCardsetSpriteTest';
-
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.subject.show();
     this.addWatched(this.subject);
-  }
-
-  start() {
+    this.subject.show();
     const cards = CardGenerator.generateCards(1);
     const sprites = this.subject.setCards(cards);
-    this.test('Deve mostrar os cartões do set na posição inícial!', () => {
-      this.subject.showCards(sprites);
-    }, () => {
-      const numCards = 1;
-      const padding = 0;
-      const x = 0;
-      const y = 0;
-      const positions = CardsetSprite.createPositions(numCards, padding, x, y);
-      this.assertTrue('Esta mostrando na posição inícial?', this.subject.allCardsAreVisible());
-      this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, sprites));
-    });
+    this.subject.showCards(sprites);
+    this.sprites = sprites;
+  }
+
+  asserts() {
+    this.describe('Deve mostrar as cartas!');
+    const numCards = 1;
+    const padding = 0;
+    const x = 0;
+    const y = 0;
+    const positions = CardsetSprite.createPositions(numCards, padding, x, y);
+    this.assertTrue('Esta mostrando na posição inícial?', this.subject.allCardsAreVisible());
+    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
 class ListCardsCardsetSpriteTest extends SceneTest {
-  name = 'ListCardsCardsetSpriteTest';
-
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.subject.show();
     this.addWatched(this.subject);
-  }
-
-  start() {
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    this.test('Deve mostrar os cartões do set em posição de lista!', () => {
-      this.subject.showCards(sprites);
-    }, () => {
-      const positions = CardsetSprite.createPositionsList(numCards);
-      this.assertTrue('Esta mostrando na posição de lista?', this.subject.allCardsAreVisible());
-      this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, sprites));
-    });
+    this.subject.showCards(sprites);
+    this.sprites = sprites;
+  }
+
+  asserts() {
+    this.describe('Deve listar as cartas!');
+    const numCards = 6;
+    const positions = CardsetSprite.createPositionsList(numCards);
+    this.assertTrue('Esta mostrando na posição de lista?', this.subject.allCardsAreVisible());
+    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
 class StartClosedCardsCardsetSpriteTest extends SceneTest {
-  name = 'StartClosedCardsCardsetSpriteTest';
-
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.subject.show();
     this.addWatched(this.subject);
-  }
-
-  start() {
+    this.subject.show();
     const numCards = 1;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.setCards(cards);
-    this.test('Deve mostrar os cartões do set fechado!', () => {
-      this.subject.startClosedCards(sprites);
-    }, () => {
-      this.assertTrue('Estão nas posições?', this.subject.allCardsIsClosed(sprites));
-    });
+    this.subject.startClosedCards(sprites);
+    this.sprites = sprites;
+  }
+
+  asserts() {
+    this.describe('Deve iniciar as cartas fechadas!');
+    this.assertTrue('Estão nas posições?', this.subject.allCardsIsClosed(this.sprites));
   }
 }
 class OpenAllCardsCardsetSpriteTest extends SceneTest {
-  name = 'OpenAllCardsCardsetSpriteTest';
-
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.subject.show();
     this.addWatched(this.subject);
-  }
-
-  start() {
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     this.subject.startClosedCards(sprites);
     this.subject.showCards(sprites);
-    this.test('Deve abrir todos os cartões do set!', () => {
-      this.subject.openAllCards(sprites);
-    }, () => {
-      this.assertTrue('Estão aberto?', this.subject.allCardsIsOpened(sprites));
-    });
+    this.subject.openAllCards(sprites);
+    this.sprites = sprites;
+  }
+
+  asserts() {
+    this.describe('Deve abrir todas as cartas!');
+    this.assertTrue('Estão aberto?', this.subject.allCardsIsOpened(this.sprites));
   }
 }
 class OpenCardsCardsetSpriteTest extends SceneTest {
-  name = 'OpenCardsCardsetSpriteTest';
-
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.subject.show();
     this.addWatched(this.subject);
-  }
-
-  start() {
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     this.subject.startClosedCards(sprites);
     this.subject.showCards(sprites);
-    this.test('Deve abrir os cartões do set!', () => {
-      this.subject.openCards(sprites);
-    }, () => {
-      this.assertTrue('Estão aberto?', this.subject.allCardsIsOpened(sprites));
-    });
+    this.subject.openCards(sprites);
+    this.sprites = sprites;
+  }
+
+  asserts() {
+    this.describe('Deve abrir as cartas!');
+    this.assertTrue('Estão aberto?', this.subject.allCardsIsOpened(this.sprites));
   }
 }
 class CloseAllCardsCardsetSpriteTest extends SceneTest {
-  name = 'CloseAllCardsCardsetSpriteTest';
-
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.subject.show();
     this.addWatched(this.subject);
-  }
-
-  start() {
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     this.subject.showCards(sprites);
-    this.test('Deve fechar todos os cartões do set!', () => {
-      this.subject.closeAllCards(sprites);
-    }, () => {
-      this.assertTrue('Estão fechados?', this.subject.allCardsIsClosed(sprites));
-    });
+    this.subject.closeAllCards(sprites);
+    this.sprites = sprites;
+  }
+
+  asserts() {
+    this.describe('Deve fechar todas as cartas!');
+    this.assertTrue('Estão fechados?', this.subject.allCardsIsClosed(this.sprites));
   }
 }
 class CloseCardsCardsetSpriteTest extends SceneTest {
-  name = 'CloseCardsCardsetSpriteTest';
-
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.subject.show();
     this.addWatched(this.subject);
-  }
-
-  start() {
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     this.subject.showCards(sprites);
-    this.test('Deve fechar os cartões do set!', () => {
-      this.subject.closeCards(sprites);
-    }, () => {
-      this.assertTrue('Estão fechados?', this.subject.allCardsIsClosed(sprites));
-    });
+    this.subject.closeCards(sprites);
+    this.sprites = sprites;
+  }
+
+  asserts() {
+    this.describe('Deve fechar as cartas!');
+    this.assertTrue('Estão fechados?', this.subject.allCardsIsClosed(this.sprites));
   }
 }
 class MoveAllCardsInListCardsetSpriteTest extends SceneTest {
-  name = 'MoveAllCardsInListCardsetSpriteTest';
-
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.subject.show();
     this.addWatched(this.subject);
-  }
-
-  start() {
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const screenWidth = Graphics.boxWidth;
     const sprites = this.subject.setCards(cards, screenWidth);
     this.subject.showCards(sprites);
-    this.test('Deve mover todos os cartões do set na posição em lista!', () => {
-      this.subject.moveAllCardsInlist(sprites);
-    }, () => {
-      const positions = CardsetSprite.createPositionsList(numCards);
-      this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, sprites));
-    });
+    this.subject.moveAllCardsInlist(sprites);
+    this.sprites = sprites;
+  }
+
+  asserts() {
+    this.describe('Deve mover todas as cartas!');
+    const numCards = 6;
+    const positions = CardsetSprite.createPositionsList(numCards);
+    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
 class MoveCardsInListCardsetSpriteTest extends SceneTest {
-  name = 'MoveCardsInListCardsetSpriteTest';
-
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.subject.show();
     this.addWatched(this.subject);
-  }
-
-  start() {
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const screenWidth = Graphics.boxWidth;
     const sprites = this.subject.setCards(cards, screenWidth);
     this.subject.showCards(sprites);
-    this.test('Deve mover os cartões do set na posição em lista!', () => {
-      this.subject.moveCardsInlist(sprites);
-    }, () => {
-      const positions = CardsetSprite.createPositionsList(numCards);
-      this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, sprites));
-    });
+    this.subject.moveCardsInlist(sprites);
+    this.sprites = sprites;
+  }
+
+  asserts() {
+    this.describe('Deve mover as cartas em posição de lista!');
+    const numCards = 6;
+    const positions = CardsetSprite.createPositionsList(numCards);
+    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
 class MoveAllCardsToPositionCardsetSpriteTest extends SceneTest {
-  name = 'MoveAllCardsToPositionCardsetSpriteTest';
-
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.subject.show();
     this.addWatched(this.subject);
-  }
-
-  start() {
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.setCards(cards);
     const x = CardsetSprite.contentOriginalWidth() / 2;
     const y = 0;
     this.subject.showCards(sprites);
-    this.test('Deve mover os cartões do set na posição definida!', () => {
-      this.subject.moveAllCardsToPosition(sprites, x, y);
-    }, () => {
-      const padding = 0;
-      const positions = CardsetSprite.createPositions(numCards, padding, x, y);
-      this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, sprites));
-    });
+    this.subject.moveAllCardsToPosition(sprites, x, y);
+    this.sprites = sprites;
+  }
+
+  asserts() {
+    this.describe('Deve mover todas as cartas para a posição!');
+    const numCards = 6;
+    const padding = 0;
+    const x = CardsetSprite.contentOriginalWidth() / 2;
+    const y = 0;
+    const positions = CardsetSprite.createPositions(numCards, padding, x, y);
+    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
 class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
-  name = 'MoveCardsToPositionCardsetSpriteTest';
-
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.subject.show();
     this.addWatched(this.subject);
-  }
-
-  start() {
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.setCards(cards);
     const x = CardsetSprite.contentOriginalWidth() / 2;
     const y = 0;
     this.subject.showCards(sprites);
-    this.test('Deve mover os cartões do set na posição definida!', () => {
-      this.subject.moveCardsToPosition(sprites, x, y);
-    }, () => {
-      const padding = 0;
-      const positions = CardsetSprite.createPositions(numCards, padding, x, y);
-      this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, sprites));
-    });
+    this.subject.moveCardsToPosition(sprites, x, y);
+    this.sprites = sprites;
+  }
+
+  asserts() {
+    this.describe('Deve mover as cartas para a posição!');
+    const numCards = 6;
+    const padding = 0;
+    const x = CardsetSprite.contentOriginalWidth() / 2;
+    const y = 0;
+    const positions = CardsetSprite.createPositions(numCards, padding, x, y);
+    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
 class AddAllCardsToListCardsetSpriteTest extends SceneTest {
-  name = 'AddAllCardsToListCardsetSpriteTest';
-
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.subject.show();
     this.addWatched(this.subject);
-  }
-
-  start() {
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
@@ -5096,26 +5065,24 @@ class AddAllCardsToListCardsetSpriteTest extends SceneTest {
     const screenWidth = Graphics.boxWidth;
     this.subject.setAllCardsToPosition(addSprites, screenWidth);
     this.subject.showCards(sprites);
-    this.test('Deve mover os cartões adicionados ao set na posição em lista!', () => {
-      this.subject.moveAllCardsInlist(sprites);
-    }, () => {
-      const positions = CardsetSprite.createPositionsList(numCards);
-      this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, sprites));
-    });
+    this.subject.moveAllCardsInlist(sprites);
+    this.sprites = sprites;
+  }
+
+  asserts() {
+    this.describe('Deve adicionar todas as cartas na lista!');
+    const numCards = 6;
+    const positions = CardsetSprite.createPositionsList(numCards);
+    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
 class AddCardsToListCardsetSpriteTest extends SceneTest {
-  name = 'AddCardsToListCardsetSpriteTest';
-
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.subject.show();
     this.addWatched(this.subject);
-  }
-
-  start() {
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
@@ -5123,101 +5090,89 @@ class AddCardsToListCardsetSpriteTest extends SceneTest {
     const screenWidth = Graphics.boxWidth;
     this.subject.setAllCardsToPosition(addSprites, screenWidth);
     this.subject.showCards(sprites);
-    this.test('Deve mover os cartões adicionados ao set na posição em lista!', () => {
-      this.subject.moveCardsInlist(sprites);
-    }, () => {
-      const positions = CardsetSprite.createPositionsList(numCards);
-      this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, sprites));
-    });
+    this.subject.moveCardsInlist(sprites);
+    this.sprites = sprites;
+  }
+
+  asserts() {
+    this.describe('Deve adicionar as cartas na lista!');
+    const numCards = 6;
+    const positions = CardsetSprite.createPositionsList(numCards);
+    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
 class DisableCardsCardsetSpriteTest extends SceneTest {
-  name = 'DisableCardsCardsetSpriteTest';
-
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.subject.show();
     this.addWatched(this.subject);
-  }
-
-  start() {
+    this.subject.show();
     const numCards = 10;
     const cards = CardGenerator.generateCards(numCards);
-    const enableCardsIndex = [0, 3, 4, 5, 6];
     const disableCardsIndex = [1, 2, 7, 8, 9];
     const sprites = this.subject.listCards(cards);
     const disableSprites = sprites.filter((sprite, index) => disableCardsIndex.includes(index));
-    this.test('Deve apresentar cartões desabilitados de acordo com os indices!', () => {
-      this.subject.disableCards(disableSprites);
-      this.subject.showCards(sprites);
-    }, () => {
-      const positions = CardsetSprite.createPositionsList(numCards);
-      this.assertTrue('Estão desabilitados?', this.subject.isDisabledCardIndexs(disableCardsIndex));
-      this.assertTrue('Estão habilitados?', this.subject.isEnabledCardIndexs(enableCardsIndex));
-    });
+    this.subject.disableCards(disableSprites);
+    this.subject.showCards(sprites);
+  }
+
+  asserts() {
+    this.describe('Deve desabilitar as cartas!');
+    const numCards = 10;
+    const enableCardsIndex = [0, 3, 4, 5, 6];
+    const disableCardsIndex = [1, 2, 7, 8, 9];
+    const positions = CardsetSprite.createPositionsList(numCards);
+    this.assertTrue('Estão desabilitados?', this.subject.isDisabledCardIndexs(disableCardsIndex));
+    this.assertTrue('Estão habilitados?', this.subject.isEnabledCardIndexs(enableCardsIndex));
   }
 }
 class SelectModeCardsetSpriteTest extends SceneTest {
-  name = 'SelectModeCardsetSpriteTest';
-
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.subject.show();
     this.addWatched(this.subject);
-  }
-
-  start() {
-    const numCards = 10;
-    const cards = CardGenerator.generateCards(numCards);
-    const sprites = this.subject.listCards(cards);
-    this.subject.showCards(sprites);
-    this.test('Deve entrar em modo seleção!', () => {
-      this.subject.selectMode();
-    }, () => {
-      this.assertTrue('Esta em modo seleção?', this.subject.isSelectMode());
-    });
-  }
-}
-class StaticModeCardsetSpriteTest extends SceneTest {
-  name = 'StaticModeCardsetSpriteTest';
-
-  create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
     this.subject.show();
-    this.addWatched(this.subject);
-  }
-
-  start() {
     const numCards = 10;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     this.subject.showCards(sprites);
     this.subject.selectMode();
-    this.test('Deve entrar em modo estático!', () => {
-      this.subject.unselectMode();
-    }, () => {
-      this.assertTrue('Esta em modo estático?', this.subject.isStaticMode());
-    });
+  }
+
+  asserts() {
+    this.describe('Deve entrar em modo seleção!');
+    this.assertTrue('Esta em modo seleção?', this.subject.isSelectMode());
   }
 }
-class SelectModeWithChoiceCardsetSpriteTest extends SceneTest {
-  name = 'SelectModeWithChoiceCardsetSpriteTest';
-
+class StaticModeCardsetSpriteTest extends SceneTest {
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.subject.show();
     this.addWatched(this.subject);
+    this.subject.show();
+    const numCards = 10;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.listCards(cards);
+    this.subject.showCards(sprites);
+    this.subject.selectMode();
+    this.subject.unselectMode();
   }
 
-  start() {
+  asserts() {
+    this.describe('Deve entrar em modo estático!');
+    this.assertTrue('Esta em modo estático?', this.subject.isStaticMode());
+  }
+}
+class SelectModeWithChoiceCardsetSpriteTest extends SceneTest {
+  create() {
+    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
+    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.addWatched(this.subject);
+    this.subject.show();
     const numCards = 10;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
@@ -5225,83 +5180,72 @@ class SelectModeWithChoiceCardsetSpriteTest extends SceneTest {
     const disableSprites = sprites.filter((sprite, index) => disableCardsIndex.includes(index));
     this.subject.disableCards(disableSprites);
     this.subject.showCards(sprites);
-    this.test('Deve entrar em modo seleção com escolha!', () => {
-      this.subject.selectMode();
-      this.subject.enableChoice();
-    }, () => {
-      this.assertTrue('Esta em modo seleção?', this.subject.isSelectMode());
-      this.assertTrue('Esta com escolha habilitada?', this.subject.isEnableChoice());
-    });
+    this.subject.selectMode();
+    this.subject.enableChoice();
+  }
+
+  asserts() {
+    this.describe('Deve entrar em modo seleção com escolha!');
+    this.assertTrue('Esta em modo seleção?', this.subject.isSelectMode());
+    this.assertTrue('Esta com escolha habilitada?', this.subject.isEnableChoice());
   }
 }
 class FlashCardsCardsetSpriteTest extends SceneTest {
-  name = 'FlashCardsCardsetSpriteTest';
-
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.subject.show();
     this.addWatched(this.subject);
-  }
-
-  start() {
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    this.test('Deve animar os cartões com flash!', () => {
-      this.subject.showCards(sprites);
-      this.subject.flashCardsAnimate(sprites);
-    }, () => {
-      this.assertWasTrue('Houve um flash de luz?', this.subject.someSpriteIsFlashPlaying);
-    });
+    this.subject.showCards(sprites);
+    this.subject.flashCardsAnimate(sprites);
+  }
+
+  asserts() {
+    this.describe('Deve animar as cartas!');
+    this.assertWasTrue('Houve um flash de luz?', this.subject.someSpriteIsFlashPlaying);
   }
 }
 class QuakeCardsCardsetSpriteTest extends SceneTest {
-  name = 'QuakeCardsCardsetSpriteTest';
-
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.subject.show();
     this.addWatched(this.subject);
-  }
-
-  start() {
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    this.test('Deve animar os cartões com chacoalhar!', () => {
-      this.subject.showCards(sprites);
-      this.subject.quakeCardsAnimate(sprites);
-    }, () => {
-      this.assertWasTrue('Houve um chacoalhar?', this.subject.someSpriteIsMoving);
-    });
+    this.subject.showCards(sprites);
+    this.subject.quakeCardsAnimate(sprites);
+  }
+
+  asserts() {
+    this.describe('Deve tremer as cartas!');
+    this.assertWasTrue('Houve um chacoalhar?', this.subject.someSpriteIsMoving);
   }
 }
 class AnimationCardsCardsetSpriteTest extends SceneTest {
-  name = 'AnimationCardsCardsetSpriteTest';
-
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
-    this.subject.show();
     this.addWatched(this.subject);
-  }
-
-  start() {
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    this.test('Deve animar os cartões com frame de animação!', () => {
-      this.subject.showCards(sprites);
-      const times = 1;
-      this.subject.damageCardsAnimate(times, sprites, this.scene);
-    }, () => {
-      this.assertWasTrue('Houve um frame de aimação?', this.subject.someSpriteIsAnimationPlaying);
-    });
+    this.subject.showCards(sprites);
+    const times = 1;
+    this.subject.damageCardsAnimate(times, sprites, this.scene);
+  }
+
+  asserts() {
+    this.describe('Deve animar as cartas!');
+    this.assertWasTrue('Houve um frame de aimação?', this.subject.someSpriteIsAnimationPlaying);
   }
 }
 // tests CARD BATTLE WINDOW BASE
@@ -6278,8 +6222,8 @@ class CardBattleTestScene extends Scene_Message {
       WindowTest
     ];
     return [
-      ...cardSpriteTests,
-      // ...cardsetSpriteTests,
+      // ...cardSpriteTests,
+      ...cardsetSpriteTests,
       // ...CardBattleWindowBaseTests,
       // ...textWindowTests,
       // ...boardWindowTests,
