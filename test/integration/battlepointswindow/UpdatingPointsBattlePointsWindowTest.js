@@ -1,12 +1,7 @@
 class UpdatingPointsBattlePointsWindowTest extends SceneTest {
-  name = 'UpdatingPointsBattlePointsWindowTest';
-
   create() {
     this.subject = BattlePointsWindow.create(0, 0);
     this.addWatched(this.subject);
-  }
-
-  start() {
     this.subject.alignCenterMiddle();
     this.subject.refresh();
     this.subject.open();
@@ -16,11 +11,12 @@ class UpdatingPointsBattlePointsWindowTest extends SceneTest {
       updateAttackPoints,
       updateHealtPoints
     ];
-    this.test('Deve atualizar os pontos!', () => {
-      this.subject.reset();
-      this.subject.updateValues(manyUpdates);
-    }, () => {
-      this.assertWasTrue('Foram atualizado?', this.subject.isUpdating);
-    });
+    this.subject.reset();
+    this.subject.updateValues(manyUpdates);
+  }
+
+  asserts() {
+    this.describe('Deve atualizar os pontos de batalha!');
+    this.assertWasTrue('Foram atualizado?', this.subject.isUpdating);
   }
 }

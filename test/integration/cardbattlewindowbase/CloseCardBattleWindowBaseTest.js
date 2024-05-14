@@ -1,18 +1,14 @@
 class CloseCardBattleWindowBaseTest extends SceneTest {
-  name = 'CloseCardBattleWindowBaseTest';
-
   create() {
     this.subject = CardBattleWindowBase.createWindowFullSize(0, 0);
-    this.subject.alignCenterMiddle();
     this.addWatched(this.subject);
+    this.subject.alignCenterMiddle();
+    this.subject.open();
+    this.subject.close();
   }
 
-  start() {
-    this.subject.open();
-    this.test('Deve fechar!', () => {
-      this.subject.close();
-    }, () => {
-      this.assertTrue('Esta fechada?', this.subject.isClosed());
-    });
+  asserts() {
+    this.describe('Deve fechar a janela!');
+    this.assertTrue('Esta fechada?', this.subject.isClosed());
   }
 }

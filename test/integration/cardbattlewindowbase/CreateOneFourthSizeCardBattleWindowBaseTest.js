@@ -1,19 +1,15 @@
 class CreateOneFourthSizeCardBattleWindowBaseTest extends SceneTest {
-  name = 'CreateOneFourthSizeCardBattleWindowBaseTest';
-
   create() {
     const x = 0;
     const y = 0;
     this.subject = CardBattleWindowBase.createWindowOneFourthSize(x, y);
     this.addWatched(this.subject);
+    this.subject.open();
   }
 
-  start() {
-    this.test('Deve ter o tamanho de 1/4 da tela!', () => {
-      this.subject.open();
-    }, () => {
-      this.assertTrue('Esta na largura de 1/4 da tela?', this.subject.isOneFourthSize());
-    });
+  asserts() {
+    this.describe('Deve criar uma janela com 1/4 do tamanho da tela!');
+    this.assertTrue('Esta na largura de 1/4 da tela?', this.subject.isOneFourthSize());
   }
   
 }

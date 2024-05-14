@@ -1,12 +1,7 @@
 class UpdatingPointsBoardWindowTest extends SceneTest {
-  name = 'UpdatingPointsBoardWindowTest';
-
   create() {
     this.subject = BoardWindow.createWindowFullSize(0, 0);
     this.addWatched(this.subject);
-  }
-
-  start() {
     this.subject.alignCenterMiddle();
     this.subject.refresh();
     this.subject.open();
@@ -26,12 +21,12 @@ class UpdatingPointsBoardWindowTest extends SceneTest {
       updateDeckPoints,
       updateHandPoints
     ];
-    this.test('Deve atualizar os pontos!', () => {
-      this.subject.reset();
-      this.subject.updateValues(manyUpdates);
-    }, () => {
-      this.assertWasTrue('Foram atualizado?', this.subject.isUpdating);
-    });
+    this.subject.reset();
+    this.subject.updateValues(manyUpdates);
   }
 
+  asserts() {
+    this.describe('Deve atualizar os pontos do tabuleiro!');
+    this.assertWasTrue('Foram atualizado?', this.subject.isUpdating);
+  }
 }

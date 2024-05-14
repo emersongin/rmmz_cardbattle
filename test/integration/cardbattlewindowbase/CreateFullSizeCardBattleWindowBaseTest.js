@@ -1,19 +1,14 @@
 class CreateFullSizeCardBattleWindowBaseTest extends SceneTest {
-  name = 'CreateFullSizeCardBattleWindowBaseTest';
-
   create() {
     const x = 0;
     const y = 0;
     this.subject = CardBattleWindowBase.createWindowFullSize(x, y);
     this.addWatched(this.subject);
+    this.subject.open();
   }
 
-  start() {
-    this.test('Deve ter a largura total da tela!', () => {
-      this.subject.open();
-    }, () => {
-      this.assertTrue('Esta na largura total da tela?', this.subject.isFullsize());
-    });
+  asserts() {
+    this.describe('Deve criar uma janela de batalha com tamanho total da tela!');
+    this.assertTrue('Esta na largura total da tela?', this.subject.isFullsize());
   }
-
 }

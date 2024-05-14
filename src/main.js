@@ -112,8 +112,6 @@
 // include ../test/integration/scorewindow/OneWinUpdatingScoreWindowTest.js
 // include ../test/integration/scorewindow/TwoWinsUpdatingScoreWindowTest.js
 
-// include ../test/integration/window/WindowTest.js
-
 // include ./scene/CardBattleScene.js
 // include ./scene/CardBattleTestScene.js
 // include ./manager/CardBattleManager.js

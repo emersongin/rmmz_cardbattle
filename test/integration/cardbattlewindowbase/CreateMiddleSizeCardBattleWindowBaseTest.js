@@ -1,19 +1,15 @@
 class CreateMiddleSizeCardBattleWindowBaseTest extends SceneTest {
-  name = 'CreateMiddleSizeCardBattleWindowBaseTest';
-
   create() {
     const x = 0;
     const y = 0;
     this.subject = CardBattleWindowBase.createWindowMiddleSize(x, y);
     this.addWatched(this.subject);
+    this.subject.open();
   }
 
-  start() {
-    this.test('Deve ter o tamanho da metade da tela!', () => {
-      this.subject.open();
-    }, () => {
-      this.assertTrue('Esta na largura metade da tela?', this.subject.isMiddleSize());
-    });
+  asserts() {
+    this.describe('Deve criar uma janela de batalha com tamanho metade da tela!');
+    this.assertTrue('Esta na largura metade da tela?', this.subject.isMiddleSize());
   }
   
 }

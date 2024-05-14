@@ -1,18 +1,14 @@
 class ChangeRedColorCardBattleWindowBaseTest extends SceneTest {
-  name = 'ChangeRedColorCardBattleWindowBaseTest';
-
   create() {
     this.subject = CardBattleWindowBase.createWindowFullSize(0, 0);
-    this.subject.alignCenterMiddle();
     this.addWatched(this.subject);
+    this.subject.alignCenterMiddle();
+    this.subject.changeRedColor();
+    this.subject.open();
   }
 
-  start() {
-    this.test('Deve estar na cor vermelha!', () => {
-      this.subject.changeRedColor();
-      this.subject.open();
-    }, () => {
-      this.assertTrue('Esta na cor vermelha?', this.subject.isRedColor());
-    });
+  asserts() {
+    this.describe('Deve mudar a cor para vermelha!');
+    this.assertTrue('Esta na cor vermelha?', this.subject.isRedColor());
   }
 }
