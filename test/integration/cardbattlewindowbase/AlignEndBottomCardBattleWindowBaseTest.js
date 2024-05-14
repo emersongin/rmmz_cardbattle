@@ -10,7 +10,7 @@ class AlignEndBottomCardBattleWindowBaseTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no final e embaixo!');
-    this.assert('Esta na posição horizontal do final?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.END, this.subject));
-    this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
+    this.assert('Esta na posição horizontal do final?', this.subject.x).toBe(CardBattleWindowBase.getHorizontalAlign(GameConst.END, this.subject));
+    this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(CardBattleWindowBase.getVerticalAlign(GameConst.BOTTOM, this.subject));
   }
 }

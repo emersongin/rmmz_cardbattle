@@ -10,7 +10,7 @@ class AlignEndMiddleCardBattleWindowBaseTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no final e no meio!');
-    this.assert('Esta na posição horizontal do final?', this.subject.x).toBe(TextWindow.getHorizontalAlign(GameConst.END, this.subject));
-    this.assert('Esta na posição vertical do meio?', this.subject.y).toBe(TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
+    this.assert('Esta na posição horizontal do final?', this.subject.x).toBe(CardBattleWindowBase.getHorizontalAlign(GameConst.END, this.subject));
+    this.assert('Esta na posição vertical do meio?', this.subject.y).toBe(CardBattleWindowBase.getVerticalAlign(GameConst.MIDDLE, this.subject));
   }
 }
