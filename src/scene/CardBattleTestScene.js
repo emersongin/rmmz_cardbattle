@@ -114,9 +114,17 @@ class CardBattleTestScene extends Scene_Message {
       OneWinUpdatingScoreWindowTest,
       TwoWinsUpdatingScoreWindowTest
     ];
-    const askWindow = [
-      // OpenAskWindowTest,
-      SetCommandsAskWindowTest,
+    const commandWindowBase = [
+      CreateCommandWindowBaseTest,
+      AlignBottomCommandWindowBaseTest,
+      AlignMiddleCommandWindowBaseTest,
+      AlignTopCommandWindowBaseTest
+    ];
+    const askCommandWindow = [
+      SelectOptionAskCommandWindowTest,
+    ];
+    const foldersCommandWindow = [
+      SelectFoldersCommandWindowTest,
     ];
     return [
       // ...cardSpriteTests,
@@ -127,7 +135,9 @@ class CardBattleTestScene extends Scene_Message {
       // ...battlePointsWindow,
       // ...trashWindow,
       // ...scoreWindow,
-      ...askWindow,
+      ...commandWindowBase,
+      ...askCommandWindow,
+      ...foldersCommandWindow,
     ];
   }
 

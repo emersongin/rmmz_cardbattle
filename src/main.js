@@ -112,9 +112,15 @@
 // tests SCORE WINDOW
 // include ../test/integration/scorewindow/OneWinUpdatingScoreWindowTest.js
 // include ../test/integration/scorewindow/TwoWinsUpdatingScoreWindowTest.js
-// tests COMMAND WINDOW
-// include ../test/integration/askwindow/OpenAskWindowTest.js
-// include ../test/integration/askwindow/SetCommandsAskWindowTest.js
+// tests COMMAND WINDOW BASE
+// include ../test/integration/commandwindowbase/CreateCommandWindowBaseTest.js
+// include ../test/integration/commandwindowbase/AlignBottomCommandWindowBaseTest.js
+// include ../test/integration/commandwindowbase/AlignMiddleCommandWindowBaseTest.js
+// include ../test/integration/commandwindowbase/AlignTopCommandWindowBaseTest.js
+// tests ASK COMMAND WINDOW 
+// include ../test/integration/askcommandwindow/SelectOptionAskCommandWindowTest.js
+// tests FOLDRES COMMAND WINDOW 
+// include ../test/integration/folderscommandwindow/SelectFoldersCommandWindowTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./scene/CardBattleTestScene.js

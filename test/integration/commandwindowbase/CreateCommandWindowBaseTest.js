@@ -1,6 +1,6 @@
-class CreateFullsizeCommandWindowBaseTest extends SceneTest {
+class CreateCommandWindowBaseTest extends SceneTest {
   create() {
-    this.subject = CommandWindowBase.createWindowFullSize(0, 0);
+    this.subject = CommandWindowBase.create(0, 0);
     this.addWatched(this.subject);
     this.subject.open();
   }
