@@ -9,7 +9,7 @@ class SetTextColorTextWindowTest extends SceneTest {
     const line = "Hello World";
     const normalColor = TextWindow.appendChangeColor(GameColorIndexs.NORMAL_COLOR); 
     const systemColor = TextWindow.appendChangeColor(GameColorIndexs.SYSTEM_COLOR); 
-    this.subject.changeTextColorHere(GameColorIndexs.DAMAGE_COLOR);
+    this.subject.changeTextColorHere(GameColorIndexs.ORANGE_COLOR);
     this.subject.addText(`Primeira linha deve ser de cor!`);
     this.subject.changeTextColorHere(GameColorIndexs.NORMAL_COLOR);
     this.subject.addText(`Texto normal${systemColor} mudança de cor${normalColor} texto normal!`);

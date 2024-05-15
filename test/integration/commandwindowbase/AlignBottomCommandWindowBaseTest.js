@@ -1,6 +1,6 @@
 class AlignBottomCommandWindowBaseTest extends SceneTest {
   create() {
-    this.subject = CommandWindowBase.createWindowFullSize(0, 0);
+    this.subject = CommandWindowBase.create(0, 0);
     this.subject.alignBottom();
     this.addWatched(this.subject);
     this.subject.open();

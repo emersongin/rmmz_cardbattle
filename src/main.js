@@ -14,8 +14,9 @@
 // include ./window/BattlePointsWindow.js
 // include ./window/TrashWindow.js
 // include ./window/ScoreWindow.js
-// include ./window/ChooseFolderWindow.js
-// include ./window/AskWindow.js
+// include ./window/CommandWindowBase.js
+// include ./window/AskCommandWindow.js
+// include ./window/FoldersCommandWindow.js
 // include ./object/PowerAction.js
 // include ./object/Energy.js
 // include ./object/Card.js
@@ -114,6 +115,10 @@
 // include ../test/integration/scorewindow/TwoWinsUpdatingScoreWindowTest.js
 // tests COMMAND WINDOW BASE
 // include ../test/integration/commandwindowbase/CreateCommandWindowBaseTest.js
+// include ../test/integration/commandwindowbase/TitleCommandWindowBaseTest.js
+// include ../test/integration/commandwindowbase/AlignTitleCenterCommandWindowBaseTest.js
+// include ../test/integration/commandwindowbase/AlignTitleRightCommandWindowBaseTest.js
+// include ../test/integration/commandwindowbase/ChangeTitleColorCommandWindowBaseTest.js
 // include ../test/integration/commandwindowbase/AlignBottomCommandWindowBaseTest.js
 // include ../test/integration/commandwindowbase/AlignMiddleCommandWindowBaseTest.js
 // include ../test/integration/commandwindowbase/AlignTopCommandWindowBaseTest.js

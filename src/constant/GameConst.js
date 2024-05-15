@@ -13,7 +13,9 @@ const GameConst = {
   TEXT_START: 'TEXT_START',
   CHANGE_COLOR: 'CHANGE_COLOR',
   START: 'START',
+  LEFT: 'LEFT',
   CENTER: 'CENTER',
+  RIGHT: 'RIGHT',
   END: 'END',
   TOP: 'TOP',
   MIDDLE: 'MIDDLE',
@@ -43,7 +45,7 @@ const GameColorIndexs = {
   CRISIS_COLOR: 17,
   DEATH_COLOR: 18,
   GAIN_COLOR: 19,
-  DAMAGE_COLOR: 20,
+  ORANGE_COLOR: 20,
 };
 
 const IconSetConst = {
