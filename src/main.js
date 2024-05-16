@@ -122,6 +122,7 @@
 // include ../test/integration/commandwindowbase/AlignBottomCommandWindowBaseTest.js
 // include ../test/integration/commandwindowbase/AlignMiddleCommandWindowBaseTest.js
 // include ../test/integration/commandwindowbase/AlignTopCommandWindowBaseTest.js
+// include ../test/integration/commandwindowbase/HandlerCommandWindowBaseTest.js
 // tests ASK COMMAND WINDOW 
 // include ../test/integration/askcommandwindow/SelectOptionAskCommandWindowTest.js
 // tests FOLDRES COMMAND WINDOW 

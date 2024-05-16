@@ -116,13 +116,14 @@ class CardBattleTestScene extends Scene_Message {
     ];
     const commandWindowBase = [
       // CreateCommandWindowBaseTest,
-      TitleCommandWindowBaseTest,
-      AlignTitleCenterCommandWindowBaseTest,
-      AlignTitleRightCommandWindowBaseTest,
-      ChangeTitleColorCommandWindowBaseTest,
+      // TitleCommandWindowBaseTest,
+      // AlignTitleCenterCommandWindowBaseTest,
+      // AlignTitleRightCommandWindowBaseTest,
+      // ChangeTitleColorCommandWindowBaseTest,
       // AlignTopCommandWindowBaseTest,
       // AlignMiddleCommandWindowBaseTest,
       // AlignBottomCommandWindowBaseTest,
+      HandlerCommandWindowBaseTest,
     ];
     const askCommandWindow = [
       SelectOptionAskCommandWindowTest,

@@ -1,9 +1,12 @@
 class CommandWindowBase extends Window_Command {
-  static create(x, y, title, commands = []) {
+  static create(x, y, title, commands = [], handlers = []) {
     const width = Graphics.boxWidth;
     const height = CommandWindowBase.minHeight() * Math.max((commands.length + (title ? 1 : 0)), 1);
     const rect = new Rectangle(x, y, width, height);
-    return new CommandWindowBase(rect, title, commands);
+    if (commands.length !== handlers.length) {
+      throw new Error('Commands and handlers must have the same length!');
+    }
+    return new CommandWindowBase(rect, title, commands, handlers);
   }
 
   static minHeight() {
@@ -14,11 +17,12 @@ class CommandWindowBase extends Window_Command {
     return { name, symbol, enabled, ext };
   }
 
-  initialize(rect, title, commands) {
+  initialize(rect, title, commands, handlers) {
     super.initialize(rect);
     this._actions = [];
     this._windowColor = GameConst.DEFAULT_COLOR;
     this._commands = commands || [];
+    this._commandHandlers = handlers || [];
     this._title = title || '';
     this._titleTextAlignment = GameConst.LEFT;
     this._titleColor = ColorManager.textColor(GameColorIndexs.NORMAL_COLOR);
@@ -38,6 +42,7 @@ class CommandWindowBase extends Window_Command {
     this.changeTextColor(this._titleColor);
     this.clearCommandList();
     this.makeCommandList();
+    this.setHandlers();
     this.contents.clear();
     this.contentsBack.clear();
     this.drawAllItems();
@@ -51,6 +56,13 @@ class CommandWindowBase extends Window_Command {
     });
   }
 
+  setHandlers() {
+    if (!this._commandHandlers || (Array.isArray(this._commandHandlers) && this._commandHandlers.length === 0)) return;
+    this._commandHandlers.forEach((handler, index) => {
+      this.setHandler(this._commands[index].symbol, handler);
+    });
+  }
+  
   drawAllItems() {
     this.drawTitle();
     if (this.hasCommands()) super.drawAllItems();

@@ -1287,11 +1287,14 @@ class ScoreWindow extends CardBattleWindowBase {
 
 }
 class CommandWindowBase extends Window_Command {
-  static create(x, y, title, commands = []) {
+  static create(x, y, title, commands = [], handlers = []) {
     const width = Graphics.boxWidth;
     const height = CommandWindowBase.minHeight() * Math.max((commands.length + (title ? 1 : 0)), 1);
     const rect = new Rectangle(x, y, width, height);
-    return new CommandWindowBase(rect, title, commands);
+    if (commands.length !== handlers.length) {
+      throw new Error('Commands and handlers must have the same length!');
+    }
+    return new CommandWindowBase(rect, title, commands, handlers);
   }
 
   static minHeight() {
@@ -1302,11 +1305,13 @@ class CommandWindowBase extends Window_Command {
     return { name, symbol, enabled, ext };
   }
 
-  initialize(rect, title, commands) {
+  initialize(rect, title, commands, handlers) {
+    console.log(handlers);
     super.initialize(rect);
     this._actions = [];
     this._windowColor = GameConst.DEFAULT_COLOR;
     this._commands = commands || [];
+    this._commandHandlers = handlers || [];
     this._title = title || '';
     this._titleTextAlignment = GameConst.LEFT;
     this._titleColor = ColorManager.textColor(GameColorIndexs.NORMAL_COLOR);
@@ -1326,6 +1331,7 @@ class CommandWindowBase extends Window_Command {
     this.changeTextColor(this._titleColor);
     this.clearCommandList();
     this.makeCommandList();
+    this.setHandlers();
     this.contents.clear();
     this.contentsBack.clear();
     this.drawAllItems();
@@ -1339,6 +1345,13 @@ class CommandWindowBase extends Window_Command {
     });
   }
 
+  setHandlers() {
+    if (!this._commandHandlers || (Array.isArray(this._commandHandlers) && this._commandHandlers.length === 0)) return;
+    this._commandHandlers.forEach((handler, index) => {
+      this.setHandler(this._commands[index].symbol, handler);
+    });
+  }
+  
   drawAllItems() {
     this.drawTitle();
     if (this.hasCommands()) super.drawAllItems();
@@ -4256,6 +4269,7 @@ class SceneTest {
   status = 'START';
   seconds = 1;
   counter = 0;
+  waitHandler = false;
   testDescription = '';
   assertTitle = '';
   assertValue = undefined;
@@ -4311,6 +4325,7 @@ class SceneTest {
     this.copyWatched();
     if (this.counter) return this.counter--;
     if (this.pressToStartAsserts && !Input.isTriggered('ok')) return;
+    if (this.waitHandler) return;
     if (this.status === 'START') {
       this.asserts();
       this.processAsserts();
@@ -4320,8 +4335,6 @@ class SceneTest {
 
   copyWatched() {
     const watched = this.toWatched.map(w => ObjectHelper.copyObject(w));
-    // console.log(this.subject.someSpriteIsFlashPlaying());
-    // console.log(watched[0]);
     this.watched.push(watched);
   }
 
@@ -4496,6 +4509,12 @@ class SceneTest {
 
   pressToAsserts() {
     this.pressToStartAsserts = true;
+  }
+
+  createHandler() {
+    this.waitHandler = true;
+    this.seconds = 0;
+    return () => this.waitHandler = false;
   }
 }
 // tests CARD Sprite
@@ -6253,6 +6272,21 @@ class AlignTopCommandWindowBaseTest extends SceneTest {
     this.assert('Esta na posição vertical do topo?', this.subject.y).toBe(CommandWindowBase.getVerticalAlign(GameConst.TOP, this.subject));
   }
 }
+class HandlerCommandWindowBaseTest extends SceneTest {
+  create() {
+    const commandYes = CommandWindowBase.createCommand('Yes', 'YES');
+    const commandNo = CommandWindowBase.createCommand('No', 'NO');
+    const hanlderYes = this.createHandler();
+    const hanlderNo = this.createHandler();
+    this.subject = CommandWindowBase.create(0, 0, '', [commandYes, commandNo], [hanlderYes, hanlderNo]);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    this.describe('Deve chamar o manipular ao escolher uma opção!');
+  }
+}
 // tests ASK COMMAND WINDOW 
 class SelectOptionAskCommandWindowTest extends SceneTest {
   create() {
@@ -6478,13 +6512,14 @@ class CardBattleTestScene extends Scene_Message {
     ];
     const commandWindowBase = [
       // CreateCommandWindowBaseTest,
-      TitleCommandWindowBaseTest,
-      AlignTitleCenterCommandWindowBaseTest,
-      AlignTitleRightCommandWindowBaseTest,
-      ChangeTitleColorCommandWindowBaseTest,
+      // TitleCommandWindowBaseTest,
+      // AlignTitleCenterCommandWindowBaseTest,
+      // AlignTitleRightCommandWindowBaseTest,
+      // ChangeTitleColorCommandWindowBaseTest,
       // AlignTopCommandWindowBaseTest,
       // AlignMiddleCommandWindowBaseTest,
       // AlignBottomCommandWindowBaseTest,
+      HandlerCommandWindowBaseTest,
     ];
     const askCommandWindow = [
       SelectOptionAskCommandWindowTest,

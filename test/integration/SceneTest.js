@@ -3,6 +3,7 @@ class SceneTest {
   status = 'START';
   seconds = 1;
   counter = 0;
+  waitHandler = false;
   testDescription = '';
   assertTitle = '';
   assertValue = undefined;
@@ -58,6 +59,7 @@ class SceneTest {
     this.copyWatched();
     if (this.counter) return this.counter--;
     if (this.pressToStartAsserts && !Input.isTriggered('ok')) return;
+    if (this.waitHandler) return;
     if (this.status === 'START') {
       this.asserts();
       this.processAsserts();
@@ -67,8 +69,6 @@ class SceneTest {
 
   copyWatched() {
     const watched = this.toWatched.map(w => ObjectHelper.copyObject(w));
-    // console.log(this.subject.someSpriteIsFlashPlaying());
-    // console.log(watched[0]);
     this.watched.push(watched);
   }
 
@@ -243,5 +243,11 @@ class SceneTest {
 
   pressToAsserts() {
     this.pressToStartAsserts = true;
+  }
+
+  createHandler() {
+    this.waitHandler = true;
+    this.seconds = 0;
+    return () => this.waitHandler = false;
   }
 }
