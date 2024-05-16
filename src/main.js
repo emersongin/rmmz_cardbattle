@@ -4,9 +4,15 @@
 // include ./core/Scene_Boot.js
 // include ./core/ImageManager.js
 // include ./constant/GameConst.js
+
 // include ./data/playerDecksData.js
+
+
 // include ./helper/Helpers.js
 // include ./helper/Generators.js
+
+// include ./window/CommandWindow.js
+
 // include ./window/CardBattleWindowBase.js
 // include ./window/ValuesWindow.js
 // include ./window/TextWindow.js
@@ -14,7 +20,7 @@
 // include ./window/BattlePointsWindow.js
 // include ./window/TrashWindow.js
 // include ./window/ScoreWindow.js
-// include ./window/CommandWindowBase.js
+
 // include ./window/AskCommandWindow.js
 // include ./window/FoldersCommandWindow.js
 // include ./object/PowerAction.js
@@ -114,15 +120,15 @@
 // include ../test/integration/scorewindow/OneWinUpdatingScoreWindowTest.js
 // include ../test/integration/scorewindow/TwoWinsUpdatingScoreWindowTest.js
 // tests COMMAND WINDOW BASE
-// include ../test/integration/commandwindowbase/CreateCommandWindowBaseTest.js
-// include ../test/integration/commandwindowbase/TitleCommandWindowBaseTest.js
-// include ../test/integration/commandwindowbase/AlignTitleCenterCommandWindowBaseTest.js
-// include ../test/integration/commandwindowbase/AlignTitleRightCommandWindowBaseTest.js
-// include ../test/integration/commandwindowbase/ChangeTitleColorCommandWindowBaseTest.js
-// include ../test/integration/commandwindowbase/AlignBottomCommandWindowBaseTest.js
-// include ../test/integration/commandwindowbase/AlignMiddleCommandWindowBaseTest.js
-// include ../test/integration/commandwindowbase/AlignTopCommandWindowBaseTest.js
-// include ../test/integration/commandwindowbase/HandlerCommandWindowBaseTest.js
+// include ../test/integration/commandwindow/CreateCommandWindowBaseTest.js
+// include ../test/integration/commandwindow/TitleCommandWindowBaseTest.js
+// include ../test/integration/commandwindow/AlignTitleCenterCommandWindowBaseTest.js
+// include ../test/integration/commandwindow/AlignTitleRightCommandWindowBaseTest.js
+// include ../test/integration/commandwindow/ChangeTitleColorCommandWindowBaseTest.js
+// include ../test/integration/commandwindow/AlignBottomCommandWindowBaseTest.js
+// include ../test/integration/commandwindow/AlignMiddleCommandWindowBaseTest.js
+// include ../test/integration/commandwindow/AlignTopCommandWindowBaseTest.js
+// include ../test/integration/commandwindow/HandlerCommandWindowBaseTest.js
 // tests ASK COMMAND WINDOW 
 // include ../test/integration/askcommandwindow/SelectOptionAskCommandWindowTest.js
 // tests FOLDRES COMMAND WINDOW 
