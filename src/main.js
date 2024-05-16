@@ -120,6 +120,7 @@
 // include ../test/integration/scorewindow/OneWinUpdatingScoreWindowTest.js
 // include ../test/integration/scorewindow/TwoWinsUpdatingScoreWindowTest.js
 // tests COMMAND WINDOW BASE
+// include ../test/integration/commandwindow/CreateFullsizeCommandWindowTest.js
 // include ../test/integration/commandwindow/OpenCommandWindowTest.js
 // include ../test/integration/commandwindow/CloseCommandWindowTest.js
 // include ../test/integration/commandwindow/ChangeBlueColorCommandWindowTest.js

@@ -115,6 +115,7 @@ class CardBattleTestScene extends Scene_Message {
       TwoWinsUpdatingScoreWindowTest
     ];
     const commandWindowBase = [
+      CreateFullsizeCommandWindowTest,
       OpenCommandWindowTest,
       CloseCommandWindowTest,
       // ChangeBlueColorCommandWindowTest,

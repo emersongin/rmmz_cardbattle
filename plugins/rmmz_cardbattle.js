@@ -6176,6 +6176,18 @@ class TwoWinsUpdatingScoreWindowTest extends SceneTest {
   }
 }
 // tests COMMAND WINDOW BASE
+class CreateFullsizeCommandWindowTest extends SceneTest {
+  create() {
+    this.subject = CommandWindow.create(0, 0);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    this.describe('Deve exibir a janela com a largura total da tela!');
+    this.assertTrue('Esta na largura total da tela?', this.subject.isFullsize());
+  }
+}
 class OpenCommandWindowTest extends SceneTest {
   create() {
     this.subject = CommandWindow.create(0, 0);
@@ -6591,6 +6603,7 @@ class CardBattleTestScene extends Scene_Message {
       TwoWinsUpdatingScoreWindowTest
     ];
     const commandWindowBase = [
+      CreateFullsizeCommandWindowTest,
       OpenCommandWindowTest,
       CloseCommandWindowTest,
       // ChangeBlueColorCommandWindowTest,
