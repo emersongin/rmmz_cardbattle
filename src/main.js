@@ -120,15 +120,20 @@
 // include ../test/integration/scorewindow/OneWinUpdatingScoreWindowTest.js
 // include ../test/integration/scorewindow/TwoWinsUpdatingScoreWindowTest.js
 // tests COMMAND WINDOW BASE
-// include ../test/integration/commandwindow/CreateCommandWindowBaseTest.js
-// include ../test/integration/commandwindow/TitleCommandWindowBaseTest.js
-// include ../test/integration/commandwindow/AlignTitleCenterCommandWindowBaseTest.js
-// include ../test/integration/commandwindow/AlignTitleRightCommandWindowBaseTest.js
-// include ../test/integration/commandwindow/ChangeTitleColorCommandWindowBaseTest.js
-// include ../test/integration/commandwindow/AlignBottomCommandWindowBaseTest.js
-// include ../test/integration/commandwindow/AlignMiddleCommandWindowBaseTest.js
-// include ../test/integration/commandwindow/AlignTopCommandWindowBaseTest.js
-// include ../test/integration/commandwindow/HandlerCommandWindowBaseTest.js
+// include ../test/integration/commandwindow/OpenCommandWindowTest.js
+// include ../test/integration/commandwindow/CloseCommandWindowTest.js
+// include ../test/integration/commandwindow/ChangeBlueColorCommandWindowTest.js
+// include ../test/integration/commandwindow/ChangeRedColorCommandWindowTest.js
+// include ../test/integration/commandwindow/ChangeDefaultColorCommandWindowTest.js
+// include ../test/integration/commandwindow/AlignTopCommandWindowTest.js
+// include ../test/integration/commandwindow/AlignMiddleCommandWindowTest.js
+// include ../test/integration/commandwindow/AlignBottomCommandWindowTest.js
+// include ../test/integration/commandwindow/TextCommandWindowTest.js
+// include ../test/integration/commandwindow/AlignTextLeftCommandWindowTest.js
+// include ../test/integration/commandwindow/AlignTextCenterCommandWindowTest.js
+// include ../test/integration/commandwindow/AlignTextRightCommandWindowTest.js
+// include ../test/integration/commandwindow/ChangeTextColorCommandWindowTest.js
+// include ../test/integration/commandwindow/CommandsAndHandlersCommandWindowTest.js
 // tests ASK COMMAND WINDOW 
 // include ../test/integration/askcommandwindow/SelectOptionAskCommandWindowTest.js
 // tests FOLDRES COMMAND WINDOW 

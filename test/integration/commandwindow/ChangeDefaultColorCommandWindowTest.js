@@ -1,6 +1,6 @@
-class CreateCommandWindowTest extends SceneTest {
+class ChangeDefaultColorCommandWindowTest extends SceneTest {
   create() {
-    this.subject = CommandWindowBase.create(0, 0);
+    this.subject = CommandWindow.create(0, 0);
     this.addWatched(this.subject);
     this.subject.open();
   }

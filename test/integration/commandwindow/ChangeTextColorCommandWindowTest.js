@@ -1,7 +1,7 @@
 class ChangeTextColorCommandWindowTest extends SceneTest {
   create() {
     const title = 'ChangeTextColorCommandWindowTest';
-    this.subject = CommandWindowBase.create(0, 0, title);
+    this.subject = CommandWindow.create(0, 0, title);
     this.addWatched(this.subject);
     this.subject.alignTitleCenter();
     this.subject.changeTitleColorToOrange();

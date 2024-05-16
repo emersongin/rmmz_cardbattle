@@ -1,3 +1,1 @@
-class FoldersCommandWindow extends Window_Command {
-
-}
+class FoldersCommandWindow extends CommandWindow {}

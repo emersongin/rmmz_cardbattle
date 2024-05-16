@@ -1,6 +1,6 @@
 class AlignTopCommandWindowTest extends SceneTest {
   create() {
-    this.subject = CommandWindowBase.create(0, 0);
+    this.subject = CommandWindow.create(0, 0);
     this.subject.alignTop();
     this.addWatched(this.subject);
     this.subject.open();
@@ -8,6 +8,6 @@ class AlignTopCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinha no topo!');
-    this.assert('Esta na posição vertical do topo?', this.subject.y).toBe(CommandWindowBase.getVerticalAlign(GameConst.TOP, this.subject));
+    this.assert('Esta na posição vertical do topo?', this.subject.y).toBe(CommandWindow.getVerticalAlign(GameConst.TOP, this.subject));
   }
 }

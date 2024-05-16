@@ -89,7 +89,7 @@ class CommandWindow extends Window_Command {
   }
 
   hasText() {
-    return this._text.length > 0;
+    return this._text && this._text.length > 0;
   }
 
   hasCommands() {
@@ -135,7 +135,7 @@ class CommandWindow extends Window_Command {
     const col = index % maxCols;
     const row = Math.floor(index / maxCols);
     const x = col * itemWidth + colSpacing / 2 - this.scrollBaseX();
-    const addMargin = this._text.length * this.lineHeight();
+    const addMargin = (this._text?.length || 0) * this.lineHeight();
     const y = (row * itemHeight + rowSpacing / 2 - this.scrollBaseY()) + addMargin;
     const width = itemWidth - colSpacing;
     const height = itemHeight - rowSpacing;
@@ -160,7 +160,7 @@ class CommandWindow extends Window_Command {
   }
 
   commandOpen() {
-    if (this.isOpened()) return;
+    if (this.isOpened()) return true;
     this.visible = true;
     this.activate();
     super.open();
@@ -176,7 +176,7 @@ class CommandWindow extends Window_Command {
   }
 
   commandClose() {
-    if (this.isClosed()) return;
+    if (this.isClosed()) return true;
     this.visible = false;
     super.close();
     return true;

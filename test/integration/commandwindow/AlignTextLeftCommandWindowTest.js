@@ -1,7 +1,7 @@
 class AlignTextLeftCommandWindowTest extends SceneTest {
   create() {
     const title = 'AlignTextLeftCommandWindowTest';
-    this.subject = CommandWindowBase.create(0, 0, title);
+    this.subject = CommandWindow.create(0, 0, title);
     this.addWatched(this.subject);
     this.subject.alignTitleRight();
     this.subject.open();

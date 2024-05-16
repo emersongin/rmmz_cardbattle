@@ -1,6 +1,6 @@
 class AlignBottomCommandWindowTest extends SceneTest {
   create() {
-    this.subject = CommandWindowBase.create(0, 0);
+    this.subject = CommandWindow.create(0, 0);
     this.subject.alignBottom();
     this.addWatched(this.subject);
     this.subject.open();
@@ -8,6 +8,6 @@ class AlignBottomCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinha embaixo!');
-    this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(CommandWindowBase.getVerticalAlign(GameConst.BOTTOM, this.subject));
+    this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(CommandWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
   }
 }

@@ -1,7 +1,7 @@
 class AlignTextCenterCommandWindowTest extends SceneTest {
   create() {
     const title = 'AlignTextCenterCommandWindowTest';
-    this.subject = CommandWindowBase.create(0, 0, title);
+    this.subject = CommandWindow.create(0, 0, title);
     this.addWatched(this.subject);
     this.subject.alignTitleCenter();
     this.subject.open();
