@@ -295,8 +295,10 @@ class CommandWindow extends Window_Command {
     return this._commandTextAlignment.toLowerCase();
   }
 
-  isTextWasDrawing(symbol) {
-    return this.getHistory(symbol) !== undefined;
+  isTextWasDrawing(symbol, content) {
+    const history = this.getHistory(symbol);
+    if (!history) return false;
+    return history.content === content;
   }
 
   getHistory(symbol) {

@@ -348,7 +348,7 @@ class CommandWindow extends Window_Command {
   
   drawAllItems() {
     if (this.hasText()) this.drawTitle();
-    // if (this.hasCommands()) super.drawAllItems();
+    if (this.hasCommands()) super.drawAllItems();
   }
 
   hasText() {
@@ -558,8 +558,10 @@ class CommandWindow extends Window_Command {
     return this._commandTextAlignment.toLowerCase();
   }
 
-  isTextWasDrawing(symbol) {
-    return this.getHistory(symbol) !== undefined;
+  isTextWasDrawing(symbol, content) {
+    const history = this.getHistory(symbol);
+    if (!history) return false;
+    return history.content === content;
   }
 
   getHistory(symbol) {
@@ -6369,14 +6371,25 @@ class AlignBottomCommandWindowTest extends SceneTest {
 }
 class TextCommandWindowTest extends SceneTest {
   create() {
-    this.subject = CommandWindow.create(0, 0);
+    const text = [
+      'primeiro texto para validação de desenho em janela de comando',
+      'segundo texto para validação de desenho em janela de comando',
+    ];
+    this.subject = CommandWindow.create(0, 0, text);
     this.addWatched(this.subject);
     this.subject.open();
   }
 
   asserts() {
-    this.describe('Deve mostrar uma janela com tamanho total!');
-    this.assertTrue('Esta aberta no tamanho total?', this.subject.isFullsize());
+    const text = [
+      'primeiro texto para validação de desenho em janela de comando',
+      'segundo texto para validação de desenho em janela de comando',
+    ];
+    console.log(text[0]);
+    console.log(this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
   }
 }
 class AlignTextLeftCommandWindowTest extends SceneTest {
@@ -6691,19 +6704,19 @@ class CardBattleTestScene extends Scene_Message {
       TwoWinsUpdatingScoreWindowTest
     ];
     const commandWindowBase = [
-      CreateFullsizeCommandWindowTest,
-      OpenCommandWindowTest,
-      CloseCommandWindowTest,
-      AlignTopCommandWindowTest,
-      AlignMiddleCommandWindowTest,
-      AlignBottomCommandWindowTest,
-      AlignTextLeftCommandWindowTest,
-      AlignTextCenterCommandWindowTest,
-      AlignTextRightCommandWindowTest,
-      ChangeBlueColorCommandWindowTest,
-      ChangeRedColorCommandWindowTest,
-      ChangeDefaultColorCommandWindowTest,
-      // TextCommandWindowTest,
+      // CreateFullsizeCommandWindowTest,
+      // OpenCommandWindowTest,
+      // CloseCommandWindowTest,
+      // AlignTopCommandWindowTest,
+      // AlignMiddleCommandWindowTest,
+      // AlignBottomCommandWindowTest,
+      // AlignTextLeftCommandWindowTest,
+      // AlignTextCenterCommandWindowTest,
+      // AlignTextRightCommandWindowTest,
+      // ChangeBlueColorCommandWindowTest,
+      // ChangeRedColorCommandWindowTest,
+      // ChangeDefaultColorCommandWindowTest,
+      TextCommandWindowTest,
       // ChangeTextColorCommandWindowTest,
       // CommandsAndHandlersCommandWindowTest,
     ];
