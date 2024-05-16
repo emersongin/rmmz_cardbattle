@@ -160,6 +160,7 @@ class CardBattleWindowBase extends Window_Base {
   commandChangeBlueColor() {
     if (!this.isStopped()) return;
     this._windowColor = GameConst.BLUE_COLOR;
+    this.updateTone();
     return true;
   }
 
@@ -170,6 +171,7 @@ class CardBattleWindowBase extends Window_Base {
   commandChangeRedColor() {
     if (!this.isStopped()) return;
     this._windowColor = GameConst.RED_COLOR;
+    this.updateTone();
     return true;
   }
 
@@ -180,6 +182,7 @@ class CardBattleWindowBase extends Window_Base {
   commandChangeDefaultColor() {
     if (!this.isStopped()) return;
     this._windowColor = GameConst.DEFAULT_COLOR;
+    this.updateTone();
     return true;
   }
 

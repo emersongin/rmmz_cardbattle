@@ -1,16 +1,19 @@
 class AlignTextCenterCommandWindowTest extends SceneTest {
   create() {
-    const title = 'AlignTextCenterCommandWindowTest';
-    this.subject = CommandWindow.create(0, 0, title);
+    const text = [
+      'Teste de alinhamento de texto no centro',
+      'Teste de alinhamento de texto no centro',
+      'Teste de alinhamento de texto no centro',
+    ];
+    this.subject = CommandWindow.create(0, 0, text);
     this.addWatched(this.subject);
-    this.subject.alignTitleCenter();
+    this.subject.alingTextCenter();
     this.subject.open();
   }
 
   asserts() {
-    const title = 'AlignTextCenterCommandWindowTest';
-    this.describe('Deve mostrar o titulo da janela no centro!');
-    const aligment = GameConst.CENTER.toLowerCase();
-    this.assert('Foi desenhando no centro?', this.subject.getTitleTextAlignment()).toBe(aligment);
+    this.describe('Deve mostrar o texto alinhado no centro.');
+    const aligment = GameConst.CENTER;
+    this.assert('Foi desenhando no centro?', this.subject.getTextAlignment()).toBe(aligment.toLowerCase());
   }
 }

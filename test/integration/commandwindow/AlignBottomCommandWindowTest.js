@@ -7,7 +7,8 @@ class AlignBottomCommandWindowTest extends SceneTest {
   }
 
   asserts() {
-    this.describe('Deve alinha embaixo!');
-    this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(CommandWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
+    this.describe('Deve alinha a janela embaixo.');
+    const positionY = CommandWindow.getVerticalAlign(GameConst.BOTTOM, this.subject);
+    this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(positionY);
   }
 }

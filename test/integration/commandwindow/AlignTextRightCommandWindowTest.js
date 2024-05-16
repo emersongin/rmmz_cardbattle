@@ -1,16 +1,19 @@
 class AlignTextRightCommandWindowTest extends SceneTest {
   create() {
-    const title = 'AlignTextRightCommandWindowTest';
-    this.subject = CommandWindow.create(0, 0, title);
+    const text = [
+      'Teste de alinhamento de texto na direita',
+      'Teste de alinhamento de texto na direita',
+      'Teste de alinhamento de texto na direita',
+    ];
+    this.subject = CommandWindow.create(0, 0, text);
     this.addWatched(this.subject);
-    this.subject.alignTitleRight();
+    this.subject.alingTextRight();
     this.subject.open();
   }
 
   asserts() {
-    const title = 'AlignTextRightCommandWindowTest';
-    this.describe('Deve mostrar o titulo da janela no final!');
-    const aligment = GameConst.RIGHT.toLowerCase();
-    this.assert('Foi desenhando no final?', this.subject.getTitleTextAlignment()).toBe(aligment);
+    this.describe('Deve mostrar o texto alinhado na direita.');
+    const aligment = GameConst.RIGHT;
+    this.assert('Foi desenhando na direita?', this.subject.getTextAlignment()).toBe(aligment.toLowerCase());
   }
 }

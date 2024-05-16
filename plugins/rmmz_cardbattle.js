@@ -348,7 +348,7 @@ class CommandWindow extends Window_Command {
   
   drawAllItems() {
     if (this.hasText()) this.drawTitle();
-    if (this.hasCommands()) super.drawAllItems();
+    // if (this.hasCommands()) super.drawAllItems();
   }
 
   hasText() {
@@ -464,6 +464,33 @@ class CommandWindow extends Window_Command {
     this.x = 0;
   }
 
+  changeBlueColor() {
+    this.addAction(this.commandChangeBlueColor);
+  }
+
+  commandChangeBlueColor() {
+    this._windowColor = GameConst.BLUE_COLOR;
+    return true;
+  }
+
+  changeRedColor() {
+    this.addAction(this.commandChangeRedColor);
+  }
+
+  commandChangeRedColor() {
+    this._windowColor = GameConst.RED_COLOR;
+    return true;
+  }
+
+  changeDefaultColor() {
+    this.addAction(this.commandChangeDefaultColor);
+  }
+
+  commandChangeDefaultColor() {
+    this._windowColor = GameConst.DEFAULT_COLOR;
+    return true;
+  }
+
   update() {
     super.update();
     if (this.hasActions() && this.isAvailable()) this.executeAction();
@@ -501,6 +528,18 @@ class CommandWindow extends Window_Command {
       default:
         this.setTone(0, 0, 0);
     }
+  }
+
+  isBlueColor() {
+    return this._windowColor === GameConst.BLUE_COLOR;
+  }
+
+  isRedColor() {
+    return this._windowColor === GameConst.RED_COLOR;
+  }
+
+  isDefaultColor() {
+    return this._windowColor === GameConst.DEFAULT;
   }
 
   isFullsize() {
@@ -545,6 +584,37 @@ class CommandWindow extends Window_Command {
   getTextColor() {
     return this._textColor;
   }
+
+  alingTextLeft() {
+    this.addAction(this.commandAlignTextLeft);
+  }
+
+  commandAlignTextLeft() {
+    this._textAlignment = GameConst.LEFT;
+    this.refresh();
+    return true;
+  }
+
+  alingTextCenter() {
+    this.addAction(this.commandAlignTextCenter);
+  }
+
+  commandAlignTextCenter() {
+    this._textAlignment = GameConst.CENTER;
+    this.refresh();
+    return true;
+  }
+
+  alingTextRight() {
+    this.addAction(this.commandAlignTextRight);
+  }
+
+  commandAlignTextRight() {
+    this._textAlignment = GameConst.RIGHT;
+    this.refresh();
+    return true;
+  }
+
 }
 
 class WindowStoppedState {
@@ -801,6 +871,7 @@ class CardBattleWindowBase extends Window_Base {
   commandChangeBlueColor() {
     if (!this.isStopped()) return;
     this._windowColor = GameConst.BLUE_COLOR;
+    this.updateTone();
     return true;
   }
 
@@ -811,6 +882,7 @@ class CardBattleWindowBase extends Window_Base {
   commandChangeRedColor() {
     if (!this.isStopped()) return;
     this._windowColor = GameConst.RED_COLOR;
+    this.updateTone();
     return true;
   }
 
@@ -821,6 +893,7 @@ class CardBattleWindowBase extends Window_Base {
   commandChangeDefaultColor() {
     if (!this.isStopped()) return;
     this._windowColor = GameConst.DEFAULT_COLOR;
+    this.updateTone();
     return true;
   }
 
@@ -6217,36 +6290,39 @@ class ChangeBlueColorCommandWindowTest extends SceneTest {
   create() {
     this.subject = CommandWindow.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.changeBlueColor();
     this.subject.open();
   }
 
   asserts() {
-    this.describe('Deve mostrar uma janela com tamanho total!');
-    this.assertTrue('Esta aberta no tamanho total?', this.subject.isFullsize());
+    this.describe('Deve mostrar janela na cor azul.');
+    this.assertTrue('Esta na cor azul?', this.subject.isBlueColor());
   }
 }
 class ChangeRedColorCommandWindowTest extends SceneTest {
   create() {
     this.subject = CommandWindow.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.changeRedColor();
     this.subject.open();
   }
 
   asserts() {
-    this.describe('Deve mostrar uma janela com tamanho total!');
-    this.assertTrue('Esta aberta no tamanho total?', this.subject.isFullsize());
+    this.describe('Deve mostrar janela na cor vermelha.');
+    this.assertTrue('Esta na cor vermelha?', this.subject.isRedColor());
   }
 }
 class ChangeDefaultColorCommandWindowTest extends SceneTest {
   create() {
     this.subject = CommandWindow.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.changeDefaultColor();
     this.subject.open();
   }
 
   asserts() {
-    this.describe('Deve mostrar uma janela com tamanho total!');
-    this.assertTrue('Esta aberta no tamanho total?', this.subject.isFullsize());
+    this.describe('Deve mostrar janela na cor padrão.');
+    this.assertTrue('Esta na cor padrão?', this.subject.isDefaultColor());
   }
 }
 class AlignTopCommandWindowTest extends SceneTest {
@@ -6258,8 +6334,9 @@ class AlignTopCommandWindowTest extends SceneTest {
   }
 
   asserts() {
-    this.describe('Deve alinha no topo!');
-    this.assert('Esta na posição vertical do topo?', this.subject.y).toBe(CommandWindow.getVerticalAlign(GameConst.TOP, this.subject));
+    this.describe('Deve alinha a janela no topo.');
+    const positionY = CommandWindow.getVerticalAlign(GameConst.TOP, this.subject);
+    this.assert('Esta na posição vertical do topo?', this.subject.y).toBe(positionY);
   }
 }
 class AlignMiddleCommandWindowTest extends SceneTest {
@@ -6271,8 +6348,9 @@ class AlignMiddleCommandWindowTest extends SceneTest {
   }
 
   asserts() {
-    this.describe('Deve alinha no meio!');
-    this.assert('Esta na posição vertical do meio?', this.subject.y).toBe(CommandWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
+    this.describe('Deve alinha a janela no meio.');
+    const positionY = CommandWindow.getVerticalAlign(GameConst.MIDDLE, this.subject);
+    this.assert('Esta na posição vertical do meio?', this.subject.y).toBe(positionY);
   }
 }
 class AlignBottomCommandWindowTest extends SceneTest {
@@ -6284,8 +6362,9 @@ class AlignBottomCommandWindowTest extends SceneTest {
   }
 
   asserts() {
-    this.describe('Deve alinha embaixo!');
-    this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(CommandWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
+    this.describe('Deve alinha a janela embaixo.');
+    const positionY = CommandWindow.getVerticalAlign(GameConst.BOTTOM, this.subject);
+    this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(positionY);
   }
 }
 class TextCommandWindowTest extends SceneTest {
@@ -6302,50 +6381,59 @@ class TextCommandWindowTest extends SceneTest {
 }
 class AlignTextLeftCommandWindowTest extends SceneTest {
   create() {
-    const title = 'AlignTextLeftCommandWindowTest';
-    this.subject = CommandWindow.create(0, 0, title);
+    const text = [
+      'Teste de alinhamento de texto na esquerda',
+      'Teste de alinhamento de texto na esquerda',
+      'Teste de alinhamento de texto na esquerda',
+    ];
+    this.subject = CommandWindow.create(0, 0, text);
     this.addWatched(this.subject);
-    this.subject.alignTitleRight();
+    this.subject.alingTextLeft();
     this.subject.open();
   }
 
   asserts() {
-    const title = 'AlignTextLeftCommandWindowTest';
-    this.describe('Deve mostrar o titulo da janela no final!');
-    const aligment = GameConst.RIGHT.toLowerCase();
-    this.assert('Foi desenhando no final?', this.subject.getTitleTextAlignment()).toBe(aligment);
+    this.describe('Deve mostrar o texto alinhado na esquerda.');
+    const aligment = GameConst.LEFT;
+    this.assert('Foi desenhando na esquerda?', this.subject.getTextAlignment()).toBe(aligment.toLowerCase());
   }
 }
 class AlignTextCenterCommandWindowTest extends SceneTest {
   create() {
-    const title = 'AlignTextCenterCommandWindowTest';
-    this.subject = CommandWindow.create(0, 0, title);
+    const text = [
+      'Teste de alinhamento de texto no centro',
+      'Teste de alinhamento de texto no centro',
+      'Teste de alinhamento de texto no centro',
+    ];
+    this.subject = CommandWindow.create(0, 0, text);
     this.addWatched(this.subject);
-    this.subject.alignTitleCenter();
+    this.subject.alingTextCenter();
     this.subject.open();
   }
 
   asserts() {
-    const title = 'AlignTextCenterCommandWindowTest';
-    this.describe('Deve mostrar o titulo da janela no centro!');
-    const aligment = GameConst.CENTER.toLowerCase();
-    this.assert('Foi desenhando no centro?', this.subject.getTitleTextAlignment()).toBe(aligment);
+    this.describe('Deve mostrar o texto alinhado no centro.');
+    const aligment = GameConst.CENTER;
+    this.assert('Foi desenhando no centro?', this.subject.getTextAlignment()).toBe(aligment.toLowerCase());
   }
 }
 class AlignTextRightCommandWindowTest extends SceneTest {
   create() {
-    const title = 'AlignTextRightCommandWindowTest';
-    this.subject = CommandWindow.create(0, 0, title);
+    const text = [
+      'Teste de alinhamento de texto na direita',
+      'Teste de alinhamento de texto na direita',
+      'Teste de alinhamento de texto na direita',
+    ];
+    this.subject = CommandWindow.create(0, 0, text);
     this.addWatched(this.subject);
-    this.subject.alignTitleRight();
+    this.subject.alingTextRight();
     this.subject.open();
   }
 
   asserts() {
-    const title = 'AlignTextRightCommandWindowTest';
-    this.describe('Deve mostrar o titulo da janela no final!');
-    const aligment = GameConst.RIGHT.toLowerCase();
-    this.assert('Foi desenhando no final?', this.subject.getTitleTextAlignment()).toBe(aligment);
+    this.describe('Deve mostrar o texto alinhado na direita.');
+    const aligment = GameConst.RIGHT;
+    this.assert('Foi desenhando na direita?', this.subject.getTextAlignment()).toBe(aligment.toLowerCase());
   }
 }
 class ChangeTextColorCommandWindowTest extends SceneTest {
@@ -6606,16 +6694,16 @@ class CardBattleTestScene extends Scene_Message {
       CreateFullsizeCommandWindowTest,
       OpenCommandWindowTest,
       CloseCommandWindowTest,
-      // ChangeBlueColorCommandWindowTest,
-      // ChangeRedColorCommandWindowTest,
-      // ChangeDefaultColorCommandWindowTest,
-      // AlignTopCommandWindowTest,
-      // AlignMiddleCommandWindowTest,
-      // AlignBottomCommandWindowTest,
+      AlignTopCommandWindowTest,
+      AlignMiddleCommandWindowTest,
+      AlignBottomCommandWindowTest,
+      AlignTextLeftCommandWindowTest,
+      AlignTextCenterCommandWindowTest,
+      AlignTextRightCommandWindowTest,
+      ChangeBlueColorCommandWindowTest,
+      ChangeRedColorCommandWindowTest,
+      ChangeDefaultColorCommandWindowTest,
       // TextCommandWindowTest,
-      // AlignTextLeftCommandWindowTest,
-      // AlignTextCenterCommandWindowTest,
-      // AlignTextRightCommandWindowTest,
       // ChangeTextColorCommandWindowTest,
       // CommandsAndHandlersCommandWindowTest,
     ];

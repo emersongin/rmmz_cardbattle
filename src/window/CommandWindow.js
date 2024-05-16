@@ -201,6 +201,33 @@ class CommandWindow extends Window_Command {
     this.x = 0;
   }
 
+  changeBlueColor() {
+    this.addAction(this.commandChangeBlueColor);
+  }
+
+  commandChangeBlueColor() {
+    this._windowColor = GameConst.BLUE_COLOR;
+    return true;
+  }
+
+  changeRedColor() {
+    this.addAction(this.commandChangeRedColor);
+  }
+
+  commandChangeRedColor() {
+    this._windowColor = GameConst.RED_COLOR;
+    return true;
+  }
+
+  changeDefaultColor() {
+    this.addAction(this.commandChangeDefaultColor);
+  }
+
+  commandChangeDefaultColor() {
+    this._windowColor = GameConst.DEFAULT_COLOR;
+    return true;
+  }
+
   update() {
     super.update();
     if (this.hasActions() && this.isAvailable()) this.executeAction();
@@ -238,6 +265,18 @@ class CommandWindow extends Window_Command {
       default:
         this.setTone(0, 0, 0);
     }
+  }
+
+  isBlueColor() {
+    return this._windowColor === GameConst.BLUE_COLOR;
+  }
+
+  isRedColor() {
+    return this._windowColor === GameConst.RED_COLOR;
+  }
+
+  isDefaultColor() {
+    return this._windowColor === GameConst.DEFAULT;
   }
 
   isFullsize() {
@@ -282,4 +321,35 @@ class CommandWindow extends Window_Command {
   getTextColor() {
     return this._textColor;
   }
+
+  alingTextLeft() {
+    this.addAction(this.commandAlignTextLeft);
+  }
+
+  commandAlignTextLeft() {
+    this._textAlignment = GameConst.LEFT;
+    this.refresh();
+    return true;
+  }
+
+  alingTextCenter() {
+    this.addAction(this.commandAlignTextCenter);
+  }
+
+  commandAlignTextCenter() {
+    this._textAlignment = GameConst.CENTER;
+    this.refresh();
+    return true;
+  }
+
+  alingTextRight() {
+    this.addAction(this.commandAlignTextRight);
+  }
+
+  commandAlignTextRight() {
+    this._textAlignment = GameConst.RIGHT;
+    this.refresh();
+    return true;
+  }
+
 }
