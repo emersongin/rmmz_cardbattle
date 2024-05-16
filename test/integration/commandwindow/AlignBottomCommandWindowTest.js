@@ -1,4 +1,4 @@
-class AlignBottomCommandWindowBaseTest extends SceneTest {
+class AlignBottomCommandWindowTest extends SceneTest {
   create() {
     this.subject = CommandWindowBase.create(0, 0);
     this.subject.alignBottom();

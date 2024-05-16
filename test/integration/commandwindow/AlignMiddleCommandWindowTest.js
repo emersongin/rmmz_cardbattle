@@ -1,4 +1,4 @@
-class AlignMiddleCommandWindowBaseTest extends SceneTest {
+class AlignMiddleCommandWindowTest extends SceneTest {
   create() {
     this.subject = CommandWindowBase.create(0, 0);
     this.subject.alignMiddle();

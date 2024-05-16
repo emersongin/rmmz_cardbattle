@@ -1,6 +1,6 @@
-class ChangeTitleColorCommandWindowBaseTest extends SceneTest {
+class ChangeTextColorCommandWindowTest extends SceneTest {
   create() {
-    const title = 'ChangeTitleColorCommandWindowBaseTest';
+    const title = 'ChangeTextColorCommandWindowTest';
     this.subject = CommandWindowBase.create(0, 0, title);
     this.addWatched(this.subject);
     this.subject.alignTitleCenter();

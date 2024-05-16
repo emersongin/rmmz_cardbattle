@@ -1,4 +1,4 @@
-class CreateCommandWindowBaseTest extends SceneTest {
+class OpenCommandWindowTest extends SceneTest {
   create() {
     this.subject = CommandWindowBase.create(0, 0);
     this.addWatched(this.subject);

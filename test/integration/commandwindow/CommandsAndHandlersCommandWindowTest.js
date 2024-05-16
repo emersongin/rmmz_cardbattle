@@ -1,4 +1,4 @@
-class HandlerCommandWindowBaseTest extends SceneTest {
+class CommandsAndHandlersCommandWindowTest extends SceneTest {
   create() {
     const commandYes = CommandWindowBase.createCommand('Yes', 'YES');
     const commandNo = CommandWindowBase.createCommand('No', 'NO');

@@ -1,6 +1,6 @@
-class AlignTitleCenterCommandWindowBaseTest extends SceneTest {
+class AlignTextCenterCommandWindowTest extends SceneTest {
   create() {
-    const title = 'AlignTitleCenterCommandWindowBaseTest';
+    const title = 'AlignTextCenterCommandWindowTest';
     this.subject = CommandWindowBase.create(0, 0, title);
     this.addWatched(this.subject);
     this.subject.alignTitleCenter();
@@ -8,7 +8,7 @@ class AlignTitleCenterCommandWindowBaseTest extends SceneTest {
   }
 
   asserts() {
-    const title = 'AlignTitleCenterCommandWindowBaseTest';
+    const title = 'AlignTextCenterCommandWindowTest';
     this.describe('Deve mostrar o titulo da janela no centro!');
     const aligment = GameConst.CENTER.toLowerCase();
     this.assert('Foi desenhando no centro?', this.subject.getTitleTextAlignment()).toBe(aligment);

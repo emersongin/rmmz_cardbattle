@@ -1,6 +1,6 @@
-class AlignTitleRightCommandWindowBaseTest extends SceneTest {
+class AlignTextRightCommandWindowTest extends SceneTest {
   create() {
-    const title = 'AlignTitleRightCommandWindowBaseTest';
+    const title = 'AlignTextRightCommandWindowTest';
     this.subject = CommandWindowBase.create(0, 0, title);
     this.addWatched(this.subject);
     this.subject.alignTitleRight();
@@ -8,7 +8,7 @@ class AlignTitleRightCommandWindowBaseTest extends SceneTest {
   }
 
   asserts() {
-    const title = 'AlignTitleRightCommandWindowBaseTest';
+    const title = 'AlignTextRightCommandWindowTest';
     this.describe('Deve mostrar o titulo da janela no final!');
     const aligment = GameConst.RIGHT.toLowerCase();
     this.assert('Foi desenhando no final?', this.subject.getTitleTextAlignment()).toBe(aligment);
