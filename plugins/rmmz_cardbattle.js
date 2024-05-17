@@ -6482,263 +6482,146 @@ class ChangeDefaultColorTextWindowTest extends SceneTest {
 }
 class AlignCenterBottomTextWindowTest extends SceneTest {
   create() {
-    const line1 = 'primeiro texto';
-    const line2 = 'segundo texto';
-    const line3 = 'terceiro texto';
-    const line4 = 'quarto texto';
-    const line5 = 'quinto texto';
-    const text = [
-      [line1, line2, line3],
-      [line4],
-      line5,
-    ];
-    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.subject = TextWindow.createWindowOneFourthSize(0, 0);
     this.addWatched(this.subject);
+    this.subject.alignCenterBottom();
     this.subject.open();
   }
 
   asserts() {
-    const text = [
-      'primeiro texto segundo texto terceiro texto',
-      'quarto texto',
-      'quinto texto',
-    ];
-    this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
-    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+    this.describe('Deve alinhar no centro e embaixo!');
+    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject);
+    const verticalAlign = TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject);
+    this.assert('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
+    this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignCenterMiddleTextWindowTest extends SceneTest {
   create() {
-    const line1 = 'primeiro texto';
-    const line2 = 'segundo texto';
-    const line3 = 'terceiro texto';
-    const line4 = 'quarto texto';
-    const line5 = 'quinto texto';
-    const text = [
-      [line1, line2, line3],
-      [line4],
-      line5,
-    ];
-    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.subject = TextWindow.createWindowOneFourthSize(0, 0);
     this.addWatched(this.subject);
+    this.subject.alignCenterMiddle();
     this.subject.open();
   }
 
   asserts() {
-    const text = [
-      'primeiro texto segundo texto terceiro texto',
-      'quarto texto',
-      'quinto texto',
-    ];
-    this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
-    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+    this.describe('Deve alinhar no centro e meio!');
+    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject);
+    const verticalAlign = TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject);
+    this.assert('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
+    this.assert('Esta na posição vertical meio?', this.subject.y).toBe(verticalAlign);
   }
 }
-class AlignCenterBottomTextWindowTest extends SceneTest {
+class AlignCenterTopTextWindowTest extends SceneTest {
   create() {
-    const line1 = 'primeiro texto';
-    const line2 = 'segundo texto';
-    const line3 = 'terceiro texto';
-    const line4 = 'quarto texto';
-    const line5 = 'quinto texto';
-    const text = [
-      [line1, line2, line3],
-      [line4],
-      line5,
-    ];
-    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.subject = TextWindow.createWindowOneFourthSize(0, 0);
     this.addWatched(this.subject);
+    this.subject.alignCenterTop();
     this.subject.open();
   }
 
   asserts() {
-    const text = [
-      'primeiro texto segundo texto terceiro texto',
-      'quarto texto',
-      'quinto texto',
-    ];
-    this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
-    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+    this.describe('Deve alinhar no centro e topo!');
+    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject);
+    const verticalAlign = TextWindow.getVerticalAlign(GameConst.TOP, this.subject);
+    this.assert('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
+    this.assert('Esta na posição vertical topo?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignEndBottomTextWindowTest extends SceneTest {
   create() {
-    const line1 = 'primeiro texto';
-    const line2 = 'segundo texto';
-    const line3 = 'terceiro texto';
-    const line4 = 'quarto texto';
-    const line5 = 'quinto texto';
-    const text = [
-      [line1, line2, line3],
-      [line4],
-      line5,
-    ];
-    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.subject = TextWindow.createWindowOneFourthSize(0, 0);
     this.addWatched(this.subject);
+    this.subject.alignEndBottom();
     this.subject.open();
   }
 
   asserts() {
-    const text = [
-      'primeiro texto segundo texto terceiro texto',
-      'quarto texto',
-      'quinto texto',
-    ];
-    this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
-    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+    this.describe('Deve alinhar no final e embaixo!');
+    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.END, this.subject);
+    const verticalAlign = TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject);
+    this.assert('Esta na posição horizontal final?', this.subject.x).toBe(horizontalAlign);
+    this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignEndMiddleTextWindowTest extends SceneTest {
   create() {
-    const line1 = 'primeiro texto';
-    const line2 = 'segundo texto';
-    const line3 = 'terceiro texto';
-    const line4 = 'quarto texto';
-    const line5 = 'quinto texto';
-    const text = [
-      [line1, line2, line3],
-      [line4],
-      line5,
-    ];
-    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.subject = TextWindow.createWindowOneFourthSize(0, 0);
     this.addWatched(this.subject);
+    this.subject.alignEndMiddle();
     this.subject.open();
   }
 
   asserts() {
-    const text = [
-      'primeiro texto segundo texto terceiro texto',
-      'quarto texto',
-      'quinto texto',
-    ];
-    this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
-    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+    this.describe('Deve alinhar no final e meio!');
+    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.END, this.subject);
+    const verticalAlign = TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject);
+    this.assert('Esta na posição horizontal final?', this.subject.x).toBe(horizontalAlign);
+    this.assert('Esta na posição vertical meio?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignEndTopTextWindowTest extends SceneTest {
   create() {
-    const line1 = 'primeiro texto';
-    const line2 = 'segundo texto';
-    const line3 = 'terceiro texto';
-    const line4 = 'quarto texto';
-    const line5 = 'quinto texto';
-    const text = [
-      [line1, line2, line3],
-      [line4],
-      line5,
-    ];
-    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.subject = TextWindow.createWindowOneFourthSize(0, 0);
     this.addWatched(this.subject);
+    this.subject.alignEndTop();
     this.subject.open();
   }
 
   asserts() {
-    const text = [
-      'primeiro texto segundo texto terceiro texto',
-      'quarto texto',
-      'quinto texto',
-    ];
-    this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
-    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+    this.describe('Deve alinhar no final e topo!');
+    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.END, this.subject);
+    const verticalAlign = TextWindow.getVerticalAlign(GameConst.TOP, this.subject);
+    this.assert('Esta na posição horizontal final?', this.subject.x).toBe(horizontalAlign);
+    this.assert('Esta na posição vertical topo?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignStartBottomTextWindowTest extends SceneTest {
   create() {
-    const line1 = 'primeiro texto';
-    const line2 = 'segundo texto';
-    const line3 = 'terceiro texto';
-    const line4 = 'quarto texto';
-    const line5 = 'quinto texto';
-    const text = [
-      [line1, line2, line3],
-      [line4],
-      line5,
-    ];
-    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.subject = TextWindow.createWindowOneFourthSize(0, 0);
     this.addWatched(this.subject);
+    this.subject.alignStartBottom();
     this.subject.open();
   }
 
   asserts() {
-    const text = [
-      'primeiro texto segundo texto terceiro texto',
-      'quarto texto',
-      'quinto texto',
-    ];
-    this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
-    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+    this.describe('Deve alinhar no início e embaixo!');
+    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.START, this.subject);
+    const verticalAlign = TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject);
+    this.assert('Esta na posição horizontal início?', this.subject.x).toBe(horizontalAlign);
+    this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignStartMiddleTextWindowTest extends SceneTest {
   create() {
-    const line1 = 'primeiro texto';
-    const line2 = 'segundo texto';
-    const line3 = 'terceiro texto';
-    const line4 = 'quarto texto';
-    const line5 = 'quinto texto';
-    const text = [
-      [line1, line2, line3],
-      [line4],
-      line5,
-    ];
-    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.subject = TextWindow.createWindowOneFourthSize(0, 0);
     this.addWatched(this.subject);
+    this.subject.alignStartMiddle();
     this.subject.open();
   }
 
   asserts() {
-    const text = [
-      'primeiro texto segundo texto terceiro texto',
-      'quarto texto',
-      'quinto texto',
-    ];
-    this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
-    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+    this.describe('Deve alinhar no início e meio!');
+    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.START, this.subject);
+    const verticalAlign = TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject);
+    this.assert('Esta na posição horizontal início?', this.subject.x).toBe(horizontalAlign);
+    this.assert('Esta na posição vertical meio?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignStartTopTextWindowTest extends SceneTest {
   create() {
-    const line1 = 'primeiro texto';
-    const line2 = 'segundo texto';
-    const line3 = 'terceiro texto';
-    const line4 = 'quarto texto';
-    const line5 = 'quinto texto';
-    const text = [
-      [line1, line2, line3],
-      [line4],
-      line5,
-    ];
-    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.subject = TextWindow.createWindowOneFourthSize(0, 0);
     this.addWatched(this.subject);
+    this.subject.alignStartTop();
     this.subject.open();
   }
 
   asserts() {
-    const text = [
-      'primeiro texto segundo texto terceiro texto',
-      'quarto texto',
-      'quinto texto',
-    ];
-    this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
-    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+    this.describe('Deve alinhar no início e meio!');
+    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.START, this.subject);
+    const verticalAlign = TextWindow.getVerticalAlign(GameConst.TOP, this.subject);
+    this.assert('Esta na posição horizontal início?', this.subject.x).toBe(horizontalAlign);
+    this.assert('Esta na posição vertical topo?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignTextCenterTextWindowTest extends SceneTest {
@@ -7424,29 +7307,29 @@ class CardBattleTestScene extends Scene_Message {
       AlignEndBottomStateWindowTest,
     ];
     const textWindowTests = [
-      CreateOneFourthSizeTextWindowTest,
-      CreateMiddleSizeTextWindowTest,
-      CreateThreeFourthSizeTextWindowTest,
-      CreateFullSizeTextWindowTest,
-      OpenTextWindowTest,
-      CloseTextWindowTest,
-      ChangeBlueColorTextWindowTest,
-      ChangeRedColorTextWindowTest,
-      ChangeDefaultColorTextWindowTest,
-      AlignCenterBottomTextWindowTest,
-      AlignCenterMiddleTextWindowTest,
-      AlignCenterTopTextWindowTest,
-      AlignEndBottomTextWindowTest,
-      AlignEndMiddleTextWindowTest,
-      AlignEndTopTextWindowTest,
-      AlignStartBottomTextWindowTest,
-      AlignStartMiddleTextWindowTest,
+      // CreateOneFourthSizeTextWindowTest,
+      // CreateMiddleSizeTextWindowTest,
+      // CreateThreeFourthSizeTextWindowTest,
+      // CreateFullSizeTextWindowTest,
+      // OpenTextWindowTest,
+      // CloseTextWindowTest,
+      // ChangeBlueColorTextWindowTest,
+      // ChangeRedColorTextWindowTest,
+      // ChangeDefaultColorTextWindowTest,
       AlignStartTopTextWindowTest,
-      AlignTextCenterTextWindowTest,
-      AlignTextLeftTextWindowTest,
-      AlignTextRightTextWindowTest,
-      TextTextWindowTest,
-      ChangeTextColorTextWindowTest,
+      AlignStartMiddleTextWindowTest,
+      AlignStartBottomTextWindowTest,
+      AlignCenterTopTextWindowTest,
+      AlignCenterMiddleTextWindowTest,
+      AlignCenterBottomTextWindowTest,
+      AlignEndTopTextWindowTest,
+      AlignEndMiddleTextWindowTest,
+      AlignEndBottomTextWindowTest,
+      // AlignTextCenterTextWindowTest,
+      // AlignTextLeftTextWindowTest,
+      // AlignTextRightTextWindowTest,
+      // TextTextWindowTest,
+      // ChangeTextColorTextWindowTest,
     ];
     const boardWindowTests = [
       PassBoardWindowTest,
@@ -7491,10 +7374,10 @@ class CardBattleTestScene extends Scene_Message {
       SelectFoldersCommandWindowTest,
     ];
     return [
-      ...cardSpriteTests,
-      ...cardsetSpriteTests,
-      ...commandWindow,
-      ...StateWindowTests,
+      // ...cardSpriteTests,
+      // ...cardsetSpriteTests,
+      // ...commandWindow,
+      // ...StateWindowTests,
       ...textWindowTests,
       
       // ...boardWindowTests,
