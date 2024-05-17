@@ -1,19 +1,4 @@
 class BattlePointsWindow extends ValuesWindow {
-  initialize(rect) {
-    super.initialize(rect);
-    this.resetPoints();
-  }
-
-  resetPoints() {
-    this.addValue(GameConst.ATTACK_POINTS, 0);
-    this.addValue(GameConst.HEALTH_POINTS, 0);
-  }
-
-  reset() {
-    super.reset();
-    this.resetPoints();
-  }
-
   static create(x, y) {
     const width = Graphics.boxWidth / 4;
     const height = StateWindow.minHeight();
@@ -22,6 +7,21 @@ class BattlePointsWindow extends ValuesWindow {
 
   static createValueUpdate(name, value) {
     return ValuesWindow.createValueUpdate(name, value);
+  }
+
+  initialize(rect) {
+    super.initialize(rect);
+    this.reset();
+  }
+
+  reset() {
+    super.reset();
+    this.refreshPoints();
+  }
+
+  refreshPoints() {
+    this.addValue(GameConst.ATTACK_POINTS, 0);
+    this.addValue(GameConst.HEALTH_POINTS, 0);
   }
 
   refresh() {

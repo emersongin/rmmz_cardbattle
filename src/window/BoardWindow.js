@@ -1,10 +1,26 @@
 class BoardWindow extends ValuesWindow {
-  initialize(rect) {
-    super.initialize(rect);
-    this.resetPoints();
+  static create(x, y) {
+    const width = Graphics.boxWidth;
+    const height = StateWindow.minHeight();
+    const rect = new Rectangle(x, y, width, height);
+    return new BoardWindow(rect);
   }
 
-  resetPoints() {
+  static createValueUpdate(name, value) {
+    return ValuesWindow.createValueUpdate(name, value);
+  }
+
+  initialize(rect) {
+    super.initialize(rect);
+    this.reset();
+  }
+
+  reset() {
+    super.reset();
+    this.refreshPoints();
+  }
+
+  refreshPoints() {
     this.addValue(GameConst.RED_POINTS, 0);
     this.addValue(GameConst.BLUE_POINTS, 0);
     this.addValue(GameConst.GREEN_POINTS, 0);
@@ -16,33 +32,14 @@ class BoardWindow extends ValuesWindow {
   }
 
   noPass() {
+    this.addAction(this.commandNoPass);
+  }
+
+  commandNoPass() {
+    if (this.isBusy()) return;
     this._pass = false;
     this.refresh();
-  }
-
-  reset() {
-    super.reset();
-    this.resetPoints();
-  }
-
-  static create(x, y, width, height) {
-    return new BoardWindow(new Rectangle(x, y, width, height));
-  }
-
-  static createWindowMiddleSize(x, y) {
-    const width = Graphics.boxWidth / 2;
-    const height = StateWindow.minHeight();
-    return BoardWindow.create(x, y, width, height);
-  }
-
-  static createWindowFullSize(x, y) {
-    const width = Graphics.boxWidth;
-    const height = StateWindow.minHeight();
-    return BoardWindow.create(x, y, width, height);
-  }
-
-  static createValueUpdate(name, value) {
-    return ValuesWindow.createValueUpdate(name, value);
+    return true;
   }
 
   refresh() {
@@ -124,8 +121,14 @@ class BoardWindow extends ValuesWindow {
   }
 
   pass() {
+    this.addAction(this.commandPass);
+  }
+
+  commandPass() {
+    if (this.isBusy()) return;
     this._pass = true;
     this.refresh();
+    return true;
   }
 
   isNoPass() {

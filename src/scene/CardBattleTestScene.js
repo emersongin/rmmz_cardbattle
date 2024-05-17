@@ -152,16 +152,15 @@ class CardBattleTestScene extends Scene_Message {
       CommandsAndHandlersWithTextCommandWindowTest,
     ];
     return [
-      // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      // ...commandWindow,
-      // ...StateWindowTests,
-      // ...textWindowTests,
-      
+      ...cardSpriteTests,
+      ...cardsetSpriteTests,
+      ...commandWindow,
+      ...StateWindowTests,
+      ...textWindowTests,
       ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow,
-      // ...scoreWindow,
+      ...battlePointsWindow,
+      ...trashWindow,
+      ...scoreWindow,
     ];
   }
 

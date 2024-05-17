@@ -1,6 +1,6 @@
 class UpdatingPointsBoardWindowTest extends SceneTest {
   create() {
-    this.subject = BoardWindow.createWindowFullSize(0, 0);
+    this.subject = BoardWindow.create(0, 0);
     this.addWatched(this.subject);
     this.subject.alignCenterMiddle();
     this.subject.refresh();

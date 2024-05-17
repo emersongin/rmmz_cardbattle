@@ -1124,57 +1124,25 @@ class StateWindow extends Window_Base {
   }
 }
 class ValuesWindow extends StateWindow {
-  initialize(rect) {
-    super.initialize(rect);
-    this._values = {};
-    // this._updates = [];
-  }
-
   static createValueUpdate(name, value) {
     return { name, value };
   }
 
-  // update() {
-  //   super.update();
-  //   if (this.hasUpdates() && this.isStopped()) this.executeUpdate();
-  // }
-
-  // hasUpdates() {
-  //   return this._updates.length > 0;
-  // }
-
-  // executeUpdate() {
-  //   const updates = this._updates;
-  //   if (updates.length > 0) {
-  //     const update = updates[0];
-  //     const executed = update.execute();
-  //     if (executed) updates.shift();
-  //   }
-  // }
+  initialize(rect) {
+    super.initialize(rect);
+    this._values = {};
+  }
 
   updateValues(updates) {
     updates = Array.isArray(updates) ? updates : [updates];
     this.addAction(this.commandUpdateValues, updates);
   }
 
-  // addUpdate(fn, ...params) {
-  //   const update = this.createUpdate(fn, ...params);
-  //   this._updates.push(update);
-  // }
-
   commandUpdateValues(updates) {
     if (!(this.isOpen() && this.isStopped())) return;
     this.changeStatus(WindowUpdatedState, updates);
     return true;
   }
-
-  // createUpdate(fn, ...params) {
-  //   const action = {
-  //     fn: fn.name || 'anonymous',
-  //     execute: () => fn.call(this, ...params)
-  //   };
-  //   return action;
-  // }
 
   addValue(name, value) {
     if (this._values.hasOwnProperty(name)) {
@@ -1544,12 +1512,28 @@ class TextWindow extends Window_Base {
   }
 }
 class BoardWindow extends ValuesWindow {
-  initialize(rect) {
-    super.initialize(rect);
-    this.resetPoints();
+  static create(x, y) {
+    const width = Graphics.boxWidth;
+    const height = StateWindow.minHeight();
+    const rect = new Rectangle(x, y, width, height);
+    return new BoardWindow(rect);
   }
 
-  resetPoints() {
+  static createValueUpdate(name, value) {
+    return ValuesWindow.createValueUpdate(name, value);
+  }
+
+  initialize(rect) {
+    super.initialize(rect);
+    this.reset();
+  }
+
+  reset() {
+    super.reset();
+    this.refreshPoints();
+  }
+
+  refreshPoints() {
     this.addValue(GameConst.RED_POINTS, 0);
     this.addValue(GameConst.BLUE_POINTS, 0);
     this.addValue(GameConst.GREEN_POINTS, 0);
@@ -1561,33 +1545,14 @@ class BoardWindow extends ValuesWindow {
   }
 
   noPass() {
+    this.addAction(this.commandNoPass);
+  }
+
+  commandNoPass() {
+    if (this.isBusy()) return;
     this._pass = false;
     this.refresh();
-  }
-
-  reset() {
-    super.reset();
-    this.resetPoints();
-  }
-
-  static create(x, y, width, height) {
-    return new BoardWindow(new Rectangle(x, y, width, height));
-  }
-
-  static createWindowMiddleSize(x, y) {
-    const width = Graphics.boxWidth / 2;
-    const height = StateWindow.minHeight();
-    return BoardWindow.create(x, y, width, height);
-  }
-
-  static createWindowFullSize(x, y) {
-    const width = Graphics.boxWidth;
-    const height = StateWindow.minHeight();
-    return BoardWindow.create(x, y, width, height);
-  }
-
-  static createValueUpdate(name, value) {
-    return ValuesWindow.createValueUpdate(name, value);
+    return true;
   }
 
   refresh() {
@@ -1669,8 +1634,14 @@ class BoardWindow extends ValuesWindow {
   }
 
   pass() {
+    this.addAction(this.commandPass);
+  }
+
+  commandPass() {
+    if (this.isBusy()) return;
     this._pass = true;
     this.refresh();
+    return true;
   }
 
   isNoPass() {
@@ -1682,21 +1653,6 @@ class BoardWindow extends ValuesWindow {
   }
 }
 class BattlePointsWindow extends ValuesWindow {
-  initialize(rect) {
-    super.initialize(rect);
-    this.resetPoints();
-  }
-
-  resetPoints() {
-    this.addValue(GameConst.ATTACK_POINTS, 0);
-    this.addValue(GameConst.HEALTH_POINTS, 0);
-  }
-
-  reset() {
-    super.reset();
-    this.resetPoints();
-  }
-
   static create(x, y) {
     const width = Graphics.boxWidth / 4;
     const height = StateWindow.minHeight();
@@ -1705,6 +1661,21 @@ class BattlePointsWindow extends ValuesWindow {
 
   static createValueUpdate(name, value) {
     return ValuesWindow.createValueUpdate(name, value);
+  }
+
+  initialize(rect) {
+    super.initialize(rect);
+    this.reset();
+  }
+
+  reset() {
+    super.reset();
+    this.refreshPoints();
+  }
+
+  refreshPoints() {
+    this.addValue(GameConst.ATTACK_POINTS, 0);
+    this.addValue(GameConst.HEALTH_POINTS, 0);
   }
 
   refresh() {
@@ -1727,29 +1698,6 @@ class BattlePointsWindow extends ValuesWindow {
   }
 }
 class TrashWindow extends ValuesWindow {
-  initialize(rect) {
-    super.initialize(rect);
-    this.resetPoints();
-  }
-
-  resetPoints() {
-    this.addValue(GameConst.NUM_CARDS_IN_TRASH, 0);
-    this.startIcon();
-  }
-
-  reset() {
-    super.reset();
-    this.resetPoints();
-  }
-
-  startIcon() {
-    this._startIcon = true;
-  }
-
-  startValues() {
-    this._startIcon = false;
-  }
-
   static create(x, y) {
     const width = (Graphics.boxWidth / 4) / 2;
     const height = StateWindow.minHeight() * 2;
@@ -1760,6 +1708,29 @@ class TrashWindow extends ValuesWindow {
     return ValuesWindow.createValueUpdate(name, value);
   }
 
+  initialize(rect) {
+    super.initialize(rect);
+    this.reset();
+  }
+
+  reset() {
+    super.reset();
+    this.refreshPoints();
+  }
+
+  refreshPoints() {
+    this.addValue(GameConst.NUM_CARDS_IN_TRASH, 0);
+    this.startIcons();
+  }
+
+  startIcons() {
+    this._reverseIcons = true;
+  }
+
+  reverseIcons() {
+    this._reverseIcons = false;
+  }
+
   refresh() {
     super.refresh();
     this.drawIcons();
@@ -1768,7 +1739,7 @@ class TrashWindow extends ValuesWindow {
 
   drawIcons() {
     const x = (this.contents.width / 2) - (ImageManager.iconWidth / 2);
-    const y = this.getYItemHeight(this._startIcon ? 0 : 1) + this.getMiddleIconHeight();
+    const y = this.getYItemHeight(this._reverseIcons ? 0 : 1) + this.getMiddleIconHeight();
     this.drawIcon(IconSetConst.TRASH, x, y);
   }
 
@@ -1785,7 +1756,7 @@ class TrashWindow extends ValuesWindow {
     this.contents.drawText(
       numCards, 
       0, 
-      this.getYItemHeight(this._startIcon ? 1 : 0) - this.getMiddleIconHeight(), 
+      this.getYItemHeight(this._reverseIcons ? 1 : 0) - this.getMiddleIconHeight(), 
       this.contents.width, 
       this.contents.height,
       'center'
@@ -1842,7 +1813,13 @@ class WindowUpdatedScoreState {
   }
 }
 
-class ScoreWindow extends StateWindow { 
+class ScoreWindow extends StateWindow {
+  static create(x, y) {
+    const width = Graphics.boxWidth / 4;
+    const height = StateWindow.minHeight();
+    return new ScoreWindow(new Rectangle(x, y, width, height));
+  }
+
   initialize(rect) {
     super.initialize(rect);
     this.reset();
@@ -1868,12 +1845,6 @@ class ScoreWindow extends StateWindow {
     }
   }
 
-  static create(x, y) {
-    const width = Graphics.boxWidth / 4;
-    const height = StateWindow.minHeight();
-    return new ScoreWindow(new Rectangle(x, y, width, height));
-  }
-
   isUpdating() {
     return this.getStatus() instanceof WindowUpdatedScoreState;
   }
@@ -1883,12 +1854,12 @@ class ScoreWindow extends StateWindow {
   }
 
   commandChangeScore(score) {
+    if (this.isBusy()) return;
     const lastScore = this._score;
     this._score = score;
     this.changeStatus(WindowUpdatedScoreState, lastScore, score);
+    return true;
   }
-
-
 }
 
 class PowerAction {
@@ -6128,7 +6099,7 @@ class AlignEndBottomStateWindowTest extends SceneTest {
 // tests BOARD WINDOW
 class PassBoardWindowTest extends SceneTest {
   create() {
-    this.subject = BoardWindow.createWindowFullSize(0, 0);
+    this.subject = BoardWindow.create(0, 0);
     this.addWatched(this.subject);
     this.subject.alignCenterMiddle();
     this.subject.refresh();
@@ -6143,7 +6114,7 @@ class PassBoardWindowTest extends SceneTest {
 }
 class NoPassBoardWindowTest extends SceneTest {
   create() {
-    this.subject = BoardWindow.createWindowFullSize(0, 0);
+    this.subject = BoardWindow.create(0, 0);
     this.addWatched(this.subject);
     this.subject.alignCenterMiddle();
     this.subject.refresh();
@@ -6159,7 +6130,7 @@ class NoPassBoardWindowTest extends SceneTest {
 }
 class UpdatingPointsBoardWindowTest extends SceneTest {
   create() {
-    this.subject = BoardWindow.createWindowFullSize(0, 0);
+    this.subject = BoardWindow.create(0, 0);
     this.addWatched(this.subject);
     this.subject.alignCenterMiddle();
     this.subject.refresh();
@@ -7166,11 +7137,11 @@ class CardBattleTestScene extends Scene_Message {
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,
-      
-      ...boardWindowTests,
+      // ...boardWindowTests,
       // ...battlePointsWindow,
       // ...trashWindow,
-      // ...scoreWindow,
+      
+      ...scoreWindow,
     ];
   }
 

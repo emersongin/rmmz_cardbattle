@@ -1,6 +1,12 @@
 // include ./state/WindowUpdatedScoreState.js
 
-class ScoreWindow extends StateWindow { 
+class ScoreWindow extends StateWindow {
+  static create(x, y) {
+    const width = Graphics.boxWidth / 4;
+    const height = StateWindow.minHeight();
+    return new ScoreWindow(new Rectangle(x, y, width, height));
+  }
+
   initialize(rect) {
     super.initialize(rect);
     this.reset();
@@ -26,12 +32,6 @@ class ScoreWindow extends StateWindow {
     }
   }
 
-  static create(x, y) {
-    const width = Graphics.boxWidth / 4;
-    const height = StateWindow.minHeight();
-    return new ScoreWindow(new Rectangle(x, y, width, height));
-  }
-
   isUpdating() {
     return this.getStatus() instanceof WindowUpdatedScoreState;
   }
@@ -41,10 +41,10 @@ class ScoreWindow extends StateWindow {
   }
 
   commandChangeScore(score) {
+    if (this.isBusy()) return;
     const lastScore = this._score;
     this._score = score;
     this.changeStatus(WindowUpdatedScoreState, lastScore, score);
+    return true;
   }
-
-
 }
