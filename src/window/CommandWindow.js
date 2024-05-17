@@ -111,8 +111,9 @@ class CommandWindow extends Window_Command {
   }
 
   drawTexts() {
-    const maxWidth = this.getTextMaxWidth(this._text);
-    this._text.forEach((text, index) => {
+    const texts = this.processTexts(this._text);
+    const maxWidth = this.getTextMaxWidth(texts);
+    texts.forEach((text, index) => {
       const state = this.getTextState(text);
       const textWidth = state.outputWidth;
       const textProcessed = state.raw;
@@ -125,7 +126,8 @@ class CommandWindow extends Window_Command {
   }
 
   flushTextState(textState) {
-    textState.raw = textState.buffer;
+    textState.raw += textState.buffer || '';
+    textState.raw = textState.raw.replace(/undefined/g, "");
     super.flushTextState(textState);
   }
 
@@ -164,6 +166,15 @@ class CommandWindow extends Window_Command {
     textState.drawing = false;
     this.processAllText(textState);
     return textState;
+  }
+
+  processTexts(text) {
+    return text.map(txt => {
+      if (Array.isArray(txt)) {
+        return txt.reduce((acc, substring, index) => index ? `${acc} ${substring}` : `${acc}${substring}`)
+      }
+      return txt;
+    });
   }
 
   getTextAlignment() {
