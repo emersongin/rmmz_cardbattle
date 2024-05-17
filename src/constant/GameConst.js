@@ -39,15 +39,6 @@ const ColorTypes = {
   BROWN: 6,
 };
 
-const GameColorIndexs = {
-  NORMAL_COLOR: 0,
-  SYSTEM_COLOR: 16,
-  CRISIS_COLOR: 17,
-  DEATH_COLOR: 18,
-  GAIN_COLOR: 19,
-  ORANGE_COLOR: 20,
-};
-
 const IconSetConst = {
   REDBOX: 309,
   BLUEBOX: 312,
@@ -61,6 +52,51 @@ const IconSetConst = {
   SAPPHIRE: 161,
   RUBY: 162,
   BLUESAPPHIRE: 165
+};
+
+const GameColors = {
+  RED: 'RED',
+  GREEN: 'GREEN',
+  BLUE: 'BLUE',
+  WHITE: 'WHITE',
+  BLACK: 'BLACK',
+  BROWN: 'BROWN',
+  DEFAULT: 'DEFAULT',
+};
+
+const GameColorIndexs = {
+  DEFAULT: 0,
+  LIGHTBLUE: 1,
+  LIGHTRED: 2,
+  LIGHTGREEN: 3,
+  LIGHTBLUE2: 4,
+  LIGHTPURPLE: 5,
+  LIGHTYELLOW: 6,
+  LIGHTGRAY: 7,
+  GRAY: 8,
+  BLUE: 9,
+  RED: 10,
+  GREEN: 11,
+  BLUE2: 12,
+  PURPLE: 13,
+  YELLOW: 14,
+  BLACK: 15,
+  BLUE3: 16,
+  YELLOW2: 17,
+  RED2: 18,
+  BLACK2: 19,
+  ORANGE: 20,
+  YELLOW3: 21,
+  GREEN2: 22,
+  GREEN3: 23,
+  LIGHTGREEN2: 24,
+  BROWN: 25,
+  BLUE4: 26,
+  PINK: 27,
+  GREEN4: 28,
+  LIGHTGREEN3: 29,
+  VIOLET: 30,
+  LIGHTVIOLET: 31,
 };
 
 const HexColors = {

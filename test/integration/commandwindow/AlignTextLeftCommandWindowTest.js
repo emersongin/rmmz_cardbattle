@@ -7,13 +7,13 @@ class AlignTextLeftCommandWindowTest extends SceneTest {
     ];
     this.subject = CommandWindow.create(0, 0, text);
     this.addWatched(this.subject);
-    this.subject.alingTextLeft();
+    this.subject.alignTextLeft();
     this.subject.open();
   }
 
   asserts() {
     this.describe('Deve mostrar o texto alinhado na esquerda.');
     const aligment = GameConst.LEFT;
-    this.assert('Foi desenhando na esquerda?', this.subject.getTextAlignment()).toBe(aligment.toLowerCase());
+    this.assert('Foi desenhando na esquerda?', this.subject.getTextAlignment()).toBe(aligment);
   }
 }

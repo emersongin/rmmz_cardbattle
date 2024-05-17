@@ -56,15 +56,6 @@ const ColorTypes = {
   BROWN: 6,
 };
 
-const GameColorIndexs = {
-  NORMAL_COLOR: 0,
-  SYSTEM_COLOR: 16,
-  CRISIS_COLOR: 17,
-  DEATH_COLOR: 18,
-  GAIN_COLOR: 19,
-  ORANGE_COLOR: 20,
-};
-
 const IconSetConst = {
   REDBOX: 309,
   BLUEBOX: 312,
@@ -78,6 +69,51 @@ const IconSetConst = {
   SAPPHIRE: 161,
   RUBY: 162,
   BLUESAPPHIRE: 165
+};
+
+const GameColors = {
+  RED: 'RED',
+  GREEN: 'GREEN',
+  BLUE: 'BLUE',
+  WHITE: 'WHITE',
+  BLACK: 'BLACK',
+  BROWN: 'BROWN',
+  DEFAULT: 'DEFAULT',
+};
+
+const GameColorIndexs = {
+  DEFAULT: 0,
+  LIGHTBLUE: 1,
+  LIGHTRED: 2,
+  LIGHTGREEN: 3,
+  LIGHTBLUE2: 4,
+  LIGHTPURPLE: 5,
+  LIGHTYELLOW: 6,
+  LIGHTGRAY: 7,
+  GRAY: 8,
+  BLUE: 9,
+  RED: 10,
+  GREEN: 11,
+  BLUE2: 12,
+  PURPLE: 13,
+  YELLOW: 14,
+  BLACK: 15,
+  BLUE3: 16,
+  YELLOW2: 17,
+  RED2: 18,
+  BLACK2: 19,
+  ORANGE: 20,
+  YELLOW3: 21,
+  GREEN2: 22,
+  GREEN3: 23,
+  LIGHTGREEN2: 24,
+  BROWN: 25,
+  BLUE4: 26,
+  PINK: 27,
+  GREEN4: 28,
+  LIGHTGREEN3: 29,
+  VIOLET: 30,
+  LIGHTVIOLET: 31,
 };
 
 const HexColors = {
@@ -276,11 +312,24 @@ class CommandWindow extends Window_Command {
   }
 
   static minHeight() {
-    return 60;
+    return 72;
   }
 
   static createCommand(name, symbol, enabled = true, ext = null) {
     return { name, symbol, enabled, ext };
+  }
+
+  static setTextColor(text, color) {
+    switch (color) {
+      case GameColors.RED:
+        return `\\c[${GameColorIndexs.RED}]${text}`;
+      case GameColors.GREEN:
+          return `\\c[${GameColorIndexs.GREEN}]${text}`;
+      case GameColors.BLUE:
+        return `\\c[${GameColorIndexs.BLUE}]${text}`;
+      default:
+        return `\\c[${GameColorIndexs.DEFAULT}]${text}`;
+    }
   }
 
   static getVerticalAlign(position, window) {
@@ -305,7 +354,6 @@ class CommandWindow extends Window_Command {
     this._commandTextAlignment = GameConst.LEFT;
     this._text = text;
     this._textAlignment = GameConst.LEFT;
-    this._textColor = ColorManager.textColor(GameColorIndexs.NORMAL_COLOR);
     this._windowColor = GameConst.DEFAULT_COLOR;
     this.closed();
     this.refresh();
@@ -318,7 +366,6 @@ class CommandWindow extends Window_Command {
   }
 
   refresh() {
-    this.changeTextColor(this._textColor);
     this.clearCommandList();
     this.makeCommandList();
     this.setHandlers();
@@ -347,7 +394,7 @@ class CommandWindow extends Window_Command {
   }
   
   drawAllItems() {
-    if (this.hasText()) this.drawTitle();
+    if (this.hasText()) this.drawText();
     if (this.hasCommands()) super.drawAllItems();
   }
 
@@ -359,17 +406,53 @@ class CommandWindow extends Window_Command {
     return this.maxItems() > 0;
   }
 
-  drawTitle() {
+  drawText() {
+    const maxWidth = this.getTextMaxWidth(this._text);
     this._text.forEach((text, index) => {
-      const rect = this.lineRect(index);
-      this.addHistory('TEXT_' + index, text);
+      const state = this.getTextState(text);
+      const textWidth = state.outputWidth;
+      const textProcessed = state.raw;
       const aligment = this.getTextAlignment();
-      this.drawText(text, rect.x, rect.y, rect.width, aligment);
+      const x = this.getXAlignment(textWidth, maxWidth, aligment);
+      const rect = this.lineRect(index, x);
+      this.addHistory('TEXT_' + index, textProcessed);
+      this.drawTextEx(text, rect.x, rect.y, rect.width);
     });
   }
 
-  lineRect(index) {
-    const x = 0;
+  flushTextState(textState) {
+    textState.raw = textState.buffer;
+    super.flushTextState(textState);
+  }
+
+  getTextMaxWidth(text) {
+    return text.reduce((max, txt) => {
+      const state = this.getTextState(txt);
+      const width = state.outputWidth;
+      return Math.max(max, width);
+    }, 0);
+  }
+
+  getTextState(txt) {
+    const textState = this.createTextState(txt, 0, 0, 0);
+    textState.drawing = false;
+    this.processAllText(textState);
+    return textState;
+  }
+
+  getXAlignment(textWidth, maxWidth, align) {
+    maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
+    switch (align) {
+      case GameConst.CENTER:
+        return (maxWidth / 2) - (textWidth / 2);
+      case GameConst.RIGHT:
+        return maxWidth - textWidth;
+      default: // GameConst.LEFT
+        return 0;
+    }
+  }
+
+  lineRect(index, x = 0) {
     const y = index * this.lineHeight();
     const width = this.contentsWidth();
     const height = this.lineHeight();
@@ -386,7 +469,7 @@ class CommandWindow extends Window_Command {
   }
 
   getTextAlignment() {
-    return this._textAlignment.toLowerCase();
+    return this._textAlignment;
   }
 
   itemRect(index) {
@@ -568,26 +651,7 @@ class CommandWindow extends Window_Command {
     return this._history.find(history => history.symbol === symbol);
   }
 
-  alignTextCenter() {
-    this._textAlignment = GameConst.CENTER;
-    this.refresh();
-  }
-
-  alignTextRight() {
-    this._textAlignment = GameConst.RIGHT;
-    this.refresh();
-  }
-
-  changeTextColorToOrange() {
-    this._textColor = ColorManager.textColor(GameColorIndexs.ORANGE_COLOR);
-    this.refresh();
-  }
-
-  getTextColor() {
-    return this._textColor;
-  }
-
-  alingTextLeft() {
+  alignTextLeft() {
     this.addAction(this.commandAlignTextLeft);
   }
 
@@ -597,7 +661,7 @@ class CommandWindow extends Window_Command {
     return true;
   }
 
-  alingTextCenter() {
+  alignTextCenter() {
     this.addAction(this.commandAlignTextCenter);
   }
 
@@ -607,7 +671,7 @@ class CommandWindow extends Window_Command {
     return true;
   }
 
-  alingTextRight() {
+  alignTextRight() {
     this.addAction(this.commandAlignTextRight);
   }
 
@@ -616,7 +680,6 @@ class CommandWindow extends Window_Command {
     this.refresh();
     return true;
   }
-
 }
 
 class WindowStoppedState {
@@ -4555,8 +4618,8 @@ class SceneTest {
   toBe(valueToBe, title, valueToCompare) {
     this.assertsToTest.push({
       type: 'assert',
-      title: title || this.assertTitle,
-      value: valueToCompare || this.assertValue,
+      title: title || this.assertTitle || '',
+      value: valueToCompare || this.assertValue || false,
       toBe: valueToBe
     });
   }
@@ -6371,22 +6434,23 @@ class AlignBottomCommandWindowTest extends SceneTest {
 }
 class TextCommandWindowTest extends SceneTest {
   create() {
-    const text = [
-      'primeiro texto para validação de desenho em janela de comando',
-      'segundo texto para validação de desenho em janela de comando',
-    ];
+    this.pressToAsserts();
+    let line1 = 'primeiro texto';
+    line1 = CommandWindow.setTextColor(line1, GameColors.RED);
+    let line2 = 'segundo texto';
+    line2 = CommandWindow.setTextColor(line2, GameColors.BLUE);
+    const text = [line1, line2];
     this.subject = CommandWindow.create(0, 0, text);
     this.addWatched(this.subject);
+    this.subject.alignTextCenter();
     this.subject.open();
   }
 
   asserts() {
     const text = [
-      'primeiro texto para validação de desenho em janela de comando',
-      'segundo texto para validação de desenho em janela de comando',
+      'primeiro texto',
+      'segundo texto',
     ];
-    console.log(text[0]);
-    console.log(this.subject.isTextWasDrawing('TEXT_0', text[0]));
     this.describe('Deve apresentar o texto que foi informado em janela.');
     this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
     this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
@@ -6401,14 +6465,14 @@ class AlignTextLeftCommandWindowTest extends SceneTest {
     ];
     this.subject = CommandWindow.create(0, 0, text);
     this.addWatched(this.subject);
-    this.subject.alingTextLeft();
+    this.subject.alignTextLeft();
     this.subject.open();
   }
 
   asserts() {
     this.describe('Deve mostrar o texto alinhado na esquerda.');
     const aligment = GameConst.LEFT;
-    this.assert('Foi desenhando na esquerda?', this.subject.getTextAlignment()).toBe(aligment.toLowerCase());
+    this.assert('Foi desenhando na esquerda?', this.subject.getTextAlignment()).toBe(aligment);
   }
 }
 class AlignTextCenterCommandWindowTest extends SceneTest {
@@ -6420,14 +6484,14 @@ class AlignTextCenterCommandWindowTest extends SceneTest {
     ];
     this.subject = CommandWindow.create(0, 0, text);
     this.addWatched(this.subject);
-    this.subject.alingTextCenter();
+    this.subject.alignTextCenter();
     this.subject.open();
   }
 
   asserts() {
     this.describe('Deve mostrar o texto alinhado no centro.');
     const aligment = GameConst.CENTER;
-    this.assert('Foi desenhando no centro?', this.subject.getTextAlignment()).toBe(aligment.toLowerCase());
+    this.assert('Foi desenhando no centro?', this.subject.getTextAlignment()).toBe(aligment);
   }
 }
 class AlignTextRightCommandWindowTest extends SceneTest {
@@ -6439,14 +6503,14 @@ class AlignTextRightCommandWindowTest extends SceneTest {
     ];
     this.subject = CommandWindow.create(0, 0, text);
     this.addWatched(this.subject);
-    this.subject.alingTextRight();
+    this.subject.alignTextRight();
     this.subject.open();
   }
 
   asserts() {
     this.describe('Deve mostrar o texto alinhado na direita.');
     const aligment = GameConst.RIGHT;
-    this.assert('Foi desenhando na direita?', this.subject.getTextAlignment()).toBe(aligment.toLowerCase());
+    this.assert('Foi desenhando na direita?', this.subject.getTextAlignment()).toBe(aligment);
   }
 }
 class ChangeTextColorCommandWindowTest extends SceneTest {

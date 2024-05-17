@@ -195,8 +195,8 @@ class SceneTest {
   toBe(valueToBe, title, valueToCompare) {
     this.assertsToTest.push({
       type: 'assert',
-      title: title || this.assertTitle,
-      value: valueToCompare || this.assertValue,
+      title: title || this.assertTitle || '',
+      value: valueToCompare || this.assertValue || false,
       toBe: valueToBe
     });
   }

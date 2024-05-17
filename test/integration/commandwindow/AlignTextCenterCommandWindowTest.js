@@ -7,13 +7,13 @@ class AlignTextCenterCommandWindowTest extends SceneTest {
     ];
     this.subject = CommandWindow.create(0, 0, text);
     this.addWatched(this.subject);
-    this.subject.alingTextCenter();
+    this.subject.alignTextCenter();
     this.subject.open();
   }
 
   asserts() {
     this.describe('Deve mostrar o texto alinhado no centro.');
     const aligment = GameConst.CENTER;
-    this.assert('Foi desenhando no centro?', this.subject.getTextAlignment()).toBe(aligment.toLowerCase());
+    this.assert('Foi desenhando no centro?', this.subject.getTextAlignment()).toBe(aligment);
   }
 }
