@@ -75,7 +75,7 @@ class TextWindow extends Window_Base {
     this._windowColor = GameConst.DEFAULT_COLOR;
     this._history = [];
     this.closed();
-    this.reset();
+    this.refresh();
   }
 
   closed() {
@@ -88,11 +88,6 @@ class TextWindow extends Window_Base {
     this.visible = true;
     this.activate();
     super.open();
-  }
-
-  reset() {
-    this.contents.clear();
-    this.refresh();
   }
 
   update() {
@@ -114,6 +109,7 @@ class TextWindow extends Window_Base {
   }
 
   refresh() {
+    this.contents.clear();
     if (this.hasText()) this.drawTexts();
   }
 
@@ -210,7 +206,6 @@ class TextWindow extends Window_Base {
     return new Rectangle(x, y, width, height);
   }
 
-
   alignStartTop() {
     this.setHorizontalAlign(GameConst.START);
     this.setVerticalAlign(GameConst.TOP);
@@ -276,6 +271,21 @@ class TextWindow extends Window_Base {
     this._windowColor = GameConst.RED_COLOR;
   }
 
+  alignTextLeft() {
+    this._textAlignment = GameConst.LEFT;
+    this.refresh();
+  }
+
+  alignTextCenter() {
+    this._textAlignment = GameConst.CENTER;
+    this.refresh();
+  }
+
+  alignTextRight() {
+    this._textAlignment = GameConst.RIGHT;
+    this.refresh();
+  }
+
   isTextWasDrawing(symbol, content) {
     return this.isHistory(symbol, content);
   }
@@ -288,5 +298,39 @@ class TextWindow extends Window_Base {
 
   getHistory(symbol) {
     return this._history.filter(history => history.symbol === symbol);
+  }
+
+  isFullsize() {
+    return this.width === Graphics.boxWidth;
+  }
+
+  isMiddleSize() {
+    return this.width === Graphics.boxWidth / 2;
+  }
+
+  isOneFourthSize() {
+    return this.width === Graphics.boxWidth / 4;
+  }
+
+  isThreeFourthSize() {
+    return this.width === Graphics.boxWidth * 3 / 4;
+  }
+
+  isBlueColor() {
+    return this._windowColor === GameConst.BLUE_COLOR;
+  }
+
+  isRedColor() {
+    return this._windowColor === GameConst.RED_COLOR;
+  }
+
+  isDefaultColor() {
+    return this._windowColor === GameConst.DEFAULT_COLOR;
+  }
+
+  opened() {
+    this._openness = 255;
+    this.visible = true;
+    this.activate();
   }
 }
