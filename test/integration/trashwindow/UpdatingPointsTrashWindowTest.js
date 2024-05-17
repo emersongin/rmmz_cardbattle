@@ -1,5 +1,6 @@
 class UpdatingPointsTrashWindowTest extends SceneTest {
   create() {
+    this.pressToAsserts();
     this.subject = TrashWindow.create(0, 0);
     this.addWatched(this.subject);
     this.subject.alignCenterMiddle();

@@ -107,6 +107,8 @@
 // include ../test/integration/battlepointswindow/UpdatingPointsBattlePointsWindowTest.js
 // tests TRASH WINDOW
 // include ../test/integration/trashwindow/UpdatingPointsTrashWindowTest.js
+// include ../test/integration/trashwindow/OrderedIconsTrashWindowTest.js
+// include ../test/integration/trashwindow/ReverseIconsTrashWindowTest.js
 // tests SCORE WINDOW
 // include ../test/integration/scorewindow/OneWinUpdatingScoreWindowTest.js
 // include ../test/integration/scorewindow/TwoWinsUpdatingScoreWindowTest.js

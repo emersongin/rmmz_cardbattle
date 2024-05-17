@@ -125,6 +125,8 @@ class CardBattleTestScene extends Scene_Message {
     ];
     const trashWindow = [
       UpdatingPointsTrashWindowTest,
+      OrderedIconsTrashWindowTest,
+      ReverseIconsTrashWindowTest,
     ];
     const scoreWindow = [
       OneWinUpdatingScoreWindowTest,
@@ -152,11 +154,11 @@ class CardBattleTestScene extends Scene_Message {
       CommandsAndHandlersWithTextCommandWindowTest,
     ];
     return [
-      ...cardSpriteTests,
-      ...cardsetSpriteTests,
-      ...commandWindow,
-      ...StateWindowTests,
-      ...textWindowTests,
+      // ...cardSpriteTests,
+      // ...cardsetSpriteTests,
+      // ...commandWindow,
+      // ...StateWindowTests,
+      // ...textWindowTests,
       ...boardWindowTests,
       ...battlePointsWindow,
       ...trashWindow,

@@ -11,6 +11,7 @@ class TrashWindow extends ValuesWindow {
 
   initialize(rect) {
     super.initialize(rect);
+    this._reverseIcons = true;
     this.reset();
   }
 
@@ -21,15 +22,16 @@ class TrashWindow extends ValuesWindow {
 
   refreshPoints() {
     this.addValue(GameConst.NUM_CARDS_IN_TRASH, 0);
-    this.startIcons();
   }
 
-  startIcons() {
+  orderedIcons() {
     this._reverseIcons = true;
+    this.refresh();
   }
 
   reverseIcons() {
     this._reverseIcons = false;
+    this.refresh();
   }
 
   refresh() {
@@ -62,5 +64,13 @@ class TrashWindow extends ValuesWindow {
       this.contents.height,
       'center'
     );
+  }
+
+  isIconsOrdered() {
+    return this._reverseIcons;
+  }
+
+  isIconsReverse() {
+    return !this._reverseIcons;
   }
 }

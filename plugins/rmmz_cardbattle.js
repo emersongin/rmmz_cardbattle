@@ -1710,6 +1710,7 @@ class TrashWindow extends ValuesWindow {
 
   initialize(rect) {
     super.initialize(rect);
+    this._reverseIcons = true;
     this.reset();
   }
 
@@ -1720,15 +1721,16 @@ class TrashWindow extends ValuesWindow {
 
   refreshPoints() {
     this.addValue(GameConst.NUM_CARDS_IN_TRASH, 0);
-    this.startIcons();
   }
 
-  startIcons() {
+  orderedIcons() {
     this._reverseIcons = true;
+    this.refresh();
   }
 
   reverseIcons() {
     this._reverseIcons = false;
+    this.refresh();
   }
 
   refresh() {
@@ -1761,6 +1763,14 @@ class TrashWindow extends ValuesWindow {
       this.contents.height,
       'center'
     );
+  }
+
+  isIconsOrdered() {
+    return this._reverseIcons;
+  }
+
+  isIconsReverse() {
+    return !this._reverseIcons;
   }
 }
 class WindowUpdatedScoreState {
@@ -6186,6 +6196,7 @@ class UpdatingPointsBattlePointsWindowTest extends SceneTest {
 // tests TRASH WINDOW
 class UpdatingPointsTrashWindowTest extends SceneTest {
   create() {
+    this.pressToAsserts();
     this.subject = TrashWindow.create(0, 0);
     this.addWatched(this.subject);
     this.subject.alignCenterMiddle();
@@ -6198,6 +6209,34 @@ class UpdatingPointsTrashWindowTest extends SceneTest {
   asserts() {
     this.describe('Deve atualizar os pontos do lixo!');
     this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
+  }
+}
+class OrderedIconsTrashWindowTest extends SceneTest {
+  create() {
+    this.subject = TrashWindow.create(0, 0);
+    this.addWatched(this.subject);
+    this.subject.alignCenterMiddle();
+    this.subject.orderedIcons();
+    this.subject.open();
+  }
+
+  asserts() {
+    this.describe('Deve abrir com os icones ordenados.');
+    this.assertTrue('Esta em ordem normal?', this.subject.isIconsOrdered());
+  }
+}
+class ReverseIconsTrashWindowTest extends SceneTest {
+  create() {
+    this.subject = TrashWindow.create(0, 0);
+    this.addWatched(this.subject);
+    this.subject.alignCenterMiddle();
+    this.subject.reverseIcons();
+    this.subject.open();
+  }
+
+  asserts() {
+    this.describe('Deve abrir com os icones ordenados.');
+    this.assertTrue('Esta em ordem normal?', this.subject.isIconsReverse());
   }
 }
 // tests SCORE WINDOW
@@ -7105,6 +7144,8 @@ class CardBattleTestScene extends Scene_Message {
     ];
     const trashWindow = [
       UpdatingPointsTrashWindowTest,
+      OrderedIconsTrashWindowTest,
+      ReverseIconsTrashWindowTest,
     ];
     const scoreWindow = [
       OneWinUpdatingScoreWindowTest,
@@ -7137,10 +7178,9 @@ class CardBattleTestScene extends Scene_Message {
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,
-      // ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow,
-      
+      ...boardWindowTests,
+      ...battlePointsWindow,
+      ...trashWindow,
       ...scoreWindow,
     ];
   }
