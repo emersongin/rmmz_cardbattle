@@ -306,30 +306,37 @@ class CommandWindow extends Window_Command {
       throw new Error('Commands and handlers must have the same length!');
     }
     const width = Graphics.boxWidth;
-    const height = CommandWindow.minHeight() * Math.max((commands.length + text.length), 1);
+    const windowPadding = CommandWindow.windowPadding() * 2;
+    const textHeight = CommandWindow.textHeight() * Math.max(text.length, 0);
+    const itemsPadding = CommandWindow.itemPadding() * Math.max(commands.length - 1, 0);
+    const itemsHeight = CommandWindow.itemHeight() * Math.max(commands.length, 0);
+    const height = windowPadding + textHeight + itemsPadding + itemsHeight;
     const rect = new Rectangle(x, y, width, height);
     return new CommandWindow(rect, text, commands, handlers);
   }
+  
+  static windowPadding() {
+    return 12;
+  }
 
-  static minHeight() {
-    return 72;
+  static itemPadding() {
+    return 8;
+  }
+
+  static textHeight() {
+    return 36;
+  }
+
+  static itemHeight() {
+    return 40;
   }
 
   static createCommand(name, symbol, enabled = true, ext = null) {
     return { name, symbol, enabled, ext };
   }
 
-  static setTextColor(text, color) {
-    switch (color) {
-      case GameColors.RED:
-        return `\\c[${GameColorIndexs.RED}]${text}`;
-      case GameColors.GREEN:
-          return `\\c[${GameColorIndexs.GREEN}]${text}`;
-      case GameColors.BLUE:
-        return `\\c[${GameColorIndexs.BLUE}]${text}`;
-      default:
-        return `\\c[${GameColorIndexs.DEFAULT}]${text}`;
-    }
+  static setTextColor(text, colorIndex) {
+    return `\\c[${colorIndex}]${text}`;
   }
 
   static getVerticalAlign(position, window) {
@@ -394,7 +401,7 @@ class CommandWindow extends Window_Command {
   }
   
   drawAllItems() {
-    if (this.hasText()) this.drawText();
+    if (this.hasText()) this.drawTexts();
     if (this.hasCommands()) super.drawAllItems();
   }
 
@@ -406,7 +413,7 @@ class CommandWindow extends Window_Command {
     return this.maxItems() > 0;
   }
 
-  drawText() {
+  drawTexts() {
     const maxWidth = this.getTextMaxWidth(this._text);
     this._text.forEach((text, index) => {
       const state = this.getTextState(text);
@@ -423,6 +430,12 @@ class CommandWindow extends Window_Command {
   flushTextState(textState) {
     textState.raw = textState.buffer;
     super.flushTextState(textState);
+  }
+
+  processColorChange(colorIndex) {
+    const length = this._history.filter(h => /COLOR/i.test(h.symbol)).length;
+    this.addHistory('COLOR_' + length, colorIndex);
+    super.processColorChange(colorIndex);
   }
 
   getTextMaxWidth(text) {
@@ -460,6 +473,11 @@ class CommandWindow extends Window_Command {
   }
 
   addHistory(symbol, content) {
+    const index = this._history.findIndex(h => h.symbol === symbol);
+    if (index >= 0) {
+      this._history[index].content = content;
+      return;
+    }
     const history = this.createHistory(symbol, content);
     this._history.push(history);
   }
@@ -643,12 +661,12 @@ class CommandWindow extends Window_Command {
 
   isTextWasDrawing(symbol, content) {
     const history = this.getHistory(symbol);
-    if (!history) return false;
-    return history.content === content;
+    if (!history.length) return false;
+    return history.some(h => h.content === content);
   }
 
   getHistory(symbol) {
-    return this._history.find(history => history.symbol === symbol);
+    return this._history.filter(history => history.symbol === symbol);
   }
 
   alignTextLeft() {
@@ -6434,15 +6452,13 @@ class AlignBottomCommandWindowTest extends SceneTest {
 }
 class TextCommandWindowTest extends SceneTest {
   create() {
-    this.pressToAsserts();
-    let line1 = 'primeiro texto';
-    line1 = CommandWindow.setTextColor(line1, GameColors.RED);
-    let line2 = 'segundo texto';
-    line2 = CommandWindow.setTextColor(line2, GameColors.BLUE);
-    const text = [line1, line2];
+    const text = [
+      'primeiro texto',
+      'segundo texto',
+      'terceiro texto',
+    ];
     this.subject = CommandWindow.create(0, 0, text);
     this.addWatched(this.subject);
-    this.subject.alignTextCenter();
     this.subject.open();
   }
 
@@ -6450,10 +6466,12 @@ class TextCommandWindowTest extends SceneTest {
     const text = [
       'primeiro texto',
       'segundo texto',
+      'terceiro texto',
     ];
-    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.describe('Deve desenhar o texto na janela.');
     this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
     this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
   }
 }
 class AlignTextLeftCommandWindowTest extends SceneTest {
@@ -6515,18 +6533,27 @@ class AlignTextRightCommandWindowTest extends SceneTest {
 }
 class ChangeTextColorCommandWindowTest extends SceneTest {
   create() {
-    const title = 'ChangeTextColorCommandWindowTest';
-    this.subject = CommandWindow.create(0, 0, title);
+    let line1 = 'primeiro texto';
+    line1 = CommandWindow.setTextColor(line1, GameColorIndexs.RED);
+    let line2 = 'segundo texto';
+    line2 = CommandWindow.setTextColor(line2, GameColorIndexs.BLUE);
+    const text = [line1, line2];
+    this.subject = CommandWindow.create(0, 0, text);
     this.addWatched(this.subject);
-    this.subject.alignTitleCenter();
-    this.subject.changeTitleColorToOrange();
+    this.subject.alignTextCenter();
     this.subject.open();
   }
 
   asserts() {
-    const color = ColorManager.textColor(GameColorIndexs.ORANGE_COLOR);
-    this.describe('Deve mudar a cor do titulo!');
-    this.assert('O esta na cor?', this.subject.getTitleColor()).toBe(color);
+    const text = [
+      'primeiro texto',
+      'segundo texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('COLOR_0', GameColorIndexs.RED));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('COLOR_1', GameColorIndexs.BLUE));
   }
 }
 class CommandsAndHandlersCommandWindowTest extends SceneTest {
@@ -6535,13 +6562,16 @@ class CommandsAndHandlersCommandWindowTest extends SceneTest {
     const commandNo = CommandWindow.createCommand('No', 'NO');
     const hanlderYes = this.createHandler();
     const hanlderNo = this.createHandler();
-    this.subject = CommandWindow.create(0, 0, '', [commandYes, commandNo], [hanlderYes, hanlderNo]);
+    const text = [ 
+      'Do you want to continue?',
+    ];
+    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo], [hanlderYes, hanlderNo]);
     this.addWatched(this.subject);
     this.subject.open();
   }
 
   asserts() {
-    this.describe('Deve chamar o manipular ao escolher uma opção!');
+    this.describe('Deve mostrar as opções da janela de comando');
   }
 }
 // tests ASK COMMAND WINDOW 
@@ -6780,9 +6810,9 @@ class CardBattleTestScene extends Scene_Message {
       // ChangeBlueColorCommandWindowTest,
       // ChangeRedColorCommandWindowTest,
       // ChangeDefaultColorCommandWindowTest,
-      TextCommandWindowTest,
+      // TextCommandWindowTest,
       // ChangeTextColorCommandWindowTest,
-      // CommandsAndHandlersCommandWindowTest,
+      CommandsAndHandlersCommandWindowTest,
     ];
     const askCommandWindow = [
       SelectOptionAskCommandWindowTest,

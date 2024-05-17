@@ -7,30 +7,37 @@ class CommandWindow extends Window_Command {
       throw new Error('Commands and handlers must have the same length!');
     }
     const width = Graphics.boxWidth;
-    const height = CommandWindow.minHeight() * Math.max((commands.length + text.length), 1);
+    const windowPadding = CommandWindow.windowPadding() * 2;
+    const textHeight = CommandWindow.textHeight() * Math.max(text.length, 0);
+    const itemsPadding = CommandWindow.itemPadding() * Math.max(commands.length - 1, 0);
+    const itemsHeight = CommandWindow.itemHeight() * Math.max(commands.length, 0);
+    const height = windowPadding + textHeight + itemsPadding + itemsHeight;
     const rect = new Rectangle(x, y, width, height);
     return new CommandWindow(rect, text, commands, handlers);
   }
+  
+  static windowPadding() {
+    return 12;
+  }
 
-  static minHeight() {
-    return 72;
+  static itemPadding() {
+    return 8;
+  }
+
+  static textHeight() {
+    return 36;
+  }
+
+  static itemHeight() {
+    return 40;
   }
 
   static createCommand(name, symbol, enabled = true, ext = null) {
     return { name, symbol, enabled, ext };
   }
 
-  static setTextColor(text, color) {
-    switch (color) {
-      case GameColors.RED:
-        return `\\c[${GameColorIndexs.RED}]${text}`;
-      case GameColors.GREEN:
-          return `\\c[${GameColorIndexs.GREEN}]${text}`;
-      case GameColors.BLUE:
-        return `\\c[${GameColorIndexs.BLUE}]${text}`;
-      default:
-        return `\\c[${GameColorIndexs.DEFAULT}]${text}`;
-    }
+  static setTextColor(text, colorIndex) {
+    return `\\c[${colorIndex}]${text}`;
   }
 
   static getVerticalAlign(position, window) {
@@ -95,7 +102,7 @@ class CommandWindow extends Window_Command {
   }
   
   drawAllItems() {
-    if (this.hasText()) this.drawText();
+    if (this.hasText()) this.drawTexts();
     if (this.hasCommands()) super.drawAllItems();
   }
 
@@ -107,7 +114,7 @@ class CommandWindow extends Window_Command {
     return this.maxItems() > 0;
   }
 
-  drawText() {
+  drawTexts() {
     const maxWidth = this.getTextMaxWidth(this._text);
     this._text.forEach((text, index) => {
       const state = this.getTextState(text);
@@ -124,6 +131,12 @@ class CommandWindow extends Window_Command {
   flushTextState(textState) {
     textState.raw = textState.buffer;
     super.flushTextState(textState);
+  }
+
+  processColorChange(colorIndex) {
+    const length = this._history.filter(h => /COLOR/i.test(h.symbol)).length;
+    this.addHistory('COLOR_' + length, colorIndex);
+    super.processColorChange(colorIndex);
   }
 
   getTextMaxWidth(text) {
@@ -161,6 +174,11 @@ class CommandWindow extends Window_Command {
   }
 
   addHistory(symbol, content) {
+    const index = this._history.findIndex(h => h.symbol === symbol);
+    if (index >= 0) {
+      this._history[index].content = content;
+      return;
+    }
     const history = this.createHistory(symbol, content);
     this._history.push(history);
   }
@@ -344,12 +362,12 @@ class CommandWindow extends Window_Command {
 
   isTextWasDrawing(symbol, content) {
     const history = this.getHistory(symbol);
-    if (!history) return false;
-    return history.content === content;
+    if (!history.length) return false;
+    return history.some(h => h.content === content);
   }
 
   getHistory(symbol) {
-    return this._history.find(history => history.symbol === symbol);
+    return this._history.filter(history => history.symbol === symbol);
   }
 
   alignTextLeft() {

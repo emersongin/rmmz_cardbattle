@@ -4,12 +4,15 @@ class CommandsAndHandlersCommandWindowTest extends SceneTest {
     const commandNo = CommandWindow.createCommand('No', 'NO');
     const hanlderYes = this.createHandler();
     const hanlderNo = this.createHandler();
-    this.subject = CommandWindow.create(0, 0, '', [commandYes, commandNo], [hanlderYes, hanlderNo]);
+    const text = [ 
+      'Do you want to continue?',
+    ];
+    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo], [hanlderYes, hanlderNo]);
     this.addWatched(this.subject);
     this.subject.open();
   }
 
   asserts() {
-    this.describe('Deve chamar o manipular ao escolher uma opção!');
+    this.describe('Deve mostrar as opções da janela de comando');
   }
 }
