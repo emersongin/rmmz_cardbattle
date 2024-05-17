@@ -409,10 +409,6 @@ class CommandWindow extends Window_Command {
     return this._text && this._text.length > 0;
   }
 
-  hasCommands() {
-    return this.maxItems() > 0;
-  }
-
   drawTexts() {
     const maxWidth = this.getTextMaxWidth(this._text);
     this._text.forEach((text, index) => {
@@ -438,6 +434,22 @@ class CommandWindow extends Window_Command {
     super.processColorChange(colorIndex);
   }
 
+  itemRect(index) {
+    const maxCols = this.maxCols();
+    const itemWidth = this.itemWidth();
+    const itemHeight = this.itemHeight();
+    const colSpacing = this.colSpacing();
+    const rowSpacing = this.rowSpacing();
+    const col = index % maxCols;
+    const row = Math.floor(index / maxCols);
+    const x = col * itemWidth + colSpacing / 2 - this.scrollBaseX();
+    const addMargin = (this._text?.length || 0) * this.lineHeight();
+    const y = (row * itemHeight + rowSpacing / 2 - this.scrollBaseY()) + addMargin;
+    const width = itemWidth - colSpacing;
+    const height = itemHeight - rowSpacing;
+    return new Rectangle(x, y, width, height);
+  }
+
   getTextMaxWidth(text) {
     return text.reduce((max, txt) => {
       const state = this.getTextState(txt);
@@ -451,6 +463,11 @@ class CommandWindow extends Window_Command {
     textState.drawing = false;
     this.processAllText(textState);
     return textState;
+  }
+
+  getTextAlignment() {
+    this.addHistory('TEXT_ALIGN', this._textAlignment);
+    return this._textAlignment;
   }
 
   getXAlignment(textWidth, maxWidth, align) {
@@ -486,24 +503,47 @@ class CommandWindow extends Window_Command {
     return { symbol, content };
   }
 
-  getTextAlignment() {
-    return this._textAlignment;
+  hasCommands() {
+    return this.maxItems() > 0;
   }
 
-  itemRect(index) {
-    const maxCols = this.maxCols();
-    const itemWidth = this.itemWidth();
-    const itemHeight = this.itemHeight();
-    const colSpacing = this.colSpacing();
-    const rowSpacing = this.rowSpacing();
-    const col = index % maxCols;
-    const row = Math.floor(index / maxCols);
-    const x = col * itemWidth + colSpacing / 2 - this.scrollBaseX();
-    const addMargin = (this._text?.length || 0) * this.lineHeight();
-    const y = (row * itemHeight + rowSpacing / 2 - this.scrollBaseY()) + addMargin;
-    const width = itemWidth - colSpacing;
-    const height = itemHeight - rowSpacing;
-    return new Rectangle(x, y, width, height);
+  update() {
+    super.update();
+    if (this.hasActions() && this.isAvailable()) this.executeAction();
+    this.updateTone();
+  }
+
+  hasActions() {
+    return this._actions.length > 0;
+  }
+
+  isAvailable() {
+    return !this.isBusy();
+  }
+
+  isBusy() {
+    return this.isOpening() || this.isClosing();
+  }
+
+  executeAction() {
+    const action = this._actions[0];
+    const executed = action.execute();
+    if (executed) {
+      this._actions.shift();
+    }
+  }
+
+  updateTone() {
+    switch (this._windowColor) {
+      case GameConst.BLUE_COLOR:
+        this.setTone(0, 0, 255);
+        break;
+      case GameConst.RED_COLOR:
+        this.setTone(255, 0, 0);
+        break;
+      default:
+        this.setTone(0, 0, 0);
+    }
   }
 
   open() {
@@ -565,6 +605,14 @@ class CommandWindow extends Window_Command {
     this.x = 0;
   }
 
+  alignMiddle() {
+    this.addAction(this.commandAlign, GameConst.MIDDLE);
+  }
+
+  alignBottom() {
+    this.addAction(this.commandAlign, GameConst.BOTTOM);
+  }
+
   changeBlueColor() {
     this.addAction(this.commandChangeBlueColor);
   }
@@ -592,43 +640,8 @@ class CommandWindow extends Window_Command {
     return true;
   }
 
-  update() {
-    super.update();
-    if (this.hasActions() && this.isAvailable()) this.executeAction();
-    this.updateTone();
-  }
-
-  hasActions() {
-    return this._actions.length > 0;
-  }
-
-  isAvailable() {
-    return !this.isBusy();
-  }
-
-  isBusy() {
-    return this.isOpening() || this.isClosing();
-  }
-
-  executeAction() {
-    const action = this._actions[0];
-    const executed = action.execute();
-    if (executed) {
-      this._actions.shift();
-    }
-  }
-
-  updateTone() {
-    switch (this._windowColor) {
-      case GameConst.BLUE_COLOR:
-        this.setTone(0, 0, 255);
-        break;
-      case GameConst.RED_COLOR:
-        this.setTone(255, 0, 0);
-        break;
-      default:
-        this.setTone(0, 0, 0);
-    }
+  isFullsize() {
+    return this.width === Graphics.boxWidth;
   }
 
   isBlueColor() {
@@ -643,60 +656,63 @@ class CommandWindow extends Window_Command {
     return this._windowColor === GameConst.DEFAULT;
   }
 
-  isFullsize() {
-    return this.width === Graphics.boxWidth;
-  }
-
-  alignMiddle() {
-    this.addAction(this.commandAlign, GameConst.MIDDLE);
-  }
-
-  alignBottom() {
-    this.addAction(this.commandAlign, GameConst.BOTTOM);
-  }
-
-  itemTextAlign() {
-    return this._commandTextAlignment.toLowerCase();
-  }
-
   isTextWasDrawing(symbol, content) {
+    return this.isHistory(symbol, content);
+  }
+  
+  isHistory(symbol, content) {
     const history = this.getHistory(symbol);
     if (!history.length) return false;
     return history.some(h => h.content === content);
   }
 
+  isItemsAlign(symbol, content) {
+    return this.isHistory(symbol, content);
+  }
+  
   getHistory(symbol) {
     return this._history.filter(history => history.symbol === symbol);
   }
 
   alignTextLeft() {
-    this.addAction(this.commandAlignTextLeft);
-  }
-
-  commandAlignTextLeft() {
-    this._textAlignment = GameConst.LEFT;
-    this.refresh();
-    return true;
+    this.addAction(this.commandAlignText, GameConst.LEFT);
   }
 
   alignTextCenter() {
-    this.addAction(this.commandAlignTextCenter);
-  }
-
-  commandAlignTextCenter() {
-    this._textAlignment = GameConst.CENTER;
-    this.refresh();
-    return true;
+    this.addAction(this.commandAlignText, GameConst.CENTER);
   }
 
   alignTextRight() {
-    this.addAction(this.commandAlignTextRight);
+    this.addAction(this.commandAlignText, GameConst.RIGHT);
   }
 
-  commandAlignTextRight() {
-    this._textAlignment = GameConst.RIGHT;
+  commandAlignText(align) {
+    this._textAlignment = align;
     this.refresh();
     return true;
+  }
+
+  alignItemsLeft() {
+    this.addAction(this.commandAlignItems, GameConst.LEFT);
+  }
+
+  alignItemsCenter() {
+    this.addAction(this.commandAlignItems, GameConst.CENTER);
+  }
+
+  alignItemsRight() {
+    this.addAction(this.commandAlignItems, GameConst.RIGHT);
+  }
+
+  commandAlignItems(align) {
+    this._commandTextAlignment = align;
+    this.refresh();
+    return true;
+  }
+
+  itemTextAlign() {
+    this.addHistory('ITEMS_ALIGN', this._commandTextAlignment);
+    return this._commandTextAlignment.toLowerCase();
   }
 }
 
@@ -6574,6 +6590,66 @@ class CommandsAndHandlersCommandWindowTest extends SceneTest {
     this.describe('Deve mostrar as opções da janela de comando');
   }
 }
+class AlignItemsLeftCommandWindowTest extends SceneTest {
+  create() {
+    const commandYes = CommandWindow.createCommand('Yes', 'YES');
+    const commandNo = CommandWindow.createCommand('No', 'NO');
+    const hanlderYes = this.createHandler();
+    const hanlderNo = this.createHandler();
+    const text = [ 
+      'Do you want to continue?',
+    ];
+    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo], [hanlderYes, hanlderNo]);
+    this.addWatched(this.subject);
+    this.subject.alignItemsLeft();
+    this.subject.open();
+  }
+
+  asserts() {
+    this.describe('Deve mostrar os items alinhados a esquerda.');
+    this.assertTrue('Estão alinhados a esquerda?', this.subject.isItemsAlign('ITEMS_ALIGN', GameConst.LEFT));
+  }
+}
+class AlignItemsCenterCommandWindowTest extends SceneTest {
+  create() {
+    const commandYes = CommandWindow.createCommand('Yes', 'YES');
+    const commandNo = CommandWindow.createCommand('No', 'NO');
+    const hanlderYes = this.createHandler();
+    const hanlderNo = this.createHandler();
+    const text = [ 
+      'Do you want to continue?',
+    ];
+    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo], [hanlderYes, hanlderNo]);
+    this.addWatched(this.subject);
+    this.subject.alignItemsCenter();
+    this.subject.open();
+  }
+
+  asserts() {
+    this.describe('Deve mostrar os items alinhados no centro.');
+    this.assertTrue('Estão alinhados no centro?', this.subject.isItemsAlign('ITEMS_ALIGN', GameConst.CENTER));
+  }
+}
+class AlignItemsRightCommandWindowTest extends SceneTest {
+  create() {
+    const commandYes = CommandWindow.createCommand('Yes', 'YES');
+    const commandNo = CommandWindow.createCommand('No', 'NO');
+    const hanlderYes = this.createHandler();
+    const hanlderNo = this.createHandler();
+    const text = [ 
+      'Do you want to continue?',
+    ];
+    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo], [hanlderYes, hanlderNo]);
+    this.addWatched(this.subject);
+    this.subject.alignItemsRight();
+    this.subject.open();
+  }
+
+  asserts() {
+    this.describe('Deve mostrar os items alinhados a direita.');
+    this.assertTrue('Estão alinhados a direita?', this.subject.isItemsAlign('ITEMS_ALIGN', GameConst.RIGHT));
+  }
+}
 // tests ASK COMMAND WINDOW 
 class SelectOptionAskCommandWindowTest extends SceneTest {
   create() {
@@ -6812,7 +6888,10 @@ class CardBattleTestScene extends Scene_Message {
       // ChangeDefaultColorCommandWindowTest,
       // TextCommandWindowTest,
       // ChangeTextColorCommandWindowTest,
-      CommandsAndHandlersCommandWindowTest,
+      // CommandsAndHandlersCommandWindowTest,
+      AlignItemsLeftCommandWindowTest,
+      AlignItemsCenterCommandWindowTest,
+      AlignItemsRightCommandWindowTest
     ];
     const askCommandWindow = [
       SelectOptionAskCommandWindowTest,

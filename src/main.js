@@ -135,6 +135,9 @@
 // include ../test/integration/commandwindow/AlignTextRightCommandWindowTest.js
 // include ../test/integration/commandwindow/ChangeTextColorCommandWindowTest.js
 // include ../test/integration/commandwindow/CommandsAndHandlersCommandWindowTest.js
+// include ../test/integration/commandwindow/AlignItemsLeftCommandWindowTest.js
+// include ../test/integration/commandwindow/AlignItemsCenterCommandWindowTest.js
+// include ../test/integration/commandwindow/AlignItemsRightCommandWindowTest.js
 // tests ASK COMMAND WINDOW 
 // include ../test/integration/askcommandwindow/SelectOptionAskCommandWindowTest.js
 // tests FOLDRES COMMAND WINDOW 
