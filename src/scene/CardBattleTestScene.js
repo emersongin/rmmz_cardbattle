@@ -153,16 +153,20 @@ class CardBattleTestScene extends Scene_Message {
       CommandsAndHandlersCommandWindowTest,
       CommandsAndHandlersWithTextCommandWindowTest,
     ];
+    const folderWindow = [
+      CreateFolderWindowTest,
+    ];
     return [
       // ...cardSpriteTests,
       // ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,
-      ...boardWindowTests,
-      ...battlePointsWindow,
-      ...trashWindow,
-      ...scoreWindow,
+      // ...boardWindowTests,
+      // ...battlePointsWindow,
+      // ...trashWindow,
+      // ...scoreWindow,
+      ...folderWindow,
     ];
   }
 

@@ -1,10 +1,7 @@
 class CommandWindow extends Window_Command {
-  static create(x, y, text = [], commands = [], handlers = []) {
+  static create(x, y, text = [], commands = []) {
     if (!Array.isArray(text)) {
       throw new Error('text must be an array!');
-    }
-    if (commands.length !== handlers.length) {
-      throw new Error('Commands and handlers must have the same length!');
     }
     const width = Graphics.boxWidth;
     const windowPadding = CommandWindow.windowPadding() * 2;
@@ -13,7 +10,7 @@ class CommandWindow extends Window_Command {
     const itemsHeight = CommandWindow.itemHeight() * Math.max(commands.length, 0);
     const height = windowPadding + textHeight + itemsPadding + itemsHeight;
     const rect = new Rectangle(x, y, width, height);
-    return new CommandWindow(rect, text, commands, handlers);
+    return new CommandWindow(rect, text, commands);
   }
   
   static windowPadding() {
@@ -32,8 +29,14 @@ class CommandWindow extends Window_Command {
     return 40;
   }
 
-  static createCommand(name, symbol, enabled = true, ext = null) {
-    return { name, symbol, enabled, ext };
+  static createCommand(name, symbol, handler, enabled = true, ext = null) {
+    if (!name || !symbol) {
+      throw new Error('Command name and symbol are required!');
+    }
+    if (typeof handler !== 'function') {
+      throw new Error('Command handler must be a function!');
+    }
+    return { name, symbol, handler, enabled, ext };
   }
 
   static setTextColor(text, colorIndex) {
@@ -53,16 +56,16 @@ class CommandWindow extends Window_Command {
     }
   }
 
-  initialize(rect, text, commands, handlers) {
+  initialize(rect, text, commands) {
     super.initialize(rect);
     this._actions = [];
     this._history = [];
     this._commands = commands;
-    this._commandHandlers = handlers;
     this._commandTextAlignment = GameConst.LEFT;
     this._text = text || [];
     this._textAlignment = GameConst.LEFT;
     this._windowColor = GameConst.DEFAULT_COLOR;
+    this._iconset = "IconSet";
     this.closed();
     this.refresh();
   }
@@ -82,17 +85,22 @@ class CommandWindow extends Window_Command {
   }
 
   makeCommandList() {
-    if (!this._commands || (Array.isArray(this._commands) && this._commands.length === 0)) return;
+    if (!this.hasCommandsAndHandlers()) return;
     this._commands.forEach(command => {
       const { name, symbol, enabled, ext } = command;
       this.addCommand(name, symbol, enabled, ext);
     });
   }
 
+  hasCommandsAndHandlers() {
+    return this._commands && this._commands?.length > 0;
+  }
+
   setHandlers() {
-    if (!this._commandHandlers || (Array.isArray(this._commandHandlers) && this._commandHandlers.length === 0)) return;
-    this._commandHandlers.forEach((handler, index) => {
-      this.setHandler(this._commands[index].symbol, handler);
+    if (!this.hasCommandsAndHandlers()) return;
+    this._commands.forEach(command => {
+      const { symbol, handler } = command;
+      this.setHandler(symbol, handler);
     });
   }
 
@@ -425,5 +433,15 @@ class CommandWindow extends Window_Command {
   itemTextAlign() {
     this.addHistory('ITEMS_ALIGN', this._commandTextAlignment);
     return this._commandTextAlignment.toLowerCase();
+  }
+
+  drawIcon(iconIndex, x, y) {
+    const bitmap = ImageManager.loadSystem(this._iconset);
+    const pw = ImageManager.iconWidth;
+    const ph = ImageManager.iconHeight;
+    const sx = (iconIndex % 16) * pw;
+    const sy = Math.floor(iconIndex / 16) * ph;
+    console.log(bitmap, sx, sy, pw, ph, x, y);
+    this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
   }
 }

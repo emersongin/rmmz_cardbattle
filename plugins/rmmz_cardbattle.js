@@ -175,7 +175,6 @@ const playerDecksData = [
   }
 ];
 
-
 class StringHelper {
   static convertPointsDisplay(value = 0) {
     return value.toString().padStart(2, ' ');
@@ -296,14 +295,346 @@ class HashGenerator {
     });
   }
 }
+class TextWindow extends Window_Base {
+  static createWindowOneFourthSize(x, y, text) {
+    const width = Graphics.boxWidth / 4;
+    const height = undefined;
+    return TextWindow.create(x, y, width, height, text);
+  }
 
-class CommandWindow extends Window_Command {
-  static create(x, y, text = [], commands = [], handlers = []) {
+  static create(x, y, width, h, text = []) {
     if (!Array.isArray(text)) {
       throw new Error('text must be an array!');
     }
-    if (commands.length !== handlers.length) {
-      throw new Error('Commands and handlers must have the same length!');
+    const windowPadding = TextWindow.windowPadding() * 2;
+    const textHeight = TextWindow.textHeight() * Math.max(text.length, 0);
+    const height = windowPadding + textHeight;
+    const rect = new Rectangle(x, y, width, height);
+    return new TextWindow(rect, text);
+  }
+
+  static windowPadding() {
+    return 12;
+  }
+
+  static textHeight() {
+    return 36;
+  }
+
+  static createWindowMiddleSize(x, y, text) {
+    const width = Graphics.boxWidth / 2;
+    const height = undefined;
+    return TextWindow.create(x, y, width, height, text);
+  }
+
+  static createWindowThreeFourthSize(x, y, text) {
+    const width = Graphics.boxWidth * 3 / 4;
+    const height = undefined;
+    return TextWindow.create(x, y, width, height, text);
+  }
+
+  static createWindowFullSize(x, y, text) {
+    const width = Graphics.boxWidth;
+    const height = undefined;
+    return TextWindow.create(x, y, width, height, text);
+  }
+
+  static getVerticalAlign(position, window) {
+    switch (position) {
+      case GameConst.MIDDLE:
+        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
+        break;
+      case GameConst.BOTTOM:
+        return Graphics.boxHeight - (window.height || 0);
+        break;
+      default: //TOP
+        return 0;
+    }
+  }
+
+  static getHorizontalAlign(position, window) {
+    switch (position) {
+      case GameConst.CENTER:
+        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
+        break;
+      case GameConst.END:
+        return (Graphics.boxWidth - (window.width || 0));
+        break;
+      default: //START
+        return 0;
+    }
+  }
+
+  initialize(rect, text) {
+    super.initialize(rect);
+    this._text = text || [];
+    this._textAlignment = GameConst.LEFT;
+    this._windowColor = GameConst.DEFAULT_COLOR;
+    this._history = [];
+    this.closed();
+    this.refresh();
+  }
+
+  closed() {
+    this._openness = 0;
+    this.visible = false;
+    this.deactivate();
+  }
+
+  refresh() {
+    this.contents.clear();
+    if (this.hasText()) this.drawTexts();
+  }
+
+  hasText() {
+    return this._text && this._text.length > 0;
+  }
+
+  drawTexts() {
+    const texts = this.processTexts(this._text);
+    const maxWidth = this.getTextMaxWidth(texts);
+    texts.forEach((text, index) => {
+      const state = this.getTextState(text);
+      const textWidth = state.outputWidth;
+      const textProcessed = state.raw;
+      const aligment = this.getTextAlignment();
+      const x = this.getXAlignment(textWidth, maxWidth, aligment);
+      const rect = this.lineRect(index, x);
+      this.addHistory('TEXT_' + index, textProcessed);
+      this.drawTextEx(text, rect.x, rect.y, rect.width);
+    });
+  }
+
+  flushTextState(textState) {
+    textState.raw += textState.buffer || '';
+    textState.raw = textState.raw.replace(/undefined/g, "");
+    super.flushTextState(textState);
+  }
+
+  processColorChange(colorIndex) {
+    const length = this._history.filter(h => /COLOR/i.test(h.symbol)).length;
+    this.addHistory('COLOR_' + length, colorIndex);
+    super.processColorChange(colorIndex);
+  }
+
+  addHistory(symbol, content) {
+    const index = this._history.findIndex(h => h.symbol === symbol);
+    if (index >= 0) {
+      this._history[index].content = content;
+      return;
+    }
+    const history = this.createHistory(symbol, content);
+    this._history.push(history);
+  }
+
+  createHistory(symbol, content) {
+    return { symbol, content };
+  }
+
+  processTexts(text) {
+    return text.map(txt => {
+      if (Array.isArray(txt)) {
+        return txt.reduce((acc, substring, index) => index ? `${acc} ${substring}` : `${acc}${substring}`)
+      }
+      return txt;
+    });
+  }
+
+  getTextMaxWidth(text) {
+    return text.reduce((max, txt) => {
+      const state = this.getTextState(txt);
+      const width = state.outputWidth;
+      return Math.max(max, width);
+    }, 0);
+  }
+
+  getTextState(txt) {
+    const textState = this.createTextState(txt, 0, 0, 0);
+    textState.drawing = false;
+    this.processAllText(textState);
+    return textState;
+  }
+
+  getTextAlignment() {
+    this.addHistory('TEXT_ALIGN', this._textAlignment);
+    return this._textAlignment;
+  }
+
+  getXAlignment(textWidth, maxWidth, align) {
+    maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
+    switch (align) {
+      case GameConst.CENTER:
+        return (maxWidth / 2) - (textWidth / 2);
+      case GameConst.RIGHT:
+        return maxWidth - textWidth;
+      default: // GameConst.LEFT
+        return 0;
+    }
+  }
+
+  lineRect(index, x = 0) {
+    const y = index * this.lineHeight();
+    const width = this.contentsWidth();
+    const height = this.lineHeight();
+    return new Rectangle(x, y, width, height);
+  }
+
+  update() {
+    super.update();
+    this.updateTone();
+  }
+
+  updateTone() {
+    switch (this._windowColor) {
+      case GameConst.BLUE_COLOR:
+        this.setTone(0, 0, 255);
+        break;
+      case GameConst.RED_COLOR:
+        this.setTone(255, 0, 0);
+        break;
+      default:
+        this.setTone(0, 0, 0);
+    }
+  }
+
+  open() {
+    this.visible = true;
+    this.activate();
+    super.open();
+  }
+
+  alignStartTop() {
+    this.setHorizontalAlign(GameConst.START);
+    this.setVerticalAlign(GameConst.TOP);
+  }
+
+  setHorizontalAlign(position) {
+    this.x = TextWindow.getHorizontalAlign(position, this);
+  }
+
+  setVerticalAlign(position) {
+    this.y = TextWindow.getVerticalAlign(position, this);
+  }
+
+  alignCenterTop() {
+    this.setHorizontalAlign(GameConst.CENTER);
+    this.setVerticalAlign(GameConst.TOP);
+  }
+
+  alignEndTop() {
+    this.setHorizontalAlign(GameConst.END);
+    this.setVerticalAlign(GameConst.TOP);
+  }
+
+  alignStartMiddle() {
+    this.setHorizontalAlign(GameConst.START);
+    this.setVerticalAlign(GameConst.MIDDLE);
+  }
+
+  alignCenterMiddle() {
+    this.setHorizontalAlign(GameConst.CENTER);
+    this.setVerticalAlign(GameConst.MIDDLE);
+  }
+
+  alignEndMiddle() {
+    this.setHorizontalAlign(GameConst.END);
+    this.setVerticalAlign(GameConst.MIDDLE);
+  }
+
+  alignStartBottom() {
+    this.setHorizontalAlign(GameConst.START);
+    this.setVerticalAlign(GameConst.BOTTOM);
+  }
+
+  alignCenterBottom() {
+    this.setHorizontalAlign(GameConst.CENTER);
+    this.setVerticalAlign(GameConst.BOTTOM);
+  }
+
+  alignEndBottom() {
+    this.setHorizontalAlign(GameConst.END);
+    this.setVerticalAlign(GameConst.BOTTOM);
+  }
+
+  changeDefaultColor() {
+    this._windowColor = GameConst.DEFAULT_COLOR;
+  }
+
+  changeBlueColor() {
+    this._windowColor = GameConst.BLUE_COLOR;
+  }
+
+  changeRedColor() {
+    this._windowColor = GameConst.RED_COLOR;
+  }
+
+  alignTextLeft() {
+    this._textAlignment = GameConst.LEFT;
+    this.refresh();
+  }
+
+  alignTextCenter() {
+    this._textAlignment = GameConst.CENTER;
+    this.refresh();
+  }
+
+  alignTextRight() {
+    this._textAlignment = GameConst.RIGHT;
+    this.refresh();
+  }
+
+  isTextWasDrawing(symbol, content) {
+    return this.isHistory(symbol, content);
+  }
+
+  isHistory(symbol, content) {
+    const history = this.getHistory(symbol);
+    if (!history.length) return false;
+    return history.some(h => h.content === content);
+  }
+
+  getHistory(symbol) {
+    return this._history.filter(history => history.symbol === symbol);
+  }
+
+  isOneFourthSize() {
+    return this.width === Graphics.boxWidth / 4;
+  }
+  
+  isMiddleSize() {
+    return this.width === Graphics.boxWidth / 2;
+  }
+
+  isThreeFourthSize() {
+    return this.width === Graphics.boxWidth * 3 / 4;
+  }
+
+  isFullsize() {
+    return this.width === Graphics.boxWidth;
+  }
+
+  isBlueColor() {
+    return this._windowColor === GameConst.BLUE_COLOR;
+  }
+
+  isRedColor() {
+    return this._windowColor === GameConst.RED_COLOR;
+  }
+
+  isDefaultColor() {
+    return this._windowColor === GameConst.DEFAULT_COLOR;
+  }
+
+  opened() {
+    this._openness = 255;
+    this.visible = true;
+    this.activate();
+  }
+}
+class CommandWindow extends Window_Command {
+  static create(x, y, text = [], commands = []) {
+    if (!Array.isArray(text)) {
+      throw new Error('text must be an array!');
     }
     const width = Graphics.boxWidth;
     const windowPadding = CommandWindow.windowPadding() * 2;
@@ -312,7 +643,7 @@ class CommandWindow extends Window_Command {
     const itemsHeight = CommandWindow.itemHeight() * Math.max(commands.length, 0);
     const height = windowPadding + textHeight + itemsPadding + itemsHeight;
     const rect = new Rectangle(x, y, width, height);
-    return new CommandWindow(rect, text, commands, handlers);
+    return new CommandWindow(rect, text, commands);
   }
   
   static windowPadding() {
@@ -331,8 +662,14 @@ class CommandWindow extends Window_Command {
     return 40;
   }
 
-  static createCommand(name, symbol, enabled = true, ext = null) {
-    return { name, symbol, enabled, ext };
+  static createCommand(name, symbol, handler, enabled = true, ext = null) {
+    if (!name || !symbol) {
+      throw new Error('Command name and symbol are required!');
+    }
+    if (typeof handler !== 'function') {
+      throw new Error('Command handler must be a function!');
+    }
+    return { name, symbol, handler, enabled, ext };
   }
 
   static setTextColor(text, colorIndex) {
@@ -352,16 +689,16 @@ class CommandWindow extends Window_Command {
     }
   }
 
-  initialize(rect, text, commands, handlers) {
+  initialize(rect, text, commands) {
     super.initialize(rect);
     this._actions = [];
     this._history = [];
     this._commands = commands;
-    this._commandHandlers = handlers;
     this._commandTextAlignment = GameConst.LEFT;
     this._text = text || [];
     this._textAlignment = GameConst.LEFT;
     this._windowColor = GameConst.DEFAULT_COLOR;
+    this._iconset = "IconSet";
     this.closed();
     this.refresh();
   }
@@ -381,17 +718,22 @@ class CommandWindow extends Window_Command {
   }
 
   makeCommandList() {
-    if (!this._commands || (Array.isArray(this._commands) && this._commands.length === 0)) return;
+    if (!this.hasCommandsAndHandlers()) return;
     this._commands.forEach(command => {
       const { name, symbol, enabled, ext } = command;
       this.addCommand(name, symbol, enabled, ext);
     });
   }
 
+  hasCommandsAndHandlers() {
+    return this._commands && this._commands?.length > 0;
+  }
+
   setHandlers() {
-    if (!this._commandHandlers || (Array.isArray(this._commandHandlers) && this._commandHandlers.length === 0)) return;
-    this._commandHandlers.forEach((handler, index) => {
-      this.setHandler(this._commands[index].symbol, handler);
+    if (!this.hasCommandsAndHandlers()) return;
+    this._commands.forEach(command => {
+      const { symbol, handler } = command;
+      this.setHandler(symbol, handler);
     });
   }
 
@@ -725,8 +1067,90 @@ class CommandWindow extends Window_Command {
     this.addHistory('ITEMS_ALIGN', this._commandTextAlignment);
     return this._commandTextAlignment.toLowerCase();
   }
-}
 
+  drawIcon(iconIndex, x, y) {
+    const bitmap = ImageManager.loadSystem(this._iconset);
+    const pw = ImageManager.iconWidth;
+    const ph = ImageManager.iconHeight;
+    const sx = (iconIndex % 16) * pw;
+    const sy = Math.floor(iconIndex / 16) * ph;
+    console.log(bitmap, sx, sy, pw, ph, x, y);
+    this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
+  }
+}
+class FolderWindow extends CommandWindow {
+  static create(x, y, text, commands, handlers) {
+    if (!Array.isArray(text)) {
+      throw new Error('text must be an array!');
+    }
+    if (commands.length !== handlers.length) {
+      throw new Error('Commands and handlers must have the same length!');
+    }
+    const width = Graphics.boxWidth;
+    const windowPadding = CommandWindow.windowPadding() * 2;
+    const textHeight = CommandWindow.textHeight() * Math.max(text.length, 0);
+    const itemsPadding = CommandWindow.itemPadding() * Math.max(commands.length - 1, 0);
+    const itemsHeight = CommandWindow.itemHeight() * Math.max(commands.length, 0);
+    const height = windowPadding + textHeight + itemsPadding + itemsHeight;
+    const rect = new Rectangle(x, y, width, height);
+    return new FolderWindow(rect, text, commands, handlers);
+  }
+
+  static createCommand(name, symbol, handler, energies) {
+    if (!name || !symbol) {
+      throw new Error('Command name and symbol are required!');
+    }
+    if (typeof handler !== 'function') {
+      throw new Error('Command handler must be a function!');
+    }
+    if (energies && typeof energies !== 'object') {
+      throw new Error('Command energies must be an object!');
+    }
+    const enabled = FolderWindow.abilityEnergies(energies);
+    return { name, symbol, handler, energies, enabled, ext: null };
+  }
+
+  static createEnergies(red = 0, green = 0, blue = 0, white = 0, black = 0, brown = 0) {
+    return { red, green, blue, white, black, brown };
+  }
+
+  static abilityEnergies(energies) {
+    return Object.values(energies).reduce((acc, energy) => acc + energy, 0) >= 40;
+  }
+
+  drawItem(index) {
+    const command = this.getCommand(index);
+    const { name, energies } = command;
+    const rect = this.itemLineRect(index);
+
+    this.resetTextColor();
+    this.changePaintOpacity(this.isCommandEnabled(index));
+    this.drawFolderName(name, rect);
+    this.drawPoints(energies, rect);
+  }
+
+  getCommand(index) {
+    return this._commands[index];
+  }
+
+  drawFolderName(name, rect) {
+    const align = this.itemTextAlign();
+    this.drawText(name, rect.x, rect.y, rect.width, align);
+  }
+
+  drawPoints(energies, rect) {
+    const { red, green, blue, white, black, brown } = energies;
+    const points = [red, green, blue, white, black, brown];
+    points.forEach((point, index) => {
+      point = StringHelper.convertPointsDisplayPad(point);
+      this.drawText(point, (rect.width - (index * 80)) - 24, rect.y, 20, 'right');
+    });
+  }
+
+  drawIcons(index, rect) {
+    this.drawIcon(5, rect.width, rect.y);
+  }
+}
 class WindowStoppedState {
   _window;
 
@@ -1115,12 +1539,6 @@ class StateWindow extends Window_Base {
     const sx = (iconIndex % 16) * pw;
     const sy = Math.floor(iconIndex / 16) * ph;
     this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
-  };
-
-
-  //remove
-  itemHeightByIndex(index) {
-    return this.itemHeight() * index;
   }
 }
 class ValuesWindow extends StateWindow {
@@ -1173,342 +1591,6 @@ class ValuesWindow extends StateWindow {
     const pad = 2;
     const points = this.getValue(name) || 0;
     return StringHelper.convertPointsDisplayPad(points, pad);
-  }
-}
-class TextWindow extends Window_Base {
-  static createWindowOneFourthSize(x, y, text) {
-    const width = Graphics.boxWidth / 4;
-    const height = undefined;
-    return TextWindow.create(x, y, width, height, text);
-  }
-
-  static create(x, y, width, h, text = []) {
-    if (!Array.isArray(text)) {
-      throw new Error('text must be an array!');
-    }
-    const windowPadding = TextWindow.windowPadding() * 2;
-    const textHeight = TextWindow.textHeight() * Math.max(text.length, 0);
-    const height = windowPadding + textHeight;
-    const rect = new Rectangle(x, y, width, height);
-    return new TextWindow(rect, text);
-  }
-
-  static windowPadding() {
-    return 12;
-  }
-
-  static textHeight() {
-    return 36;
-  }
-
-  static createWindowMiddleSize(x, y, text) {
-    const width = Graphics.boxWidth / 2;
-    const height = undefined;
-    return TextWindow.create(x, y, width, height, text);
-  }
-
-  static createWindowThreeFourthSize(x, y, text) {
-    const width = Graphics.boxWidth * 3 / 4;
-    const height = undefined;
-    return TextWindow.create(x, y, width, height, text);
-  }
-
-  static createWindowFullSize(x, y, text) {
-    const width = Graphics.boxWidth;
-    const height = undefined;
-    return TextWindow.create(x, y, width, height, text);
-  }
-
-  static getVerticalAlign(position, window) {
-    switch (position) {
-      case GameConst.MIDDLE:
-        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
-        break;
-      case GameConst.BOTTOM:
-        return Graphics.boxHeight - (window.height || 0);
-        break;
-      default: //TOP
-        return 0;
-    }
-  }
-
-  static getHorizontalAlign(position, window) {
-    switch (position) {
-      case GameConst.CENTER:
-        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
-        break;
-      case GameConst.END:
-        return (Graphics.boxWidth - (window.width || 0));
-        break;
-      default: //START
-        return 0;
-    }
-  }
-
-  initialize(rect, text) {
-    super.initialize(rect);
-    this._text = text || [];
-    this._textAlignment = GameConst.LEFT;
-    this._windowColor = GameConst.DEFAULT_COLOR;
-    this._history = [];
-    this.closed();
-    this.refresh();
-  }
-
-  closed() {
-    this._openness = 0;
-    this.visible = false;
-    this.deactivate();
-  }
-
-  refresh() {
-    this.contents.clear();
-    if (this.hasText()) this.drawTexts();
-  }
-
-  hasText() {
-    return this._text && this._text.length > 0;
-  }
-
-  drawTexts() {
-    const texts = this.processTexts(this._text);
-    const maxWidth = this.getTextMaxWidth(texts);
-    texts.forEach((text, index) => {
-      const state = this.getTextState(text);
-      const textWidth = state.outputWidth;
-      const textProcessed = state.raw;
-      const aligment = this.getTextAlignment();
-      const x = this.getXAlignment(textWidth, maxWidth, aligment);
-      const rect = this.lineRect(index, x);
-      this.addHistory('TEXT_' + index, textProcessed);
-      this.drawTextEx(text, rect.x, rect.y, rect.width);
-    });
-  }
-
-  flushTextState(textState) {
-    textState.raw += textState.buffer || '';
-    textState.raw = textState.raw.replace(/undefined/g, "");
-    super.flushTextState(textState);
-  }
-
-  processColorChange(colorIndex) {
-    const length = this._history.filter(h => /COLOR/i.test(h.symbol)).length;
-    this.addHistory('COLOR_' + length, colorIndex);
-    super.processColorChange(colorIndex);
-  }
-
-  addHistory(symbol, content) {
-    const index = this._history.findIndex(h => h.symbol === symbol);
-    if (index >= 0) {
-      this._history[index].content = content;
-      return;
-    }
-    const history = this.createHistory(symbol, content);
-    this._history.push(history);
-  }
-
-  createHistory(symbol, content) {
-    return { symbol, content };
-  }
-
-  processTexts(text) {
-    return text.map(txt => {
-      if (Array.isArray(txt)) {
-        return txt.reduce((acc, substring, index) => index ? `${acc} ${substring}` : `${acc}${substring}`)
-      }
-      return txt;
-    });
-  }
-
-  getTextMaxWidth(text) {
-    return text.reduce((max, txt) => {
-      const state = this.getTextState(txt);
-      const width = state.outputWidth;
-      return Math.max(max, width);
-    }, 0);
-  }
-
-  getTextState(txt) {
-    const textState = this.createTextState(txt, 0, 0, 0);
-    textState.drawing = false;
-    this.processAllText(textState);
-    return textState;
-  }
-
-  getTextAlignment() {
-    this.addHistory('TEXT_ALIGN', this._textAlignment);
-    return this._textAlignment;
-  }
-
-  getXAlignment(textWidth, maxWidth, align) {
-    maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
-    switch (align) {
-      case GameConst.CENTER:
-        return (maxWidth / 2) - (textWidth / 2);
-      case GameConst.RIGHT:
-        return maxWidth - textWidth;
-      default: // GameConst.LEFT
-        return 0;
-    }
-  }
-
-  lineRect(index, x = 0) {
-    const y = index * this.lineHeight();
-    const width = this.contentsWidth();
-    const height = this.lineHeight();
-    return new Rectangle(x, y, width, height);
-  }
-
-  update() {
-    super.update();
-    this.updateTone();
-  }
-
-  updateTone() {
-    switch (this._windowColor) {
-      case GameConst.BLUE_COLOR:
-        this.setTone(0, 0, 255);
-        break;
-      case GameConst.RED_COLOR:
-        this.setTone(255, 0, 0);
-        break;
-      default:
-        this.setTone(0, 0, 0);
-    }
-  }
-
-  open() {
-    this.visible = true;
-    this.activate();
-    super.open();
-  }
-
-  alignStartTop() {
-    this.setHorizontalAlign(GameConst.START);
-    this.setVerticalAlign(GameConst.TOP);
-  }
-
-  setHorizontalAlign(position) {
-    this.x = TextWindow.getHorizontalAlign(position, this);
-  }
-
-  setVerticalAlign(position) {
-    this.y = TextWindow.getVerticalAlign(position, this);
-  }
-
-  alignCenterTop() {
-    this.setHorizontalAlign(GameConst.CENTER);
-    this.setVerticalAlign(GameConst.TOP);
-  }
-
-  alignEndTop() {
-    this.setHorizontalAlign(GameConst.END);
-    this.setVerticalAlign(GameConst.TOP);
-  }
-
-  alignStartMiddle() {
-    this.setHorizontalAlign(GameConst.START);
-    this.setVerticalAlign(GameConst.MIDDLE);
-  }
-
-  alignCenterMiddle() {
-    this.setHorizontalAlign(GameConst.CENTER);
-    this.setVerticalAlign(GameConst.MIDDLE);
-  }
-
-  alignEndMiddle() {
-    this.setHorizontalAlign(GameConst.END);
-    this.setVerticalAlign(GameConst.MIDDLE);
-  }
-
-  alignStartBottom() {
-    this.setHorizontalAlign(GameConst.START);
-    this.setVerticalAlign(GameConst.BOTTOM);
-  }
-
-  alignCenterBottom() {
-    this.setHorizontalAlign(GameConst.CENTER);
-    this.setVerticalAlign(GameConst.BOTTOM);
-  }
-
-  alignEndBottom() {
-    this.setHorizontalAlign(GameConst.END);
-    this.setVerticalAlign(GameConst.BOTTOM);
-  }
-
-  changeDefaultColor() {
-    this._windowColor = GameConst.DEFAULT_COLOR;
-  }
-
-  changeBlueColor() {
-    this._windowColor = GameConst.BLUE_COLOR;
-  }
-
-  changeRedColor() {
-    this._windowColor = GameConst.RED_COLOR;
-  }
-
-  alignTextLeft() {
-    this._textAlignment = GameConst.LEFT;
-    this.refresh();
-  }
-
-  alignTextCenter() {
-    this._textAlignment = GameConst.CENTER;
-    this.refresh();
-  }
-
-  alignTextRight() {
-    this._textAlignment = GameConst.RIGHT;
-    this.refresh();
-  }
-
-  isTextWasDrawing(symbol, content) {
-    return this.isHistory(symbol, content);
-  }
-
-  isHistory(symbol, content) {
-    const history = this.getHistory(symbol);
-    if (!history.length) return false;
-    return history.some(h => h.content === content);
-  }
-
-  getHistory(symbol) {
-    return this._history.filter(history => history.symbol === symbol);
-  }
-
-  isOneFourthSize() {
-    return this.width === Graphics.boxWidth / 4;
-  }
-  
-  isMiddleSize() {
-    return this.width === Graphics.boxWidth / 2;
-  }
-
-  isThreeFourthSize() {
-    return this.width === Graphics.boxWidth * 3 / 4;
-  }
-
-  isFullsize() {
-    return this.width === Graphics.boxWidth;
-  }
-
-  isBlueColor() {
-    return this._windowColor === GameConst.BLUE_COLOR;
-  }
-
-  isRedColor() {
-    return this._windowColor === GameConst.RED_COLOR;
-  }
-
-  isDefaultColor() {
-    return this._windowColor === GameConst.DEFAULT_COLOR;
-  }
-
-  opened() {
-    this._openness = 255;
-    this.visible = true;
-    this.activate();
   }
 }
 class BoardWindow extends ValuesWindow {
@@ -5832,7 +5914,6 @@ class AnimationCardsCardsetSpriteTest extends SceneTest {
     this.assertWasTrue('Houve um frame de aimação?', this.subject.someSpriteIsAnimationPlaying);
   }
 }
-
 // tests STATE WINDOW
 class OpenStateWindowTest extends SceneTest {
   create() {
@@ -6196,7 +6277,6 @@ class UpdatingPointsBattlePointsWindowTest extends SceneTest {
 // tests TRASH WINDOW
 class UpdatingPointsTrashWindowTest extends SceneTest {
   create() {
-    this.pressToAsserts();
     this.subject = TrashWindow.create(0, 0);
     this.addWatched(this.subject);
     this.subject.alignCenterMiddle();
@@ -6268,8 +6348,6 @@ class TwoWinsUpdatingScoreWindowTest extends SceneTest {
     this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
   }
 }
-
-
 // tests TEXT WINDOW
 class CreateOneFourthSizeTextWindowTest extends SceneTest {
   create() {
@@ -6636,7 +6714,7 @@ class ChangeTextColorTextWindowTest extends SceneTest {
     this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_1', GameColorIndexs.DEFAULT));
   }
 }
-// tests COMMAND WINDOW BASE
+// tests COMMAND WINDOW
 class CreateFullsizeCommandWindowTest extends SceneTest {
   create() {
     this.subject = CommandWindow.create(0, 0);
@@ -6924,12 +7002,12 @@ class ChangeTextColorCommandWindowTest extends SceneTest {
 }
 class CommandsAndHandlersCommandWindowTest extends SceneTest {
   create() {
-    const commandYes = CommandWindow.createCommand('Yes', 'YES');
-    const commandNo = CommandWindow.createCommand('No', 'NO');
     const hanlderYes = this.createHandler();
     const hanlderNo = this.createHandler();
+    const commandYes = CommandWindow.createCommand('Yes', 'YES', hanlderYes);
+    const commandNo = CommandWindow.createCommand('No', 'NO', hanlderNo);
     const text = [];
-    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo], [hanlderYes, hanlderNo]);
+    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo]);
     this.addWatched(this.subject);
     this.subject.open();
   }
@@ -6940,14 +7018,14 @@ class CommandsAndHandlersCommandWindowTest extends SceneTest {
 }
 class CommandsAndHandlersWithTextCommandWindowTest extends SceneTest {
   create() {
-    const commandYes = CommandWindow.createCommand('Yes', 'YES');
-    const commandNo = CommandWindow.createCommand('No', 'NO');
     const hanlderYes = this.createHandler();
     const hanlderNo = this.createHandler();
+    const commandYes = CommandWindow.createCommand('Yes', 'YES', hanlderYes);
+    const commandNo = CommandWindow.createCommand('No', 'NO', hanlderNo);
     const text = [ 
       'Do you want to continue?',
     ];
-    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo], [hanlderYes, hanlderNo]);
+    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo]);
     this.addWatched(this.subject);
     this.subject.open();
   }
@@ -6956,7 +7034,34 @@ class CommandsAndHandlersWithTextCommandWindowTest extends SceneTest {
     this.describe('Deve mostrar as opções da janela de comando');
   }
 }
+// test FOLDER WINDOW
+class CreateFolderWindowTest extends SceneTest {
+  create() {
+    const hanlderFolder1 = this.createHandler();
+    const hanlderFolder2 = this.createHandler();
+    const hanlderFolder3 = this.createHandler();
+    const energies1 = FolderWindow.createEnergies(10, 10, 5, 5, 5, 5);
+    const energies2 = FolderWindow.createEnergies(10, 10, 10, 10, 10, 10);
+    const energies3 = FolderWindow.createEnergies(10, 10, 10, 0, 0, 0);
+    const commandFolder1 = FolderWindow.createCommand('Folder Name One', 'FOLDER_ONE', hanlderFolder1, energies1);
+    const commandFolder2 = FolderWindow.createCommand('Folder Name Two', 'FOLDER_TWO', hanlderFolder2, energies2);
+    const commandFolder3 = FolderWindow.createCommand('Folder Name Three', 'FOLDER_THREE', hanlderFolder3, energies3);
+    let title = 'Choose a folder';
+    title = CommandWindow.setTextColor(title, GameColorIndexs.ORANGE);
+    const text = [title];
+    const commands = [commandFolder1, commandFolder2, commandFolder3];
+    const handlers = [hanlderFolder1, hanlderFolder2, hanlderFolder3];
+    this.subject = FolderWindow.create(0, 0, text, commands, handlers);
+    this.addWatched(this.subject);
+    this.subject.alignTextCenter();
+    this.subject.open();
+  }
 
+  asserts() {
+    this.describe('Deve exibir a janela de comandos de pastas!');
+    this.assertTrue('Esta aberta?', this.subject.isOpen());
+  }
+}
 
 class CardBattleScene extends Scene_Message {
   initialize() {
@@ -7172,16 +7277,20 @@ class CardBattleTestScene extends Scene_Message {
       CommandsAndHandlersCommandWindowTest,
       CommandsAndHandlersWithTextCommandWindowTest,
     ];
+    const folderWindow = [
+      CreateFolderWindowTest,
+    ];
     return [
       // ...cardSpriteTests,
       // ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,
-      ...boardWindowTests,
-      ...battlePointsWindow,
-      ...trashWindow,
-      ...scoreWindow,
+      // ...boardWindowTests,
+      // ...battlePointsWindow,
+      // ...trashWindow,
+      // ...scoreWindow,
+      ...folderWindow,
     ];
   }
 

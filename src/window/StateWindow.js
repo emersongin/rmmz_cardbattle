@@ -294,11 +294,5 @@ class StateWindow extends Window_Base {
     const sx = (iconIndex % 16) * pw;
     const sy = Math.floor(iconIndex / 16) * ph;
     this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
-  };
-
-
-  //remove
-  itemHeightByIndex(index) {
-    return this.itemHeight() * index;
   }
 }

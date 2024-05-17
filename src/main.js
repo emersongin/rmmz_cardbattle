@@ -7,15 +7,13 @@
 
 // include ./data/playerDecksData.js
 
-
 // include ./helper/Helpers.js
 // include ./helper/Generators.js
-
+// include ./window/TextWindow.js
 // include ./window/CommandWindow.js
-
+// include ./window/FolderWindow.js
 // include ./window/StateWindow.js
 // include ./window/ValuesWindow.js
-// include ./window/TextWindow.js
 // include ./window/BoardWindow.js
 // include ./window/BattlePointsWindow.js
 // include ./window/TrashWindow.js
@@ -79,7 +77,6 @@
 // include ../test/integration/cardset/FlashCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/QuakeCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/AnimationCardsCardsetSpriteTest.js
-
 // tests STATE WINDOW
 // include ../test/integration/statewindow/OpenStateWindowTest.js
 // include ../test/integration/statewindow/CloseStateWindowTest.js
@@ -112,8 +109,6 @@
 // tests SCORE WINDOW
 // include ../test/integration/scorewindow/OneWinUpdatingScoreWindowTest.js
 // include ../test/integration/scorewindow/TwoWinsUpdatingScoreWindowTest.js
-
-
 // tests TEXT WINDOW
 // include ../test/integration/textwindow/CreateOneFourthSizeTextWindowTest.js
 // include ../test/integration/textwindow/CreateMiddleSizeTextWindowTest.js
@@ -138,7 +133,7 @@
 // include ../test/integration/textwindow/AlignTextRightTextWindowTest.js
 // include ../test/integration/textwindow/TextTextWindowTest.js
 // include ../test/integration/textwindow/ChangeTextColorTextWindowTest.js
-// tests COMMAND WINDOW BASE
+// tests COMMAND WINDOW
 // include ../test/integration/commandwindow/CreateFullsizeCommandWindowTest.js
 // include ../test/integration/commandwindow/OpenCommandWindowTest.js
 // include ../test/integration/commandwindow/CloseCommandWindowTest.js
@@ -158,7 +153,8 @@
 // include ../test/integration/commandwindow/ChangeTextColorCommandWindowTest.js
 // include ../test/integration/commandwindow/CommandsAndHandlersCommandWindowTest.js
 // include ../test/integration/commandwindow/CommandsAndHandlersWithTextCommandWindowTest.js
-
+// test FOLDER WINDOW
+// include ../test/integration/folderwindow/CreateFolderWindowTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./scene/CardBattleTestScene.js

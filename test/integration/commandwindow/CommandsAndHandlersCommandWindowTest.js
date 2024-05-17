@@ -1,11 +1,11 @@
 class CommandsAndHandlersCommandWindowTest extends SceneTest {
   create() {
-    const commandYes = CommandWindow.createCommand('Yes', 'YES');
-    const commandNo = CommandWindow.createCommand('No', 'NO');
     const hanlderYes = this.createHandler();
     const hanlderNo = this.createHandler();
+    const commandYes = CommandWindow.createCommand('Yes', 'YES', hanlderYes);
+    const commandNo = CommandWindow.createCommand('No', 'NO', hanlderNo);
     const text = [];
-    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo], [hanlderYes, hanlderNo]);
+    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo]);
     this.addWatched(this.subject);
     this.subject.open();
   }
