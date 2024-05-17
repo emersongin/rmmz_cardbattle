@@ -60,7 +60,7 @@ class CommandWindow extends Window_Command {
     this._commands = commands;
     this._commandHandlers = handlers;
     this._commandTextAlignment = GameConst.LEFT;
-    this._text = text;
+    this._text = text || [];
     this._textAlignment = GameConst.LEFT;
     this._windowColor = GameConst.DEFAULT_COLOR;
     this.closed();
@@ -125,6 +125,15 @@ class CommandWindow extends Window_Command {
     });
   }
 
+  processTexts(text) {
+    return text.map(txt => {
+      if (Array.isArray(txt)) {
+        return txt.reduce((acc, substring, index) => index ? `${acc} ${substring}` : `${acc}${substring}`)
+      }
+      return txt;
+    });
+  }
+
   flushTextState(textState) {
     textState.raw += textState.buffer || '';
     textState.raw = textState.raw.replace(/undefined/g, "");
@@ -166,15 +175,6 @@ class CommandWindow extends Window_Command {
     textState.drawing = false;
     this.processAllText(textState);
     return textState;
-  }
-
-  processTexts(text) {
-    return text.map(txt => {
-      if (Array.isArray(txt)) {
-        return txt.reduce((acc, substring, index) => index ? `${acc} ${substring}` : `${acc}${substring}`)
-      }
-      return txt;
-    });
   }
 
   getTextAlignment() {

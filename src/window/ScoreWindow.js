@@ -1,6 +1,6 @@
 // include ./state/WindowUpdatedScoreState.js
 
-class ScoreWindow extends CardBattleWindowBase { 
+class ScoreWindow extends StateWindow { 
   initialize(rect) {
     super.initialize(rect);
     this.reset();
@@ -28,7 +28,7 @@ class ScoreWindow extends CardBattleWindowBase {
 
   static create(x, y) {
     const width = Graphics.boxWidth / 4;
-    const height = CardBattleWindowBase.minHeight();
+    const height = StateWindow.minHeight();
     return new ScoreWindow(new Rectangle(x, y, width, height));
   }
 

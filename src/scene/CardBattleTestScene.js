@@ -70,34 +70,28 @@ class CardBattleTestScene extends Scene_Message {
       QuakeCardsCardsetSpriteTest,
       AnimationCardsCardsetSpriteTest,
     ];
-    const CardBattleWindowBaseTests = [
-      OpenCardBattleWindowBaseTest,
-      CloseCardBattleWindowBaseTest,
-      CreateOneFourthSizeCardBattleWindowBaseTest,
-      CreateMiddleSizeCardBattleWindowBaseTest,
-      CreateThreeFourthSizeCardBattleWindowBaseTest,
-      CreateFullSizeCardBattleWindowBaseTest,
-      ChangeBlueColorCardBattleWindowBaseTest,
-      ChangeRedColorCardBattleWindowBaseTest,
-      ChangeDefaultColorCardBattleWindowBaseTest,
-      AlignStartTopCardBattleWindowBaseTest,
-      AlignStartMiddleCardBattleWindowBaseTest,
-      AlignStartBottomCardBattleWindowBaseTest,
-      AlignCenterTopCardBattleWindowBaseTest,
-      AlignCenterMiddleCardBattleWindowBaseTest,
-      AlignCenterBottomCardBattleWindowBaseTest,
-      AlignEndTopCardBattleWindowBaseTest,
-      AlignEndMiddleCardBattleWindowBaseTest,
-      AlignEndBottomCardBattleWindowBaseTest,
+    const StateWindowTests = [
+      OpenStateWindowTest,
+      CloseStateWindowTest,
+      CreateOneFourthSizeStateWindowTest,
+      CreateMiddleSizeStateWindowTest,
+      CreateThreeFourthSizeStateWindowTest,
+      CreateFullSizeStateWindowTest,
+      ChangeBlueColorStateWindowTest,
+      ChangeRedColorStateWindowTest,
+      ChangeDefaultColorStateWindowTest,
+      AlignStartTopStateWindowTest,
+      AlignStartMiddleStateWindowTest,
+      AlignStartBottomStateWindowTest,
+      AlignCenterTopStateWindowTest,
+      AlignCenterMiddleStateWindowTest,
+      AlignCenterBottomStateWindowTest,
+      AlignEndTopStateWindowTest,
+      AlignEndMiddleStateWindowTest,
+      AlignEndBottomStateWindowTest,
     ];
     const textWindowTests = [
-      DrawTextStartAlignFullSizeTextWindowTest,
-      DrawTextStartAlignMiddleSizeTextWindowTest,
-      DrawTextCenterAlignFullSizeTextWindowTest,
-      DrawTextCenterAlignMiddleSizeTextWindowTest,
-      DrawTextEndAlignFullSizeTextWindowTest,
-      DrawTextEndAlignMiddleSizeTextWindowTest,
-      SetTextColorTextWindowTest,
+      TextTextWindowTest,
     ];
     const boardWindowTests = [
       PassBoardWindowTest,
@@ -114,7 +108,7 @@ class CardBattleTestScene extends Scene_Message {
       OneWinUpdatingScoreWindowTest,
       TwoWinsUpdatingScoreWindowTest
     ];
-    const commandWindowBase = [
+    const commandWindow = [
       CreateFullsizeCommandWindowTest,
       OpenCommandWindowTest,
       CloseCommandWindowTest,
@@ -143,13 +137,14 @@ class CardBattleTestScene extends Scene_Message {
     return [
       // ...cardSpriteTests,
       // ...cardsetSpriteTests,
-      // ...CardBattleWindowBaseTests,
-      // ...textWindowTests,
+      // ...commandWindow,
+      // ...StateWindowTests,
+      ...textWindowTests,
+      
       // ...boardWindowTests,
       // ...battlePointsWindow,
       // ...trashWindow,
       // ...scoreWindow,
-      ...commandWindowBase,
       // ...askCommandWindow,
       // ...foldersCommandWindow,
     ];

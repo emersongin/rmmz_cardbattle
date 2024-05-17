@@ -1,8 +1,8 @@
-class CreateOneFourthSizeCardBattleWindowBaseTest extends SceneTest {
+class CreateOneFourthSizeStateWindowTest extends SceneTest {
   create() {
     const x = 0;
     const y = 0;
-    this.subject = CardBattleWindowBase.createWindowOneFourthSize(x, y);
+    this.subject = StateWindow.createWindowOneFourthSize(x, y);
     this.addWatched(this.subject);
     this.subject.open();
   }

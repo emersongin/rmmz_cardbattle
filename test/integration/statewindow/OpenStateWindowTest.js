@@ -1,6 +1,6 @@
-class OpenCardBattleWindowBaseTest extends SceneTest {
+class OpenStateWindowTest extends SceneTest {
   create() {
-    this.subject = CardBattleWindowBase.createWindowFullSize(0, 0);
+    this.subject = StateWindow.createWindowFullSize(0, 0);
     this.subject.alignCenterMiddle();
     this.addWatched(this.subject);
     this.subject.open();

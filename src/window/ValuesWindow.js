@@ -1,4 +1,4 @@
-class ValuesWindow extends CardBattleWindowBase {
+class ValuesWindow extends StateWindow {
   initialize(rect) {
     super.initialize(rect);
     this._values = {};

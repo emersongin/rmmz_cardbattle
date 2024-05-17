@@ -13,7 +13,7 @@
 
 // include ./window/CommandWindow.js
 
-// include ./window/CardBattleWindowBase.js
+// include ./window/StateWindow.js
 // include ./window/ValuesWindow.js
 // include ./window/TextWindow.js
 // include ./window/BoardWindow.js
@@ -81,33 +81,27 @@
 // include ../test/integration/cardset/FlashCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/QuakeCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/AnimationCardsCardsetSpriteTest.js
-// tests CARD BATTLE WINDOW BASE
-// include ../test/integration/cardbattlewindowbase/OpenCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/CloseCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/CreateOneFourthSizeCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/CreateMiddleSizeCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/CreateThreeFourthSizeCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/CreateFullSizeCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/ChangeBlueColorCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/ChangeRedColorCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/ChangeDefaultColorCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/AlignStartTopCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/AlignStartMiddleCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/AlignStartBottomCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/AlignCenterTopCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/AlignCenterMiddleCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/AlignCenterBottomCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/AlignEndTopCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/AlignEndMiddleCardBattleWindowBaseTest.js
-// include ../test/integration/cardbattlewindowbase/AlignEndBottomCardBattleWindowBaseTest.js
+// tests STATE WINDOW
+// include ../test/integration/statewindow/OpenStateWindowTest.js
+// include ../test/integration/statewindow/CloseStateWindowTest.js
+// include ../test/integration/statewindow/CreateOneFourthSizeStateWindowTest.js
+// include ../test/integration/statewindow/CreateMiddleSizeStateWindowTest.js
+// include ../test/integration/statewindow/CreateThreeFourthSizeStateWindowTest.js
+// include ../test/integration/statewindow/CreateFullSizeStateWindowTest.js
+// include ../test/integration/statewindow/ChangeBlueColorStateWindowTest.js
+// include ../test/integration/statewindow/ChangeRedColorStateWindowTest.js
+// include ../test/integration/statewindow/ChangeDefaultColorStateWindowTest.js
+// include ../test/integration/statewindow/AlignStartTopStateWindowTest.js
+// include ../test/integration/statewindow/AlignStartMiddleStateWindowTest.js
+// include ../test/integration/statewindow/AlignStartBottomStateWindowTest.js
+// include ../test/integration/statewindow/AlignCenterTopStateWindowTest.js
+// include ../test/integration/statewindow/AlignCenterMiddleStateWindowTest.js
+// include ../test/integration/statewindow/AlignCenterBottomStateWindowTest.js
+// include ../test/integration/statewindow/AlignEndTopStateWindowTest.js
+// include ../test/integration/statewindow/AlignEndMiddleStateWindowTest.js
+// include ../test/integration/statewindow/AlignEndBottomStateWindowTest.js
 // tests TEXT WINDOW
-// include ../test/integration/textwindow/DrawTextStartAlignFullSizeTextWindowTest.js
-// include ../test/integration/textwindow/DrawTextStartAlignMiddleSizeTextWindowTest.js
-// include ../test/integration/textwindow/DrawTextCenterAlignFullSizeTextWindowTest.js
-// include ../test/integration/textwindow/DrawTextCenterAlignMiddleSizeTextWindowTest.js
-// include ../test/integration/textwindow/DrawTextEndAlignFullSizeTextWindowTest.js
-// include ../test/integration/textwindow/DrawTextEndAlignMiddleSizeTextWindowTest.js
-// include ../test/integration/textwindow/SetTextColorTextWindowTest.js
+// include ../test/integration/textwindow/TextTextWindowTest.js
 // tests BOARD WINDOW
 // include ../test/integration/boardwindow/PassBoardWindowTest.js
 // include ../test/integration/boardwindow/NoPassBoardWindowTest.js

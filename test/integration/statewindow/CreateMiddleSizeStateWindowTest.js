@@ -1,8 +1,8 @@
-class CreateMiddleSizeCardBattleWindowBaseTest extends SceneTest {
+class CreateMiddleSizeStateWindowTest extends SceneTest {
   create() {
     const x = 0;
     const y = 0;
-    this.subject = CardBattleWindowBase.createWindowMiddleSize(x, y);
+    this.subject = StateWindow.createWindowMiddleSize(x, y);
     this.addWatched(this.subject);
     this.subject.open();
   }

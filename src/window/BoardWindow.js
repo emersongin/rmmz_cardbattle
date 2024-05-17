@@ -31,13 +31,13 @@ class BoardWindow extends ValuesWindow {
 
   static createWindowMiddleSize(x, y) {
     const width = Graphics.boxWidth / 2;
-    const height = CardBattleWindowBase.minHeight();
+    const height = StateWindow.minHeight();
     return BoardWindow.create(x, y, width, height);
   }
 
   static createWindowFullSize(x, y) {
     const width = Graphics.boxWidth;
-    const height = CardBattleWindowBase.minHeight();
+    const height = StateWindow.minHeight();
     return BoardWindow.create(x, y, width, height);
   }
 

@@ -1,8 +1,8 @@
-class CreateFullSizeCardBattleWindowBaseTest extends SceneTest {
+class CreateFullSizeStateWindowTest extends SceneTest {
   create() {
     const x = 0;
     const y = 0;
-    this.subject = CardBattleWindowBase.createWindowFullSize(x, y);
+    this.subject = StateWindow.createWindowFullSize(x, y);
     this.addWatched(this.subject);
     this.subject.open();
   }

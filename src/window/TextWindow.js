@@ -1,195 +1,292 @@
-class TextWindow extends CardBattleWindowBase {
-  initialize(rect) {
-    super.initialize(rect);
-    this.resetContent();
+class TextWindow extends Window_Base {
+  static createWindowOneFourthSize(x, y, text) {
+    const width = Graphics.boxWidth / 4;
+    const height = undefined;
+    return TextWindow.create(x, y, width, height, text);
   }
 
-  resetContent() {
-    this._contents = [];
-    this._history = [];
-    this._textColorIndex = GameColorIndexs.NORMAL_COLOR;
-    this.setHorizontalAlignContent(GameConst.TEXT_START);
-    this.changeDefaultColor();
-  }
-
-  reset() {
-    super.reset();
-    this.resetContent();
-  }
-
-  setHorizontalAlignContent(align) {
-    this._textHorizontalAlign = align;
-  }
-
-  static create(x, y, width, height) {
-    return new TextWindow(new Rectangle(x, y, width, height));
-  }
-
-  static createWindowMiddleSize(x, y) {
-    const width = Graphics.boxWidth / 2;
-    const height = CardBattleWindowBase.minHeight();
-    return TextWindow.create(x, y, width, height);
-  }
-
-  static createWindowFullSize(x, y) {
-    const width = Graphics.boxWidth;
-    const height = CardBattleWindowBase.minHeight();
-    return TextWindow.create(x, y, width, height);
-  }
-
-  static appendChangeColor(colorIndex = GameColorIndexs.NORMAL_COLOR) {
-    return `\\c[${colorIndex}]`;
-  }
-
-  changeTextColorHere(colorIndex) {
-    this.addContent({ 
-      type: GameConst.CHANGE_COLOR, 
-      colorIndex 
-    });
-  }
-
-  addContent(data = {}) {
-    const { type, text, colorIndex } = data;
-    this._contents.push({ type, text, colorIndex });
-  }
-
-  addText(text = '') {
-    this.addContent({ 
-      type: GameConst.LINE_TEXT, 
-      text 
-    });
-  }
-
-  renderContents() {
-    this.clearContentRendered();
-    const contents = this.getContents();
-    if (contents.length) this.processContents(contents);
-  }
-
-  clearContentRendered() {
-    this.contents.clear();
-  }
-
-  getContents() {
-    return this._contents;
-  }
-
-  processContents(contents) {
-    const contentsProsseced = this.processLines(contents);
-    const maxWidth = this.getMaxWidthContentsProcessed(contentsProsseced);
-    this.resize(maxWidth);
-    this.drawContents(contentsProsseced, maxWidth);
-  }
-
-  processLines(contents) {
-    const linesProcessed = [];
-    contents.forEach((content, index) => {
-      const text = this.processLine(content, index);
-      if (text) linesProcessed.push(text);
-    });
-    return linesProcessed;
-  }
-
-  processLine(content, index) {
-    const { type, text, colorIndex } = content;
-    switch (type) {
-      case GameConst.CHANGE_COLOR:
-        this._textColorIndex = colorIndex;
-        return;
-      default:
-        return this.addTextLine(text, index);
+  static create(x, y, width, h, text = []) {
+    if (!Array.isArray(text)) {
+      throw new Error('text must be an array!');
     }
+    const windowPadding = TextWindow.windowPadding() * 2;
+    const textHeight = TextWindow.textHeight() * Math.max(text.length, 0);
+    const height = windowPadding + textHeight;
+    const rect = new Rectangle(x, y, width, height);
+    return new TextWindow(rect, text);
   }
 
-  addTextLine(text = '', index) {
-    const color = TextWindow.appendChangeColor(this._textColorIndex);
-    text = `${color}${text}`;
-    return text;
+  static windowPadding() {
+    return 12;
   }
 
-  getMaxWidthContentsProcessed(contents) {
-    return contents.reduce((max, content) => {
-      const width = this.getTextWidth(content);
-      return Math.max(max, width);
-    }, 0);
+  static textHeight() {
+    return 36;
   }
 
-  getTextWidth(text) {
-    const textState = this.createTextState(text, 0, 0, 0);
-    textState.drawing = false;
-    this.processAllText(textState);
-    return textState.outputWidth;
+  static createWindowMiddleSize(x, y, text) {
+    const width = Graphics.boxWidth / 2;
+    const height = undefined;
+    return TextWindow.create(x, y, width, height, text);
   }
 
-  resize(maxWidth) {
-    this.resizeContent(maxWidth);
-    this.resizeWindow(maxWidth);
+  static createWindowThreeFourthSize(x, y, text) {
+    const width = Graphics.boxWidth * 3 / 4;
+    const height = undefined;
+    return TextWindow.create(x, y, width, height, text);
   }
 
-  resizeContent(maxWidth) {
-    const contentWidth = Math.max(maxWidth, this.width);
-    this.contents.resize(contentWidth, this.calculeTextHeight());
+  static createWindowFullSize(x, y, text) {
+    const width = Graphics.boxWidth;
+    const height = undefined;
+    return TextWindow.create(x, y, width, height, text);
   }
 
-  calculeTextHeight() {
-    return Math.max(this.fittingHeight(this.numLines()), this.height);
-  }
-
-  numLines() {
-    return this.getLines().length;
-  }
-
-  getLines() {
-    return this.getContents().filter(content => content.type == GameConst.LINE_TEXT);
-  }
-
-  resizeWindow(maxWidth) {
-    const windowPadding = this.padding + this.itemPadding();
-    let width = Math.ceil(maxWidth) + windowPadding + 6;
-    let windowWidth = Math.max(width, this.width);
-    windowWidth = Math.min(windowWidth, Graphics.boxWidth);
-    this.move(this.x, this.y, windowWidth, this.calculeTextHeight());
-  }
-
-  drawContents(contentsProsseced, maxWidth) {
-    contentsProsseced.forEach((content, index) => {
-      const x = this.getXAlign(content, this.getAlignContent(), maxWidth);
-      const y = this.itemHeightByIndex(index);
-      const width = this.getTextWidth(content);
-      this._history.push({ content, x, y, width });
-      super.drawTextEx(content, x, y, width);
-    });
-  }
-
-  getXAlign(content, align, maxWidth) {
-    const textWidth = this.getTextWidth(content);
-    const x = this.getTextXByAlign(textWidth, maxWidth, align);
-    return x;
-  }
-
-  getTextXByAlign(textWidth, maxWidth, align) {
-    maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
-    switch (align) {
-      case GameConst.CENTER:
-        return (maxWidth / 2) - (textWidth / 2);
-      case GameConst.END:
-        return maxWidth - textWidth;
-      default:
+  static getVerticalAlign(position, window) {
+    switch (position) {
+      case GameConst.MIDDLE:
+        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
+        break;
+      case GameConst.BOTTOM:
+        return Graphics.boxHeight - (window.height || 0);
+        break;
+      default: //TOP
         return 0;
     }
   }
 
-  getAlignContent() {
-    return this._textHorizontalAlign;
+  static getHorizontalAlign(position, window) {
+    switch (position) {
+      case GameConst.CENTER:
+        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
+        break;
+      case GameConst.END:
+        return (Graphics.boxWidth - (window.width || 0));
+        break;
+      default: //START
+        return 0;
+    }
   }
 
-  isWasTextDrawnPositions(x, y) {
-    return this._history.some(history => {
-      return history.x === x && history.y === y;
+  initialize(rect, text) {
+    super.initialize(rect);
+    this._text = text || [];
+    this._textAlignment = GameConst.LEFT;
+    this._windowColor = GameConst.DEFAULT_COLOR;
+    this._history = [];
+    this.closed();
+    this.reset();
+  }
+
+  closed() {
+    this._openness = 0;
+    this.visible = false;
+    this.deactivate();
+  }
+
+  open() {
+    this.visible = true;
+    this.activate();
+    super.open();
+  }
+
+  reset() {
+    this.contents.clear();
+    this.refresh();
+  }
+
+  update() {
+    super.update();
+    this.updateTone();
+  }
+
+  updateTone() {
+    switch (this._windowColor) {
+      case GameConst.BLUE_COLOR:
+        this.setTone(0, 0, 255);
+        break;
+      case GameConst.RED_COLOR:
+        this.setTone(255, 0, 0);
+        break;
+      default:
+        this.setTone(0, 0, 0);
+    }
+  }
+
+  refresh() {
+    if (this.hasText()) this.drawTexts();
+  }
+
+  hasText() {
+    return this._text && this._text.length > 0;
+  }
+
+  drawTexts() {
+    const texts = this.processTexts(this._text);
+    const maxWidth = this.getTextMaxWidth(texts);
+    texts.forEach((text, index) => {
+      const state = this.getTextState(text);
+      const textWidth = state.outputWidth;
+      const textProcessed = state.raw;
+      const aligment = this.getTextAlignment();
+      const x = this.getXAlignment(textWidth, maxWidth, aligment);
+      const rect = this.lineRect(index, x);
+      this.addHistory('TEXT_' + index, textProcessed);
+      this.drawTextEx(text, rect.x, rect.y, rect.width);
     });
   }
 
-  getHistory() {
-    return this._history.clone();
+  processTexts(text) {
+    return text.map(txt => {
+      if (Array.isArray(txt)) {
+        return txt.reduce((acc, substring, index) => index ? `${acc} ${substring}` : `${acc}${substring}`)
+      }
+      return txt;
+    });
+  }
+
+  flushTextState(textState) {
+    textState.raw += textState.buffer || '';
+    textState.raw = textState.raw.replace(/undefined/g, "");
+    super.flushTextState(textState);
+  }
+
+  processColorChange(colorIndex) {
+    const length = this._history.filter(h => /COLOR/i.test(h.symbol)).length;
+    this.addHistory('COLOR_' + length, colorIndex);
+    super.processColorChange(colorIndex);
+  }
+
+  getTextMaxWidth(text) {
+    return text.reduce((max, txt) => {
+      const state = this.getTextState(txt);
+      const width = state.outputWidth;
+      return Math.max(max, width);
+    }, 0);
+  }
+
+  getTextState(txt) {
+    const textState = this.createTextState(txt, 0, 0, 0);
+    textState.drawing = false;
+    this.processAllText(textState);
+    return textState;
+  }
+
+  getTextAlignment() {
+    this.addHistory('TEXT_ALIGN', this._textAlignment);
+    return this._textAlignment;
+  }
+
+  addHistory(symbol, content) {
+    const index = this._history.findIndex(h => h.symbol === symbol);
+    if (index >= 0) {
+      this._history[index].content = content;
+      return;
+    }
+    const history = this.createHistory(symbol, content);
+    this._history.push(history);
+  }
+
+  createHistory(symbol, content) {
+    return { symbol, content };
+  }
+
+  getXAlignment(textWidth, maxWidth, align) {
+    maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
+    switch (align) {
+      case GameConst.CENTER:
+        return (maxWidth / 2) - (textWidth / 2);
+      case GameConst.RIGHT:
+        return maxWidth - textWidth;
+      default: // GameConst.LEFT
+        return 0;
+    }
+  }
+
+  lineRect(index, x = 0) {
+    const y = index * this.lineHeight();
+    const width = this.contentsWidth();
+    const height = this.lineHeight();
+    return new Rectangle(x, y, width, height);
+  }
+
+
+  alignStartTop() {
+    this.setHorizontalAlign(GameConst.START);
+    this.setVerticalAlign(GameConst.TOP);
+  }
+
+  setHorizontalAlign(position) {
+    this.x = TextWindow.getHorizontalAlign(position, this);
+  }
+
+  setVerticalAlign(position) {
+    this.y = TextWindow.getVerticalAlign(position, this);
+  }
+
+  alignCenterTop() {
+    this.setHorizontalAlign(GameConst.CENTER);
+    this.setVerticalAlign(GameConst.TOP);
+  }
+
+  alignEndTop() {
+    this.setHorizontalAlign(GameConst.END);
+    this.setVerticalAlign(GameConst.TOP);
+  }
+
+  alignStartMiddle() {
+    this.setHorizontalAlign(GameConst.START);
+    this.setVerticalAlign(GameConst.MIDDLE);
+  }
+
+  alignCenterMiddle() {
+    this.setHorizontalAlign(GameConst.CENTER);
+    this.setVerticalAlign(GameConst.MIDDLE);
+  }
+
+  alignEndMiddle() {
+    this.setHorizontalAlign(GameConst.END);
+    this.setVerticalAlign(GameConst.MIDDLE);
+  }
+
+  alignStartBottom() {
+    this.setHorizontalAlign(GameConst.START);
+    this.setVerticalAlign(GameConst.BOTTOM);
+  }
+
+  alignCenterBottom() {
+    this.setHorizontalAlign(GameConst.CENTER);
+    this.setVerticalAlign(GameConst.BOTTOM);
+  }
+
+  alignEndBottom() {
+    this.setHorizontalAlign(GameConst.END);
+    this.setVerticalAlign(GameConst.BOTTOM);
+  }
+
+  changeDefaultColor() {
+    this._windowColor = GameConst.DEFAULT_COLOR;
+  }
+
+  changeBlueColor() {
+    this._windowColor = GameConst.BLUE_COLOR;
+  }
+
+  changeRedColor() {
+    this._windowColor = GameConst.RED_COLOR;
+  }
+
+  isTextWasDrawing(symbol, content) {
+    return this.isHistory(symbol, content);
+  }
+
+  isHistory(symbol, content) {
+    const history = this.getHistory(symbol);
+    if (!history.length) return false;
+    return history.some(h => h.content === content);
+  }
+
+  getHistory(symbol) {
+    return this._history.filter(history => history.symbol === symbol);
   }
 }
