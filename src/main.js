@@ -21,8 +21,6 @@
 // include ./window/TrashWindow.js
 // include ./window/ScoreWindow.js
 
-// include ./window/AskCommandWindow.js
-// include ./window/FoldersCommandWindow.js
 // include ./object/PowerAction.js
 // include ./object/Energy.js
 // include ./object/Card.js
@@ -138,8 +136,6 @@
 // include ../test/integration/textwindow/AlignTextRightTextWindowTest.js
 // include ../test/integration/textwindow/TextTextWindowTest.js
 // include ../test/integration/textwindow/ChangeTextColorTextWindowTest.js
-
-
 // tests COMMAND WINDOW BASE
 // include ../test/integration/commandwindow/CreateFullsizeCommandWindowTest.js
 // include ../test/integration/commandwindow/OpenCommandWindowTest.js
@@ -161,13 +157,6 @@
 // include ../test/integration/commandwindow/CommandsAndHandlersCommandWindowTest.js
 // include ../test/integration/commandwindow/CommandsAndHandlersWithTextCommandWindowTest.js
 
-
-
-
-// tests ASK COMMAND WINDOW 
-// include ../test/integration/askcommandwindow/SelectOptionAskCommandWindowTest.js
-// tests FOLDRES COMMAND WINDOW 
-// include ../test/integration/folderscommandwindow/SelectFoldersCommandWindowTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./scene/CardBattleTestScene.js

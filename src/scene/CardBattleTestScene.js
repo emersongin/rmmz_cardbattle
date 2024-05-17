@@ -151,25 +151,17 @@ class CardBattleTestScene extends Scene_Message {
       CommandsAndHandlersCommandWindowTest,
       CommandsAndHandlersWithTextCommandWindowTest,
     ];
-    const askCommandWindow = [
-      SelectOptionAskCommandWindowTest,
-    ];
-    const foldersCommandWindow = [
-      SelectFoldersCommandWindowTest,
-    ];
     return [
       // ...cardSpriteTests,
       // ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
-      ...textWindowTests,
+      // ...textWindowTests,
       
-      // ...boardWindowTests,
+      ...boardWindowTests,
       // ...battlePointsWindow,
       // ...trashWindow,
       // ...scoreWindow,
-      // ...askCommandWindow,
-      // ...foldersCommandWindow,
     ];
   }
 

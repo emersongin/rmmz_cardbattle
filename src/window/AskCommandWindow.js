@@ -1,1 +1,0 @@
-class AskCommandWindow extends CommandWindow {}

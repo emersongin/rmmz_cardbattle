@@ -84,30 +84,6 @@ class TextWindow extends Window_Base {
     this.deactivate();
   }
 
-  open() {
-    this.visible = true;
-    this.activate();
-    super.open();
-  }
-
-  update() {
-    super.update();
-    this.updateTone();
-  }
-
-  updateTone() {
-    switch (this._windowColor) {
-      case GameConst.BLUE_COLOR:
-        this.setTone(0, 0, 255);
-        break;
-      case GameConst.RED_COLOR:
-        this.setTone(255, 0, 0);
-        break;
-      default:
-        this.setTone(0, 0, 0);
-    }
-  }
-
   refresh() {
     this.contents.clear();
     if (this.hasText()) this.drawTexts();
@@ -132,15 +108,6 @@ class TextWindow extends Window_Base {
     });
   }
 
-  processTexts(text) {
-    return text.map(txt => {
-      if (Array.isArray(txt)) {
-        return txt.reduce((acc, substring, index) => index ? `${acc} ${substring}` : `${acc}${substring}`)
-      }
-      return txt;
-    });
-  }
-
   flushTextState(textState) {
     textState.raw += textState.buffer || '';
     textState.raw = textState.raw.replace(/undefined/g, "");
@@ -151,6 +118,29 @@ class TextWindow extends Window_Base {
     const length = this._history.filter(h => /COLOR/i.test(h.symbol)).length;
     this.addHistory('COLOR_' + length, colorIndex);
     super.processColorChange(colorIndex);
+  }
+
+  addHistory(symbol, content) {
+    const index = this._history.findIndex(h => h.symbol === symbol);
+    if (index >= 0) {
+      this._history[index].content = content;
+      return;
+    }
+    const history = this.createHistory(symbol, content);
+    this._history.push(history);
+  }
+
+  createHistory(symbol, content) {
+    return { symbol, content };
+  }
+
+  processTexts(text) {
+    return text.map(txt => {
+      if (Array.isArray(txt)) {
+        return txt.reduce((acc, substring, index) => index ? `${acc} ${substring}` : `${acc}${substring}`)
+      }
+      return txt;
+    });
   }
 
   getTextMaxWidth(text) {
@@ -173,20 +163,6 @@ class TextWindow extends Window_Base {
     return this._textAlignment;
   }
 
-  addHistory(symbol, content) {
-    const index = this._history.findIndex(h => h.symbol === symbol);
-    if (index >= 0) {
-      this._history[index].content = content;
-      return;
-    }
-    const history = this.createHistory(symbol, content);
-    this._history.push(history);
-  }
-
-  createHistory(symbol, content) {
-    return { symbol, content };
-  }
-
   getXAlignment(textWidth, maxWidth, align) {
     maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
     switch (align) {
@@ -204,6 +180,30 @@ class TextWindow extends Window_Base {
     const width = this.contentsWidth();
     const height = this.lineHeight();
     return new Rectangle(x, y, width, height);
+  }
+
+  update() {
+    super.update();
+    this.updateTone();
+  }
+
+  updateTone() {
+    switch (this._windowColor) {
+      case GameConst.BLUE_COLOR:
+        this.setTone(0, 0, 255);
+        break;
+      case GameConst.RED_COLOR:
+        this.setTone(255, 0, 0);
+        break;
+      default:
+        this.setTone(0, 0, 0);
+    }
+  }
+
+  open() {
+    this.visible = true;
+    this.activate();
+    super.open();
   }
 
   alignStartTop() {
@@ -300,20 +300,20 @@ class TextWindow extends Window_Base {
     return this._history.filter(history => history.symbol === symbol);
   }
 
-  isFullsize() {
-    return this.width === Graphics.boxWidth;
+  isOneFourthSize() {
+    return this.width === Graphics.boxWidth / 4;
   }
-
+  
   isMiddleSize() {
     return this.width === Graphics.boxWidth / 2;
   }
 
-  isOneFourthSize() {
-    return this.width === Graphics.boxWidth / 4;
-  }
-
   isThreeFourthSize() {
     return this.width === Graphics.boxWidth * 3 / 4;
+  }
+
+  isFullsize() {
+    return this.width === Graphics.boxWidth;
   }
 
   isBlueColor() {

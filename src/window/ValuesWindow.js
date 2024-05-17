@@ -1,54 +1,22 @@
 class ValuesWindow extends StateWindow {
-  initialize(rect) {
-    super.initialize(rect);
-    this._values = {};
-    this._updates = [];
-  }
-
   static createValueUpdate(name, value) {
     return { name, value };
   }
 
-  update() {
-    super.update();
-    if (this.hasUpdates() && this.isStopped()) this.executeUpdate();
-  }
-
-  hasUpdates() {
-    return this._updates.length > 0;
-  }
-
-  executeUpdate() {
-    const updates = this._updates;
-    if (updates.length > 0) {
-      const update = updates[0];
-      const executed = update.execute();
-      if (executed) updates.shift();
-    }
+  initialize(rect) {
+    super.initialize(rect);
+    this._values = {};
   }
 
   updateValues(updates) {
     updates = Array.isArray(updates) ? updates : [updates];
-    this.addUpdate(this.commandUpdateValues, updates);
-  }
-
-  addUpdate(fn, ...params) {
-    const update = this.createUpdate(fn, ...params);
-    this._updates.push(update);
+    this.addAction(this.commandUpdateValues, updates);
   }
 
   commandUpdateValues(updates) {
     if (!(this.isOpen() && this.isStopped())) return;
     this.changeStatus(WindowUpdatedState, updates);
     return true;
-  }
-
-  createUpdate(fn, ...params) {
-    const action = {
-      fn: fn.name || 'anonymous',
-      execute: () => fn.call(this, ...params)
-    };
-    return action;
   }
 
   addValue(name, value) {

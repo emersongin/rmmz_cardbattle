@@ -1127,40 +1127,40 @@ class ValuesWindow extends StateWindow {
   initialize(rect) {
     super.initialize(rect);
     this._values = {};
-    this._updates = [];
+    // this._updates = [];
   }
 
   static createValueUpdate(name, value) {
     return { name, value };
   }
 
-  update() {
-    super.update();
-    if (this.hasUpdates() && this.isStopped()) this.executeUpdate();
-  }
+  // update() {
+  //   super.update();
+  //   if (this.hasUpdates() && this.isStopped()) this.executeUpdate();
+  // }
 
-  hasUpdates() {
-    return this._updates.length > 0;
-  }
+  // hasUpdates() {
+  //   return this._updates.length > 0;
+  // }
 
-  executeUpdate() {
-    const updates = this._updates;
-    if (updates.length > 0) {
-      const update = updates[0];
-      const executed = update.execute();
-      if (executed) updates.shift();
-    }
-  }
+  // executeUpdate() {
+  //   const updates = this._updates;
+  //   if (updates.length > 0) {
+  //     const update = updates[0];
+  //     const executed = update.execute();
+  //     if (executed) updates.shift();
+  //   }
+  // }
 
   updateValues(updates) {
     updates = Array.isArray(updates) ? updates : [updates];
-    this.addUpdate(this.commandUpdateValues, updates);
+    this.addAction(this.commandUpdateValues, updates);
   }
 
-  addUpdate(fn, ...params) {
-    const update = this.createUpdate(fn, ...params);
-    this._updates.push(update);
-  }
+  // addUpdate(fn, ...params) {
+  //   const update = this.createUpdate(fn, ...params);
+  //   this._updates.push(update);
+  // }
 
   commandUpdateValues(updates) {
     if (!(this.isOpen() && this.isStopped())) return;
@@ -1168,13 +1168,13 @@ class ValuesWindow extends StateWindow {
     return true;
   }
 
-  createUpdate(fn, ...params) {
-    const action = {
-      fn: fn.name || 'anonymous',
-      execute: () => fn.call(this, ...params)
-    };
-    return action;
-  }
+  // createUpdate(fn, ...params) {
+  //   const action = {
+  //     fn: fn.name || 'anonymous',
+  //     execute: () => fn.call(this, ...params)
+  //   };
+  //   return action;
+  // }
 
   addValue(name, value) {
     if (this._values.hasOwnProperty(name)) {
@@ -1293,30 +1293,6 @@ class TextWindow extends Window_Base {
     this.deactivate();
   }
 
-  open() {
-    this.visible = true;
-    this.activate();
-    super.open();
-  }
-
-  update() {
-    super.update();
-    this.updateTone();
-  }
-
-  updateTone() {
-    switch (this._windowColor) {
-      case GameConst.BLUE_COLOR:
-        this.setTone(0, 0, 255);
-        break;
-      case GameConst.RED_COLOR:
-        this.setTone(255, 0, 0);
-        break;
-      default:
-        this.setTone(0, 0, 0);
-    }
-  }
-
   refresh() {
     this.contents.clear();
     if (this.hasText()) this.drawTexts();
@@ -1341,15 +1317,6 @@ class TextWindow extends Window_Base {
     });
   }
 
-  processTexts(text) {
-    return text.map(txt => {
-      if (Array.isArray(txt)) {
-        return txt.reduce((acc, substring, index) => index ? `${acc} ${substring}` : `${acc}${substring}`)
-      }
-      return txt;
-    });
-  }
-
   flushTextState(textState) {
     textState.raw += textState.buffer || '';
     textState.raw = textState.raw.replace(/undefined/g, "");
@@ -1360,6 +1327,29 @@ class TextWindow extends Window_Base {
     const length = this._history.filter(h => /COLOR/i.test(h.symbol)).length;
     this.addHistory('COLOR_' + length, colorIndex);
     super.processColorChange(colorIndex);
+  }
+
+  addHistory(symbol, content) {
+    const index = this._history.findIndex(h => h.symbol === symbol);
+    if (index >= 0) {
+      this._history[index].content = content;
+      return;
+    }
+    const history = this.createHistory(symbol, content);
+    this._history.push(history);
+  }
+
+  createHistory(symbol, content) {
+    return { symbol, content };
+  }
+
+  processTexts(text) {
+    return text.map(txt => {
+      if (Array.isArray(txt)) {
+        return txt.reduce((acc, substring, index) => index ? `${acc} ${substring}` : `${acc}${substring}`)
+      }
+      return txt;
+    });
   }
 
   getTextMaxWidth(text) {
@@ -1382,20 +1372,6 @@ class TextWindow extends Window_Base {
     return this._textAlignment;
   }
 
-  addHistory(symbol, content) {
-    const index = this._history.findIndex(h => h.symbol === symbol);
-    if (index >= 0) {
-      this._history[index].content = content;
-      return;
-    }
-    const history = this.createHistory(symbol, content);
-    this._history.push(history);
-  }
-
-  createHistory(symbol, content) {
-    return { symbol, content };
-  }
-
   getXAlignment(textWidth, maxWidth, align) {
     maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
     switch (align) {
@@ -1413,6 +1389,30 @@ class TextWindow extends Window_Base {
     const width = this.contentsWidth();
     const height = this.lineHeight();
     return new Rectangle(x, y, width, height);
+  }
+
+  update() {
+    super.update();
+    this.updateTone();
+  }
+
+  updateTone() {
+    switch (this._windowColor) {
+      case GameConst.BLUE_COLOR:
+        this.setTone(0, 0, 255);
+        break;
+      case GameConst.RED_COLOR:
+        this.setTone(255, 0, 0);
+        break;
+      default:
+        this.setTone(0, 0, 0);
+    }
+  }
+
+  open() {
+    this.visible = true;
+    this.activate();
+    super.open();
   }
 
   alignStartTop() {
@@ -1509,20 +1509,20 @@ class TextWindow extends Window_Base {
     return this._history.filter(history => history.symbol === symbol);
   }
 
-  isFullsize() {
-    return this.width === Graphics.boxWidth;
+  isOneFourthSize() {
+    return this.width === Graphics.boxWidth / 4;
   }
-
+  
   isMiddleSize() {
     return this.width === Graphics.boxWidth / 2;
   }
 
-  isOneFourthSize() {
-    return this.width === Graphics.boxWidth / 4;
-  }
-
   isThreeFourthSize() {
     return this.width === Graphics.boxWidth * 3 / 4;
+  }
+
+  isFullsize() {
+    return this.width === Graphics.boxWidth;
   }
 
   isBlueColor() {
@@ -1891,8 +1891,6 @@ class ScoreWindow extends StateWindow {
 
 }
 
-class AskCommandWindow extends CommandWindow {}
-class FoldersCommandWindow extends CommandWindow {}
 class PowerAction {
     constructor(command) {
         this._command = command;
@@ -6628,8 +6626,6 @@ class ChangeTextColorTextWindowTest extends SceneTest {
     this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_1', GameColorIndexs.DEFAULT));
   }
 }
-
-
 // tests COMMAND WINDOW BASE
 class CreateFullsizeCommandWindowTest extends SceneTest {
   create() {
@@ -6952,56 +6948,6 @@ class CommandsAndHandlersWithTextCommandWindowTest extends SceneTest {
 }
 
 
-
-
-// tests ASK COMMAND WINDOW 
-class SelectOptionAskCommandWindowTest extends SceneTest {
-  create() {
-    this.pressToAsserts();
-    const commandYes = AskCommandWindow.createCommand('Yes', 'YES');
-    const commandNo = AskCommandWindow.createCommand('No', 'NO');
-    const questionText = 'Do you want to continue?';
-    this.subject = AskCommandWindow.create(0, 0, questionText, [commandYes, commandNo]);
-    this.addWatched(this.subject);
-    this.subject.alignMiddle();
-    this.subject.open();
-  }
-
-  asserts() {
-    this.describe('Deve mostrar as opções!');
-  }
-}
-// tests FOLDRES COMMAND WINDOW 
-class SelectFoldersCommandWindowTest extends SceneTest {
-  create() {
-    const red = 10;
-    const green = 10;
-    const blue = 10;
-    const white = 10;
-    const black = 10;
-    const brown = 10;
-    const params = [red, green, blue, white, black, brown];
-    const energies1 = FoldersCommandWindow.createEnergies(...params);
-    const energies2 = FoldersCommandWindow.createEnergies(...params);
-    const energies3 = FoldersCommandWindow.createEnergies(...params);
-    const folderName1 = 'Folder 1';
-    const folderName2 = 'Folder 2';
-    const folderName3 = 'Folder 3';
-    const commandFolder1 = FoldersCommandWindow.createCommand(folderName1, energies1, 'FOLDER_1');
-    const commandFolder2 = FoldersCommandWindow.createCommand(folderName2, energies2, 'FOLDER_2');
-    const commandFolder3 = FoldersCommandWindow.createCommand(folderName3, energies3, 'FOLDER_3');
-    const title = 'Select a folder';
-    this.subject = FoldersCommandWindow.createWindowFullSize(0, 0, title, [commandFolder1, commandFolder2, commandFolder3]);
-    this.subject.alignCenterMiddle();
-    this.addWatched(this.subject);
-    this.subject.open();
-  }
-
-  asserts() {
-    this.describe('Deve abrir a janela!');
-  }
-}
-
 class CardBattleScene extends Scene_Message {
   initialize() {
     super.initialize();
@@ -7214,25 +7160,17 @@ class CardBattleTestScene extends Scene_Message {
       CommandsAndHandlersCommandWindowTest,
       CommandsAndHandlersWithTextCommandWindowTest,
     ];
-    const askCommandWindow = [
-      SelectOptionAskCommandWindowTest,
-    ];
-    const foldersCommandWindow = [
-      SelectFoldersCommandWindowTest,
-    ];
     return [
       // ...cardSpriteTests,
       // ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
-      ...textWindowTests,
+      // ...textWindowTests,
       
-      // ...boardWindowTests,
+      ...boardWindowTests,
       // ...battlePointsWindow,
       // ...trashWindow,
       // ...scoreWindow,
-      // ...askCommandWindow,
-      // ...foldersCommandWindow,
     ];
   }
 

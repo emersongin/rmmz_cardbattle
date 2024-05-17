@@ -1,1 +1,0 @@
-class FoldersCommandWindow extends CommandWindow {}
