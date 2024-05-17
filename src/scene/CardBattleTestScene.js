@@ -91,7 +91,29 @@ class CardBattleTestScene extends Scene_Message {
       AlignEndBottomStateWindowTest,
     ];
     const textWindowTests = [
+      CreateOneFourthSizeTextWindowTest,
+      CreateMiddleSizeTextWindowTest,
+      CreateThreeFourthSizeTextWindowTest,
+      CreateFullSizeTextWindowTest,
+      OpenTextWindowTest,
+      CloseTextWindowTest,
+      ChangeBlueColorTextWindowTest,
+      ChangeRedColorTextWindowTest,
+      ChangeDefaultColorTextWindowTest,
+      AlignCenterBottomTextWindowTest,
+      AlignCenterMiddleTextWindowTest,
+      AlignCenterTopTextWindowTest,
+      AlignEndBottomTextWindowTest,
+      AlignEndMiddleTextWindowTest,
+      AlignEndTopTextWindowTest,
+      AlignStartBottomTextWindowTest,
+      AlignStartMiddleTextWindowTest,
+      AlignStartTopTextWindowTest,
+      AlignTextCenterTextWindowTest,
+      AlignTextLeftTextWindowTest,
+      AlignTextRightTextWindowTest,
       TextTextWindowTest,
+      ChangeTextColorTextWindowTest,
     ];
     const boardWindowTests = [
       PassBoardWindowTest,
@@ -121,12 +143,13 @@ class CardBattleTestScene extends Scene_Message {
       ChangeBlueColorCommandWindowTest,
       ChangeRedColorCommandWindowTest,
       ChangeDefaultColorCommandWindowTest,
-      TextCommandWindowTest,
       AlignItemsLeftCommandWindowTest,
       AlignItemsCenterCommandWindowTest,
       AlignItemsRightCommandWindowTest,
+      TextCommandWindowTest,
       ChangeTextColorCommandWindowTest,
       CommandsAndHandlersCommandWindowTest,
+      CommandsAndHandlersWithTextCommandWindowTest,
     ];
     const askCommandWindow = [
       SelectOptionAskCommandWindowTest,
@@ -135,10 +158,10 @@ class CardBattleTestScene extends Scene_Message {
       SelectFoldersCommandWindowTest,
     ];
     return [
-      // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      // ...commandWindow,
-      // ...StateWindowTests,
+      ...cardSpriteTests,
+      ...cardsetSpriteTests,
+      ...commandWindow,
+      ...StateWindowTests,
       ...textWindowTests,
       
       // ...boardWindowTests,

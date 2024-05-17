@@ -34,8 +34,8 @@
 // include ./sprite/CardBattleSpriteset.js
 
 // include ./scene/phase/CardBattlePhase.js
-
 // include ../test/integration/SceneTest.js
+
 // tests CARD Sprite
 // include ../test/integration/card/StartOpenCardSpriteTest.js
 // include ../test/integration/card/StartClosedCardSpriteTest.js
@@ -81,6 +81,7 @@
 // include ../test/integration/cardset/FlashCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/QuakeCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/AnimationCardsCardsetSpriteTest.js
+
 // tests STATE WINDOW
 // include ../test/integration/statewindow/OpenStateWindowTest.js
 // include ../test/integration/statewindow/CloseStateWindowTest.js
@@ -100,8 +101,6 @@
 // include ../test/integration/statewindow/AlignEndTopStateWindowTest.js
 // include ../test/integration/statewindow/AlignEndMiddleStateWindowTest.js
 // include ../test/integration/statewindow/AlignEndBottomStateWindowTest.js
-// tests TEXT WINDOW
-// include ../test/integration/textwindow/TextTextWindowTest.js
 // tests BOARD WINDOW
 // include ../test/integration/boardwindow/PassBoardWindowTest.js
 // include ../test/integration/boardwindow/NoPassBoardWindowTest.js
@@ -113,6 +112,34 @@
 // tests SCORE WINDOW
 // include ../test/integration/scorewindow/OneWinUpdatingScoreWindowTest.js
 // include ../test/integration/scorewindow/TwoWinsUpdatingScoreWindowTest.js
+
+
+// tests TEXT WINDOW
+// include ../test/integration/textwindow/CreateOneFourthSizeTextWindowTest.js
+// include ../test/integration/textwindow/CreateMiddleSizeTextWindowTest.js
+// include ../test/integration/textwindow/CreateThreeFourthSizeTextWindowTest.js
+// include ../test/integration/textwindow/CreateFullsizeTextWindowTest.js
+// include ../test/integration/textwindow/OpenTextWindowTest.js
+// include ../test/integration/textwindow/CloseTextWindowTest.js
+// include ../test/integration/textwindow/ChangeBlueColorTextWindowTest.js
+// include ../test/integration/textwindow/ChangeRedColorTextWindowTest.js
+// include ../test/integration/textwindow/ChangeDefaultColorTextWindowTest.js
+// include ../test/integration/textwindow/AlignCenterBottomTextWindowTest.js
+// include ../test/integration/textwindow/AlignCenterMiddleTextWindowTest.js
+// include ../test/integration/textwindow/AlignCenterTopTextWindowTest.js
+// include ../test/integration/textwindow/AlignEndBottomTextWindowTest.js
+// include ../test/integration/textwindow/AlignEndMiddleTextWindowTest.js
+// include ../test/integration/textwindow/AlignEndTopTextWindowTest.js
+// include ../test/integration/textwindow/AlignStartBottomTextWindowTest.js
+// include ../test/integration/textwindow/AlignStartMiddleTextWindowTest.js
+// include ../test/integration/textwindow/AlignStartTopTextWindowTest.js
+// include ../test/integration/textwindow/AlignTextCenterTextWindowTest.js
+// include ../test/integration/textwindow/AlignTextLeftTextWindowTest.js
+// include ../test/integration/textwindow/AlignTextRightTextWindowTest.js
+// include ../test/integration/textwindow/TextTextWindowTest.js
+// include ../test/integration/textwindow/ChangeTextColorTextWindowTest.js
+
+
 // tests COMMAND WINDOW BASE
 // include ../test/integration/commandwindow/CreateFullsizeCommandWindowTest.js
 // include ../test/integration/commandwindow/OpenCommandWindowTest.js
@@ -123,15 +150,20 @@
 // include ../test/integration/commandwindow/AlignTopCommandWindowTest.js
 // include ../test/integration/commandwindow/AlignMiddleCommandWindowTest.js
 // include ../test/integration/commandwindow/AlignBottomCommandWindowTest.js
-// include ../test/integration/commandwindow/TextCommandWindowTest.js
 // include ../test/integration/commandwindow/AlignTextLeftCommandWindowTest.js
 // include ../test/integration/commandwindow/AlignTextCenterCommandWindowTest.js
 // include ../test/integration/commandwindow/AlignTextRightCommandWindowTest.js
-// include ../test/integration/commandwindow/ChangeTextColorCommandWindowTest.js
-// include ../test/integration/commandwindow/CommandsAndHandlersCommandWindowTest.js
 // include ../test/integration/commandwindow/AlignItemsLeftCommandWindowTest.js
 // include ../test/integration/commandwindow/AlignItemsCenterCommandWindowTest.js
 // include ../test/integration/commandwindow/AlignItemsRightCommandWindowTest.js
+// include ../test/integration/commandwindow/TextCommandWindowTest.js
+// include ../test/integration/commandwindow/ChangeTextColorCommandWindowTest.js
+// include ../test/integration/commandwindow/CommandsAndHandlersCommandWindowTest.js
+// include ../test/integration/commandwindow/CommandsAndHandlersWithTextCommandWindowTest.js
+
+
+
+
 // tests ASK COMMAND WINDOW 
 // include ../test/integration/askcommandwindow/SelectOptionAskCommandWindowTest.js
 // tests FOLDRES COMMAND WINDOW 

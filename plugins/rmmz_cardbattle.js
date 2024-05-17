@@ -4552,7 +4552,6 @@ class CardBattlePhase {
     }
   }
 }
-
 class SceneTest {
   scene = {};
   status = 'START';
@@ -4808,6 +4807,7 @@ class SceneTest {
     return () => this.waitHandler = false;
   }
 }
+
 // tests CARD Sprite
 class StartOpenCardSpriteTest extends SceneTest {
   create() {
@@ -5809,6 +5809,7 @@ class AnimationCardsCardsetSpriteTest extends SceneTest {
     this.assertWasTrue('Houve um frame de aimação?', this.subject.someSpriteIsAnimationPlaying);
   }
 }
+
 // tests STATE WINDOW
 class OpenStateWindowTest extends SceneTest {
   create() {
@@ -6082,36 +6083,6 @@ class AlignEndBottomStateWindowTest extends SceneTest {
     this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
   }
 }
-// tests TEXT WINDOW
-class TextTextWindowTest extends SceneTest {
-  create() {
-    const line1 = 'primeiro texto';
-    const line2 = 'segundo texto';
-    const line3 = 'terceiro texto';
-    const line4 = 'quarto texto';
-    const line5 = 'quinto texto';
-    const text = [
-      [line1, line2, line3],
-      [line4],
-      line5,
-    ];
-    this.subject = TextWindow.createWindowFullSize(0, 0, text);
-    this.addWatched(this.subject);
-    this.subject.open();
-  }
-
-  asserts() {
-    const text = [
-      'primeiro texto segundo texto terceiro texto',
-      'quarto texto',
-      'quinto texto',
-    ];
-    this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
-    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
-  }
-}
 // tests BOARD WINDOW
 class PassBoardWindowTest extends SceneTest {
   create() {
@@ -6245,6 +6216,678 @@ class TwoWinsUpdatingScoreWindowTest extends SceneTest {
     this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
   }
 }
+
+
+// tests TEXT WINDOW
+class CreateOneFourthSizeTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class CreateMiddleSizeTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class CreateThreeFourthSizeTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class CreateFullSizeTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class OpenTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class CloseTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class ChangeBlueColorTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class ChangeRedColorTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class ChangeDefaultColorTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class AlignCenterBottomTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class AlignCenterMiddleTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class AlignCenterBottomTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class AlignEndBottomTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class AlignEndMiddleTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class AlignEndTopTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class AlignStartBottomTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class AlignStartMiddleTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class AlignStartTopTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class AlignTextCenterTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class AlignTextLeftTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class AlignTextRightTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class TextTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class ChangeTextColorTextWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = TextWindow.createWindowFullSize(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+
+
 // tests COMMAND WINDOW BASE
 class CreateFullsizeCommandWindowTest extends SceneTest {
   create() {
@@ -6364,35 +7007,6 @@ class AlignBottomCommandWindowTest extends SceneTest {
     this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(positionY);
   }
 }
-class TextCommandWindowTest extends SceneTest {
-  create() {
-    const line1 = 'primeiro texto';
-    const line2 = 'segundo texto';
-    const line3 = 'terceiro texto';
-    const line4 = 'quarto texto';
-    const line5 = 'quinto texto';
-    const text = [
-      [line1, line2, line3],
-      [line4],
-      line5,
-    ];
-    this.subject = CommandWindow.create(0, 0, text);
-    this.addWatched(this.subject);
-    this.subject.open();
-  }
-
-  asserts() {
-    const text = [
-      'primeiro texto segundo texto terceiro texto',
-      'quarto texto',
-      'quinto texto',
-    ];
-    this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
-    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
-  }
-}
 class AlignTextLeftCommandWindowTest extends SceneTest {
   create() {
     const text = [
@@ -6448,57 +7062,6 @@ class AlignTextRightCommandWindowTest extends SceneTest {
     this.describe('Deve mostrar o texto alinhado na direita.');
     const aligment = GameConst.RIGHT;
     this.assert('Foi desenhando na direita?', this.subject.getTextAlignment()).toBe(aligment);
-  }
-}
-class ChangeTextColorCommandWindowTest extends SceneTest {
-  create() {
-    const line1 = 'primeiro texto';
-    let line2 = 'segundo texto';
-    line2 = CommandWindow.setTextColor(line2, GameColorIndexs.BLUE);
-    let line3 = 'terceiro texto';
-    line3 = CommandWindow.setTextColor(line3, GameColorIndexs.DEFAULT);
-    const line4 = 'quarto texto';
-    const line5 = 'quinto texto';
-    const text = [
-      [line1, line2, line3],
-      line4,
-      line5,
-    ];
-    this.subject = CommandWindow.create(0, 0, text);
-    this.addWatched(this.subject);
-    this.subject.open();
-  }
-
-  asserts() {
-    const text = [
-      'primeiro texto segundo texto terceiro texto',
-      'quarto texto',
-      'quinto texto',
-    ];
-    this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
-    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
-    this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_0', GameColorIndexs.BLUE));
-    this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_1', GameColorIndexs.DEFAULT));
-  }
-}
-class CommandsAndHandlersCommandWindowTest extends SceneTest {
-  create() {
-    const commandYes = CommandWindow.createCommand('Yes', 'YES');
-    const commandNo = CommandWindow.createCommand('No', 'NO');
-    const hanlderYes = this.createHandler();
-    const hanlderNo = this.createHandler();
-    const text = [ 
-      'Do you want to continue?',
-    ];
-    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo], [hanlderYes, hanlderNo]);
-    this.addWatched(this.subject);
-    this.subject.open();
-  }
-
-  asserts() {
-    this.describe('Deve mostrar as opções da janela de comando');
   }
 }
 class AlignItemsLeftCommandWindowTest extends SceneTest {
@@ -6561,6 +7124,106 @@ class AlignItemsRightCommandWindowTest extends SceneTest {
     this.assertTrue('Estão alinhados a direita?', this.subject.isItemsAlign('ITEMS_ALIGN', GameConst.RIGHT));
   }
 }
+class TextCommandWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    const line2 = 'segundo texto';
+    const line3 = 'terceiro texto';
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      [line4],
+      line5,
+    ];
+    this.subject = CommandWindow.create(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+  }
+}
+class ChangeTextColorCommandWindowTest extends SceneTest {
+  create() {
+    const line1 = 'primeiro texto';
+    let line2 = 'segundo texto';
+    line2 = CommandWindow.setTextColor(line2, GameColorIndexs.BLUE);
+    let line3 = 'terceiro texto';
+    line3 = CommandWindow.setTextColor(line3, GameColorIndexs.DEFAULT);
+    const line4 = 'quarto texto';
+    const line5 = 'quinto texto';
+    const text = [
+      [line1, line2, line3],
+      line4,
+      line5,
+    ];
+    this.subject = CommandWindow.create(0, 0, text);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    const text = [
+      'primeiro texto segundo texto terceiro texto',
+      'quarto texto',
+      'quinto texto',
+    ];
+    this.describe('Deve apresentar o texto que foi informado em janela.');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+    this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_0', GameColorIndexs.BLUE));
+    this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_1', GameColorIndexs.DEFAULT));
+  }
+}
+class CommandsAndHandlersCommandWindowTest extends SceneTest {
+  create() {
+    const commandYes = CommandWindow.createCommand('Yes', 'YES');
+    const commandNo = CommandWindow.createCommand('No', 'NO');
+    const hanlderYes = this.createHandler();
+    const hanlderNo = this.createHandler();
+    const text = [];
+    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo], [hanlderYes, hanlderNo]);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    this.describe('Deve mostrar as opções da janela de comando');
+  }
+}
+class CommandsAndHandlersWithTextCommandWindowTest extends SceneTest {
+  create() {
+    const commandYes = CommandWindow.createCommand('Yes', 'YES');
+    const commandNo = CommandWindow.createCommand('No', 'NO');
+    const hanlderYes = this.createHandler();
+    const hanlderNo = this.createHandler();
+    const text = [ 
+      'Do you want to continue?',
+    ];
+    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo], [hanlderYes, hanlderNo]);
+    this.addWatched(this.subject);
+    this.subject.open();
+  }
+
+  asserts() {
+    this.describe('Deve mostrar as opções da janela de comando');
+  }
+}
+
+
+
+
 // tests ASK COMMAND WINDOW 
 class SelectOptionAskCommandWindowTest extends SceneTest {
   create() {
@@ -6761,7 +7424,29 @@ class CardBattleTestScene extends Scene_Message {
       AlignEndBottomStateWindowTest,
     ];
     const textWindowTests = [
+      CreateOneFourthSizeTextWindowTest,
+      CreateMiddleSizeTextWindowTest,
+      CreateThreeFourthSizeTextWindowTest,
+      CreateFullSizeTextWindowTest,
+      OpenTextWindowTest,
+      CloseTextWindowTest,
+      ChangeBlueColorTextWindowTest,
+      ChangeRedColorTextWindowTest,
+      ChangeDefaultColorTextWindowTest,
+      AlignCenterBottomTextWindowTest,
+      AlignCenterMiddleTextWindowTest,
+      AlignCenterTopTextWindowTest,
+      AlignEndBottomTextWindowTest,
+      AlignEndMiddleTextWindowTest,
+      AlignEndTopTextWindowTest,
+      AlignStartBottomTextWindowTest,
+      AlignStartMiddleTextWindowTest,
+      AlignStartTopTextWindowTest,
+      AlignTextCenterTextWindowTest,
+      AlignTextLeftTextWindowTest,
+      AlignTextRightTextWindowTest,
       TextTextWindowTest,
+      ChangeTextColorTextWindowTest,
     ];
     const boardWindowTests = [
       PassBoardWindowTest,
@@ -6791,12 +7476,13 @@ class CardBattleTestScene extends Scene_Message {
       ChangeBlueColorCommandWindowTest,
       ChangeRedColorCommandWindowTest,
       ChangeDefaultColorCommandWindowTest,
-      TextCommandWindowTest,
       AlignItemsLeftCommandWindowTest,
       AlignItemsCenterCommandWindowTest,
       AlignItemsRightCommandWindowTest,
+      TextCommandWindowTest,
       ChangeTextColorCommandWindowTest,
       CommandsAndHandlersCommandWindowTest,
+      CommandsAndHandlersWithTextCommandWindowTest,
     ];
     const askCommandWindow = [
       SelectOptionAskCommandWindowTest,
@@ -6805,10 +7491,10 @@ class CardBattleTestScene extends Scene_Message {
       SelectFoldersCommandWindowTest,
     ];
     return [
-      // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      // ...commandWindow,
-      // ...StateWindowTests,
+      ...cardSpriteTests,
+      ...cardsetSpriteTests,
+      ...commandWindow,
+      ...StateWindowTests,
       ...textWindowTests,
       
       // ...boardWindowTests,
