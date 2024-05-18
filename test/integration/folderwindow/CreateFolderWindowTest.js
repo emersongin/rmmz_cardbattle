@@ -10,7 +10,7 @@ class CreateFolderWindowTest extends SceneTest {
     const commandFolder2 = FolderWindow.createCommand('Folder Name Two', 'FOLDER_TWO', hanlderFolder2, energies2);
     const commandFolder3 = FolderWindow.createCommand('Folder Name Three', 'FOLDER_THREE', hanlderFolder3, energies3);
     let title = 'Choose a folder';
-    title = CommandWindow.setTextColor(title, GameColorIndexs.ORANGE);
+    title = CommandWindow.setTextColor(title, GameColors.ORANGE);
     const text = [title];
     const commands = [commandFolder1, commandFolder2, commandFolder3];
     this.subject = FolderWindow.create(0, 0, text, commands);

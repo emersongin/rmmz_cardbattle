@@ -72,63 +72,40 @@ const IconSetConst = {
 };
 
 const GameColors = {
+  DEFAULT: 'DEFAULT',
+  BLUE: 'BLUE',
   RED: 'RED',
   GREEN: 'GREEN',
-  BLUE: 'BLUE',
-  WHITE: 'WHITE',
   BLACK: 'BLACK',
+  WHITE: 'WHITE',
   BROWN: 'BROWN',
-  DEFAULT: 'DEFAULT',
-};
-
-const GameColorIndexs = {
-  DEFAULT: 0,
-  LIGHTBLUE: 1,
-  LIGHTRED: 2,
-  LIGHTGREEN: 3,
-  LIGHTBLUE2: 4,
-  LIGHTPURPLE: 5,
-  LIGHTYELLOW: 6,
-  LIGHTGRAY: 7,
-  GRAY: 8,
-  BLUE: 9,
-  RED: 10,
-  GREEN: 11,
-  BLUE2: 12,
-  PURPLE: 13,
-  YELLOW: 14,
-  BLACK: 15,
-  BLUE3: 16,
-  YELLOW2: 17,
-  RED2: 18,
-  BLACK2: 19,
-  ORANGE: 20,
-  YELLOW3: 21,
-  GREEN2: 22,
-  GREEN3: 23,
-  LIGHTGREEN2: 24,
-  BROWN: 25,
-  BLUE4: 26,
-  PINK: 27,
-  GREEN4: 28,
-  LIGHTGREEN3: 29,
-  VIOLET: 30,
-  LIGHTVIOLET: 31,
-};
-
-const HexColors = {
-  RED: '#ff0000',
-  GREEN: '#00ff00',
-  BLUE: '#0000ff',
-  WHITE: '#e5e5e5',
-  BLACK: '#191919',
-  BROWN: '#a52a2a',
-  FADEDRED: '#990000',
-  FADEDGREEN: '#009900',
-  FADEDBLUE: '#000099',
-  FADEDWHITE: '#959595',
-  FADEDBLACK: '#101010',
-  FADEDBROWN: '#852828',
+  //
+  LIGHTBLUE: 'LIGHTBLUE',
+  LIGHTRED: 'LIGHTRED',
+  LIGHTGREEN: 'LIGHTGREEN',
+  LIGHTBLUE2: 'LIGHTBLUE2',
+  LIGHTPURPLE: 'LIGHTPURPLE',
+  LIGHTYELLOW: 'LIGHTYELLOW',
+  LIGHTGRAY: 'LIGHTGRAY',
+  GRAY: 'GRAY',
+  BLUE2: 'BLUE2',
+  PURPLE: 'PURPLE',
+  YELLOW: 'YELLOW',
+  BLUE3: 'BLUE3',
+  YELLOW2: 'YELLOW2',
+  RED2: 'RED2',
+  BLACK2: 'BLACK2', 
+  ORANGE: 'ORANGE',
+  YELLOW3: 'YELLOW3',
+  GREEN2: 'GREEN2',
+  GREEN3: 'GREEN3',
+  LIGHTGREEN2: 'LIGHTGREEN2',
+  BLUE4: 'BLUE4',
+  PINK: 'PINK',
+  GREEN4: 'GREEN4',
+  LIGHTGREEN3: 'LIGHTGREEN3',
+  VIOLET: 'VIOLET',
+  LIGHTVIOLET: 'LIGHTVIOLET',
 };
 
 
@@ -266,6 +243,111 @@ class ObjectHelper {
   }
 }
 
+class ColorHelper {
+  static getColorIndex(color) {
+    switch (color) {
+      case GameColors.DEFAULT:
+        return 0;
+      case GameColors.LIGHTBLUE:
+        return 1;
+      case GameColors.LIGHTRED:
+        return 2;
+      case GameColors.LIGHTGREEN:
+        return 3;
+      case GameColors.LIGHTBLUE2:
+        return 4;
+      case GameColors.LIGHTPURPLE:
+        return 5;
+      case GameColors.LIGHTYELLOW:
+        return 6;
+      case GameColors.LIGHTGRAY:
+        return 7;
+      case GameColors.GRAY:
+        return 8;
+      case GameColors.BLUE:
+        return 9;
+      case GameColors.RED:
+        return 10;
+      case GameColors.GREEN:
+        return 11;
+      case GameColors.BLUE2:
+        return 12;
+      case GameColors.PURPLE:
+        return 13;
+      case GameColors.YELLOW:
+        return 14;
+      case GameColors.BLACK:
+        return 15;
+      case GameColors.BLUE3:
+        return 16;
+      case GameColors.YELLOW2:
+        return 17;
+      case GameColors.RED2:
+        return 18;
+      case GameColors.BLACK2:
+        return 19;
+      case GameColors.ORANGE:
+        return 20;
+      case GameColors.YELLOW3:
+        return 21;
+      case GameColors.GREEN2:
+        return 22;
+      case GameColors.GREEN3:
+        return 23;
+      case GameColors.LIGHTGREEN2:
+        return 24;
+      case GameColors.BROWN:
+        return 25;
+      case GameColors.BLUE4:
+        return 26;
+      case GameColors.PINK:
+        return 27;
+      case GameColors.GREEN4:
+        return 28;
+      case GameColors.LIGHTGREEN3:
+        return 29;
+      case GameColors.VIOLET:
+        return 30;
+      case GameColors.LIGHTVIOLET:
+        return 31;
+      default:
+        return 0;
+    }
+  }
+
+  static getColorHex(color) {
+    switch (color) {
+      case GameColors.RED:
+        return '#ff0000';
+      case GameColors.GREEN:
+        return '#00ff00';
+      case GameColors.BLUE:
+        return '#0000ff';
+      case GameColors.WHITE:
+        return '#e5e5e5';
+      case GameColors.BLACK:
+        return '#191919';
+      case GameColors.BROWN:
+        return '#a52a2a';
+      case GameColors.FADEDRED: 
+        return '#990000';
+      case GameColors.FADEDGREEN: 
+        return '#009900';
+      case GameColors.FADEDBLUE: 
+        return '#000099';
+      case GameColors.FADEDWHITE: 
+        return '#959595';
+      case GameColors.FADEDBLACK: 
+        return '#101010';
+      case GameColors.FADEDBROWN: 
+        return '#852828';
+      case GameColors.DEFAULT:
+        return '#ffffff';
+      default:
+        return '#ffffff';
+    }
+  }
+}
 class CardGenerator {
   static generateCards(amount = 1) {
     const cards = [];
@@ -672,7 +754,8 @@ class CommandWindow extends Window_Command {
     return { name, symbol, handler, enabled, ext };
   }
 
-  static setTextColor(text, colorIndex) {
+  static setTextColor(text, color) {
+    let colorIndex = ColorHelper.getColorIndex(color);
     return `\\c[${colorIndex}]${text}`;
   }
 
@@ -2073,7 +2156,7 @@ class CardBattlePlayer {
   }
 }
 class ActionSprite extends Sprite {
-  initialize(x, y) { 
+  initialize(x = 0, y = 0) { 
     super.initialize();
     this._actionsQueue = [];
     this._actionsQueueWithDelay = [];
@@ -2081,12 +2164,12 @@ class ActionSprite extends Sprite {
     this._positiveIntensityEffect = false;
     this._intensityEffect = 255;
     this._opacityEffect = 255;
-    this.startPosition(x || 0, y || 0);
+    this.setPosition(x, y);
   }
 
-  startPosition(xPosition, yPosition) {
-    this.x = xPosition || this.x;
-    this.y = yPosition || this.y;
+  setPosition(xPosition = this.x, yPosition = this.y) {
+    this.x = xPosition;
+    this.y = yPosition;
   }
 
   changeStatus(status, ...params) {
@@ -2884,16 +2967,16 @@ class CardSprite extends ActionSprite {
   static create(type, color, figureName, attack, health, x, y) {
     const card = new CardSprite(x, y);
     card.setCard(
-      type || CardTypes.BATTLE, 
-      color || HexColors.BROWN, 
-      figureName || 'default', 
-      attack || 0, 
-      health || 0
+      type, 
+      color, 
+      figureName, 
+      attack, 
+      health
     );
     return card;
   }
 
-  setCard(type, color, figureName, attack, health) {
+  setCard(type, color, figureName, attack = 0, health = 0) {
     this.setType(type);
     this.setColor(color);
     this.setFigure(figureName);
@@ -2903,23 +2986,26 @@ class CardSprite extends ActionSprite {
   }
 
   setType(type) {
+    if (!type) {
+      throw new Error('Card type is required');
+    }
     this._type = type;
   }
 
   setColor(color) {
+    if (!color) {
+      throw new Error('Card color is required');
+    }
     this._color = color;
   }
 
-  setFigure(figureName) {
+  setFigure(figureName = 'default') {
     this._figure = ImageManager.loadCard(figureName);
-    // test
-    // this._figure = new Bitmap(this.width, this.height);
-    // this._figure.fillAll('yellow');
   }
 
   setBackImage() {
     this._backImage = new Bitmap(this.width, this.height);
-    this._backImage.gradientFillRect (0, 0, this.width, this.height, '#555', '#000');
+    this._backImage.gradientFillRect(0, 0, this.width, this.height, '#555', '#000');
   }
 
   initialize(x, y) {
@@ -3075,47 +3161,28 @@ class CardSprite extends ActionSprite {
   getBorderColor() {
     switch (this._color) {
       case ColorTypes.RED:
-        return HexColors.FADEDRED;
+        return ColorHelper.getColorHex(GameColors.FADEDRED);
         break;
       case ColorTypes.GREEN:
-        return HexColors.FADEDGREEN;
+        return ColorHelper.getColorHex(GameColors.FADEDGREEN);
         break;
       case ColorTypes.BLUE:
-        return HexColors.FADEDBLUE;
+        return ColorHelper.getColorHex(GameColors.FADEDBLUE);
         break;
       case ColorTypes.WHITE:
-        return HexColors.FADEDWHITE;
+        return ColorHelper.getColorHex(GameColors.FADEDWHITE);
         break;
       case ColorTypes.BLACK:
-        return HexColors.FADEDBLACK;
+        return ColorHelper.getColorHex(GameColors.FADEDBLACK);
         break;
       default:
-        return HexColors.FADEDBROWN;
+        return ColorHelper.getColorHex(GameColors.FADEDBROWN);
         break;
     }
   }
 
   getBackgroundColor() {
-    switch (this._color) {
-      case ColorTypes.RED:
-        return HexColors.RED;
-        break;
-      case ColorTypes.GREEN:
-        return HexColors.GREEN;
-        break;
-      case ColorTypes.BLUE:
-        return HexColors.BLUE;
-        break;
-      case ColorTypes.WHITE:
-        return HexColors.WHITE;
-        break;
-      case ColorTypes.BLACK:
-        return HexColors.BLACK;
-        break;
-      default:
-        return HexColors.BROWN;
-        break;
-    }
+    return ColorHelper.getColorHex(this._color);
   }
 
   drawFigure() {
@@ -3901,6 +3968,33 @@ class CardsetSprite extends ActionSprite {
     return positions;
   }
 
+  static contentOriginalWidth() {
+    const width = CardSprite.contentOriginalWidth() * 6;
+    const spaceBetween = 5;
+    return width + spaceBetween;
+  }
+
+  static contentOriginalHeight() {
+    const heightLimit = 128;
+    return heightLimit;
+  }
+
+  static createPositionsList(numCards) {
+    const padding = CardsetSprite.getPaddingByNumCards(numCards);
+    const positions = CardsetSprite.createPositions(numCards, padding);
+    return positions;
+  }
+
+  static getPaddingByNumCards(numCards) {
+    const maxWidth = CardsetSprite.contentOriginalWidth();
+    let padding = Math.ceil(maxWidth / numCards);
+    const spaceBetween = 1;
+    const cardWidth = CardSprite.contentOriginalWidth() + spaceBetween;
+    padding = Math.min(padding, cardWidth);
+    padding = Math.max(padding, 1);
+    return padding;
+  }
+
   initialize(x, y) { 
     super.initialize(x, y);
     this._sprites = [];
@@ -3925,17 +4019,6 @@ class CardsetSprite extends ActionSprite {
   setSize() {
     this.width = CardsetSprite.contentOriginalWidth();
     this.height = CardsetSprite.contentOriginalHeight();
-  }
-
-  static contentOriginalWidth() {
-    const width = CardSprite.contentOriginalWidth() * 6;
-    const spaceBetween = 5;
-    return width + spaceBetween;
-  }
-
-  static contentOriginalHeight() {
-    const heightLimit = 128;
-    return heightLimit;
   }
 
   staticMode() {
@@ -4010,22 +4093,6 @@ class CardsetSprite extends ActionSprite {
     const sprites = this.createCardSpritesPositions(positions, cards);
     this.addAction(this.commandSetCards, sprites);
     return sprites;
-  }
-
-  static createPositionsList(numCards) {
-    const padding = CardsetSprite.getPaddingByNumCards(numCards);
-    const positions = CardsetSprite.createPositions(numCards, padding);
-    return positions;
-  }
-
-  static getPaddingByNumCards(numCards) {
-    const maxWidth = CardsetSprite.contentOriginalWidth();
-    let padding = Math.ceil(maxWidth / numCards);
-    const spaceBetween = 1;
-    const cardWidth = CardSprite.contentOriginalWidth() + spaceBetween;
-    padding = Math.min(padding, cardWidth);
-    padding = Math.max(padding, 1);
-    return padding;
   }
 
   startClosedCards(sprites = this._sprites) {
@@ -4161,7 +4228,7 @@ class CardsetSprite extends ActionSprite {
 
   commandSetAllCardsToPosition(sprites, x, y) {
     if (this.isHidden()) return;
-    sprites.forEach(sprite => sprite.startPosition(x, y));
+    sprites.forEach(sprite => sprite.setPosition(x, y));
     return true;
   }
 
@@ -4310,6 +4377,13 @@ class CardsetSprite extends ActionSprite {
 
   someSpriteIsBusy() {
     return this._sprites.some(sprite => sprite.isBusy());
+  }
+
+  centralize() {
+    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
+    this.x = centerXPosition;
+    this.y = centerYPosition;
   }
 }
 class BackgroundSprite extends Sprite {
@@ -5489,18 +5563,17 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
 // tests CARDSET
 class StartPositionCardsetSpriteTest extends SceneTest {
   create() {
-    this.subject = CardsetSprite.create();
+    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
+    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startPosition(centerXPosition, centerYPosition);
     this.subject.show();
   }
 
   asserts() {
+    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.describe('Deve iniciar na posição central!');
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     this.assertTrue('Esta no meio?', this.subject.isVisible());
     this.assert('Esta na posição x?', this.subject.x).toBe(centerXPosition);
     this.assert('Esta na posição y?', this.subject.y).toBe(centerYPosition);
@@ -5508,10 +5581,9 @@ class StartPositionCardsetSpriteTest extends SceneTest {
 }
 class SetCardsCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const cards = CardGenerator.generateCards(1);
     const sprites = this.subject.setCards(cards);
@@ -5532,10 +5604,9 @@ class SetCardsCardsetSpriteTest extends SceneTest {
 }
 class ListCardsCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
@@ -5554,10 +5625,9 @@ class ListCardsCardsetSpriteTest extends SceneTest {
 }
 class StartClosedCardsCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const numCards = 1;
     const cards = CardGenerator.generateCards(numCards);
@@ -5573,10 +5643,9 @@ class StartClosedCardsCardsetSpriteTest extends SceneTest {
 }
 class OpenAllCardsCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
@@ -5594,10 +5663,9 @@ class OpenAllCardsCardsetSpriteTest extends SceneTest {
 }
 class OpenCardsCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
@@ -5615,10 +5683,9 @@ class OpenCardsCardsetSpriteTest extends SceneTest {
 }
 class CloseAllCardsCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
@@ -5635,10 +5702,9 @@ class CloseAllCardsCardsetSpriteTest extends SceneTest {
 }
 class CloseCardsCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
@@ -5655,10 +5721,9 @@ class CloseCardsCardsetSpriteTest extends SceneTest {
 }
 class MoveAllCardsInListCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
@@ -5678,9 +5743,8 @@ class MoveAllCardsInListCardsetSpriteTest extends SceneTest {
 }
 class MoveCardsInListCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
+    this.subject.centralize();
     this.addWatched(this.subject);
     this.subject.show();
     const numCards = 6;
@@ -5701,10 +5765,9 @@ class MoveCardsInListCardsetSpriteTest extends SceneTest {
 }
 class MoveAllCardsToPositionCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
@@ -5728,10 +5791,9 @@ class MoveAllCardsToPositionCardsetSpriteTest extends SceneTest {
 }
 class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
@@ -5755,10 +5817,9 @@ class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
 }
 class AddAllCardsToListCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
@@ -5780,10 +5841,9 @@ class AddAllCardsToListCardsetSpriteTest extends SceneTest {
 }
 class AddCardsToListCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
@@ -5805,10 +5865,9 @@ class AddCardsToListCardsetSpriteTest extends SceneTest {
 }
 class DisableCardsCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const numCards = 10;
     const cards = CardGenerator.generateCards(numCards);
@@ -5831,10 +5890,9 @@ class DisableCardsCardsetSpriteTest extends SceneTest {
 }
 class SelectModeCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const numCards = 10;
     const cards = CardGenerator.generateCards(numCards);
@@ -5850,10 +5908,9 @@ class SelectModeCardsetSpriteTest extends SceneTest {
 }
 class StaticModeCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const numCards = 10;
     const cards = CardGenerator.generateCards(numCards);
@@ -5870,10 +5927,9 @@ class StaticModeCardsetSpriteTest extends SceneTest {
 }
 class SelectModeWithChoiceCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const numCards = 10;
     const cards = CardGenerator.generateCards(numCards);
@@ -5894,10 +5950,9 @@ class SelectModeWithChoiceCardsetSpriteTest extends SceneTest {
 }
 class FlashCardsCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
@@ -5913,10 +5968,9 @@ class FlashCardsCardsetSpriteTest extends SceneTest {
 }
 class QuakeCardsCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
@@ -5932,10 +5986,9 @@ class QuakeCardsCardsetSpriteTest extends SceneTest {
 }
 class AnimationCardsCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
@@ -5948,6 +6001,35 @@ class AnimationCardsCardsetSpriteTest extends SceneTest {
   asserts() {
     this.describe('Deve animar as cartas!');
     this.assertWasTrue('Houve um frame de aimação?', this.subject.someSpriteIsAnimationPlaying);
+  }
+}
+class EnumCardsCardsetSpriteTest extends SceneTest {
+  create() {
+    this.subject = CardsetSprite.create(0, 0);
+    this.addWatched(this.subject);
+    this.subject.centralize();
+    this.subject.show();
+    const cards = CardGenerator.generateCards(3);
+    const sprites = this.subject.listCards(cards);
+    this.subject.showCards(sprites);
+    // this.subject.showEnums([
+      // {
+      //   number: 1,
+      //   color: GameColors.RED,
+      // },
+      // {
+      //   number: 2,
+      //   color: GameColors.BLUE,
+      // },
+      // {
+      //   number: 3,
+      //   color: GameColors.RED,
+      // },
+    // ]);
+  }
+
+  asserts() {
+    this.describe('Deve mostrar númeração ordenada das cartas!');
   }
 }
 // tests STATE WINDOW
@@ -6733,9 +6815,9 @@ class ChangeTextColorTextWindowTest extends SceneTest {
   create() {
     const line1 = 'primeiro texto';
     let line2 = 'segundo texto';
-    line2 = CommandWindow.setTextColor(line2, GameColorIndexs.BLUE);
+    line2 = CommandWindow.setTextColor(line2, GameColors.BLUE);
     let line3 = 'terceiro texto';
-    line3 = CommandWindow.setTextColor(line3, GameColorIndexs.DEFAULT);
+    line3 = CommandWindow.setTextColor(line3, GameColors.DEFAULT);
     const text = [ [line1, line2, line3] ];
     this.subject = TextWindow.createWindowFullSize(0, 0, text);
     this.addWatched(this.subject);
@@ -6746,8 +6828,10 @@ class ChangeTextColorTextWindowTest extends SceneTest {
     const text = [ 'primeiro texto segundo texto terceiro texto' ];
     this.describe('Deve apresentar o texto que foi informado em janela.');
     this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_0', GameColorIndexs.BLUE));
-    this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_1', GameColorIndexs.DEFAULT));
+    const color1 = ColorHelper.getColorIndex(GameColor.BLUE);
+    const color2 = ColorHelper.getColorIndex(GameColor.DEFAULT);
+    this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_0', color1));
+    this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_1', color2));
   }
 }
 // tests COMMAND WINDOW
@@ -7019,9 +7103,9 @@ class ChangeTextColorCommandWindowTest extends SceneTest {
   create() {
     const line1 = 'primeiro texto';
     let line2 = 'segundo texto';
-    line2 = CommandWindow.setTextColor(line2, GameColorIndexs.BLUE);
+    line2 = CommandWindow.setTextColor(line2, GameColor.BLUE);
     let line3 = 'terceiro texto';
-    line3 = CommandWindow.setTextColor(line3, GameColorIndexs.DEFAULT);
+    line3 = CommandWindow.setTextColor(line3, GameColor.DEFAULT);
     const text = [ [line1, line2, line3] ];
     this.subject = CommandWindow.create(0, 0, text);
     this.addWatched(this.subject);
@@ -7032,8 +7116,10 @@ class ChangeTextColorCommandWindowTest extends SceneTest {
     const text = [ 'primeiro texto segundo texto terceiro texto' ];
     this.describe('Deve apresentar o texto que foi informado em janela.');
     this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_0', GameColorIndexs.BLUE));
-    this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_1', GameColorIndexs.DEFAULT));
+    const color1 = ColorHelper.getColorIndex(GameColor.BLUE);
+    const color2 = ColorHelper.getColorIndex(GameColor.DEFAULT);
+    this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_0', color1));
+    this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_1', color2));
   }
 }
 class CommandsAndHandlersCommandWindowTest extends SceneTest {
@@ -7083,7 +7169,7 @@ class CreateFolderWindowTest extends SceneTest {
     const commandFolder2 = FolderWindow.createCommand('Folder Name Two', 'FOLDER_TWO', hanlderFolder2, energies2);
     const commandFolder3 = FolderWindow.createCommand('Folder Name Three', 'FOLDER_THREE', hanlderFolder3, energies3);
     let title = 'Choose a folder';
-    title = CommandWindow.setTextColor(title, GameColorIndexs.ORANGE);
+    title = CommandWindow.setTextColor(title, GameColors.ORANGE);
     const text = [title];
     const commands = [commandFolder1, commandFolder2, commandFolder3];
     this.subject = FolderWindow.create(0, 0, text, commands);
@@ -7228,6 +7314,7 @@ class CardBattleTestScene extends Scene_Message {
       FlashCardsCardsetSpriteTest,
       QuakeCardsCardsetSpriteTest,
       AnimationCardsCardsetSpriteTest,
+      EnumCardsCardsetSpriteTest,
     ];
     const StateWindowTests = [
       OpenStateWindowTest,
@@ -7316,15 +7403,15 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     return [
-      // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      // ...commandWindow,
-      // ...StateWindowTests,
-      // ...textWindowTests,
-      // ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow,
-      // ...scoreWindow,
+      ...cardSpriteTests,
+      ...cardsetSpriteTests,
+      ...commandWindow,
+      ...StateWindowTests,
+      ...textWindowTests,
+      ...boardWindowTests,
+      ...battlePointsWindow,
+      ...trashWindow,
+      ...scoreWindow,
       ...folderWindow,
     ];
   }

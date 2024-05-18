@@ -1,9 +1,8 @@
 class CloseAllCardsCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
+    this.subject.centralize();
     this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);

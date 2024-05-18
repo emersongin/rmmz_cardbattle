@@ -1,5 +1,5 @@
 class ActionSprite extends Sprite {
-  initialize(x, y) { 
+  initialize(x = 0, y = 0) { 
     super.initialize();
     this._actionsQueue = [];
     this._actionsQueueWithDelay = [];
@@ -7,12 +7,12 @@ class ActionSprite extends Sprite {
     this._positiveIntensityEffect = false;
     this._intensityEffect = 255;
     this._opacityEffect = 255;
-    this.startPosition(x || 0, y || 0);
+    this.setPosition(x, y);
   }
 
-  startPosition(xPosition, yPosition) {
-    this.x = xPosition || this.x;
-    this.y = yPosition || this.y;
+  setPosition(xPosition = this.x, yPosition = this.y) {
+    this.x = xPosition;
+    this.y = yPosition;
   }
 
   changeStatus(status, ...params) {

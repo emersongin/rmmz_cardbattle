@@ -13,16 +13,16 @@ class CardSprite extends ActionSprite {
   static create(type, color, figureName, attack, health, x, y) {
     const card = new CardSprite(x, y);
     card.setCard(
-      type || CardTypes.BATTLE, 
-      color || HexColors.BROWN, 
-      figureName || 'default', 
-      attack || 0, 
-      health || 0
+      type, 
+      color, 
+      figureName, 
+      attack, 
+      health
     );
     return card;
   }
 
-  setCard(type, color, figureName, attack, health) {
+  setCard(type, color, figureName, attack = 0, health = 0) {
     this.setType(type);
     this.setColor(color);
     this.setFigure(figureName);
@@ -32,23 +32,26 @@ class CardSprite extends ActionSprite {
   }
 
   setType(type) {
+    if (!type) {
+      throw new Error('Card type is required');
+    }
     this._type = type;
   }
 
   setColor(color) {
+    if (!color) {
+      throw new Error('Card color is required');
+    }
     this._color = color;
   }
 
-  setFigure(figureName) {
+  setFigure(figureName = 'default') {
     this._figure = ImageManager.loadCard(figureName);
-    // test
-    // this._figure = new Bitmap(this.width, this.height);
-    // this._figure.fillAll('yellow');
   }
 
   setBackImage() {
     this._backImage = new Bitmap(this.width, this.height);
-    this._backImage.gradientFillRect (0, 0, this.width, this.height, '#555', '#000');
+    this._backImage.gradientFillRect(0, 0, this.width, this.height, '#555', '#000');
   }
 
   initialize(x, y) {
@@ -204,47 +207,28 @@ class CardSprite extends ActionSprite {
   getBorderColor() {
     switch (this._color) {
       case ColorTypes.RED:
-        return HexColors.FADEDRED;
+        return ColorHelper.getColorHex(GameColors.FADEDRED);
         break;
       case ColorTypes.GREEN:
-        return HexColors.FADEDGREEN;
+        return ColorHelper.getColorHex(GameColors.FADEDGREEN);
         break;
       case ColorTypes.BLUE:
-        return HexColors.FADEDBLUE;
+        return ColorHelper.getColorHex(GameColors.FADEDBLUE);
         break;
       case ColorTypes.WHITE:
-        return HexColors.FADEDWHITE;
+        return ColorHelper.getColorHex(GameColors.FADEDWHITE);
         break;
       case ColorTypes.BLACK:
-        return HexColors.FADEDBLACK;
+        return ColorHelper.getColorHex(GameColors.FADEDBLACK);
         break;
       default:
-        return HexColors.FADEDBROWN;
+        return ColorHelper.getColorHex(GameColors.FADEDBROWN);
         break;
     }
   }
 
   getBackgroundColor() {
-    switch (this._color) {
-      case ColorTypes.RED:
-        return HexColors.RED;
-        break;
-      case ColorTypes.GREEN:
-        return HexColors.GREEN;
-        break;
-      case ColorTypes.BLUE:
-        return HexColors.BLUE;
-        break;
-      case ColorTypes.WHITE:
-        return HexColors.WHITE;
-        break;
-      case ColorTypes.BLACK:
-        return HexColors.BLACK;
-        break;
-      default:
-        return HexColors.BROWN;
-        break;
-    }
+    return ColorHelper.getColorHex(this._color);
   }
 
   drawFigure() {

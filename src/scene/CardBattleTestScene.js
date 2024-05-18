@@ -69,6 +69,7 @@ class CardBattleTestScene extends Scene_Message {
       FlashCardsCardsetSpriteTest,
       QuakeCardsCardsetSpriteTest,
       AnimationCardsCardsetSpriteTest,
+      EnumCardsCardsetSpriteTest,
     ];
     const StateWindowTests = [
       OpenStateWindowTest,
@@ -157,15 +158,15 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     return [
-      // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      // ...commandWindow,
-      // ...StateWindowTests,
-      // ...textWindowTests,
-      // ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow,
-      // ...scoreWindow,
+      ...cardSpriteTests,
+      ...cardsetSpriteTests,
+      ...commandWindow,
+      ...StateWindowTests,
+      ...textWindowTests,
+      ...boardWindowTests,
+      ...battlePointsWindow,
+      ...trashWindow,
+      ...scoreWindow,
       ...folderWindow,
     ];
   }

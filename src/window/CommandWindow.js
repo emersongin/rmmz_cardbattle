@@ -39,7 +39,8 @@ class CommandWindow extends Window_Command {
     return { name, symbol, handler, enabled, ext };
   }
 
-  static setTextColor(text, colorIndex) {
+  static setTextColor(text, color) {
+    let colorIndex = ColorHelper.getColorIndex(color);
     return `\\c[${colorIndex}]${text}`;
   }
 

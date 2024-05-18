@@ -88,3 +88,109 @@ class ObjectHelper {
     return true;
   }
 }
+
+class ColorHelper {
+  static getColorIndex(color) {
+    switch (color) {
+      case GameColors.DEFAULT:
+        return 0;
+      case GameColors.LIGHTBLUE:
+        return 1;
+      case GameColors.LIGHTRED:
+        return 2;
+      case GameColors.LIGHTGREEN:
+        return 3;
+      case GameColors.LIGHTBLUE2:
+        return 4;
+      case GameColors.LIGHTPURPLE:
+        return 5;
+      case GameColors.LIGHTYELLOW:
+        return 6;
+      case GameColors.LIGHTGRAY:
+        return 7;
+      case GameColors.GRAY:
+        return 8;
+      case GameColors.BLUE:
+        return 9;
+      case GameColors.RED:
+        return 10;
+      case GameColors.GREEN:
+        return 11;
+      case GameColors.BLUE2:
+        return 12;
+      case GameColors.PURPLE:
+        return 13;
+      case GameColors.YELLOW:
+        return 14;
+      case GameColors.BLACK:
+        return 15;
+      case GameColors.BLUE3:
+        return 16;
+      case GameColors.YELLOW2:
+        return 17;
+      case GameColors.RED2:
+        return 18;
+      case GameColors.BLACK2:
+        return 19;
+      case GameColors.ORANGE:
+        return 20;
+      case GameColors.YELLOW3:
+        return 21;
+      case GameColors.GREEN2:
+        return 22;
+      case GameColors.GREEN3:
+        return 23;
+      case GameColors.LIGHTGREEN2:
+        return 24;
+      case GameColors.BROWN:
+        return 25;
+      case GameColors.BLUE4:
+        return 26;
+      case GameColors.PINK:
+        return 27;
+      case GameColors.GREEN4:
+        return 28;
+      case GameColors.LIGHTGREEN3:
+        return 29;
+      case GameColors.VIOLET:
+        return 30;
+      case GameColors.LIGHTVIOLET:
+        return 31;
+      default:
+        return 0;
+    }
+  }
+
+  static getColorHex(color) {
+    switch (color) {
+      case GameColors.RED:
+        return '#ff0000';
+      case GameColors.GREEN:
+        return '#00ff00';
+      case GameColors.BLUE:
+        return '#0000ff';
+      case GameColors.WHITE:
+        return '#e5e5e5';
+      case GameColors.BLACK:
+        return '#191919';
+      case GameColors.BROWN:
+        return '#a52a2a';
+      case GameColors.FADEDRED: 
+        return '#990000';
+      case GameColors.FADEDGREEN: 
+        return '#009900';
+      case GameColors.FADEDBLUE: 
+        return '#000099';
+      case GameColors.FADEDWHITE: 
+        return '#959595';
+      case GameColors.FADEDBLACK: 
+        return '#101010';
+      case GameColors.FADEDBROWN: 
+        return '#852828';
+      case GameColors.DEFAULT:
+        return '#ffffff';
+      default:
+        return '#ffffff';
+    }
+  }
+}

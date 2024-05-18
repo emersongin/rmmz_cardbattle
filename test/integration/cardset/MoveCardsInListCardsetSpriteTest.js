@@ -1,8 +1,7 @@
 class MoveCardsInListCardsetSpriteTest extends SceneTest {
   create() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject = CardsetSprite.create(0, 0);
+    this.subject.centralize();
     this.addWatched(this.subject);
     this.subject.show();
     const numCards = 6;

@@ -17,6 +17,33 @@ class CardsetSprite extends ActionSprite {
     return positions;
   }
 
+  static contentOriginalWidth() {
+    const width = CardSprite.contentOriginalWidth() * 6;
+    const spaceBetween = 5;
+    return width + spaceBetween;
+  }
+
+  static contentOriginalHeight() {
+    const heightLimit = 128;
+    return heightLimit;
+  }
+
+  static createPositionsList(numCards) {
+    const padding = CardsetSprite.getPaddingByNumCards(numCards);
+    const positions = CardsetSprite.createPositions(numCards, padding);
+    return positions;
+  }
+
+  static getPaddingByNumCards(numCards) {
+    const maxWidth = CardsetSprite.contentOriginalWidth();
+    let padding = Math.ceil(maxWidth / numCards);
+    const spaceBetween = 1;
+    const cardWidth = CardSprite.contentOriginalWidth() + spaceBetween;
+    padding = Math.min(padding, cardWidth);
+    padding = Math.max(padding, 1);
+    return padding;
+  }
+
   initialize(x, y) { 
     super.initialize(x, y);
     this._sprites = [];
@@ -41,17 +68,6 @@ class CardsetSprite extends ActionSprite {
   setSize() {
     this.width = CardsetSprite.contentOriginalWidth();
     this.height = CardsetSprite.contentOriginalHeight();
-  }
-
-  static contentOriginalWidth() {
-    const width = CardSprite.contentOriginalWidth() * 6;
-    const spaceBetween = 5;
-    return width + spaceBetween;
-  }
-
-  static contentOriginalHeight() {
-    const heightLimit = 128;
-    return heightLimit;
   }
 
   staticMode() {
@@ -126,22 +142,6 @@ class CardsetSprite extends ActionSprite {
     const sprites = this.createCardSpritesPositions(positions, cards);
     this.addAction(this.commandSetCards, sprites);
     return sprites;
-  }
-
-  static createPositionsList(numCards) {
-    const padding = CardsetSprite.getPaddingByNumCards(numCards);
-    const positions = CardsetSprite.createPositions(numCards, padding);
-    return positions;
-  }
-
-  static getPaddingByNumCards(numCards) {
-    const maxWidth = CardsetSprite.contentOriginalWidth();
-    let padding = Math.ceil(maxWidth / numCards);
-    const spaceBetween = 1;
-    const cardWidth = CardSprite.contentOriginalWidth() + spaceBetween;
-    padding = Math.min(padding, cardWidth);
-    padding = Math.max(padding, 1);
-    return padding;
   }
 
   startClosedCards(sprites = this._sprites) {
@@ -277,7 +277,7 @@ class CardsetSprite extends ActionSprite {
 
   commandSetAllCardsToPosition(sprites, x, y) {
     if (this.isHidden()) return;
-    sprites.forEach(sprite => sprite.startPosition(x, y));
+    sprites.forEach(sprite => sprite.setPosition(x, y));
     return true;
   }
 
@@ -426,5 +426,12 @@ class CardsetSprite extends ActionSprite {
 
   someSpriteIsBusy() {
     return this._sprites.some(sprite => sprite.isBusy());
+  }
+
+  centralize() {
+    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
+    this.x = centerXPosition;
+    this.y = centerYPosition;
   }
 }
