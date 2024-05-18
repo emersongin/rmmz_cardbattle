@@ -444,4 +444,24 @@ class CommandWindow extends Window_Command {
     console.log(bitmap, sx, sy, pw, ph, x, y);
     this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
   }
+
+  //mute
+  playCursorSound() {
+    // SoundManager.playCursor();
+  }
+
+  playOkSound() {
+    // SoundManager.playOk();
+  }
+
+  playBuzzerSound() {
+    // SoundManager.playBuzzer();
+  }
+
+  processCancel() {
+    // SoundManager.playCancel();
+    this.updateInputData();
+    this.deactivate();
+    this.callCancelHandler();
+  }
 }

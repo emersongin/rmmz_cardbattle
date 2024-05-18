@@ -1077,14 +1077,31 @@ class CommandWindow extends Window_Command {
     console.log(bitmap, sx, sy, pw, ph, x, y);
     this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
   }
+
+  //mute
+  playCursorSound() {
+    // SoundManager.playCursor();
+  }
+
+  playOkSound() {
+    // SoundManager.playOk();
+  }
+
+  playBuzzerSound() {
+    // SoundManager.playBuzzer();
+  }
+
+  processCancel() {
+    // SoundManager.playCancel();
+    this.updateInputData();
+    this.deactivate();
+    this.callCancelHandler();
+  }
 }
 class FolderWindow extends CommandWindow {
-  static create(x, y, text, commands, handlers) {
+  static create(x, y, text, commands) {
     if (!Array.isArray(text)) {
       throw new Error('text must be an array!');
-    }
-    if (commands.length !== handlers.length) {
-      throw new Error('Commands and handlers must have the same length!');
     }
     const width = Graphics.boxWidth;
     const windowPadding = CommandWindow.windowPadding() * 2;
@@ -1093,7 +1110,7 @@ class FolderWindow extends CommandWindow {
     const itemsHeight = CommandWindow.itemHeight() * Math.max(commands.length, 0);
     const height = windowPadding + textHeight + itemsPadding + itemsHeight;
     const rect = new Rectangle(x, y, width, height);
-    return new FolderWindow(rect, text, commands, handlers);
+    return new FolderWindow(rect, text, commands);
   }
 
   static createCommand(name, symbol, handler, energies) {
@@ -1122,11 +1139,11 @@ class FolderWindow extends CommandWindow {
     const command = this.getCommand(index);
     const { name, energies } = command;
     const rect = this.itemLineRect(index);
-
     this.resetTextColor();
     this.changePaintOpacity(this.isCommandEnabled(index));
     this.drawFolderName(name, rect);
     this.drawPoints(energies, rect);
+    this.drawIcons(rect);
   }
 
   getCommand(index) {
@@ -1140,15 +1157,34 @@ class FolderWindow extends CommandWindow {
 
   drawPoints(energies, rect) {
     const { red, green, blue, white, black, brown } = energies;
+    const  { y, width } = rect;
     const points = [red, green, blue, white, black, brown];
-    points.forEach((point, index) => {
-      point = StringHelper.convertPointsDisplayPad(point);
-      this.drawText(point, (rect.width - (index * 80)) - 24, rect.y, 20, 'right');
+    points.forEach((points, index) => {
+      const align = (width - (width / 1.7));
+      const spaceBetween = 72;
+      const paddingLeft = 36;
+      const x = align + (spaceBetween * index) + paddingLeft;
+      const textWidth = 100;
+      points = StringHelper.convertPointsDisplayPad(points);
+      this.drawText(points, x, y, textWidth);
     });
   }
 
-  drawIcons(index, rect) {
-    this.drawIcon(5, rect.width, rect.y);
+  drawIcons(rect) {
+    const  { y, width } = rect;
+    const redBox = IconSetConst.REDBOX;
+    const greenBox = IconSetConst.GREENBOX;
+    const blueBox = IconSetConst.BLUEBOX;
+    const whiteBox = IconSetConst.WHITEBOX;
+    const blackBox = IconSetConst.BLACKBOX;
+    const brownBox = IconSetConst.BROWNBOX;
+    const icons = [redBox, greenBox, blueBox, whiteBox, blackBox, brownBox];
+    icons.forEach((iconIndex, index) => {
+      const align = (width - (width / 1.7));
+      const spaceBetween = 72;
+      const x = align + (spaceBetween * index);
+      this.drawIcon(iconIndex, x, y);
+    });
   }
 }
 class WindowStoppedState {
@@ -7050,8 +7086,7 @@ class CreateFolderWindowTest extends SceneTest {
     title = CommandWindow.setTextColor(title, GameColorIndexs.ORANGE);
     const text = [title];
     const commands = [commandFolder1, commandFolder2, commandFolder3];
-    const handlers = [hanlderFolder1, hanlderFolder2, hanlderFolder3];
-    this.subject = FolderWindow.create(0, 0, text, commands, handlers);
+    this.subject = FolderWindow.create(0, 0, text, commands);
     this.addWatched(this.subject);
     this.subject.alignTextCenter();
     this.subject.open();

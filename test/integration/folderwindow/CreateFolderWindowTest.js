@@ -13,8 +13,7 @@ class CreateFolderWindowTest extends SceneTest {
     title = CommandWindow.setTextColor(title, GameColorIndexs.ORANGE);
     const text = [title];
     const commands = [commandFolder1, commandFolder2, commandFolder3];
-    const handlers = [hanlderFolder1, hanlderFolder2, hanlderFolder3];
-    this.subject = FolderWindow.create(0, 0, text, commands, handlers);
+    this.subject = FolderWindow.create(0, 0, text, commands);
     this.addWatched(this.subject);
     this.subject.alignTextCenter();
     this.subject.open();
