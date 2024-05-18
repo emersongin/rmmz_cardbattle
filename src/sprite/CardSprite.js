@@ -228,7 +228,26 @@ class CardSprite extends ActionSprite {
   }
 
   getBackgroundColor() {
-    return ColorHelper.getColorHex(this._color);
+    switch (this._color) {
+      case ColorTypes.RED:
+        return ColorHelper.getColorHex(GameColors.RED);
+        break;
+      case ColorTypes.GREEN:
+        return ColorHelper.getColorHex(GameColors.GREEN);
+        break;
+      case ColorTypes.BLUE:
+        return ColorHelper.getColorHex(GameColors.BLUE);
+        break;
+      case ColorTypes.WHITE:
+        return ColorHelper.getColorHex(GameColors.WHITE);
+        break;
+      case ColorTypes.BLACK:
+        return ColorHelper.getColorHex(GameColors.BLACK);
+        break;
+      default:
+        return ColorHelper.getColorHex(GameColors.BROWN);
+        break;
+    }
   }
 
   drawFigure() {

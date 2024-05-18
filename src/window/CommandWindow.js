@@ -442,7 +442,6 @@ class CommandWindow extends Window_Command {
     const ph = ImageManager.iconHeight;
     const sx = (iconIndex % 16) * pw;
     const sy = Math.floor(iconIndex / 16) * ph;
-    console.log(bitmap, sx, sy, pw, ph, x, y);
     this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
   }
 

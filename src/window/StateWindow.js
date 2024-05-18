@@ -4,8 +4,12 @@
 class StateWindow extends Window_Base {
   static createWindowOneFourthSize(x, y) {
     const width = Graphics.boxWidth / 4;
-    const height = StateWindow.minHeight();
+    const height = CommandWindow.windowPadding() * 2;
     return StateWindow.create(x, y, width, height);
+  }
+
+  static windowPadding() {
+    return 12;
   }
 
   static minHeight() {
@@ -14,19 +18,19 @@ class StateWindow extends Window_Base {
 
   static createWindowMiddleSize(x, y) {
     const width = Graphics.boxWidth / 2;
-    const height = StateWindow.minHeight();
+    const height = CommandWindow.windowPadding() * 2
     return StateWindow.create(x, y, width, height);
   }
 
   static createWindowThreeFourthSize(x, y) {
     const width = Graphics.boxWidth * 3 / 4;
-    const height = StateWindow.minHeight();
+    const height = CommandWindow.windowPadding() * 2
     return StateWindow.create(x, y, width, height);
   }
 
   static createWindowFullSize(x, y) {
     const width = Graphics.boxWidth;
-    const height = StateWindow.minHeight();
+    const height = CommandWindow.windowPadding() * 2
     return StateWindow.create(x, y, width, height);
   }
 

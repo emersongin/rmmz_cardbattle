@@ -1,6 +1,6 @@
 class AlignMiddleCommandWindowTest extends SceneTest {
   create() {
-    this.subject = CommandWindow.create(0, 0);
+    this.subject = CommandWindow.create(0, 0, []);
     this.subject.alignMiddle();
     this.addWatched(this.subject);
     this.subject.open();

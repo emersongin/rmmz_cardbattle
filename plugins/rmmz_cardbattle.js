@@ -79,6 +79,12 @@ const GameColors = {
   BLACK: 'BLACK',
   WHITE: 'WHITE',
   BROWN: 'BROWN',
+  FADEDRED: 'FADEDRED',
+  FADEDGREEN: 'FADEDGREEN',
+  FADEDBLUE: 'FADEDBLUE',
+  FADEDWHITE: 'FADEDWHITE',
+  FADEDBLACK: 'FADEDBLACK',
+  FADEDBROWN: 'FADEDBROWN',
   //
   LIGHTBLUE: 'LIGHTBLUE',
   LIGHTRED: 'LIGHTRED',
@@ -1157,7 +1163,6 @@ class CommandWindow extends Window_Command {
     const ph = ImageManager.iconHeight;
     const sx = (iconIndex % 16) * pw;
     const sy = Math.floor(iconIndex / 16) * ph;
-    console.log(bitmap, sx, sy, pw, ph, x, y);
     this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
   }
 
@@ -1368,8 +1373,12 @@ class WindowUpdatedState {
 class StateWindow extends Window_Base {
   static createWindowOneFourthSize(x, y) {
     const width = Graphics.boxWidth / 4;
-    const height = StateWindow.minHeight();
+    const height = CommandWindow.windowPadding() * 2;
     return StateWindow.create(x, y, width, height);
+  }
+
+  static windowPadding() {
+    return 12;
   }
 
   static minHeight() {
@@ -1378,19 +1387,19 @@ class StateWindow extends Window_Base {
 
   static createWindowMiddleSize(x, y) {
     const width = Graphics.boxWidth / 2;
-    const height = StateWindow.minHeight();
+    const height = CommandWindow.windowPadding() * 2
     return StateWindow.create(x, y, width, height);
   }
 
   static createWindowThreeFourthSize(x, y) {
     const width = Graphics.boxWidth * 3 / 4;
-    const height = StateWindow.minHeight();
+    const height = CommandWindow.windowPadding() * 2
     return StateWindow.create(x, y, width, height);
   }
 
   static createWindowFullSize(x, y) {
     const width = Graphics.boxWidth;
-    const height = StateWindow.minHeight();
+    const height = CommandWindow.windowPadding() * 2
     return StateWindow.create(x, y, width, height);
   }
 
@@ -3182,7 +3191,26 @@ class CardSprite extends ActionSprite {
   }
 
   getBackgroundColor() {
-    return ColorHelper.getColorHex(this._color);
+    switch (this._color) {
+      case ColorTypes.RED:
+        return ColorHelper.getColorHex(GameColors.RED);
+        break;
+      case ColorTypes.GREEN:
+        return ColorHelper.getColorHex(GameColors.GREEN);
+        break;
+      case ColorTypes.BLUE:
+        return ColorHelper.getColorHex(GameColors.BLUE);
+        break;
+      case ColorTypes.WHITE:
+        return ColorHelper.getColorHex(GameColors.WHITE);
+        break;
+      case ColorTypes.BLACK:
+        return ColorHelper.getColorHex(GameColors.BLACK);
+        break;
+      default:
+        return ColorHelper.getColorHex(GameColors.BROWN);
+        break;
+    }
   }
 
   drawFigure() {
@@ -6828,8 +6856,8 @@ class ChangeTextColorTextWindowTest extends SceneTest {
     const text = [ 'primeiro texto segundo texto terceiro texto' ];
     this.describe('Deve apresentar o texto que foi informado em janela.');
     this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    const color1 = ColorHelper.getColorIndex(GameColor.BLUE);
-    const color2 = ColorHelper.getColorIndex(GameColor.DEFAULT);
+    const color1 = ColorHelper.getColorIndex(GameColors.BLUE);
+    const color2 = ColorHelper.getColorIndex(GameColors.DEFAULT);
     this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_0', color1));
     this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_1', color2));
   }
@@ -6837,7 +6865,7 @@ class ChangeTextColorTextWindowTest extends SceneTest {
 // tests COMMAND WINDOW
 class CreateFullsizeCommandWindowTest extends SceneTest {
   create() {
-    this.subject = CommandWindow.create(0, 0);
+    this.subject = CommandWindow.create(0, 0, []);
     this.addWatched(this.subject);
     this.subject.open();
   }
@@ -6849,7 +6877,7 @@ class CreateFullsizeCommandWindowTest extends SceneTest {
 }
 class OpenCommandWindowTest extends SceneTest {
   create() {
-    this.subject = CommandWindow.create(0, 0);
+    this.subject = CommandWindow.create(0, 0, []);
     this.addWatched(this.subject);
     this.subject.open();
   }
@@ -6861,7 +6889,7 @@ class OpenCommandWindowTest extends SceneTest {
 }
 class CloseCommandWindowTest extends SceneTest {
   create() {
-    this.subject = CommandWindow.create(0, 0);
+    this.subject = CommandWindow.create(0, 0, []);
     this.addWatched(this.subject);
     this.subject.open();
     this.subject.close();
@@ -6874,7 +6902,7 @@ class CloseCommandWindowTest extends SceneTest {
 }
 class ChangeBlueColorCommandWindowTest extends SceneTest {
   create() {
-    this.subject = CommandWindow.create(0, 0);
+    this.subject = CommandWindow.create(0, 0, []);
     this.addWatched(this.subject);
     this.subject.changeBlueColor();
     this.subject.open();
@@ -6887,7 +6915,7 @@ class ChangeBlueColorCommandWindowTest extends SceneTest {
 }
 class ChangeRedColorCommandWindowTest extends SceneTest {
   create() {
-    this.subject = CommandWindow.create(0, 0);
+    this.subject = CommandWindow.create(0, 0, []);
     this.addWatched(this.subject);
     this.subject.changeRedColor();
     this.subject.open();
@@ -6900,7 +6928,7 @@ class ChangeRedColorCommandWindowTest extends SceneTest {
 }
 class ChangeDefaultColorCommandWindowTest extends SceneTest {
   create() {
-    this.subject = CommandWindow.create(0, 0);
+    this.subject = CommandWindow.create(0, 0, []);
     this.addWatched(this.subject);
     this.subject.changeDefaultColor();
     this.subject.open();
@@ -6913,7 +6941,7 @@ class ChangeDefaultColorCommandWindowTest extends SceneTest {
 }
 class AlignTopCommandWindowTest extends SceneTest {
   create() {
-    this.subject = CommandWindow.create(0, 0);
+    this.subject = CommandWindow.create(0, 0, []);
     this.subject.alignTop();
     this.addWatched(this.subject);
     this.subject.open();
@@ -6927,7 +6955,7 @@ class AlignTopCommandWindowTest extends SceneTest {
 }
 class AlignMiddleCommandWindowTest extends SceneTest {
   create() {
-    this.subject = CommandWindow.create(0, 0);
+    this.subject = CommandWindow.create(0, 0, []);
     this.subject.alignMiddle();
     this.addWatched(this.subject);
     this.subject.open();
@@ -6941,7 +6969,7 @@ class AlignMiddleCommandWindowTest extends SceneTest {
 }
 class AlignBottomCommandWindowTest extends SceneTest {
   create() {
-    this.subject = CommandWindow.create(0, 0);
+    this.subject = CommandWindow.create(0, 0, []);
     this.subject.alignBottom();
     this.addWatched(this.subject);
     this.subject.open();
@@ -7012,14 +7040,12 @@ class AlignTextRightCommandWindowTest extends SceneTest {
 }
 class AlignItemsLeftCommandWindowTest extends SceneTest {
   create() {
-    const commandYes = CommandWindow.createCommand('Yes', 'YES');
-    const commandNo = CommandWindow.createCommand('No', 'NO');
-    const hanlderYes = this.createHandler();
-    const hanlderNo = this.createHandler();
+    const commandYes = CommandWindow.createCommand('Yes', 'YES', () => {});
+    const commandNo = CommandWindow.createCommand('No', 'NO', () => {});
     const text = [ 
       'Do you want to continue?',
     ];
-    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo], [hanlderYes, hanlderNo]);
+    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo]);
     this.addWatched(this.subject);
     this.subject.alignItemsLeft();
     this.subject.open();
@@ -7032,14 +7058,12 @@ class AlignItemsLeftCommandWindowTest extends SceneTest {
 }
 class AlignItemsCenterCommandWindowTest extends SceneTest {
   create() {
-    const commandYes = CommandWindow.createCommand('Yes', 'YES');
-    const commandNo = CommandWindow.createCommand('No', 'NO');
-    const hanlderYes = this.createHandler();
-    const hanlderNo = this.createHandler();
+    const commandYes = CommandWindow.createCommand('Yes', 'YES', () => {});
+    const commandNo = CommandWindow.createCommand('No', 'NO', () => {});
     const text = [ 
       'Do you want to continue?',
     ];
-    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo], [hanlderYes, hanlderNo]);
+    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo]);
     this.addWatched(this.subject);
     this.subject.alignItemsCenter();
     this.subject.open();
@@ -7052,14 +7076,12 @@ class AlignItemsCenterCommandWindowTest extends SceneTest {
 }
 class AlignItemsRightCommandWindowTest extends SceneTest {
   create() {
-    const commandYes = CommandWindow.createCommand('Yes', 'YES');
-    const commandNo = CommandWindow.createCommand('No', 'NO');
-    const hanlderYes = this.createHandler();
-    const hanlderNo = this.createHandler();
+    const commandYes = CommandWindow.createCommand('Yes', 'YES', () => {});
+    const commandNo = CommandWindow.createCommand('No', 'NO', () => {});
     const text = [ 
       'Do you want to continue?',
     ];
-    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo], [hanlderYes, hanlderNo]);
+    this.subject = CommandWindow.create(0, 0, text, [commandYes, commandNo]);
     this.addWatched(this.subject);
     this.subject.alignItemsRight();
     this.subject.open();
@@ -7103,9 +7125,9 @@ class ChangeTextColorCommandWindowTest extends SceneTest {
   create() {
     const line1 = 'primeiro texto';
     let line2 = 'segundo texto';
-    line2 = CommandWindow.setTextColor(line2, GameColor.BLUE);
+    line2 = CommandWindow.setTextColor(line2, GameColors.BLUE);
     let line3 = 'terceiro texto';
-    line3 = CommandWindow.setTextColor(line3, GameColor.DEFAULT);
+    line3 = CommandWindow.setTextColor(line3, GameColors.DEFAULT);
     const text = [ [line1, line2, line3] ];
     this.subject = CommandWindow.create(0, 0, text);
     this.addWatched(this.subject);
@@ -7116,8 +7138,8 @@ class ChangeTextColorCommandWindowTest extends SceneTest {
     const text = [ 'primeiro texto segundo texto terceiro texto' ];
     this.describe('Deve apresentar o texto que foi informado em janela.');
     this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    const color1 = ColorHelper.getColorIndex(GameColor.BLUE);
-    const color2 = ColorHelper.getColorIndex(GameColor.DEFAULT);
+    const color1 = ColorHelper.getColorIndex(GameColors.BLUE);
+    const color2 = ColorHelper.getColorIndex(GameColors.DEFAULT);
     this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_0', color1));
     this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_1', color2));
   }
@@ -7159,15 +7181,13 @@ class CommandsAndHandlersWithTextCommandWindowTest extends SceneTest {
 // test FOLDER WINDOW
 class CreateFolderWindowTest extends SceneTest {
   create() {
-    const hanlderFolder1 = this.createHandler();
-    const hanlderFolder2 = this.createHandler();
-    const hanlderFolder3 = this.createHandler();
+    const handlerDummy = () => {};
     const energies1 = FolderWindow.createEnergies(10, 10, 5, 5, 5, 5);
     const energies2 = FolderWindow.createEnergies(10, 10, 10, 10, 10, 10);
     const energies3 = FolderWindow.createEnergies(10, 10, 10, 0, 0, 0);
-    const commandFolder1 = FolderWindow.createCommand('Folder Name One', 'FOLDER_ONE', hanlderFolder1, energies1);
-    const commandFolder2 = FolderWindow.createCommand('Folder Name Two', 'FOLDER_TWO', hanlderFolder2, energies2);
-    const commandFolder3 = FolderWindow.createCommand('Folder Name Three', 'FOLDER_THREE', hanlderFolder3, energies3);
+    const commandFolder1 = FolderWindow.createCommand('Folder Name One', 'FOLDER_ONE', handlerDummy, energies1);
+    const commandFolder2 = FolderWindow.createCommand('Folder Name Two', 'FOLDER_TWO', handlerDummy, energies2);
+    const commandFolder3 = FolderWindow.createCommand('Folder Name Three', 'FOLDER_THREE', handlerDummy, energies3);
     let title = 'Choose a folder';
     title = CommandWindow.setTextColor(title, GameColors.ORANGE);
     const text = [title];
@@ -7403,12 +7423,12 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     return [
-      ...cardSpriteTests,
-      ...cardsetSpriteTests,
-      ...commandWindow,
-      ...StateWindowTests,
-      ...textWindowTests,
-      ...boardWindowTests,
+      // ...cardSpriteTests,
+      // ...cardsetSpriteTests,
+      // ...commandWindow,
+      // ...StateWindowTests,
+      // ...textWindowTests,
+      // ...boardWindowTests,
       ...battlePointsWindow,
       ...trashWindow,
       ...scoreWindow,

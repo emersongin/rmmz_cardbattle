@@ -15,8 +15,8 @@ class ChangeTextColorTextWindowTest extends SceneTest {
     const text = [ 'primeiro texto segundo texto terceiro texto' ];
     this.describe('Deve apresentar o texto que foi informado em janela.');
     this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    const color1 = ColorHelper.getColorIndex(GameColor.BLUE);
-    const color2 = ColorHelper.getColorIndex(GameColor.DEFAULT);
+    const color1 = ColorHelper.getColorIndex(GameColors.BLUE);
+    const color2 = ColorHelper.getColorIndex(GameColors.DEFAULT);
     this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_0', color1));
     this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_1', color2));
   }

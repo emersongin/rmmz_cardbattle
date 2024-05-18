@@ -1,14 +1,12 @@
 class CreateFolderWindowTest extends SceneTest {
   create() {
-    const hanlderFolder1 = this.createHandler();
-    const hanlderFolder2 = this.createHandler();
-    const hanlderFolder3 = this.createHandler();
+    const handlerDummy = () => {};
     const energies1 = FolderWindow.createEnergies(10, 10, 5, 5, 5, 5);
     const energies2 = FolderWindow.createEnergies(10, 10, 10, 10, 10, 10);
     const energies3 = FolderWindow.createEnergies(10, 10, 10, 0, 0, 0);
-    const commandFolder1 = FolderWindow.createCommand('Folder Name One', 'FOLDER_ONE', hanlderFolder1, energies1);
-    const commandFolder2 = FolderWindow.createCommand('Folder Name Two', 'FOLDER_TWO', hanlderFolder2, energies2);
-    const commandFolder3 = FolderWindow.createCommand('Folder Name Three', 'FOLDER_THREE', hanlderFolder3, energies3);
+    const commandFolder1 = FolderWindow.createCommand('Folder Name One', 'FOLDER_ONE', handlerDummy, energies1);
+    const commandFolder2 = FolderWindow.createCommand('Folder Name Two', 'FOLDER_TWO', handlerDummy, energies2);
+    const commandFolder3 = FolderWindow.createCommand('Folder Name Three', 'FOLDER_THREE', handlerDummy, energies3);
     let title = 'Choose a folder';
     title = CommandWindow.setTextColor(title, GameColors.ORANGE);
     const text = [title];
