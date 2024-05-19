@@ -1023,7 +1023,6 @@ class CommandWindow extends Window_Command {
 
   commandClose() {
     if (this.isClosed()) return true;
-    this.visible = false;
     super.close();
     return true;
   }
@@ -1164,6 +1163,12 @@ class CommandWindow extends Window_Command {
     const sx = (iconIndex % 16) * pw;
     const sy = Math.floor(iconIndex / 16) * ph;
     this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
+  }
+
+  opened() {
+    this._openness = 255;
+    this.visible = true;
+    this.activate();
   }
 
   //mute
@@ -1546,7 +1551,6 @@ class StateWindow extends Window_Base {
 
   commandClose() {
     if (!(this.isStopped() && this.isOpen())) return;
-    this.visible = false;
     super.close();
     return true;
   }
@@ -1667,6 +1671,12 @@ class StateWindow extends Window_Base {
     const sx = (iconIndex % 16) * pw;
     const sy = Math.floor(iconIndex / 16) * ph;
     this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
+  }
+
+  opened() {
+    this._openness = 255;
+    this.visible = true;
+    this.activate();
   }
 }
 class ValuesWindow extends StateWindow {
@@ -5683,9 +5693,9 @@ class SetCardsCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const cards = CardGenerator.generateCards(1);
     const sprites = this.subject.setCards(cards);
-    this.subject.show();
     this.subject.showCards(sprites);
     this.sprites = sprites;
   }
@@ -5706,10 +5716,10 @@ class ListCardsCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    this.subject.show();
     this.subject.showCards(sprites);
     this.sprites = sprites;
   }
@@ -5727,11 +5737,11 @@ class StartClosedCardsCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const numCards = 1;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.setCards(cards);
     this.subject.startClosedCards(sprites);
-    this.subject.show();
     this.sprites = sprites;
   }
 
@@ -5745,11 +5755,11 @@ class OpenAllCardsCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     this.subject.startClosedCards(sprites);
-    this.subject.show();
     this.subject.showCards(sprites);
     this.subject.openAllCards(sprites);
     this.sprites = sprites;
@@ -5765,11 +5775,11 @@ class OpenCardsCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     this.subject.startClosedCards(sprites);
-    this.subject.show();
     this.subject.showCards(sprites);
     this.subject.openCards(sprites);
     this.sprites = sprites;
@@ -5785,10 +5795,10 @@ class CloseAllCardsCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    this.subject.show();
     this.subject.showCards(sprites);
     this.subject.closeAllCards(sprites);
     this.sprites = sprites;
@@ -5804,10 +5814,10 @@ class CloseCardsCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    this.subject.show();
     this.subject.showCards(sprites);
     this.subject.closeCards(sprites);
     this.sprites = sprites;
@@ -5823,11 +5833,11 @@ class MoveAllCardsInListCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const screenWidth = Graphics.boxWidth;
     const sprites = this.subject.setCards(cards, screenWidth);
-    this.subject.show();
     this.subject.showCards(sprites);
     this.subject.moveAllCardsInlist(sprites);
     this.sprites = sprites;
@@ -5843,13 +5853,13 @@ class MoveAllCardsInListCardsetSpriteTest extends SceneTest {
 class MoveCardsInListCardsetSpriteTest extends SceneTest {
   create() {
     this.subject = CardsetSprite.create(0, 0);
-    this.subject.centralize();
     this.addWatched(this.subject);
+    this.subject.centralize();
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const screenWidth = Graphics.boxWidth;
     const sprites = this.subject.setCards(cards, screenWidth);
-    this.subject.show();
     this.subject.showCards(sprites);
     this.subject.moveCardsInlist(sprites);
     this.sprites = sprites;
@@ -5867,12 +5877,12 @@ class MoveAllCardsToPositionCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.setCards(cards);
     const x = CardsetSprite.contentOriginalWidth() / 2;
     const y = 0;
-    this.subject.show();
     this.subject.showCards(sprites);
     this.subject.moveAllCardsToPosition(sprites, x, y);
     this.sprites = sprites;
@@ -5893,12 +5903,12 @@ class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.setCards(cards);
     const x = CardsetSprite.contentOriginalWidth() / 2;
     const y = 0;
-    this.subject.show();
     this.subject.showCards(sprites);
     this.subject.moveCardsToPosition(sprites, x, y);
     this.sprites = sprites;
@@ -5919,12 +5929,12 @@ class AddAllCardsToListCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     const addSprites = sprites.filter((sprite, index) => index >= 4);
     const screenWidth = Graphics.boxWidth;
-    this.subject.show();
     this.subject.setAllCardsToPosition(addSprites, screenWidth);
     this.subject.showCards(sprites);
     this.subject.moveAllCardsInlist(sprites);
@@ -5943,12 +5953,12 @@ class AddCardsToListCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     const addSprites = sprites.filter((sprite, index) => index >= 4);
     const screenWidth = Graphics.boxWidth;
-    this.subject.show();
     this.subject.setAllCardsToPosition(addSprites, screenWidth);
     this.subject.showCards(sprites);
     this.subject.moveCardsInlist(sprites);
@@ -5967,12 +5977,12 @@ class DisableCardsCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const numCards = 10;
     const cards = CardGenerator.generateCards(numCards);
     const disableCardsIndex = [1, 2, 7, 8, 9];
     const sprites = this.subject.listCards(cards);
     const disableSprites = sprites.filter((sprite, index) => disableCardsIndex.includes(index));
-    this.subject.show();
     this.subject.disableCards(disableSprites);
     this.subject.showCards(sprites);
   }
@@ -5992,10 +6002,10 @@ class SelectModeCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const numCards = 10;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    this.subject.show();
     this.subject.showCards(sprites);
     this.subject.selectMode();
   }
@@ -6010,10 +6020,10 @@ class StaticModeCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const numCards = 10;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    this.subject.show();
     this.subject.showCards(sprites);
     this.subject.selectMode();
     this.subject.unselectMode();
@@ -6029,13 +6039,13 @@ class SelectModeWithChoiceCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const numCards = 10;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     const disableCardsIndex = [1, 2, 7, 8, 9];
     const disableSprites = sprites.filter((sprite, index) => disableCardsIndex.includes(index));
     this.subject.disableCards(disableSprites);
-    this.subject.show();
     this.subject.showCards(sprites);
     this.subject.selectMode();
     this.subject.enableChoice();
@@ -6052,10 +6062,10 @@ class FlashCardsCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    this.subject.show();
     this.subject.showCards(sprites);
     this.subject.flashCardsAnimate(sprites, 'orange');
   }
@@ -6070,10 +6080,10 @@ class QuakeCardsCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    this.subject.show();
     this.subject.showCards(sprites);
     this.subject.quakeCardsAnimate(sprites);
   }
@@ -6088,10 +6098,10 @@ class AnimationCardsCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    this.subject.show();
     this.subject.showCards(sprites);
     const times = 1;
     this.subject.damageCardsAnimate(times, sprites, this.scene);
@@ -6105,9 +6115,9 @@ class AnimationCardsCardsetSpriteTest extends SceneTest {
 class ShowOrderingCardsCardsetSpriteTest extends SceneTest {
   create() {
     this.subject = CardsetSprite.create(0, 0);
-    this.subject.show();
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const cards = CardGenerator.generateCards(3);
     const sprites = this.subject.listCards(cards);
     this.subject.showCards(sprites);
@@ -6126,9 +6136,9 @@ class ShowOrderingCardsCardsetSpriteTest extends SceneTest {
 class ShowReverseOrderingCardsCardsetSpriteTest extends SceneTest {
   create() {
     this.subject = CardsetSprite.create(0, 0);
-    this.subject.show();
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const cards = CardGenerator.generateCards(3);
     const sprites = this.subject.listCards(cards);
     this.subject.showCards(sprites);
@@ -6148,7 +6158,6 @@ class ShowReverseOrderingCardsCardsetSpriteTest extends SceneTest {
 class OpenStateWindowTest extends SceneTest {
   create() {
     this.subject = StateWindow.createWindowFullSize(0, 0);
-    this.subject.alignCenterMiddle();
     this.addWatched(this.subject);
     this.subject.open();
   }
@@ -6162,8 +6171,7 @@ class CloseStateWindowTest extends SceneTest {
   create() {
     this.subject = StateWindow.createWindowFullSize(0, 0);
     this.addWatched(this.subject);
-    this.subject.alignCenterMiddle();
-    this.subject.open();
+    this.subject.opened();
     this.subject.close();
   }
 
@@ -6630,7 +6638,6 @@ class CreateFullSizeTextWindowTest extends SceneTest {
 class OpenTextWindowTest extends SceneTest {
   create() {
     this.subject = TextWindow.createWindowFullSize(0, 0);
-    this.subject.alignCenterMiddle();
     this.addWatched(this.subject);
     this.subject.open();
   }
@@ -6643,7 +6650,6 @@ class OpenTextWindowTest extends SceneTest {
 class CloseTextWindowTest extends SceneTest {
   create() {
     this.subject = TextWindow.createWindowFullSize(0, 0);
-    this.subject.alignCenterMiddle();
     this.addWatched(this.subject);
     this.subject.opened();
     this.subject.close();
@@ -6975,7 +6981,7 @@ class CloseCommandWindowTest extends SceneTest {
   create() {
     this.subject = CommandWindow.create(0, 0, []);
     this.addWatched(this.subject);
-    this.subject.open();
+    this.subject.opened();
     this.subject.close();
   }
 
@@ -7395,37 +7401,37 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
-      // StartPositionCardsetSpriteTest,
-      // SetCardsCardsetSpriteTest,
-      // ListCardsCardsetSpriteTest,
-      // StartClosedCardsCardsetSpriteTest,
-      // OpenAllCardsCardsetSpriteTest,
-      // OpenCardsCardsetSpriteTest,
-      // CloseAllCardsCardsetSpriteTest,
-      // CloseCardsCardsetSpriteTest,
-      // MoveAllCardsInListCardsetSpriteTest,
-      // MoveCardsInListCardsetSpriteTest,
-      // MoveAllCardsToPositionCardsetSpriteTest,
-      // MoveCardsToPositionCardsetSpriteTest,
-      // AddAllCardsToListCardsetSpriteTest,
-      // AddCardsToListCardsetSpriteTest,
-      // DisableCardsCardsetSpriteTest,
-      // StaticModeCardsetSpriteTest,
-      // SelectModeCardsetSpriteTest,
-      // SelectModeWithChoiceCardsetSpriteTest,
-      // FlashCardsCardsetSpriteTest,
-      // QuakeCardsCardsetSpriteTest,
-      // AnimationCardsCardsetSpriteTest,
-      // ShowOrderingCardsCardsetSpriteTest,
+      StartPositionCardsetSpriteTest,
+      SetCardsCardsetSpriteTest,
+      ListCardsCardsetSpriteTest,
+      StartClosedCardsCardsetSpriteTest,
+      OpenAllCardsCardsetSpriteTest,
+      OpenCardsCardsetSpriteTest,
+      CloseAllCardsCardsetSpriteTest,
+      CloseCardsCardsetSpriteTest,
+      MoveAllCardsInListCardsetSpriteTest,
+      MoveCardsInListCardsetSpriteTest,
+      MoveAllCardsToPositionCardsetSpriteTest,
+      MoveCardsToPositionCardsetSpriteTest,
+      AddAllCardsToListCardsetSpriteTest,
+      AddCardsToListCardsetSpriteTest,
+      DisableCardsCardsetSpriteTest,
+      StaticModeCardsetSpriteTest,
+      SelectModeCardsetSpriteTest,
+      SelectModeWithChoiceCardsetSpriteTest,
+      FlashCardsCardsetSpriteTest,
+      QuakeCardsCardsetSpriteTest,
+      AnimationCardsCardsetSpriteTest,
+      ShowOrderingCardsCardsetSpriteTest,
       ShowReverseOrderingCardsCardsetSpriteTest,
     ];
     const StateWindowTests = [
-      OpenStateWindowTest,
-      CloseStateWindowTest,
       CreateOneFourthSizeStateWindowTest,
       CreateMiddleSizeStateWindowTest,
       CreateThreeFourthSizeStateWindowTest,
       CreateFullSizeStateWindowTest,
+      OpenStateWindowTest,
+      CloseStateWindowTest,
       ChangeBlueColorStateWindowTest,
       ChangeRedColorStateWindowTest,
       ChangeDefaultColorStateWindowTest,
@@ -7485,15 +7491,15 @@ class CardBattleTestScene extends Scene_Message {
       CreateFullsizeCommandWindowTest,
       OpenCommandWindowTest,
       CloseCommandWindowTest,
+      ChangeBlueColorCommandWindowTest,
+      ChangeRedColorCommandWindowTest,
+      ChangeDefaultColorCommandWindowTest,
       AlignTopCommandWindowTest,
       AlignMiddleCommandWindowTest,
       AlignBottomCommandWindowTest,
       AlignTextLeftCommandWindowTest,
       AlignTextCenterCommandWindowTest,
       AlignTextRightCommandWindowTest,
-      ChangeBlueColorCommandWindowTest,
-      ChangeRedColorCommandWindowTest,
-      ChangeDefaultColorCommandWindowTest,
       AlignItemsLeftCommandWindowTest,
       AlignItemsCenterCommandWindowTest,
       AlignItemsRightCommandWindowTest,
@@ -7506,16 +7512,16 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     return [
-      // ...cardSpriteTests,
+      ...cardSpriteTests,
       ...cardsetSpriteTests,
-      // ...commandWindow,
-      // ...StateWindowTests,
-      // ...textWindowTests,
-      // ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow,
-      // ...scoreWindow,
-      // ...folderWindow,
+      ...commandWindow,
+      ...StateWindowTests,
+      ...textWindowTests,
+      ...boardWindowTests,
+      ...battlePointsWindow,
+      ...trashWindow,
+      ...scoreWindow,
+      ...folderWindow,
     ];
   }
 

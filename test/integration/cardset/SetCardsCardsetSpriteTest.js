@@ -3,9 +3,9 @@ class SetCardsCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const cards = CardGenerator.generateCards(1);
     const sprites = this.subject.setCards(cards);
-    this.subject.show();
     this.subject.showCards(sprites);
     this.sprites = sprites;
   }

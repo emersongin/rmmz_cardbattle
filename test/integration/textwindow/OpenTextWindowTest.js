@@ -1,7 +1,6 @@
 class OpenTextWindowTest extends SceneTest {
   create() {
     this.subject = TextWindow.createWindowFullSize(0, 0);
-    this.subject.alignCenterMiddle();
     this.addWatched(this.subject);
     this.subject.open();
   }

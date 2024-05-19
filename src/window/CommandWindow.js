@@ -302,7 +302,6 @@ class CommandWindow extends Window_Command {
 
   commandClose() {
     if (this.isClosed()) return true;
-    this.visible = false;
     super.close();
     return true;
   }
@@ -443,6 +442,12 @@ class CommandWindow extends Window_Command {
     const sx = (iconIndex % 16) * pw;
     const sy = Math.floor(iconIndex / 16) * ph;
     this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
+  }
+
+  opened() {
+    this._openness = 255;
+    this.visible = true;
+    this.activate();
   }
 
   //mute

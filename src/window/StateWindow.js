@@ -177,7 +177,6 @@ class StateWindow extends Window_Base {
 
   commandClose() {
     if (!(this.isStopped() && this.isOpen())) return;
-    this.visible = false;
     super.close();
     return true;
   }
@@ -298,5 +297,11 @@ class StateWindow extends Window_Base {
     const sx = (iconIndex % 16) * pw;
     const sy = Math.floor(iconIndex / 16) * ph;
     this.contents.blt(bitmap, sx, sy, pw, ph, x, y);
+  }
+
+  opened() {
+    this._openness = 255;
+    this.visible = true;
+    this.activate();
   }
 }

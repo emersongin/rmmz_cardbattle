@@ -1,9 +1,9 @@
 class ShowReverseOrderingCardsCardsetSpriteTest extends SceneTest {
   create() {
     this.subject = CardsetSprite.create(0, 0);
-    this.subject.show();
     this.addWatched(this.subject);
     this.subject.centralize();
+    this.subject.show();
     const cards = CardGenerator.generateCards(3);
     const sprites = this.subject.listCards(cards);
     this.subject.showCards(sprites);

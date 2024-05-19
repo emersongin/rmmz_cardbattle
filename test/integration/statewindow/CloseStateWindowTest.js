@@ -2,8 +2,7 @@ class CloseStateWindowTest extends SceneTest {
   create() {
     this.subject = StateWindow.createWindowFullSize(0, 0);
     this.addWatched(this.subject);
-    this.subject.alignCenterMiddle();
-    this.subject.open();
+    this.subject.opened();
     this.subject.close();
   }
 
