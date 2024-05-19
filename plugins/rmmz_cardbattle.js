@@ -4073,6 +4073,7 @@ class CardsetSprite extends ActionSprite {
     orderingSprite.y = y;
     orderingSprite.bitmap = new Bitmap(width, height);
     orderingSprite.bitmap.drawText(number, 0, 0, width, height, 'center');
+    orderingSprite.number = number;
     orderingSprite.hide();
     return orderingSprite;
   }
@@ -4444,15 +4445,44 @@ class CardsetSprite extends ActionSprite {
   commandSetNumberColor(number, color) {
     const orderingSprite = this._orderingSprites[number - 1];
     if (orderingSprite) {
-      orderingSprite.bitmap.textColor = ColorHelper.getColorHex(color);
-      orderingSprite.bitmap.clear();
-      orderingSprite.bitmap.drawText(number, 0, 0, orderingSprite.width, orderingSprite.height, 'center');
+      this.redrawOrderingNumber(orderingSprite, number, ColorHelper.getColorHex(color));
     }
     return true;
   }
 
+  redrawOrderingNumber(orderingSprite, number, colorHex) {
+    orderingSprite.bitmap.textColor = colorHex || orderingSprite.bitmap.textColor;
+    orderingSprite.bitmap.clear();
+    orderingSprite.number = number;
+    orderingSprite.bitmap.drawText(number, 0, 0, orderingSprite.width, orderingSprite.height, 'center');
+  }
+
   isOrderingDisplayed() {
     return this._orderingSprites.every(sprite => sprite.visible);
+  }
+
+  isOrdering() {
+    return this._orderingSprites.every((sprite, index) => sprite.number === index + 1);
+  }
+
+  displayReverseOrdering() {
+    this.addAction(this.commandDisplayReverseOrdering);
+  }
+
+  commandDisplayReverseOrdering() {
+    if (this.isHidden() || this.hasOrderingNumbers() === false) return;
+    this._orderingSprites.forEach(sprite => {
+      const number = this._orderingSprites.length - (sprite.number - 1);
+      this.redrawOrderingNumber(sprite, number);
+    });
+    this._orderingSprites.forEach(sprite => sprite.show());
+    return true;
+  }
+
+  isReverseOrdering() {
+    return this._orderingSprites.every((sprite, index) => {
+      sprite.number === this._orderingSprites.length - (sprite.number - 1);
+    });
   }
 }
 class BackgroundSprite extends Sprite {
@@ -6089,7 +6119,29 @@ class ShowOrderingCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar númeração ordenada das cartas!');
-    this.assert('Esta mostrando a numeração ordenada?', this.subject.isOrderingDisplayed());
+    this.assert('Esta mostrando a ordenação?', this.subject.isOrderingDisplayed());
+    this.assert('Ela esta ordenada?', this.subject.isOrdering());
+  }
+}
+class ShowReverseOrderingCardsCardsetSpriteTest extends SceneTest {
+  create() {
+    this.subject = CardsetSprite.create(0, 0);
+    this.subject.show();
+    this.addWatched(this.subject);
+    this.subject.centralize();
+    const cards = CardGenerator.generateCards(3);
+    const sprites = this.subject.listCards(cards);
+    this.subject.showCards(sprites);
+    this.subject.setNumberColor(1, GameColors.RED);
+    this.subject.setNumberColor(2, GameColors.BLUE);
+    this.subject.setNumberColor(3, GameColors.RED);
+    this.subject.displayReverseOrdering();
+  }
+
+  asserts() {
+    this.describe('Deve mostrar númeração em ordem inversa das cartas!');
+    this.assert('Esta mostrando a ordenação?', this.subject.isOrderingDisplayed());
+    this.assert('Ela esta em ordem reversa?', this.subject.isReverseOrdering());
   }
 }
 // tests STATE WINDOW
@@ -7364,7 +7416,8 @@ class CardBattleTestScene extends Scene_Message {
       // FlashCardsCardsetSpriteTest,
       // QuakeCardsCardsetSpriteTest,
       // AnimationCardsCardsetSpriteTest,
-      ShowOrderingCardsCardsetSpriteTest,
+      // ShowOrderingCardsCardsetSpriteTest,
+      ShowReverseOrderingCardsCardsetSpriteTest,
     ];
     const StateWindowTests = [
       OpenStateWindowTest,

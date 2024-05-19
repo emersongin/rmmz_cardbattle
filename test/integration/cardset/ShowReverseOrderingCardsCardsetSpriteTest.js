@@ -1,4 +1,4 @@
-class ShowOrderingCardsCardsetSpriteTest extends SceneTest {
+class ShowReverseOrderingCardsCardsetSpriteTest extends SceneTest {
   create() {
     this.subject = CardsetSprite.create(0, 0);
     this.subject.show();
@@ -10,12 +10,12 @@ class ShowOrderingCardsCardsetSpriteTest extends SceneTest {
     this.subject.setNumberColor(1, GameColors.RED);
     this.subject.setNumberColor(2, GameColors.BLUE);
     this.subject.setNumberColor(3, GameColors.RED);
-    this.subject.displayOrdering();
+    this.subject.displayReverseOrdering();
   }
 
   asserts() {
-    this.describe('Deve mostrar númeração ordenada das cartas!');
+    this.describe('Deve mostrar númeração em ordem inversa das cartas!');
     this.assert('Esta mostrando a ordenação?', this.subject.isOrderingDisplayed());
-    this.assert('Ela esta ordenada?', this.subject.isOrdering());
+    this.assert('Ela esta em ordem reversa?', this.subject.isReverseOrdering());
   }
 }

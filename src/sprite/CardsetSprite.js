@@ -112,6 +112,7 @@ class CardsetSprite extends ActionSprite {
     orderingSprite.y = y;
     orderingSprite.bitmap = new Bitmap(width, height);
     orderingSprite.bitmap.drawText(number, 0, 0, width, height, 'center');
+    orderingSprite.number = number;
     orderingSprite.hide();
     return orderingSprite;
   }
@@ -483,14 +484,43 @@ class CardsetSprite extends ActionSprite {
   commandSetNumberColor(number, color) {
     const orderingSprite = this._orderingSprites[number - 1];
     if (orderingSprite) {
-      orderingSprite.bitmap.textColor = ColorHelper.getColorHex(color);
-      orderingSprite.bitmap.clear();
-      orderingSprite.bitmap.drawText(number, 0, 0, orderingSprite.width, orderingSprite.height, 'center');
+      this.redrawOrderingNumber(orderingSprite, number, ColorHelper.getColorHex(color));
     }
     return true;
   }
 
+  redrawOrderingNumber(orderingSprite, number, colorHex) {
+    orderingSprite.bitmap.textColor = colorHex || orderingSprite.bitmap.textColor;
+    orderingSprite.bitmap.clear();
+    orderingSprite.number = number;
+    orderingSprite.bitmap.drawText(number, 0, 0, orderingSprite.width, orderingSprite.height, 'center');
+  }
+
   isOrderingDisplayed() {
     return this._orderingSprites.every(sprite => sprite.visible);
+  }
+
+  isOrdering() {
+    return this._orderingSprites.every((sprite, index) => sprite.number === index + 1);
+  }
+
+  displayReverseOrdering() {
+    this.addAction(this.commandDisplayReverseOrdering);
+  }
+
+  commandDisplayReverseOrdering() {
+    if (this.isHidden() || this.hasOrderingNumbers() === false) return;
+    this._orderingSprites.forEach(sprite => {
+      const number = this._orderingSprites.length - (sprite.number - 1);
+      this.redrawOrderingNumber(sprite, number);
+    });
+    this._orderingSprites.forEach(sprite => sprite.show());
+    return true;
+  }
+
+  isReverseOrdering() {
+    return this._orderingSprites.every((sprite, index) => {
+      sprite.number === this._orderingSprites.length - (sprite.number - 1);
+    });
   }
 }
