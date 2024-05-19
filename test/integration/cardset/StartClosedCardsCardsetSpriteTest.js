@@ -3,11 +3,11 @@ class StartClosedCardsCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
-    this.subject.show();
     const numCards = 1;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.setCards(cards);
     this.subject.startClosedCards(sprites);
+    this.subject.show();
     this.sprites = sprites;
   }
 

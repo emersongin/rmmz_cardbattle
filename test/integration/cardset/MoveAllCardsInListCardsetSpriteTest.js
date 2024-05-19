@@ -3,11 +3,11 @@ class MoveAllCardsInListCardsetSpriteTest extends SceneTest {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
     this.subject.centralize();
-    this.subject.show();
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const screenWidth = Graphics.boxWidth;
     const sprites = this.subject.setCards(cards, screenWidth);
+    this.subject.show();
     this.subject.showCards(sprites);
     this.subject.moveAllCardsInlist(sprites);
     this.sprites = sprites;

@@ -47,6 +47,7 @@ class CardsetSprite extends ActionSprite {
   initialize(x, y) { 
     super.initialize(x, y);
     this._sprites = [];
+    this._orderingSprites = [];
     this._enableSelected = false;
     this._selectedIndexs = [];
     this.setup();
@@ -82,7 +83,8 @@ class CardsetSprite extends ActionSprite {
   setCards(cards, x, y) {
     cards = this.toArray(cards);
     const sprites = cards.map(card => this.createCardSprite(card, x, y));
-    this.addAction(this.commandSetCards, sprites);
+    const orderingSprites = this.createOrderingNumbers(sprites);
+    this.addAction(this.commandSetCards, sprites, orderingSprites);
     return sprites;
   }
 
@@ -92,11 +94,35 @@ class CardsetSprite extends ActionSprite {
     return sprite;
   }
 
-  commandSetCards(sprites) {
+  createOrderingNumbers(sprites) {
+    return sprites.map((sprite, index) => {
+      const number = index + 1;
+      return this.createOrderingNumber(number, sprite);
+    });
+  }
+
+  createOrderingNumber(number, sprite) {
+    const { x: spriteX, y: spriteY, width: spriteWidth } = sprite;
+    const orderingSprite = new Sprite();
+    const width = 20;
+    const height = 20;
+    const x = (spriteX + spriteWidth) - width;
+    const y = (spriteY - height);
+    orderingSprite.x = x;
+    orderingSprite.y = y;
+    orderingSprite.bitmap = new Bitmap(width, height);
+    orderingSprite.bitmap.drawText(number, 0, 0, width, height, 'center');
+    orderingSprite.hide();
+    return orderingSprite;
+  }
+
+  commandSetCards(sprites, orderingSprites) {
     if (this.isHidden()) return;
     this.clear();
     this._sprites = sprites;
+    this._orderingSprites = orderingSprites;
     this.addSprites(sprites);
+    this.addSprites(orderingSprites);
     return true;
   }
 
@@ -140,7 +166,8 @@ class CardsetSprite extends ActionSprite {
     const numCards = cards.length;
     const positions = CardsetSprite.createPositionsList(numCards);
     const sprites = this.createCardSpritesPositions(positions, cards);
-    this.addAction(this.commandSetCards, sprites);
+    const orderingSprites = this.createOrderingNumbers(sprites);
+    this.addAction(this.commandSetCards, sprites, orderingSprites);
     return sprites;
   }
 
@@ -433,5 +460,37 @@ class CardsetSprite extends ActionSprite {
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.x = centerXPosition;
     this.y = centerYPosition;
+  }
+
+  displayOrdering() {
+    this.addAction(this.commandDisplayOrdering);
+  }
+
+  commandDisplayOrdering() {
+    if (this.isHidden() || this.hasOrderingNumbers() === false) return;
+    this._orderingSprites.forEach(sprite => sprite.show());
+    return true;
+  }
+
+  hasOrderingNumbers() {
+    return this._orderingSprites.length;
+  }
+
+  setNumberColor(number, color) {
+    this.addAction(this.commandSetNumberColor, number, color);
+  }
+
+  commandSetNumberColor(number, color) {
+    const orderingSprite = this._orderingSprites[number - 1];
+    if (orderingSprite) {
+      orderingSprite.bitmap.textColor = ColorHelper.getColorHex(color);
+      orderingSprite.bitmap.clear();
+      orderingSprite.bitmap.drawText(number, 0, 0, orderingSprite.width, orderingSprite.height, 'center');
+    }
+    return true;
+  }
+
+  isOrderingDisplayed() {
+    return this._orderingSprites.every(sprite => sprite.visible);
   }
 }

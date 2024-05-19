@@ -77,7 +77,7 @@
 // include ../test/integration/cardset/FlashCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/QuakeCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/AnimationCardsCardsetSpriteTest.js
-// include ../test/integration/cardset/EnumCardsCardsetSpriteTest.js
+// include ../test/integration/cardset/ShowOrderingCardsCardsetSpriteTest.js
 // tests STATE WINDOW
 // include ../test/integration/statewindow/OpenStateWindowTest.js
 // include ../test/integration/statewindow/CloseStateWindowTest.js
