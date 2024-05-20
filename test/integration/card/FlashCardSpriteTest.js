@@ -14,7 +14,7 @@ class FlashCardSpriteTest extends SceneTest {
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
     const color = 'white';
-    const duration = 60;
+    const duration = GameConst.FPS;
     const infinity = -1;
     this.subject.flash(color, duration, infinity);
   }

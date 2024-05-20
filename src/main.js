@@ -29,7 +29,8 @@
 // include ./sprite/BackgroundSprite.js
 // include ./sprite/CardBattleSpriteset.js
 
-// include ./scene/phase/CardBattlePhase.js
+// include ./scene/phase/Phase.js
+// include ./scene/phase/ChallengePhase.js
 // include ../test/integration/SceneTest.js
 
 // tests CARD Sprite
@@ -122,7 +123,9 @@
 // include ../test/integration/textwindow/ChangeRedColorTextWindowTest.js
 // include ../test/integration/textwindow/ChangeDefaultColorTextWindowTest.js
 // include ../test/integration/textwindow/AlignCenterBottomTextWindowTest.js
+// include ../test/integration/textwindow/AlignCenterAboveMiddleTextWindowTest.js
 // include ../test/integration/textwindow/AlignCenterMiddleTextWindowTest.js
+// include ../test/integration/textwindow/AlignCenterBelowMiddleTextWindowTest.js
 // include ../test/integration/textwindow/AlignCenterTopTextWindowTest.js
 // include ../test/integration/textwindow/AlignEndBottomTextWindowTest.js
 // include ../test/integration/textwindow/AlignEndMiddleTextWindowTest.js

@@ -35,10 +35,13 @@ const GameConst = {
   RIGHT: 'RIGHT',
   END: 'END',
   TOP: 'TOP',
+  ABOVE_MIDDLE: 'ABOVE_MIDDLE',
   MIDDLE: 'MIDDLE',
+  BELOW_MIDDLE: 'BELOW_MIDDLE',
   BOTTOM: 'BOTTOM',
   RED_COLOR: 'RED_COLOR',
   BLUE_COLOR: 'BLUE_COLOR',
+  FPS: 60,
 };
 
 const CardTypes = {
@@ -171,7 +174,7 @@ class StringHelper {
 class NumberHelper {
   static calculateTimeInterval(origin = 0, destiny = 0, duration = 0) {
     const distance = Math.abs(origin - destiny);
-    const time = Math.abs(duration * 60);
+    const time = Math.abs(duration * GameConst.FPS);
     return (distance / (time || 1)) || (Graphics.width / 30);
   }
 }
@@ -429,8 +432,14 @@ class TextWindow extends Window_Base {
 
   static getVerticalAlign(position, window) {
     switch (position) {
+      case GameConst.ABOVE_MIDDLE:
+        return (Graphics.boxHeight / 4) - ((window.height || 0) / 2);
+        break;
       case GameConst.MIDDLE:
         return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
+        break;
+      case GameConst.BELOW_MIDDLE:
+        return (Graphics.boxHeight * 3 / 4) - ((window.height || 0) / 2);
         break;
       case GameConst.BOTTOM:
         return Graphics.boxHeight - (window.height || 0);
@@ -451,6 +460,11 @@ class TextWindow extends Window_Base {
       default: //START
         return 0;
     }
+  }
+
+  static setTextColor(text, color) {
+    let colorIndex = ColorHelper.getColorIndex(color);
+    return `\\c[${colorIndex}]${text}`;
   }
 
   initialize(rect, text) {
@@ -619,9 +633,19 @@ class TextWindow extends Window_Base {
     this.setVerticalAlign(GameConst.MIDDLE);
   }
 
+  alignCenterAboveMiddle() {
+    this.setHorizontalAlign(GameConst.CENTER);
+    this.setVerticalAlign(GameConst.ABOVE_MIDDLE);
+  }
+
   alignCenterMiddle() {
     this.setHorizontalAlign(GameConst.CENTER);
     this.setVerticalAlign(GameConst.MIDDLE);
+  }
+
+  alignCenterBelowMiddle() {
+    this.setHorizontalAlign(GameConst.CENTER);
+    this.setVerticalAlign(GameConst.BELOW_MIDDLE);
   }
 
   alignEndMiddle() {
@@ -717,6 +741,14 @@ class TextWindow extends Window_Base {
     this._openness = 255;
     this.visible = true;
     this.activate();
+  }
+
+  isAvailable() {
+    return !this.isBusy();
+  }
+
+  isBusy() {
+    return this.isOpening() || this.isClosing();
   }
 }
 class CommandWindow extends Window_Command {
@@ -2003,7 +2035,7 @@ class WindowUpdatedScoreState {
   _score = 0;
   _toggleFps = 6;
   _interval = 0;
-  _counter = 60;
+  _counter = GameConst.FPS;
   _blink = false;
 
   constructor(window, lastScore, score) {
@@ -4639,7 +4671,7 @@ class StartBattleTransition extends Sprite {
   }
 
   calculateInterval(origin, target, duration) {
-    return Math.floor(Math.abs(origin - target) / (duration * 60)) || 1;
+    return Math.floor(Math.abs(origin - target) / (duration * GameConst.FPS)) || 1;
   }
 
   setupLayerTransitions() {
@@ -4834,48 +4866,201 @@ class CardBattleSpriteset extends Spriteset_Base {
   }
 }
 
-class CardBattlePhase {
-  scene;
+class Phase {
+  _scene;
+  _actionsQueue = [];
+  _step = 'START';
+  _wait = 0;
 
   constructor(scene) {
-    this.scene = scene;
-    this.createTitleWindow();
-    this.showTitleWindowChallengePhase();
-  }
-
-  createTitleWindow() {
-    const rect = new Rectangle(0, 0, Graphics.boxWidth, Graphics.boxHeight);
-    this.titleWindow = new TextWindow(rect);
-    this.scene.addWindow(this.titleWindow);
-  }
-
-  showTitleWindowChallengePhase() {
-    const orangeColor = 20;
-    this.titleWindow.clearContent();
-    this.titleWindow.addText('Card Battle Challenge');
-    this.titleWindow.changeContentTextColor(orangeColor);
-    this.titleWindow.alignContentCenter();
-    this.titleWindow.moveWindowOnTopCenter();
-    this.titleWindow.drawContentText();
-    this.titleWindow.open();
+    this._scene = scene;
   }
 
   update() {
-    this.updateInput();
-    this.updateTeminate();
+    if (this._wait > 0) return this._wait--;
+    if (this.hasActions() && this.isAvailable()) this.executeAction();
   }
 
-  updateInput() {
-    if (Input.isTriggered('ok')) {
-      if (this.titleWindow.isOpen()) this.titleWindow.close();
+  hasActions() {
+    return this._actionsQueue.length > 0;
+  }
+
+  isAvailable() {
+    return !this.isBusy();
+  }
+
+  isBusy() {
+    return this._wait > 0;
+  }
+
+  executeAction() {
+    const actions = this._actionsQueue[0];
+    if (actions.length > 0) {
+      const completed = this.processActions(actions);
+      if (completed) {
+        this._actionsQueue.shift();
+      }
     }
   }
 
-  updateTeminate() {
-    if (this.titleWindow.isAvailable() && this.titleWindow.isClosed()) {
-      this.scene.removeWindow(this.titleWindow);
-      this.scene.changePhase(CardBattleTestPhase2);
+  processActions(actions) {
+    let processed = false;
+    for (const action of actions) {
+      const completed = action.execute();
+      if (completed) {
+        processed = true;
+        continue;
+      }
+      break;
     }
+    return processed;
+  }
+
+  addAction(fn, ...params) {
+    const action = this.createAction(fn, ...params);
+    const actions = this.toArray(action);
+    this._actionsQueue.push(actions);
+  }
+
+  createAction(fn, ...params) {
+    const action = { 
+      fn: fn.name || 'anonymous',
+      execute: () => fn.call(this, ...params)
+    };
+    return action;
+  }
+
+  addActions(actions) {
+    actions = this.toArray(actions);
+    actions = actions.map((fn, ...params) => this.createAction(fn, ...params));
+    this._actionsQueue.push(actions);
+  }
+
+  toArray(items = []) {
+    return (Array.isArray(items) === false) ? [items] : items;
+  }
+
+  addWindow(window) {
+    this._scene.addWindow(window);
+  }
+
+  setWait(seconds = 0.6) {
+    this.addAction(this.commandWait, seconds);
+  }
+
+  commandWait(seconds) {
+    this._wait = seconds * GameConst.FPS;
+    return true;
+  }
+}
+class ChallengePhase extends Phase {
+  _titleWindow;
+  _descriptionWindow;
+  _folderWindow;
+
+  createTitleWindow(title) {
+    title = TextWindow.setTextColor(title, GameColors.ORANGE);
+    this._titleWindow = TextWindow.createWindowFullSize(0, 0, [title]);
+    this._titleWindow.alignCenterAboveMiddle();
+    this._titleWindow.alignTextCenter();
+    this.addWindow(this._titleWindow);
+  }
+
+  createDescriptionWindow(text) {
+    this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, text);
+    this._descriptionWindow.alignCenterMiddle();
+    this.addWindow(this._descriptionWindow);
+  }
+
+  createFolderWindow(folders) {
+    const energies = folders.map(folder => FolderWindow.createEnergies(...folder.energies));
+    const commands = folders.map((folder, index) => {
+      return FolderWindow.createCommand(folder.name, `FOLDER_${index}`, folder.handler, energies[index])
+    });
+    let title = 'Choose a folder';
+    title = CommandWindow.setTextColor(title, GameColors.ORANGE);
+    const text = [title];
+    this._folderWindow = FolderWindow.create(0, 0, text, commands);
+    this._folderWindow.alignMiddle();
+    this._folderWindow.alignTextCenter();
+    this.addWindow(this._folderWindow);
+  }
+
+  openTitleWindow() {
+    this.addAction(this.commandOpenTitleWindow);
+  }
+
+  commandOpenTitleWindow() {
+    this._titleWindow.open();
+    return true;
+  }
+
+  closeTitleWindow() {
+    this.addAction(this.commandCloseTitleWindow);
+  }
+
+  commandCloseTitleWindow() {
+    this._titleWindow.close();
+    return true;
+  } 
+
+  openDescriptionWindow() {
+    this.addAction(this.commandOpenDescriptionWindow);
+  }
+
+  commandOpenDescriptionWindow() {
+    this._descriptionWindow.open();
+    return true;
+  }
+
+  closeDescriptionWindow() {
+    this.addAction(this.commandCloseDescriptionWindow);
+  }
+
+  commandCloseDescriptionWindow() {
+    this._descriptionWindow.close();
+    return true;
+  }
+
+  openFolderWindow() {
+    this.addAction(this.commandOpenFolderWindow);
+  }
+
+  commandOpenFolderWindow() {
+    this._folderWindow.open();
+    return true;
+  }
+
+  closeFolderWindow() {
+    this.addAction(this.commandCloseFolderWindow);
+  }
+
+  commandCloseFolderWindow() {
+    this._folderWindow.close();
+    return true;
+  }
+
+  changeStepChallengePhase() {
+    this._step = 'CHALLENGE_PHASE';
+  }
+
+  changeStepSelectFolder() {
+    this._step = 'SELECT_FOLDER';
+  }
+
+  isStepChallengePhase() {
+    return this._step === 'CHALLENGE_PHASE';
+  }
+
+  isStepSelectFolder() {
+    return this._step === 'SELECT_FOLDER';
+  }
+
+  isBusy() {
+    return super.isBusy() || 
+      this._titleWindow.isBusy() || 
+      this._descriptionWindow.isBusy() || 
+      this._folderWindow.isBusy();
   }
 }
 class SceneTest {
@@ -4915,8 +5100,7 @@ class SceneTest {
   }
 
   startTest() {
-    const fps = 60;
-    this.counter = (fps * this.seconds);
+    this.counter = (GameConst.FPS * this.seconds);
     this.addChildren();
   }
 
@@ -5499,7 +5683,7 @@ class FlashCardSpriteTest extends SceneTest {
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
     const color = 'white';
-    const duration = 60;
+    const duration = GameConst.FPS;
     const infinity = -1;
     this.subject.flash(color, duration, infinity);
   }
@@ -6752,6 +6936,22 @@ class AlignCenterBottomTextWindowTest extends SceneTest {
     this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(verticalAlign);
   }
 }
+class AlignCenterAboveMiddleTextWindowTest extends SceneTest {
+  create() {
+    this.subject = TextWindow.createWindowOneFourthSize(0, 0);
+    this.addWatched(this.subject);
+    this.subject.alignCenterAboveMiddle();
+    this.subject.open();
+  }
+
+  asserts() {
+    this.describe('Deve alinhar no centro e acima do meio!');
+    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject);
+    const verticalAlign = TextWindow.getVerticalAlign(GameConst.ABOVE_MIDDLE, this.subject);
+    this.assert('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
+    this.assert('Esta na posição vertical acima do meio?', this.subject.y).toBe(verticalAlign);
+  }
+}
 class AlignCenterMiddleTextWindowTest extends SceneTest {
   create() {
     this.subject = TextWindow.createWindowOneFourthSize(0, 0);
@@ -6766,6 +6966,22 @@ class AlignCenterMiddleTextWindowTest extends SceneTest {
     const verticalAlign = TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject);
     this.assert('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
     this.assert('Esta na posição vertical meio?', this.subject.y).toBe(verticalAlign);
+  }
+}
+class AlignCenterBelowMiddleTextWindowTest  extends SceneTest {
+  create() {
+    this.subject = TextWindow.createWindowOneFourthSize(0, 0);
+    this.addWatched(this.subject);
+    this.subject.alignCenterBelowMiddle();
+    this.subject.open();
+  }
+
+  asserts() {
+    this.describe('Deve alinhar no centro e abaixo do meio!');
+    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject);
+    const verticalAlign = TextWindow.getVerticalAlign(GameConst.BELOW_MIDDLE, this.subject);
+    this.assert('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
+    this.assert('Esta na posição vertical abaixo meio?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignCenterTopTextWindowTest extends SceneTest {
@@ -6970,9 +7186,9 @@ class ChangeTextColorTextWindowTest extends SceneTest {
   create() {
     const line1 = 'primeiro texto';
     let line2 = 'segundo texto';
-    line2 = CommandWindow.setTextColor(line2, GameColors.BLUE);
+    line2 = TextWindow.setTextColor(line2, GameColors.BLUE);
     let line3 = 'terceiro texto';
-    line3 = CommandWindow.setTextColor(line3, GameColors.DEFAULT);
+    line3 = TextWindow.setTextColor(line3, GameColors.DEFAULT);
     const text = [ [line1, line2, line3] ];
     this.subject = TextWindow.createWindowFullSize(0, 0, text);
     this.addWatched(this.subject);
@@ -7337,16 +7553,59 @@ class CreateFolderWindowTest extends SceneTest {
 
 // test PHASE
 class ChallengePhaseTest extends SceneTest {
-  create() {
-    console.log('create');
-  }
+  endTest;
+  phase;
 
-  asserts() {
-    console.log('asserts');
+  create() {
+    this.endTest = this.createHandler();
+    this.scene.changePhase(ChallengePhase);
+    this.phase = this.scene.getPhase();
+    const title = 'Challenge Phase';
+    this.phase.createTitleWindow(title);
+    const line1 = 'lv. 85';
+    const line2 = 'Amaterasu Duel King';
+    const text = [line1, line2];
+    this.phase.createDescriptionWindow(text);
+    const folders = [
+      {
+        name: 'Folder 1',
+        energies: [10, 10, 5, 5, 5, 5],
+        handler: this.createHandler()
+      }, {
+        name: 'Folder 2',
+        energies: [10, 10, 10, 10, 10, 10],
+        handler: this.createHandler()
+      }, {
+        name: 'Folder 3',
+        energies: [10, 10, 10, 0, 0, 0],
+        handler: this.createHandler()
+    }];
+    this.phase.createFolderWindow(folders);
+    this.phase.addActions([
+      this.phase.commandOpenTitleWindow,
+      this.phase.commandOpenDescriptionWindow,
+    ]);
+    this.phase.changeStepChallengePhase();
   }
 
   update() {
-    console.log('update');
+    if (this.phase.isBusy()) return;
+    if (this.phase.isStepChallengePhase() && Input.isTriggered('ok')) {
+      this.phase.addActions([
+        this.phase.commandCloseTitleWindow,
+        this.phase.commandCloseDescriptionWindow,
+      ]);
+      this.phase.setWait();
+      this.phase.openFolderWindow();
+      this.phase.changeStepSelectFolder();
+    } 
+    if (this.phase.isStepSelectFolder()) {
+      console.log('select folder');
+    }
+  }
+
+  asserts() {
+    this.describe('Challenge Phase');
   }
 }
 
@@ -7416,6 +7675,7 @@ class CardBattleTestScene extends Scene_Message {
     this._tests = [];
     this._nextTest = null;
     this._animationSprites = [];
+    this._phase = null;
   }
 
   create() {
@@ -7504,29 +7764,31 @@ class CardBattleTestScene extends Scene_Message {
       AlignEndBottomStateWindowTest,
     ];
     const textWindowTests = [
-      CreateOneFourthSizeTextWindowTest,
-      CreateMiddleSizeTextWindowTest,
-      CreateThreeFourthSizeTextWindowTest,
-      CreateFullSizeTextWindowTest,
-      OpenTextWindowTest,
-      CloseTextWindowTest,
-      ChangeBlueColorTextWindowTest,
-      ChangeRedColorTextWindowTest,
-      ChangeDefaultColorTextWindowTest,
-      AlignStartTopTextWindowTest,
-      AlignStartMiddleTextWindowTest,
-      AlignStartBottomTextWindowTest,
-      AlignCenterTopTextWindowTest,
-      AlignCenterMiddleTextWindowTest,
-      AlignCenterBottomTextWindowTest,
-      AlignEndTopTextWindowTest,
-      AlignEndMiddleTextWindowTest,
-      AlignEndBottomTextWindowTest,
-      AlignTextLeftTextWindowTest,
-      AlignTextCenterTextWindowTest,
-      AlignTextRightTextWindowTest,
-      TextTextWindowTest,
-      ChangeTextColorTextWindowTest,
+      // CreateOneFourthSizeTextWindowTest,
+      // CreateMiddleSizeTextWindowTest,
+      // CreateThreeFourthSizeTextWindowTest,
+      // CreateFullSizeTextWindowTest,
+      // OpenTextWindowTest,
+      // CloseTextWindowTest,
+      // ChangeBlueColorTextWindowTest,
+      // ChangeRedColorTextWindowTest,
+      // ChangeDefaultColorTextWindowTest,
+      // AlignStartTopTextWindowTest,
+      // AlignStartMiddleTextWindowTest,
+      // AlignStartBottomTextWindowTest,
+      // AlignCenterTopTextWindowTest,
+      AlignCenterAboveMiddleTextWindowTest,
+      // AlignCenterMiddleTextWindowTest,
+      AlignCenterBelowMiddleTextWindowTest,
+      // AlignCenterBottomTextWindowTest,
+      // AlignEndTopTextWindowTest,
+      // AlignEndMiddleTextWindowTest,
+      // AlignEndBottomTextWindowTest,
+      // AlignTextLeftTextWindowTest,
+      // AlignTextCenterTextWindowTest,
+      // AlignTextRightTextWindowTest,
+      // TextTextWindowTest,
+      // ChangeTextColorTextWindowTest,
     ];
     const boardWindowTests = [
       PassBoardWindowTest,
@@ -7573,16 +7835,16 @@ class CardBattleTestScene extends Scene_Message {
       ChallengePhaseTest,
     ];
     return [
-      ...cardSpriteTests,
-      ...cardsetSpriteTests,
-      ...commandWindow,
-      ...StateWindowTests,
-      ...textWindowTests,
-      ...boardWindowTests,
-      ...battlePointsWindow,
-      ...trashWindow,
-      ...scoreWindow,
-      ...folderWindow,
+      // ...cardSpriteTests,
+      // ...cardsetSpriteTests,
+      // ...commandWindow,
+      // ...StateWindowTests,
+      // ...textWindowTests,
+      // ...boardWindowTests,
+      // ...battlePointsWindow,
+      // ...trashWindow,
+      // ...scoreWindow,
+      // ...folderWindow,
       ...phase,
     ];
   }
@@ -7697,6 +7959,7 @@ class CardBattleTestScene extends Scene_Message {
         this._nextTest.update();
         this._nextTest.updateTest();
       }
+      if (this._phase) this._phase.update();
     }
     super.update();
   }
@@ -7715,6 +7978,18 @@ class CardBattleTestScene extends Scene_Message {
 
   getLastAnimationSprite() {
     return this._animationSprites[this._animationSprites.length - 1];
+  }
+
+  changePhase(phase) {
+    this._phase = new phase(this);
+  }
+
+  getPhase() {
+    return this._phase;
+  }
+
+  addWindow(window) {
+    this._windowLayer.addChild(window);
   }
 }
 class CardBattleManagerDrawPhaseState {

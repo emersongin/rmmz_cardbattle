@@ -2,9 +2,9 @@ class ChangeTextColorTextWindowTest extends SceneTest {
   create() {
     const line1 = 'primeiro texto';
     let line2 = 'segundo texto';
-    line2 = CommandWindow.setTextColor(line2, GameColors.BLUE);
+    line2 = TextWindow.setTextColor(line2, GameColors.BLUE);
     let line3 = 'terceiro texto';
-    line3 = CommandWindow.setTextColor(line3, GameColors.DEFAULT);
+    line3 = TextWindow.setTextColor(line3, GameColors.DEFAULT);
     const text = [ [line1, line2, line3] ];
     this.subject = TextWindow.createWindowFullSize(0, 0, text);
     this.addWatched(this.subject);

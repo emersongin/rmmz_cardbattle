@@ -35,8 +35,7 @@ class SceneTest {
   }
 
   startTest() {
-    const fps = 60;
-    this.counter = (fps * this.seconds);
+    this.counter = (GameConst.FPS * this.seconds);
     this.addChildren();
   }
 
