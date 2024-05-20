@@ -18,10 +18,13 @@ const GameConst = {
   RIGHT: 'RIGHT',
   END: 'END',
   TOP: 'TOP',
+  ABOVE_MIDDLE: 'ABOVE_MIDDLE',
   MIDDLE: 'MIDDLE',
+  BELOW_MIDDLE: 'BELOW_MIDDLE',
   BOTTOM: 'BOTTOM',
   RED_COLOR: 'RED_COLOR',
   BLUE_COLOR: 'BLUE_COLOR',
+  FPS: 60,
 };
 
 const CardTypes = {

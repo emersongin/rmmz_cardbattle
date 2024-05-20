@@ -4,7 +4,7 @@ class WindowUpdatedScoreState {
   _score = 0;
   _toggleFps = 6;
   _interval = 0;
-  _counter = 60;
+  _counter = GameConst.FPS;
   _blink = false;
 
   constructor(window, lastScore, score) {

@@ -44,8 +44,14 @@ class TextWindow extends Window_Base {
 
   static getVerticalAlign(position, window) {
     switch (position) {
+      case GameConst.ABOVE_MIDDLE:
+        return (Graphics.boxHeight / 4) - ((window.height || 0) / 2);
+        break;
       case GameConst.MIDDLE:
         return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
+        break;
+      case GameConst.BELOW_MIDDLE:
+        return (Graphics.boxHeight * 3 / 4) - ((window.height || 0) / 2);
         break;
       case GameConst.BOTTOM:
         return Graphics.boxHeight - (window.height || 0);
@@ -66,6 +72,11 @@ class TextWindow extends Window_Base {
       default: //START
         return 0;
     }
+  }
+
+  static setTextColor(text, color) {
+    let colorIndex = ColorHelper.getColorIndex(color);
+    return `\\c[${colorIndex}]${text}`;
   }
 
   initialize(rect, text) {
@@ -234,9 +245,19 @@ class TextWindow extends Window_Base {
     this.setVerticalAlign(GameConst.MIDDLE);
   }
 
+  alignCenterAboveMiddle() {
+    this.setHorizontalAlign(GameConst.CENTER);
+    this.setVerticalAlign(GameConst.ABOVE_MIDDLE);
+  }
+
   alignCenterMiddle() {
     this.setHorizontalAlign(GameConst.CENTER);
     this.setVerticalAlign(GameConst.MIDDLE);
+  }
+
+  alignCenterBelowMiddle() {
+    this.setHorizontalAlign(GameConst.CENTER);
+    this.setVerticalAlign(GameConst.BELOW_MIDDLE);
   }
 
   alignEndMiddle() {
@@ -332,5 +353,13 @@ class TextWindow extends Window_Base {
     this._openness = 255;
     this.visible = true;
     this.activate();
+  }
+
+  isAvailable() {
+    return !this.isBusy();
+  }
+
+  isBusy() {
+    return this.isOpening() || this.isClosing();
   }
 }

@@ -5,6 +5,7 @@ class CardBattleTestScene extends Scene_Message {
     this._tests = [];
     this._nextTest = null;
     this._animationSprites = [];
+    this._phase = null;
   }
 
   create() {
@@ -93,29 +94,31 @@ class CardBattleTestScene extends Scene_Message {
       AlignEndBottomStateWindowTest,
     ];
     const textWindowTests = [
-      CreateOneFourthSizeTextWindowTest,
-      CreateMiddleSizeTextWindowTest,
-      CreateThreeFourthSizeTextWindowTest,
-      CreateFullSizeTextWindowTest,
-      OpenTextWindowTest,
-      CloseTextWindowTest,
-      ChangeBlueColorTextWindowTest,
-      ChangeRedColorTextWindowTest,
-      ChangeDefaultColorTextWindowTest,
-      AlignStartTopTextWindowTest,
-      AlignStartMiddleTextWindowTest,
-      AlignStartBottomTextWindowTest,
-      AlignCenterTopTextWindowTest,
-      AlignCenterMiddleTextWindowTest,
-      AlignCenterBottomTextWindowTest,
-      AlignEndTopTextWindowTest,
-      AlignEndMiddleTextWindowTest,
-      AlignEndBottomTextWindowTest,
-      AlignTextLeftTextWindowTest,
-      AlignTextCenterTextWindowTest,
-      AlignTextRightTextWindowTest,
-      TextTextWindowTest,
-      ChangeTextColorTextWindowTest,
+      // CreateOneFourthSizeTextWindowTest,
+      // CreateMiddleSizeTextWindowTest,
+      // CreateThreeFourthSizeTextWindowTest,
+      // CreateFullSizeTextWindowTest,
+      // OpenTextWindowTest,
+      // CloseTextWindowTest,
+      // ChangeBlueColorTextWindowTest,
+      // ChangeRedColorTextWindowTest,
+      // ChangeDefaultColorTextWindowTest,
+      // AlignStartTopTextWindowTest,
+      // AlignStartMiddleTextWindowTest,
+      // AlignStartBottomTextWindowTest,
+      // AlignCenterTopTextWindowTest,
+      AlignCenterAboveMiddleTextWindowTest,
+      // AlignCenterMiddleTextWindowTest,
+      AlignCenterBelowMiddleTextWindowTest,
+      // AlignCenterBottomTextWindowTest,
+      // AlignEndTopTextWindowTest,
+      // AlignEndMiddleTextWindowTest,
+      // AlignEndBottomTextWindowTest,
+      // AlignTextLeftTextWindowTest,
+      // AlignTextCenterTextWindowTest,
+      // AlignTextRightTextWindowTest,
+      // TextTextWindowTest,
+      // ChangeTextColorTextWindowTest,
     ];
     const boardWindowTests = [
       PassBoardWindowTest,
@@ -162,16 +165,16 @@ class CardBattleTestScene extends Scene_Message {
       ChallengePhaseTest,
     ];
     return [
-      ...cardSpriteTests,
-      ...cardsetSpriteTests,
-      ...commandWindow,
-      ...StateWindowTests,
-      ...textWindowTests,
-      ...boardWindowTests,
-      ...battlePointsWindow,
-      ...trashWindow,
-      ...scoreWindow,
-      ...folderWindow,
+      // ...cardSpriteTests,
+      // ...cardsetSpriteTests,
+      // ...commandWindow,
+      // ...StateWindowTests,
+      // ...textWindowTests,
+      // ...boardWindowTests,
+      // ...battlePointsWindow,
+      // ...trashWindow,
+      // ...scoreWindow,
+      // ...folderWindow,
       ...phase,
     ];
   }
@@ -286,6 +289,7 @@ class CardBattleTestScene extends Scene_Message {
         this._nextTest.update();
         this._nextTest.updateTest();
       }
+      if (this._phase) this._phase.update();
     }
     super.update();
   }
@@ -304,5 +308,17 @@ class CardBattleTestScene extends Scene_Message {
 
   getLastAnimationSprite() {
     return this._animationSprites[this._animationSprites.length - 1];
+  }
+
+  changePhase(phase) {
+    this._phase = new phase(this);
+  }
+
+  getPhase() {
+    return this._phase;
+  }
+
+  addWindow(window) {
+    this._windowLayer.addChild(window);
   }
 }

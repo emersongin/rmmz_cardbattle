@@ -61,7 +61,7 @@ class StartBattleTransition extends Sprite {
   }
 
   calculateInterval(origin, target, duration) {
-    return Math.floor(Math.abs(origin - target) / (duration * 60)) || 1;
+    return Math.floor(Math.abs(origin - target) / (duration * GameConst.FPS)) || 1;
   }
 
   setupLayerTransitions() {

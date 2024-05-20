@@ -11,7 +11,7 @@ class StringHelper {
 class NumberHelper {
   static calculateTimeInterval(origin = 0, destiny = 0, duration = 0) {
     const distance = Math.abs(origin - destiny);
-    const time = Math.abs(duration * 60);
+    const time = Math.abs(duration * GameConst.FPS);
     return (distance / (time || 1)) || (Graphics.width / 30);
   }
 }
