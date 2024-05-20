@@ -43,6 +43,7 @@ class ObjectHelper {
       '_enableSelected',
       '_selectedIndexs',
       '_openness',
+      'visible',
     ];
     const newObj = Object.create(Object.getPrototypeOf(obj));
     for (const key in obj) {
