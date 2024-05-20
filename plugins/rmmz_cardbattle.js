@@ -205,6 +205,7 @@ class ObjectHelper {
       '_sprites',
       '_enableSelected',
       '_selectedIndexs',
+      '_openness',
     ];
     const newObj = Object.create(Object.getPrototypeOf(obj));
     for (const key in obj) {
@@ -750,6 +751,10 @@ class TextWindow extends Window_Base {
   isBusy() {
     return this.isOpening() || this.isClosing();
   }
+
+  isOpen() {
+    return super.isOpen();
+  }
 }
 class CommandWindow extends Window_Command {
   static create(x, y, text = [], commands = []) {
@@ -1205,6 +1210,10 @@ class CommandWindow extends Window_Command {
 
   haveCommands(commands) {
     return this._commands.every((command, index) => command.symbol === commands[index]);
+  }
+
+  isOpen() {
+    return super.isOpen();
   }
 
   //mute
@@ -1713,6 +1722,10 @@ class StateWindow extends Window_Base {
     this._openness = 255;
     this.visible = true;
     this.activate();
+  }
+
+  isOpen() {
+    return super.isOpen();
   }
 }
 class ValuesWindow extends StateWindow {
@@ -4952,6 +4965,19 @@ class Phase {
     this._wait = seconds * GameConst.FPS;
     return true;
   }
+
+  changeStep(step) {
+    this.addAction(this.commandChangeStep, step);
+  }
+
+  commandChangeStep(step) {
+    this._step = step;
+    return true;
+  }
+
+  getStep() {
+    return this._step;
+  }
 }
 class ChallengePhase extends Phase {
   _titleWindow;
@@ -5041,19 +5067,19 @@ class ChallengePhase extends Phase {
   }
 
   changeStepChallengePhase() {
-    this._step = 'CHALLENGE_PHASE';
+    this.changeStep('CHALLENGE_PHASE');
   }
 
   changeStepSelectFolder() {
-    this._step = 'SELECT_FOLDER';
+    this.changeStep('SELECT_FOLDER');
   }
 
   isStepChallengePhase() {
-    return this._step === 'CHALLENGE_PHASE';
+    return this.getStep() === 'CHALLENGE_PHASE';
   }
 
   isStepSelectFolder() {
-    return this._step === 'SELECT_FOLDER';
+    return this.getStep() === 'SELECT_FOLDER';
   }
 
   isBusy() {
@@ -5062,6 +5088,10 @@ class ChallengePhase extends Phase {
       this._descriptionWindow.isBusy() || 
       this._folderWindow.isBusy();
   }
+
+  isTextWindowOpen() {
+    return this._titleWindow.isOpen.name;
+  }
 }
 class SceneTest {
   scene = {};
@@ -5069,7 +5099,7 @@ class SceneTest {
   seconds = 1;
   counter = 0;
   waitHandler = false;
-  testDescription = 'Deve realizar o(s) teste(s)!';
+  testDescription = 'You must undertake the test(s)!';
   assertTitle = '';
   assertValue = undefined;
   assertsToTest = [];
@@ -5116,7 +5146,7 @@ class SceneTest {
           let passed = false;
           let assertsResult = [{ 
             passed: false,
-            assertsName: 'Nenhuma assertiva foi realizada!',
+            assertsName: 'No assertion was made!',
             asserts: []
           }];
           if (this.hasResults()) {
@@ -5272,7 +5302,7 @@ class SceneTest {
     return typeof fnOrValue === 'function';
   }
 
-  describe(description = 'Deve realizar o(s) teste(s)!') {
+  describe(description = 'You must undertake the test(s)!') {
     this.testDescription = description;
   }
 
@@ -7586,11 +7616,15 @@ class ChallengePhaseTest extends SceneTest {
       this.phase.commandOpenDescriptionWindow,
     ]);
     this.phase.changeStepChallengePhase();
+
+    this.addHiddenWatched(this.phase._titleWindow);
+    this.addHiddenWatched(this.phase._descriptionWindow);
+    this.addHiddenWatched(this.phase._folderWindow);
   }
 
   update() {
     if (this.phase.isBusy()) return;
-    if (this.phase.isStepChallengePhase() && Input.isTriggered('ok')) {
+    if (this.phase.isStepChallengePhase()) {
       this.phase.addActions([
         this.phase.commandCloseTitleWindow,
         this.phase.commandCloseDescriptionWindow,
@@ -7600,12 +7634,15 @@ class ChallengePhaseTest extends SceneTest {
       this.phase.changeStepSelectFolder();
     } 
     if (this.phase.isStepSelectFolder()) {
-      console.log('select folder');
+      this.endTest();
     }
   }
 
   asserts() {
     this.describe('Challenge Phase');
+    this.assertWasTrue('Title Window', this.phase._titleWindow.isOpen, this.phase._titleWindow);
+    this.assertWasTrue('Description Window', this.phase._titleWindow.isOpen, this.phase._descriptionWindow);
+    this.assertWasTrue('Folder Window', this.phase._titleWindow.isOpen, this.phase._folderWindow);
   }
 }
 

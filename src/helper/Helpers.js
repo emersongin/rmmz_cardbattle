@@ -42,6 +42,7 @@ class ObjectHelper {
       '_sprites',
       '_enableSelected',
       '_selectedIndexs',
+      '_openness',
     ];
     const newObj = Object.create(Object.getPrototypeOf(obj));
     for (const key in obj) {

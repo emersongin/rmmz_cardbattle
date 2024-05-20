@@ -454,6 +454,10 @@ class CommandWindow extends Window_Command {
     return this._commands.every((command, index) => command.symbol === commands[index]);
   }
 
+  isOpen() {
+    return super.isOpen();
+  }
+
   //mute
   playCursorSound() {
     // SoundManager.playCursor();

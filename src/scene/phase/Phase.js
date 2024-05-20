@@ -84,4 +84,17 @@ class Phase {
     this._wait = seconds * GameConst.FPS;
     return true;
   }
+
+  changeStep(step) {
+    this.addAction(this.commandChangeStep, step);
+  }
+
+  commandChangeStep(step) {
+    this._step = step;
+    return true;
+  }
+
+  getStep() {
+    return this._step;
+  }
 }

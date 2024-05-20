@@ -32,11 +32,15 @@ class ChallengePhaseTest extends SceneTest {
       this.phase.commandOpenDescriptionWindow,
     ]);
     this.phase.changeStepChallengePhase();
+
+    this.addHiddenWatched(this.phase._titleWindow);
+    this.addHiddenWatched(this.phase._descriptionWindow);
+    this.addHiddenWatched(this.phase._folderWindow);
   }
 
   update() {
     if (this.phase.isBusy()) return;
-    if (this.phase.isStepChallengePhase() && Input.isTriggered('ok')) {
+    if (this.phase.isStepChallengePhase()) {
       this.phase.addActions([
         this.phase.commandCloseTitleWindow,
         this.phase.commandCloseDescriptionWindow,
@@ -46,11 +50,14 @@ class ChallengePhaseTest extends SceneTest {
       this.phase.changeStepSelectFolder();
     } 
     if (this.phase.isStepSelectFolder()) {
-      console.log('select folder');
+      this.endTest();
     }
   }
 
   asserts() {
     this.describe('Challenge Phase');
+    this.assertWasTrue('Title Window', this.phase._titleWindow.isOpen, this.phase._titleWindow);
+    this.assertWasTrue('Description Window', this.phase._titleWindow.isOpen, this.phase._descriptionWindow);
+    this.assertWasTrue('Folder Window', this.phase._titleWindow.isOpen, this.phase._folderWindow);
   }
 }

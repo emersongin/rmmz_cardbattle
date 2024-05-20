@@ -362,4 +362,8 @@ class TextWindow extends Window_Base {
   isBusy() {
     return this.isOpening() || this.isClosing();
   }
+
+  isOpen() {
+    return super.isOpen();
+  }
 }

@@ -4,7 +4,7 @@ class SceneTest {
   seconds = 1;
   counter = 0;
   waitHandler = false;
-  testDescription = 'Deve realizar o(s) teste(s)!';
+  testDescription = 'You must undertake the test(s)!';
   assertTitle = '';
   assertValue = undefined;
   assertsToTest = [];
@@ -51,7 +51,7 @@ class SceneTest {
           let passed = false;
           let assertsResult = [{ 
             passed: false,
-            assertsName: 'Nenhuma assertiva foi realizada!',
+            assertsName: 'No assertion was made!',
             asserts: []
           }];
           if (this.hasResults()) {
@@ -207,7 +207,7 @@ class SceneTest {
     return typeof fnOrValue === 'function';
   }
 
-  describe(description = 'Deve realizar o(s) teste(s)!') {
+  describe(description = 'You must undertake the test(s)!') {
     this.testDescription = description;
   }
 

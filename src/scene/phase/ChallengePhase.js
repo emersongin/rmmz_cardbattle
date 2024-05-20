@@ -86,19 +86,19 @@ class ChallengePhase extends Phase {
   }
 
   changeStepChallengePhase() {
-    this._step = 'CHALLENGE_PHASE';
+    this.changeStep('CHALLENGE_PHASE');
   }
 
   changeStepSelectFolder() {
-    this._step = 'SELECT_FOLDER';
+    this.changeStep('SELECT_FOLDER');
   }
 
   isStepChallengePhase() {
-    return this._step === 'CHALLENGE_PHASE';
+    return this.getStep() === 'CHALLENGE_PHASE';
   }
 
   isStepSelectFolder() {
-    return this._step === 'SELECT_FOLDER';
+    return this.getStep() === 'SELECT_FOLDER';
   }
 
   isBusy() {
@@ -106,5 +106,9 @@ class ChallengePhase extends Phase {
       this._titleWindow.isBusy() || 
       this._descriptionWindow.isBusy() || 
       this._folderWindow.isBusy();
+  }
+
+  isTextWindowOpen() {
+    return this._titleWindow.isOpen.name;
   }
 }

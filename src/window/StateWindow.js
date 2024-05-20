@@ -304,4 +304,8 @@ class StateWindow extends Window_Base {
     this.visible = true;
     this.activate();
   }
+
+  isOpen() {
+    return super.isOpen();
+  }
 }
