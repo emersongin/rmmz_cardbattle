@@ -4,8 +4,6 @@ class ChallengePhaseTest extends SceneTest {
   }
 
   asserts() {
-    // this.describe('Deve atualizar a pontuação!');
-    // this.assertTrue('Foi atualizada?', false);
     console.log('asserts');
   }
 

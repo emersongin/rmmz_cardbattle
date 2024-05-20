@@ -1171,6 +1171,10 @@ class CommandWindow extends Window_Command {
     this.activate();
   }
 
+  haveCommands(commands) {
+    return this._commands.every((command, index) => command.symbol === commands[index]);
+  }
+
   //mute
   playCursorSound() {
     // SoundManager.playCursor();
@@ -4490,9 +4494,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   isReverseOrdering() {
-    return this._orderingSprites.every((sprite, index) => {
-      sprite.number === this._orderingSprites.length - (sprite.number - 1);
-    });
+    return this._orderingSprites.every((sprite, index) => sprite.number === this._orderingSprites.length - index);
   }
 }
 class BackgroundSprite extends Sprite {
@@ -5121,9 +5123,9 @@ class SceneTest {
     this.toBe(toBe, title, value);
   }
 
-  assertWasTrue(title, fnOrValue, reference, ...params) {
-    if (!title || !fnOrValue || !reference) {
-      throw new Error('The assertWasTrue method must have a title, a function or value and a reference!');
+  assertWasTrue(title, fnOrValue, reference = null, ...params) {
+    if (!title || !fnOrValue) {
+      throw new Error('The assertWasTrue method must have a title and a function or value!');
     }
     this.assertsToTest.push({
       type: 'assertWas',
@@ -6167,8 +6169,8 @@ class ShowOrderingCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar númeração ordenada das cartas!');
-    this.assert('Esta mostrando a ordenação?', this.subject.isOrderingDisplayed());
-    this.assert('Ela esta ordenada?', this.subject.isOrdering());
+    this.assertTrue('Esta mostrando a ordenação?', this.subject.isOrderingDisplayed());
+    this.assertTrue('Ela esta ordenada?', this.subject.isOrdering());
   }
 }
 class ShowReverseOrderingCardsCardsetSpriteTest extends SceneTest {
@@ -6188,8 +6190,8 @@ class ShowReverseOrderingCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar númeração em ordem inversa das cartas!');
-    this.assert('Esta mostrando a ordenação?', this.subject.isOrderingDisplayed());
-    this.assert('Ela esta em ordem reversa?', this.subject.isReverseOrdering());
+    this.assertTrue('Esta mostrando a ordenação?', this.subject.isOrderingDisplayed());
+    this.assertTrue('Ela esta em ordem reversa?', this.subject.isReverseOrdering());
   }
 }
 // tests STATE WINDOW
@@ -7282,6 +7284,7 @@ class CommandsAndHandlersCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar as opções da janela de comando');
+    this.assertTrue('Esta com os comandos?', this.subject.haveCommands(['YES', 'NO']));
   }
 }
 class CommandsAndHandlersWithTextCommandWindowTest extends SceneTest {
@@ -7298,7 +7301,12 @@ class CommandsAndHandlersWithTextCommandWindowTest extends SceneTest {
   }
 
   asserts() {
+    const text = [ 
+      'Do you want to continue?',
+    ];
     this.describe('Deve mostrar as opções da janela de comando');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Esta com os comandos?', this.subject.haveCommands(['YES', 'NO']));
   }
 }
 // test FOLDER WINDOW
@@ -7334,8 +7342,6 @@ class ChallengePhaseTest extends SceneTest {
   }
 
   asserts() {
-    // this.describe('Deve atualizar a pontuação!');
-    // this.assertTrue('Foi atualizada?', false);
     console.log('asserts');
   }
 
@@ -7567,16 +7573,16 @@ class CardBattleTestScene extends Scene_Message {
       ChallengePhaseTest,
     ];
     return [
-      // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      // ...commandWindow,
-      // ...StateWindowTests,
-      // ...textWindowTests,
-      // ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow,
-      // ...scoreWindow,
-      // ...folderWindow,
+      ...cardSpriteTests,
+      ...cardsetSpriteTests,
+      ...commandWindow,
+      ...StateWindowTests,
+      ...textWindowTests,
+      ...boardWindowTests,
+      ...battlePointsWindow,
+      ...trashWindow,
+      ...scoreWindow,
+      ...folderWindow,
       ...phase,
     ];
   }

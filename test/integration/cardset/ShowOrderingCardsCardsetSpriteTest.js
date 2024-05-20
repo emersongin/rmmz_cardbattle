@@ -15,7 +15,7 @@ class ShowOrderingCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar númeração ordenada das cartas!');
-    this.assert('Esta mostrando a ordenação?', this.subject.isOrderingDisplayed());
-    this.assert('Ela esta ordenada?', this.subject.isOrdering());
+    this.assertTrue('Esta mostrando a ordenação?', this.subject.isOrderingDisplayed());
+    this.assertTrue('Ela esta ordenada?', this.subject.isOrdering());
   }
 }

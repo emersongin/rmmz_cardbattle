@@ -450,6 +450,10 @@ class CommandWindow extends Window_Command {
     this.activate();
   }
 
+  haveCommands(commands) {
+    return this._commands.every((command, index) => command.symbol === commands[index]);
+  }
+
   //mute
   playCursorSound() {
     // SoundManager.playCursor();

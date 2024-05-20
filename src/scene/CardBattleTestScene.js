@@ -162,16 +162,16 @@ class CardBattleTestScene extends Scene_Message {
       ChallengePhaseTest,
     ];
     return [
-      // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      // ...commandWindow,
-      // ...StateWindowTests,
-      // ...textWindowTests,
-      // ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow,
-      // ...scoreWindow,
-      // ...folderWindow,
+      ...cardSpriteTests,
+      ...cardsetSpriteTests,
+      ...commandWindow,
+      ...StateWindowTests,
+      ...textWindowTests,
+      ...boardWindowTests,
+      ...battlePointsWindow,
+      ...trashWindow,
+      ...scoreWindow,
+      ...folderWindow,
       ...phase,
     ];
   }

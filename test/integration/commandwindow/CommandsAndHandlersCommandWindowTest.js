@@ -11,5 +11,6 @@ class CommandsAndHandlersCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar as opções da janela de comando');
+    this.assertTrue('Esta com os comandos?', this.subject.haveCommands(['YES', 'NO']));
   }
 }

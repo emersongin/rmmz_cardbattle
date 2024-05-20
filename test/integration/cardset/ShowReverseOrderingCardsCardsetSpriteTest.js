@@ -15,7 +15,7 @@ class ShowReverseOrderingCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar númeração em ordem inversa das cartas!');
-    this.assert('Esta mostrando a ordenação?', this.subject.isOrderingDisplayed());
-    this.assert('Ela esta em ordem reversa?', this.subject.isReverseOrdering());
+    this.assertTrue('Esta mostrando a ordenação?', this.subject.isOrderingDisplayed());
+    this.assertTrue('Ela esta em ordem reversa?', this.subject.isReverseOrdering());
   }
 }

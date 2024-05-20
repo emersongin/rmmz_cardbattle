@@ -243,9 +243,9 @@ class SceneTest {
     this.toBe(toBe, title, value);
   }
 
-  assertWasTrue(title, fnOrValue, reference, ...params) {
-    if (!title || !fnOrValue || !reference) {
-      throw new Error('The assertWasTrue method must have a title, a function or value and a reference!');
+  assertWasTrue(title, fnOrValue, reference = null, ...params) {
+    if (!title || !fnOrValue) {
+      throw new Error('The assertWasTrue method must have a title and a function or value!');
     }
     this.assertsToTest.push({
       type: 'assertWas',

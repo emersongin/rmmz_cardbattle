@@ -12,6 +12,11 @@ class CommandsAndHandlersWithTextCommandWindowTest extends SceneTest {
   }
 
   asserts() {
+    const text = [ 
+      'Do you want to continue?',
+    ];
     this.describe('Deve mostrar as opções da janela de comando');
+    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.assertTrue('Esta com os comandos?', this.subject.haveCommands(['YES', 'NO']));
   }
 }

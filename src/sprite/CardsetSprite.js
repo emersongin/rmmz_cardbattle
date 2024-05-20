@@ -519,8 +519,6 @@ class CardsetSprite extends ActionSprite {
   }
 
   isReverseOrdering() {
-    return this._orderingSprites.every((sprite, index) => {
-      sprite.number === this._orderingSprites.length - (sprite.number - 1);
-    });
+    return this._orderingSprites.every((sprite, index) => sprite.number === this._orderingSprites.length - index);
   }
 }
