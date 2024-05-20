@@ -4,7 +4,7 @@ class SceneTest {
   seconds = 1;
   counter = 0;
   waitHandler = false;
-  testDescription = '';
+  testDescription = 'Deve realizar o(s) teste(s)!';
   assertTitle = '';
   assertValue = undefined;
   assertsToTest = [];
@@ -20,6 +20,10 @@ class SceneTest {
   }
 
   create() {
+    // Override this method in the child class
+  }
+
+  update() {
     // Override this method in the child class
   }
 
@@ -44,10 +48,21 @@ class SceneTest {
     return new Promise(async res => {
       const intervalId = setInterval(() => {
         if (this.status === 'FINISH') {
-          res({
-            passed: (this.results.length && this.results.every(result => result.passed)),
-            testName: this.constructor.name,
-            assertsResult: this.results
+          const testName = this.constructor.name;
+          let passed = false;
+          let assertsResult = [{ 
+            passed: false,
+            assertsName: 'Nenhuma assertiva foi realizada!',
+            asserts: []
+          }];
+          if (this.hasResults()) {
+            passed = this.results.every(result => result.passed);
+            assertsResult = this.results;
+          }
+          res({ 
+            testName, 
+            passed, 
+            assertsResult 
           });
           clearInterval(intervalId);
         }
@@ -55,12 +70,17 @@ class SceneTest {
     });
   }
 
-  update() {
+  hasResults() {
+    return this.results.length > 0;
+  }
+
+  updateTest() {
     this.copyWatched();
     if (this.counter) return this.counter--;
     if (this.pressToStartAsserts && !Input.isTriggered('ok')) return;
     if (this.waitHandler) return;
     if (this.status === 'START') {
+      this.scene._nextTest = null;
       this.asserts();
       this.processAsserts();
       this.status = 'FINISH';
@@ -83,11 +103,17 @@ class SceneTest {
         this.processAssertsWas(assert);
       }
     }
-    this.results.push({
-      passed: this.assertsResults.every(assert => assert.passed),
-      assertsName: this.testDescription,
-      asserts: this.assertsResults
-    });
+    if (this.hasAsserts()) {
+      this.results.push({
+        passed: this.assertsResults.every(assert => assert.passed),
+        assertsName: this.testDescription,
+        asserts: this.assertsResults
+      });
+    }
+  }
+
+  hasAsserts() {
+    return this.assertsResults.length > 0;
   }
 
   clear() {
@@ -182,17 +208,23 @@ class SceneTest {
     return typeof fnOrValue === 'function';
   }
 
-  describe(description = '') {
+  describe(description = 'Deve realizar o(s) teste(s)!') {
     this.testDescription = description;
   }
 
   assert(title, value) {
+    if (!title || value === undefined) {
+      throw new Error('The assertTrue method must have a title and a value!');
+    }
     this.assertTitle = title;
     this.assertValue = value;
     return this;
   }
 
   toBe(valueToBe, title = this.assertTitle, valueToCompare = this.assertValue) {
+    if (valueToBe === undefined) {
+      throw new Error('The toBe method must have a value to compare!');
+    }
     this.assertsToTest.push({
       type: 'assert',
       title: title || '',
@@ -202,6 +234,9 @@ class SceneTest {
   }
 
   assertTrue(title, value) {
+    if (!title || value === undefined) {
+      throw new Error('The assertTrue method must have a title and a value!');
+    }
     this.assertTitle = title;
     this.assertValue = value;
     const toBe = true;
@@ -209,6 +244,9 @@ class SceneTest {
   }
 
   assertWasTrue(title, fnOrValue, reference, ...params) {
+    if (!title || !fnOrValue || !reference) {
+      throw new Error('The assertWasTrue method must have a title, a function or value and a reference!');
+    }
     this.assertsToTest.push({
       type: 'assertWas',
       title,

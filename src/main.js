@@ -158,6 +158,9 @@
 // test FOLDER WINDOW
 // include ../test/integration/folderwindow/CreateFolderWindowTest.js
 
+// test PHASE
+// include ../test/integration/phase/ChallengePhaseTest.js
+
 // include ./scene/CardBattleScene.js
 // include ./scene/CardBattleTestScene.js
 // include ./manager/CardBattleManager.js

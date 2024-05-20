@@ -4882,7 +4882,7 @@ class SceneTest {
   seconds = 1;
   counter = 0;
   waitHandler = false;
-  testDescription = '';
+  testDescription = 'Deve realizar o(s) teste(s)!';
   assertTitle = '';
   assertValue = undefined;
   assertsToTest = [];
@@ -4898,6 +4898,10 @@ class SceneTest {
   }
 
   create() {
+    // Override this method in the child class
+  }
+
+  update() {
     // Override this method in the child class
   }
 
@@ -4922,10 +4926,21 @@ class SceneTest {
     return new Promise(async res => {
       const intervalId = setInterval(() => {
         if (this.status === 'FINISH') {
-          res({
-            passed: (this.results.length && this.results.every(result => result.passed)),
-            testName: this.constructor.name,
-            assertsResult: this.results
+          const testName = this.constructor.name;
+          let passed = false;
+          let assertsResult = [{ 
+            passed: false,
+            assertsName: 'Nenhuma assertiva foi realizada!',
+            asserts: []
+          }];
+          if (this.hasResults()) {
+            passed = this.results.every(result => result.passed);
+            assertsResult = this.results;
+          }
+          res({ 
+            testName, 
+            passed, 
+            assertsResult 
           });
           clearInterval(intervalId);
         }
@@ -4933,12 +4948,17 @@ class SceneTest {
     });
   }
 
-  update() {
+  hasResults() {
+    return this.results.length > 0;
+  }
+
+  updateTest() {
     this.copyWatched();
     if (this.counter) return this.counter--;
     if (this.pressToStartAsserts && !Input.isTriggered('ok')) return;
     if (this.waitHandler) return;
     if (this.status === 'START') {
+      this.scene._nextTest = null;
       this.asserts();
       this.processAsserts();
       this.status = 'FINISH';
@@ -4961,11 +4981,17 @@ class SceneTest {
         this.processAssertsWas(assert);
       }
     }
-    this.results.push({
-      passed: this.assertsResults.every(assert => assert.passed),
-      assertsName: this.testDescription,
-      asserts: this.assertsResults
-    });
+    if (this.hasAsserts()) {
+      this.results.push({
+        passed: this.assertsResults.every(assert => assert.passed),
+        assertsName: this.testDescription,
+        asserts: this.assertsResults
+      });
+    }
+  }
+
+  hasAsserts() {
+    return this.assertsResults.length > 0;
   }
 
   clear() {
@@ -5060,17 +5086,23 @@ class SceneTest {
     return typeof fnOrValue === 'function';
   }
 
-  describe(description = '') {
+  describe(description = 'Deve realizar o(s) teste(s)!') {
     this.testDescription = description;
   }
 
   assert(title, value) {
+    if (!title || value === undefined) {
+      throw new Error('The assertTrue method must have a title and a value!');
+    }
     this.assertTitle = title;
     this.assertValue = value;
     return this;
   }
 
   toBe(valueToBe, title = this.assertTitle, valueToCompare = this.assertValue) {
+    if (valueToBe === undefined) {
+      throw new Error('The toBe method must have a value to compare!');
+    }
     this.assertsToTest.push({
       type: 'assert',
       title: title || '',
@@ -5080,6 +5112,9 @@ class SceneTest {
   }
 
   assertTrue(title, value) {
+    if (!title || value === undefined) {
+      throw new Error('The assertTrue method must have a title and a value!');
+    }
     this.assertTitle = title;
     this.assertValue = value;
     const toBe = true;
@@ -5087,6 +5122,9 @@ class SceneTest {
   }
 
   assertWasTrue(title, fnOrValue, reference, ...params) {
+    if (!title || !fnOrValue || !reference) {
+      throw new Error('The assertWasTrue method must have a title, a function or value and a reference!');
+    }
     this.assertsToTest.push({
       type: 'assertWas',
       title,
@@ -6242,7 +6280,6 @@ class CreateFullSizeStateWindowTest extends SceneTest {
 class ChangeBlueColorStateWindowTest extends SceneTest {
   create() {
     this.subject = StateWindow.createWindowFullSize(0, 0);
-    this.subject.alignCenterMiddle();
     this.addWatched(this.subject);
     this.subject.changeBlueColor();
     this.subject.open();
@@ -6257,7 +6294,6 @@ class ChangeRedColorStateWindowTest extends SceneTest {
   create() {
     this.subject = StateWindow.createWindowFullSize(0, 0);
     this.addWatched(this.subject);
-    this.subject.alignCenterMiddle();
     this.subject.changeRedColor();
     this.subject.open();
   }
@@ -6271,7 +6307,6 @@ class ChangeDefaultColorStateWindowTest extends SceneTest {
   create() {
     this.subject = StateWindow.createWindowFullSize(0, 0);
     this.addWatched(this.subject);
-    this.subject.alignCenterMiddle();
     this.subject.changeDefaultColor();
     this.subject.open();
   }
@@ -7292,6 +7327,23 @@ class CreateFolderWindowTest extends SceneTest {
   }
 }
 
+// test PHASE
+class ChallengePhaseTest extends SceneTest {
+  create() {
+    console.log('create');
+  }
+
+  asserts() {
+    // this.describe('Deve atualizar a pontuação!');
+    // this.assertTrue('Foi atualizada?', false);
+    console.log('asserts');
+  }
+
+  update() {
+    console.log('update');
+  }
+}
+
 class CardBattleScene extends Scene_Message {
   initialize() {
     super.initialize();
@@ -7511,17 +7563,21 @@ class CardBattleTestScene extends Scene_Message {
     const folderWindow = [
       CreateFolderWindowTest,
     ];
+    const phase = [
+      ChallengePhaseTest,
+    ];
     return [
-      ...cardSpriteTests,
-      ...cardsetSpriteTests,
-      ...commandWindow,
-      ...StateWindowTests,
-      ...textWindowTests,
-      ...boardWindowTests,
-      ...battlePointsWindow,
-      ...trashWindow,
-      ...scoreWindow,
-      ...folderWindow,
+      // ...cardSpriteTests,
+      // ...cardsetSpriteTests,
+      // ...commandWindow,
+      // ...StateWindowTests,
+      // ...textWindowTests,
+      // ...boardWindowTests,
+      // ...battlePointsWindow,
+      // ...trashWindow,
+      // ...scoreWindow,
+      // ...folderWindow,
+      ...phase,
     ];
   }
 
@@ -7535,7 +7591,6 @@ class CardBattleTestScene extends Scene_Message {
     for (const test of this._tests) {
       this._nextTest = test;
       const result = await this._nextTest.run();
-      this._nextTest = null;
       testsResults.push(result);
       await this.clearScene();
     }
@@ -7632,7 +7687,10 @@ class CardBattleTestScene extends Scene_Message {
 
   update() {
     if (this.isActive()) {
-      if (this._nextTest) this._nextTest.update();
+      if (this._nextTest) {
+        this._nextTest.update();
+        this._nextTest.updateTest();
+      }
     }
     super.update();
   }
