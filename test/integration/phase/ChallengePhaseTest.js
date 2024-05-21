@@ -5,12 +5,13 @@ class ChallengePhaseTest extends SceneTest {
   create() {
     this.scene.changePhase(ChallengePhase);
     this.phase = this.scene.getPhase();
-    const title = 'Challenge Phase';
-    this.phase.createTitleWindow(title);
-    const line1 = 'lv. 85';
+    const title = TextWindow.setTextColor('Challenge Phase', GameColors.ORANGE);
+    const text = [title];
+    this.phase.createTitleWindow(text);
+    const line = 'lv. 85';
     const line2 = 'Amaterasu Duel King';
-    const text = [line1, line2];
-    this.phase.createDescriptionWindow(text);
+    const text2 = [line, line2];
+    this.phase.createDescriptionWindow(text2);
     const endTest = this.createHandler();
     const folders = [
       {
@@ -38,7 +39,9 @@ class ChallengePhaseTest extends SceneTest {
           endTest();
         }
     }];
-    this.phase.createFolderWindow(folders);
+    const title2 = CommandWindow.setTextColor('Choose a folder', GameColors.ORANGE);
+    const text3 = [title2];
+    this.phase.createFolderWindow(text3, folders);
     this.phase.addActions([
       this.phase.commandOpenTitleWindow,
       this.phase.commandOpenDescriptionWindow,
@@ -46,13 +49,13 @@ class ChallengePhaseTest extends SceneTest {
     this.addHiddenWatched(this.phase._titleWindow);
     this.addHiddenWatched(this.phase._descriptionWindow);
     this.addHiddenWatched(this.phase._folderWindow);
-    this.phase.changeStepChallengePhase();
+    this.phase.stepChallengePhase();
   }
 
   update() {
     if (this.phase.isBusy()) return;
     if (this.phase.isStepChallengePhase() && Input.isTriggered('ok')) {
-      this.phase.changeStepSelectFolder();
+      this.phase.stepSelectFolder();
       this.phase.addActions([
         this.phase.commandCloseTitleWindow,
         this.phase.commandCloseDescriptionWindow,

@@ -131,6 +131,31 @@ class CardsetSprite extends ActionSprite {
     sprites.forEach((sprite, index) => this.addChild(sprite));
   }
 
+  setAllCardsInPositions(sprites = this._sprites, positions) {
+    sprites = this.toArray(sprites);
+    this.addAction(this.commandSetAllCardsPositions, sprites, positions);
+  }
+
+  commandSetAllCardsPositions(sprites, positions) {
+    if (this.isHidden()) return;
+    positions.forEach(({ x, y, index }) => {
+      const sprite = sprites[index];
+      sprite.setPosition(x, y);
+    });
+    return true;
+  }
+
+  setAllCardsInPosition(sprites = this._sprites, x = 0, y = 0) {
+    sprites = this.toArray(sprites);
+    this.addAction(this.commandSetAllCardsPosition, sprites, x, y);
+  }
+
+  commandSetAllCardsPosition(sprites, x, y) {
+    if (this.isHidden()) return;
+    sprites.forEach(sprite => sprite.setPosition(x, y));
+    return true;
+  }
+
   showCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
     this.addAction(this.commandShowCards, sprites);
@@ -296,17 +321,6 @@ class CardsetSprite extends ActionSprite {
     moves = moves.map(({ sprite, x, y }) => [sprite, x, y]);
     const actions = this.createActionsWithDelay(this.commandMoveCard, delay, moves);
     this.addActions(actions);
-  }
-
-  setAllCardsToPosition(sprites = this._sprites, x = 0, y = 0) {
-    sprites = this.toArray(sprites);
-    this.addAction(this.commandSetAllCardsToPosition, sprites, x, y);
-  }
-
-  commandSetAllCardsToPosition(sprites, x, y) {
-    if (this.isHidden()) return;
-    sprites.forEach(sprite => sprite.setPosition(x, y));
-    return true;
   }
 
   disableCards(sprites = this._sprites) {

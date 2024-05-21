@@ -1,4 +1,4 @@
-class SetCardsCardsetSpriteTest extends SceneTest {
+class setAllCardsInPositionCardsetSpriteTest extends SceneTest {
   create() {
     const x = 0;
     const y = 0;
@@ -7,13 +7,14 @@ class SetCardsCardsetSpriteTest extends SceneTest {
     this.subject.centralize();
     this.subject.show();
     const cards = CardGenerator.generateCards(1);
-    const sprites = this.subject.setCards(cards, x, y);
+    const sprites = this.subject.setCards(cards, 100, 100);
+    this.subject.setAllCardsInPosition(sprites, x, y);
     this.subject.showCards(sprites);
     this.sprites = sprites;
   }
 
   asserts() {
-    this.describe('Deve mostrar as cartas!');
+    this.describe('Deve mostrar as cartas na posição!');
     const numCards = 1;
     const padding = 0;
     const x = 0;

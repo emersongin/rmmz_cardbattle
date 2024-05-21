@@ -3807,8 +3807,6 @@ class CardSprite extends ActionSprite {
     }
   }
 
-  // interface cardset
-
   static createPosition(x, y, index) {
     return { x, y, index };
   }
@@ -4152,6 +4150,31 @@ class CardsetSprite extends ActionSprite {
     sprites.forEach((sprite, index) => this.addChild(sprite));
   }
 
+  setAllCardsInPositions(sprites = this._sprites, positions) {
+    sprites = this.toArray(sprites);
+    this.addAction(this.commandSetAllCardsPositions, sprites, positions);
+  }
+
+  commandSetAllCardsPositions(sprites, positions) {
+    if (this.isHidden()) return;
+    positions.forEach(({ x, y, index }) => {
+      const sprite = sprites[index];
+      sprite.setPosition(x, y);
+    });
+    return true;
+  }
+
+  setAllCardsInPosition(sprites = this._sprites, x = 0, y = 0) {
+    sprites = this.toArray(sprites);
+    this.addAction(this.commandSetAllCardsPosition, sprites, x, y);
+  }
+
+  commandSetAllCardsPosition(sprites, x, y) {
+    if (this.isHidden()) return;
+    sprites.forEach(sprite => sprite.setPosition(x, y));
+    return true;
+  }
+
   showCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
     this.addAction(this.commandShowCards, sprites);
@@ -4317,17 +4340,6 @@ class CardsetSprite extends ActionSprite {
     moves = moves.map(({ sprite, x, y }) => [sprite, x, y]);
     const actions = this.createActionsWithDelay(this.commandMoveCard, delay, moves);
     this.addActions(actions);
-  }
-
-  setAllCardsToPosition(sprites = this._sprites, x = 0, y = 0) {
-    sprites = this.toArray(sprites);
-    this.addAction(this.commandSetAllCardsToPosition, sprites, x, y);
-  }
-
-  commandSetAllCardsToPosition(sprites, x, y) {
-    if (this.isHidden()) return;
-    sprites.forEach(sprite => sprite.setPosition(x, y));
-    return true;
   }
 
   disableCards(sprites = this._sprites) {
@@ -4986,8 +4998,7 @@ class ChallengePhase extends Phase {
   _folderWindow;
 
   createTitleWindow(title) {
-    title = TextWindow.setTextColor(title, GameColors.ORANGE);
-    this._titleWindow = TextWindow.createWindowFullSize(0, 0, [title]);
+    this._titleWindow = TextWindow.createWindowFullSize(0, 0, title);
     this._titleWindow.alignCenterAboveMiddle();
     this._titleWindow.alignTextCenter();
     this.addWindow(this._titleWindow);
@@ -4999,14 +5010,11 @@ class ChallengePhase extends Phase {
     this.addWindow(this._descriptionWindow);
   }
 
-  createFolderWindow(folders) {
+  createFolderWindow(text, folders) {
     const energies = folders.map(folder => FolderWindow.createEnergies(...folder.energies));
     const commands = folders.map((folder, index) => {
       return FolderWindow.createCommand(folder.name, `FOLDER_${index}`, folder.handler, energies[index])
     });
-    let title = 'Choose a folder';
-    title = CommandWindow.setTextColor(title, GameColors.ORANGE);
-    const text = [title];
     this._folderWindow = FolderWindow.create(0, 0, text, commands);
     this._folderWindow.alignMiddle();
     this._folderWindow.alignTextCenter();
@@ -5067,11 +5075,11 @@ class ChallengePhase extends Phase {
     return true;
   }
 
-  changeStepChallengePhase() {
+  stepChallengePhase() {
     this.changeStep('CHALLENGE_PHASE');
   }
 
-  changeStepSelectFolder() {
+  stepSelectFolder() {
     this.changeStep('SELECT_FOLDER');
   }
 
@@ -5089,9 +5097,106 @@ class ChallengePhase extends Phase {
       this._descriptionWindow.isBusy() || 
       this._folderWindow.isBusy();
   }
+}
+class StartPhase extends Phase {
+  _titleWindow;
+  _descriptionWindow;
+  _cardDrawGameCardset;
 
-  isTextWindowOpen() {
-    return this._titleWindow.isOpen.name;
+  createTitleWindow(title) {
+    this._titleWindow = TextWindow.createWindowFullSize(0, 0, title);
+    this._titleWindow.alignCenterAboveMiddle();
+    this._titleWindow.alignTextCenter();
+    this.addWindow(this._titleWindow);
+  }
+
+  createDescriptionWindow(text) {
+    this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, text);
+    this._descriptionWindow.alignCenterMiddle();
+    this.addWindow(this._descriptionWindow);
+  }
+
+  createCardDrawGameCardset(cards) {
+    this._cardDrawGameCardset = CardsetSprite.create(0, 0);
+    this._cardDrawGameCardset.centralize();
+    const randomCards = this.shuffleCards(cards);
+    this._cardDrawGameCardset.setCards(randomCards, x, y);
+  }
+
+
+
+
+
+
+
+
+
+
+  shuffleCards(cards) {
+    const newCards = cards.slice();
+    for (let i = newCards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newCards[i], newCards[j]] = [newCards[j], newCards[i]];
+    }
+    return newCards;
+  }
+
+  openTitleWindow() {
+    this.addAction(this.commandOpenTitleWindow);
+  }
+
+  commandOpenTitleWindow() {
+    this._titleWindow.open();
+    return true;
+  }
+
+  closeTitleWindow() {
+    this.addAction(this.commandCloseTitleWindow);
+  }
+
+  commandCloseTitleWindow() {
+    this._titleWindow.close();
+    return true;
+  } 
+
+  openDescriptionWindow() {
+    this.addAction(this.commandOpenDescriptionWindow);
+  }
+
+  commandOpenDescriptionWindow() {
+    this._descriptionWindow.open();
+    return true;
+  }
+
+  closeDescriptionWindow() {
+    this.addAction(this.commandCloseDescriptionWindow);
+  }
+
+  commandCloseDescriptionWindow() {
+    this._descriptionWindow.close();
+    return true;
+  }
+
+  stepStartPhase() {
+    this.changeStep('START_PHASE');
+  }
+
+  stepCardDrawGame() {
+    this.changeStep('CARD_DRAW_GAME');
+  }
+
+  isStepStartPhase() {
+    return this.getStep() === 'START_PHASE';
+  }
+
+  isStepCardDrawGame() {
+    return this.getStep() === 'CARD_DRAW_GAME';
+  }
+
+  isBusy() {
+    return super.isBusy() || 
+      this._titleWindow.isBusy() || 
+      this._descriptionWindow.isBusy();
   }
 }
 class SceneTest {
@@ -5945,12 +6050,14 @@ class StartPositionCardsetSpriteTest extends SceneTest {
 }
 class SetCardsCardsetSpriteTest extends SceneTest {
   create() {
-    this.subject = CardsetSprite.create(0, 0);
+    const x = 0;
+    const y = 0;
+    this.subject = CardsetSprite.create(x, y);
     this.addWatched(this.subject);
     this.subject.centralize();
     this.subject.show();
     const cards = CardGenerator.generateCards(1);
-    const sprites = this.subject.setCards(cards);
+    const sprites = this.subject.setCards(cards, x, y);
     this.subject.showCards(sprites);
     this.sprites = sprites;
   }
@@ -5962,6 +6069,60 @@ class SetCardsCardsetSpriteTest extends SceneTest {
     const x = 0;
     const y = 0;
     const positions = CardsetSprite.createPositions(numCards, padding, x, y);
+    this.assertTrue('Esta mostrando na posição inícial?', this.subject.allCardsAreVisible());
+    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
+  }
+}
+class setAllCardsInPositionCardsetSpriteTest extends SceneTest {
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = CardsetSprite.create(x, y);
+    this.addWatched(this.subject);
+    this.subject.centralize();
+    this.subject.show();
+    const cards = CardGenerator.generateCards(1);
+    const sprites = this.subject.setCards(cards, 100, 100);
+    this.subject.setAllCardsInPosition(sprites, x, y);
+    this.subject.showCards(sprites);
+    this.sprites = sprites;
+  }
+
+  asserts() {
+    this.describe('Deve mostrar as cartas na posição!');
+    const numCards = 1;
+    const padding = 0;
+    const x = 0;
+    const y = 0;
+    const positions = CardsetSprite.createPositions(numCards, padding, x, y);
+    this.assertTrue('Esta mostrando na posição inícial?', this.subject.allCardsAreVisible());
+    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
+  }
+}
+class setAllCardsInPositionsCardsetSpriteTest extends SceneTest {
+  create() {
+    const x = 0;
+    const y = 0;
+    this.subject = CardsetSprite.create(x, y);
+    this.addWatched(this.subject);
+    this.subject.centralize();
+    this.subject.show();
+    const cards = CardGenerator.generateCards(2);
+    const sprites = this.subject.setCards(cards, 0, 0);
+    const position1 = CardSprite.createPosition(0, -CardSprite.contentOriginalHeight(), 0);
+    const position2 = CardSprite.createPosition(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight(), 1);
+    const positions = [position1, position2];
+    this.subject.setAllCardsInPositions(sprites, positions);
+    this.subject.showCards(sprites);
+    this.sprites = sprites;
+  }
+
+  asserts() {
+    this.describe('Deve mostrar as cartas na posição!');
+    const numCards = 2;
+    const position1 = CardSprite.createPosition(0, -CardSprite.contentOriginalHeight(), 0);
+    const position2 = CardSprite.createPosition(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight(), 1);
+    const positions = [position1, position2];
     this.assertTrue('Esta mostrando na posição inícial?', this.subject.allCardsAreVisible());
     this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
@@ -7590,12 +7751,13 @@ class ChallengePhaseTest extends SceneTest {
   create() {
     this.scene.changePhase(ChallengePhase);
     this.phase = this.scene.getPhase();
-    const title = 'Challenge Phase';
-    this.phase.createTitleWindow(title);
-    const line1 = 'lv. 85';
+    const title = TextWindow.setTextColor('Challenge Phase', GameColors.ORANGE);
+    const text = [title];
+    this.phase.createTitleWindow(text);
+    const line = 'lv. 85';
     const line2 = 'Amaterasu Duel King';
-    const text = [line1, line2];
-    this.phase.createDescriptionWindow(text);
+    const text2 = [line, line2];
+    this.phase.createDescriptionWindow(text2);
     const endTest = this.createHandler();
     const folders = [
       {
@@ -7623,7 +7785,9 @@ class ChallengePhaseTest extends SceneTest {
           endTest();
         }
     }];
-    this.phase.createFolderWindow(folders);
+    const title2 = CommandWindow.setTextColor('Choose a folder', GameColors.ORANGE);
+    const text3 = [title2];
+    this.phase.createFolderWindow(text3, folders);
     this.phase.addActions([
       this.phase.commandOpenTitleWindow,
       this.phase.commandOpenDescriptionWindow,
@@ -7631,13 +7795,13 @@ class ChallengePhaseTest extends SceneTest {
     this.addHiddenWatched(this.phase._titleWindow);
     this.addHiddenWatched(this.phase._descriptionWindow);
     this.addHiddenWatched(this.phase._folderWindow);
-    this.phase.changeStepChallengePhase();
+    this.phase.stepChallengePhase();
   }
 
   update() {
     if (this.phase.isBusy()) return;
     if (this.phase.isStepChallengePhase() && Input.isTriggered('ok')) {
-      this.phase.changeStepSelectFolder();
+      this.phase.stepSelectFolder();
       this.phase.addActions([
         this.phase.commandCloseTitleWindow,
         this.phase.commandCloseDescriptionWindow,
@@ -7653,6 +7817,65 @@ class ChallengePhaseTest extends SceneTest {
     this.assertWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase._descriptionWindow);
     this.assertWasTrue('A Janela de escolah de pastas foi apresentada?', 'visible', this.phase._folderWindow);
     this.assertTrue('Foi escolhido uma pasta válida?', this.selectFolderIndex !== -1);
+  }
+}
+class StartPhaseTest extends SceneTest {
+  phase;
+
+  create() {
+    this.scene.changePhase(StartPhase);
+    this.phase = this.scene.getPhase();
+    const title = TextWindow.setTextColor('Start Phase', GameColors.ORANGE);
+    const text = [title];
+    this.phase.createTitleWindow(text);
+    const line = 'Draw Calumon to go first.';
+    const text2 = [line];
+    this.phase.createDescriptionWindow(text2);
+    const cards = [
+      {
+        type: 3,
+        color: 4,
+        figureName: 'default',
+        attack: 0,
+        health: 0
+      },
+      {
+        type: 3,
+        color: 5,
+        figureName: 'default',
+        attack: 0,
+        health: 0
+      }
+    ];
+    this.phase.createCardDrawGameCardset(cards);
+
+
+    this.phase.addActions([
+      this.phase.commandOpenTitleWindow,
+      this.phase.commandOpenDescriptionWindow,
+    ]);
+    this.addHiddenWatched(this.phase._titleWindow);
+    this.addHiddenWatched(this.phase._descriptionWindow);
+    this.phase.stepStartPhase();
+  }
+
+  update() {
+    if (this.phase.isBusy()) return;
+    if (this.phase.isStepStartPhase() && Input.isTriggered('ok')) {
+      this.phase.stepCardDrawGame();
+      this.phase.addActions([
+        this.phase.commandCloseTitleWindow,
+        this.phase.commandCloseDescriptionWindow,
+      ]);
+      this.phase.setWait();
+      this.phase.stepCardDrawGame();
+    }
+  }
+
+  asserts() {
+    this.describe('Deve apresentar etapas de fase de início e jogo da sorte.');
+    this.assertWasTrue('A janela de título foi apresentada?', 'visible', this.phase._titleWindow);
+    this.assertWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase._descriptionWindow);
   }
 }
 
@@ -7766,29 +7989,31 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
-      StartPositionCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      ListCardsCardsetSpriteTest,
-      StartClosedCardsCardsetSpriteTest,
-      OpenAllCardsCardsetSpriteTest,
-      OpenCardsCardsetSpriteTest,
-      CloseAllCardsCardsetSpriteTest,
-      CloseCardsCardsetSpriteTest,
-      MoveAllCardsInListCardsetSpriteTest,
-      MoveCardsInListCardsetSpriteTest,
-      MoveAllCardsToPositionCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
-      AddAllCardsToListCardsetSpriteTest,
-      AddCardsToListCardsetSpriteTest,
-      DisableCardsCardsetSpriteTest,
-      StaticModeCardsetSpriteTest,
-      SelectModeCardsetSpriteTest,
-      SelectModeWithChoiceCardsetSpriteTest,
-      FlashCardsCardsetSpriteTest,
-      QuakeCardsCardsetSpriteTest,
-      AnimationCardsCardsetSpriteTest,
-      ShowOrderingCardsCardsetSpriteTest,
-      ShowReverseOrderingCardsCardsetSpriteTest,
+      // StartPositionCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      setAllCardsInPositionCardsetSpriteTest,
+      setAllCardsInPositionsCardsetSpriteTest,
+      // ListCardsCardsetSpriteTest,
+      // StartClosedCardsCardsetSpriteTest,
+      // OpenAllCardsCardsetSpriteTest,
+      // OpenCardsCardsetSpriteTest,
+      // CloseAllCardsCardsetSpriteTest,
+      // CloseCardsCardsetSpriteTest,
+      // MoveAllCardsInListCardsetSpriteTest,
+      // MoveCardsInListCardsetSpriteTest,
+      // MoveAllCardsToPositionCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
+      // AddAllCardsToListCardsetSpriteTest,
+      // AddCardsToListCardsetSpriteTest,
+      // DisableCardsCardsetSpriteTest,
+      // StaticModeCardsetSpriteTest,
+      // SelectModeCardsetSpriteTest,
+      // SelectModeWithChoiceCardsetSpriteTest,
+      // FlashCardsCardsetSpriteTest,
+      // QuakeCardsCardsetSpriteTest,
+      // AnimationCardsCardsetSpriteTest,
+      // ShowOrderingCardsCardsetSpriteTest,
+      // ShowReverseOrderingCardsCardsetSpriteTest,
     ];
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,
@@ -7811,31 +8036,31 @@ class CardBattleTestScene extends Scene_Message {
       AlignEndBottomStateWindowTest,
     ];
     const textWindowTests = [
-      // CreateOneFourthSizeTextWindowTest,
-      // CreateMiddleSizeTextWindowTest,
-      // CreateThreeFourthSizeTextWindowTest,
-      // CreateFullSizeTextWindowTest,
-      // OpenTextWindowTest,
-      // CloseTextWindowTest,
-      // ChangeBlueColorTextWindowTest,
-      // ChangeRedColorTextWindowTest,
-      // ChangeDefaultColorTextWindowTest,
-      // AlignStartTopTextWindowTest,
-      // AlignStartMiddleTextWindowTest,
-      // AlignStartBottomTextWindowTest,
-      // AlignCenterTopTextWindowTest,
+      CreateOneFourthSizeTextWindowTest,
+      CreateMiddleSizeTextWindowTest,
+      CreateThreeFourthSizeTextWindowTest,
+      CreateFullSizeTextWindowTest,
+      OpenTextWindowTest,
+      CloseTextWindowTest,
+      ChangeBlueColorTextWindowTest,
+      ChangeRedColorTextWindowTest,
+      ChangeDefaultColorTextWindowTest,
+      AlignStartTopTextWindowTest,
+      AlignStartMiddleTextWindowTest,
+      AlignStartBottomTextWindowTest,
+      AlignCenterTopTextWindowTest,
       AlignCenterAboveMiddleTextWindowTest,
-      // AlignCenterMiddleTextWindowTest,
+      AlignCenterMiddleTextWindowTest,
       AlignCenterBelowMiddleTextWindowTest,
-      // AlignCenterBottomTextWindowTest,
-      // AlignEndTopTextWindowTest,
-      // AlignEndMiddleTextWindowTest,
-      // AlignEndBottomTextWindowTest,
-      // AlignTextLeftTextWindowTest,
-      // AlignTextCenterTextWindowTest,
-      // AlignTextRightTextWindowTest,
-      // TextTextWindowTest,
-      // ChangeTextColorTextWindowTest,
+      AlignCenterBottomTextWindowTest,
+      AlignEndTopTextWindowTest,
+      AlignEndMiddleTextWindowTest,
+      AlignEndBottomTextWindowTest,
+      AlignTextLeftTextWindowTest,
+      AlignTextCenterTextWindowTest,
+      AlignTextRightTextWindowTest,
+      TextTextWindowTest,
+      ChangeTextColorTextWindowTest,
     ];
     const boardWindowTests = [
       PassBoardWindowTest,
@@ -7879,11 +8104,12 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const phase = [
-      ChallengePhaseTest,
+      // ChallengePhaseTest,
+      StartPhaseTest,
     ];
     return [
       // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
+      ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,
@@ -7892,7 +8118,7 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      ...phase,
+      // ...phase,
     ];
   }
 

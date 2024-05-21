@@ -1,7 +1,7 @@
-class ChallengePhase extends Phase {
+class StartPhase extends Phase {
   _titleWindow;
   _descriptionWindow;
-  _folderWindow;
+  _cardDrawGameCardset;
 
   createTitleWindow(title) {
     this._titleWindow = TextWindow.createWindowFullSize(0, 0, title);
@@ -16,15 +16,29 @@ class ChallengePhase extends Phase {
     this.addWindow(this._descriptionWindow);
   }
 
-  createFolderWindow(text, folders) {
-    const energies = folders.map(folder => FolderWindow.createEnergies(...folder.energies));
-    const commands = folders.map((folder, index) => {
-      return FolderWindow.createCommand(folder.name, `FOLDER_${index}`, folder.handler, energies[index])
-    });
-    this._folderWindow = FolderWindow.create(0, 0, text, commands);
-    this._folderWindow.alignMiddle();
-    this._folderWindow.alignTextCenter();
-    this.addWindow(this._folderWindow);
+  createCardDrawGameCardset(cards) {
+    this._cardDrawGameCardset = CardsetSprite.create(0, 0);
+    this._cardDrawGameCardset.centralize();
+    const randomCards = this.shuffleCards(cards);
+    this._cardDrawGameCardset.setCards(randomCards, x, y);
+  }
+
+
+
+
+
+
+
+
+
+
+  shuffleCards(cards) {
+    const newCards = cards.slice();
+    for (let i = newCards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newCards[i], newCards[j]] = [newCards[j], newCards[i]];
+    }
+    return newCards;
   }
 
   openTitleWindow() {
@@ -63,44 +77,25 @@ class ChallengePhase extends Phase {
     return true;
   }
 
-  openFolderWindow() {
-    this.addAction(this.commandOpenFolderWindow);
+  stepStartPhase() {
+    this.changeStep('START_PHASE');
   }
 
-  commandOpenFolderWindow() {
-    this._folderWindow.open();
-    return true;
+  stepCardDrawGame() {
+    this.changeStep('CARD_DRAW_GAME');
   }
 
-  closeFolderWindow() {
-    this.addAction(this.commandCloseFolderWindow);
+  isStepStartPhase() {
+    return this.getStep() === 'START_PHASE';
   }
 
-  commandCloseFolderWindow() {
-    this._folderWindow.close();
-    return true;
-  }
-
-  stepChallengePhase() {
-    this.changeStep('CHALLENGE_PHASE');
-  }
-
-  stepSelectFolder() {
-    this.changeStep('SELECT_FOLDER');
-  }
-
-  isStepChallengePhase() {
-    return this.getStep() === 'CHALLENGE_PHASE';
-  }
-
-  isStepSelectFolder() {
-    return this.getStep() === 'SELECT_FOLDER';
+  isStepCardDrawGame() {
+    return this.getStep() === 'CARD_DRAW_GAME';
   }
 
   isBusy() {
     return super.isBusy() || 
       this._titleWindow.isBusy() || 
-      this._descriptionWindow.isBusy() || 
-      this._folderWindow.isBusy();
+      this._descriptionWindow.isBusy();
   }
 }

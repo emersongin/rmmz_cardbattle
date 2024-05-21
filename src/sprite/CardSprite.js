@@ -802,8 +802,6 @@ class CardSprite extends ActionSprite {
     }
   }
 
-  // interface cardset
-
   static createPosition(x, y, index) {
     return { x, y, index };
   }

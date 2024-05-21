@@ -31,6 +31,7 @@
 
 // include ./scene/phase/Phase.js
 // include ./scene/phase/ChallengePhase.js
+// include ./scene/phase/StartPhase.js
 // include ../test/integration/SceneTest.js
 
 // tests CARD Sprite
@@ -59,6 +60,8 @@
 // tests CARDSET
 // include ../test/integration/cardset/StartPositionCardsetSpriteTest.js
 // include ../test/integration/cardset/SetCardsCardsetSpriteTest.js
+// include ../test/integration/cardset/setAllCardsInPositionCardsetSpriteTest.js
+// include ../test/integration/cardset/setAllCardsInPositionsCardsetSpriteTest.js
 // include ../test/integration/cardset/ListCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/StartClosedCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/OpenAllCardsCardsetSpriteTest.js
@@ -163,6 +166,7 @@
 
 // test PHASE
 // include ../test/integration/phase/ChallengePhaseTest.js
+// include ../test/integration/phase/StartPhaseTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./scene/CardBattleTestScene.js
