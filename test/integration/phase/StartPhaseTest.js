@@ -27,8 +27,6 @@ class StartPhaseTest extends SceneTest {
       }
     ];
     this.phase.createCardDrawGameCardset(cards);
-
-
     this.phase.addActions([
       this.phase.commandOpenTitleWindow,
       this.phase.commandOpenDescriptionWindow,
@@ -36,6 +34,8 @@ class StartPhaseTest extends SceneTest {
     this.addHiddenWatched(this.phase._titleWindow);
     this.addHiddenWatched(this.phase._descriptionWindow);
     this.phase.stepStartPhase();
+
+    this.createHandler();
   }
 
   update() {
@@ -48,6 +48,8 @@ class StartPhaseTest extends SceneTest {
       ]);
       this.phase.setWait();
       this.phase.stepCardDrawGame();
+      this.phase.showCards();
+      this.phase.moveAllCardsToCenter();
     }
   }
 

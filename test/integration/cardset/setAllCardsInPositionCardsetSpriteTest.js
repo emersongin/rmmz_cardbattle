@@ -1,4 +1,4 @@
-class setAllCardsInPositionCardsetSpriteTest extends SceneTest {
+class SetAllCardsInPositionCardsetSpriteTest extends SceneTest {
   create() {
     const x = 0;
     const y = 0;

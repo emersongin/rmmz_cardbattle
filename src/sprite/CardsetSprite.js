@@ -54,9 +54,9 @@ class CardsetSprite extends ActionSprite {
   }
 
   setup() {
-    this.setBackgroundColor('white' || 'none');
+    this.setBackgroundColor('none');
     this.setSize();
-    this.hide();
+    this.commandHide();
     this.staticMode();
   }
 
@@ -84,6 +84,8 @@ class CardsetSprite extends ActionSprite {
     cards = this.toArray(cards);
     const sprites = cards.map(card => this.createCardSprite(card, x, y));
     const orderingSprites = this.createOrderingNumbers(sprites);
+    this._sprites = sprites;
+    this._orderingSprites = orderingSprites;
     this.addAction(this.commandSetCards, sprites, orderingSprites);
     return sprites;
   }
@@ -120,8 +122,6 @@ class CardsetSprite extends ActionSprite {
   commandSetCards(sprites, orderingSprites) {
     if (this.isHidden()) return;
     this.clear();
-    this._sprites = sprites;
-    this._orderingSprites = orderingSprites;
     this.addSprites(sprites);
     this.addSprites(orderingSprites);
     return true;
@@ -321,6 +321,12 @@ class CardsetSprite extends ActionSprite {
     moves = moves.map(({ sprite, x, y }) => [sprite, x, y]);
     const actions = this.createActionsWithDelay(this.commandMoveCard, delay, moves);
     this.addActions(actions);
+  }
+
+  moveAllCardsToPositions(sprites = this._sprites, positions) {
+    sprites = this.toArray(sprites);
+    const moves = this.moveCardsPositions(positions, sprites);
+    this.addAction(this.commandMoveAllCards, moves);
   }
 
   disableCards(sprites = this._sprites) {
@@ -534,5 +540,9 @@ class CardsetSprite extends ActionSprite {
 
   isReverseOrdering() {
     return this._orderingSprites.every((sprite, index) => sprite.number === this._orderingSprites.length - index);
+  }
+
+  getSprites() {
+    return this._sprites;
   }
 }

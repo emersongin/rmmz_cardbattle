@@ -51,8 +51,8 @@ class CardBattleTestScene extends Scene_Message {
     const cardsetSpriteTests = [
       // StartPositionCardsetSpriteTest,
       // SetCardsCardsetSpriteTest,
-      setAllCardsInPositionCardsetSpriteTest,
-      setAllCardsInPositionsCardsetSpriteTest,
+      // SetAllCardsInPositionCardsetSpriteTest,
+      // SetAllCardsInPositionsCardsetSpriteTest,
       // ListCardsCardsetSpriteTest,
       // StartClosedCardsCardsetSpriteTest,
       // OpenAllCardsCardsetSpriteTest,
@@ -63,6 +63,7 @@ class CardBattleTestScene extends Scene_Message {
       // MoveCardsInListCardsetSpriteTest,
       // MoveAllCardsToPositionCardsetSpriteTest,
       // MoveCardsToPositionCardsetSpriteTest,
+      MoveAllCardsToPositionsCardsetSpriteTest,
       // AddAllCardsToListCardsetSpriteTest,
       // AddCardsToListCardsetSpriteTest,
       // DisableCardsCardsetSpriteTest,
@@ -169,7 +170,7 @@ class CardBattleTestScene extends Scene_Message {
     ];
     return [
       // ...cardSpriteTests,
-      ...cardsetSpriteTests,
+      // ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,
@@ -178,7 +179,7 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      // ...phase,
+      ...phase,
     ];
   }
 
@@ -301,10 +302,6 @@ class CardBattleTestScene extends Scene_Message {
     return !this.isBusy();
   }
 
-  removeWindow(window) {
-    this._windowLayer.removeChild(window);
-  };
-
   addAnimationSprite(animationSprite) {
     this._animationSprites.push(animationSprite);
   }
@@ -324,4 +321,8 @@ class CardBattleTestScene extends Scene_Message {
   addWindow(window) {
     this._windowLayer.addChild(window);
   }
+
+  removeWindow(window) {
+    this._windowLayer.removeChild(window);
+  };
 }
