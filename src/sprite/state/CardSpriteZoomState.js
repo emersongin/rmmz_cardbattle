@@ -11,6 +11,9 @@ class CardSpriteZoomState {
   _duration = 0.3 / 2;
   
   constructor(sprite, destinyXPosition, destinyYPosition, destinyXScale, destinyYScale) {
+    if (!(sprite instanceof CardSprite)) {
+      throw new Error('sprite is not a CardSprite instance!');
+    }
     this._card = sprite;
     this._x = destinyXPosition;
     this._y = destinyYPosition;

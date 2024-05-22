@@ -803,16 +803,17 @@ class CommandWindow extends Window_Command {
     return `\\c[${colorIndex}]${text}`;
   }
 
-  static getVerticalAlign(position, window) {
+  static getVerticalAlign(position, window, parentY = 0) {
+    const boxHeight = (Graphics.boxHeight - parentY);
     switch (position) {
       case GameConst.MIDDLE:
-        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
+        return ((Graphics.boxHeight / 2) - parentY) - ((window.height || 0) / 2);
         break;
       case GameConst.BOTTOM:
-        return Graphics.boxHeight - ((window.height || 0) + (Graphics.boxHeight / 6));
+        return boxHeight - ((window.height || 0) + (boxHeight / 6));
         break;
       default: //TOP
-        return Graphics.boxHeight / 6;
+        return boxHeight / 6;
     }
   }
 
@@ -1076,12 +1077,14 @@ class CommandWindow extends Window_Command {
     return true;
   }
 
-  setVerticalAlign(position) {
-    this.y = CommandWindow.getVerticalAlign(position, this);
+  setVerticalAlign(position, parent) {
+    const parentY = parent ? parent.y : this.parent?.y;
+    this.y = CommandWindow.getVerticalAlign(position, this, parentY);
   }
 
-  setHorizontalAlign() {
-    this.x = 0;
+  setHorizontalAlign(parent) {
+    const parentX = parent ? parent.x : this.parent?.x;
+    this.x = -parentX || 0;
   }
 
   alignMiddle() {
@@ -2448,6 +2451,9 @@ class CardSpriteStoppedState {
   _card;
   
   constructor(sprite) {
+    if (!(sprite instanceof CardSprite)) {
+      throw new Error('sprite is not a CardSprite instance!');
+    }
     this._card = sprite;
   }
 
@@ -2465,6 +2471,9 @@ class CardSpriteMovingState {
   _duration = 0.3;
   
   constructor(sprite, moves) {
+    if (!(sprite instanceof CardSprite)) {
+      throw new Error('sprite is not a CardSprite instance!');
+    }
     this._card = sprite;
     this._moves = moves;
     this._x = this._card.x;
@@ -2543,6 +2552,9 @@ class CardSpriteOpeningState {
   _duration = 0.3;
   
   constructor(sprite, xPosition, yPosition) {
+    if (!(sprite instanceof CardSprite)) {
+      throw new Error('sprite is not a CardSprite instance!');
+    }
     this._card = sprite;
     const that = this._card;
     this._x = xPosition;
@@ -2673,6 +2685,9 @@ class CardSpriteZoomState {
   _duration = 0.3 / 2;
   
   constructor(sprite, destinyXPosition, destinyYPosition, destinyXScale, destinyYScale) {
+    if (!(sprite instanceof CardSprite)) {
+      throw new Error('sprite is not a CardSprite instance!');
+    }
     this._card = sprite;
     this._x = destinyXPosition;
     this._y = destinyYPosition;
@@ -3509,7 +3524,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandUnhover() {
-    // if (this.isUnhovered()) return true;
+    if (this.isUnhovered()) return true;
     this._hoveredLayer.bitmap.clear();
     this.removeBehavior(CardSpriteHoveredBehavior);
     return true;
@@ -3526,7 +3541,8 @@ class CardSprite extends ActionSprite {
   }
 
   commandSelect() {
-    if (!(this.isOpened() && this.isStopped()) || this.isSelected()) return; 
+    if (!(this.isOpened() && this.isStopped())) return; 
+    if (this.isSelected()) return true;
     this.addBehavior(CardSpriteSelectedBehavior);
     return true;
   }
@@ -3540,7 +3556,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandUnselect() {
-    if (this.isUnselected()) return;
+    if (this.isUnselected()) return true;
     this._selectedLayer.bitmap.clear();
     this.removeBehavior(CardSpriteSelectedBehavior);
     return true;
@@ -3556,7 +3572,8 @@ class CardSprite extends ActionSprite {
 
   commandIluminate() {
     const isStatus = (this.isStopped() || this.isMoving() || this.isZooming());
-    if (!(this.isOpened() && isStatus) || this.isIluminated()) return; 
+    if (!(this.isOpened() && isStatus)) return;
+    if (this.isIluminated()) return true; 
     this.addBehavior(CardSpriteIluminatedBehavior);
     return true;
   }
@@ -3578,7 +3595,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandUniluminate() {
-    if (this.isUniluminated()) return;
+    if (this.isUniluminated()) return true;
     this._selectedLayer.bitmap.clear();
     this.removeBehavior(CardSpriteIluminatedBehavior);
     return true;
@@ -3860,33 +3877,10 @@ class CardsetSpriteStaticModeState {
   _cardset;
   
   constructor(sprite) {
+    if (!(sprite instanceof CardsetSprite)) {
+      throw new Error('sprite is not a CardsetSprite instance!');
+    }
     this._cardset = sprite;
-    this.unhouverSprites();
-  }
-
-  unhouverSprites() {
-    const spritesHovered = this.getSpritesHovered();
-    spritesHovered.forEach(({ sprite, index }) => {
-      this.unhoverSprite(sprite);
-      this._cardset.removeChild(sprite);
-      this._cardset.addChildAt(sprite, index);
-    });
-  }
-
-  getSpritesHovered() {
-    const sprites = this._cardset._sprites.map((sprite, index) => {
-      return { sprite, index };
-    });
-    return sprites.filter(({ sprite, index }) => sprite.isHovered());
-  }
-
-  unhoverSprite(sprite) {
-    const destinyXPosition = sprite.x;
-    const destinyYPosition = 0;
-    const duration = 0.03;
-    sprite.unhover();
-    const move = CardSprite.createMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
-    sprite.toMove(move);
   }
 
   updateStatus() {
@@ -3896,31 +3890,76 @@ class CardsetSpriteStaticModeState {
 class CardsetSpriteSelectModeState {
   _cardset;
   _cursorIndex;
-  
-  constructor(sprite) {
+  _selectedIndexs;
+  _selectNumber;
+  _confirmWindow;
+
+  constructor(sprite, number = 0, selectCardsCallback, message = 'confirm the selection?') {
+    if (!(sprite instanceof CardsetSprite)) {
+      throw new Error('sprite is not a CardsetSprite instance!');
+    }
+    if (typeof selectCardsCallback !== 'function') {
+      throw new Error('selectCardsCallback is not a function!');
+    }
     this._cardset = sprite;
     this._cursorIndex = 0;
-    this.updateSpriteCards();
+    this._selectedIndexs = [];
+    this._selectNumber = number;
+    this.createConfirmWindow(message, selectCardsCallback);
+    this.updateHoverSprites();
+  }
+
+  createConfirmWindow(message, selectCardsCallback) {
+    const confirmHandler = () => {
+      selectCardsCallback(this._selectedIndexs);
+    };
+    const returnHandler = () => {
+      this.returnToSelection();
+    };
+    const commandYes = CommandWindow.createCommand('Yes', 'YES', confirmHandler);
+    const commandNo = CommandWindow.createCommand('No', 'NO', returnHandler);
+    const text = [message];
+    this._confirmWindow = CommandWindow.create(0, 0, text, [commandYes, commandNo]);
+    this._confirmWindow.alignMiddle();
+    this._cardset.addChild(this._confirmWindow);
+  }
+
+  returnToSelection() {
+    if (this.selectIsFull()) {
+      this._selectedIndexs.pop();
+    }
+    this.updateSelectSprites();
+    this.updateHoverSprites();
+    this._confirmWindow.close();
   }
 
   updateStatus() {
     const cardset = this._cardset;
     const keys = ['right', 'left'];
-    if (cardset.isAvailable()) {
+    if (cardset.isAvailable() && !this.isWindowBusy()) {
       this.updateCursor();
-      if (Input.isAnyKeyActiveIn(keys)) this.updateSpriteCards();
-      if (cardset._enableSelected) {
+      if (Input.isAnyKeyActiveIn(keys)) this.updateHoverSprites();
+      if (this._selectNumber !== 0) {
         if (Input.isTriggered('ok')) this.selectSprite();
-        if (Input.isTriggered('cancel') || this.selecteLimit()) cardset.unselectMode();
+        if (Input.isTriggered('cancel') || this.selectIsFull()) {
+          cardset.iluminateSelectedSprites(this._selectedIndexs);
+          this._confirmWindow.open();
+        }
       }
     }
   }
 
-  selecteLimit() {
+  isWindowBusy() {
+    return this._confirmWindow.isOpen();
+  }
+
+  selectIsFull() {
     const cardset = this._cardset;
-    const allowedAmount = cardset._sprites.filter(sprite => sprite.isEnabled()).length;
-    const selectedAmount = cardset._selectedIndexs.length;
-    return selectedAmount === allowedAmount;
+    const allowedAmount = cardset.getEnabledSpritesAmount();
+    const selectedAmount = this._selectedIndexs.length;
+    const limit = selectedAmount >= this._selectNumber;
+    const full = selectedAmount === allowedAmount;
+    return limit || full;
   }
 
   updateCursor() {
@@ -3932,7 +3971,7 @@ class CardsetSpriteSelectModeState {
   }
 
   moveCursorRight(times = 1) {
-    const sprites = this._cardset._sprites;
+    const sprites = this._cardset.getSprites();
     const indexsAmount = sprites.length - 1;
     if (this._cursorIndex < indexsAmount) {
       const nextIndex = this._cursorIndex + times;
@@ -3944,7 +3983,7 @@ class CardsetSpriteSelectModeState {
 
   moveCursorLeft(times = 1) {
     const minIndex = 0;
-    const sprites = this._cardset._sprites;
+    const sprites = this._cardset.getSprites();
     const indexsAmount = sprites.length - 1;
     if (this._cursorIndex > minIndex) {
       const nextIndex = this._cursorIndex - times;
@@ -3954,9 +3993,9 @@ class CardsetSpriteSelectModeState {
     }
   }
 
-  updateSpriteCards() {
+  updateHoverSprites() {
     const cardset = this._cardset;
-    const sprites = cardset._sprites;
+    const sprites = this._cardset.getSprites();
     const indexsAmount = sprites.length - 1;
     sprites.forEach((sprite, index) => {
       if (index === this._cursorIndex) {
@@ -3991,32 +4030,33 @@ class CardsetSpriteSelectModeState {
   }
 
   selectSprite() {
-    const cardset = this._cardset;
-    const sprites = cardset._sprites;
-    const selectedSprite = sprites[this._cursorIndex];
-    if (selectedSprite.isDisabled()) return;
-    if (this.isSelectedSprite()) {
-      selectedSprite.unselect();
-      this.removeSelectedIndex(this._cursorIndex);
-      return;
+    const cursorIndex = this._cursorIndex;
+    if (this._selectedIndexs.includes(cursorIndex)) {
+      this.removeSelectedIndex(cursorIndex);
+    } else {
+      this.addSelectedIndex(cursorIndex);
     }
-    selectedSprite.select();
-    this.addSelectedIndex(this._cursorIndex);
-  }
-
-  isSelectedSprite() {
-    const cardset = this._cardset;
-    return cardset._selectedIndexs.find(index => index === this._cursorIndex);
+    this.updateSelectSprites();
   }
 
   addSelectedIndex(index) {
-    const cardset = this._cardset;
-    cardset._selectedIndexs.push(index);
+    this._selectedIndexs.push(index);
+  }
+
+  updateSelectSprites() {
+    const sprites = this._cardset.getSprites();
+    sprites.forEach((sprite, index) => {
+      sprite.uniluminate();
+      if (this._selectedIndexs.includes(index)) {
+        sprite.select();
+      } else {
+        sprite.unselect();
+      }
+    });
   }
 
   removeSelectedIndex(index) {
-    const cardset = this._cardset;
-    cardset._selectedIndexs = cardset._selectedIndexs.filter(selectedIndex => selectedIndex !== index);
+    this._selectedIndexs = this._selectedIndexs.filter(spriteIndex => spriteIndex !== index);
   }
 }
 
@@ -4067,8 +4107,6 @@ class CardsetSprite extends ActionSprite {
     super.initialize(x, y);
     this._sprites = [];
     this._orderingSprites = [];
-    this._enableSelected = false;
-    this._selectedIndexs = [];
     this.setup();
   }
 
@@ -4212,6 +4250,8 @@ class CardsetSprite extends ActionSprite {
     const positions = CardsetSprite.createPositionsList(numCards);
     const sprites = this.createCardSpritesPositions(positions, cards);
     const orderingSprites = this.createOrderingNumbers(sprites);
+    this._sprites = sprites;
+    this._orderingSprites = orderingSprites;
     this.addAction(this.commandSetCards, sprites, orderingSprites);
     return sprites;
   }
@@ -4373,14 +4413,14 @@ class CardsetSprite extends ActionSprite {
     return indexs.every(index => this.getCardIndex(index).isDisabled());
   }
 
-  selectMode() {
-    this.addAction(this.commandSelectMode);
+  selectMode(number, selectCardsCallback) {
+    this.addAction(this.commandSelectMode, number, selectCardsCallback);
   }
 
-  commandSelectMode() {
+  commandSelectMode(number = 0, selectCardsCallback) {
     const isNot = !(this.isVisible() && this.allCardsIsOpened());
     if (isNot) return;
-    this.changeStatus(CardsetSpriteSelectModeState);
+    this.changeStatus(CardsetSpriteSelectModeState, number, selectCardsCallback);
     return true;
   }
 
@@ -4392,42 +4432,37 @@ class CardsetSprite extends ActionSprite {
     return this.getStatus() instanceof CardsetSpriteSelectModeState;
   }
 
-  unselectMode() {
-    this.addAction(this.commandUnselectMode);
-  }
-
-  commandUnselectMode() {
-    if (this.isStaticMode()) return true;
-    this._enableSelected = false;
-    if (this._selectedIndexs.length) {
-      this._selectedIndexs.forEach(index => {
-        const sprite = this.getCardIndex(index);
-        sprite.unselect();
-        sprite.iluminate();
-      });
-    }
-    this.staticMode();
-    return true;
-  }
-
   isStaticMode() {
     return this.getStatus() instanceof CardsetSpriteStaticModeState;
   }
 
-  enableChoice() {
-    this.addAction(this.commandEnableChoice);
+  iluminateSelectedSprites(selectedIndexs) {
+    this.addAction(this.commandIluminateSelectedSprites, selectedIndexs);
   }
 
-  commandEnableChoice() {
-    const isNot = !this.isSelectMode();
-    if (isNot) return;
-    this._enableSelected = true;
-    this._selectedIndexs = [];
+  commandIluminateSelectedSprites(selectedIndexs) {
+    if (this.isHidden() || this.isStaticMode()) return;
+    const sprites = this._sprites;
+    sprites.forEach((sprite, index) => {
+      this.unhoverSprite(sprite, index);
+      if (selectedIndexs.includes(index)) {
+        console.log(selectedIndexs);
+        sprite.unselect();
+        sprite.iluminate();
+      }
+    });
     return true;
   }
 
-  isEnableChoice() {
-    return this._enableSelected;
+  unhoverSprite(sprite, index) {
+    const destinyXPosition = sprite.x;
+    const destinyYPosition = 0;
+    const duration = 0.03;
+    sprite.unhover();
+    const move = CardSprite.createMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
+    sprite.toMove(move);
+    this.removeChild(sprite);
+    this.addChildAt(sprite, index);
   }
 
   flashCardsAnimate(sprites = this._sprites, color = 'white', duration = 10, times = 1) {
@@ -4559,6 +4594,10 @@ class CardsetSprite extends ActionSprite {
 
   isReverseOrdering() {
     return this._orderingSprites.every((sprite, index) => sprite.number === this._orderingSprites.length - index);
+  }
+
+  getEnabledSpritesAmount() {
+    this.getSprites().filter(sprite => sprite.isEnabled()).length;
   }
 
   getSprites() {
@@ -6482,24 +6521,6 @@ class DisableCardsCardsetSpriteTest extends SceneTest {
     this.assertTrue('Estão habilitados?', this.subject.isEnabledCardIndexs(enableCardsIndex));
   }
 }
-class SelectModeCardsetSpriteTest extends SceneTest {
-  create() {
-    this.subject = CardsetSprite.create(0, 0);
-    this.addWatched(this.subject);
-    this.subject.centralize();
-    this.subject.show();
-    const numCards = 10;
-    const cards = CardGenerator.generateCards(numCards);
-    const sprites = this.subject.listCards(cards);
-    this.subject.showCards(sprites);
-    this.subject.selectMode();
-  }
-
-  asserts() {
-    this.describe('Deve entrar em modo seleção!');
-    this.assertTrue('Esta em modo seleção?', this.subject.isSelectMode());
-  }
-}
 class StaticModeCardsetSpriteTest extends SceneTest {
   create() {
     this.subject = CardsetSprite.create(0, 0);
@@ -6519,7 +6540,25 @@ class StaticModeCardsetSpriteTest extends SceneTest {
     this.assertTrue('Esta em modo estático?', this.subject.isStaticMode());
   }
 }
-class SelectModeWithChoiceCardsetSpriteTest extends SceneTest {
+class SelectModeCardsetSpriteTest extends SceneTest {
+  create() {
+    this.subject = CardsetSprite.create(0, 0);
+    this.addWatched(this.subject);
+    this.subject.centralize();
+    this.subject.show();
+    const numCards = 10;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.listCards(cards);
+    this.subject.showCards(sprites);
+    this.subject.selectMode();
+  }
+
+  asserts() {
+    this.describe('Deve entrar em modo seleção!');
+    this.assertTrue('Esta em modo seleção?', this.subject.isSelectMode());
+  }
+}
+class SelectCardsCardsetSpriteTest extends SceneTest {
   create() {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
@@ -6532,14 +6571,20 @@ class SelectModeWithChoiceCardsetSpriteTest extends SceneTest {
     const disableSprites = sprites.filter((sprite, index) => disableCardsIndex.includes(index));
     this.subject.disableCards(disableSprites);
     this.subject.showCards(sprites);
-    this.subject.selectMode();
-    this.subject.enableChoice();
+    const endTest = this.createHandler();
+    const selectNumber = 3;
+    this.cardsSelected = [];
+    const selectCards = (cards) => {
+      this.cardsSelected = cards;
+      endTest();
+    };
+    this.subject.selectMode(selectNumber, selectCards);
   }
 
   asserts() {
     this.describe('Deve entrar em modo seleção com escolha!');
     this.assertTrue('Esta em modo seleção?', this.subject.isSelectMode());
-    this.assertTrue('Esta com escolha habilitada?', this.subject.isEnableChoice());
+    this.assertTrue('Deve selecionar 3 cartas', this.cardsSelected.length === 3);
   }
 }
 class FlashCardsCardsetSpriteTest extends SceneTest {
@@ -8074,13 +8119,13 @@ class CardBattleTestScene extends Scene_Message {
       // MoveCardsInListCardsetSpriteTest,
       // MoveAllCardsToPositionCardsetSpriteTest,
       // MoveCardsToPositionCardsetSpriteTest,
-      MoveAllCardsToPositionsCardsetSpriteTest,
+      // MoveAllCardsToPositionsCardsetSpriteTest,
       // AddAllCardsToListCardsetSpriteTest,
       // AddCardsToListCardsetSpriteTest,
       // DisableCardsCardsetSpriteTest,
       // StaticModeCardsetSpriteTest,
       // SelectModeCardsetSpriteTest,
-      // SelectModeWithChoiceCardsetSpriteTest,
+      SelectCardsCardsetSpriteTest,
       // FlashCardsCardsetSpriteTest,
       // QuakeCardsCardsetSpriteTest,
       // AnimationCardsCardsetSpriteTest,
@@ -8181,7 +8226,7 @@ class CardBattleTestScene extends Scene_Message {
     ];
     return [
       // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
+      ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,
@@ -8190,7 +8235,7 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      ...phase,
+      // ...phase,
     ];
   }
 

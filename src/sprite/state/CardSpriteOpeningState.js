@@ -10,6 +10,9 @@ class CardSpriteOpeningState {
   _duration = 0.3;
   
   constructor(sprite, xPosition, yPosition) {
+    if (!(sprite instanceof CardSprite)) {
+      throw new Error('sprite is not a CardSprite instance!');
+    }
     this._card = sprite;
     const that = this._card;
     this._x = xPosition;

@@ -1,31 +1,76 @@
 class CardsetSpriteSelectModeState {
   _cardset;
   _cursorIndex;
-  
-  constructor(sprite) {
+  _selectedIndexs;
+  _selectNumber;
+  _confirmWindow;
+
+  constructor(sprite, number = 0, selectCardsCallback, message = 'confirm the selection?') {
+    if (!(sprite instanceof CardsetSprite)) {
+      throw new Error('sprite is not a CardsetSprite instance!');
+    }
+    if (typeof selectCardsCallback !== 'function') {
+      throw new Error('selectCardsCallback is not a function!');
+    }
     this._cardset = sprite;
     this._cursorIndex = 0;
-    this.updateSpriteCards();
+    this._selectedIndexs = [];
+    this._selectNumber = number;
+    this.createConfirmWindow(message, selectCardsCallback);
+    this.updateHoverSprites();
+  }
+
+  createConfirmWindow(message, selectCardsCallback) {
+    const confirmHandler = () => {
+      selectCardsCallback(this._selectedIndexs);
+    };
+    const returnHandler = () => {
+      this.returnToSelection();
+    };
+    const commandYes = CommandWindow.createCommand('Yes', 'YES', confirmHandler);
+    const commandNo = CommandWindow.createCommand('No', 'NO', returnHandler);
+    const text = [message];
+    this._confirmWindow = CommandWindow.create(0, 0, text, [commandYes, commandNo]);
+    this._confirmWindow.alignMiddle();
+    this._cardset.addChild(this._confirmWindow);
+  }
+
+  returnToSelection() {
+    if (this.selectIsFull()) {
+      this._selectedIndexs.pop();
+    }
+    this.updateSelectSprites();
+    this.updateHoverSprites();
+    this._confirmWindow.close();
   }
 
   updateStatus() {
     const cardset = this._cardset;
     const keys = ['right', 'left'];
-    if (cardset.isAvailable()) {
+    if (cardset.isAvailable() && !this.isWindowBusy()) {
       this.updateCursor();
-      if (Input.isAnyKeyActiveIn(keys)) this.updateSpriteCards();
-      if (cardset._enableSelected) {
+      if (Input.isAnyKeyActiveIn(keys)) this.updateHoverSprites();
+      if (this._selectNumber !== 0) {
         if (Input.isTriggered('ok')) this.selectSprite();
-        if (Input.isTriggered('cancel') || this.selecteLimit()) cardset.unselectMode();
+        if (Input.isTriggered('cancel') || this.selectIsFull()) {
+          cardset.iluminateSelectedSprites(this._selectedIndexs);
+          this._confirmWindow.open();
+        }
       }
     }
   }
 
-  selecteLimit() {
+  isWindowBusy() {
+    return this._confirmWindow.isOpen();
+  }
+
+  selectIsFull() {
     const cardset = this._cardset;
-    const allowedAmount = cardset._sprites.filter(sprite => sprite.isEnabled()).length;
-    const selectedAmount = cardset._selectedIndexs.length;
-    return selectedAmount === allowedAmount;
+    const allowedAmount = cardset.getEnabledSpritesAmount();
+    const selectedAmount = this._selectedIndexs.length;
+    const limit = selectedAmount >= this._selectNumber;
+    const full = selectedAmount === allowedAmount;
+    return limit || full;
   }
 
   updateCursor() {
@@ -37,7 +82,7 @@ class CardsetSpriteSelectModeState {
   }
 
   moveCursorRight(times = 1) {
-    const sprites = this._cardset._sprites;
+    const sprites = this._cardset.getSprites();
     const indexsAmount = sprites.length - 1;
     if (this._cursorIndex < indexsAmount) {
       const nextIndex = this._cursorIndex + times;
@@ -49,7 +94,7 @@ class CardsetSpriteSelectModeState {
 
   moveCursorLeft(times = 1) {
     const minIndex = 0;
-    const sprites = this._cardset._sprites;
+    const sprites = this._cardset.getSprites();
     const indexsAmount = sprites.length - 1;
     if (this._cursorIndex > minIndex) {
       const nextIndex = this._cursorIndex - times;
@@ -59,9 +104,9 @@ class CardsetSpriteSelectModeState {
     }
   }
 
-  updateSpriteCards() {
+  updateHoverSprites() {
     const cardset = this._cardset;
-    const sprites = cardset._sprites;
+    const sprites = this._cardset.getSprites();
     const indexsAmount = sprites.length - 1;
     sprites.forEach((sprite, index) => {
       if (index === this._cursorIndex) {
@@ -96,31 +141,32 @@ class CardsetSpriteSelectModeState {
   }
 
   selectSprite() {
-    const cardset = this._cardset;
-    const sprites = cardset._sprites;
-    const selectedSprite = sprites[this._cursorIndex];
-    if (selectedSprite.isDisabled()) return;
-    if (this.isSelectedSprite()) {
-      selectedSprite.unselect();
-      this.removeSelectedIndex(this._cursorIndex);
-      return;
+    const cursorIndex = this._cursorIndex;
+    if (this._selectedIndexs.includes(cursorIndex)) {
+      this.removeSelectedIndex(cursorIndex);
+    } else {
+      this.addSelectedIndex(cursorIndex);
     }
-    selectedSprite.select();
-    this.addSelectedIndex(this._cursorIndex);
-  }
-
-  isSelectedSprite() {
-    const cardset = this._cardset;
-    return cardset._selectedIndexs.find(index => index === this._cursorIndex);
+    this.updateSelectSprites();
   }
 
   addSelectedIndex(index) {
-    const cardset = this._cardset;
-    cardset._selectedIndexs.push(index);
+    this._selectedIndexs.push(index);
+  }
+
+  updateSelectSprites() {
+    const sprites = this._cardset.getSprites();
+    sprites.forEach((sprite, index) => {
+      sprite.uniluminate();
+      if (this._selectedIndexs.includes(index)) {
+        sprite.select();
+      } else {
+        sprite.unselect();
+      }
+    });
   }
 
   removeSelectedIndex(index) {
-    const cardset = this._cardset;
-    cardset._selectedIndexs = cardset._selectedIndexs.filter(selectedIndex => selectedIndex !== index);
+    this._selectedIndexs = this._selectedIndexs.filter(spriteIndex => spriteIndex !== index);
   }
 }

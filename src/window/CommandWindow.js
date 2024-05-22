@@ -44,16 +44,17 @@ class CommandWindow extends Window_Command {
     return `\\c[${colorIndex}]${text}`;
   }
 
-  static getVerticalAlign(position, window) {
+  static getVerticalAlign(position, window, parentY = 0) {
+    const boxHeight = (Graphics.boxHeight - parentY);
     switch (position) {
       case GameConst.MIDDLE:
-        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
+        return ((Graphics.boxHeight / 2) - parentY) - ((window.height || 0) / 2);
         break;
       case GameConst.BOTTOM:
-        return Graphics.boxHeight - ((window.height || 0) + (Graphics.boxHeight / 6));
+        return boxHeight - ((window.height || 0) + (boxHeight / 6));
         break;
       default: //TOP
-        return Graphics.boxHeight / 6;
+        return boxHeight / 6;
     }
   }
 
@@ -317,12 +318,14 @@ class CommandWindow extends Window_Command {
     return true;
   }
 
-  setVerticalAlign(position) {
-    this.y = CommandWindow.getVerticalAlign(position, this);
+  setVerticalAlign(position, parent) {
+    const parentY = parent ? parent.y : this.parent?.y;
+    this.y = CommandWindow.getVerticalAlign(position, this, parentY);
   }
 
-  setHorizontalAlign() {
-    this.x = 0;
+  setHorizontalAlign(parent) {
+    const parentX = parent ? parent.x : this.parent?.x;
+    this.x = -parentX || 0;
   }
 
   alignMiddle() {

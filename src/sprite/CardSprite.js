@@ -504,7 +504,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandUnhover() {
-    // if (this.isUnhovered()) return true;
+    if (this.isUnhovered()) return true;
     this._hoveredLayer.bitmap.clear();
     this.removeBehavior(CardSpriteHoveredBehavior);
     return true;
@@ -521,7 +521,8 @@ class CardSprite extends ActionSprite {
   }
 
   commandSelect() {
-    if (!(this.isOpened() && this.isStopped()) || this.isSelected()) return; 
+    if (!(this.isOpened() && this.isStopped())) return; 
+    if (this.isSelected()) return true;
     this.addBehavior(CardSpriteSelectedBehavior);
     return true;
   }
@@ -535,7 +536,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandUnselect() {
-    if (this.isUnselected()) return;
+    if (this.isUnselected()) return true;
     this._selectedLayer.bitmap.clear();
     this.removeBehavior(CardSpriteSelectedBehavior);
     return true;
@@ -551,7 +552,8 @@ class CardSprite extends ActionSprite {
 
   commandIluminate() {
     const isStatus = (this.isStopped() || this.isMoving() || this.isZooming());
-    if (!(this.isOpened() && isStatus) || this.isIluminated()) return; 
+    if (!(this.isOpened() && isStatus)) return;
+    if (this.isIluminated()) return true; 
     this.addBehavior(CardSpriteIluminatedBehavior);
     return true;
   }
@@ -573,7 +575,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandUniluminate() {
-    if (this.isUniluminated()) return;
+    if (this.isUniluminated()) return true;
     this._selectedLayer.bitmap.clear();
     this.removeBehavior(CardSpriteIluminatedBehavior);
     return true;

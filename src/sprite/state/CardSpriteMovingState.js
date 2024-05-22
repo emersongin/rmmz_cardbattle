@@ -8,6 +8,9 @@ class CardSpriteMovingState {
   _duration = 0.3;
   
   constructor(sprite, moves) {
+    if (!(sprite instanceof CardSprite)) {
+      throw new Error('sprite is not a CardSprite instance!');
+    }
     this._card = sprite;
     this._moves = moves;
     this._x = this._card.x;

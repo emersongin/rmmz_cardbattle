@@ -63,13 +63,13 @@ class CardBattleTestScene extends Scene_Message {
       // MoveCardsInListCardsetSpriteTest,
       // MoveAllCardsToPositionCardsetSpriteTest,
       // MoveCardsToPositionCardsetSpriteTest,
-      MoveAllCardsToPositionsCardsetSpriteTest,
+      // MoveAllCardsToPositionsCardsetSpriteTest,
       // AddAllCardsToListCardsetSpriteTest,
       // AddCardsToListCardsetSpriteTest,
       // DisableCardsCardsetSpriteTest,
       // StaticModeCardsetSpriteTest,
       // SelectModeCardsetSpriteTest,
-      // SelectModeWithChoiceCardsetSpriteTest,
+      SelectCardsCardsetSpriteTest,
       // FlashCardsCardsetSpriteTest,
       // QuakeCardsCardsetSpriteTest,
       // AnimationCardsCardsetSpriteTest,
@@ -170,7 +170,7 @@ class CardBattleTestScene extends Scene_Message {
     ];
     return [
       // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
+      ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,
@@ -179,7 +179,7 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      ...phase,
+      // ...phase,
     ];
   }
 
