@@ -14,6 +14,7 @@ class SceneTest {
   toWatched = [];
   watched = [];
   childrenToAdd = [];
+  throwErrors = [];
 
   constructor(scene) {
     this.scene = scene;
@@ -23,12 +24,31 @@ class SceneTest {
     // Override this method in the child class
   }
 
+  addThrowableError(error) {
+    this.throwErrors.push(error);
+  }
+
+  expectToThrow(title, error) {
+    this.assertsToTest.push({
+      type: 'throwError',
+      title,
+      value: error,
+      toBe: true
+    });
+  }
+
   update() {
     // Override this method in the child class
   }
 
   run() {
     return new Promise(async res => {
+      if (this.throwErrors.length) {
+        this.scene._nextTest = null;
+        this.asserts();
+        await this.processAsserts();
+        return res(this.finishResult());
+      }
       this.startTest();
       res(await this.finish());
     });
@@ -47,26 +67,30 @@ class SceneTest {
     return new Promise(async res => {
       const intervalId = setInterval(() => {
         if (this.status === 'FINISH') {
-          const testName = this.constructor.name;
-          let passed = false;
-          let assertsResult = [{ 
-            passed: false,
-            assertsName: 'No assertion was made!',
-            asserts: []
-          }];
-          if (this.hasResults()) {
-            passed = this.results.every(result => result.passed);
-            assertsResult = this.results;
-          }
-          res({ 
-            testName, 
-            passed, 
-            assertsResult 
-          });
+          res(this.finishResult());
           clearInterval(intervalId);
         }
       }, 100);
     });
+  }
+
+  finishResult() {
+    const testName = this.constructor.name;
+    let passed = false;
+    let assertsResult = [{ 
+      passed: false,
+      assertsName: 'No assertion was made!',
+      asserts: []
+    }];
+    if (this.hasResults()) {
+      passed = this.results.every(result => result.passed);
+      assertsResult = this.results;
+    }
+    return { 
+      testName, 
+      passed, 
+      assertsResult 
+    };
   }
 
   hasResults() {
@@ -92,23 +116,29 @@ class SceneTest {
   }
 
   async processAsserts() {
-    await this.clear();
-    for (const assert of this.assertsToTest) {
-      const { type } = assert;
-      if (type === 'assert') {
-        this.processAssertsToBe(assert);
+    return new Promise(async res => {
+      await this.clear();
+      for (const assert of this.assertsToTest) {
+        const { type } = assert;
+        if (type === 'assert') {
+          this.processAssertsToBe(assert);
+        }
+        if (type === 'assertWas') {
+          this.processAssertsWas(assert);
+        }
+        if (type === 'throwError') {
+          this.processThrowError(assert);
+        }
       }
-      if (type === 'assertWas') {
-        this.processAssertsWas(assert);
+      if (this.hasAsserts()) {
+        this.results.push({
+          passed: this.assertsResults.every(assert => assert.passed),
+          assertsName: this.testDescription,
+          asserts: this.assertsResults
+        });
       }
-    }
-    if (this.hasAsserts()) {
-      this.results.push({
-        passed: this.assertsResults.every(assert => assert.passed),
-        assertsName: this.testDescription,
-        asserts: this.assertsResults
-      });
-    }
+      res(true);
+    });
   }
 
   hasAsserts() {
@@ -152,7 +182,8 @@ class SceneTest {
 
   processAssertsToBe(assert) {
     const { type, title, value, toBe } = assert;
-    const assertResult = this.resultTest(value === toBe, toBe, value, title);
+    const test = value === toBe;
+    const assertResult = this.resultTest(test, toBe, value, title);
     this.assertsResults.push(assertResult);
   }
 
@@ -185,7 +216,8 @@ class SceneTest {
       return this.assertWatched(obj, watching, fnOrValue, params);
     });
     const toBe = true;
-    const assertResult = this.resultTest(result === toBe, toBe, result, title);
+    const test = result === toBe;
+    const assertResult = this.resultTest(test, toBe, result, title);
     this.assertsResults.push(assertResult);
   }
 
@@ -201,6 +233,13 @@ class SceneTest {
       return watching[fnName](...params) === true;
     }
     return watching[fnOrValue] === true;
+  }
+
+  processThrowError(assert) {
+    const { title, value, toBe } = assert;
+    const test = this.throwErrors.some(e => e.message === value.message && e.name === value.name);
+    const assertResult = this.resultTest(test, toBe, value, title);
+    this.assertsResults.push(assertResult);
   }
 
   isFunction(fnOrValue) {

@@ -35,6 +35,7 @@
 // include ../test/integration/SceneTest.js
 
 // tests CARD Sprite
+// include ../test/integration/card/ErroOnCreateCardSpriteTest.js
 // include ../test/integration/card/StartOpenCardSpriteTest.js
 // include ../test/integration/card/StartClosedCardSpriteTest.js
 // include ../test/integration/card/OpenCardSpriteTest.js

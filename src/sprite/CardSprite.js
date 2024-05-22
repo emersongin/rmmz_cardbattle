@@ -11,6 +11,9 @@
 
 class CardSprite extends ActionSprite {
   static create(type, color, figureName, attack, health, x, y) {
+    if (!type || !color || !figureName) {
+      throw new Error('Card inválido!');
+    }
     const card = new CardSprite(x, y);
     card.setCard(
       type, 

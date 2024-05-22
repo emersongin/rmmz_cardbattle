@@ -18,35 +18,40 @@ class CardBattleTestScene extends Scene_Message {
     this._tests = this.testsData();
     this._tests = this._tests.map(test => {
       const instanceCreated = new test(this);
-      instanceCreated.create();
+      try {
+        instanceCreated.create();
+      } catch (error) {
+        instanceCreated.addThrowableError(error);
+      }
       return instanceCreated;
     });
   }
   
   testsData() {
     const cardSpriteTests = [
-      StartOpenCardSpriteTest,
-      StartClosedCardSpriteTest,
-      OpenCardSpriteTest,
-      CloseCardSpriteTest,
-      DisableCardSpriteTest,
-      EnableCardSpriteTest,
-      MoveCardSpriteTest,
-      HoveredCardSpriteTest,
-      UnhoveredCardSpriteTest,
-      SelectedCardSpriteTest,
-      UnselectedCardSpriteTest,
-      IluminatedCardSpriteTest,
-      UniluminatedCardSpriteTest,
-      FlashCardSpriteTest,
-      AnimationCardSpriteTest,
-      QuakeCardSpriteTest,
-      ZoomCardSpriteTest,
-      ZoomOutCardSpriteTest,
-      LeaveCardSpriteTest,
-      FlipTurnToUpCardSpriteTest,
-      FlipTurnToDownCardSpriteTest,
-      UpdatingPointsCardSpriteTest
+      ErroOnCreateCardSpriteTest,
+      // StartOpenCardSpriteTest,
+      // StartClosedCardSpriteTest,
+      // OpenCardSpriteTest,
+      // CloseCardSpriteTest,
+      // DisableCardSpriteTest,
+      // EnableCardSpriteTest,
+      // MoveCardSpriteTest,
+      // HoveredCardSpriteTest,
+      // UnhoveredCardSpriteTest,
+      // SelectedCardSpriteTest,
+      // UnselectedCardSpriteTest,
+      // IluminatedCardSpriteTest,
+      // UniluminatedCardSpriteTest,
+      // FlashCardSpriteTest,
+      // AnimationCardSpriteTest,
+      // QuakeCardSpriteTest,
+      // ZoomCardSpriteTest,
+      // ZoomOutCardSpriteTest,
+      // LeaveCardSpriteTest,
+      // FlipTurnToUpCardSpriteTest,
+      // FlipTurnToDownCardSpriteTest,
+      // UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
       // StartPositionCardsetSpriteTest,
@@ -169,8 +174,8 @@ class CardBattleTestScene extends Scene_Message {
       StartPhaseTest,
     ];
     return [
-      // ...cardSpriteTests,
-      ...cardsetSpriteTests,
+      ...cardSpriteTests,
+      // ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,
