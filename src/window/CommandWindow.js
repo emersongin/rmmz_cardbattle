@@ -44,7 +44,8 @@ class CommandWindow extends Window_Command {
     return `\\c[${colorIndex}]${text}`;
   }
 
-  static getVerticalAlign(position, window, parentY = 0) {
+  static getVerticalAlign(position, window) {
+    const parentY = this.parent?.y || 0;
     const boxHeight = (Graphics.boxHeight - parentY);
     switch (position) {
       case GameConst.MIDDLE:
@@ -60,7 +61,7 @@ class CommandWindow extends Window_Command {
 
   initialize(rect, text, commands) {
     super.initialize(rect);
-    this._actions = [];
+    this._actionQueue = [];
     this._history = [];
     this._commands = commands;
     this._commandTextAlignment = GameConst.LEFT;
@@ -236,7 +237,7 @@ class CommandWindow extends Window_Command {
   }
 
   hasActions() {
-    return this._actions.length > 0;
+    return this._actionQueue.length > 0;
   }
 
   isAvailable() {
@@ -248,10 +249,10 @@ class CommandWindow extends Window_Command {
   }
 
   executeAction() {
-    const action = this._actions[0];
+    const action = this._actionQueue[0];
     const executed = action.execute();
     if (executed) {
-      this._actions.shift();
+      this._actionQueue.shift();
     }
   }
 
@@ -274,7 +275,7 @@ class CommandWindow extends Window_Command {
 
   addAction(fn, ...params) {
     const action = this.createAction(fn, ...params);
-    this._actions.push(action);
+    this._actionQueue.push(action);
   }
 
   createAction(fn, ...params) {
@@ -318,14 +319,13 @@ class CommandWindow extends Window_Command {
     return true;
   }
 
-  setVerticalAlign(position, parent) {
-    const parentY = parent ? parent.y : this.parent?.y;
-    this.y = CommandWindow.getVerticalAlign(position, this, parentY);
+  setVerticalAlign(position) {
+    this.y = CommandWindow.getVerticalAlign(position, this);
   }
 
-  setHorizontalAlign(parent) {
-    const parentX = parent ? parent.x : this.parent?.x;
-    this.x = -parentX || 0;
+  setHorizontalAlign() {
+    const parentX = this.parent?.x || 0;
+    this.x = -parentX;
   }
 
   alignMiddle() {

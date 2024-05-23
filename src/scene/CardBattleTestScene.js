@@ -165,8 +165,8 @@ class CardBattleTestScene extends Scene_Message {
       AlignItemsRightCommandWindowTest,
       TextCommandWindowTest,
       ChangeTextColorCommandWindowTest,
-      CommandsAndHandlersCommandWindowTest,
-      CommandsAndHandlersWithTextCommandWindowTest,
+      CommandHandlerCommandWindowTest,
+      CommandHandlerWithTextCommandWindowTest,
     ];
     const folderWindow = [
       CreateFolderWindowTest,
@@ -177,8 +177,8 @@ class CardBattleTestScene extends Scene_Message {
     ];
     return [
       // ...cardSpriteTests,
-      ...cardsetSpriteTests,
-      // ...commandWindow,
+      // ...cardsetSpriteTests,
+      ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,
       // ...boardWindowTests,

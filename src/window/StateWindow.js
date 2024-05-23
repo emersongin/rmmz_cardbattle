@@ -68,7 +68,7 @@ class StateWindow extends Window_Base {
     super.initialize(rect);
     this._iconset = "IconSet";
     this._status = {};
-    this._actions = [];
+    this._commandQueue = [];
     this._windowColor = GameConst.DEFAULT_COLOR;
     this.closed();
     this.stop();
@@ -97,13 +97,13 @@ class StateWindow extends Window_Base {
 
   update() {
     super.update();
-    if (this.hasActions() && this.isStopped() && this.isAvailable()) this.executeAction();
+    if (this.hasCommands() && this.isStopped() && this.isAvailable()) this.executeCommand();
     if (this.isOpen() && this.getStatus()) this._status.updateStatus();
     this.updateTone();
   }
 
-  hasActions() {
-    return this._actions.length > 0;
+  hasCommands() {
+    return this._commandQueue.length > 0;
   }
 
   isStopped() {
@@ -122,11 +122,11 @@ class StateWindow extends Window_Base {
     return this.getStatus() instanceof WindowUpdatedState;
   }
 
-  executeAction() {
-    const action = this._actions[0];
-    const executed = action.execute();
+  executeCommand() {
+    const command = this._commandQueue[0];
+    const executed = command.execute();
     if (executed) {
-      this._actions.shift();
+      this._commandQueue.shift();
     }
   }
 
@@ -148,20 +148,20 @@ class StateWindow extends Window_Base {
   }
 
   open() {
-    this.addAction(this.commandOpen);
+    this.addCommand(this.commandOpen);
   }
 
-  addAction(fn, ...params) {
-    const action = this.createAction(fn, ...params);
-    this._actions.push(action);
+  addCommand(fn, ...params) {
+    const command = this.createCommand(fn, ...params);
+    this._commandQueue.push(command);
   }
 
-  createAction(fn, ...params) {
-    const action = { 
+  createCommand(fn, ...params) {
+    const command = { 
       fn: fn.name || 'anonymous',
       execute: () => fn.call(this, ...params)
     };
-    return action;
+    return command;
   }
 
   commandOpen() {
@@ -172,7 +172,7 @@ class StateWindow extends Window_Base {
   }
 
   close() {
-    this.addAction(this.commandClose);
+    this.addCommand(this.commandClose);
   }
 
   commandClose() {
@@ -182,7 +182,7 @@ class StateWindow extends Window_Base {
   }
 
   changeBlueColor() {
-    this.addAction(this.commandChangeBlueColor);
+    this.addCommand(this.commandChangeBlueColor);
   }
 
   commandChangeBlueColor() {
@@ -192,7 +192,7 @@ class StateWindow extends Window_Base {
   }
 
   changeRedColor() {
-    this.addAction(this.commandChangeRedColor);
+    this.addCommand(this.commandChangeRedColor);
   }
 
   commandChangeRedColor() {
@@ -202,7 +202,7 @@ class StateWindow extends Window_Base {
   }
 
   changeDefaultColor() {
-    this.addAction(this.commandChangeDefaultColor);
+    this.addCommand(this.commandChangeDefaultColor);
   }
 
   commandChangeDefaultColor() {
@@ -212,39 +212,39 @@ class StateWindow extends Window_Base {
   }
 
   alignStartTop() {
-    this.addAction(this.commandAlign, GameConst.START, GameConst.TOP);
+    this.addCommand(this.commandAlign, GameConst.START, GameConst.TOP);
   }
 
   alignCenterTop() {
-    this.addAction(this.commandAlign, GameConst.CENTER, GameConst.TOP);
+    this.addCommand(this.commandAlign, GameConst.CENTER, GameConst.TOP);
   }
 
   alignEndTop() {
-    this.addAction(this.commandAlign, GameConst.END, GameConst.TOP);
+    this.addCommand(this.commandAlign, GameConst.END, GameConst.TOP);
   }
 
   alignStartMiddle() {
-    this.addAction(this.commandAlign, GameConst.START, GameConst.MIDDLE);
+    this.addCommand(this.commandAlign, GameConst.START, GameConst.MIDDLE);
   }
 
   alignCenterMiddle() {
-    this.addAction(this.commandAlign, GameConst.CENTER, GameConst.MIDDLE);
+    this.addCommand(this.commandAlign, GameConst.CENTER, GameConst.MIDDLE);
   }
 
   alignEndMiddle() {
-    this.addAction(this.commandAlign, GameConst.END, GameConst.MIDDLE);
+    this.addCommand(this.commandAlign, GameConst.END, GameConst.MIDDLE);
   }
 
   alignStartBottom() {
-    this.addAction(this.commandAlign, GameConst.START, GameConst.BOTTOM);
+    this.addCommand(this.commandAlign, GameConst.START, GameConst.BOTTOM);
   }
 
   alignCenterBottom() {
-    this.addAction(this.commandAlign, GameConst.CENTER, GameConst.BOTTOM);
+    this.addCommand(this.commandAlign, GameConst.CENTER, GameConst.BOTTOM);
   }
 
   alignEndBottom() {
-    this.addAction(this.commandAlign, GameConst.END, GameConst.BOTTOM);
+    this.addCommand(this.commandAlign, GameConst.END, GameConst.BOTTOM);
   }
 
   commandAlign(horizontalAlign, verticalAlign) {

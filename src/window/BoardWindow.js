@@ -32,7 +32,7 @@ class BoardWindow extends ValuesWindow {
   }
 
   noPass() {
-    this.addAction(this.commandNoPass);
+    this.addCommand(this.commandNoPass);
   }
 
   commandNoPass() {
@@ -121,7 +121,7 @@ class BoardWindow extends ValuesWindow {
   }
 
   pass() {
-    this.addAction(this.commandPass);
+    this.addCommand(this.commandPass);
   }
 
   commandPass() {

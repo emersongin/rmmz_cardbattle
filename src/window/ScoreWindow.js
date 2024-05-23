@@ -37,7 +37,7 @@ class ScoreWindow extends StateWindow {
   }
 
   changeScore(score) {
-    this.addAction(this.commandChangeScore, score);
+    this.addCommand(this.commandChangeScore, score);
   }
 
   commandChangeScore(score) {

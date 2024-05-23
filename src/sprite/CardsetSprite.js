@@ -70,7 +70,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   staticMode() {
-    this.addAction(this.commandStaticMode);
+    this.addCommand(this.commandStaticMode);
   }
 
   commandStaticMode() {
@@ -84,7 +84,7 @@ class CardsetSprite extends ActionSprite {
     const orderingSprites = this.createOrderingNumbers(sprites);
     this._sprites = sprites;
     this._orderingSprites = orderingSprites;
-    this.addAction(this.commandSetCards, sprites, orderingSprites);
+    this.addCommand(this.commandSetCards, sprites, orderingSprites);
     return sprites;
   }
 
@@ -131,7 +131,7 @@ class CardsetSprite extends ActionSprite {
 
   setAllCardsInPositions(sprites = this._sprites, positions) {
     sprites = this.toArray(sprites);
-    this.addAction(this.commandSetAllCardsPositions, sprites, positions);
+    this.addCommand(this.commandSetAllCardsPositions, sprites, positions);
   }
 
   commandSetAllCardsPositions(sprites, positions) {
@@ -145,7 +145,7 @@ class CardsetSprite extends ActionSprite {
 
   setAllCardsInPosition(sprites = this._sprites, x = 0, y = 0) {
     sprites = this.toArray(sprites);
-    this.addAction(this.commandSetAllCardsPosition, sprites, x, y);
+    this.addCommand(this.commandSetAllCardsPosition, sprites, x, y);
   }
 
   commandSetAllCardsPosition(sprites, x, y) {
@@ -156,7 +156,7 @@ class CardsetSprite extends ActionSprite {
 
   showCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
-    this.addAction(this.commandShowCards, sprites);
+    this.addCommand(this.commandShowCards, sprites);
   }
 
   commandShowCards(sprites) {
@@ -193,12 +193,12 @@ class CardsetSprite extends ActionSprite {
     const orderingSprites = this.createOrderingNumbers(sprites);
     this._sprites = sprites;
     this._orderingSprites = orderingSprites;
-    this.addAction(this.commandSetCards, sprites, orderingSprites);
+    this.addCommand(this.commandSetCards, sprites, orderingSprites);
     return sprites;
   }
 
   startClosedCards(sprites = this._sprites) {
-    this.addAction(this.commandStartClosedCards, sprites);
+    this.addCommand(this.commandStartClosedCards, sprites);
   }
 
   commandStartClosedCards(sprites) {
@@ -214,7 +214,7 @@ class CardsetSprite extends ActionSprite {
 
   openAllCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
-    this.addAction(this.commandOpenAllCards, sprites);
+    this.addCommand(this.commandOpenAllCards, sprites);
   }
 
   commandOpenAllCards(sprites) {
@@ -225,7 +225,7 @@ class CardsetSprite extends ActionSprite {
 
   closeAllCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
-    this.addAction(this.commandCloseAllCards, sprites);
+    this.addCommand(this.commandCloseAllCards, sprites);
   }
 
   commandCloseAllCards(sprites) {
@@ -238,8 +238,8 @@ class CardsetSprite extends ActionSprite {
     sprites = this.toArray(sprites);
     sprites = sprites.map(sprite => [sprite]);
     if (reverse) sprites.reverse();
-    const actions = this.createActionsWithDelay(this.commandOpenCard, delay, sprites);
-    this.addActions(actions);
+    const commands = this.createDelayCommands(this.commandOpenCard, delay, sprites);
+    this.addCommands(commands);
   }
 
   commandOpenCard(sprite) {
@@ -252,8 +252,8 @@ class CardsetSprite extends ActionSprite {
     sprites = this.toArray(sprites);
     sprites = sprites.map(sprite => [sprite]);
     if (reverse) sprites.reverse();
-    const actions = this.createActionsWithDelay(this.commandCloseCard, delay, sprites);
-    this.addActions(actions);
+    const commands = this.createDelayCommands(this.commandCloseCard, delay, sprites);
+    this.addCommands(commands);
   }
 
   commandCloseCard(sprite) {
@@ -267,7 +267,7 @@ class CardsetSprite extends ActionSprite {
     const numCards = sprites.length;
     const positions = CardsetSprite.createPositionsList(numCards);
     const moves = this.moveCardsPositions(positions, sprites);
-    this.addAction(this.commandMoveAllCards, moves);
+    this.addCommand(this.commandMoveAllCards, moves);
   }
 
   moveCardsPositions(positions, sprites) {
@@ -292,8 +292,8 @@ class CardsetSprite extends ActionSprite {
     const positions = CardsetSprite.createPositionsList(numCards);
     let moves = this.moveCardsPositions(positions, sprites);
     moves = moves.map(({ sprite, x, y }) => [sprite, x, y]);
-    const actions = this.createActionsWithDelay(this.commandMoveCard, delay, moves);
-    this.addActions(actions);
+    const commands = this.createDelayCommands(this.commandMoveCard, delay, moves);
+    this.addCommands(commands);
   }
 
   commandMoveCard(sprite, x, y) {
@@ -309,7 +309,7 @@ class CardsetSprite extends ActionSprite {
     const noPading = 0;
     const positions = CardsetSprite.createPositions(numCards, noPading, x, y);
     const moves = this.moveCardsPositions(positions, sprites);
-    this.addAction(this.commandMoveAllCards, moves);
+    this.addCommand(this.commandMoveAllCards, moves);
   }
 
   moveCardsToPosition(sprites = this._sprites, x = 0, y = 0, delay = 6) {
@@ -319,19 +319,19 @@ class CardsetSprite extends ActionSprite {
     const positions = CardsetSprite.createPositions(numCards, noPading, x, y);
     let moves = this.moveCardsPositions(positions, sprites);
     moves = moves.map(({ sprite, x, y }) => [sprite, x, y]);
-    const actions = this.createActionsWithDelay(this.commandMoveCard, delay, moves);
-    this.addActions(actions);
+    const commands = this.createDelayCommands(this.commandMoveCard, delay, moves);
+    this.addCommands(commands);
   }
 
   moveAllCardsToPositions(sprites = this._sprites, positions) {
     sprites = this.toArray(sprites);
     const moves = this.moveCardsPositions(positions, sprites);
-    this.addAction(this.commandMoveAllCards, moves);
+    this.addCommand(this.commandMoveAllCards, moves);
   }
 
   disableCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
-    this.addAction(this.commandDisableCards, sprites);
+    this.addCommand(this.commandDisableCards, sprites);
   }
 
   commandDisableCards(sprites) {
@@ -355,7 +355,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   selectMode(number, selectCardsCallback) {
-    this.addAction(this.commandSelectMode, number, selectCardsCallback);
+    this.addCommand(this.commandSelectMode, number, selectCardsCallback);
   }
 
   commandSelectMode(number = 0, selectCardsCallback) {
@@ -378,7 +378,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   iluminateSelectedSprites(selectedIndexs) {
-    this.addAction(this.commandIluminateSelectedSprites, selectedIndexs);
+    this.addCommand(this.commandIluminateSelectedSprites, selectedIndexs);
   }
 
   commandIluminateSelectedSprites(selectedIndexs) {
@@ -407,7 +407,7 @@ class CardsetSprite extends ActionSprite {
 
   flashCardsAnimate(sprites = this._sprites, color = 'white', duration = 10, times = 1) {
     sprites = this.toArray(sprites);
-    this.addAction(this.commandAnimateCardsFlash, sprites, color, duration, times);
+    this.addCommand(this.commandAnimateCardsFlash, sprites, color, duration, times);
   }
 
   commandAnimateCardsFlash(sprites, color, duration, times) {
@@ -424,7 +424,7 @@ class CardsetSprite extends ActionSprite {
 
   quakeCardsAnimate(sprites = this._sprites, times = 2, distance = 3) {
     sprites = this.toArray(sprites);
-    this.addAction(this.commandAnimateCardsQuake, sprites, times, distance);
+    this.addCommand(this.commandAnimateCardsQuake, sprites, times, distance);
   }
 
   commandAnimateCardsQuake(sprites, times, distance) {
@@ -442,7 +442,7 @@ class CardsetSprite extends ActionSprite {
 
   damageCardsAnimate(times = 1, sprites = this._sprites, anchorParent = this.parent) {
     sprites = this.toArray(sprites);
-    this.addAction(this.commandAnimateCardsDamage, times, sprites, anchorParent);
+    this.addCommand(this.commandAnimateCardsDamage, times, sprites, anchorParent);
   }
 
   commandAnimateCardsDamage(times, sprites, anchorParent) {
@@ -478,7 +478,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   displayOrdering() {
-    this.addAction(this.commandDisplayOrdering);
+    this.addCommand(this.commandDisplayOrdering);
   }
 
   commandDisplayOrdering() {
@@ -492,7 +492,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   setNumberColor(number, color) {
-    this.addAction(this.commandSetNumberColor, number, color);
+    this.addCommand(this.commandSetNumberColor, number, color);
   }
 
   commandSetNumberColor(number, color) {
@@ -519,7 +519,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   displayReverseOrdering() {
-    this.addAction(this.commandDisplayReverseOrdering);
+    this.addCommand(this.commandDisplayReverseOrdering);
   }
 
   commandDisplayReverseOrdering() {

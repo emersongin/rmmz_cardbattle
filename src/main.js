@@ -82,8 +82,6 @@
 // include ../test/integration/cardset/SelectModeWithoutChoiceCardsetSpriteTest.js
 // include ../test/integration/cardset/SingleSelectModeCardsetSpriteTest.js
 // include ../test/integration/cardset/LimitedSelectModeCardsetSpriteTest.js
-
-
 // include ../test/integration/cardset/FlashCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/QuakeCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/AnimationCardsCardsetSpriteTest.js
@@ -165,8 +163,8 @@
 // include ../test/integration/commandwindow/AlignItemsRightCommandWindowTest.js
 // include ../test/integration/commandwindow/TextCommandWindowTest.js
 // include ../test/integration/commandwindow/ChangeTextColorCommandWindowTest.js
-// include ../test/integration/commandwindow/CommandsAndHandlersCommandWindowTest.js
-// include ../test/integration/commandwindow/CommandsAndHandlersWithTextCommandWindowTest.js
+// include ../test/integration/commandwindow/CommandHandlerCommandWindowTest.js
+// include ../test/integration/commandwindow/CommandHandlerWithTextCommandWindowTest.js
 // test FOLDER WINDOW
 // include ../test/integration/folderwindow/CreateFolderWindowTest.js
 
