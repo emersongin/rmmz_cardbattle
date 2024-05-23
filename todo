@@ -1,1 +1,5 @@
-refatorar scene tests
+refatorar padrão de action e actionQueue para CommandQueue
+refatorar padrao de setHandler para CommandHandler
+Criar teste de throw Error
+Refatorar teste de SeletMode de cardset
+Criar teste para uma unica seleção sem apresentar janela de confirmação

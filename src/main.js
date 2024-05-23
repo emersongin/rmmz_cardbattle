@@ -79,7 +79,11 @@
 // include ../test/integration/cardset/DisableCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/StaticModeCardsetSpriteTest.js
 // include ../test/integration/cardset/SelectModeCardsetSpriteTest.js
-// include ../test/integration/cardset/SelectCardsCardsetSpriteTest.js
+// include ../test/integration/cardset/SelectModeWithoutChoiceCardsetSpriteTest.js
+// include ../test/integration/cardset/SingleSelectModeCardsetSpriteTest.js
+// include ../test/integration/cardset/LimitedSelectModeCardsetSpriteTest.js
+
+
 // include ../test/integration/cardset/FlashCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/QuakeCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/AnimationCardsCardsetSpriteTest.js

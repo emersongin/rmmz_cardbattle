@@ -6600,16 +6600,27 @@ class SelectModeCardsetSpriteTest extends SceneTest {
     const numCards = 10;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
+    const disableCardsIndex = [1, 2, 7, 8, 9];
+    const disableSprites = sprites.filter((sprite, index) => disableCardsIndex.includes(index));
+    this.subject.disableCards(disableSprites);
     this.subject.showCards(sprites);
-    this.subject.selectMode();
+    // const endTest = this.createHandler();
+    const selectNumber = 3;
+    this.cardsSelected = [];
+    const selectCards = (cards) => {
+      this.cardsSelected = cards;
+      // endTest();
+    };
+    this.subject.selectMode(selectNumber, selectCards);
   }
 
   asserts() {
-    this.describe('Deve entrar em modo seleção!');
+    this.describe('Deve entrar em modo seleção com escolha!');
     this.assertTrue('Esta em modo seleção?', this.subject.isSelectMode());
+    this.assertTrue('Deve selecionar 3 cartas', this.cardsSelected.length === 3);
   }
 }
-class SelectCardsCardsetSpriteTest extends SceneTest {
+class SelectModeWithoutChoiceCardsetSpriteTest extends SceneTest {
   create() {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
@@ -6622,12 +6633,12 @@ class SelectCardsCardsetSpriteTest extends SceneTest {
     const disableSprites = sprites.filter((sprite, index) => disableCardsIndex.includes(index));
     this.subject.disableCards(disableSprites);
     this.subject.showCards(sprites);
-    const endTest = this.createHandler();
+    // const endTest = this.createHandler();
     const selectNumber = 3;
     this.cardsSelected = [];
     const selectCards = (cards) => {
       this.cardsSelected = cards;
-      endTest();
+      // endTest();
     };
     this.subject.selectMode(selectNumber, selectCards);
   }
@@ -6638,6 +6649,66 @@ class SelectCardsCardsetSpriteTest extends SceneTest {
     this.assertTrue('Deve selecionar 3 cartas', this.cardsSelected.length === 3);
   }
 }
+class SingleSelectModeCardsetSpriteTest extends SceneTest {
+  create() {
+    this.subject = CardsetSprite.create(0, 0);
+    this.addWatched(this.subject);
+    this.subject.centralize();
+    this.subject.show();
+    const numCards = 10;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.listCards(cards);
+    const disableCardsIndex = [1, 2, 7, 8, 9];
+    const disableSprites = sprites.filter((sprite, index) => disableCardsIndex.includes(index));
+    this.subject.disableCards(disableSprites);
+    this.subject.showCards(sprites);
+    // const endTest = this.createHandler();
+    const selectNumber = 3;
+    this.cardsSelected = [];
+    const selectCards = (cards) => {
+      this.cardsSelected = cards;
+      // endTest();
+    };
+    this.subject.selectMode(selectNumber, selectCards);
+  }
+
+  asserts() {
+    this.describe('Deve entrar em modo seleção com escolha!');
+    this.assertTrue('Esta em modo seleção?', this.subject.isSelectMode());
+    this.assertTrue('Deve selecionar 3 cartas', this.cardsSelected.length === 3);
+  }
+}
+class LimitedSelectModeCardsetSpriteTest extends SceneTest {
+  create() {
+    this.subject = CardsetSprite.create(0, 0);
+    this.addWatched(this.subject);
+    this.subject.centralize();
+    this.subject.show();
+    const numCards = 10;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.listCards(cards);
+    const disableCardsIndex = [1, 2, 7, 8, 9];
+    const disableSprites = sprites.filter((sprite, index) => disableCardsIndex.includes(index));
+    this.subject.disableCards(disableSprites);
+    this.subject.showCards(sprites);
+    // const endTest = this.createHandler();
+    const selectNumber = 3;
+    this.cardsSelected = [];
+    const selectCards = (cards) => {
+      this.cardsSelected = cards;
+      // endTest();
+    };
+    this.subject.selectMode(selectNumber, selectCards);
+  }
+
+  asserts() {
+    this.describe('Deve entrar em modo seleção com escolha!');
+    this.assertTrue('Esta em modo seleção?', this.subject.isSelectMode());
+    this.assertTrue('Deve selecionar 3 cartas', this.cardsSelected.length === 3);
+  }
+}
+
+
 class FlashCardsCardsetSpriteTest extends SceneTest {
   create() {
     this.subject = CardsetSprite.create(0, 0);
@@ -8137,56 +8208,58 @@ class CardBattleTestScene extends Scene_Message {
   testsData() {
     const cardSpriteTests = [
       ErroOnCreateCardSpriteTest,
-      // StartOpenCardSpriteTest,
-      // StartClosedCardSpriteTest,
-      // OpenCardSpriteTest,
-      // CloseCardSpriteTest,
-      // DisableCardSpriteTest,
-      // EnableCardSpriteTest,
-      // MoveCardSpriteTest,
-      // HoveredCardSpriteTest,
-      // UnhoveredCardSpriteTest,
-      // SelectedCardSpriteTest,
-      // UnselectedCardSpriteTest,
-      // IluminatedCardSpriteTest,
-      // UniluminatedCardSpriteTest,
-      // FlashCardSpriteTest,
-      // AnimationCardSpriteTest,
-      // QuakeCardSpriteTest,
-      // ZoomCardSpriteTest,
-      // ZoomOutCardSpriteTest,
-      // LeaveCardSpriteTest,
-      // FlipTurnToUpCardSpriteTest,
-      // FlipTurnToDownCardSpriteTest,
-      // UpdatingPointsCardSpriteTest
+      StartOpenCardSpriteTest,
+      StartClosedCardSpriteTest,
+      OpenCardSpriteTest,
+      CloseCardSpriteTest,
+      DisableCardSpriteTest,
+      EnableCardSpriteTest,
+      MoveCardSpriteTest,
+      HoveredCardSpriteTest,
+      UnhoveredCardSpriteTest,
+      SelectedCardSpriteTest,
+      UnselectedCardSpriteTest,
+      IluminatedCardSpriteTest,
+      UniluminatedCardSpriteTest,
+      FlashCardSpriteTest,
+      AnimationCardSpriteTest,
+      QuakeCardSpriteTest,
+      ZoomCardSpriteTest,
+      ZoomOutCardSpriteTest,
+      LeaveCardSpriteTest,
+      FlipTurnToUpCardSpriteTest,
+      FlipTurnToDownCardSpriteTest,
+      UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
-      // StartPositionCardsetSpriteTest,
-      // SetCardsCardsetSpriteTest,
-      // SetAllCardsInPositionCardsetSpriteTest,
-      // SetAllCardsInPositionsCardsetSpriteTest,
-      // ListCardsCardsetSpriteTest,
-      // StartClosedCardsCardsetSpriteTest,
-      // OpenAllCardsCardsetSpriteTest,
-      // OpenCardsCardsetSpriteTest,
-      // CloseAllCardsCardsetSpriteTest,
-      // CloseCardsCardsetSpriteTest,
-      // MoveAllCardsInListCardsetSpriteTest,
-      // MoveCardsInListCardsetSpriteTest,
-      // MoveAllCardsToPositionCardsetSpriteTest,
-      // MoveCardsToPositionCardsetSpriteTest,
-      // MoveAllCardsToPositionsCardsetSpriteTest,
-      // AddAllCardsToListCardsetSpriteTest,
-      // AddCardsToListCardsetSpriteTest,
-      // DisableCardsCardsetSpriteTest,
-      // StaticModeCardsetSpriteTest,
-      // SelectModeCardsetSpriteTest,
-      SelectCardsCardsetSpriteTest,
-      // FlashCardsCardsetSpriteTest,
-      // QuakeCardsCardsetSpriteTest,
-      // AnimationCardsCardsetSpriteTest,
-      // ShowOrderingCardsCardsetSpriteTest,
-      // ShowReverseOrderingCardsCardsetSpriteTest,
+      StartPositionCardsetSpriteTest,
+      SetCardsCardsetSpriteTest,
+      SetAllCardsInPositionCardsetSpriteTest,
+      SetAllCardsInPositionsCardsetSpriteTest,
+      ListCardsCardsetSpriteTest,
+      StartClosedCardsCardsetSpriteTest,
+      OpenAllCardsCardsetSpriteTest,
+      OpenCardsCardsetSpriteTest,
+      CloseAllCardsCardsetSpriteTest,
+      CloseCardsCardsetSpriteTest,
+      MoveAllCardsInListCardsetSpriteTest,
+      MoveCardsInListCardsetSpriteTest,
+      MoveAllCardsToPositionCardsetSpriteTest,
+      MoveCardsToPositionCardsetSpriteTest,
+      MoveAllCardsToPositionsCardsetSpriteTest,
+      AddAllCardsToListCardsetSpriteTest,
+      AddCardsToListCardsetSpriteTest,
+      DisableCardsCardsetSpriteTest,
+      StaticModeCardsetSpriteTest,
+      SelectModeCardsetSpriteTest,
+      SelectModeWithoutChoiceCardsetSpriteTest,
+      SingleSelectModeCardsetSpriteTest,
+      LimitedSelectModeCardsetSpriteTest,
+      FlashCardsCardsetSpriteTest,
+      QuakeCardsCardsetSpriteTest,
+      AnimationCardsCardsetSpriteTest,
+      ShowOrderingCardsCardsetSpriteTest,
+      ShowReverseOrderingCardsCardsetSpriteTest,
     ];
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,
@@ -8277,12 +8350,12 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const phase = [
-      // ChallengePhaseTest,
+      ChallengePhaseTest,
       StartPhaseTest,
     ];
     return [
-      ...cardSpriteTests,
-      // ...cardsetSpriteTests,
+      // ...cardSpriteTests,
+      ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,

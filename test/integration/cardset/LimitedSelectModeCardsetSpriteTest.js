@@ -1,4 +1,4 @@
-class SelectModeCardsetSpriteTest extends SceneTest {
+class LimitedSelectModeCardsetSpriteTest extends SceneTest {
   create() {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);

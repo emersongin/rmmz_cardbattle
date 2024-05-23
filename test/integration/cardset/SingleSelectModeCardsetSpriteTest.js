@@ -1,4 +1,4 @@
-class SelectCardsCardsetSpriteTest extends SceneTest {
+class SingleSelectModeCardsetSpriteTest extends SceneTest {
   create() {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
@@ -11,12 +11,12 @@ class SelectCardsCardsetSpriteTest extends SceneTest {
     const disableSprites = sprites.filter((sprite, index) => disableCardsIndex.includes(index));
     this.subject.disableCards(disableSprites);
     this.subject.showCards(sprites);
-    const endTest = this.createHandler();
+    // const endTest = this.createHandler();
     const selectNumber = 3;
     this.cardsSelected = [];
     const selectCards = (cards) => {
       this.cardsSelected = cards;
-      endTest();
+      // endTest();
     };
     this.subject.selectMode(selectNumber, selectCards);
   }
