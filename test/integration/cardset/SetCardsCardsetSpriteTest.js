@@ -19,7 +19,7 @@ class SetCardsCardsetSpriteTest extends SceneTest {
     const x = 0;
     const y = 0;
     const positions = CardsetSprite.createPositions(numCards, padding, x, y);
-    this.assertTrue('Esta mostrando na posição inícial?', this.subject.allCardsAreVisible());
-    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
+    this.expectTrue('Esta mostrando na posição inícial?', this.subject.allCardsAreVisible());
+    this.expectTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }

@@ -13,6 +13,6 @@ class AlignItemsRightCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar os items alinhados a direita.');
-    this.assertTrue('Estão alinhados a direita?', this.subject.isItemsAlign('ITEMS_ALIGN', GameConst.RIGHT));
+    this.expectTrue('Estão alinhados a direita?', this.subject.isItemsAlign('ITEMS_ALIGN', GameConst.RIGHT));
   }
 }

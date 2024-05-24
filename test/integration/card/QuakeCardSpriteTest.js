@@ -19,6 +19,6 @@ class QuakeCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve tremer o card!');
-    this.assertWasTrue('Houve um movimento?', this.subject.isMoving);
+    this.expectWasTrue('Houve um movimento?', this.subject.isMoving);
   }
 }

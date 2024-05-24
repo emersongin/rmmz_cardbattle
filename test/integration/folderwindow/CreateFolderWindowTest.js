@@ -19,6 +19,6 @@ class CreateFolderWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve exibir a janela de comandos de pastas!');
-    this.assertTrue('Esta aberta?', this.subject.isOpen());
+    this.expectTrue('Esta aberta?', this.subject.isOpen());
   }
 }

@@ -19,6 +19,6 @@ class ZoomOutCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve colocar o card em escala original!');
-    this.assertTrue('Esta em escala original?', this.subject.isOriginalScale());
+    this.expectTrue('Esta em escala original?', this.subject.isOriginalScale());
   }
 }

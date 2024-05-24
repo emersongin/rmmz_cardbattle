@@ -17,6 +17,6 @@ class MoveAllCardsInListCardsetSpriteTest extends SceneTest {
     this.describe('Deve mover todas as cartas!');
     const numCards = 6;
     const positions = CardsetSprite.createPositionsList(numCards);
-    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
+    this.expectTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }

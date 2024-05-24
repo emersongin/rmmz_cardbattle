@@ -9,6 +9,6 @@ class TwoWinsUpdatingScoreWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve atualizar a pontuação!');
-    this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
+    this.expectWasTrue('Foi atualizada?', this.subject.isUpdating);
   }
 }

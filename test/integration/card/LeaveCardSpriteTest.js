@@ -18,8 +18,8 @@ class LeaveCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve colocar o card em leave!');
-    this.assert('Esta em largura zerada?', this.subject.width).toBe(0);
-    this.assert('Esta em altura zerada?', this.subject.height).toBe(0);
-    this.assertTrue('Esta invisível?', this.subject.isHidden());
+    this.expect('Esta em largura zerada?', this.subject.width).toBe(0);
+    this.expect('Esta em altura zerada?', this.subject.height).toBe(0);
+    this.expectTrue('Esta invisível?', this.subject.isHidden());
   }
 }

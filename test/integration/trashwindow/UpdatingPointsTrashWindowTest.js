@@ -11,6 +11,6 @@ class UpdatingPointsTrashWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve atualizar os pontos do lixo!');
-    this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
+    this.expectWasTrue('Foi atualizada?', this.subject.isUpdating);
   }
 }

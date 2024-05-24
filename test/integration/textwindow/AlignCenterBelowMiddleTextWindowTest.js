@@ -10,7 +10,7 @@ class AlignCenterBelowMiddleTextWindowTest  extends SceneTest {
     this.describe('Deve alinhar no centro e abaixo do meio!');
     const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject);
     const verticalAlign = TextWindow.getVerticalAlign(GameConst.BELOW_MIDDLE, this.subject);
-    this.assert('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
-    this.assert('Esta na posição vertical abaixo meio?', this.subject.y).toBe(verticalAlign);
+    this.expect('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
+    this.expect('Esta na posição vertical abaixo meio?', this.subject.y).toBe(verticalAlign);
   }
 }

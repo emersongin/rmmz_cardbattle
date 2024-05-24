@@ -8,6 +8,6 @@ class ChangeDefaultColorTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar janela na cor padrão.');
-    this.assertTrue('Esta na cor padrão?', this.subject.isDefaultColor());
+    this.expectTrue('Esta na cor padrão?', this.subject.isDefaultColor());
   }
 }

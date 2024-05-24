@@ -7,6 +7,6 @@ class OpenCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve abrir a janela!');
-    this.assertTrue('Esta aberta?', this.subject.isOpened());
+    this.expectTrue('Esta aberta?', this.subject.isOpened());
   }
 }

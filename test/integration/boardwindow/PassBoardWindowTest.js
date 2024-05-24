@@ -10,6 +10,6 @@ class PassBoardWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar a mensagem de passo!');
-    this.assertTrue('Foi mostrado a mensagem de passo?', this.subject.isPass());
+    this.expectTrue('Foi mostrado a mensagem de passo?', this.subject.isPass());
   }
 }

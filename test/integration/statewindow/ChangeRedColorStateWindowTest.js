@@ -8,6 +8,6 @@ class ChangeRedColorStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mudar a cor para vermelha!');
-    this.assertTrue('Esta na cor vermelha?', this.subject.isRedColor());
+    this.expectTrue('Esta na cor vermelha?', this.subject.isRedColor());
   }
 }

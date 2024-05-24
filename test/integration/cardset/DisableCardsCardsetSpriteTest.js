@@ -19,7 +19,7 @@ class DisableCardsCardsetSpriteTest extends SceneTest {
     const enableCardsIndex = [0, 3, 4, 5, 6];
     const disableCardsIndex = [1, 2, 7, 8, 9];
     const positions = CardsetSprite.createPositionsList(numCards);
-    this.assertTrue('Estão desabilitados?', this.subject.isDisabledCardIndexs(disableCardsIndex));
-    this.assertTrue('Estão habilitados?', this.subject.isEnabledCardIndexs(enableCardsIndex));
+    this.expectTrue('Estão desabilitados?', this.subject.isDisabledCardIndexs(disableCardsIndex));
+    this.expectTrue('Estão habilitados?', this.subject.isEnabledCardIndexs(enableCardsIndex));
   }
 }

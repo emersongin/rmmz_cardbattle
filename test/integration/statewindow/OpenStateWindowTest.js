@@ -7,6 +7,6 @@ class OpenStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve abrir a janela!');
-    this.assertTrue('Esta aberta?', this.subject.isOpen());
+    this.expectTrue('Esta aberta?', this.subject.isOpen());
   }
 }

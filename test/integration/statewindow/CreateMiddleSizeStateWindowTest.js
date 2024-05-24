@@ -9,7 +9,7 @@ class CreateMiddleSizeStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve criar uma janela de batalha com tamanho metade da tela!');
-    this.assertTrue('Esta na largura metade da tela?', this.subject.isMiddleSize());
+    this.expectTrue('Esta na largura metade da tela?', this.subject.isMiddleSize());
   }
   
 }

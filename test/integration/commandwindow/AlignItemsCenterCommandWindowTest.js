@@ -13,6 +13,6 @@ class AlignItemsCenterCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar os items alinhados no centro.');
-    this.assertTrue('Estão alinhados no centro?', this.subject.isItemsAlign('ITEMS_ALIGN', GameConst.CENTER));
+    this.expectTrue('Estão alinhados no centro?', this.subject.isItemsAlign('ITEMS_ALIGN', GameConst.CENTER));
   }
 }

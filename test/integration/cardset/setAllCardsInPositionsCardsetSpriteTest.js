@@ -22,7 +22,7 @@ class SetAllCardsInPositionsCardsetSpriteTest extends SceneTest {
     const position1 = CardSprite.createPosition(0, -CardSprite.contentOriginalHeight(), 0);
     const position2 = CardSprite.createPosition(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight(), 1);
     const positions = [position1, position2];
-    this.assertTrue('Esta mostrando na posição inícial?', this.subject.allCardsAreVisible());
-    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
+    this.expectTrue('Esta mostrando na posição inícial?', this.subject.allCardsAreVisible());
+    this.expectTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }

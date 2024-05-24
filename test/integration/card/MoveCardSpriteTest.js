@@ -26,8 +26,8 @@ class MoveCardSpriteTest extends SceneTest {
     const destinyYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     const avanceXposition = (Graphics.boxWidth - this.subject.width);
     this.describe('Deve mover cartão pela tela.');
-    this.assert('Esta no destino x?', this.subject.x).toBe(avanceXposition);
-    this.assert('Esta no destino y', this.subject.y).toBe(destinyYPosition);
-    this.assertWasTrue('Estava em movimento?', this.subject.isMoving);
+    this.expect('Esta no destino x?', this.subject.x).toBe(avanceXposition);
+    this.expect('Esta no destino y', this.subject.y).toBe(destinyYPosition);
+    this.expectWasTrue('Estava em movimento?', this.subject.isMoving);
   }
 }

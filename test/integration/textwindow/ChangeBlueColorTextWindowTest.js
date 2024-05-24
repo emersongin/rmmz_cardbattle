@@ -8,6 +8,6 @@ class ChangeBlueColorTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar janela na cor azul.');
-    this.assertTrue('Esta na cor azul?', this.subject.isBlueColor());
+    this.expectTrue('Esta na cor azul?', this.subject.isBlueColor());
   }
 }

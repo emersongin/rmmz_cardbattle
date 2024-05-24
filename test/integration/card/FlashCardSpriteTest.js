@@ -21,6 +21,6 @@ class FlashCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve receber um flash de luz!');
-    this.assertWasTrue('Houve flash de luz?', this.subject.isFlashPlaying);
+    this.expectWasTrue('Houve flash de luz?', this.subject.isFlashPlaying);
   } 
 }

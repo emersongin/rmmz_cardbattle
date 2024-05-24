@@ -19,7 +19,7 @@ class FlipTurnToDownCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve virar o card para baixo!');
-    this.assertTrue('Esta virado para baixo?', this.subject.isTurnedToDown());
-    this.assertTrue('Esta aberto?', this.subject.isOpened());
+    this.expectTrue('Esta virado para baixo?', this.subject.isTurnedToDown());
+    this.expectTrue('Esta aberto?', this.subject.isOpened());
   }
 }

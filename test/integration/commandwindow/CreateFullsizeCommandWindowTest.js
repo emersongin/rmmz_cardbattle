@@ -7,6 +7,6 @@ class CreateFullsizeCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve exibir a janela com a largura total da tela!');
-    this.assertTrue('Esta na largura total da tela?', this.subject.isFullsize());
+    this.expectTrue('Esta na largura total da tela?', this.subject.isFullsize());
   }
 }

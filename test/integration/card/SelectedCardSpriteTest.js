@@ -18,6 +18,6 @@ class SelectedCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve colocar o card em seleção!');
-    this.assertTrue('Esta em seleção?', this.subject.isSelected());
+    this.expectTrue('Esta em seleção?', this.subject.isSelected());
   }
 }

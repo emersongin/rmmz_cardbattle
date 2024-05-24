@@ -9,6 +9,6 @@ class CreateFullSizeStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve criar uma janela de batalha com tamanho total da tela!');
-    this.assertTrue('Esta na largura total da tela?', this.subject.isFullsize());
+    this.expectTrue('Esta na largura total da tela?', this.subject.isFullsize());
   }
 }

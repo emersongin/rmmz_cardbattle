@@ -26,6 +26,6 @@ class AnimationCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve receber uma animação!');
-    this.assertWasTrue('Houve animação?', this.subject.isAnimationPlaying);
+    this.expectWasTrue('Houve animação?', this.subject.isAnimationPlaying);
   }
 }

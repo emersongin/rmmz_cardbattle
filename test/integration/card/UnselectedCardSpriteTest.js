@@ -19,6 +19,6 @@ class UnselectedCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve retirar o card de seleção!');
-    this.assertTrue('Esta sem seleção?', this.subject.isUnselected());
+    this.expectTrue('Esta sem seleção?', this.subject.isUnselected());
   }
 }

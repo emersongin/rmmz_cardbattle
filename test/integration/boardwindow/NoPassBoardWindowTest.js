@@ -11,6 +11,6 @@ class NoPassBoardWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve passar a mensagem de passo!');
-    this.assertTrue('Foi retirada a mensagem de passo?', this.subject.isNoPass());
+    this.expectTrue('Foi retirada a mensagem de passo?', this.subject.isNoPass());
   }
 }

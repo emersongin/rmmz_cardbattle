@@ -21,6 +21,6 @@ class MoveAllCardsToPositionCardsetSpriteTest extends SceneTest {
     const x = CardsetSprite.contentOriginalWidth() / 2;
     const y = 0;
     const positions = CardsetSprite.createPositions(numCards, padding, x, y);
-    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
+    this.expectTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }

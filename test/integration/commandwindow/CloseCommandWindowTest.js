@@ -8,6 +8,6 @@ class CloseCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve fechar a janela!');
-    this.assertTrue('Esta fechada?', this.subject.isClosed());
+    this.expectTrue('Esta fechada?', this.subject.isClosed());
   }
 }

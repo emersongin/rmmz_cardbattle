@@ -8,6 +8,6 @@ class ChangeDefaultColorStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mudar a cor para default!');
-    this.assertTrue('Esta na cor default?', this.subject.isDefaultColor());
+    this.expectTrue('Esta na cor default?', this.subject.isDefaultColor());
   }
 }

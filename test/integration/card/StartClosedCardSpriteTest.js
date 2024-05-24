@@ -17,6 +17,6 @@ class StartClosedCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve iniciar o card fechado!');
-    this.assertTrue('Esta fechado?', this.subject.isClosed());
+    this.expectTrue('Esta fechado?', this.subject.isClosed());
   }
 }

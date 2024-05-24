@@ -8,12 +8,14 @@ class StaticModeCardsetSpriteTest extends SceneTest {
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     this.subject.showCards(sprites);
-    this.subject.selectMode();
-    this.subject.unselectMode();
+    const selectNumber = 3;
+    const selectCards = (cards) => {};
+    this.subject.selectMode(selectNumber, selectCards);
+    this.subject.staticMode();
   }
 
   asserts() {
     this.describe('Deve entrar em modo estático!');
-    this.assertTrue('Esta em modo estático?', this.subject.isStaticMode());
+    this.expectTrue('Esta em modo estático?', this.subject.isStaticMode());
   }
 }

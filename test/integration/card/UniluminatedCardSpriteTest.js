@@ -19,6 +19,6 @@ class UniluminatedCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve retirar a iluminação do card!');
-    this.assertTrue('Esta sem iluminado?', this.subject.isUniluminated());
+    this.expectTrue('Esta sem iluminado?', this.subject.isUniluminated());
   }
 }

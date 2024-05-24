@@ -9,6 +9,6 @@ class OrderedIconsTrashWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve abrir com os icones ordenados.');
-    this.assertTrue('Esta em ordem normal?', this.subject.isIconsOrdered());
+    this.expectTrue('Esta em ordem normal?', this.subject.isIconsOrdered());
   }
 }

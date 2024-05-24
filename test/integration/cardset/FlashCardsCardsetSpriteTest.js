@@ -13,6 +13,6 @@ class FlashCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve animar as cartas!');
-    this.assertWasTrue('Houve um flash de luz?', this.subject.someSpriteIsFlashPlaying);
+    this.expectWasTrue('Houve um flash de luz?', this.subject.someSpriteIsFlashPlaying);
   }
 }

@@ -250,9 +250,9 @@ class SceneTest {
     this.testDescription = description;
   }
 
-  assert(title, value) {
+  expect(title, value) {
     if (!title || value === undefined) {
-      throw new Error('The assertTrue method must have a title and a value!');
+      throw new Error('The expect method must have a title and a value!');
     }
     this.assertTitle = title;
     this.assertValue = value;
@@ -271,9 +271,9 @@ class SceneTest {
     });
   }
 
-  assertTrue(title, value) {
+  expectTrue(title, value) {
     if (!title || value === undefined) {
-      throw new Error('The assertTrue method must have a title and a value!');
+      throw new Error('The expectTrue method must have a title and a value!');
     }
     this.assertTitle = title;
     this.assertValue = value;
@@ -281,9 +281,9 @@ class SceneTest {
     this.toBe(toBe, title, value);
   }
 
-  assertWasTrue(title, fnOrValue, reference = null, ...params) {
+  expectWasTrue(title, fnOrValue, reference = null, ...params) {
     if (!title || !fnOrValue) {
-      throw new Error('The assertWasTrue method must have a title and a function or value!');
+      throw new Error('The expectWasTrue method must have a title and a function or value!');
     }
     this.assertsToTest.push({
       type: 'assertWas',

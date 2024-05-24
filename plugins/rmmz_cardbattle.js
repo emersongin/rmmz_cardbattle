@@ -3884,6 +3884,34 @@ class CardsetSpriteStaticModeState {
       throw new Error('sprite is not a CardsetSprite instance!');
     }
     this._cardset = sprite;
+    this.unhouverSprites();
+  }
+
+  unhouverSprites() {
+    const spritesHovered = this.getSpritesHovered();
+    spritesHovered.forEach(({ sprite, index }) => {
+      this.resetSprite(sprite);
+      this._cardset.removeChild(sprite);
+      this._cardset.addChildAt(sprite, index);
+    });
+  }
+
+  getSpritesHovered() {
+    const sprites = this._cardset._sprites.map((sprite, index) => {
+      return { sprite, index };
+    });
+    return sprites.filter(({ sprite, index }) => sprite.isHovered());
+  }
+
+  resetSprite(sprite) {
+    const destinyXPosition = sprite.x;
+    const destinyYPosition = 0;
+    const duration = 0.03;
+    sprite.unhover();
+    sprite.unselect();
+    sprite.uniluminate();
+    const move = CardSprite.createMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
+    sprite.toMove(move);
   }
 
   updateStatus() {
@@ -5536,9 +5564,9 @@ class SceneTest {
     this.testDescription = description;
   }
 
-  assert(title, value) {
+  expect(title, value) {
     if (!title || value === undefined) {
-      throw new Error('The assertTrue method must have a title and a value!');
+      throw new Error('The expect method must have a title and a value!');
     }
     this.assertTitle = title;
     this.assertValue = value;
@@ -5557,9 +5585,9 @@ class SceneTest {
     });
   }
 
-  assertTrue(title, value) {
+  expectTrue(title, value) {
     if (!title || value === undefined) {
-      throw new Error('The assertTrue method must have a title and a value!');
+      throw new Error('The expectTrue method must have a title and a value!');
     }
     this.assertTitle = title;
     this.assertValue = value;
@@ -5567,9 +5595,9 @@ class SceneTest {
     this.toBe(toBe, title, value);
   }
 
-  assertWasTrue(title, fnOrValue, reference = null, ...params) {
+  expectWasTrue(title, fnOrValue, reference = null, ...params) {
     if (!title || !fnOrValue) {
-      throw new Error('The assertWasTrue method must have a title and a function or value!');
+      throw new Error('The expectWasTrue method must have a title and a function or value!');
     }
     this.assertsToTest.push({
       type: 'assertWas',
@@ -5646,7 +5674,7 @@ class StartOpenCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve iniciar o card aberto!');
-    this.assertTrue('Esta aberto?', this.subject.isOpened());
+    this.expectTrue('Esta aberto?', this.subject.isOpened());
   }
 }
 class StartClosedCardSpriteTest extends SceneTest {
@@ -5668,7 +5696,7 @@ class StartClosedCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve iniciar o card fechado!');
-    this.assertTrue('Esta fechado?', this.subject.isClosed());
+    this.expectTrue('Esta fechado?', this.subject.isClosed());
   }
 }
 class OpenCardSpriteTest extends SceneTest {
@@ -5690,7 +5718,7 @@ class OpenCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve abrir o card!');
-    this.assertTrue('Esta aberta?', this.subject.isOpened());
+    this.expectTrue('Esta aberta?', this.subject.isOpened());
   }
 }
 class CloseCardSpriteTest extends SceneTest {
@@ -5712,7 +5740,7 @@ class CloseCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve fechar o card!');
-    this.assertTrue('Esta fechado?', this.subject.isClosed());
+    this.expectTrue('Esta fechado?', this.subject.isClosed());
   }
 }
 class DisableCardSpriteTest extends SceneTest {
@@ -5736,7 +5764,7 @@ class DisableCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve desabilitar o card!');
-    this.assertTrue('Esta disabilitado?', this.subject.isDisabled());
+    this.expectTrue('Esta disabilitado?', this.subject.isDisabled());
   }
 }
 class EnableCardSpriteTest extends SceneTest {
@@ -5760,7 +5788,7 @@ class EnableCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve habilitar o card!');
-    this.assertTrue('Esta habilitado?', this.subject.isEnabled());
+    this.expectTrue('Esta habilitado?', this.subject.isEnabled());
   }
 }
 class MoveCardSpriteTest extends SceneTest {
@@ -5791,9 +5819,9 @@ class MoveCardSpriteTest extends SceneTest {
     const destinyYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
     const avanceXposition = (Graphics.boxWidth - this.subject.width);
     this.describe('Deve mover cartão pela tela.');
-    this.assert('Esta no destino x?', this.subject.x).toBe(avanceXposition);
-    this.assert('Esta no destino y', this.subject.y).toBe(destinyYPosition);
-    this.assertWasTrue('Estava em movimento?', this.subject.isMoving);
+    this.expect('Esta no destino x?', this.subject.x).toBe(avanceXposition);
+    this.expect('Esta no destino y', this.subject.y).toBe(destinyYPosition);
+    this.expectWasTrue('Estava em movimento?', this.subject.isMoving);
   }
 }
 class HoveredCardSpriteTest extends SceneTest {
@@ -5816,7 +5844,7 @@ class HoveredCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve colocar o card em hovered!');
-    this.assertTrue('Esta em hovered?', this.subject.isHovered());
+    this.expectTrue('Esta em hovered?', this.subject.isHovered());
   } 
 }
 class UnhoveredCardSpriteTest extends SceneTest {
@@ -5840,7 +5868,7 @@ class UnhoveredCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve colocar o card em unhovered!');
-    this.assertTrue('Esta sem hovered?', this.subject.isUnhovered());
+    this.expectTrue('Esta sem hovered?', this.subject.isUnhovered());
   } 
 }
 class SelectedCardSpriteTest extends SceneTest {
@@ -5863,7 +5891,7 @@ class SelectedCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve colocar o card em seleção!');
-    this.assertTrue('Esta em seleção?', this.subject.isSelected());
+    this.expectTrue('Esta em seleção?', this.subject.isSelected());
   }
 }
 class UnselectedCardSpriteTest extends SceneTest {
@@ -5887,7 +5915,7 @@ class UnselectedCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve retirar o card de seleção!');
-    this.assertTrue('Esta sem seleção?', this.subject.isUnselected());
+    this.expectTrue('Esta sem seleção?', this.subject.isUnselected());
   }
 }
 class IluminatedCardSpriteTest extends SceneTest {
@@ -5910,7 +5938,7 @@ class IluminatedCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve colocar o card em iluminado!');
-    this.assertTrue('Esta em iluminado?', this.subject.isIluminated());
+    this.expectTrue('Esta em iluminado?', this.subject.isIluminated());
   }
 }
 class UniluminatedCardSpriteTest extends SceneTest {
@@ -5934,7 +5962,7 @@ class UniluminatedCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve retirar a iluminação do card!');
-    this.assertTrue('Esta sem iluminado?', this.subject.isUniluminated());
+    this.expectTrue('Esta sem iluminado?', this.subject.isUniluminated());
   }
 }
 class FlashCardSpriteTest extends SceneTest {
@@ -5960,7 +5988,7 @@ class FlashCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve receber um flash de luz!');
-    this.assertWasTrue('Houve flash de luz?', this.subject.isFlashPlaying);
+    this.expectWasTrue('Houve flash de luz?', this.subject.isFlashPlaying);
   } 
 }
 class AnimationCardSpriteTest extends SceneTest {
@@ -5991,7 +6019,7 @@ class AnimationCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve receber uma animação!');
-    this.assertWasTrue('Houve animação?', this.subject.isAnimationPlaying);
+    this.expectWasTrue('Houve animação?', this.subject.isAnimationPlaying);
   }
 }
 class QuakeCardSpriteTest extends SceneTest {
@@ -6015,7 +6043,7 @@ class QuakeCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve tremer o card!');
-    this.assertWasTrue('Houve um movimento?', this.subject.isMoving);
+    this.expectWasTrue('Houve um movimento?', this.subject.isMoving);
   }
 }
 class ZoomCardSpriteTest extends SceneTest {
@@ -6038,7 +6066,7 @@ class ZoomCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve colocar o card em zoom!');
-    this.assertTrue('Esta ampliado?', this.subject.isZoom());
+    this.expectTrue('Esta ampliado?', this.subject.isZoom());
   }
 }
 class ZoomOutCardSpriteTest extends SceneTest {
@@ -6062,7 +6090,7 @@ class ZoomOutCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve colocar o card em escala original!');
-    this.assertTrue('Esta em escala original?', this.subject.isOriginalScale());
+    this.expectTrue('Esta em escala original?', this.subject.isOriginalScale());
   }
 }
 class LeaveCardSpriteTest extends SceneTest {
@@ -6085,9 +6113,9 @@ class LeaveCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve colocar o card em leave!');
-    this.assert('Esta em largura zerada?', this.subject.width).toBe(0);
-    this.assert('Esta em altura zerada?', this.subject.height).toBe(0);
-    this.assertTrue('Esta invisível?', this.subject.isHidden());
+    this.expect('Esta em largura zerada?', this.subject.width).toBe(0);
+    this.expect('Esta em altura zerada?', this.subject.height).toBe(0);
+    this.expectTrue('Esta invisível?', this.subject.isHidden());
   }
 }
 class FlipTurnToUpCardSpriteTest extends SceneTest {
@@ -6111,8 +6139,8 @@ class FlipTurnToUpCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve virar o card para cima!');
-    this.assertTrue('Esta virado para cima?', this.subject.isTurnedToUp());
-    this.assertTrue('Esta aberto?', this.subject.isOpened());
+    this.expectTrue('Esta virado para cima?', this.subject.isTurnedToUp());
+    this.expectTrue('Esta aberto?', this.subject.isOpened());
   }
 }
 class FlipTurnToDownCardSpriteTest extends SceneTest {
@@ -6136,8 +6164,8 @@ class FlipTurnToDownCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve virar o card para baixo!');
-    this.assertTrue('Esta virado para baixo?', this.subject.isTurnedToDown());
-    this.assertTrue('Esta aberto?', this.subject.isOpened());
+    this.expectTrue('Esta virado para baixo?', this.subject.isTurnedToDown());
+    this.expectTrue('Esta aberto?', this.subject.isOpened());
   }
 }
 class UpdatingPointsCardSpriteTest extends SceneTest {
@@ -6160,7 +6188,7 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve atualizar os pontos do card!');
-    this.assertWasTrue('Foram atualizandos?', this.subject.isUpdatingPoints);
+    this.expectWasTrue('Foram atualizandos?', this.subject.isUpdatingPoints);
   }
 }
 // tests CARDSET
@@ -6177,9 +6205,9 @@ class StartPositionCardsetSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.describe('Deve iniciar na posição central!');
-    this.assertTrue('Esta no meio?', this.subject.isVisible());
-    this.assert('Esta na posição x?', this.subject.x).toBe(centerXPosition);
-    this.assert('Esta na posição y?', this.subject.y).toBe(centerYPosition);
+    this.expectTrue('Esta no meio?', this.subject.isVisible());
+    this.expect('Esta na posição x?', this.subject.x).toBe(centerXPosition);
+    this.expect('Esta na posição y?', this.subject.y).toBe(centerYPosition);
   }
 }
 class SetCardsCardsetSpriteTest extends SceneTest {
@@ -6203,8 +6231,8 @@ class SetCardsCardsetSpriteTest extends SceneTest {
     const x = 0;
     const y = 0;
     const positions = CardsetSprite.createPositions(numCards, padding, x, y);
-    this.assertTrue('Esta mostrando na posição inícial?', this.subject.allCardsAreVisible());
-    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
+    this.expectTrue('Esta mostrando na posição inícial?', this.subject.allCardsAreVisible());
+    this.expectTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
 class SetAllCardsInPositionCardsetSpriteTest extends SceneTest {
@@ -6229,8 +6257,8 @@ class SetAllCardsInPositionCardsetSpriteTest extends SceneTest {
     const x = 0;
     const y = 0;
     const positions = CardsetSprite.createPositions(numCards, padding, x, y);
-    this.assertTrue('Esta mostrando na posição inícial?', this.subject.allCardsAreVisible());
-    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
+    this.expectTrue('Esta mostrando na posição inícial?', this.subject.allCardsAreVisible());
+    this.expectTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
 class SetAllCardsInPositionsCardsetSpriteTest extends SceneTest {
@@ -6257,8 +6285,8 @@ class SetAllCardsInPositionsCardsetSpriteTest extends SceneTest {
     const position1 = CardSprite.createPosition(0, -CardSprite.contentOriginalHeight(), 0);
     const position2 = CardSprite.createPosition(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight(), 1);
     const positions = [position1, position2];
-    this.assertTrue('Esta mostrando na posição inícial?', this.subject.allCardsAreVisible());
-    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
+    this.expectTrue('Esta mostrando na posição inícial?', this.subject.allCardsAreVisible());
+    this.expectTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
 class ListCardsCardsetSpriteTest extends SceneTest {
@@ -6278,8 +6306,8 @@ class ListCardsCardsetSpriteTest extends SceneTest {
     this.describe('Deve listar as cartas!');
     const numCards = 6;
     const positions = CardsetSprite.createPositionsList(numCards);
-    this.assertTrue('Esta mostrando na posição de lista?', this.subject.allCardsAreVisible());
-    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
+    this.expectTrue('Esta mostrando na posição de lista?', this.subject.allCardsAreVisible());
+    this.expectTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
 class StartClosedCardsCardsetSpriteTest extends SceneTest {
@@ -6297,7 +6325,7 @@ class StartClosedCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve iniciar as cartas fechadas!');
-    this.assertTrue('Estão nas posições?', this.subject.allCardsIsClosed(this.sprites));
+    this.expectTrue('Estão nas posições?', this.subject.allCardsIsClosed(this.sprites));
   }
 }
 class OpenAllCardsCardsetSpriteTest extends SceneTest {
@@ -6317,7 +6345,7 @@ class OpenAllCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve abrir todas as cartas!');
-    this.assertTrue('Estão aberto?', this.subject.allCardsIsOpened(this.sprites));
+    this.expectTrue('Estão aberto?', this.subject.allCardsIsOpened(this.sprites));
   }
 }
 class OpenCardsCardsetSpriteTest extends SceneTest {
@@ -6337,7 +6365,7 @@ class OpenCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve abrir as cartas!');
-    this.assertTrue('Estão aberto?', this.subject.allCardsIsOpened(this.sprites));
+    this.expectTrue('Estão aberto?', this.subject.allCardsIsOpened(this.sprites));
   }
 }
 class CloseAllCardsCardsetSpriteTest extends SceneTest {
@@ -6356,7 +6384,7 @@ class CloseAllCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve fechar todas as cartas!');
-    this.assertTrue('Estão fechados?', this.subject.allCardsIsClosed(this.sprites));
+    this.expectTrue('Estão fechados?', this.subject.allCardsIsClosed(this.sprites));
   }
 }
 class CloseCardsCardsetSpriteTest extends SceneTest {
@@ -6375,7 +6403,7 @@ class CloseCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve fechar as cartas!');
-    this.assertTrue('Estão fechados?', this.subject.allCardsIsClosed(this.sprites));
+    this.expectTrue('Estão fechados?', this.subject.allCardsIsClosed(this.sprites));
   }
 }
 class MoveAllCardsInListCardsetSpriteTest extends SceneTest {
@@ -6397,7 +6425,7 @@ class MoveAllCardsInListCardsetSpriteTest extends SceneTest {
     this.describe('Deve mover todas as cartas!');
     const numCards = 6;
     const positions = CardsetSprite.createPositionsList(numCards);
-    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
+    this.expectTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
 class MoveCardsInListCardsetSpriteTest extends SceneTest {
@@ -6419,7 +6447,7 @@ class MoveCardsInListCardsetSpriteTest extends SceneTest {
     this.describe('Deve mover as cartas em posição de lista!');
     const numCards = 6;
     const positions = CardsetSprite.createPositionsList(numCards);
-    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
+    this.expectTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
 class MoveAllCardsToPositionCardsetSpriteTest extends SceneTest {
@@ -6445,7 +6473,7 @@ class MoveAllCardsToPositionCardsetSpriteTest extends SceneTest {
     const x = CardsetSprite.contentOriginalWidth() / 2;
     const y = 0;
     const positions = CardsetSprite.createPositions(numCards, padding, x, y);
-    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
+    this.expectTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
 class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
@@ -6471,7 +6499,7 @@ class MoveCardsToPositionCardsetSpriteTest extends SceneTest {
     const x = CardsetSprite.contentOriginalWidth() / 2;
     const y = 0;
     const positions = CardsetSprite.createPositions(numCards, padding, x, y);
-    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
+    this.expectTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
 class MoveAllCardsToPositionsCardsetSpriteTest extends SceneTest {
@@ -6496,7 +6524,7 @@ class MoveAllCardsToPositionsCardsetSpriteTest extends SceneTest {
     const position1 = CardSprite.createPosition(0, -CardSprite.contentOriginalHeight(), 0);
     const position2 = CardSprite.createPosition(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight(), 1);
     const positions = [position1, position2];
-    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
+    this.expectTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
 class AddAllCardsToListCardsetSpriteTest extends SceneTest {
@@ -6520,7 +6548,7 @@ class AddAllCardsToListCardsetSpriteTest extends SceneTest {
     this.describe('Deve adicionar todas as cartas na lista!');
     const numCards = 6;
     const positions = CardsetSprite.createPositionsList(numCards);
-    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
+    this.expectTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
 class AddCardsToListCardsetSpriteTest extends SceneTest {
@@ -6544,7 +6572,7 @@ class AddCardsToListCardsetSpriteTest extends SceneTest {
     this.describe('Deve adicionar as cartas na lista!');
     const numCards = 6;
     const positions = CardsetSprite.createPositionsList(numCards);
-    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
+    this.expectTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
 class DisableCardsCardsetSpriteTest extends SceneTest {
@@ -6568,8 +6596,8 @@ class DisableCardsCardsetSpriteTest extends SceneTest {
     const enableCardsIndex = [0, 3, 4, 5, 6];
     const disableCardsIndex = [1, 2, 7, 8, 9];
     const positions = CardsetSprite.createPositionsList(numCards);
-    this.assertTrue('Estão desabilitados?', this.subject.isDisabledCardIndexs(disableCardsIndex));
-    this.assertTrue('Estão habilitados?', this.subject.isEnabledCardIndexs(enableCardsIndex));
+    this.expectTrue('Estão desabilitados?', this.subject.isDisabledCardIndexs(disableCardsIndex));
+    this.expectTrue('Estão habilitados?', this.subject.isEnabledCardIndexs(enableCardsIndex));
   }
 }
 class StaticModeCardsetSpriteTest extends SceneTest {
@@ -6582,42 +6610,15 @@ class StaticModeCardsetSpriteTest extends SceneTest {
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     this.subject.showCards(sprites);
-    this.subject.selectMode();
-    this.subject.unselectMode();
+    const selectNumber = 3;
+    const selectCards = (cards) => {};
+    this.subject.selectMode(selectNumber, selectCards);
+    this.subject.staticMode();
   }
 
   asserts() {
     this.describe('Deve entrar em modo estático!');
-    this.assertTrue('Esta em modo estático?', this.subject.isStaticMode());
-  }
-}
-class SelectModeCardsetSpriteTest extends SceneTest {
-  create() {
-    this.subject = CardsetSprite.create(0, 0);
-    this.addWatched(this.subject);
-    this.subject.centralize();
-    this.subject.show();
-    const numCards = 10;
-    const cards = CardGenerator.generateCards(numCards);
-    const sprites = this.subject.listCards(cards);
-    const disableCardsIndex = [1, 2, 7, 8, 9];
-    const disableSprites = sprites.filter((sprite, index) => disableCardsIndex.includes(index));
-    this.subject.disableCards(disableSprites);
-    this.subject.showCards(sprites);
-    // const endTest = this.createHandler();
-    const selectNumber = 3;
-    this.cardsSelected = [];
-    const selectCards = (cards) => {
-      this.cardsSelected = cards;
-      // endTest();
-    };
-    this.subject.selectMode(selectNumber, selectCards);
-  }
-
-  asserts() {
-    this.describe('Deve entrar em modo seleção com escolha!');
-    this.assertTrue('Esta em modo seleção?', this.subject.isSelectMode());
-    this.assertTrue('Deve selecionar 3 cartas', this.cardsSelected.length === 3);
+    this.expectTrue('Esta em modo estático?', this.subject.isStaticMode());
   }
 }
 class SelectModeWithoutChoiceCardsetSpriteTest extends SceneTest {
@@ -6645,8 +6646,8 @@ class SelectModeWithoutChoiceCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve entrar em modo seleção com escolha!');
-    this.assertTrue('Esta em modo seleção?', this.subject.isSelectMode());
-    this.assertTrue('Deve selecionar 3 cartas', this.cardsSelected.length === 3);
+    this.expectTrue('Esta em modo seleção?', this.subject.isSelectMode());
+    this.expectTrue('Deve selecionar 3 cartas', this.cardsSelected.length === 3);
   }
 }
 class SingleSelectModeCardsetSpriteTest extends SceneTest {
@@ -6674,11 +6675,11 @@ class SingleSelectModeCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve entrar em modo seleção com escolha!');
-    this.assertTrue('Esta em modo seleção?', this.subject.isSelectMode());
-    this.assertTrue('Deve selecionar 3 cartas', this.cardsSelected.length === 3);
+    this.expectTrue('Esta em modo seleção?', this.subject.isSelectMode());
+    this.expectTrue('Deve selecionar 3 cartas', this.cardsSelected.length === 3);
   }
 }
-class LimitedSelectModeCardsetSpriteTest extends SceneTest {
+class SelectModeCardsetSpriteTest extends SceneTest {
   create() {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
@@ -6703,8 +6704,8 @@ class LimitedSelectModeCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve entrar em modo seleção com escolha!');
-    this.assertTrue('Esta em modo seleção?', this.subject.isSelectMode());
-    this.assertTrue('Deve selecionar 3 cartas', this.cardsSelected.length === 3);
+    this.expectTrue('Esta em modo seleção?', this.subject.isSelectMode());
+    this.expectTrue('Deve selecionar 3 cartas', this.cardsSelected.length === 3);
   }
 }
 class FlashCardsCardsetSpriteTest extends SceneTest {
@@ -6722,7 +6723,7 @@ class FlashCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve animar as cartas!');
-    this.assertWasTrue('Houve um flash de luz?', this.subject.someSpriteIsFlashPlaying);
+    this.expectWasTrue('Houve um flash de luz?', this.subject.someSpriteIsFlashPlaying);
   }
 }
 class QuakeCardsCardsetSpriteTest extends SceneTest {
@@ -6740,7 +6741,7 @@ class QuakeCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve tremer as cartas!');
-    this.assertWasTrue('Houve um chacoalhar?', this.subject.someSpriteIsMoving);
+    this.expectWasTrue('Houve um chacoalhar?', this.subject.someSpriteIsMoving);
   }
 }
 class AnimationCardsCardsetSpriteTest extends SceneTest {
@@ -6759,7 +6760,7 @@ class AnimationCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve animar as cartas!');
-    this.assertWasTrue('Houve um frame de aimação?', this.subject.someSpriteIsAnimationPlaying);
+    this.expectWasTrue('Houve um frame de aimação?', this.subject.someSpriteIsAnimationPlaying);
   }
 }
 class ShowOrderingCardsCardsetSpriteTest extends SceneTest {
@@ -6779,8 +6780,8 @@ class ShowOrderingCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar númeração ordenada das cartas!');
-    this.assertTrue('Esta mostrando a ordenação?', this.subject.isOrderingDisplayed());
-    this.assertTrue('Ela esta ordenada?', this.subject.isOrdering());
+    this.expectTrue('Esta mostrando a ordenação?', this.subject.isOrderingDisplayed());
+    this.expectTrue('Ela esta ordenada?', this.subject.isOrdering());
   }
 }
 class ShowReverseOrderingCardsCardsetSpriteTest extends SceneTest {
@@ -6800,8 +6801,8 @@ class ShowReverseOrderingCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar númeração em ordem inversa das cartas!');
-    this.assertTrue('Esta mostrando a ordenação?', this.subject.isOrderingDisplayed());
-    this.assertTrue('Ela esta em ordem reversa?', this.subject.isReverseOrdering());
+    this.expectTrue('Esta mostrando a ordenação?', this.subject.isOrderingDisplayed());
+    this.expectTrue('Ela esta em ordem reversa?', this.subject.isReverseOrdering());
   }
 }
 // tests STATE WINDOW
@@ -6814,7 +6815,7 @@ class OpenStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve abrir a janela!');
-    this.assertTrue('Esta aberta?', this.subject.isOpen());
+    this.expectTrue('Esta aberta?', this.subject.isOpen());
   }
 }
 class CloseStateWindowTest extends SceneTest {
@@ -6827,7 +6828,7 @@ class CloseStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve fechar a janela!');
-    this.assertTrue('Esta fechada?', this.subject.isClosed());
+    this.expectTrue('Esta fechada?', this.subject.isClosed());
   }
 }
 class CreateOneFourthSizeStateWindowTest extends SceneTest {
@@ -6841,7 +6842,7 @@ class CreateOneFourthSizeStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve criar uma janela com 1/4 do tamanho da tela!');
-    this.assertTrue('Esta na largura de 1/4 da tela?', this.subject.isOneFourthSize());
+    this.expectTrue('Esta na largura de 1/4 da tela?', this.subject.isOneFourthSize());
   }
   
 }
@@ -6856,7 +6857,7 @@ class CreateMiddleSizeStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve criar uma janela de batalha com tamanho metade da tela!');
-    this.assertTrue('Esta na largura metade da tela?', this.subject.isMiddleSize());
+    this.expectTrue('Esta na largura metade da tela?', this.subject.isMiddleSize());
   }
   
 }
@@ -6871,7 +6872,7 @@ class CreateThreeFourthSizeStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve criar uma janela de batalha com 3/4 do tamanho da tela!');
-    this.assertTrue('Esta na largura de 3/4 da tela?', this.subject.isThreeFourthSize());
+    this.expectTrue('Esta na largura de 3/4 da tela?', this.subject.isThreeFourthSize());
   }
   
 }
@@ -6886,7 +6887,7 @@ class CreateFullSizeStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve criar uma janela de batalha com tamanho total da tela!');
-    this.assertTrue('Esta na largura total da tela?', this.subject.isFullsize());
+    this.expectTrue('Esta na largura total da tela?', this.subject.isFullsize());
   }
 }
 class ChangeBlueColorStateWindowTest extends SceneTest {
@@ -6899,7 +6900,7 @@ class ChangeBlueColorStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mudar a cor para azul!');
-    this.assertTrue('Esta na cor azul?', this.subject.isBlueColor());
+    this.expectTrue('Esta na cor azul?', this.subject.isBlueColor());
   }
 }
 class ChangeRedColorStateWindowTest extends SceneTest {
@@ -6912,7 +6913,7 @@ class ChangeRedColorStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mudar a cor para vermelha!');
-    this.assertTrue('Esta na cor vermelha?', this.subject.isRedColor());
+    this.expectTrue('Esta na cor vermelha?', this.subject.isRedColor());
   }
 }
 class ChangeDefaultColorStateWindowTest extends SceneTest {
@@ -6925,7 +6926,7 @@ class ChangeDefaultColorStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mudar a cor para default!');
-    this.assertTrue('Esta na cor default?', this.subject.isDefaultColor());
+    this.expectTrue('Esta na cor default?', this.subject.isDefaultColor());
   }
 }
 class AlignStartTopStateWindowTest extends SceneTest {
@@ -6940,8 +6941,8 @@ class AlignStartTopStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no início e no topo!');
-    this.assert('Esta na posição horizontal do início?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.START, this.subject));
-    this.assert('Esta na posição vertical do topo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.TOP, this.subject));
+    this.expect('Esta na posição horizontal do início?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.START, this.subject));
+    this.expect('Esta na posição vertical do topo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.TOP, this.subject));
   }
 }
 class AlignStartMiddleStateWindowTest extends SceneTest {
@@ -6956,8 +6957,8 @@ class AlignStartMiddleStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no início e no meio!');
-    this.assert('Esta na posição horizontal do início?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.START, this.subject));
-    this.assert('Esta na posição vertical do meio?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
+    this.expect('Esta na posição horizontal do início?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.START, this.subject));
+    this.expect('Esta na posição vertical do meio?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
   }
 }
 class AlignStartBottomStateWindowTest  extends SceneTest {
@@ -6972,8 +6973,8 @@ class AlignStartBottomStateWindowTest  extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no início e embaixo!');
-    this.assert('Esta na posição horizontal do início?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.START, this.subject));
-    this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
+    this.expect('Esta na posição horizontal do início?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.START, this.subject));
+    this.expect('Esta na posição vertical embaixo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
   }
 }
 class AlignCenterTopStateWindowTest extends SceneTest {
@@ -6988,8 +6989,8 @@ class AlignCenterTopStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no centro e no topo!');
-    this.assert('Esta na posição horizontal do centro?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
-    this.assert('Esta na posição vertical do topo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.TOP, this.subject));
+    this.expect('Esta na posição horizontal do centro?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
+    this.expect('Esta na posição vertical do topo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.TOP, this.subject));
   }
 }
 class AlignCenterMiddleStateWindowTest extends SceneTest {
@@ -7004,8 +7005,8 @@ class AlignCenterMiddleStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no centro e no meio!');
-    this.assert('Esta na posição horizontal do centro?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
-    this.assert('Esta na posição vertical do meio?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
+    this.expect('Esta na posição horizontal do centro?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
+    this.expect('Esta na posição vertical do meio?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
   }
 }
 class AlignCenterBottomStateWindowTest extends SceneTest {
@@ -7020,8 +7021,8 @@ class AlignCenterBottomStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no centro e embaixo!');
-    this.assert('Esta na posição horizontal do centro?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
-    this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
+    this.expect('Esta na posição horizontal do centro?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
+    this.expect('Esta na posição vertical embaixo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
   }
 }
 class AlignEndTopStateWindowTest extends SceneTest {
@@ -7036,8 +7037,8 @@ class AlignEndTopStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no final e no topo!');
-    this.assert('Esta na posição horizontal do final?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.END, this.subject));
-    this.assert('Esta na posição vertical do topo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.TOP, this.subject));
+    this.expect('Esta na posição horizontal do final?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.END, this.subject));
+    this.expect('Esta na posição vertical do topo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.TOP, this.subject));
   }
 }
 class AlignEndMiddleStateWindowTest extends SceneTest {
@@ -7052,8 +7053,8 @@ class AlignEndMiddleStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no final e no meio!');
-    this.assert('Esta na posição horizontal do final?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.END, this.subject));
-    this.assert('Esta na posição vertical do meio?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
+    this.expect('Esta na posição horizontal do final?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.END, this.subject));
+    this.expect('Esta na posição vertical do meio?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
   }
 }
 class AlignEndBottomStateWindowTest extends SceneTest {
@@ -7068,8 +7069,8 @@ class AlignEndBottomStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no final e embaixo!');
-    this.assert('Esta na posição horizontal do final?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.END, this.subject));
-    this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
+    this.expect('Esta na posição horizontal do final?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.END, this.subject));
+    this.expect('Esta na posição vertical embaixo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
   }
 }
 // tests BOARD WINDOW
@@ -7085,7 +7086,7 @@ class PassBoardWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar a mensagem de passo!');
-    this.assertTrue('Foi mostrado a mensagem de passo?', this.subject.isPass());
+    this.expectTrue('Foi mostrado a mensagem de passo?', this.subject.isPass());
   }
 }
 class NoPassBoardWindowTest extends SceneTest {
@@ -7101,7 +7102,7 @@ class NoPassBoardWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve passar a mensagem de passo!');
-    this.assertTrue('Foi retirada a mensagem de passo?', this.subject.isNoPass());
+    this.expectTrue('Foi retirada a mensagem de passo?', this.subject.isNoPass());
   }
 }
 class UpdatingPointsBoardWindowTest extends SceneTest {
@@ -7133,7 +7134,7 @@ class UpdatingPointsBoardWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve atualizar os pontos do tabuleiro!');
-    this.assertWasTrue('Foram atualizado?', this.subject.isUpdating);
+    this.expectWasTrue('Foram atualizado?', this.subject.isUpdating);
   }
 }
 // tests BATTLE POINTS WINDOW
@@ -7156,7 +7157,7 @@ class UpdatingPointsBattlePointsWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve atualizar os pontos de batalha!');
-    this.assertWasTrue('Foram atualizado?', this.subject.isUpdating);
+    this.expectWasTrue('Foram atualizado?', this.subject.isUpdating);
   }
 }
 // tests TRASH WINDOW
@@ -7173,7 +7174,7 @@ class UpdatingPointsTrashWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve atualizar os pontos do lixo!');
-    this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
+    this.expectWasTrue('Foi atualizada?', this.subject.isUpdating);
   }
 }
 class OrderedIconsTrashWindowTest extends SceneTest {
@@ -7187,7 +7188,7 @@ class OrderedIconsTrashWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve abrir com os icones ordenados.');
-    this.assertTrue('Esta em ordem normal?', this.subject.isIconsOrdered());
+    this.expectTrue('Esta em ordem normal?', this.subject.isIconsOrdered());
   }
 }
 class ReverseIconsTrashWindowTest extends SceneTest {
@@ -7201,7 +7202,7 @@ class ReverseIconsTrashWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve abrir com os icones ordenados.');
-    this.assertTrue('Esta em ordem normal?', this.subject.isIconsReverse());
+    this.expectTrue('Esta em ordem normal?', this.subject.isIconsReverse());
   }
 }
 // tests SCORE WINDOW
@@ -7216,7 +7217,7 @@ class OneWinUpdatingScoreWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve atualizar a pontuação!');
-    this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
+    this.expectWasTrue('Foi atualizada?', this.subject.isUpdating);
   }
 }
 class TwoWinsUpdatingScoreWindowTest extends SceneTest {
@@ -7230,7 +7231,7 @@ class TwoWinsUpdatingScoreWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve atualizar a pontuação!');
-    this.assertWasTrue('Foi atualizada?', this.subject.isUpdating);
+    this.expectWasTrue('Foi atualizada?', this.subject.isUpdating);
   }
 }
 // tests TEXT WINDOW
@@ -7243,7 +7244,7 @@ class CreateOneFourthSizeTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve criar uma janela com 1/4 do tamanho da tela!');
-    this.assertTrue('Esta na largura de 1/4 da tela?', this.subject.isOneFourthSize());
+    this.expectTrue('Esta na largura de 1/4 da tela?', this.subject.isOneFourthSize());
   }
 }
 class CreateMiddleSizeTextWindowTest extends SceneTest {
@@ -7255,7 +7256,7 @@ class CreateMiddleSizeTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve criar uma janela de batalha com tamanho metade da tela!');
-    this.assertTrue('Esta na largura metade da tela?', this.subject.isMiddleSize());
+    this.expectTrue('Esta na largura metade da tela?', this.subject.isMiddleSize());
   }
 }
 class CreateThreeFourthSizeTextWindowTest extends SceneTest {
@@ -7267,7 +7268,7 @@ class CreateThreeFourthSizeTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve criar uma janela de batalha com 3/4 do tamanho da tela!');
-    this.assertTrue('Esta na largura de 3/4 da tela?', this.subject.isThreeFourthSize());
+    this.expectTrue('Esta na largura de 3/4 da tela?', this.subject.isThreeFourthSize());
   }
 }
 class CreateFullSizeTextWindowTest extends SceneTest {
@@ -7279,7 +7280,7 @@ class CreateFullSizeTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve criar uma janela de batalha com tamanho total da tela!');
-    this.assertTrue('Esta na largura total da tela?', this.subject.isFullsize());
+    this.expectTrue('Esta na largura total da tela?', this.subject.isFullsize());
   }
 }
 class OpenTextWindowTest extends SceneTest {
@@ -7291,7 +7292,7 @@ class OpenTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve abrir a janela!');
-    this.assertTrue('Esta aberta?', this.subject.isOpen());
+    this.expectTrue('Esta aberta?', this.subject.isOpen());
   }
 }
 class CloseTextWindowTest extends SceneTest {
@@ -7304,7 +7305,7 @@ class CloseTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve fechar a janela!');
-    this.assertTrue('Esta fechada?', this.subject.isClosed());
+    this.expectTrue('Esta fechada?', this.subject.isClosed());
   }
 }
 class ChangeBlueColorTextWindowTest extends SceneTest {
@@ -7317,7 +7318,7 @@ class ChangeBlueColorTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar janela na cor azul.');
-    this.assertTrue('Esta na cor azul?', this.subject.isBlueColor());
+    this.expectTrue('Esta na cor azul?', this.subject.isBlueColor());
   }
 }
 class ChangeRedColorTextWindowTest extends SceneTest {
@@ -7330,7 +7331,7 @@ class ChangeRedColorTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar janela na cor vermelha.');
-    this.assertTrue('Esta na cor vermelha?', this.subject.isRedColor());
+    this.expectTrue('Esta na cor vermelha?', this.subject.isRedColor());
   }
 }
 class ChangeDefaultColorTextWindowTest extends SceneTest {
@@ -7343,7 +7344,7 @@ class ChangeDefaultColorTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar janela na cor padrão.');
-    this.assertTrue('Esta na cor padrão?', this.subject.isDefaultColor());
+    this.expectTrue('Esta na cor padrão?', this.subject.isDefaultColor());
   }
 }
 class AlignCenterBottomTextWindowTest extends SceneTest {
@@ -7358,8 +7359,8 @@ class AlignCenterBottomTextWindowTest extends SceneTest {
     this.describe('Deve alinhar no centro e embaixo!');
     const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject);
     const verticalAlign = TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject);
-    this.assert('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
-    this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(verticalAlign);
+    this.expect('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
+    this.expect('Esta na posição vertical embaixo?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignCenterAboveMiddleTextWindowTest extends SceneTest {
@@ -7374,8 +7375,8 @@ class AlignCenterAboveMiddleTextWindowTest extends SceneTest {
     this.describe('Deve alinhar no centro e acima do meio!');
     const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject);
     const verticalAlign = TextWindow.getVerticalAlign(GameConst.ABOVE_MIDDLE, this.subject);
-    this.assert('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
-    this.assert('Esta na posição vertical acima do meio?', this.subject.y).toBe(verticalAlign);
+    this.expect('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
+    this.expect('Esta na posição vertical acima do meio?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignCenterMiddleTextWindowTest extends SceneTest {
@@ -7390,8 +7391,8 @@ class AlignCenterMiddleTextWindowTest extends SceneTest {
     this.describe('Deve alinhar no centro e meio!');
     const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject);
     const verticalAlign = TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject);
-    this.assert('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
-    this.assert('Esta na posição vertical meio?', this.subject.y).toBe(verticalAlign);
+    this.expect('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
+    this.expect('Esta na posição vertical meio?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignCenterBelowMiddleTextWindowTest  extends SceneTest {
@@ -7406,8 +7407,8 @@ class AlignCenterBelowMiddleTextWindowTest  extends SceneTest {
     this.describe('Deve alinhar no centro e abaixo do meio!');
     const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject);
     const verticalAlign = TextWindow.getVerticalAlign(GameConst.BELOW_MIDDLE, this.subject);
-    this.assert('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
-    this.assert('Esta na posição vertical abaixo meio?', this.subject.y).toBe(verticalAlign);
+    this.expect('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
+    this.expect('Esta na posição vertical abaixo meio?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignCenterTopTextWindowTest extends SceneTest {
@@ -7422,8 +7423,8 @@ class AlignCenterTopTextWindowTest extends SceneTest {
     this.describe('Deve alinhar no centro e topo!');
     const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject);
     const verticalAlign = TextWindow.getVerticalAlign(GameConst.TOP, this.subject);
-    this.assert('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
-    this.assert('Esta na posição vertical topo?', this.subject.y).toBe(verticalAlign);
+    this.expect('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
+    this.expect('Esta na posição vertical topo?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignEndBottomTextWindowTest extends SceneTest {
@@ -7438,8 +7439,8 @@ class AlignEndBottomTextWindowTest extends SceneTest {
     this.describe('Deve alinhar no final e embaixo!');
     const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.END, this.subject);
     const verticalAlign = TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject);
-    this.assert('Esta na posição horizontal final?', this.subject.x).toBe(horizontalAlign);
-    this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(verticalAlign);
+    this.expect('Esta na posição horizontal final?', this.subject.x).toBe(horizontalAlign);
+    this.expect('Esta na posição vertical embaixo?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignEndMiddleTextWindowTest extends SceneTest {
@@ -7454,8 +7455,8 @@ class AlignEndMiddleTextWindowTest extends SceneTest {
     this.describe('Deve alinhar no final e meio!');
     const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.END, this.subject);
     const verticalAlign = TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject);
-    this.assert('Esta na posição horizontal final?', this.subject.x).toBe(horizontalAlign);
-    this.assert('Esta na posição vertical meio?', this.subject.y).toBe(verticalAlign);
+    this.expect('Esta na posição horizontal final?', this.subject.x).toBe(horizontalAlign);
+    this.expect('Esta na posição vertical meio?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignEndTopTextWindowTest extends SceneTest {
@@ -7470,8 +7471,8 @@ class AlignEndTopTextWindowTest extends SceneTest {
     this.describe('Deve alinhar no final e topo!');
     const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.END, this.subject);
     const verticalAlign = TextWindow.getVerticalAlign(GameConst.TOP, this.subject);
-    this.assert('Esta na posição horizontal final?', this.subject.x).toBe(horizontalAlign);
-    this.assert('Esta na posição vertical topo?', this.subject.y).toBe(verticalAlign);
+    this.expect('Esta na posição horizontal final?', this.subject.x).toBe(horizontalAlign);
+    this.expect('Esta na posição vertical topo?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignStartBottomTextWindowTest extends SceneTest {
@@ -7486,8 +7487,8 @@ class AlignStartBottomTextWindowTest extends SceneTest {
     this.describe('Deve alinhar no início e embaixo!');
     const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.START, this.subject);
     const verticalAlign = TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject);
-    this.assert('Esta na posição horizontal início?', this.subject.x).toBe(horizontalAlign);
-    this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(verticalAlign);
+    this.expect('Esta na posição horizontal início?', this.subject.x).toBe(horizontalAlign);
+    this.expect('Esta na posição vertical embaixo?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignStartMiddleTextWindowTest extends SceneTest {
@@ -7502,8 +7503,8 @@ class AlignStartMiddleTextWindowTest extends SceneTest {
     this.describe('Deve alinhar no início e meio!');
     const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.START, this.subject);
     const verticalAlign = TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject);
-    this.assert('Esta na posição horizontal início?', this.subject.x).toBe(horizontalAlign);
-    this.assert('Esta na posição vertical meio?', this.subject.y).toBe(verticalAlign);
+    this.expect('Esta na posição horizontal início?', this.subject.x).toBe(horizontalAlign);
+    this.expect('Esta na posição vertical meio?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignStartTopTextWindowTest extends SceneTest {
@@ -7518,8 +7519,8 @@ class AlignStartTopTextWindowTest extends SceneTest {
     this.describe('Deve alinhar no início e meio!');
     const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.START, this.subject);
     const verticalAlign = TextWindow.getVerticalAlign(GameConst.TOP, this.subject);
-    this.assert('Esta na posição horizontal início?', this.subject.x).toBe(horizontalAlign);
-    this.assert('Esta na posição vertical topo?', this.subject.y).toBe(verticalAlign);
+    this.expect('Esta na posição horizontal início?', this.subject.x).toBe(horizontalAlign);
+    this.expect('Esta na posição vertical topo?', this.subject.y).toBe(verticalAlign);
   }
 }
 class AlignTextCenterTextWindowTest extends SceneTest {
@@ -7538,7 +7539,7 @@ class AlignTextCenterTextWindowTest extends SceneTest {
   asserts() {
     this.describe('Deve mostrar o texto alinhado no centro.');
     const aligment = GameConst.CENTER;
-    this.assert('Foi desenhando no centro?', this.subject.getTextAlignment()).toBe(aligment);
+    this.expect('Foi desenhando no centro?', this.subject.getTextAlignment()).toBe(aligment);
   }
 }
 class AlignTextLeftTextWindowTest extends SceneTest {
@@ -7557,7 +7558,7 @@ class AlignTextLeftTextWindowTest extends SceneTest {
   asserts() {
     this.describe('Deve mostrar o texto alinhado na esquerda.');
     const aligment = GameConst.LEFT;
-    this.assert('Foi desenhando na esquerda?', this.subject.getTextAlignment()).toBe(aligment);
+    this.expect('Foi desenhando na esquerda?', this.subject.getTextAlignment()).toBe(aligment);
   }
 }
 class AlignTextRightTextWindowTest extends SceneTest {
@@ -7576,7 +7577,7 @@ class AlignTextRightTextWindowTest extends SceneTest {
   asserts() {
     this.describe('Deve mostrar o texto alinhado na direita.');
     const aligment = GameConst.RIGHT;
-    this.assert('Foi desenhando na direita?', this.subject.getTextAlignment()).toBe(aligment);
+    this.expect('Foi desenhando na direita?', this.subject.getTextAlignment()).toBe(aligment);
   }
 }
 class TextTextWindowTest extends SceneTest {
@@ -7603,9 +7604,9 @@ class TextTextWindowTest extends SceneTest {
       'quinto texto',
     ];
     this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
-    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+    this.expectTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.expectTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.expectTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
   }
 }
 class ChangeTextColorTextWindowTest extends SceneTest {
@@ -7624,11 +7625,11 @@ class ChangeTextColorTextWindowTest extends SceneTest {
   asserts() {
     const text = [ 'primeiro texto segundo texto terceiro texto' ];
     this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.expectTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
     const color1 = ColorHelper.getColorIndex(GameColors.BLUE);
     const color2 = ColorHelper.getColorIndex(GameColors.DEFAULT);
-    this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_0', color1));
-    this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_1', color2));
+    this.expectTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_0', color1));
+    this.expectTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_1', color2));
   }
 }
 // tests COMMAND WINDOW
@@ -7641,7 +7642,7 @@ class CreateFullsizeCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve exibir a janela com a largura total da tela!');
-    this.assertTrue('Esta na largura total da tela?', this.subject.isFullsize());
+    this.expectTrue('Esta na largura total da tela?', this.subject.isFullsize());
   }
 }
 class OpenCommandWindowTest extends SceneTest {
@@ -7653,7 +7654,7 @@ class OpenCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve abrir a janela!');
-    this.assertTrue('Esta aberta?', this.subject.isOpened());
+    this.expectTrue('Esta aberta?', this.subject.isOpened());
   }
 }
 class CloseCommandWindowTest extends SceneTest {
@@ -7666,7 +7667,7 @@ class CloseCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve fechar a janela!');
-    this.assertTrue('Esta fechada?', this.subject.isClosed());
+    this.expectTrue('Esta fechada?', this.subject.isClosed());
   }
 }
 class ChangeBlueColorCommandWindowTest extends SceneTest {
@@ -7679,7 +7680,7 @@ class ChangeBlueColorCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar janela na cor azul.');
-    this.assertTrue('Esta na cor azul?', this.subject.isBlueColor());
+    this.expectTrue('Esta na cor azul?', this.subject.isBlueColor());
   }
 }
 class ChangeRedColorCommandWindowTest extends SceneTest {
@@ -7692,7 +7693,7 @@ class ChangeRedColorCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar janela na cor vermelha.');
-    this.assertTrue('Esta na cor vermelha?', this.subject.isRedColor());
+    this.expectTrue('Esta na cor vermelha?', this.subject.isRedColor());
   }
 }
 class ChangeDefaultColorCommandWindowTest extends SceneTest {
@@ -7705,7 +7706,7 @@ class ChangeDefaultColorCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar janela na cor padrão.');
-    this.assertTrue('Esta na cor padrão?', this.subject.isDefaultColor());
+    this.expectTrue('Esta na cor padrão?', this.subject.isDefaultColor());
   }
 }
 class AlignTopCommandWindowTest extends SceneTest {
@@ -7719,7 +7720,7 @@ class AlignTopCommandWindowTest extends SceneTest {
   asserts() {
     this.describe('Deve alinha a janela no topo.');
     const positionY = CommandWindow.getVerticalAlign(GameConst.TOP, this.subject);
-    this.assert('Esta na posição vertical do topo?', this.subject.y).toBe(positionY);
+    this.expect('Esta na posição vertical do topo?', this.subject.y).toBe(positionY);
   }
 }
 class AlignMiddleCommandWindowTest extends SceneTest {
@@ -7733,7 +7734,7 @@ class AlignMiddleCommandWindowTest extends SceneTest {
   asserts() {
     this.describe('Deve alinha a janela no meio.');
     const positionY = CommandWindow.getVerticalAlign(GameConst.MIDDLE, this.subject);
-    this.assert('Esta na posição vertical do meio?', this.subject.y).toBe(positionY);
+    this.expect('Esta na posição vertical do meio?', this.subject.y).toBe(positionY);
   }
 }
 class AlignBottomCommandWindowTest extends SceneTest {
@@ -7747,7 +7748,7 @@ class AlignBottomCommandWindowTest extends SceneTest {
   asserts() {
     this.describe('Deve alinha a janela embaixo.');
     const positionY = CommandWindow.getVerticalAlign(GameConst.BOTTOM, this.subject);
-    this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(positionY);
+    this.expect('Esta na posição vertical embaixo?', this.subject.y).toBe(positionY);
   }
 }
 class AlignTextLeftCommandWindowTest extends SceneTest {
@@ -7766,7 +7767,7 @@ class AlignTextLeftCommandWindowTest extends SceneTest {
   asserts() {
     this.describe('Deve mostrar o texto alinhado na esquerda.');
     const aligment = GameConst.LEFT;
-    this.assert('Foi desenhando na esquerda?', this.subject.getTextAlignment()).toBe(aligment);
+    this.expect('Foi desenhando na esquerda?', this.subject.getTextAlignment()).toBe(aligment);
   }
 }
 class AlignTextCenterCommandWindowTest extends SceneTest {
@@ -7785,7 +7786,7 @@ class AlignTextCenterCommandWindowTest extends SceneTest {
   asserts() {
     this.describe('Deve mostrar o texto alinhado no centro.');
     const aligment = GameConst.CENTER;
-    this.assert('Foi desenhando no centro?', this.subject.getTextAlignment()).toBe(aligment);
+    this.expect('Foi desenhando no centro?', this.subject.getTextAlignment()).toBe(aligment);
   }
 }
 class AlignTextRightCommandWindowTest extends SceneTest {
@@ -7804,7 +7805,7 @@ class AlignTextRightCommandWindowTest extends SceneTest {
   asserts() {
     this.describe('Deve mostrar o texto alinhado na direita.');
     const aligment = GameConst.RIGHT;
-    this.assert('Foi desenhando na direita?', this.subject.getTextAlignment()).toBe(aligment);
+    this.expect('Foi desenhando na direita?', this.subject.getTextAlignment()).toBe(aligment);
   }
 }
 class AlignItemsLeftCommandWindowTest extends SceneTest {
@@ -7822,7 +7823,7 @@ class AlignItemsLeftCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar os items alinhados a esquerda.');
-    this.assertTrue('Estão alinhados a esquerda?', this.subject.isItemsAlign('ITEMS_ALIGN', GameConst.LEFT));
+    this.expectTrue('Estão alinhados a esquerda?', this.subject.isItemsAlign('ITEMS_ALIGN', GameConst.LEFT));
   }
 }
 class AlignItemsCenterCommandWindowTest extends SceneTest {
@@ -7840,7 +7841,7 @@ class AlignItemsCenterCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar os items alinhados no centro.');
-    this.assertTrue('Estão alinhados no centro?', this.subject.isItemsAlign('ITEMS_ALIGN', GameConst.CENTER));
+    this.expectTrue('Estão alinhados no centro?', this.subject.isItemsAlign('ITEMS_ALIGN', GameConst.CENTER));
   }
 }
 class AlignItemsRightCommandWindowTest extends SceneTest {
@@ -7858,7 +7859,7 @@ class AlignItemsRightCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar os items alinhados a direita.');
-    this.assertTrue('Estão alinhados a direita?', this.subject.isItemsAlign('ITEMS_ALIGN', GameConst.RIGHT));
+    this.expectTrue('Estão alinhados a direita?', this.subject.isItemsAlign('ITEMS_ALIGN', GameConst.RIGHT));
   }
 }
 class TextCommandWindowTest extends SceneTest {
@@ -7885,9 +7886,9 @@ class TextCommandWindowTest extends SceneTest {
       'quinto texto',
     ];
     this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    this.assertTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
-    this.assertTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+    this.expectTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.expectTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
+    this.expectTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
   }
 }
 class ChangeTextColorCommandWindowTest extends SceneTest {
@@ -7906,11 +7907,11 @@ class ChangeTextColorCommandWindowTest extends SceneTest {
   asserts() {
     const text = [ 'primeiro texto segundo texto terceiro texto' ];
     this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.expectTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
     const color1 = ColorHelper.getColorIndex(GameColors.BLUE);
     const color2 = ColorHelper.getColorIndex(GameColors.DEFAULT);
-    this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_0', color1));
-    this.assertTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_1', color2));
+    this.expectTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_0', color1));
+    this.expectTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_1', color2));
   }
 }
 class CommandHandlerCommandWindowTest extends SceneTest {
@@ -7926,7 +7927,7 @@ class CommandHandlerCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve mostrar as opções da janela de comando');
-    this.assertTrue('Esta com os comandos?', this.subject.haveCommands(['YES', 'NO']));
+    this.expectTrue('Esta com os comandos?', this.subject.haveCommands(['YES', 'NO']));
   }
 }
 class CommandHandlerWithTextCommandWindowTest extends SceneTest {
@@ -7947,8 +7948,8 @@ class CommandHandlerWithTextCommandWindowTest extends SceneTest {
       'Do you want to continue?',
     ];
     this.describe('Deve mostrar as opções da janela de comando');
-    this.assertTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    this.assertTrue('Esta com os comandos?', this.subject.haveCommands(['YES', 'NO']));
+    this.expectTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.expectTrue('Esta com os comandos?', this.subject.haveCommands(['YES', 'NO']));
   }
 }
 // test FOLDER WINDOW
@@ -7973,7 +7974,7 @@ class CreateFolderWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve exibir a janela de comandos de pastas!');
-    this.assertTrue('Esta aberta?', this.subject.isOpen());
+    this.expectTrue('Esta aberta?', this.subject.isOpen());
   }
 }
 
@@ -8047,10 +8048,10 @@ class ChallengePhaseTest extends SceneTest {
 
   asserts() {
     this.describe('Deve apresentar etapas de fase de desafio e seleção de pasta.');
-    this.assertWasTrue('A janela de título foi apresentada?', 'visible', this.phase._titleWindow);
-    this.assertWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase._descriptionWindow);
-    this.assertWasTrue('A Janela de escolah de pastas foi apresentada?', 'visible', this.phase._folderWindow);
-    this.assertTrue('Foi escolhido uma pasta válida?', this.selectFolderIndex !== -1);
+    this.expectWasTrue('A janela de título foi apresentada?', 'visible', this.phase._titleWindow);
+    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase._descriptionWindow);
+    this.expectWasTrue('A Janela de escolah de pastas foi apresentada?', 'visible', this.phase._folderWindow);
+    this.expectTrue('Foi escolhido uma pasta válida?', this.selectFolderIndex !== -1);
   }
 }
 class StartPhaseTest extends SceneTest {
@@ -8110,8 +8111,8 @@ class StartPhaseTest extends SceneTest {
 
   asserts() {
     this.describe('Deve apresentar etapas de fase de início e jogo da sorte.');
-    this.assertWasTrue('A janela de título foi apresentada?', 'visible', this.phase._titleWindow);
-    this.assertWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase._descriptionWindow);
+    this.expectWasTrue('A janela de título foi apresentada?', 'visible', this.phase._titleWindow);
+    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase._descriptionWindow);
   }
 }
 
@@ -8196,7 +8197,8 @@ class CardBattleTestScene extends Scene_Message {
       const instanceCreated = new test(this);
       try {
         instanceCreated.create();
-      } catch (error) {
+      } catch (error) { 
+        this.printAssertError(`Assert: ${error}`);
         instanceCreated.addThrowableError(error);
       }
       return instanceCreated;
@@ -8230,34 +8232,33 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
-      StartPositionCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      SetAllCardsInPositionCardsetSpriteTest,
-      SetAllCardsInPositionsCardsetSpriteTest,
-      ListCardsCardsetSpriteTest,
-      StartClosedCardsCardsetSpriteTest,
-      OpenAllCardsCardsetSpriteTest,
-      OpenCardsCardsetSpriteTest,
-      CloseAllCardsCardsetSpriteTest,
-      CloseCardsCardsetSpriteTest,
-      MoveAllCardsInListCardsetSpriteTest,
-      MoveCardsInListCardsetSpriteTest,
-      MoveAllCardsToPositionCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
-      MoveAllCardsToPositionsCardsetSpriteTest,
-      AddAllCardsToListCardsetSpriteTest,
-      AddCardsToListCardsetSpriteTest,
-      DisableCardsCardsetSpriteTest,
+      // StartPositionCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      // SetAllCardsInPositionCardsetSpriteTest,
+      // SetAllCardsInPositionsCardsetSpriteTest,
+      // ListCardsCardsetSpriteTest,
+      // StartClosedCardsCardsetSpriteTest,
+      // OpenAllCardsCardsetSpriteTest,
+      // OpenCardsCardsetSpriteTest,
+      // CloseAllCardsCardsetSpriteTest,
+      // CloseCardsCardsetSpriteTest,
+      // MoveAllCardsInListCardsetSpriteTest,
+      // MoveCardsInListCardsetSpriteTest,
+      // MoveAllCardsToPositionCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
+      // MoveAllCardsToPositionsCardsetSpriteTest,
+      // AddAllCardsToListCardsetSpriteTest,
+      // AddCardsToListCardsetSpriteTest,
+      // DisableCardsCardsetSpriteTest,
       StaticModeCardsetSpriteTest,
-      SelectModeCardsetSpriteTest,
-      SelectModeWithoutChoiceCardsetSpriteTest,
-      SingleSelectModeCardsetSpriteTest,
-      LimitedSelectModeCardsetSpriteTest,
-      FlashCardsCardsetSpriteTest,
-      QuakeCardsCardsetSpriteTest,
-      AnimationCardsCardsetSpriteTest,
-      ShowOrderingCardsCardsetSpriteTest,
-      ShowReverseOrderingCardsCardsetSpriteTest,
+      // SelectModeWithoutChoiceCardsetSpriteTest,
+      // SingleSelectModeCardsetSpriteTest,
+      // SelectModeCardsetSpriteTest,
+      // FlashCardsCardsetSpriteTest,
+      // QuakeCardsCardsetSpriteTest,
+      // AnimationCardsCardsetSpriteTest,
+      // ShowOrderingCardsCardsetSpriteTest,
+      // ShowReverseOrderingCardsCardsetSpriteTest,
     ];
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,
@@ -8353,8 +8354,8 @@ class CardBattleTestScene extends Scene_Message {
     ];
     return [
       // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      ...commandWindow,
+      ...cardsetSpriteTests,
+      // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,
       // ...boardWindowTests,

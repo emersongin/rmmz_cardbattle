@@ -18,6 +18,6 @@ class HoveredCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve colocar o card em hovered!');
-    this.assertTrue('Esta em hovered?', this.subject.isHovered());
+    this.expectTrue('Esta em hovered?', this.subject.isHovered());
   } 
 }

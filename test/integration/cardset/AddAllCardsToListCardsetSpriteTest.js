@@ -19,6 +19,6 @@ class AddAllCardsToListCardsetSpriteTest extends SceneTest {
     this.describe('Deve adicionar todas as cartas na lista!');
     const numCards = 6;
     const positions = CardsetSprite.createPositionsList(numCards);
-    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
+    this.expectTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }

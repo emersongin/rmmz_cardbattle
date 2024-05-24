@@ -27,6 +27,6 @@ class UpdatingPointsBoardWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve atualizar os pontos do tabuleiro!');
-    this.assertWasTrue('Foram atualizado?', this.subject.isUpdating);
+    this.expectWasTrue('Foram atualizado?', this.subject.isUpdating);
   }
 }

@@ -18,6 +18,6 @@ class IluminatedCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve colocar o card em iluminado!');
-    this.assertTrue('Esta em iluminado?', this.subject.isIluminated());
+    this.expectTrue('Esta em iluminado?', this.subject.isIluminated());
   }
 }

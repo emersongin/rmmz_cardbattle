@@ -15,7 +15,7 @@ class ListCardsCardsetSpriteTest extends SceneTest {
     this.describe('Deve listar as cartas!');
     const numCards = 6;
     const positions = CardsetSprite.createPositionsList(numCards);
-    this.assertTrue('Esta mostrando na posição de lista?', this.subject.allCardsAreVisible());
-    this.assertTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
+    this.expectTrue('Esta mostrando na posição de lista?', this.subject.allCardsAreVisible());
+    this.expectTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }

@@ -18,6 +18,6 @@ class ZoomCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve colocar o card em zoom!');
-    this.assertTrue('Esta ampliado?', this.subject.isZoom());
+    this.expectTrue('Esta ampliado?', this.subject.isZoom());
   }
 }

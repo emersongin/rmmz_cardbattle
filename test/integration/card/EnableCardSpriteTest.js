@@ -19,6 +19,6 @@ class EnableCardSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve habilitar o card!');
-    this.assertTrue('Esta habilitado?', this.subject.isEnabled());
+    this.expectTrue('Esta habilitado?', this.subject.isEnabled());
   }
 }

@@ -9,6 +9,6 @@ class ReverseIconsTrashWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve abrir com os icones ordenados.');
-    this.assertTrue('Esta em ordem normal?', this.subject.isIconsReverse());
+    this.expectTrue('Esta em ordem normal?', this.subject.isIconsReverse());
   }
 }

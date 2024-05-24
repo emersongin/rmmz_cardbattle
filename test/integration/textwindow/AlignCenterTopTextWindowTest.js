@@ -10,7 +10,7 @@ class AlignCenterTopTextWindowTest extends SceneTest {
     this.describe('Deve alinhar no centro e topo!');
     const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject);
     const verticalAlign = TextWindow.getVerticalAlign(GameConst.TOP, this.subject);
-    this.assert('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
-    this.assert('Esta na posição vertical topo?', this.subject.y).toBe(verticalAlign);
+    this.expect('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
+    this.expect('Esta na posição vertical topo?', this.subject.y).toBe(verticalAlign);
   }
 }

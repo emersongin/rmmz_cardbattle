@@ -9,7 +9,7 @@ class CreateThreeFourthSizeStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve criar uma janela de batalha com 3/4 do tamanho da tela!');
-    this.assertTrue('Esta na largura de 3/4 da tela?', this.subject.isThreeFourthSize());
+    this.expectTrue('Esta na largura de 3/4 da tela?', this.subject.isThreeFourthSize());
   }
   
 }

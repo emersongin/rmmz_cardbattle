@@ -55,7 +55,7 @@ class StartPhaseTest extends SceneTest {
 
   asserts() {
     this.describe('Deve apresentar etapas de fase de início e jogo da sorte.');
-    this.assertWasTrue('A janela de título foi apresentada?', 'visible', this.phase._titleWindow);
-    this.assertWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase._descriptionWindow);
+    this.expectWasTrue('A janela de título foi apresentada?', 'visible', this.phase._titleWindow);
+    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase._descriptionWindow);
   }
 }

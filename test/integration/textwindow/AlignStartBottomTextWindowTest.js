@@ -10,7 +10,7 @@ class AlignStartBottomTextWindowTest extends SceneTest {
     this.describe('Deve alinhar no início e embaixo!');
     const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.START, this.subject);
     const verticalAlign = TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject);
-    this.assert('Esta na posição horizontal início?', this.subject.x).toBe(horizontalAlign);
-    this.assert('Esta na posição vertical embaixo?', this.subject.y).toBe(verticalAlign);
+    this.expect('Esta na posição horizontal início?', this.subject.x).toBe(horizontalAlign);
+    this.expect('Esta na posição vertical embaixo?', this.subject.y).toBe(verticalAlign);
   }
 }
