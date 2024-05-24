@@ -803,8 +803,8 @@ class CommandWindow extends Window_Command {
     return `\\c[${colorIndex}]${text}`;
   }
 
-  static getVerticalAlign(position, window) {
-    const parentY = this.parent?.y || 0;
+  static getVerticalAlign(position, window, parent) {
+    const parentY = parent?.y || 0;
     const boxHeight = (Graphics.boxHeight - parentY);
     switch (position) {
       case GameConst.MIDDLE:
@@ -1079,7 +1079,7 @@ class CommandWindow extends Window_Command {
   }
 
   setVerticalAlign(position) {
-    this.y = CommandWindow.getVerticalAlign(position, this);
+    this.y = CommandWindow.getVerticalAlign(position, this, this.parent);
   }
 
   setHorizontalAlign() {
@@ -1087,8 +1087,8 @@ class CommandWindow extends Window_Command {
     this.x = -parentX;
   }
 
-  alignMiddle() {
-    this.addAction(this.commandAlign, GameConst.MIDDLE);
+  alignMiddle(parent) {
+    this.addAction(this.commandAlign, GameConst.MIDDLE, parent);
   }
 
   alignBottom() {
@@ -3924,6 +3924,7 @@ class CardsetSpriteSelectModeState {
   _selectedIndexs;
   _selectNumber;
   _confirmWindow;
+  _selectCardsCallback;
 
   constructor(sprite, number = 0, selectCardsCallback, message = 'confirm the selection?') {
     if (!(sprite instanceof CardsetSprite)) {
@@ -3936,13 +3937,14 @@ class CardsetSpriteSelectModeState {
     this._cursorIndex = 0;
     this._selectedIndexs = [];
     this._selectNumber = number;
-    this.createConfirmWindow(message, selectCardsCallback);
+    this._selectCardsCallback = selectCardsCallback;
+    this.createConfirmWindow(message);
     this.updateHoverSprites();
   }
 
-  createConfirmWindow(message, selectCardsCallback) {
+  createConfirmWindow(message) {
     const confirmHandler = () => {
-      selectCardsCallback(this._selectedIndexs);
+      this._selectCardsCallback(this._selectedIndexs);
     };
     const returnHandler = () => {
       this.returnToSelection();
@@ -3974,6 +3976,10 @@ class CardsetSpriteSelectModeState {
         if (Input.isTriggered('ok')) this.selectSprite();
         if (Input.isTriggered('cancel') || this.selectIsFull()) {
           cardset.iluminateSelectedSprites(this._selectedIndexs);
+          if (this.isJustOneSelectable()) {
+            cardset.addCommand(this._selectCardsCallback, this._selectedIndexs);
+            return;
+          }
           this.openConfirmWindow();
         }
       }
@@ -3988,6 +3994,10 @@ class CardsetSpriteSelectModeState {
     return this._selectNumber !== 0;
   }
 
+  isJustOneSelectable() {
+    return this._selectNumber === 1;
+  }
+
   selectIsFull() {
     const cardset = this._cardset;
     const allowedAmount = cardset.getEnabledSpritesAmount();
@@ -3997,7 +4007,6 @@ class CardsetSpriteSelectModeState {
       limit = selectedAmount >= this._selectNumber;
     }
     const full = selectedAmount === allowedAmount;
-    console.log(selectedAmount, allowedAmount);
     return limit || full;
   }
 
@@ -6679,12 +6688,12 @@ class SingleSelectModeCardsetSpriteTest extends SceneTest {
     const disableSprites = sprites.filter((sprite, index) => disableCardsIndex.includes(index));
     this.subject.disableCards(disableSprites);
     this.subject.showCards(sprites);
-    // const endTest = this.createHandler();
-    const selectNumber = 3;
+    const endTest = this.createHandler();
+    const selectNumber = 1;
     this.cardsSelected = [];
     const selectCards = (cards) => {
       this.cardsSelected = cards;
-      // endTest();
+      endTest();
     };
     this.subject.selectMode(selectNumber, selectCards);
   }
@@ -6692,7 +6701,7 @@ class SingleSelectModeCardsetSpriteTest extends SceneTest {
   asserts() {
     this.describe('Deve entrar em modo seleção com escolha!');
     this.expectTrue('Esta em modo seleção?', this.subject.isSelectMode());
-    this.expectTrue('Deve selecionar 3 cartas', this.cardsSelected.length === 3);
+    this.expectTrue('Deve selecionar 3 cartas', this.cardsSelected.length === 1);
   }
 }
 class SelectModeCardsetSpriteTest extends SceneTest {
@@ -7735,7 +7744,7 @@ class AlignTopCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinha a janela no topo.');
-    const positionY = CommandWindow.getVerticalAlign(GameConst.TOP, this.subject);
+    const positionY = CommandWindow.getVerticalAlign(GameConst.TOP, this.subject, this.scene._windowLayer);
     this.expect('Esta na posição vertical do topo?', this.subject.y).toBe(positionY);
   }
 }
@@ -7749,7 +7758,7 @@ class AlignMiddleCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinha a janela no meio.');
-    const positionY = CommandWindow.getVerticalAlign(GameConst.MIDDLE, this.subject);
+    const positionY = CommandWindow.getVerticalAlign(GameConst.MIDDLE, this.subject, this.scene._windowLayer);
     this.expect('Esta na posição vertical do meio?', this.subject.y).toBe(positionY);
   }
 }
@@ -7760,10 +7769,10 @@ class AlignBottomCommandWindowTest extends SceneTest {
     this.addWatched(this.subject);
     this.subject.open();
   }
-
+  
   asserts() {
     this.describe('Deve alinha a janela embaixo.');
-    const positionY = CommandWindow.getVerticalAlign(GameConst.BOTTOM, this.subject);
+    const positionY = CommandWindow.getVerticalAlign(GameConst.BOTTOM, this.subject, this.scene._windowLayer);
     this.expect('Esta na posição vertical embaixo?', this.subject.y).toBe(positionY);
   }
 }
@@ -8248,33 +8257,33 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
-      // StartPositionCardsetSpriteTest,
-      // SetCardsCardsetSpriteTest,
-      // SetAllCardsInPositionCardsetSpriteTest,
-      // SetAllCardsInPositionsCardsetSpriteTest,
-      // ListCardsCardsetSpriteTest,
-      // StartClosedCardsCardsetSpriteTest,
-      // OpenAllCardsCardsetSpriteTest,
-      // OpenCardsCardsetSpriteTest,
-      // CloseAllCardsCardsetSpriteTest,
-      // CloseCardsCardsetSpriteTest,
-      // MoveAllCardsInListCardsetSpriteTest,
-      // MoveCardsInListCardsetSpriteTest,
-      // MoveAllCardsToPositionCardsetSpriteTest,
-      // MoveCardsToPositionCardsetSpriteTest,
-      // MoveAllCardsToPositionsCardsetSpriteTest,
-      // AddAllCardsToListCardsetSpriteTest,
-      // AddCardsToListCardsetSpriteTest,
-      // DisableCardsCardsetSpriteTest,
-      // StaticModeCardsetSpriteTest,
-      // SelectModeWithoutChoiceCardsetSpriteTest,
-      // SingleSelectModeCardsetSpriteTest,
+      StartPositionCardsetSpriteTest,
+      SetCardsCardsetSpriteTest,
+      SetAllCardsInPositionCardsetSpriteTest,
+      SetAllCardsInPositionsCardsetSpriteTest,
+      ListCardsCardsetSpriteTest,
+      StartClosedCardsCardsetSpriteTest,
+      OpenAllCardsCardsetSpriteTest,
+      OpenCardsCardsetSpriteTest,
+      CloseAllCardsCardsetSpriteTest,
+      CloseCardsCardsetSpriteTest,
+      MoveAllCardsInListCardsetSpriteTest,
+      MoveCardsInListCardsetSpriteTest,
+      MoveAllCardsToPositionCardsetSpriteTest,
+      MoveCardsToPositionCardsetSpriteTest,
+      MoveAllCardsToPositionsCardsetSpriteTest,
+      AddAllCardsToListCardsetSpriteTest,
+      AddCardsToListCardsetSpriteTest,
+      DisableCardsCardsetSpriteTest,
+      StaticModeCardsetSpriteTest,
+      SelectModeWithoutChoiceCardsetSpriteTest,
       SelectModeCardsetSpriteTest,
-      // FlashCardsCardsetSpriteTest,
-      // QuakeCardsCardsetSpriteTest,
-      // AnimationCardsCardsetSpriteTest,
-      // ShowOrderingCardsCardsetSpriteTest,
-      // ShowReverseOrderingCardsCardsetSpriteTest,
+      SingleSelectModeCardsetSpriteTest,
+      FlashCardsCardsetSpriteTest,
+      QuakeCardsCardsetSpriteTest,
+      AnimationCardsCardsetSpriteTest,
+      ShowOrderingCardsCardsetSpriteTest,
+      ShowReverseOrderingCardsCardsetSpriteTest,
     ];
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,
@@ -8369,16 +8378,16 @@ class CardBattleTestScene extends Scene_Message {
       StartPhaseTest,
     ];
     return [
-      // ...cardSpriteTests,
+      ...cardSpriteTests,
       ...cardsetSpriteTests,
-      // ...commandWindow,
-      // ...StateWindowTests,
-      // ...textWindowTests,
-      // ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow,
-      // ...scoreWindow,
-      // ...folderWindow,
+      ...commandWindow,
+      ...StateWindowTests,
+      ...textWindowTests,
+      ...boardWindowTests,
+      ...battlePointsWindow,
+      ...trashWindow,
+      ...scoreWindow,
+      ...folderWindow,
       // ...phase,
     ];
   }

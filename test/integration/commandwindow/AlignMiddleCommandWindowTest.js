@@ -8,7 +8,7 @@ class AlignMiddleCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinha a janela no meio.');
-    const positionY = CommandWindow.getVerticalAlign(GameConst.MIDDLE, this.subject);
+    const positionY = CommandWindow.getVerticalAlign(GameConst.MIDDLE, this.subject, this.scene._windowLayer);
     this.expect('Esta na posição vertical do meio?', this.subject.y).toBe(positionY);
   }
 }

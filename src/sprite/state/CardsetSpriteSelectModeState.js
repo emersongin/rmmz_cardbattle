@@ -4,6 +4,7 @@ class CardsetSpriteSelectModeState {
   _selectedIndexs;
   _selectNumber;
   _confirmWindow;
+  _selectCardsCallback;
 
   constructor(sprite, number = 0, selectCardsCallback, message = 'confirm the selection?') {
     if (!(sprite instanceof CardsetSprite)) {
@@ -16,13 +17,14 @@ class CardsetSpriteSelectModeState {
     this._cursorIndex = 0;
     this._selectedIndexs = [];
     this._selectNumber = number;
-    this.createConfirmWindow(message, selectCardsCallback);
+    this._selectCardsCallback = selectCardsCallback;
+    this.createConfirmWindow(message);
     this.updateHoverSprites();
   }
 
-  createConfirmWindow(message, selectCardsCallback) {
+  createConfirmWindow(message) {
     const confirmHandler = () => {
-      selectCardsCallback(this._selectedIndexs);
+      this._selectCardsCallback(this._selectedIndexs);
     };
     const returnHandler = () => {
       this.returnToSelection();
@@ -54,6 +56,10 @@ class CardsetSpriteSelectModeState {
         if (Input.isTriggered('ok')) this.selectSprite();
         if (Input.isTriggered('cancel') || this.selectIsFull()) {
           cardset.iluminateSelectedSprites(this._selectedIndexs);
+          if (this.isJustOneSelectable()) {
+            cardset.addCommand(this._selectCardsCallback, this._selectedIndexs);
+            return;
+          }
           this.openConfirmWindow();
         }
       }
@@ -68,6 +74,10 @@ class CardsetSpriteSelectModeState {
     return this._selectNumber !== 0;
   }
 
+  isJustOneSelectable() {
+    return this._selectNumber === 1;
+  }
+
   selectIsFull() {
     const cardset = this._cardset;
     const allowedAmount = cardset.getEnabledSpritesAmount();
@@ -77,7 +87,6 @@ class CardsetSpriteSelectModeState {
       limit = selectedAmount >= this._selectNumber;
     }
     const full = selectedAmount === allowedAmount;
-    console.log(selectedAmount, allowedAmount);
     return limit || full;
   }
 
