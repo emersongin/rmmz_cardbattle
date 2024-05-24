@@ -3961,7 +3961,7 @@ class CardsetSpriteSelectModeState {
     }
     this.updateSelectSprites();
     this.updateHoverSprites();
-    this._confirmWindow.close();
+    this.closeConfirmWindow();
   }
 
   updateStatus() {
@@ -3970,11 +3970,11 @@ class CardsetSpriteSelectModeState {
     if (cardset.isAvailable() && !this.isWindowBusy()) {
       this.updateCursor();
       if (Input.isAnyKeyActiveIn(keys)) this.updateHoverSprites();
-      if (this._selectNumber !== 0) {
+      if (this.isSelectable()) {
         if (Input.isTriggered('ok')) this.selectSprite();
         if (Input.isTriggered('cancel') || this.selectIsFull()) {
           cardset.iluminateSelectedSprites(this._selectedIndexs);
-          this._confirmWindow.open();
+          this.openConfirmWindow();
         }
       }
     }
@@ -3984,6 +3984,10 @@ class CardsetSpriteSelectModeState {
     return this._confirmWindow.isOpen();
   }
 
+  isSelectable() {
+    return this._selectNumber !== 0;
+  }
+
   selectIsFull() {
     const cardset = this._cardset;
     const allowedAmount = cardset.getEnabledSpritesAmount();
@@ -3991,6 +3995,14 @@ class CardsetSpriteSelectModeState {
     const limit = selectedAmount >= this._selectNumber;
     const full = selectedAmount === allowedAmount;
     return limit || full;
+  }
+
+  openConfirmWindow() {
+    this._confirmWindow.open();
+  }
+
+  closeConfirmWindow() {
+    this._confirmWindow.close();
   }
 
   updateCursor() {
@@ -6635,19 +6647,19 @@ class SelectModeWithoutChoiceCardsetSpriteTest extends SceneTest {
     this.subject.disableCards(disableSprites);
     this.subject.showCards(sprites);
     // const endTest = this.createHandler();
-    const selectNumber = 3;
+    const noSelect = 0;
     this.cardsSelected = [];
     const selectCards = (cards) => {
       this.cardsSelected = cards;
       // endTest();
     };
-    this.subject.selectMode(selectNumber, selectCards);
+    this.subject.selectMode(noSelect, selectCards);
   }
 
   asserts() {
     this.describe('Deve entrar em modo seleção com escolha!');
     this.expectTrue('Esta em modo seleção?', this.subject.isSelectMode());
-    this.expectTrue('Deve selecionar 3 cartas', this.cardsSelected.length === 3);
+    this.expectTrue('Deve ser zerado!', this.cardsSelected.length === 0);
   }
 }
 class SingleSelectModeCardsetSpriteTest extends SceneTest {
@@ -8250,8 +8262,8 @@ class CardBattleTestScene extends Scene_Message {
       // AddAllCardsToListCardsetSpriteTest,
       // AddCardsToListCardsetSpriteTest,
       // DisableCardsCardsetSpriteTest,
-      StaticModeCardsetSpriteTest,
-      // SelectModeWithoutChoiceCardsetSpriteTest,
+      // StaticModeCardsetSpriteTest,
+      SelectModeWithoutChoiceCardsetSpriteTest,
       // SingleSelectModeCardsetSpriteTest,
       // SelectModeCardsetSpriteTest,
       // FlashCardsCardsetSpriteTest,
