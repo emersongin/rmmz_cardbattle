@@ -537,7 +537,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   getEnabledSpritesAmount() {
-    this.getSprites().filter(sprite => sprite.isEnabled()).length;
+    return this.getSprites().filter(sprite => sprite.isEnabled()).length;
   }
 
   getSprites() {
