@@ -7,23 +7,23 @@ class SelectModeCardsetSpriteTest extends SceneTest {
     const numCards = 10;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    const disableCardsIndex = [1, 2, 7, 8, 9];
+    const disableCardsIndex = [3, 4, 5, 6, 7, 8, 9];
     const disableSprites = sprites.filter((sprite, index) => disableCardsIndex.includes(index));
     this.subject.disableCards(disableSprites);
     this.subject.showCards(sprites);
     const endTest = this.createHandler();
     const unlimited = -1;
     this.cardsSelected = [];
-    const selectCards = (cards) => {
+    const selectHandler = (cards) => {
       this.cardsSelected = cards;
       endTest();
     };
-    this.subject.selectMode(unlimited, selectCards);
+    this.subject.selectMode(selectHandler, unlimited);
   }
 
   asserts() {
     this.describe('Deve entrar em modo seleção com escolha!');
     this.expectTrue('Esta em modo seleção?', this.subject.isSelectMode());
-    this.expectTrue('Deve selecionar 3 cartas', this.cardsSelected.length === 5);
+    this.expectTrue('Deve selecionar 3 cartas', this.cardsSelected.length === 3);
   }
 }

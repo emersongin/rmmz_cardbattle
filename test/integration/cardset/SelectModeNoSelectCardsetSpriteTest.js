@@ -1,4 +1,4 @@
-class SelectModeWithoutChoiceCardsetSpriteTest extends SceneTest {
+class SelectModeNoSelectCardsetSpriteTest extends SceneTest {
   create() {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
@@ -11,14 +11,12 @@ class SelectModeWithoutChoiceCardsetSpriteTest extends SceneTest {
     const disableSprites = sprites.filter((sprite, index) => disableCardsIndex.includes(index));
     this.subject.disableCards(disableSprites);
     this.subject.showCards(sprites);
-    // const endTest = this.createHandler();
-    const noSelect = 0;
+    const selectNumber = 0;
     this.cardsSelected = [];
-    const selectCards = (cards) => {
+    const selectHandler = (cards) => {
       this.cardsSelected = cards;
-      // endTest();
     };
-    this.subject.selectMode(noSelect, selectCards);
+    this.subject.selectMode(selectHandler, selectNumber);
   }
 
   asserts() {

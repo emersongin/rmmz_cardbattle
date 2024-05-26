@@ -354,14 +354,14 @@ class CardsetSprite extends ActionSprite {
     return indexs.every(index => this.getCardIndex(index).isDisabled());
   }
 
-  selectMode(number, selectCardsCallback) {
-    this.addCommand(this.commandSelectMode, number, selectCardsCallback);
+  selectMode(selectHandler, number) {
+    this.addCommand(this.commandSelectMode, selectHandler, number);
   }
 
-  commandSelectMode(number = 0, selectCardsCallback) {
+  commandSelectMode(selectHandler, number) {
     const isNot = !(this.isVisible() && this.allCardsIsOpened());
     if (isNot) return;
-    this.changeStatus(CardsetSpriteSelectModeState, number, selectCardsCallback);
+    this.changeStatus(CardsetSpriteSelectModeState, selectHandler, number);
     return true;
   }
 
