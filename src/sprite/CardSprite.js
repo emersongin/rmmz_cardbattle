@@ -848,7 +848,7 @@ class CardSprite extends ActionSprite {
   }
 
   isBusy() {
-    return (this.getStatus() && this.isNotStopped()) || this.isAnimated() || this.someDelayCommand();
+    return (this.getStatus() && (this.isNotStopped()) || this.isAnimated() || this.someDelayCommand());
   }
 
   isNotStopped() {

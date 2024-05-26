@@ -359,8 +359,6 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandSelectMode(selectHandler, number) {
-    const isNot = !(this.isVisible() && this.allCardsIsOpened());
-    if (isNot) return;
     this.changeStatus(CardsetSpriteSelectModeState, selectHandler, number);
     return true;
   }
@@ -462,12 +460,18 @@ class CardsetSprite extends ActionSprite {
     if (this.numberOfChildren() && this.isHidden()) this.show();
   }
 
-  isBusy() {
-    return super.isBusy() || this.someSpriteIsBusy();
+  executeCommand() {
+    super.executeCommand();
   }
 
-  someSpriteIsBusy() {
-    return this._sprites.some(sprite => sprite.isBusy());
+  isBusy() {
+    return super.isBusy() || this.someChildIsBusy();
+  }
+
+  someChildIsBusy() {
+    return this.children.some(sprite => {
+      return (sprite instanceof CardSprite) && (sprite.hasCommands() || sprite.isBusy());
+    });
   }
 
   centralize() {

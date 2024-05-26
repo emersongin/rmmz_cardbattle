@@ -3872,7 +3872,7 @@ class CardSprite extends ActionSprite {
   }
 
   isBusy() {
-    return (this.getStatus() && this.isNotStopped()) || this.isAnimated() || this.someDelayCommand();
+    return (this.getStatus() && (this.isNotStopped()) || this.isAnimated() || this.someDelayCommand());
   }
 
   isNotStopped() {
@@ -4445,6 +4445,17 @@ class CardsetSprite extends ActionSprite {
     this.addCommand(this.commandMoveAllCards, moves);
   }
 
+  // commandMoveAllCardsToPosition(sprites = this._sprites, positions) {
+  //   if (this.isHidden()) return;
+  //   sprites = this.toArray(sprites);
+  //   const moves = this.moveCardsPositions(positions, sprites);
+  //   moves.forEach(({ sprite, x, y }) => {
+  //     const move = CardSprite.createMove(x, y);
+  //     sprite.commandMoving(move);
+  //   });
+  //   return true;
+  // }
+
   disableCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
     this.addCommand(this.commandDisableCards, sprites);
@@ -4475,8 +4486,6 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandSelectMode(selectHandler, number) {
-    const isNot = !(this.isVisible() && this.allCardsIsOpened());
-    if (isNot) return;
     this.changeStatus(CardsetSpriteSelectModeState, selectHandler, number);
     return true;
   }
@@ -4578,12 +4587,19 @@ class CardsetSprite extends ActionSprite {
     if (this.numberOfChildren() && this.isHidden()) this.show();
   }
 
-  isBusy() {
-    return super.isBusy() || this.someSpriteIsBusy();
+  executeCommand() {
+    super.executeCommand();
   }
 
-  someSpriteIsBusy() {
-    return this._sprites.some(sprite => sprite.isBusy());
+  isBusy() {
+    return super.isBusy() || this.someChildIsBusy();
+  }
+
+  someChildIsBusy() {
+    return this.children.some(sprite => {
+      return (sprite instanceof CardSprite) && (sprite.hasCommands() || sprite.isBusy());
+      return false;
+    });
   }
 
   centralize() {
@@ -5242,6 +5258,7 @@ class StartPhase extends Phase {
   createCardDrawGameCardset(cards) {
     this._cardDrawGameCardset = CardsetSprite.create(0, 0);
     this._cardDrawGameCardset.centralize();
+    this._cardDrawGameCardset.commandShow();
     const randomCards = this.shuffleCards(cards);
     const sprites = this._cardDrawGameCardset.setCards(randomCards, Graphics.boxWidth, Graphics.boxHeight);
     const xSprite1 = -(this._cardDrawGameCardset.x + CardSprite.contentOriginalWidth());
@@ -5252,22 +5269,33 @@ class StartPhase extends Phase {
     const position2 = CardSprite.createPosition(xSprite2, ySprite2, 1);
     const positions = [position1, position2];
     this._cardDrawGameCardset.setAllCardsInPositions(sprites, positions);
-    this._cardDrawGameCardset.setTurnToDownCards();
+    this._cardDrawGameCardset.setTurnToDownCards(sprites);
     this.addChild(this._cardDrawGameCardset);
   }
 
-  showCards() {
-    this.addAction(this.commandShowCards);
+  shuffleCards(cards) {
+    const newCards = cards.slice();
+    for (let i = newCards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newCards[i], newCards[j]] = [newCards[j], newCards[i]];
+    }
+    return newCards;
+  }
+
+  startCardDrawGame(selectHandler) {
+    this.addAction(this.commandStartCardDrawGame, selectHandler);
+  }
+
+  commandStartCardDrawGame(selectHandler) {
+    this.commandShowCards();
+    this.commandMoveAllCardsToCenter();
+    this.selectMode(selectHandler);
+    return true;
   }
   
   commandShowCards() {
-    this._cardDrawGameCardset.commandShow();
     this._cardDrawGameCardset.showCards();
     return true;
-  }
-
-  moveAllCardsToCenter() {
-    this.addAction(this.commandMoveAllCardsToCenter);
   }
 
   commandMoveAllCardsToCenter() {
@@ -5278,21 +5306,17 @@ class StartPhase extends Phase {
     const positions = [position1, position2];
     const sprites = this._cardDrawGameCardset.getSprites();
     this._cardDrawGameCardset.moveAllCardsToPositions(sprites, positions);
+    return true;
   }
 
+  selectMode(selectHandler) {
+    this.addAction(this.commandSelectMode, selectHandler);
+  }
 
-
-
-
-
-
-  shuffleCards(cards) {
-    const newCards = cards.slice();
-    for (let i = newCards.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newCards[i], newCards[j]] = [newCards[j], newCards[i]];
-    }
-    return newCards;
+  commandSelectMode(selectHandler) {
+    const selectNumber = 1;
+    this._cardDrawGameCardset.selectMode(selectHandler, selectNumber);
+    return true;
   }
 
   openTitleWindow() {
@@ -5350,7 +5374,8 @@ class StartPhase extends Phase {
   isBusy() {
     return super.isBusy() || 
       this._titleWindow.isBusy() || 
-      this._descriptionWindow.isBusy();
+      this._descriptionWindow.isBusy() ||
+      this._cardDrawGameCardset.isBusy();
   }
 }
 class SceneTest {
@@ -8135,7 +8160,12 @@ class StartPhaseTest extends SceneTest {
     this.addHiddenWatched(this.phase._titleWindow);
     this.addHiddenWatched(this.phase._descriptionWindow);
     this.phase.stepStartPhase();
-    this.createHandler();
+    const endTest = this.createHandler();
+    this.cardsSelected = [];
+    this.endTest = (cards) => {
+      this.cardsSelected = cards;
+      endTest();
+    };
   }
 
   update() {
@@ -8147,8 +8177,7 @@ class StartPhaseTest extends SceneTest {
       ]);
       this.phase.setWait();
       this.phase.stepCardDrawGame();
-      this.phase.showCards();
-      this.phase.moveAllCardsToCenter();
+      this.phase.startCardDrawGame(this.endTest);
     }
   }
 
@@ -8275,34 +8304,34 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
-      // StartPositionCardsetSpriteTest,
-      // SetCardsCardsetSpriteTest,
+      StartPositionCardsetSpriteTest,
+      SetCardsCardsetSpriteTest,
       SetTurnToDownCardsCardsetSpriteTest,
-      // SetAllCardsInPositionCardsetSpriteTest,
-      // SetAllCardsInPositionsCardsetSpriteTest,
-      // ListCardsCardsetSpriteTest,
-      // StartClosedCardsCardsetSpriteTest,
-      // OpenAllCardsCardsetSpriteTest,
-      // OpenCardsCardsetSpriteTest,
-      // CloseAllCardsCardsetSpriteTest,
-      // CloseCardsCardsetSpriteTest,
-      // MoveAllCardsInListCardsetSpriteTest,
-      // MoveCardsInListCardsetSpriteTest,
-      // MoveAllCardsToPositionCardsetSpriteTest,
-      // MoveCardsToPositionCardsetSpriteTest,
-      // MoveAllCardsToPositionsCardsetSpriteTest,
-      // AddAllCardsToListCardsetSpriteTest,
-      // AddCardsToListCardsetSpriteTest,
-      // DisableCardsCardsetSpriteTest,
-      // StaticModeCardsetSpriteTest,
-      // SelectModeCardsetSpriteTest,
-      // SelectModeNoSelectCardsetSpriteTest,
-      // SelectModeLimitedCardsetSpriteTest,
-      // FlashCardsCardsetSpriteTest,
-      // QuakeCardsCardsetSpriteTest,
-      // AnimationCardsCardsetSpriteTest,
-      // ShowOrderingCardsCardsetSpriteTest,
-      // ShowReverseOrderingCardsCardsetSpriteTest,
+      SetAllCardsInPositionCardsetSpriteTest,
+      SetAllCardsInPositionsCardsetSpriteTest,
+      ListCardsCardsetSpriteTest,
+      StartClosedCardsCardsetSpriteTest,
+      OpenAllCardsCardsetSpriteTest,
+      OpenCardsCardsetSpriteTest,
+      CloseAllCardsCardsetSpriteTest,
+      CloseCardsCardsetSpriteTest,
+      MoveAllCardsInListCardsetSpriteTest,
+      MoveCardsInListCardsetSpriteTest,
+      MoveAllCardsToPositionCardsetSpriteTest,
+      MoveCardsToPositionCardsetSpriteTest,
+      MoveAllCardsToPositionsCardsetSpriteTest,
+      AddAllCardsToListCardsetSpriteTest,
+      AddCardsToListCardsetSpriteTest,
+      DisableCardsCardsetSpriteTest,
+      StaticModeCardsetSpriteTest,
+      SelectModeCardsetSpriteTest,
+      SelectModeNoSelectCardsetSpriteTest,
+      SelectModeLimitedCardsetSpriteTest,
+      FlashCardsCardsetSpriteTest,
+      QuakeCardsCardsetSpriteTest,
+      AnimationCardsCardsetSpriteTest,
+      ShowOrderingCardsCardsetSpriteTest,
+      ShowReverseOrderingCardsCardsetSpriteTest,
     ];
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,
@@ -8398,7 +8427,7 @@ class CardBattleTestScene extends Scene_Message {
     ];
     return [
       // ...cardSpriteTests,
-      ...cardsetSpriteTests,
+      // ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,
@@ -8407,7 +8436,7 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      // ...phase,
+      ...phase,
     ];
   }
 

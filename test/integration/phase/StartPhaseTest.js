@@ -22,7 +22,12 @@ class StartPhaseTest extends SceneTest {
     this.addHiddenWatched(this.phase._titleWindow);
     this.addHiddenWatched(this.phase._descriptionWindow);
     this.phase.stepStartPhase();
-    this.createHandler();
+    const endTest = this.createHandler();
+    this.cardsSelected = [];
+    this.endTest = (cards) => {
+      this.cardsSelected = cards;
+      endTest();
+    };
   }
 
   update() {
@@ -34,8 +39,7 @@ class StartPhaseTest extends SceneTest {
       ]);
       this.phase.setWait();
       this.phase.stepCardDrawGame();
-      this.phase.showCards();
-      this.phase.moveAllCardsToCenter();
+      this.phase.startCardDrawGame(this.endTest);
     }
   }
 
