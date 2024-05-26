@@ -41,17 +41,12 @@ class ChallengePhaseTest extends SceneTest {
     const title2 = CommandWindow.setTextColor('Choose a folder', GameColors.ORANGE);
     const text3 = [title2];
     this.phase.createFolderWindow(text3, folders);
-    this.addHiddenWatched(this.phase._titleWindow);
-    this.addHiddenWatched(this.phase._descriptionWindow);
-    this.addHiddenWatched(this.phase._folderWindow);
+    this.addWatched(this.phase._titleWindow);
+    this.addWatched(this.phase._descriptionWindow);
+    this.addWatched(this.phase._folderWindow);
   }
 
   start() {
-    this.phase.addWindows([
-      this.phase._titleWindow,
-      this.phase._descriptionWindow,
-      this.phase._folderWindow,
-    ]);
     this.scene.setPhase(this.phase);
     this.phase.addActions([
       this.phase.commandOpenTitleWindow,
