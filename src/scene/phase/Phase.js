@@ -76,6 +76,11 @@ class Phase {
     this._scene.addWindow(window);
   }
 
+  addWindows(windows) {
+    if (Array.isArray(windows) === false) windows = [windows];
+    windows.forEach(window => this.addWindow(window));
+  }
+
   addChild(child) {
     this._scene.addChild(child);
   }

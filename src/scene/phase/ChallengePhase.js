@@ -7,13 +7,11 @@ class ChallengePhase extends Phase {
     this._titleWindow = TextWindow.createWindowFullSize(0, 0, title);
     this._titleWindow.alignCenterAboveMiddle();
     this._titleWindow.alignTextCenter();
-    this.addWindow(this._titleWindow);
   }
 
   createDescriptionWindow(text) {
     this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, text);
     this._descriptionWindow.alignCenterMiddle();
-    this.addWindow(this._descriptionWindow);
   }
 
   createFolderWindow(text, folders) {
@@ -24,7 +22,6 @@ class ChallengePhase extends Phase {
     this._folderWindow = FolderWindow.create(0, 0, text, commands);
     this._folderWindow.alignMiddle();
     this._folderWindow.alignTextCenter();
-    this.addWindow(this._folderWindow);
   }
 
   openTitleWindow() {

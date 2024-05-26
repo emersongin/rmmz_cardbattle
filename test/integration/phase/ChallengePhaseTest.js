@@ -3,8 +3,7 @@ class ChallengePhaseTest extends SceneTest {
   selectFolderIndex = -1;
 
   create() {
-    this.scene.changePhase(ChallengePhase);
-    this.phase = this.scene.getPhase();
+    this.phase = new ChallengePhase(this.scene);
     const title = TextWindow.setTextColor('Challenge Phase', GameColors.ORANGE);
     const text = [title];
     this.phase.createTitleWindow(text);
@@ -42,16 +41,25 @@ class ChallengePhaseTest extends SceneTest {
     const title2 = CommandWindow.setTextColor('Choose a folder', GameColors.ORANGE);
     const text3 = [title2];
     this.phase.createFolderWindow(text3, folders);
+    this.addHiddenWatched(this.phase._titleWindow);
+    this.addHiddenWatched(this.phase._descriptionWindow);
+    this.addHiddenWatched(this.phase._folderWindow);
+  }
+
+  start() {
+    this.phase.addWindows([
+      this.phase._titleWindow,
+      this.phase._descriptionWindow,
+      this.phase._folderWindow,
+    ]);
+    this.scene.setPhase(this.phase);
     this.phase.addActions([
       this.phase.commandOpenTitleWindow,
       this.phase.commandOpenDescriptionWindow,
     ]);
-    this.addHiddenWatched(this.phase._titleWindow);
-    this.addHiddenWatched(this.phase._descriptionWindow);
-    this.addHiddenWatched(this.phase._folderWindow);
     this.phase.stepChallengePhase();
   }
-
+  
   update() {
     if (this.phase.isBusy()) return;
     if (this.phase.isStepChallengePhase() && Input.isTriggered('ok')) {

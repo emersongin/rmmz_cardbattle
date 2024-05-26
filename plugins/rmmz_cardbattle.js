@@ -4445,17 +4445,6 @@ class CardsetSprite extends ActionSprite {
     this.addCommand(this.commandMoveAllCards, moves);
   }
 
-  // commandMoveAllCardsToPosition(sprites = this._sprites, positions) {
-  //   if (this.isHidden()) return;
-  //   sprites = this.toArray(sprites);
-  //   const moves = this.moveCardsPositions(positions, sprites);
-  //   moves.forEach(({ sprite, x, y }) => {
-  //     const move = CardSprite.createMove(x, y);
-  //     sprite.commandMoving(move);
-  //   });
-  //   return true;
-  // }
-
   disableCards(sprites = this._sprites) {
     sprites = this.toArray(sprites);
     this.addCommand(this.commandDisableCards, sprites);
@@ -4598,7 +4587,6 @@ class CardsetSprite extends ActionSprite {
   someChildIsBusy() {
     return this.children.some(sprite => {
       return (sprite instanceof CardSprite) && (sprite.hasCommands() || sprite.isBusy());
-      return false;
     });
   }
 
@@ -5105,6 +5093,11 @@ class Phase {
     this._scene.addWindow(window);
   }
 
+  addWindows(windows) {
+    if (Array.isArray(windows) === false) windows = [windows];
+    windows.forEach(window => this.addWindow(window));
+  }
+
   addChild(child) {
     this._scene.addChild(child);
   }
@@ -5140,13 +5133,11 @@ class ChallengePhase extends Phase {
     this._titleWindow = TextWindow.createWindowFullSize(0, 0, title);
     this._titleWindow.alignCenterAboveMiddle();
     this._titleWindow.alignTextCenter();
-    this.addWindow(this._titleWindow);
   }
 
   createDescriptionWindow(text) {
     this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, text);
     this._descriptionWindow.alignCenterMiddle();
-    this.addWindow(this._descriptionWindow);
   }
 
   createFolderWindow(text, folders) {
@@ -5157,7 +5148,6 @@ class ChallengePhase extends Phase {
     this._folderWindow = FolderWindow.create(0, 0, text, commands);
     this._folderWindow.alignMiddle();
     this._folderWindow.alignTextCenter();
-    this.addWindow(this._folderWindow);
   }
 
   openTitleWindow() {
@@ -5246,13 +5236,11 @@ class StartPhase extends Phase {
     this._titleWindow = TextWindow.createWindowFullSize(0, 0, title);
     this._titleWindow.alignCenterAboveMiddle();
     this._titleWindow.alignTextCenter();
-    this.addWindow(this._titleWindow);
   }
 
   createDescriptionWindow(text) {
     this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, text);
     this._descriptionWindow.alignCenterMiddle();
-    this.addWindow(this._descriptionWindow);
   }
 
   createCardDrawGameCardset(cards) {
@@ -5270,7 +5258,6 @@ class StartPhase extends Phase {
     const positions = [position1, position2];
     this._cardDrawGameCardset.setAllCardsInPositions(sprites, positions);
     this._cardDrawGameCardset.setTurnToDownCards(sprites);
-    this.addChild(this._cardDrawGameCardset);
   }
 
   shuffleCards(cards) {
@@ -5417,6 +5404,10 @@ class SceneTest {
     });
   }
 
+  start() {
+    // Override this method in the child class
+  }
+
   update() {
     // Override this method in the child class
   }
@@ -5425,6 +5416,7 @@ class SceneTest {
     return new Promise(async res => {
       if (this.throwErrors.length) {
         this.scene._nextTest = null;
+        this.scene._phase = null;
         this.asserts();
         await this.processAsserts();
         return res(this.finishResult());
@@ -5436,6 +5428,7 @@ class SceneTest {
 
   startTest() {
     this.counter = (GameConst.FPS * this.seconds);
+    this.start();
     this.addChildren();
   }
 
@@ -5484,6 +5477,7 @@ class SceneTest {
     if (this.waitHandler) return;
     if (this.status === 'START') {
       this.scene._nextTest = null;
+      this.scene._phase = null;
       this.asserts();
       this.processAsserts();
       this.status = 'FINISH';
@@ -8066,8 +8060,7 @@ class ChallengePhaseTest extends SceneTest {
   selectFolderIndex = -1;
 
   create() {
-    this.scene.changePhase(ChallengePhase);
-    this.phase = this.scene.getPhase();
+    this.phase = new ChallengePhase(this.scene);
     const title = TextWindow.setTextColor('Challenge Phase', GameColors.ORANGE);
     const text = [title];
     this.phase.createTitleWindow(text);
@@ -8105,16 +8098,25 @@ class ChallengePhaseTest extends SceneTest {
     const title2 = CommandWindow.setTextColor('Choose a folder', GameColors.ORANGE);
     const text3 = [title2];
     this.phase.createFolderWindow(text3, folders);
+    this.addHiddenWatched(this.phase._titleWindow);
+    this.addHiddenWatched(this.phase._descriptionWindow);
+    this.addHiddenWatched(this.phase._folderWindow);
+  }
+
+  start() {
+    this.phase.addWindows([
+      this.phase._titleWindow,
+      this.phase._descriptionWindow,
+      this.phase._folderWindow,
+    ]);
+    this.scene.setPhase(this.phase);
     this.phase.addActions([
       this.phase.commandOpenTitleWindow,
       this.phase.commandOpenDescriptionWindow,
     ]);
-    this.addHiddenWatched(this.phase._titleWindow);
-    this.addHiddenWatched(this.phase._descriptionWindow);
-    this.addHiddenWatched(this.phase._folderWindow);
     this.phase.stepChallengePhase();
   }
-
+  
   update() {
     if (this.phase.isBusy()) return;
     if (this.phase.isStepChallengePhase() && Input.isTriggered('ok')) {
@@ -8140,8 +8142,7 @@ class StartPhaseTest extends SceneTest {
   phase;
 
   create() {
-    this.scene.changePhase(StartPhase);
-    this.phase = this.scene.getPhase();
+    this.phase = new StartPhase(this.scene);
     const title = TextWindow.setTextColor('Start Phase', GameColors.ORANGE);
     const text = [title];
     this.phase.createTitleWindow(text);
@@ -8153,13 +8154,8 @@ class StartPhaseTest extends SceneTest {
       CardGenerator.generateGameCard('black'),
     ];
     this.phase.createCardDrawGameCardset(cards);
-    this.phase.addActions([
-      this.phase.commandOpenTitleWindow,
-      this.phase.commandOpenDescriptionWindow,
-    ]);
     this.addHiddenWatched(this.phase._titleWindow);
     this.addHiddenWatched(this.phase._descriptionWindow);
-    this.phase.stepStartPhase();
     const endTest = this.createHandler();
     this.cardsSelected = [];
     this.endTest = (cards) => {
@@ -8168,6 +8164,20 @@ class StartPhaseTest extends SceneTest {
     };
   }
 
+  start() {
+    this.phase.addWindows([
+      this.phase._titleWindow,
+      this.phase._descriptionWindow,
+    ]);
+    this.addChild(this.phase._cardDrawGameCardset);
+    this.scene.setPhase(this.phase);
+    this.phase.addActions([
+      this.phase.commandOpenTitleWindow,
+      this.phase.commandOpenDescriptionWindow,
+    ]);
+    this.phase.stepStartPhase();
+  }
+  
   update() {
     if (this.phase.isBusy()) return;
     if (this.phase.isStepStartPhase() && Input.isTriggered('ok')) {
@@ -8422,20 +8432,20 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const phase = [
-      // ChallengePhaseTest,
+      ChallengePhaseTest,
       StartPhaseTest,
     ];
     return [
-      // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      // ...commandWindow,
-      // ...StateWindowTests,
-      // ...textWindowTests,
-      // ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow,
-      // ...scoreWindow,
-      // ...folderWindow,
+      ...cardSpriteTests,
+      ...cardsetSpriteTests,
+      ...commandWindow,
+      ...StateWindowTests,
+      ...textWindowTests,
+      ...boardWindowTests,
+      ...battlePointsWindow,
+      ...trashWindow,
+      ...scoreWindow,
+      ...folderWindow,
       ...phase,
     ];
   }
@@ -8567,12 +8577,8 @@ class CardBattleTestScene extends Scene_Message {
     return this._animationSprites[this._animationSprites.length - 1];
   }
 
-  changePhase(phase) {
-    this._phase = new phase(this);
-  }
-
-  getPhase() {
-    return this._phase;
+  setPhase(phase) {
+    this._phase = phase;
   }
 
   addWindow(window) {

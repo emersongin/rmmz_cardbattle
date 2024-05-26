@@ -173,20 +173,20 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const phase = [
-      // ChallengePhaseTest,
+      ChallengePhaseTest,
       StartPhaseTest,
     ];
     return [
-      // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      // ...commandWindow,
-      // ...StateWindowTests,
-      // ...textWindowTests,
-      // ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow,
-      // ...scoreWindow,
-      // ...folderWindow,
+      ...cardSpriteTests,
+      ...cardsetSpriteTests,
+      ...commandWindow,
+      ...StateWindowTests,
+      ...textWindowTests,
+      ...boardWindowTests,
+      ...battlePointsWindow,
+      ...trashWindow,
+      ...scoreWindow,
+      ...folderWindow,
       ...phase,
     ];
   }
@@ -318,12 +318,8 @@ class CardBattleTestScene extends Scene_Message {
     return this._animationSprites[this._animationSprites.length - 1];
   }
 
-  changePhase(phase) {
-    this._phase = new phase(this);
-  }
-
-  getPhase() {
-    return this._phase;
+  setPhase(phase) {
+    this._phase = phase;
   }
 
   addWindow(window) {

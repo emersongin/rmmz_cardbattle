@@ -37,6 +37,10 @@ class SceneTest {
     });
   }
 
+  start() {
+    // Override this method in the child class
+  }
+
   update() {
     // Override this method in the child class
   }
@@ -45,6 +49,7 @@ class SceneTest {
     return new Promise(async res => {
       if (this.throwErrors.length) {
         this.scene._nextTest = null;
+        this.scene._phase = null;
         this.asserts();
         await this.processAsserts();
         return res(this.finishResult());
@@ -56,6 +61,7 @@ class SceneTest {
 
   startTest() {
     this.counter = (GameConst.FPS * this.seconds);
+    this.start();
     this.addChildren();
   }
 
@@ -104,6 +110,7 @@ class SceneTest {
     if (this.waitHandler) return;
     if (this.status === 'START') {
       this.scene._nextTest = null;
+      this.scene._phase = null;
       this.asserts();
       this.processAsserts();
       this.status = 'FINISH';
