@@ -3787,13 +3787,20 @@ class CardSprite extends ActionSprite {
 
   commandFlipTurnToDown() {
     if (!(this.isClosed() && this.isStopped() && this.isTurnedToUp())) return;
-    this.setTurnToDown();
+    this._turned = false;
     this.refresh();
     return true;
   }
 
   setTurnToDown() {
+    this.addCommand(this.commandSetTurnToDown);
+  }
+
+  commandSetTurnToDown() {
+    if (this.isTurnedToDown()) return true;
     this._turned = false;
+    this.refresh();
+    return true;
   }
 
   changeAttackPoints(attackPoints) {
@@ -4653,13 +4660,13 @@ class CardsetSprite extends ActionSprite {
     return this._sprites;
   }
 
-  flipTurnToDownCards() {
-    this.addCommand(this.commandFlipTurnToDownCards);
+  setTurnToDownCards(sprite = this._sprites) {
+    this.addCommand(this.commandFlipTurnToDownCards, sprite);
   }
 
-  commandFlipTurnToDownCards() {
+  commandFlipTurnToDownCards(sprite) {
     if (this.isHidden()) return;
-    this._sprites.forEach(sprite => sprite.setTurnToDown());
+    sprite.forEach(sprite => sprite.setTurnToDown());
     return true;
   }
 
@@ -5245,6 +5252,7 @@ class StartPhase extends Phase {
     const position2 = CardSprite.createPosition(xSprite2, ySprite2, 1);
     const positions = [position1, position2];
     this._cardDrawGameCardset.setAllCardsInPositions(sprites, positions);
+    this._cardDrawGameCardset.setTurnToDownCards();
     this.addChild(this._cardDrawGameCardset);
   }
 
@@ -6268,6 +6276,25 @@ class SetCardsCardsetSpriteTest extends SceneTest {
     this.expectTrue('Estão nas posições?', this.subject.isSpritesPositions(positions, this.sprites));
   }
 }
+class SetTurnToDownCardsCardsetSpriteTest extends SceneTest {
+  create() {
+    this.subject = CardsetSprite.create(0, 0);
+    this.addWatched(this.subject);
+    this.subject.centralize();
+    this.subject.show();
+    const numCards = 6;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.listCards(cards);
+    this.subject.setTurnToDownCards(sprites);
+    this.subject.showCards(sprites);
+    this.sprites = sprites;
+  }
+
+  asserts() {
+    this.describe('Deve listar as cartas viradas para baixo!');
+    this.expectTrue('Esta viradas para baixo?', this.subject.allCardsTurnedToDown());
+  }
+}
 class SetAllCardsInPositionCardsetSpriteTest extends SceneTest {
   create() {
     const x = 0;
@@ -6833,25 +6860,6 @@ class ShowReverseOrderingCardsCardsetSpriteTest extends SceneTest {
     this.describe('Deve mostrar númeração em ordem inversa das cartas!');
     this.expectTrue('Esta mostrando a ordenação?', this.subject.isOrderingDisplayed());
     this.expectTrue('Ela esta em ordem reversa?', this.subject.isReverseOrdering());
-  }
-}
-class ShowCardsTurnToDownCardsetSpriteTest extends SceneTest {
-  create() {
-    this.subject = CardsetSprite.create(0, 0);
-    this.addWatched(this.subject);
-    this.subject.centralize();
-    this.subject.show();
-    const numCards = 6;
-    const cards = CardGenerator.generateCards(numCards);
-    const sprites = this.subject.listCards(cards);
-    this.subject.flipTurnToDownCards(sprites);
-    this.subject.showCards(sprites);
-    this.sprites = sprites;
-  }
-
-  asserts() {
-    this.describe('Deve listar as cartas viradas para baixo!');
-    this.expectTrue('Esta viradas para baixo?', this.subject.allCardsTurnedToDown());
   }
 }
 // tests STATE WINDOW
@@ -8269,6 +8277,7 @@ class CardBattleTestScene extends Scene_Message {
     const cardsetSpriteTests = [
       // StartPositionCardsetSpriteTest,
       // SetCardsCardsetSpriteTest,
+      SetTurnToDownCardsCardsetSpriteTest,
       // SetAllCardsInPositionCardsetSpriteTest,
       // SetAllCardsInPositionsCardsetSpriteTest,
       // ListCardsCardsetSpriteTest,
@@ -8294,7 +8303,6 @@ class CardBattleTestScene extends Scene_Message {
       // AnimationCardsCardsetSpriteTest,
       // ShowOrderingCardsCardsetSpriteTest,
       // ShowReverseOrderingCardsCardsetSpriteTest,
-      ShowCardsTurnToDownCardsetSpriteTest,
     ];
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,

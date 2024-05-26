@@ -29,6 +29,7 @@ class StartPhase extends Phase {
     const position2 = CardSprite.createPosition(xSprite2, ySprite2, 1);
     const positions = [position1, position2];
     this._cardDrawGameCardset.setAllCardsInPositions(sprites, positions);
+    this._cardDrawGameCardset.setTurnToDownCards();
     this.addChild(this._cardDrawGameCardset);
   }
 

@@ -763,13 +763,20 @@ class CardSprite extends ActionSprite {
 
   commandFlipTurnToDown() {
     if (!(this.isClosed() && this.isStopped() && this.isTurnedToUp())) return;
-    this.setTurnToDown();
+    this._turned = false;
     this.refresh();
     return true;
   }
 
   setTurnToDown() {
+    this.addCommand(this.commandSetTurnToDown);
+  }
+
+  commandSetTurnToDown() {
+    if (this.isTurnedToDown()) return true;
     this._turned = false;
+    this.refresh();
+    return true;
   }
 
   changeAttackPoints(attackPoints) {

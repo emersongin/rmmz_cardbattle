@@ -1,4 +1,4 @@
-class ShowCardsTurnToDownCardsetSpriteTest extends SceneTest {
+class SetTurnToDownCardsCardsetSpriteTest extends SceneTest {
   create() {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
@@ -7,7 +7,7 @@ class ShowCardsTurnToDownCardsetSpriteTest extends SceneTest {
     const numCards = 6;
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
-    this.subject.flipTurnToDownCards(sprites);
+    this.subject.setTurnToDownCards(sprites);
     this.subject.showCards(sprites);
     this.sprites = sprites;
   }

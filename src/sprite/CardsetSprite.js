@@ -544,13 +544,13 @@ class CardsetSprite extends ActionSprite {
     return this._sprites;
   }
 
-  flipTurnToDownCards() {
-    this.addCommand(this.commandFlipTurnToDownCards);
+  setTurnToDownCards(sprite = this._sprites) {
+    this.addCommand(this.commandFlipTurnToDownCards, sprite);
   }
 
-  commandFlipTurnToDownCards() {
+  commandFlipTurnToDownCards(sprite) {
     if (this.isHidden()) return;
-    this._sprites.forEach(sprite => sprite.setTurnToDown());
+    sprite.forEach(sprite => sprite.setTurnToDown());
     return true;
   }
 

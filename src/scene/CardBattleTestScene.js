@@ -57,6 +57,7 @@ class CardBattleTestScene extends Scene_Message {
     const cardsetSpriteTests = [
       // StartPositionCardsetSpriteTest,
       // SetCardsCardsetSpriteTest,
+      SetTurnToDownCardsCardsetSpriteTest,
       // SetAllCardsInPositionCardsetSpriteTest,
       // SetAllCardsInPositionsCardsetSpriteTest,
       // ListCardsCardsetSpriteTest,
@@ -82,7 +83,6 @@ class CardBattleTestScene extends Scene_Message {
       // AnimationCardsCardsetSpriteTest,
       // ShowOrderingCardsCardsetSpriteTest,
       // ShowReverseOrderingCardsCardsetSpriteTest,
-      ShowCardsTurnToDownCardsetSpriteTest,
     ];
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,
