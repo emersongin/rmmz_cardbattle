@@ -368,10 +368,14 @@ class CardGenerator {
     return cards;
   }
 
-  static generateCard(type) {
+  static generateGameCard(color) {
+    return CardGenerator.generateCard(1, color);
+  }
+
+  static generateCard(type, color) {
     return {
       type: type ? type : (Math.floor(Math.random() * 3) + 1),
-      color: Math.floor(Math.random() * 6) + 1,
+      color: color ? color : Math.floor(Math.random() * 6) + 1,
       figureName: 'default',
       attack: Math.floor(Math.random() * 99) + 1,
       health: Math.floor(Math.random() * 99) + 1
@@ -4648,6 +4652,20 @@ class CardsetSprite extends ActionSprite {
   getSprites() {
     return this._sprites;
   }
+
+  flipTurnToDownCards() {
+    this.addCommand(this.commandFlipTurnToDownCards);
+  }
+
+  commandFlipTurnToDownCards() {
+    if (this.isHidden()) return;
+    this._sprites.forEach(sprite => sprite.setTurnToDown());
+    return true;
+  }
+
+  allCardsTurnedToDown() {
+    return this._sprites.every(sprite => sprite.isTurnedToDown());
+  }
 }
 class BackgroundSprite extends Sprite {
   initialize() {
@@ -6817,6 +6835,25 @@ class ShowReverseOrderingCardsCardsetSpriteTest extends SceneTest {
     this.expectTrue('Ela esta em ordem reversa?', this.subject.isReverseOrdering());
   }
 }
+class ShowCardsTurnToDownCardsetSpriteTest extends SceneTest {
+  create() {
+    this.subject = CardsetSprite.create(0, 0);
+    this.addWatched(this.subject);
+    this.subject.centralize();
+    this.subject.show();
+    const numCards = 6;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.listCards(cards);
+    this.subject.flipTurnToDownCards(sprites);
+    this.subject.showCards(sprites);
+    this.sprites = sprites;
+  }
+
+  asserts() {
+    this.describe('Deve listar as cartas viradas para baixo!');
+    this.expectTrue('Esta viradas para baixo?', this.subject.allCardsTurnedToDown());
+  }
+}
 // tests STATE WINDOW
 class OpenStateWindowTest extends SceneTest {
   create() {
@@ -8079,20 +8116,8 @@ class StartPhaseTest extends SceneTest {
     const text2 = [line];
     this.phase.createDescriptionWindow(text2);
     const cards = [
-      {
-        type: 3,
-        color: 4,
-        figureName: 'default',
-        attack: 0,
-        health: 0
-      },
-      {
-        type: 3,
-        color: 5,
-        figureName: 'default',
-        attack: 0,
-        health: 0
-      }
+      CardGenerator.generateGameCard('white'),
+      CardGenerator.generateGameCard('black'),
     ];
     this.phase.createCardDrawGameCardset(cards);
     this.phase.addActions([
@@ -8102,14 +8127,12 @@ class StartPhaseTest extends SceneTest {
     this.addHiddenWatched(this.phase._titleWindow);
     this.addHiddenWatched(this.phase._descriptionWindow);
     this.phase.stepStartPhase();
-
     this.createHandler();
   }
 
   update() {
     if (this.phase.isBusy()) return;
     if (this.phase.isStepStartPhase() && Input.isTriggered('ok')) {
-      this.phase.stepCardDrawGame();
       this.phase.addActions([
         this.phase.commandCloseTitleWindow,
         this.phase.commandCloseDescriptionWindow,
@@ -8262,15 +8285,16 @@ class CardBattleTestScene extends Scene_Message {
       // AddAllCardsToListCardsetSpriteTest,
       // AddCardsToListCardsetSpriteTest,
       // DisableCardsCardsetSpriteTest,
-      StaticModeCardsetSpriteTest,
-      SelectModeCardsetSpriteTest,
-      SelectModeNoSelectCardsetSpriteTest,
-      SelectModeLimitedCardsetSpriteTest,
+      // StaticModeCardsetSpriteTest,
+      // SelectModeCardsetSpriteTest,
+      // SelectModeNoSelectCardsetSpriteTest,
+      // SelectModeLimitedCardsetSpriteTest,
       // FlashCardsCardsetSpriteTest,
       // QuakeCardsCardsetSpriteTest,
       // AnimationCardsCardsetSpriteTest,
       // ShowOrderingCardsCardsetSpriteTest,
       // ShowReverseOrderingCardsCardsetSpriteTest,
+      ShowCardsTurnToDownCardsetSpriteTest,
     ];
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,
@@ -8361,7 +8385,7 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const phase = [
-      ChallengePhaseTest,
+      // ChallengePhaseTest,
       StartPhaseTest,
     ];
     return [

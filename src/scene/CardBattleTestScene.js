@@ -73,15 +73,16 @@ class CardBattleTestScene extends Scene_Message {
       // AddAllCardsToListCardsetSpriteTest,
       // AddCardsToListCardsetSpriteTest,
       // DisableCardsCardsetSpriteTest,
-      StaticModeCardsetSpriteTest,
-      SelectModeCardsetSpriteTest,
-      SelectModeNoSelectCardsetSpriteTest,
-      SelectModeLimitedCardsetSpriteTest,
+      // StaticModeCardsetSpriteTest,
+      // SelectModeCardsetSpriteTest,
+      // SelectModeNoSelectCardsetSpriteTest,
+      // SelectModeLimitedCardsetSpriteTest,
       // FlashCardsCardsetSpriteTest,
       // QuakeCardsCardsetSpriteTest,
       // AnimationCardsCardsetSpriteTest,
       // ShowOrderingCardsCardsetSpriteTest,
       // ShowReverseOrderingCardsCardsetSpriteTest,
+      ShowCardsTurnToDownCardsetSpriteTest,
     ];
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,
@@ -172,7 +173,7 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const phase = [
-      ChallengePhaseTest,
+      // ChallengePhaseTest,
       StartPhaseTest,
     ];
     return [

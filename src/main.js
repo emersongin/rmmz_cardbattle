@@ -86,6 +86,7 @@
 // include ../test/integration/cardset/AnimationCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/ShowOrderingCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/ShowReverseOrderingCardsCardsetSpriteTest.js
+// include ../test/integration/cardset/ShowCardsTurnToDownCardsetSpriteTest.js
 // tests STATE WINDOW
 // include ../test/integration/statewindow/OpenStateWindowTest.js
 // include ../test/integration/statewindow/CloseStateWindowTest.js

@@ -7,10 +7,14 @@ class CardGenerator {
     return cards;
   }
 
-  static generateCard(type) {
+  static generateGameCard(color) {
+    return CardGenerator.generateCard(1, color);
+  }
+
+  static generateCard(type, color) {
     return {
       type: type ? type : (Math.floor(Math.random() * 3) + 1),
-      color: Math.floor(Math.random() * 6) + 1,
+      color: color ? color : Math.floor(Math.random() * 6) + 1,
       figureName: 'default',
       attack: Math.floor(Math.random() * 99) + 1,
       health: Math.floor(Math.random() * 99) + 1

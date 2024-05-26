@@ -11,20 +11,8 @@ class StartPhaseTest extends SceneTest {
     const text2 = [line];
     this.phase.createDescriptionWindow(text2);
     const cards = [
-      {
-        type: 3,
-        color: 4,
-        figureName: 'default',
-        attack: 0,
-        health: 0
-      },
-      {
-        type: 3,
-        color: 5,
-        figureName: 'default',
-        attack: 0,
-        health: 0
-      }
+      CardGenerator.generateGameCard('white'),
+      CardGenerator.generateGameCard('black'),
     ];
     this.phase.createCardDrawGameCardset(cards);
     this.phase.addActions([
@@ -34,14 +22,12 @@ class StartPhaseTest extends SceneTest {
     this.addHiddenWatched(this.phase._titleWindow);
     this.addHiddenWatched(this.phase._descriptionWindow);
     this.phase.stepStartPhase();
-
     this.createHandler();
   }
 
   update() {
     if (this.phase.isBusy()) return;
     if (this.phase.isStepStartPhase() && Input.isTriggered('ok')) {
-      this.phase.stepCardDrawGame();
       this.phase.addActions([
         this.phase.commandCloseTitleWindow,
         this.phase.commandCloseDescriptionWindow,
