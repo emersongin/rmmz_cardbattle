@@ -94,10 +94,6 @@ class Phase {
     return true;
   }
 
-  changeStep(step) {
-    this.addAction(this.commandChangeStep, step);
-  }
-
   commandChangeStep(step) {
     this._step = step;
     return true;

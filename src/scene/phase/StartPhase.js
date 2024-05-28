@@ -45,15 +45,23 @@ class StartPhase extends Phase {
   }
 
   commandStartCardDrawGame(selectHandler) {
-    this.commandShowCards();
-    this.commandMoveAllCardsToCenter();
+    this.showCards();
+    this.moveAllCardsToCenter();
     this.selectMode(selectHandler);
     return true;
+  }
+
+  showCards() {
+    this.addAction(this.commandShowCards);
   }
   
   commandShowCards() {
     this._cardDrawGameCardset.showCards();
     return true;
+  }
+
+  moveAllCardsToCenter() {
+    this.addAction(this.commandMoveAllCardsToCenter);
   }
 
   commandMoveAllCardsToCenter() {
@@ -113,12 +121,25 @@ class StartPhase extends Phase {
     return true;
   }
 
+  addChildren() {
+    this.addAction(this.commandAddChildren);
+  }
+
+  commandAddChildren() {
+    this.addWindows([
+      this._titleWindow,
+      this._descriptionWindow
+    ]);
+    this.addChild(this._cardDrawGameCardset);
+    return true;
+  }
+
   stepStartPhase() {
-    this.changeStep('START_PHASE');
+    this.addAction(this.commandChangeStep, 'START_PHASE');
   }
 
   stepCardDrawGame() {
-    this.changeStep('CARD_DRAW_GAME');
+    this.addAction(this.commandChangeStep, 'CARD_DRAW_GAME');
   }
 
   isStepStartPhase() {

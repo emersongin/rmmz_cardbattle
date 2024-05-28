@@ -14,19 +14,15 @@ class StartPhaseTest extends SceneTest {
       CardGenerator.generateGameCard('black'),
     ];
     this.phase.createCardDrawGameCardset(cards);
-    this.addWatched(this.phase._titleWindow);
-    this.addWatched(this.phase._descriptionWindow);
-    const endTest = this.createHandler();
-    this.cardsSelected = [];
-    this.endTest = (cards) => {
-      this.cardsSelected = cards;
-      endTest();
-    };
-    this.addWatched(this.phase._cardDrawGameCardset);
+    this.endTest = this.createHandler();
+    this.addHiddenWatched(this.phase._titleWindow);
+    this.addHiddenWatched(this.phase._descriptionWindow);
+    this.addHiddenWatched(this.phase._cardDrawGameCardset);
   }
 
   start() {
     this.scene.setPhase(this.phase);
+    this.phase.addChildren();
     this.phase.addActions([
       this.phase.commandOpenTitleWindow,
       this.phase.commandOpenDescriptionWindow,
@@ -43,7 +39,9 @@ class StartPhaseTest extends SceneTest {
       ]);
       this.phase.setWait();
       this.phase.stepCardDrawGame();
-      this.phase.startCardDrawGame(this.endTest);
+      this.phase.startCardDrawGame((cards) => {
+        console.log(cards);
+      });
     }
   }
 
