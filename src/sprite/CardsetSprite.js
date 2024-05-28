@@ -465,10 +465,10 @@ class CardsetSprite extends ActionSprite {
   }
 
   isBusy() {
-    return super.isBusy() || this.someChildIsBusy();
+    return super.isBusy() || this.someChildrenIsBusy();
   }
 
-  someChildIsBusy() {
+  someChildrenIsBusy() {
     return this.children.some(sprite => {
       return (sprite instanceof CardSprite) && (sprite.hasCommands() || sprite.isBusy());
     });
@@ -560,5 +560,35 @@ class CardsetSprite extends ActionSprite {
 
   allCardsTurnedToDown() {
     return this._sprites.every(sprite => sprite.isTurnedToDown());
+  }
+
+  zoomAllCards(sprites = this._sprites) {
+    sprites = this.toArray(sprites);
+    this.addCommand(this.commandZoomAllCards, sprites);
+  }
+
+  commandZoomAllCards(sprites) {
+    if (this.isHidden()) return;
+    sprites.forEach(sprite => sprite.zoom());
+    return true;
+  }
+
+  isCardsZoom() {
+    return this._sprites.every(sprite => sprite.isZoom());
+  }
+
+  zoomOutAllCards(sprites = this._sprites) {
+    sprites = this.toArray(sprites);
+    this.addCommand(this.commandZoomOutAllCards, sprites);
+  }
+
+  commandZoomOutAllCards(sprites) {
+    if (this.isHidden()) return;
+    sprites.forEach(sprite => sprite.zoomOut());
+    return true;
+  }
+
+  isCardsOriginalScale() {
+    return this._sprites.every(sprite => sprite.isOriginalScale());
   }
 }

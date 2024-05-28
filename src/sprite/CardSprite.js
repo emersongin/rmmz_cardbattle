@@ -844,11 +844,11 @@ class CardSprite extends ActionSprite {
   }
 
   isOpening() {
-    return this.getStatus() && this.getStatus() instanceof CardSpriteOpeningState;
+    return this.getStatus() instanceof CardSpriteOpeningState;
   }
 
   isBusy() {
-    return (this.getStatus() && (this.isNotStopped()) || this.isAnimated() || this.someDelayCommand());
+    return (this.getStatus() && this.isNotStopped()) || this.isAnimated() || this.someDelayCommand();
   }
 
   isNotStopped() {
