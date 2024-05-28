@@ -837,4 +837,27 @@ class CardSprite extends ActionSprite {
   isUpdatingPoints() {
     return this.getBehavior(CardSpriteUpdatedPointsBehavior) instanceof CardSpriteUpdatedPointsBehavior;
   }
+
+  getColorName() {
+    switch (this._color) {
+      case ColorTypes.RED:
+        return 'RED';
+        break;
+      case ColorTypes.GREEN:
+        return 'GREEN';
+        break;
+      case ColorTypes.BLUE:
+        return 'BLUE';
+        break;
+      case ColorTypes.WHITE:
+        return 'WHITE';
+        break;
+      case ColorTypes.BLACK:
+        return 'BLACK';
+        break;
+      default:
+        return 'BROWN';
+        break;
+    }
+  }
 }

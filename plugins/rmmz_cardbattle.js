@@ -388,7 +388,14 @@ class CardGenerator {
   }
 
   static generateGameCard(color) {
-    return CardGenerator.generateCard(1, color);
+    switch (color) {
+      case 'white':
+        return CardGenerator.generateCard(3, 4);
+      case 'black':
+        return CardGenerator.generateCard(3, 5);
+      default:
+        return CardGenerator.generateCard(3);
+    }
   }
 
   static generateCard(type, color) {
@@ -3879,6 +3886,29 @@ class CardSprite extends ActionSprite {
   isUpdatingPoints() {
     return this.getBehavior(CardSpriteUpdatedPointsBehavior) instanceof CardSpriteUpdatedPointsBehavior;
   }
+
+  getColorName() {
+    switch (this._color) {
+      case ColorTypes.RED:
+        return 'RED';
+        break;
+      case ColorTypes.GREEN:
+        return 'GREEN';
+        break;
+      case ColorTypes.BLUE:
+        return 'BLUE';
+        break;
+      case ColorTypes.WHITE:
+        return 'WHITE';
+        break;
+      case ColorTypes.BLACK:
+        return 'BLACK';
+        break;
+      default:
+        return 'BROWN';
+        break;
+    }
+  }
 }
 class CardsetSpriteStaticModeState {
   _cardset;
@@ -4072,47 +4102,6 @@ class CardsetSpriteSelectModeState {
     const full = selectedAmount === allowedAmount;
     return limit || full;
   }
-
-
-
-  
-
-  // createConfirmWindow(message) {
-  //   // message = 'confirm the selection?'
-  //   const confirmHandler = () => {
-  //     this._selectHandler(this._selectedIndexs);
-  //   };
-  //   const returnHandler = () => {
-  //     this.returnToSelection();
-  //   };
-  //   const commandYes = CommandWindow.createCommand('Yes', 'YES', confirmHandler);
-  //   const commandNo = CommandWindow.createCommand('No', 'NO', returnHandler);
-  //   const text = [message];
-  //   this._confirmWindow = CommandWindow.create(0, 0, text, [commandYes, commandNo]);
-  //   this._confirmWindow.alignMiddle();
-  //   this._cardset.addChild(this._confirmWindow);
-  // }
-
-  // returnToSelection() {
-  //   if (this.selectIsFull()) {
-  //     this._selectedIndexs.pop();
-  //   }
-  //   this.updateSelectSprites();
-  //   this.updateHoverSprites();
-  //   this.closeConfirmWindow();
-  // }
-
-  // openConfirmWindow() {
-  //   this._confirmWindow.open();
-  // }
-
-  // closeConfirmWindow() {
-  //   this._confirmWindow.close();
-  // }
-
-  // isWindowBusy() {
-  //   return this._confirmWindow.isOpen();
-  // }
 }
 
 class CardsetSprite extends ActionSprite {
@@ -5260,6 +5249,7 @@ class StartPhase extends Phase {
   _titleWindow;
   _descriptionWindow;
   _cardDrawGameCardset;
+  _win = false;
 
   createTitleWindow(title) {
     this._titleWindow = TextWindow.createWindowFullSize(0, 0, title);
@@ -5376,11 +5366,15 @@ class StartPhase extends Phase {
   }
 
   stepStartPhase() {
-    this.addAction(this.commandChangeStep, 'START_PHASE');
+    this.commandChangeStep('START_PHASE');
   }
 
   stepStartCardDrawGame() {
-    this.addAction(this.commandChangeStep, 'START_CARD_DRAW_GAME');
+    this.commandChangeStep('START_CARD_DRAW_GAME');
+  }
+
+  stepEndCardDrawGame() {
+    this.commandChangeStep('END_CARD_DRAW_GAME');
   }
 
   isStepStartPhase() {
@@ -5416,7 +5410,13 @@ class StartPhase extends Phase {
     const cardset = this._cardDrawGameCardset;
     const sprites = ArrayHelper.moveToStartByIndex(cardset.getSprites(), selectedIndex);
     const selectedSprite = sprites[0];
+    const colorName = selectedSprite.getColorName();
     const startIndex = 0;
+    this._win = colorName === 'WHITE';
+
+    this.createResultWindow();
+
+
     cardset.removeChild(sprites[1]);
     cardset.addChildAt(sprites[1], startIndex);
     cardset.zoomAllCards(selectedSprite);
@@ -5424,6 +5424,89 @@ class StartPhase extends Phase {
     cardset.addWait();
     cardset.flipTurnToUpCards(sprites);
   }
+
+  createResultWindow() {
+    const text = this._win ? ['You win!'] : ['You lose!'];
+    this._resultWindow = TextWindow.createWindowOneFourthSize(0, 0, text);
+    this._resultWindow.alignCenterAboveMiddle();
+    this._resultWindow.alignTextCenter();
+    this.addWindow(this._resultWindow);
+  }
+
+  openResultWindow() {
+    this.addAction(this.commandOpenResultWindow);
+  }
+
+  commandOpenResultWindow() {
+    this._resultWindow.open();
+  }
+
+  closeResultWindow() {
+    this.addAction(this.commandCloseResultWindow);
+  }
+
+  commandCloseResultWindow() {
+    this._resultWindow.close();
+  }
+
+  closeCardDrawGameCardset() {
+    this.addAction(this.commandCloseCardDrawGameCardset);
+  }
+
+  commandCloseCardDrawGameCardset() {
+    this._cardDrawGameCardset.closeAllCards();
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  // createConfirmWindow(message) {
+  //   // message = 'confirm the selection?'
+  //   const confirmHandler = () => {
+  //     this._selectHandler(this._selectedIndexs);
+  //   };
+  //   const returnHandler = () => {
+  //     this.returnToSelection();
+  //   };
+  //   const commandYes = CommandWindow.createCommand('Yes', 'YES', confirmHandler);
+  //   const commandNo = CommandWindow.createCommand('No', 'NO', returnHandler);
+  //   const text = [message];
+  //   this._confirmWindow = CommandWindow.create(0, 0, text, [commandYes, commandNo]);
+  //   this._confirmWindow.alignMiddle();
+  //   this._cardset.addChild(this._confirmWindow);
+  // }
+
+  // returnToSelection() {
+  //   if (this.selectIsFull()) {
+  //     this._selectedIndexs.pop();
+  //   }
+  //   this.updateSelectSprites();
+  //   this.updateHoverSprites();
+  //   this.closeConfirmWindow();
+  // }
+
+  // openConfirmWindow() {
+  //   this._confirmWindow.open();
+  // }
+
+  // closeConfirmWindow() {
+  //   this._confirmWindow.close();
+  // }
+
+  // isWindowBusy() {
+  //   return this._confirmWindow.isOpen();
+  // }
 }
 class SceneTest {
   scene = {};
@@ -8315,8 +8398,18 @@ class StartPhaseTest extends SceneTest {
       this.phase.startCardDrawGame((cards) => {
         const selectedIndex = cards.shift();
         this.phase.endCardDrawGame(selectedIndex);
-        this.phase.addAction(this.endTest);
+        this.phase.stepEndCardDrawGame();
+        this.phase.openResultWindow();
+        this.phase.addWait(1);
       });
+    }
+    if (this.phase.isStepEndCardDrawGame() && Input.isTriggered('ok')) {
+      this.phase.addActions([
+        this.phase.commandCloseResultWindow,
+        this.phase.commandCloseCardDrawGameCardset,
+      ]);
+      this.phase.addWait(1);
+      this.phase.addAction(this.endTest);
     }
   }
 

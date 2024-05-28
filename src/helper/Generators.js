@@ -8,7 +8,14 @@ class CardGenerator {
   }
 
   static generateGameCard(color) {
-    return CardGenerator.generateCard(1, color);
+    switch (color) {
+      case 'white':
+        return CardGenerator.generateCard(3, 4);
+      case 'black':
+        return CardGenerator.generateCard(3, 5);
+      default:
+        return CardGenerator.generateCard(3);
+    }
   }
 
   static generateCard(type, color) {

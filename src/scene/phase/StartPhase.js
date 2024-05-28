@@ -2,6 +2,7 @@ class StartPhase extends Phase {
   _titleWindow;
   _descriptionWindow;
   _cardDrawGameCardset;
+  _win = false;
 
   createTitleWindow(title) {
     this._titleWindow = TextWindow.createWindowFullSize(0, 0, title);
@@ -118,11 +119,15 @@ class StartPhase extends Phase {
   }
 
   stepStartPhase() {
-    this.addAction(this.commandChangeStep, 'START_PHASE');
+    this.commandChangeStep('START_PHASE');
   }
 
   stepStartCardDrawGame() {
-    this.addAction(this.commandChangeStep, 'START_CARD_DRAW_GAME');
+    this.commandChangeStep('START_CARD_DRAW_GAME');
+  }
+
+  stepEndCardDrawGame() {
+    this.commandChangeStep('END_CARD_DRAW_GAME');
   }
 
   isStepStartPhase() {
@@ -158,7 +163,13 @@ class StartPhase extends Phase {
     const cardset = this._cardDrawGameCardset;
     const sprites = ArrayHelper.moveToStartByIndex(cardset.getSprites(), selectedIndex);
     const selectedSprite = sprites[0];
+    const colorName = selectedSprite.getColorName();
     const startIndex = 0;
+    this._win = colorName === 'WHITE';
+
+    this.createResultWindow();
+
+
     cardset.removeChild(sprites[1]);
     cardset.addChildAt(sprites[1], startIndex);
     cardset.zoomAllCards(selectedSprite);
@@ -166,4 +177,87 @@ class StartPhase extends Phase {
     cardset.addWait();
     cardset.flipTurnToUpCards(sprites);
   }
+
+  createResultWindow() {
+    const text = this._win ? ['You win!'] : ['You lose!'];
+    this._resultWindow = TextWindow.createWindowOneFourthSize(0, 0, text);
+    this._resultWindow.alignCenterAboveMiddle();
+    this._resultWindow.alignTextCenter();
+    this.addWindow(this._resultWindow);
+  }
+
+  openResultWindow() {
+    this.addAction(this.commandOpenResultWindow);
+  }
+
+  commandOpenResultWindow() {
+    this._resultWindow.open();
+  }
+
+  closeResultWindow() {
+    this.addAction(this.commandCloseResultWindow);
+  }
+
+  commandCloseResultWindow() {
+    this._resultWindow.close();
+  }
+
+  closeCardDrawGameCardset() {
+    this.addAction(this.commandCloseCardDrawGameCardset);
+  }
+
+  commandCloseCardDrawGameCardset() {
+    this._cardDrawGameCardset.closeAllCards();
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  // createConfirmWindow(message) {
+  //   // message = 'confirm the selection?'
+  //   const confirmHandler = () => {
+  //     this._selectHandler(this._selectedIndexs);
+  //   };
+  //   const returnHandler = () => {
+  //     this.returnToSelection();
+  //   };
+  //   const commandYes = CommandWindow.createCommand('Yes', 'YES', confirmHandler);
+  //   const commandNo = CommandWindow.createCommand('No', 'NO', returnHandler);
+  //   const text = [message];
+  //   this._confirmWindow = CommandWindow.create(0, 0, text, [commandYes, commandNo]);
+  //   this._confirmWindow.alignMiddle();
+  //   this._cardset.addChild(this._confirmWindow);
+  // }
+
+  // returnToSelection() {
+  //   if (this.selectIsFull()) {
+  //     this._selectedIndexs.pop();
+  //   }
+  //   this.updateSelectSprites();
+  //   this.updateHoverSprites();
+  //   this.closeConfirmWindow();
+  // }
+
+  // openConfirmWindow() {
+  //   this._confirmWindow.open();
+  // }
+
+  // closeConfirmWindow() {
+  //   this._confirmWindow.close();
+  // }
+
+  // isWindowBusy() {
+  //   return this._confirmWindow.isOpen();
+  // }
 }

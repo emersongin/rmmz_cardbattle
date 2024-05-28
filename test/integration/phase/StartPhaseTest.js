@@ -42,8 +42,18 @@ class StartPhaseTest extends SceneTest {
       this.phase.startCardDrawGame((cards) => {
         const selectedIndex = cards.shift();
         this.phase.endCardDrawGame(selectedIndex);
-        this.phase.addAction(this.endTest);
+        this.phase.stepEndCardDrawGame();
+        this.phase.openResultWindow();
+        this.phase.addWait(1);
       });
+    }
+    if (this.phase.isStepEndCardDrawGame() && Input.isTriggered('ok')) {
+      this.phase.addActions([
+        this.phase.commandCloseResultWindow,
+        this.phase.commandCloseCardDrawGameCardset,
+      ]);
+      this.phase.addWait(1);
+      this.phase.addAction(this.endTest);
     }
   }
 
