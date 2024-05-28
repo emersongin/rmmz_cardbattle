@@ -33,8 +33,8 @@ class CardsetSpriteSelectModeState {
       } else {
         this.unhoverSprite(sprite);
         cardset.removeChild(sprite);
-        const fixLastCardindex = (index === indexsAmount ? indexsAmount - 1 : index);
-        cardset.addChildAt(sprite, fixLastCardindex);
+        const fixLastCardIndex = (index === indexsAmount ? indexsAmount - 1 : index);
+        cardset.addChildAt(sprite, fixLastCardIndex);
       }
     });
   }

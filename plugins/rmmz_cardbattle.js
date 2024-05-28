@@ -179,6 +179,25 @@ class NumberHelper {
   }
 }
 
+class ArrayHelper {
+  static moveToStartByIndex(array, index) {
+    const newArray = array.slice();
+    if (index < 0 || index >= newArray.length) return newArray;
+    const item = newArray.splice(index, 1)[0];
+    newArray.unshift(item);
+    return newArray;
+  }
+
+  static shuffle(array) {
+    const newArray = array.slice();
+    for (let i = newArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+  }
+}
+
 class ObjectHelper {
   static copyObject(obj, maxDepth = 3, currentDepth = 0) {
     const propsToCopy = [
@@ -3938,8 +3957,8 @@ class CardsetSpriteSelectModeState {
       } else {
         this.unhoverSprite(sprite);
         cardset.removeChild(sprite);
-        const fixLastCardindex = (index === indexsAmount ? indexsAmount - 1 : index);
-        cardset.addChildAt(sprite, fixLastCardindex);
+        const fixLastCardIndex = (index === indexsAmount ? indexsAmount - 1 : index);
+        cardset.addChildAt(sprite, fixLastCardIndex);
       }
     });
   }
@@ -5038,6 +5057,9 @@ class Phase {
   _wait = 0;
 
   constructor(scene) {
+    if ((scene instanceof Scene_Message) === false) {
+      throw new Error('Scene must be an instance of Scene_Message');
+    }
     this._scene = scene;
   }
 
@@ -5254,8 +5276,8 @@ class StartPhase extends Phase {
     this._cardDrawGameCardset = CardsetSprite.create(0, 0);
     this._cardDrawGameCardset.centralize();
     this._cardDrawGameCardset.commandShow();
-    const randomCards = this.shuffleCards(cards);
-    const sprites = this._cardDrawGameCardset.setCards(randomCards, Graphics.boxWidth, Graphics.boxHeight);
+    const shuffledCards = ArrayHelper.shuffle(cards);
+    const sprites = this._cardDrawGameCardset.setCards(shuffledCards, Graphics.boxWidth, Graphics.boxHeight);
     const xSprite1 = -(this._cardDrawGameCardset.x + CardSprite.contentOriginalWidth());
     const ySprite1 = -(this._cardDrawGameCardset.y + CardSprite.contentOriginalHeight());
     const position1 = CardSprite.createPosition(xSprite1, ySprite1, 0);
@@ -5265,15 +5287,6 @@ class StartPhase extends Phase {
     const positions = [position1, position2];
     this._cardDrawGameCardset.setAllCardsInPositions(sprites, positions);
     this._cardDrawGameCardset.setTurnToDownCards(sprites);
-  }
-
-  shuffleCards(cards) {
-    const newCards = cards.slice();
-    for (let i = newCards.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newCards[i], newCards[j]] = [newCards[j], newCards[i]];
-    }
-    return newCards;
   }
 
   startCardDrawGame(selectHandler) {
@@ -5301,8 +5314,9 @@ class StartPhase extends Phase {
   commandMoveAllCardsToCenter() {
     const center = this._cardDrawGameCardset.width / 2;
     const x = center - CardSprite.contentOriginalWidth();
-    const position1 = CardSprite.createPosition(x, 0, 0);
-    const position2 = CardSprite.createPosition(center, 0, 1);
+    const space = 2;
+    const position1 = CardSprite.createPosition(x - space, 0, 0);
+    const position2 = CardSprite.createPosition(center + space, 0, 1);
     const positions = [position1, position2];
     const sprites = this._cardDrawGameCardset.getSprites();
     this._cardDrawGameCardset.moveAllCardsToPositions(sprites, positions);
@@ -5369,10 +5383,6 @@ class StartPhase extends Phase {
     this.addAction(this.commandChangeStep, 'START_CARD_DRAW_GAME');
   }
 
-  stepEndCardDrawGame() {
-    this.addAction(this.commandChangeStep, 'END_CARD_DRAW_GAME');
-  }
-
   isStepStartPhase() {
     return this.getStep() === 'START_PHASE';
   }
@@ -5389,7 +5399,13 @@ class StartPhase extends Phase {
     return super.isBusy() || 
       this._titleWindow.isBusy() || 
       this._descriptionWindow.isBusy() ||
-      this._cardDrawGameCardset.isBusy();
+      this.someChildrenIsBusy();
+  }
+
+  someChildrenIsBusy() {
+    return this._scene.children.some(sprite => {
+      return (sprite instanceof CardsetSprite) && (sprite.hasCommands() || sprite.isBusy());
+    });
   }
 
   endCardDrawGame(selectedIndex) {
@@ -5397,9 +5413,16 @@ class StartPhase extends Phase {
   }
 
   commandEndCardDrawGame(selectedIndex) {
-    const sprite = this._cardDrawGameCardset.getSpriteByIndex(selectedIndex);
-    this._cardDrawGameCardset.zoomAllCards(sprite);
-    this._cardDrawGameCardset.zoomOutAllCards(sprite);
+    const cardset = this._cardDrawGameCardset;
+    const sprites = ArrayHelper.moveToStartByIndex(cardset.getSprites(), selectedIndex);
+    const selectedSprite = sprites[0];
+    const startIndex = 0;
+    cardset.removeChild(sprites[1]);
+    cardset.addChildAt(sprites[1], startIndex);
+    cardset.zoomAllCards(selectedSprite);
+    cardset.zoomOutAllCards(selectedSprite);
+    cardset.addWait();
+    cardset.flipTurnToUpCards(sprites);
   }
 }
 class SceneTest {
@@ -8292,7 +8315,7 @@ class StartPhaseTest extends SceneTest {
       this.phase.startCardDrawGame((cards) => {
         const selectedIndex = cards.shift();
         this.phase.endCardDrawGame(selectedIndex);
-        // this.phase.stepEndCardDrawGame();
+        this.phase.addAction(this.endTest);
       });
     }
   }
@@ -8420,36 +8443,36 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
-      // StartPositionCardsetSpriteTest,
-      // SetCardsCardsetSpriteTest,
-      // SetTurnToDownCardsCardsetSpriteTest,
-      // SetAllCardsInPositionCardsetSpriteTest,
-      // SetAllCardsInPositionsCardsetSpriteTest,
-      // ListCardsCardsetSpriteTest,
-      // StartClosedCardsCardsetSpriteTest,
-      // OpenAllCardsCardsetSpriteTest,
-      // OpenCardsCardsetSpriteTest,
-      // CloseAllCardsCardsetSpriteTest,
-      // CloseCardsCardsetSpriteTest,
-      // MoveAllCardsInListCardsetSpriteTest,
-      // MoveCardsInListCardsetSpriteTest,
-      // MoveAllCardsToPositionCardsetSpriteTest,
-      // MoveCardsToPositionCardsetSpriteTest,
-      // MoveAllCardsToPositionsCardsetSpriteTest,
-      // AddAllCardsToListCardsetSpriteTest,
-      // AddCardsToListCardsetSpriteTest,
-      // DisableCardsCardsetSpriteTest,
-      // StaticModeCardsetSpriteTest,
-      // SelectModeCardsetSpriteTest,
-      // SelectModeNoSelectCardsetSpriteTest,
-      // SelectModeLimitedCardsetSpriteTest,
-      // FlashCardsCardsetSpriteTest,
-      // QuakeCardsCardsetSpriteTest,
-      // AnimationCardsCardsetSpriteTest,
-      // ShowOrderingCardsCardsetSpriteTest,
-      // ShowReverseOrderingCardsCardsetSpriteTest,
-      // ZoomAllCardsCardsetSpriteTest,
-      // ZoomOutAllCardsCardsetSpriteTest,
+      StartPositionCardsetSpriteTest,
+      SetCardsCardsetSpriteTest,
+      SetTurnToDownCardsCardsetSpriteTest,
+      SetAllCardsInPositionCardsetSpriteTest,
+      SetAllCardsInPositionsCardsetSpriteTest,
+      ListCardsCardsetSpriteTest,
+      StartClosedCardsCardsetSpriteTest,
+      OpenAllCardsCardsetSpriteTest,
+      OpenCardsCardsetSpriteTest,
+      CloseAllCardsCardsetSpriteTest,
+      CloseCardsCardsetSpriteTest,
+      MoveAllCardsInListCardsetSpriteTest,
+      MoveCardsInListCardsetSpriteTest,
+      MoveAllCardsToPositionCardsetSpriteTest,
+      MoveCardsToPositionCardsetSpriteTest,
+      MoveAllCardsToPositionsCardsetSpriteTest,
+      AddAllCardsToListCardsetSpriteTest,
+      AddCardsToListCardsetSpriteTest,
+      DisableCardsCardsetSpriteTest,
+      StaticModeCardsetSpriteTest,
+      SelectModeCardsetSpriteTest,
+      SelectModeNoSelectCardsetSpriteTest,
+      SelectModeLimitedCardsetSpriteTest,
+      FlashCardsCardsetSpriteTest,
+      QuakeCardsCardsetSpriteTest,
+      AnimationCardsCardsetSpriteTest,
+      ShowOrderingCardsCardsetSpriteTest,
+      ShowReverseOrderingCardsCardsetSpriteTest,
+      ZoomAllCardsCardsetSpriteTest,
+      ZoomOutAllCardsCardsetSpriteTest,
       FlipTurnToUpAllCardsCardsetSpriteTest,
       FlipTurnToUpCardsCardsetSpriteTest,
     ];
@@ -8547,7 +8570,7 @@ class CardBattleTestScene extends Scene_Message {
     ];
     return [
       // ...cardSpriteTests,
-      ...cardsetSpriteTests,
+      // ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,
@@ -8556,7 +8579,7 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      // ...phase,
+      ...phase,
     ];
   }
 

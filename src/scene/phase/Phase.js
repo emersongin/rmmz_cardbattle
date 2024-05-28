@@ -5,6 +5,9 @@ class Phase {
   _wait = 0;
 
   constructor(scene) {
+    if ((scene instanceof Scene_Message) === false) {
+      throw new Error('Scene must be an instance of Scene_Message');
+    }
     this._scene = scene;
   }
 

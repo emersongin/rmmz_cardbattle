@@ -18,8 +18,8 @@ class StartPhase extends Phase {
     this._cardDrawGameCardset = CardsetSprite.create(0, 0);
     this._cardDrawGameCardset.centralize();
     this._cardDrawGameCardset.commandShow();
-    const randomCards = this.shuffleCards(cards);
-    const sprites = this._cardDrawGameCardset.setCards(randomCards, Graphics.boxWidth, Graphics.boxHeight);
+    const shuffledCards = ArrayHelper.shuffle(cards);
+    const sprites = this._cardDrawGameCardset.setCards(shuffledCards, Graphics.boxWidth, Graphics.boxHeight);
     const xSprite1 = -(this._cardDrawGameCardset.x + CardSprite.contentOriginalWidth());
     const ySprite1 = -(this._cardDrawGameCardset.y + CardSprite.contentOriginalHeight());
     const position1 = CardSprite.createPosition(xSprite1, ySprite1, 0);
@@ -29,15 +29,6 @@ class StartPhase extends Phase {
     const positions = [position1, position2];
     this._cardDrawGameCardset.setAllCardsInPositions(sprites, positions);
     this._cardDrawGameCardset.setTurnToDownCards(sprites);
-  }
-
-  shuffleCards(cards) {
-    const newCards = cards.slice();
-    for (let i = newCards.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newCards[i], newCards[j]] = [newCards[j], newCards[i]];
-    }
-    return newCards;
   }
 
   startCardDrawGame(selectHandler) {
@@ -65,8 +56,9 @@ class StartPhase extends Phase {
   commandMoveAllCardsToCenter() {
     const center = this._cardDrawGameCardset.width / 2;
     const x = center - CardSprite.contentOriginalWidth();
-    const position1 = CardSprite.createPosition(x, 0, 0);
-    const position2 = CardSprite.createPosition(center, 0, 1);
+    const space = 2;
+    const position1 = CardSprite.createPosition(x - space, 0, 0);
+    const position2 = CardSprite.createPosition(center + space, 0, 1);
     const positions = [position1, position2];
     const sprites = this._cardDrawGameCardset.getSprites();
     this._cardDrawGameCardset.moveAllCardsToPositions(sprites, positions);
@@ -133,10 +125,6 @@ class StartPhase extends Phase {
     this.addAction(this.commandChangeStep, 'START_CARD_DRAW_GAME');
   }
 
-  stepEndCardDrawGame() {
-    this.addAction(this.commandChangeStep, 'END_CARD_DRAW_GAME');
-  }
-
   isStepStartPhase() {
     return this.getStep() === 'START_PHASE';
   }
@@ -153,7 +141,13 @@ class StartPhase extends Phase {
     return super.isBusy() || 
       this._titleWindow.isBusy() || 
       this._descriptionWindow.isBusy() ||
-      this._cardDrawGameCardset.isBusy();
+      this.someChildrenIsBusy();
+  }
+
+  someChildrenIsBusy() {
+    return this._scene.children.some(sprite => {
+      return (sprite instanceof CardsetSprite) && (sprite.hasCommands() || sprite.isBusy());
+    });
   }
 
   endCardDrawGame(selectedIndex) {
@@ -161,8 +155,15 @@ class StartPhase extends Phase {
   }
 
   commandEndCardDrawGame(selectedIndex) {
-    const sprite = this._cardDrawGameCardset.getSpriteByIndex(selectedIndex);
-    this._cardDrawGameCardset.zoomAllCards(sprite);
-    this._cardDrawGameCardset.zoomOutAllCards(sprite);
+    const cardset = this._cardDrawGameCardset;
+    const sprites = ArrayHelper.moveToStartByIndex(cardset.getSprites(), selectedIndex);
+    const selectedSprite = sprites[0];
+    const startIndex = 0;
+    cardset.removeChild(sprites[1]);
+    cardset.addChildAt(sprites[1], startIndex);
+    cardset.zoomAllCards(selectedSprite);
+    cardset.zoomOutAllCards(selectedSprite);
+    cardset.addWait();
+    cardset.flipTurnToUpCards(sprites);
   }
 }

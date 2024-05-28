@@ -16,6 +16,25 @@ class NumberHelper {
   }
 }
 
+class ArrayHelper {
+  static moveToStartByIndex(array, index) {
+    const newArray = array.slice();
+    if (index < 0 || index >= newArray.length) return newArray;
+    const item = newArray.splice(index, 1)[0];
+    newArray.unshift(item);
+    return newArray;
+  }
+
+  static shuffle(array) {
+    const newArray = array.slice();
+    for (let i = newArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+  }
+}
+
 class ObjectHelper {
   static copyObject(obj, maxDepth = 3, currentDepth = 0) {
     const propsToCopy = [
