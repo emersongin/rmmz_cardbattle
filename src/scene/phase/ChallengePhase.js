@@ -30,7 +30,6 @@ class ChallengePhase extends Phase {
 
   commandOpenTitleWindow() {
     this._titleWindow.open();
-    return true;
   }
 
   closeTitleWindow() {
@@ -39,7 +38,6 @@ class ChallengePhase extends Phase {
 
   commandCloseTitleWindow() {
     this._titleWindow.close();
-    return true;
   } 
 
   openDescriptionWindow() {
@@ -48,7 +46,6 @@ class ChallengePhase extends Phase {
 
   commandOpenDescriptionWindow() {
     this._descriptionWindow.open();
-    return true;
   }
 
   closeDescriptionWindow() {
@@ -57,7 +54,6 @@ class ChallengePhase extends Phase {
 
   commandCloseDescriptionWindow() {
     this._descriptionWindow.close();
-    return true;
   }
 
   openFolderWindow() {
@@ -66,7 +62,6 @@ class ChallengePhase extends Phase {
 
   commandOpenFolderWindow() {
     this._folderWindow.open();
-    return true;
   }
 
   closeFolderWindow() {
@@ -75,7 +70,6 @@ class ChallengePhase extends Phase {
 
   commandCloseFolderWindow() {
     this._folderWindow.close();
-    return true;
   }
 
   stepChallengePhase() {

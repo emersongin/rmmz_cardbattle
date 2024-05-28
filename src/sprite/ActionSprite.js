@@ -38,7 +38,10 @@ class ActionSprite extends Sprite {
     const command = { 
       fn: fn.name || 'anonymous',
       delay: delay || 0,
-      execute: () => fn.call(this, ...params)
+      execute: () => {
+        const result = fn.call(this, ...params);
+        return typeof result === 'boolean' ? result : true;
+      }
     };
     return command;
   }
@@ -70,7 +73,6 @@ class ActionSprite extends Sprite {
 
   commandShow() {
     this.visible = true;
-    return true;
   }
 
   hide() {
@@ -79,7 +81,6 @@ class ActionSprite extends Sprite {
 
   commandHide() {
     this.visible = false;
-    return true;
   }
 
   update() {

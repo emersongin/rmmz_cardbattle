@@ -56,7 +56,7 @@ class ChallengePhaseTest extends SceneTest {
   }
   
   update() {
-    if (this.phase.isBusy()) return;
+    if (this.phase.isBusy()) return false;
     if (this.phase.isStepChallengePhase() && Input.isTriggered('ok')) {
       this.phase.stepSelectFolder();
       this.phase.addActions([

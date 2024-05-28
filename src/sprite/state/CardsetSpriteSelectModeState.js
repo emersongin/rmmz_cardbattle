@@ -67,6 +67,7 @@ class CardsetSpriteSelectModeState {
         if (Input.isTriggered('ok')) this.selectSprite();
         if (Input.isTriggered('cancel') || this.selectIsFull()) {
           cardset.addCommand(this._selectHandler, this._selectedIndexs);
+          cardset.commandStaticMode();
         }
       }
     }

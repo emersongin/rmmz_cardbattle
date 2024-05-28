@@ -135,7 +135,7 @@ class TextWindow extends Window_Base {
     const index = this._history.findIndex(h => h.symbol === symbol);
     if (index >= 0) {
       this._history[index].content = content;
-      return;
+      return false;
     }
     const history = this.createHistory(symbol, content);
     this._history.push(history);

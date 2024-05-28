@@ -14,9 +14,8 @@ class ValuesWindow extends StateWindow {
   }
 
   commandUpdateValues(updates) {
-    if (!(this.isOpen() && this.isStopped())) return;
+    if (!(this.isOpen() && this.isStopped())) return false;
     this.changeStatus(WindowUpdatedState, updates);
-    return true;
   }
 
   addValue(name, value) {

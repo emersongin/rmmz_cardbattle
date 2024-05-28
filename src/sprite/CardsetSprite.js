@@ -75,7 +75,6 @@ class CardsetSprite extends ActionSprite {
 
   commandStaticMode() {
     this.changeStatus(CardsetSpriteStaticModeState);
-    return true;
   }
 
   setCards(cards, x, y) {
@@ -118,11 +117,10 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandSetCards(sprites, orderingSprites) {
-    if (this.isHidden()) return;
+    if (this.isHidden()) return false;
     this.clear();
     this.addSprites(sprites);
     this.addSprites(orderingSprites);
-    return true;
   }
 
   addSprites(sprites) {
@@ -135,12 +133,11 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandSetAllCardsPositions(sprites, positions) {
-    if (this.isHidden()) return;
+    if (this.isHidden()) return false;
     positions.forEach(({ x, y, index }) => {
       const sprite = sprites[index];
       sprite.setPosition(x, y);
     });
-    return true;
   }
 
   setAllCardsInPosition(sprites = this._sprites, x = 0, y = 0) {
@@ -149,9 +146,8 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandSetAllCardsPosition(sprites, x, y) {
-    if (this.isHidden()) return;
+    if (this.isHidden()) return false;
     sprites.forEach(sprite => sprite.setPosition(x, y));
-    return true;
   }
 
   showCards(sprites = this._sprites) {
@@ -160,7 +156,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandShowCards(sprites) {
-    if (this.isHidden()) return;
+    if (this.isHidden()) return false;
     sprites.forEach((sprite, index) => sprite.show());
     return true;
   }
@@ -202,10 +198,9 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandStartClosedCards(sprites) {
-    if (this.isHidden()) return;
+    if (this.isHidden()) return false;
     sprites = this.toArray(sprites);
     sprites.forEach((sprite, index) => sprite.startClosed());
-    return true;
   }
 
   allCardsIsClosed(sprites = this._sprites) {
@@ -218,9 +213,8 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandOpenAllCards(sprites) {
-    if (this.isHidden()) return;
+    if (this.isHidden()) return false;
     sprites.forEach(sprite => sprite.open());
-    return true;
   }
 
   closeAllCards(sprites = this._sprites) {
@@ -229,9 +223,8 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandCloseAllCards(sprites) {
-    if (this.isHidden()) return;
+    if (this.isHidden()) return false;
     sprites.forEach(sprite => sprite.close());
-    return true;
   }
 
   openCards(sprites = this._sprites, delay = 6, reverse = false) {
@@ -243,9 +236,8 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandOpenCard(sprite) {
-    if (this.isHidden()) return;
+    if (this.isHidden()) return false;
     sprite.open();
-    return true;
   }
 
   closeCards(sprites = this._sprites, delay = 6, reverse = false) {
@@ -257,9 +249,8 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandCloseCard(sprite) {
-    if (this.isHidden()) return;
+    if (this.isHidden()) return false;
     sprite.close();
-    return true;
   }
 
   moveAllCardsInlist(sprites = this._sprites) {
@@ -278,12 +269,11 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandMoveAllCards(moves) {
-    if (this.isHidden()) return;
+    if (this.isHidden()) return false;
     moves.forEach(({ sprite, x, y }) => {
       const move = CardSprite.createMove(x, y);
       sprite.toMove(move);
     });
-    return true;
   }
 
   moveCardsInlist(sprites = this._sprites, delay = 6) {
@@ -297,10 +287,9 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandMoveCard(sprite, x, y) {
-    if (this.isHidden()) return;
+    if (this.isHidden()) return false;
     const move = CardSprite.createMove(x, y);
     sprite.toMove(move);
-    return true;
   }
 
   moveAllCardsToPosition(sprites = this._sprites, x = 0, y = 0) {
@@ -335,11 +324,10 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandDisableCards(sprites) {
-    if (this.isHidden()) return;
+    if (this.isHidden()) return false;
     sprites.forEach(sprite => {
       sprite.disable();
     });
-    return true;
   }
 
   isEnabledCardIndexs(indexs) {
@@ -360,7 +348,6 @@ class CardsetSprite extends ActionSprite {
 
   commandSelectMode(selectHandler, number) {
     this.changeStatus(CardsetSpriteSelectModeState, selectHandler, number);
-    return true;
   }
 
   allCardsIsOpened(sprites = this._sprites) {
@@ -380,7 +367,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandIluminateSelectedSprites(selectedIndexs) {
-    if (this.isHidden() || this.isStaticMode()) return;
+    if (this.isHidden() || this.isStaticMode()) return false;
     const sprites = this._sprites;
     sprites.forEach((sprite, index) => {
       this.unhoverSprite(sprite, index);
@@ -389,7 +376,6 @@ class CardsetSprite extends ActionSprite {
         sprite.iluminate();
       }
     });
-    return true;
   }
 
   unhoverSprite(sprite, index) {
@@ -409,11 +395,10 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandAnimateCardsFlash(sprites, color, duration, times) {
-    if (this.isHidden() || this.isBusy()) return;
+    if (this.isHidden() || this.isBusy()) return false;
     sprites.forEach(sprite => {
       sprite.flash(color, duration, times);
     });
-    return true;
   }
 
   someSpriteIsFlashPlaying() {
@@ -426,12 +411,11 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandAnimateCardsQuake(sprites, times, distance) {
-    if (this.isHidden() || this.isBusy()) return;
+    if (this.isHidden() || this.isBusy()) return false;
     const movements = CardSprite.generateQuakeMoves(times, distance);
     sprites.forEach(sprite => {
       sprite.quake(times, distance, movements);
     });
-    return true;
   }
 
   someSpriteIsMoving() {
@@ -444,11 +428,10 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandAnimateCardsDamage(times, sprites, anchorParent) {
-    if (this.isHidden() || this.isBusy()) return;
+    if (this.isHidden() || this.isBusy()) return false;
     sprites.forEach(sprite => {
       sprite.damage(times, anchorParent);
     });
-    return true;
   }
 
   someSpriteIsAnimationPlaying() {
@@ -456,8 +439,8 @@ class CardsetSprite extends ActionSprite {
   }
 
   update() {
+    if (this.hasChildren() && this.isHidden()) this.commandShow();
     super.update();
-    if (this.numberOfChildren() && this.isHidden()) this.show();
   }
 
   executeCommand() {
@@ -486,9 +469,8 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandDisplayOrdering() {
-    if (this.isHidden() || this.hasOrderingNumbers() === false) return;
+    if (this.isHidden() || this.hasOrderingNumbers() === false) return false;
     this._orderingSprites.forEach(sprite => sprite.show());
-    return true;
   }
 
   hasOrderingNumbers() {
@@ -504,7 +486,6 @@ class CardsetSprite extends ActionSprite {
     if (orderingSprite) {
       this.redrawOrderingNumber(orderingSprite, number, ColorHelper.getColorHex(color));
     }
-    return true;
   }
 
   redrawOrderingNumber(orderingSprite, number, colorHex) {
@@ -527,13 +508,12 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandDisplayReverseOrdering() {
-    if (this.isHidden() || this.hasOrderingNumbers() === false) return;
+    if (this.isHidden() || this.hasOrderingNumbers() === false) return false;
     this._orderingSprites.forEach(sprite => {
       const number = this._orderingSprites.length - (sprite.number - 1);
       this.redrawOrderingNumber(sprite, number);
     });
     this._orderingSprites.forEach(sprite => sprite.show());
-    return true;
   }
 
   isReverseOrdering() {
@@ -553,9 +533,8 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandFlipTurnToDownCards(sprite) {
-    if (this.isHidden()) return;
+    if (this.isHidden()) return false;
     sprite.forEach(sprite => sprite.setTurnToDown());
-    return true;
   }
 
   allCardsTurnedToDown() {
@@ -568,9 +547,8 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandZoomAllCards(sprites) {
-    if (this.isHidden()) return;
+    if (this.isHidden()) return false;
     sprites.forEach(sprite => sprite.zoom());
-    return true;
   }
 
   isCardsZoom() {
@@ -583,12 +561,15 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandZoomOutAllCards(sprites) {
-    if (this.isHidden()) return;
+    if (this.isHidden()) return false;
     sprites.forEach(sprite => sprite.zoomOut());
-    return true;
   }
 
   isCardsOriginalScale() {
     return this._sprites.every(sprite => sprite.isOriginalScale());
+  }
+
+  getSpriteByIndex(index) {
+    return this._sprites[index];
   }
 }

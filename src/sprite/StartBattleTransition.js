@@ -160,7 +160,7 @@ class StartBattleTransition extends Sprite {
   updateLayerTransition(layer) {
     const { x, target } = layer;
     const { x: targetX } = target;
-    if (targetX == x) return; 
+    if (targetX == x) return false; 
     this.moveLayer(layer);
   }
 

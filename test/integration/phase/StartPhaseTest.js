@@ -31,16 +31,19 @@ class StartPhaseTest extends SceneTest {
   }
   
   update() {
-    if (this.phase.isBusy()) return;
+    if (this.phase.isBusy()) return false;
     if (this.phase.isStepStartPhase() && Input.isTriggered('ok')) {
       this.phase.addActions([
         this.phase.commandCloseTitleWindow,
         this.phase.commandCloseDescriptionWindow,
       ]);
       this.phase.setWait();
-      this.phase.stepCardDrawGame();
+      this.phase.stepStartCardDrawGame();
       this.phase.startCardDrawGame((cards) => {
-        console.log(cards);
+        const selectedIndex = cards.shift();
+        this.phase.endCardDrawGame(selectedIndex);
+        // this.phase.stepEndCardDrawGame();
+        // return true;
       });
     }
   }

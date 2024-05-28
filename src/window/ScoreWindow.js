@@ -41,10 +41,9 @@ class ScoreWindow extends StateWindow {
   }
 
   commandChangeScore(score) {
-    if (this.isBusy()) return;
+    if (this.isBusy()) return false;
     const lastScore = this._score;
     this._score = score;
     this.changeStatus(WindowUpdatedScoreState, lastScore, score);
-    return true;
   }
 }

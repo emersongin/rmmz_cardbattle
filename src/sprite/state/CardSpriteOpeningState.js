@@ -30,7 +30,7 @@ class CardSpriteOpeningState {
       this.updatePosition();
       this.updateOpening();
       that.refresh();
-      return;
+      return false;
     }
     if (that.isOpened()) that.opened();
     if (that.isClosed()) that.closed();

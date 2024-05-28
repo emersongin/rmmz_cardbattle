@@ -48,7 +48,6 @@ class StartPhase extends Phase {
     this.showCards();
     this.moveAllCardsToCenter();
     this.selectMode(selectHandler);
-    return true;
   }
 
   showCards() {
@@ -57,7 +56,6 @@ class StartPhase extends Phase {
   
   commandShowCards() {
     this._cardDrawGameCardset.showCards();
-    return true;
   }
 
   moveAllCardsToCenter() {
@@ -72,7 +70,6 @@ class StartPhase extends Phase {
     const positions = [position1, position2];
     const sprites = this._cardDrawGameCardset.getSprites();
     this._cardDrawGameCardset.moveAllCardsToPositions(sprites, positions);
-    return true;
   }
 
   selectMode(selectHandler) {
@@ -82,7 +79,6 @@ class StartPhase extends Phase {
   commandSelectMode(selectHandler) {
     const selectNumber = 1;
     this._cardDrawGameCardset.selectMode(selectHandler, selectNumber);
-    return true;
   }
 
   openTitleWindow() {
@@ -91,7 +87,6 @@ class StartPhase extends Phase {
 
   commandOpenTitleWindow() {
     this._titleWindow.open();
-    return true;
   }
 
   closeTitleWindow() {
@@ -100,7 +95,6 @@ class StartPhase extends Phase {
 
   commandCloseTitleWindow() {
     this._titleWindow.close();
-    return true;
   } 
 
   openDescriptionWindow() {
@@ -109,7 +103,6 @@ class StartPhase extends Phase {
 
   commandOpenDescriptionWindow() {
     this._descriptionWindow.open();
-    return true;
   }
 
   closeDescriptionWindow() {
@@ -118,7 +111,6 @@ class StartPhase extends Phase {
 
   commandCloseDescriptionWindow() {
     this._descriptionWindow.close();
-    return true;
   }
 
   addChildren() {
@@ -131,29 +123,48 @@ class StartPhase extends Phase {
       this._descriptionWindow
     ]);
     this.addChild(this._cardDrawGameCardset);
-    return true;
   }
 
   stepStartPhase() {
     this.addAction(this.commandChangeStep, 'START_PHASE');
   }
 
-  stepCardDrawGame() {
-    this.addAction(this.commandChangeStep, 'CARD_DRAW_GAME');
+  stepStartCardDrawGame() {
+    this.addAction(this.commandChangeStep, 'START_CARD_DRAW_GAME');
+  }
+
+  stepEndCardDrawGame() {
+    this.addAction(this.commandChangeStep, 'END_CARD_DRAW_GAME');
   }
 
   isStepStartPhase() {
     return this.getStep() === 'START_PHASE';
   }
 
-  isStepCardDrawGame() {
-    return this.getStep() === 'CARD_DRAW_GAME';
+  isStepStartCardDrawGame() {
+    return this.getStep() === 'START_CARD_DRAW_GAME';
   }
 
+  isStepEndCardDrawGame() {
+    return this.getStep() === 'END_CARD_DRAW_GAME';
+  }
+  
   isBusy() {
     return super.isBusy() || 
       this._titleWindow.isBusy() || 
       this._descriptionWindow.isBusy() ||
       this._cardDrawGameCardset.isBusy();
+  }
+
+  endCardDrawGame(selectedIndex) {
+    this.addAction(this.commandEndCardDrawGame, selectedIndex);
+  }
+
+  commandEndCardDrawGame(selectedIndex) {
+    const sprite = this._cardDrawGameCardset.getSpriteByIndex(selectedIndex);
+    console.log(selectedIndex, sprite);
+    this._cardDrawGameCardset.zoomAllCards(sprite);
+    this.setWait();
+    this._cardDrawGameCardset.zoomOutAllCards(sprite);
   }
 }

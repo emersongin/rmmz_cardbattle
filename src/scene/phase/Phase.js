@@ -57,7 +57,10 @@ class Phase {
   createAction(fn, ...params) {
     const action = { 
       fn: fn.name || 'anonymous',
-      execute: () => fn.call(this, ...params)
+      execute: () => {
+        const result = fn.call(this, ...params);
+        return typeof result === 'boolean' ? result : true;
+      }
     };
     return action;
   }
@@ -91,12 +94,10 @@ class Phase {
 
   commandWait(seconds) {
     this._wait = seconds * GameConst.FPS;
-    return true;
   }
 
   commandChangeStep(step) {
     this._step = step;
-    return true;
   }
 
   getStep() {

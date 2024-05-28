@@ -106,8 +106,8 @@ class SceneTest {
   updateTest() {
     this.copyWatched();
     if (this.counter) return this.counter--;
-    if (this.pressToStartAsserts && !Input.isTriggered('ok')) return;
-    if (this.waitHandler) return;
+    if (this.pressToStartAsserts && !Input.isTriggered('ok')) return false;
+    if (this.waitHandler) return false;
     if (this.status === 'START') {
       this.scene._nextTest = null;
       this.scene._phase = null;
@@ -165,7 +165,7 @@ class SceneTest {
       const children = this.scene.children;
       while (children.length > 1) {
         children.forEach(async child => {
-          if (child === this.scene._windowLayer) return;
+          if (child === this.scene._windowLayer) return false;
           child.destroy();
           await this.scene.removeChild(child);
         });

@@ -88,7 +88,7 @@ class CommandWindow extends Window_Command {
   }
 
   makeCommandList() {
-    if (!this.hasCommandsAndHandlers()) return;
+    if (!this.hasCommandsAndHandlers()) return false;
     this._commands.forEach(command => {
       const { name, symbol, enabled, ext } = command;
       this.addCommand(name, symbol, enabled, ext);
@@ -100,7 +100,7 @@ class CommandWindow extends Window_Command {
   }
 
   setHandlers() {
-    if (!this.hasCommandsAndHandlers()) return;
+    if (!this.hasCommandsAndHandlers()) return false;
     this._commands.forEach(command => {
       const { symbol, handler } = command;
       this.setHandler(symbol, handler);
@@ -216,7 +216,7 @@ class CommandWindow extends Window_Command {
     const index = this._history.findIndex(h => h.symbol === symbol);
     if (index >= 0) {
       this._history[index].content = content;
-      return;
+      return false;
     }
     const history = this.createHistory(symbol, content);
     this._history.push(history);
@@ -281,7 +281,10 @@ class CommandWindow extends Window_Command {
   createAction(fn, ...params) {
     const action = { 
       fn: fn.name || 'anonymous',
-      execute: () => fn.call(this, ...params)
+      execute: () => {
+        const result = fn.call(this, ...params);
+        return typeof result === 'boolean' ? result : true;
+      }
     };
     return action;
   }
@@ -291,7 +294,6 @@ class CommandWindow extends Window_Command {
     this.visible = true;
     this.activate();
     super.open();
-    return true;
   }
 
   isOpened() {
@@ -305,7 +307,6 @@ class CommandWindow extends Window_Command {
   commandClose() {
     if (this.isClosed()) return true;
     super.close();
-    return true;
   }
 
   alignTop() {
@@ -313,10 +314,9 @@ class CommandWindow extends Window_Command {
   }
 
   commandAlign(verticalAlign) {
-    if (this.isBusy()) return;
+    if (this.isBusy()) return false;
     this.setVerticalAlign(verticalAlign);
     this.setHorizontalAlign();
-    return true;
   }
 
   setVerticalAlign(position) {
@@ -342,7 +342,6 @@ class CommandWindow extends Window_Command {
 
   commandChangeBlueColor() {
     this._windowColor = GameConst.BLUE_COLOR;
-    return true;
   }
 
   changeRedColor() {
@@ -351,7 +350,6 @@ class CommandWindow extends Window_Command {
 
   commandChangeRedColor() {
     this._windowColor = GameConst.RED_COLOR;
-    return true;
   }
 
   changeDefaultColor() {
@@ -360,7 +358,6 @@ class CommandWindow extends Window_Command {
 
   commandChangeDefaultColor() {
     this._windowColor = GameConst.DEFAULT_COLOR;
-    return true;
   }
 
   isFullsize() {
@@ -412,7 +409,6 @@ class CommandWindow extends Window_Command {
   commandAlignText(align) {
     this._textAlignment = align;
     this.refresh();
-    return true;
   }
 
   alignItemsLeft() {
@@ -430,7 +426,6 @@ class CommandWindow extends Window_Command {
   commandAlignItems(align) {
     this._commandTextAlignment = align;
     this.refresh();
-    return true;
   }
 
   itemTextAlign() {

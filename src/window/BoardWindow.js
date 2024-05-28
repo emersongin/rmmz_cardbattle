@@ -36,10 +36,9 @@ class BoardWindow extends ValuesWindow {
   }
 
   commandNoPass() {
-    if (this.isBusy()) return;
+    if (this.isBusy()) return false;
     this._pass = false;
     this.refresh();
-    return true;
   }
 
   refresh() {
@@ -125,10 +124,9 @@ class BoardWindow extends ValuesWindow {
   }
 
   commandPass() {
-    if (this.isBusy()) return;
+    if (this.isBusy()) return false;
     this._pass = true;
     this.refresh();
-    return true;
   }
 
   isNoPass() {

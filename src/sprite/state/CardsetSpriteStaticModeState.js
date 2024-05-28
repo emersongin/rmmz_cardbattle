@@ -26,14 +26,14 @@ class CardsetSpriteStaticModeState {
   }
 
   resetSprite(sprite) {
-    const destinyXPosition = sprite.x;
-    const destinyYPosition = 0;
-    const duration = 0.03;
+    // const destinyXPosition = sprite.x;
+    // const destinyYPosition = 0;
+    // const duration = 0.03;
     sprite.unhover();
     sprite.unselect();
     sprite.uniluminate();
-    const move = CardSprite.createMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
-    sprite.toMove(move);
+    // const move = CardSprite.createMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
+    // sprite.toMove(move);
   }
 
   updateStatus() {

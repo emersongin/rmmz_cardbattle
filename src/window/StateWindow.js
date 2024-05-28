@@ -159,16 +159,18 @@ class StateWindow extends Window_Base {
   createCommand(fn, ...params) {
     const command = { 
       fn: fn.name || 'anonymous',
-      execute: () => fn.call(this, ...params)
+      execute: () => {
+        const result = fn.call(this, ...params);
+        return typeof result === 'boolean' ? result : true;
+      }
     };
     return command;
   }
 
   commandOpen() {
-    if (!(this.isStopped() && this.isClosed())) return;
+    if (!(this.isStopped() && this.isClosed())) return false;
     this.visible = true;
     super.open();
-    return true;
   }
 
   close() {
@@ -176,9 +178,8 @@ class StateWindow extends Window_Base {
   }
 
   commandClose() {
-    if (!(this.isStopped() && this.isOpen())) return;
+    if (!(this.isStopped() && this.isOpen())) return false;
     super.close();
-    return true;
   }
 
   changeBlueColor() {
@@ -186,9 +187,8 @@ class StateWindow extends Window_Base {
   }
 
   commandChangeBlueColor() {
-    if (!this.isStopped()) return;
+    if (!this.isStopped()) return false;
     this._windowColor = GameConst.BLUE_COLOR;
-    return true;
   }
 
   changeRedColor() {
@@ -196,9 +196,8 @@ class StateWindow extends Window_Base {
   }
 
   commandChangeRedColor() {
-    if (!this.isStopped()) return;
+    if (!this.isStopped()) return false;
     this._windowColor = GameConst.RED_COLOR;
-    return true;
   }
 
   changeDefaultColor() {
@@ -206,9 +205,8 @@ class StateWindow extends Window_Base {
   }
 
   commandChangeDefaultColor() {
-    if (!this.isStopped()) return;
+    if (!this.isStopped()) return false;
     this._windowColor = GameConst.DEFAULT_COLOR;
-    return true;
   }
 
   alignStartTop() {
@@ -248,10 +246,9 @@ class StateWindow extends Window_Base {
   }
 
   commandAlign(horizontalAlign, verticalAlign) {
-    if (!this.isStopped()) return;
+    if (!this.isStopped()) return false;
     this.setHorizontalAlign(horizontalAlign);
     this.setVerticalAlign(verticalAlign);
-    return true;
   }
 
   setHorizontalAlign(position) {

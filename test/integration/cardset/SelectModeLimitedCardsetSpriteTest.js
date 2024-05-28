@@ -23,7 +23,7 @@ class SelectModeLimitedCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve entrar em modo seleção com escolha!');
-    this.expectTrue('Esta em modo seleção?', this.subject.isSelectMode());
     this.expectTrue('Deve selecionar 1 cartas', this.cardsSelected.length === 1);
+    this.expectWasTrue('Esta em modo seleção?', this.subject.isSelectMode);
   }
 }
