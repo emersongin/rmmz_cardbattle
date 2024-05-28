@@ -63,7 +63,7 @@ class ChallengePhaseTest extends SceneTest {
         this.phase.commandCloseTitleWindow,
         this.phase.commandCloseDescriptionWindow,
       ]);
-      this.phase.setWait();
+      this.phase.addWait();
       this.phase.openFolderWindow();
     }
   }

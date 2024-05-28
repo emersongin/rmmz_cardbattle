@@ -162,9 +162,7 @@ class StartPhase extends Phase {
 
   commandEndCardDrawGame(selectedIndex) {
     const sprite = this._cardDrawGameCardset.getSpriteByIndex(selectedIndex);
-    console.log(selectedIndex, sprite);
     this._cardDrawGameCardset.zoomAllCards(sprite);
-    this.setWait();
     this._cardDrawGameCardset.zoomOutAllCards(sprite);
   }
 }

@@ -88,7 +88,7 @@ class Phase {
     this._scene.addChild(child);
   }
 
-  setWait(seconds = 0.6) {
+  addWait(seconds = 0.6) {
     this.addAction(this.commandWait, seconds);
   }
 

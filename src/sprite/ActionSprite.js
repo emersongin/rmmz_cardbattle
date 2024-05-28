@@ -3,6 +3,7 @@ class ActionSprite extends Sprite {
     super.initialize();
     this._commandQueue = [];
     this._delayCommandQueue = [];
+    this._wait = 0;
     this._status = null;
     this._positiveIntensityEffect = false;
     this._intensityEffect = 255;
@@ -67,6 +68,14 @@ class ActionSprite extends Sprite {
     return commands;
   }
 
+  addWait(seconds = 0.6) {
+    this.addCommand(this.commandWait, seconds);
+  }
+
+  commandWait(seconds) {
+    this._wait = seconds * GameConst.FPS;
+  }
+
   show() {
     this.addCommand(this.commandShow);
   }
@@ -85,6 +94,7 @@ class ActionSprite extends Sprite {
 
   update() {
     super.update();
+    if (this._wait > 0) return this._wait--;
     if (this.hasCommands() && this.isAvailable()) this.executeCommand();
     if (this.isVisible()) {
       this.updateStatus();
@@ -102,7 +112,7 @@ class ActionSprite extends Sprite {
   }
 
   isBusy() {
-    return this.someDelayCommand();
+    return this._wait > 0 || this.someDelayCommand();
   }
 
   getStatus() {

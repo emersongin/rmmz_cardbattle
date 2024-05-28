@@ -73,11 +73,11 @@ class ChallengePhase extends Phase {
   }
 
   stepChallengePhase() {
-    this.changeStep('CHALLENGE_PHASE');
+    this.addAction(this.commandChangeStep, 'CHALLENGE_PHASE');
   }
 
   stepSelectFolder() {
-    this.changeStep('SELECT_FOLDER');
+    this.addAction(this.commandChangeStep, 'SELECT_FOLDER');
   }
 
   isStepChallengePhase() {

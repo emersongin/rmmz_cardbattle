@@ -350,7 +350,7 @@ class CardsetSprite extends ActionSprite {
     this.changeStatus(CardsetSpriteSelectModeState, selectHandler, number);
   }
 
-  allCardsIsOpened(sprites = this._sprites) {
+  allCardsAreOpened(sprites = this._sprites) {
     return sprites.every(sprite => sprite.isOpened());
   }
 
@@ -439,8 +439,8 @@ class CardsetSprite extends ActionSprite {
   }
 
   update() {
-    if (this.hasChildren() && this.isHidden()) this.commandShow();
     super.update();
+    if (this.hasChildren() && this.isHidden()) this.commandShow();
   }
 
   executeCommand() {
@@ -571,5 +571,31 @@ class CardsetSprite extends ActionSprite {
 
   getSpriteByIndex(index) {
     return this._sprites[index];
+  }
+
+  flipTurnToUpAllCards(sprites = this._sprites) {
+    sprites = this.toArray(sprites);
+    this.addCommand(this.commandFlipTurnToUpAllCards, sprites);
+  }
+
+  commandFlipTurnToUpAllCards(sprites) {
+    if (this.isHidden()) return false;
+    sprites.forEach(sprite => sprite.flipTurnToUp());
+  }
+
+  allCardsAreTurnToUp() {
+    return this._sprites.every(sprite => sprite.isTurnedToUp());
+  }
+
+  flipTurnToUpCards(sprites = this._sprites, delay = 6) {
+    sprites = this.toArray(sprites);
+    sprites = sprites.map(sprite => [sprite]);
+    const commands = this.createDelayCommands(this.commandFlipTurnToUpCard, delay, sprites);
+    this.addCommands(commands);
+  }
+
+  commandFlipTurnToUpCard(sprite) {
+    if (this.isHidden()) return false;
+    sprite.flipTurnToUp();
   }
 }

@@ -2224,6 +2224,7 @@ class ActionSprite extends Sprite {
     super.initialize();
     this._commandQueue = [];
     this._delayCommandQueue = [];
+    this._wait = 0;
     this._status = null;
     this._positiveIntensityEffect = false;
     this._intensityEffect = 255;
@@ -2288,6 +2289,14 @@ class ActionSprite extends Sprite {
     return commands;
   }
 
+  addWait(seconds = 0.6) {
+    this.addCommand(this.commandWait, seconds);
+  }
+
+  commandWait(seconds) {
+    this._wait = seconds * GameConst.FPS;
+  }
+
   show() {
     this.addCommand(this.commandShow);
   }
@@ -2306,6 +2315,7 @@ class ActionSprite extends Sprite {
 
   update() {
     super.update();
+    if (this._wait > 0) return this._wait--;
     if (this.hasCommands() && this.isAvailable()) this.executeCommand();
     if (this.isVisible()) {
       this.updateStatus();
@@ -2323,7 +2333,7 @@ class ActionSprite extends Sprite {
   }
 
   isBusy() {
-    return this.someDelayCommand();
+    return this._wait > 0 || this.someDelayCommand();
   }
 
   getStatus() {
@@ -4435,7 +4445,7 @@ class CardsetSprite extends ActionSprite {
     this.changeStatus(CardsetSpriteSelectModeState, selectHandler, number);
   }
 
-  allCardsIsOpened(sprites = this._sprites) {
+  allCardsAreOpened(sprites = this._sprites) {
     return sprites.every(sprite => sprite.isOpened());
   }
 
@@ -4524,8 +4534,8 @@ class CardsetSprite extends ActionSprite {
   }
 
   update() {
-    if (this.hasChildren() && this.isHidden()) this.commandShow();
     super.update();
+    if (this.hasChildren() && this.isHidden()) this.commandShow();
   }
 
   executeCommand() {
@@ -4656,6 +4666,32 @@ class CardsetSprite extends ActionSprite {
 
   getSpriteByIndex(index) {
     return this._sprites[index];
+  }
+
+  flipTurnToUpAllCards(sprites = this._sprites) {
+    sprites = this.toArray(sprites);
+    this.addCommand(this.commandFlipTurnToUpAllCards, sprites);
+  }
+
+  commandFlipTurnToUpAllCards(sprites) {
+    if (this.isHidden()) return false;
+    sprites.forEach(sprite => sprite.flipTurnToUp());
+  }
+
+  allCardsAreTurnToUp() {
+    return this._sprites.every(sprite => sprite.isTurnedToUp());
+  }
+
+  flipTurnToUpCards(sprites = this._sprites, delay = 6) {
+    sprites = this.toArray(sprites);
+    sprites = sprites.map(sprite => [sprite]);
+    const commands = this.createDelayCommands(this.commandFlipTurnToUpCard, delay, sprites);
+    this.addCommands(commands);
+  }
+
+  commandFlipTurnToUpCard(sprite) {
+    if (this.isHidden()) return false;
+    sprite.flipTurnToUp();
   }
 }
 class BackgroundSprite extends Sprite {
@@ -5085,7 +5121,7 @@ class Phase {
     this._scene.addChild(child);
   }
 
-  setWait(seconds = 0.6) {
+  addWait(seconds = 0.6) {
     this.addAction(this.commandWait, seconds);
   }
 
@@ -5176,11 +5212,11 @@ class ChallengePhase extends Phase {
   }
 
   stepChallengePhase() {
-    this.changeStep('CHALLENGE_PHASE');
+    this.addAction(this.commandChangeStep, 'CHALLENGE_PHASE');
   }
 
   stepSelectFolder() {
-    this.changeStep('SELECT_FOLDER');
+    this.addAction(this.commandChangeStep, 'SELECT_FOLDER');
   }
 
   isStepChallengePhase() {
@@ -5362,9 +5398,7 @@ class StartPhase extends Phase {
 
   commandEndCardDrawGame(selectedIndex) {
     const sprite = this._cardDrawGameCardset.getSpriteByIndex(selectedIndex);
-    console.log(selectedIndex, sprite);
     this._cardDrawGameCardset.zoomAllCards(sprite);
-    this.setWait();
     this._cardDrawGameCardset.zoomOutAllCards(sprite);
   }
 }
@@ -6428,7 +6462,7 @@ class OpenAllCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve abrir todas as cartas!');
-    this.expectTrue('Estão aberto?', this.subject.allCardsIsOpened(this.sprites));
+    this.expectTrue('Estão aberto?', this.subject.allCardsAreOpened(this.sprites));
   }
 }
 class OpenCardsCardsetSpriteTest extends SceneTest {
@@ -6448,7 +6482,7 @@ class OpenCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve abrir as cartas!');
-    this.expectTrue('Estão aberto?', this.subject.allCardsIsOpened(this.sprites));
+    this.expectTrue('Estão aberto?', this.subject.allCardsAreOpened(this.sprites));
   }
 }
 class CloseAllCardsCardsetSpriteTest extends SceneTest {
@@ -6920,6 +6954,46 @@ class ZoomOutAllCardsCardsetSpriteTest extends SceneTest {
   asserts() {
     this.describe('Deve colocar os cards em escala original!');
     this.expectTrue('Estão em escala original?', this.subject.isCardsOriginalScale());
+  }
+}
+class FlipTurnToUpAllCardsCardsetSpriteTest extends SceneTest {
+  create() {
+    this.subject = CardsetSprite.create(0, 0);
+    this.addWatched(this.subject);
+    this.subject.centralize();
+    this.subject.show();
+    const numCards = 6;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.listCards(cards);
+    this.subject.setTurnToDownCards(sprites);
+    this.subject.showCards(sprites);
+    this.subject.flipTurnToUpAllCards(sprites);
+  }
+
+  asserts() {
+    this.describe('Deve virar o card para cima!');
+    this.expectTrue('Estão virados para cima?', this.subject.allCardsAreTurnToUp());
+    this.expectTrue('EStão abertos?', this.subject.allCardsAreOpened());
+  }
+}
+class FlipTurnToUpCardsCardsetSpriteTest extends SceneTest {
+  create() {
+    this.subject = CardsetSprite.create(0, 0);
+    this.addWatched(this.subject);
+    this.subject.centralize();
+    this.subject.show();
+    const numCards = 6;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.listCards(cards);
+    this.subject.setTurnToDownCards(sprites);
+    this.subject.showCards(sprites);
+    this.subject.flipTurnToUpCards(sprites);
+  }
+
+  asserts() {
+    this.describe('Deve virar o card para cima!');
+    this.expectTrue('Estão virados para cima?', this.subject.allCardsAreTurnToUp());
+    this.expectTrue('EStão abertos?', this.subject.allCardsAreOpened());
   }
 }
 // tests STATE WINDOW
@@ -8161,7 +8235,7 @@ class ChallengePhaseTest extends SceneTest {
         this.phase.commandCloseTitleWindow,
         this.phase.commandCloseDescriptionWindow,
       ]);
-      this.phase.setWait();
+      this.phase.addWait();
       this.phase.openFolderWindow();
     }
   }
@@ -8213,13 +8287,12 @@ class StartPhaseTest extends SceneTest {
         this.phase.commandCloseTitleWindow,
         this.phase.commandCloseDescriptionWindow,
       ]);
-      this.phase.setWait();
+      this.phase.addWait();
       this.phase.stepStartCardDrawGame();
       this.phase.startCardDrawGame((cards) => {
         const selectedIndex = cards.shift();
         this.phase.endCardDrawGame(selectedIndex);
         // this.phase.stepEndCardDrawGame();
-        // return true;
       });
     }
   }
@@ -8347,36 +8420,38 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsCardSpriteTest
     ];
     const cardsetSpriteTests = [
-      StartPositionCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      SetTurnToDownCardsCardsetSpriteTest,
-      SetAllCardsInPositionCardsetSpriteTest,
-      SetAllCardsInPositionsCardsetSpriteTest,
-      ListCardsCardsetSpriteTest,
-      StartClosedCardsCardsetSpriteTest,
-      OpenAllCardsCardsetSpriteTest,
-      OpenCardsCardsetSpriteTest,
-      CloseAllCardsCardsetSpriteTest,
-      CloseCardsCardsetSpriteTest,
-      MoveAllCardsInListCardsetSpriteTest,
-      MoveCardsInListCardsetSpriteTest,
-      MoveAllCardsToPositionCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
-      MoveAllCardsToPositionsCardsetSpriteTest,
-      AddAllCardsToListCardsetSpriteTest,
-      AddCardsToListCardsetSpriteTest,
-      DisableCardsCardsetSpriteTest,
-      StaticModeCardsetSpriteTest,
-      SelectModeCardsetSpriteTest,
-      SelectModeNoSelectCardsetSpriteTest,
-      SelectModeLimitedCardsetSpriteTest,
-      FlashCardsCardsetSpriteTest,
-      QuakeCardsCardsetSpriteTest,
-      AnimationCardsCardsetSpriteTest,
-      ShowOrderingCardsCardsetSpriteTest,
-      ShowReverseOrderingCardsCardsetSpriteTest,
-      ZoomAllCardsCardsetSpriteTest,
-      ZoomOutAllCardsCardsetSpriteTest
+      // StartPositionCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      // SetTurnToDownCardsCardsetSpriteTest,
+      // SetAllCardsInPositionCardsetSpriteTest,
+      // SetAllCardsInPositionsCardsetSpriteTest,
+      // ListCardsCardsetSpriteTest,
+      // StartClosedCardsCardsetSpriteTest,
+      // OpenAllCardsCardsetSpriteTest,
+      // OpenCardsCardsetSpriteTest,
+      // CloseAllCardsCardsetSpriteTest,
+      // CloseCardsCardsetSpriteTest,
+      // MoveAllCardsInListCardsetSpriteTest,
+      // MoveCardsInListCardsetSpriteTest,
+      // MoveAllCardsToPositionCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
+      // MoveAllCardsToPositionsCardsetSpriteTest,
+      // AddAllCardsToListCardsetSpriteTest,
+      // AddCardsToListCardsetSpriteTest,
+      // DisableCardsCardsetSpriteTest,
+      // StaticModeCardsetSpriteTest,
+      // SelectModeCardsetSpriteTest,
+      // SelectModeNoSelectCardsetSpriteTest,
+      // SelectModeLimitedCardsetSpriteTest,
+      // FlashCardsCardsetSpriteTest,
+      // QuakeCardsCardsetSpriteTest,
+      // AnimationCardsCardsetSpriteTest,
+      // ShowOrderingCardsCardsetSpriteTest,
+      // ShowReverseOrderingCardsCardsetSpriteTest,
+      // ZoomAllCardsCardsetSpriteTest,
+      // ZoomOutAllCardsCardsetSpriteTest,
+      FlipTurnToUpAllCardsCardsetSpriteTest,
+      FlipTurnToUpCardsCardsetSpriteTest,
     ];
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,
@@ -8467,12 +8542,12 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const phase = [
-      ChallengePhaseTest,
+      // ChallengePhaseTest,
       StartPhaseTest,
     ];
     return [
       // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
+      ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,
@@ -8481,7 +8556,7 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      ...phase,
+      // ...phase,
     ];
   }
 
