@@ -7,11 +7,13 @@ class ChallengePhase extends Phase {
     this._titleWindow = TextWindow.createWindowFullSize(0, 0, title);
     this._titleWindow.alignCenterAboveMiddle();
     this._titleWindow.alignTextCenter();
+    this.attachChild(this._titleWindow);
   }
 
   createDescriptionWindow(text) {
     this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, text);
     this._descriptionWindow.alignCenterMiddle();
+    this.attachChild(this._descriptionWindow);
   }
 
   createFolderWindow(text, folders) {
@@ -22,6 +24,7 @@ class ChallengePhase extends Phase {
     this._folderWindow = FolderWindow.create(0, 0, text, commands);
     this._folderWindow.alignMiddle();
     this._folderWindow.alignTextCenter();
+    this.attachChild(this._folderWindow);
   }
 
   openTitleWindow() {
@@ -72,20 +75,16 @@ class ChallengePhase extends Phase {
     this._folderWindow.close();
   }
 
-  stepChallengePhase() {
-    this.addAction(this.commandChangeStep, 'CHALLENGE_PHASE');
-  }
-
   stepSelectFolder() {
-    this.addAction(this.commandChangeStep, 'SELECT_FOLDER');
+    this.addAction(this.commandChangeStep, GameConst.START_SELECT_FOLDER);
   }
 
-  isStepChallengePhase() {
-    return this.getStep() === 'CHALLENGE_PHASE';
+  stepEndSelectFolder() {
+    this.addAction(this.commandChangeStep, GameConst.END_SELECT_FOLDER);
   }
 
-  isStepSelectFolder() {
-    return this.getStep() === 'SELECT_FOLDER';
+  isStepEndSelectFolder() {
+    return this.getStep() === GameConst.END_SELECT_FOLDER;
   }
 
   isBusy() {

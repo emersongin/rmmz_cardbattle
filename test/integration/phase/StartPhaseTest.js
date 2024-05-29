@@ -27,7 +27,7 @@ class StartPhaseTest extends SceneTest {
       this.phase.commandOpenTitleWindow,
       this.phase.commandOpenDescriptionWindow,
     ]);
-    this.phase.stepStartPhase();
+    this.phase.stepStart();
   }
   
   update() {
@@ -37,14 +37,12 @@ class StartPhaseTest extends SceneTest {
         this.phase.commandCloseTitleWindow,
         this.phase.commandCloseDescriptionWindow,
       ]);
-      this.phase.addWait();
       this.phase.stepStartCardDrawGame();
       this.phase.startCardDrawGame((cards) => {
         const selectedIndex = cards.shift();
         this.phase.endCardDrawGame(selectedIndex);
         this.phase.stepEndCardDrawGame();
         this.phase.openResultWindow();
-        this.phase.addWait(1);
       });
     }
     if (this.phase.isStepEndCardDrawGame() && Input.isTriggered('ok')) {
@@ -52,7 +50,6 @@ class StartPhaseTest extends SceneTest {
         this.phase.commandCloseResultWindow,
         this.phase.commandCloseCardDrawGameCardset,
       ]);
-      this.phase.addWait(1);
       this.phase.addAction(this.endTest);
     }
   }

@@ -42,6 +42,9 @@ const GameConst = {
   RED_COLOR: 'RED_COLOR',
   BLUE_COLOR: 'BLUE_COLOR',
   FPS: 60,
+  START_PHASE: 'START_PHASE',
+  START_SELECT_FOLDER: 'START_SELECT_FOLDER',
+  END_SELECT_FOLDER: 'END_SELECT_FOLDER',
 };
 
 const CardTypes = {
@@ -5044,6 +5047,7 @@ class Phase {
   _actionsQueue = [];
   _step = 'START';
   _wait = 0;
+  _childrenToAdd = [];
 
   constructor(scene) {
     if ((scene instanceof Scene_Message) === false) {
@@ -5071,6 +5075,7 @@ class Phase {
 
   executeAction() {
     const actions = this._actionsQueue[0];
+    console.log(actions);
     if (actions.length > 0) {
       const completed = this.processActions(actions);
       if (completed) {
@@ -5119,19 +5124,6 @@ class Phase {
     return (Array.isArray(items) === false) ? [items] : items;
   }
 
-  addWindow(window) {
-    this._scene.addWindow(window);
-  }
-
-  addWindows(windows) {
-    if (Array.isArray(windows) === false) windows = [windows];
-    windows.forEach(window => this.addWindow(window));
-  }
-
-  addChild(child) {
-    this._scene.addChild(child);
-  }
-
   addWait(seconds = 0.6) {
     this.addAction(this.commandWait, seconds);
   }
@@ -5140,12 +5132,46 @@ class Phase {
     this._wait = seconds * GameConst.FPS;
   }
 
+  stepStart() {
+    this.addAction(this.commandChangeStep, GameConst.START_PHASE);
+  }
+
   commandChangeStep(step) {
     this._step = step;
+    this._wait = 0.5 * GameConst.FPS;
+  }
+
+  isStepStart() {
+    return this.getStep() === GameConst.START_PHASE;
   }
 
   getStep() {
     return this._step;
+  }
+
+  attachChild(child) {
+    this._childrenToAdd.push(child);
+  }
+
+  addChildren() {
+    this._childrenToAdd.forEach(child => this.addChild(child));
+  }
+
+  addChild(child) {
+    if (child instanceof Window_Base) {
+      this.addWindows(child);
+    } else {
+      this.scene.addChild(child);
+    }
+  }
+
+  addWindows(windows) {
+    if (Array.isArray(windows) === false) windows = [windows];
+    windows.forEach(window => this.addWindow(window));
+  }
+
+  addWindow(window) {
+    this._scene.addWindow(window);
   }
 }
 class ChallengePhase extends Phase {
@@ -5157,11 +5183,13 @@ class ChallengePhase extends Phase {
     this._titleWindow = TextWindow.createWindowFullSize(0, 0, title);
     this._titleWindow.alignCenterAboveMiddle();
     this._titleWindow.alignTextCenter();
+    this.attachChild(this._titleWindow);
   }
 
   createDescriptionWindow(text) {
     this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, text);
     this._descriptionWindow.alignCenterMiddle();
+    this.attachChild(this._descriptionWindow);
   }
 
   createFolderWindow(text, folders) {
@@ -5172,6 +5200,7 @@ class ChallengePhase extends Phase {
     this._folderWindow = FolderWindow.create(0, 0, text, commands);
     this._folderWindow.alignMiddle();
     this._folderWindow.alignTextCenter();
+    this.attachChild(this._folderWindow);
   }
 
   openTitleWindow() {
@@ -5222,20 +5251,16 @@ class ChallengePhase extends Phase {
     this._folderWindow.close();
   }
 
-  stepChallengePhase() {
-    this.addAction(this.commandChangeStep, 'CHALLENGE_PHASE');
-  }
-
   stepSelectFolder() {
-    this.addAction(this.commandChangeStep, 'SELECT_FOLDER');
+    this.addAction(this.commandChangeStep, GameConst.START_SELECT_FOLDER);
   }
 
-  isStepChallengePhase() {
-    return this.getStep() === 'CHALLENGE_PHASE';
+  stepEndSelectFolder() {
+    this.addAction(this.commandChangeStep, GameConst.END_SELECT_FOLDER);
   }
 
-  isStepSelectFolder() {
-    return this.getStep() === 'SELECT_FOLDER';
+  isStepEndSelectFolder() {
+    return this.getStep() === GameConst.END_SELECT_FOLDER;
   }
 
   isBusy() {
@@ -8289,7 +8314,6 @@ class ChallengePhaseTest extends SceneTest {
     const line2 = 'Amaterasu Duel King';
     const text2 = [line, line2];
     this.phase.createDescriptionWindow(text2);
-    const endTest = this.createHandler();
     const folders = [
       {
         name: 'Folder 1',
@@ -8297,7 +8321,7 @@ class ChallengePhaseTest extends SceneTest {
         handler: () => {
           this.phase.closeFolderWindow();
           this.selectFolderIndex = 0;
-          endTest();
+          this.phase.stepEndSelectFolder();
         }
       }, {
         name: 'Folder 2',
@@ -8305,7 +8329,7 @@ class ChallengePhaseTest extends SceneTest {
         handler: () => {
           this.phase.closeFolderWindow();
           this.selectFolderIndex = 1;
-          endTest();
+          this.phase.stepEndSelectFolder();
         }
       }, {
         name: 'Folder 3',
@@ -8313,36 +8337,41 @@ class ChallengePhaseTest extends SceneTest {
         handler: () => {
           this.phase.closeFolderWindow();
           this.selectFolderIndex = 2;
-          endTest();
+          this.phase.stepEndSelectFolder();
         }
     }];
     const title2 = CommandWindow.setTextColor('Choose a folder', GameColors.ORANGE);
     const text3 = [title2];
     this.phase.createFolderWindow(text3, folders);
-    this.addWatched(this.phase._titleWindow);
-    this.addWatched(this.phase._descriptionWindow);
-    this.addWatched(this.phase._folderWindow);
+    //
+    this.addHiddenWatched(this.phase._titleWindow);
+    this.addHiddenWatched(this.phase._descriptionWindow);
+    this.addHiddenWatched(this.phase._folderWindow);
+    this.endTest = this.createHandler();
   }
 
   start() {
     this.scene.setPhase(this.phase);
+    this.phase.addChildren();
     this.phase.addActions([
       this.phase.commandOpenTitleWindow,
       this.phase.commandOpenDescriptionWindow,
     ]);
-    this.phase.stepChallengePhase();
+    this.phase.stepStart();
   }
   
   update() {
     if (this.phase.isBusy()) return false;
-    if (this.phase.isStepChallengePhase() && Input.isTriggered('ok')) {
-      this.phase.stepSelectFolder();
+    if (this.phase.isStepStart() && Input.isTriggered('ok')) {
       this.phase.addActions([
         this.phase.commandCloseTitleWindow,
         this.phase.commandCloseDescriptionWindow,
       ]);
-      this.phase.addWait();
+      this.phase.stepSelectFolder();
       this.phase.openFolderWindow();
+    }
+    if (this.phase.isStepEndSelectFolder()) {
+      this.endTest();
     }
   }
 
@@ -8383,7 +8412,7 @@ class StartPhaseTest extends SceneTest {
       this.phase.commandOpenTitleWindow,
       this.phase.commandOpenDescriptionWindow,
     ]);
-    this.phase.stepStartPhase();
+    this.phase.stepStart();
   }
   
   update() {
@@ -8393,14 +8422,12 @@ class StartPhaseTest extends SceneTest {
         this.phase.commandCloseTitleWindow,
         this.phase.commandCloseDescriptionWindow,
       ]);
-      this.phase.addWait();
       this.phase.stepStartCardDrawGame();
       this.phase.startCardDrawGame((cards) => {
         const selectedIndex = cards.shift();
         this.phase.endCardDrawGame(selectedIndex);
         this.phase.stepEndCardDrawGame();
         this.phase.openResultWindow();
-        this.phase.addWait(1);
       });
     }
     if (this.phase.isStepEndCardDrawGame() && Input.isTriggered('ok')) {
@@ -8408,7 +8435,6 @@ class StartPhaseTest extends SceneTest {
         this.phase.commandCloseResultWindow,
         this.phase.commandCloseCardDrawGameCardset,
       ]);
-      this.phase.addWait(1);
       this.phase.addAction(this.endTest);
     }
   }
@@ -8658,8 +8684,8 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const phase = [
-      // ChallengePhaseTest,
-      StartPhaseTest,
+      ChallengePhaseTest,
+      // StartPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

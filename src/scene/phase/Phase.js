@@ -3,6 +3,7 @@ class Phase {
   _actionsQueue = [];
   _step = 'START';
   _wait = 0;
+  _childrenToAdd = [];
 
   constructor(scene) {
     if ((scene instanceof Scene_Message) === false) {
@@ -78,19 +79,6 @@ class Phase {
     return (Array.isArray(items) === false) ? [items] : items;
   }
 
-  addWindow(window) {
-    this._scene.addWindow(window);
-  }
-
-  addWindows(windows) {
-    if (Array.isArray(windows) === false) windows = [windows];
-    windows.forEach(window => this.addWindow(window));
-  }
-
-  addChild(child) {
-    this._scene.addChild(child);
-  }
-
   addWait(seconds = 0.6) {
     this.addAction(this.commandWait, seconds);
   }
@@ -99,11 +87,45 @@ class Phase {
     this._wait = seconds * GameConst.FPS;
   }
 
+  stepStart() {
+    this.addAction(this.commandChangeStep, GameConst.START_PHASE);
+  }
+
   commandChangeStep(step) {
     this._step = step;
+    this._wait = 0.5 * GameConst.FPS;
+  }
+
+  isStepStart() {
+    return this.getStep() === GameConst.START_PHASE;
   }
 
   getStep() {
     return this._step;
+  }
+
+  attachChild(child) {
+    this._childrenToAdd.push(child);
+  }
+
+  addChildren() {
+    this._childrenToAdd.forEach(child => this.addChild(child));
+  }
+
+  addChild(child) {
+    if (child instanceof Window_Base) {
+      this.addWindows(child);
+    } else {
+      this.scene.addChild(child);
+    }
+  }
+
+  addWindows(windows) {
+    if (Array.isArray(windows) === false) windows = [windows];
+    windows.forEach(window => this.addWindow(window));
+  }
+
+  addWindow(window) {
+    this._scene.addWindow(window);
   }
 }

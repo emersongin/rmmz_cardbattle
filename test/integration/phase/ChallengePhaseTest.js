@@ -11,7 +11,6 @@ class ChallengePhaseTest extends SceneTest {
     const line2 = 'Amaterasu Duel King';
     const text2 = [line, line2];
     this.phase.createDescriptionWindow(text2);
-    const endTest = this.createHandler();
     const folders = [
       {
         name: 'Folder 1',
@@ -19,7 +18,7 @@ class ChallengePhaseTest extends SceneTest {
         handler: () => {
           this.phase.closeFolderWindow();
           this.selectFolderIndex = 0;
-          endTest();
+          this.phase.stepEndSelectFolder();
         }
       }, {
         name: 'Folder 2',
@@ -27,7 +26,7 @@ class ChallengePhaseTest extends SceneTest {
         handler: () => {
           this.phase.closeFolderWindow();
           this.selectFolderIndex = 1;
-          endTest();
+          this.phase.stepEndSelectFolder();
         }
       }, {
         name: 'Folder 3',
@@ -35,36 +34,41 @@ class ChallengePhaseTest extends SceneTest {
         handler: () => {
           this.phase.closeFolderWindow();
           this.selectFolderIndex = 2;
-          endTest();
+          this.phase.stepEndSelectFolder();
         }
     }];
     const title2 = CommandWindow.setTextColor('Choose a folder', GameColors.ORANGE);
     const text3 = [title2];
     this.phase.createFolderWindow(text3, folders);
-    this.addWatched(this.phase._titleWindow);
-    this.addWatched(this.phase._descriptionWindow);
-    this.addWatched(this.phase._folderWindow);
+    //
+    this.addHiddenWatched(this.phase._titleWindow);
+    this.addHiddenWatched(this.phase._descriptionWindow);
+    this.addHiddenWatched(this.phase._folderWindow);
+    this.endTest = this.createHandler();
   }
 
   start() {
     this.scene.setPhase(this.phase);
+    this.phase.addChildren();
     this.phase.addActions([
       this.phase.commandOpenTitleWindow,
       this.phase.commandOpenDescriptionWindow,
     ]);
-    this.phase.stepChallengePhase();
+    this.phase.stepStart();
   }
   
   update() {
     if (this.phase.isBusy()) return false;
-    if (this.phase.isStepChallengePhase() && Input.isTriggered('ok')) {
-      this.phase.stepSelectFolder();
+    if (this.phase.isStepStart() && Input.isTriggered('ok')) {
       this.phase.addActions([
         this.phase.commandCloseTitleWindow,
         this.phase.commandCloseDescriptionWindow,
       ]);
-      this.phase.addWait();
+      this.phase.stepSelectFolder();
       this.phase.openFolderWindow();
+    }
+    if (this.phase.isStepEndSelectFolder()) {
+      this.endTest();
     }
   }
 
