@@ -440,6 +440,7 @@ class CardsetSprite extends ActionSprite {
 
   update() {
     super.update();
+    console.log(this._status);
     if (this.hasChildren() && this.isHidden()) this.commandShow();
   }
 

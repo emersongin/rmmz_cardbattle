@@ -116,7 +116,7 @@ class Phase {
     if (child instanceof Window_Base) {
       this.addWindows(child);
     } else {
-      this.scene.addChild(child);
+      this._scene.addChild(child);
     }
   }
 

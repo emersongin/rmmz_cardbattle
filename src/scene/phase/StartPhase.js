@@ -2,25 +2,25 @@ class StartPhase extends Phase {
   _titleWindow;
   _descriptionWindow;
   _cardDrawGameCardset;
-  _win = false;
 
   createTitleWindow(title) {
     this._titleWindow = TextWindow.createWindowFullSize(0, 0, title);
     this._titleWindow.alignCenterAboveMiddle();
     this._titleWindow.alignTextCenter();
+    this.attachChild(this._titleWindow);
   }
 
   createDescriptionWindow(text) {
     this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, text);
     this._descriptionWindow.alignCenterMiddle();
+    this.attachChild(this._descriptionWindow);
   }
 
   createCardDrawGameCardset(cards) {
     this._cardDrawGameCardset = CardsetSprite.create(0, 0);
     this._cardDrawGameCardset.centralize();
     this._cardDrawGameCardset.commandShow();
-    const shuffledCards = ArrayHelper.shuffle(cards);
-    const sprites = this._cardDrawGameCardset.setCards(shuffledCards, Graphics.boxWidth, Graphics.boxHeight);
+    const sprites = this._cardDrawGameCardset.setCards(cards, Graphics.boxWidth, Graphics.boxHeight);
     const xSprite1 = -(this._cardDrawGameCardset.x + CardSprite.contentOriginalWidth());
     const ySprite1 = -(this._cardDrawGameCardset.y + CardSprite.contentOriginalHeight());
     const position1 = CardSprite.createPosition(xSprite1, ySprite1, 0);
@@ -30,6 +30,8 @@ class StartPhase extends Phase {
     const positions = [position1, position2];
     this._cardDrawGameCardset.setAllCardsInPositions(sprites, positions);
     this._cardDrawGameCardset.setTurnToDownCards(sprites);
+    this.attachChild(this._cardDrawGameCardset);
+    return sprites;
   }
 
   startCardDrawGame(selectHandler) {
@@ -106,40 +108,16 @@ class StartPhase extends Phase {
     this._descriptionWindow.close();
   }
 
-  addChildren() {
-    this.addAction(this.commandAddChildren);
-  }
-
-  commandAddChildren() {
-    this.addWindows([
-      this._titleWindow,
-      this._descriptionWindow
-    ]);
-    this.addChild(this._cardDrawGameCardset);
-  }
-
-  stepStartPhase() {
-    this.commandChangeStep('START_PHASE');
-  }
-
-  stepStartCardDrawGame() {
-    this.commandChangeStep('START_CARD_DRAW_GAME');
+  stepCardDrawGame() {
+    this.addAction(this.commandChangeStep, GameConst.START_CARD_DRAW_GAME);
   }
 
   stepEndCardDrawGame() {
-    this.commandChangeStep('END_CARD_DRAW_GAME');
-  }
-
-  isStepStartPhase() {
-    return this.getStep() === 'START_PHASE';
-  }
-
-  isStepStartCardDrawGame() {
-    return this.getStep() === 'START_CARD_DRAW_GAME';
+    this.addAction(this.commandChangeStep, GameConst.END_CARD_DRAW_GAME);
   }
 
   isStepEndCardDrawGame() {
-    return this.getStep() === 'END_CARD_DRAW_GAME';
+    return this.getStep() === GameConst.END_CARD_DRAW_GAME;
   }
   
   isBusy() {
@@ -163,13 +141,7 @@ class StartPhase extends Phase {
     const cardset = this._cardDrawGameCardset;
     const sprites = ArrayHelper.moveToStartByIndex(cardset.getSprites(), selectedIndex);
     const selectedSprite = sprites[0];
-    const colorName = selectedSprite.getColorName();
     const startIndex = 0;
-    this._win = colorName === 'WHITE';
-
-    this.createResultWindow();
-
-
     cardset.removeChild(sprites[1]);
     cardset.addChildAt(sprites[1], startIndex);
     cardset.zoomAllCards(selectedSprite);
@@ -178,8 +150,7 @@ class StartPhase extends Phase {
     cardset.flipTurnToUpCards(sprites);
   }
 
-  createResultWindow() {
-    const text = this._win ? ['You win!'] : ['You lose!'];
+  createResultWindow(text) {
     this._resultWindow = TextWindow.createWindowOneFourthSize(0, 0, text);
     this._resultWindow.alignCenterAboveMiddle();
     this._resultWindow.alignTextCenter();

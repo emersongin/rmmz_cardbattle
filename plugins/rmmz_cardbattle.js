@@ -45,6 +45,8 @@ const GameConst = {
   START_PHASE: 'START_PHASE',
   START_SELECT_FOLDER: 'START_SELECT_FOLDER',
   END_SELECT_FOLDER: 'END_SELECT_FOLDER',
+  START_CARD_DRAW_GAME: 'START_CARD_DRAW_GAME',
+  END_CARD_DRAW_GAME: 'END_CARD_DRAW_GAME',
 };
 
 const CardTypes = {
@@ -3960,7 +3962,6 @@ class CardsetSpriteSelectModeState {
   _cursorIndex;
   _selectedIndexs;
   _selectNumber;
-  _confirmWindow;
   _selectHandler;
 
   constructor(sprite, selectHandler, number = -1) {
@@ -4019,13 +4020,14 @@ class CardsetSpriteSelectModeState {
     const keys = ['right', 'left'];
     if (cardset.isAvailable()) {
       this.updateCursor();
-      if (Input.isAnyKeyActiveIn(keys)) this.updateHoverSprites();
+      if (Input.isAnyKeyActiveIn(keys)) return this.updateHoverSprites();
       if (this.isSelectable()) {
-        if (Input.isTriggered('ok')) this.selectSprite();
         if (Input.isTriggered('cancel') || this.selectIsFull()) {
           cardset.addCommand(this._selectHandler, this._selectedIndexs);
           cardset.commandStaticMode();
+          return;
         }
+        if (Input.isTriggered('ok')) this.selectSprite();
       }
     }
   }
@@ -4072,7 +4074,7 @@ class CardsetSpriteSelectModeState {
     } else {
       this.addSelectedIndex(cursorIndex);
     }
-    this.updateSelectSprites();
+    if (this.selectIsFull() === false) this.updateSelectSprites();
   }
 
   removeSelectedIndex(index) {
@@ -4546,6 +4548,7 @@ class CardsetSprite extends ActionSprite {
 
   update() {
     super.update();
+    console.log(this._status);
     if (this.hasChildren() && this.isHidden()) this.commandShow();
   }
 
@@ -5075,7 +5078,6 @@ class Phase {
 
   executeAction() {
     const actions = this._actionsQueue[0];
-    console.log(actions);
     if (actions.length > 0) {
       const completed = this.processActions(actions);
       if (completed) {
@@ -5161,7 +5163,7 @@ class Phase {
     if (child instanceof Window_Base) {
       this.addWindows(child);
     } else {
-      this.scene.addChild(child);
+      this._scene.addChild(child);
     }
   }
 
@@ -5274,25 +5276,25 @@ class StartPhase extends Phase {
   _titleWindow;
   _descriptionWindow;
   _cardDrawGameCardset;
-  _win = false;
 
   createTitleWindow(title) {
     this._titleWindow = TextWindow.createWindowFullSize(0, 0, title);
     this._titleWindow.alignCenterAboveMiddle();
     this._titleWindow.alignTextCenter();
+    this.attachChild(this._titleWindow);
   }
 
   createDescriptionWindow(text) {
     this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, text);
     this._descriptionWindow.alignCenterMiddle();
+    this.attachChild(this._descriptionWindow);
   }
 
   createCardDrawGameCardset(cards) {
     this._cardDrawGameCardset = CardsetSprite.create(0, 0);
     this._cardDrawGameCardset.centralize();
     this._cardDrawGameCardset.commandShow();
-    const shuffledCards = ArrayHelper.shuffle(cards);
-    const sprites = this._cardDrawGameCardset.setCards(shuffledCards, Graphics.boxWidth, Graphics.boxHeight);
+    const sprites = this._cardDrawGameCardset.setCards(cards, Graphics.boxWidth, Graphics.boxHeight);
     const xSprite1 = -(this._cardDrawGameCardset.x + CardSprite.contentOriginalWidth());
     const ySprite1 = -(this._cardDrawGameCardset.y + CardSprite.contentOriginalHeight());
     const position1 = CardSprite.createPosition(xSprite1, ySprite1, 0);
@@ -5302,6 +5304,8 @@ class StartPhase extends Phase {
     const positions = [position1, position2];
     this._cardDrawGameCardset.setAllCardsInPositions(sprites, positions);
     this._cardDrawGameCardset.setTurnToDownCards(sprites);
+    this.attachChild(this._cardDrawGameCardset);
+    return sprites;
   }
 
   startCardDrawGame(selectHandler) {
@@ -5378,40 +5382,16 @@ class StartPhase extends Phase {
     this._descriptionWindow.close();
   }
 
-  addChildren() {
-    this.addAction(this.commandAddChildren);
-  }
-
-  commandAddChildren() {
-    this.addWindows([
-      this._titleWindow,
-      this._descriptionWindow
-    ]);
-    this.addChild(this._cardDrawGameCardset);
-  }
-
-  stepStartPhase() {
-    this.commandChangeStep('START_PHASE');
-  }
-
-  stepStartCardDrawGame() {
-    this.commandChangeStep('START_CARD_DRAW_GAME');
+  stepCardDrawGame() {
+    this.addAction(this.commandChangeStep, GameConst.START_CARD_DRAW_GAME);
   }
 
   stepEndCardDrawGame() {
-    this.commandChangeStep('END_CARD_DRAW_GAME');
-  }
-
-  isStepStartPhase() {
-    return this.getStep() === 'START_PHASE';
-  }
-
-  isStepStartCardDrawGame() {
-    return this.getStep() === 'START_CARD_DRAW_GAME';
+    this.addAction(this.commandChangeStep, GameConst.END_CARD_DRAW_GAME);
   }
 
   isStepEndCardDrawGame() {
-    return this.getStep() === 'END_CARD_DRAW_GAME';
+    return this.getStep() === GameConst.END_CARD_DRAW_GAME;
   }
   
   isBusy() {
@@ -5435,13 +5415,7 @@ class StartPhase extends Phase {
     const cardset = this._cardDrawGameCardset;
     const sprites = ArrayHelper.moveToStartByIndex(cardset.getSprites(), selectedIndex);
     const selectedSprite = sprites[0];
-    const colorName = selectedSprite.getColorName();
     const startIndex = 0;
-    this._win = colorName === 'WHITE';
-
-    this.createResultWindow();
-
-
     cardset.removeChild(sprites[1]);
     cardset.addChildAt(sprites[1], startIndex);
     cardset.zoomAllCards(selectedSprite);
@@ -5450,8 +5424,7 @@ class StartPhase extends Phase {
     cardset.flipTurnToUpCards(sprites);
   }
 
-  createResultWindow() {
-    const text = this._win ? ['You win!'] : ['You lose!'];
+  createResultWindow(text) {
     this._resultWindow = TextWindow.createWindowOneFourthSize(0, 0, text);
     this._resultWindow.alignCenterAboveMiddle();
     this._resultWindow.alignTextCenter();
@@ -8371,7 +8344,7 @@ class ChallengePhaseTest extends SceneTest {
       this.phase.openFolderWindow();
     }
     if (this.phase.isStepEndSelectFolder()) {
-      this.endTest();
+      this.phase.addAction(this.endTest);
     }
   }
 
@@ -8398,11 +8371,12 @@ class StartPhaseTest extends SceneTest {
       CardGenerator.generateGameCard('white'),
       CardGenerator.generateGameCard('black'),
     ];
-    this.phase.createCardDrawGameCardset(cards);
-    this.endTest = this.createHandler();
+    const shuffledCards = ArrayHelper.shuffle(cards);
+    this.sprites = this.phase.createCardDrawGameCardset(shuffledCards);
     this.addHiddenWatched(this.phase._titleWindow);
     this.addHiddenWatched(this.phase._descriptionWindow);
     this.addHiddenWatched(this.phase._cardDrawGameCardset);
+    this.endTest = this.createHandler();
   }
 
   start() {
@@ -8417,17 +8391,22 @@ class StartPhaseTest extends SceneTest {
   
   update() {
     if (this.phase.isBusy()) return false;
-    if (this.phase.isStepStartPhase() && Input.isTriggered('ok')) {
+    if (this.phase.isStepStart() && Input.isTriggered('ok')) {
       this.phase.addActions([
         this.phase.commandCloseTitleWindow,
         this.phase.commandCloseDescriptionWindow,
       ]);
-      this.phase.stepStartCardDrawGame();
+      this.phase.stepCardDrawGame();
       this.phase.startCardDrawGame((cards) => {
         const selectedIndex = cards.shift();
+        const selectedSprite = this.sprites[selectedIndex];
+        const colorName = selectedSprite.getColorName();
+        const result = colorName === 'WHITE';
+        const text = result ? ['You win!'] : ['You lose!'];
+        this.phase.createResultWindow(text);
         this.phase.endCardDrawGame(selectedIndex);
-        this.phase.stepEndCardDrawGame();
         this.phase.openResultWindow();
+        this.phase.stepEndCardDrawGame();
       });
     }
     if (this.phase.isStepEndCardDrawGame() && Input.isTriggered('ok')) {
@@ -8684,8 +8663,8 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const phase = [
-      ChallengePhaseTest,
-      // StartPhaseTest,
+      // ChallengePhaseTest,
+      StartPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

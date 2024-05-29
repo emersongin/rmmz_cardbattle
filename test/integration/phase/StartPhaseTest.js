@@ -13,11 +13,12 @@ class StartPhaseTest extends SceneTest {
       CardGenerator.generateGameCard('white'),
       CardGenerator.generateGameCard('black'),
     ];
-    this.phase.createCardDrawGameCardset(cards);
-    this.endTest = this.createHandler();
+    const shuffledCards = ArrayHelper.shuffle(cards);
+    this.sprites = this.phase.createCardDrawGameCardset(shuffledCards);
     this.addHiddenWatched(this.phase._titleWindow);
     this.addHiddenWatched(this.phase._descriptionWindow);
     this.addHiddenWatched(this.phase._cardDrawGameCardset);
+    this.endTest = this.createHandler();
   }
 
   start() {
@@ -32,17 +33,22 @@ class StartPhaseTest extends SceneTest {
   
   update() {
     if (this.phase.isBusy()) return false;
-    if (this.phase.isStepStartPhase() && Input.isTriggered('ok')) {
+    if (this.phase.isStepStart() && Input.isTriggered('ok')) {
       this.phase.addActions([
         this.phase.commandCloseTitleWindow,
         this.phase.commandCloseDescriptionWindow,
       ]);
-      this.phase.stepStartCardDrawGame();
+      this.phase.stepCardDrawGame();
       this.phase.startCardDrawGame((cards) => {
         const selectedIndex = cards.shift();
+        const selectedSprite = this.sprites[selectedIndex];
+        const colorName = selectedSprite.getColorName();
+        const result = colorName === 'WHITE';
+        const text = result ? ['You win!'] : ['You lose!'];
+        this.phase.createResultWindow(text);
         this.phase.endCardDrawGame(selectedIndex);
-        this.phase.stepEndCardDrawGame();
         this.phase.openResultWindow();
+        this.phase.stepEndCardDrawGame();
       });
     }
     if (this.phase.isStepEndCardDrawGame() && Input.isTriggered('ok')) {

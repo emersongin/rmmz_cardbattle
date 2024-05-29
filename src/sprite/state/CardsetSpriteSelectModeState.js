@@ -3,7 +3,6 @@ class CardsetSpriteSelectModeState {
   _cursorIndex;
   _selectedIndexs;
   _selectNumber;
-  _confirmWindow;
   _selectHandler;
 
   constructor(sprite, selectHandler, number = -1) {
@@ -62,13 +61,14 @@ class CardsetSpriteSelectModeState {
     const keys = ['right', 'left'];
     if (cardset.isAvailable()) {
       this.updateCursor();
-      if (Input.isAnyKeyActiveIn(keys)) this.updateHoverSprites();
+      if (Input.isAnyKeyActiveIn(keys)) return this.updateHoverSprites();
       if (this.isSelectable()) {
-        if (Input.isTriggered('ok')) this.selectSprite();
         if (Input.isTriggered('cancel') || this.selectIsFull()) {
           cardset.addCommand(this._selectHandler, this._selectedIndexs);
           cardset.commandStaticMode();
+          return;
         }
+        if (Input.isTriggered('ok')) this.selectSprite();
       }
     }
   }
@@ -115,7 +115,7 @@ class CardsetSpriteSelectModeState {
     } else {
       this.addSelectedIndex(cursorIndex);
     }
-    this.updateSelectSprites();
+    if (this.selectIsFull() === false) this.updateSelectSprites();
   }
 
   removeSelectedIndex(index) {

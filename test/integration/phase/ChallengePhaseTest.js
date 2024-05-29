@@ -68,7 +68,7 @@ class ChallengePhaseTest extends SceneTest {
       this.phase.openFolderWindow();
     }
     if (this.phase.isStepEndSelectFolder()) {
-      this.endTest();
+      this.phase.addAction(this.endTest);
     }
   }
 
