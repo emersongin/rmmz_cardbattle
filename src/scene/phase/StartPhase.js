@@ -2,24 +2,28 @@ class StartPhase extends Phase {
   _titleWindow;
   _descriptionWindow;
   _cardDrawGameCardset;
+  _resultWindow = {};
+  _cards;
 
-  createTitleWindow(title) {
-    this._titleWindow = TextWindow.createWindowFullSize(0, 0, title);
+  createTitleWindow(text) {
+    const title = TextWindow.setTextColor(text, GameColors.ORANGE);
+    this._titleWindow = TextWindow.createWindowFullSize(0, 0, [title]);
     this._titleWindow.alignCenterAboveMiddle();
     this._titleWindow.alignTextCenter();
     this.attachChild(this._titleWindow);
   }
 
   createDescriptionWindow(text) {
-    this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, text);
+    this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, [text]);
     this._descriptionWindow.alignCenterMiddle();
     this.attachChild(this._descriptionWindow);
   }
 
-  createCardDrawGameCardset(cards) {
+  createCardDrawGameCardset() {
     this._cardDrawGameCardset = CardsetSprite.create(0, 0);
     this._cardDrawGameCardset.centralize();
     this._cardDrawGameCardset.commandShow();
+    const cards = this.createCardsShuffled();
     const sprites = this._cardDrawGameCardset.setCards(cards, Graphics.boxWidth, Graphics.boxHeight);
     const xSprite1 = -(this._cardDrawGameCardset.x + CardSprite.contentOriginalWidth());
     const ySprite1 = -(this._cardDrawGameCardset.y + CardSprite.contentOriginalHeight());
@@ -34,6 +38,15 @@ class StartPhase extends Phase {
     return sprites;
   }
 
+  createCardsShuffled() {
+    const cards = [
+      CardGenerator.generateGameCard('white'),
+      CardGenerator.generateGameCard('black'),
+    ];
+    this._cards = ArrayHelper.shuffle(cards);
+    return this._cards;
+  }
+
   startCardDrawGame(selectHandler) {
     this.addAction(this.commandStartCardDrawGame, selectHandler);
   }
@@ -41,7 +54,16 @@ class StartPhase extends Phase {
   commandStartCardDrawGame(selectHandler) {
     this.showCards();
     this.moveAllCardsToCenter();
-    this.selectMode(selectHandler);
+    const handlerDecorator = (cards) => {
+      const selectedIndex = cards.shift();
+      const white = 4;
+      const result = this._cards[selectedIndex].color === white;
+      this.createResultWindow(result);
+      this.endCardDrawGame(selectedIndex);
+      this.openResultWindow();
+      selectHandler(result);
+    }
+    this.selectMode(handlerDecorator);
   }
 
   showCards() {
@@ -150,8 +172,9 @@ class StartPhase extends Phase {
     cardset.flipTurnToUpCards(sprites);
   }
 
-  createResultWindow(text) {
-    this._resultWindow = TextWindow.createWindowOneFourthSize(0, 0, text);
+  createResultWindow(result) {
+    const text = result ? 'You win!' : 'You lose!';
+    this._resultWindow = TextWindow.createWindowOneFourthSize(0, 0, [text]);
     this._resultWindow.alignCenterAboveMiddle();
     this._resultWindow.alignTextCenter();
     this.addWindow(this._resultWindow);

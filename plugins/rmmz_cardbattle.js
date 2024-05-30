@@ -3891,29 +3891,6 @@ class CardSprite extends ActionSprite {
   isUpdatingPoints() {
     return this.getBehavior(CardSpriteUpdatedPointsBehavior) instanceof CardSpriteUpdatedPointsBehavior;
   }
-
-  getColorName() {
-    switch (this._color) {
-      case ColorTypes.RED:
-        return 'RED';
-        break;
-      case ColorTypes.GREEN:
-        return 'GREEN';
-        break;
-      case ColorTypes.BLUE:
-        return 'BLUE';
-        break;
-      case ColorTypes.WHITE:
-        return 'WHITE';
-        break;
-      case ColorTypes.BLACK:
-        return 'BLACK';
-        break;
-      default:
-        return 'BROWN';
-        break;
-    }
-  }
 }
 class CardsetSpriteStaticModeState {
   _cardset;
@@ -4548,7 +4525,6 @@ class CardsetSprite extends ActionSprite {
 
   update() {
     super.update();
-    console.log(this._status);
     if (this.hasChildren() && this.isHidden()) this.commandShow();
   }
 
@@ -5276,24 +5252,28 @@ class StartPhase extends Phase {
   _titleWindow;
   _descriptionWindow;
   _cardDrawGameCardset;
+  _resultWindow = {};
+  _cards;
 
-  createTitleWindow(title) {
-    this._titleWindow = TextWindow.createWindowFullSize(0, 0, title);
+  createTitleWindow(text) {
+    const title = TextWindow.setTextColor(text, GameColors.ORANGE);
+    this._titleWindow = TextWindow.createWindowFullSize(0, 0, [title]);
     this._titleWindow.alignCenterAboveMiddle();
     this._titleWindow.alignTextCenter();
     this.attachChild(this._titleWindow);
   }
 
   createDescriptionWindow(text) {
-    this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, text);
+    this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, [text]);
     this._descriptionWindow.alignCenterMiddle();
     this.attachChild(this._descriptionWindow);
   }
 
-  createCardDrawGameCardset(cards) {
+  createCardDrawGameCardset() {
     this._cardDrawGameCardset = CardsetSprite.create(0, 0);
     this._cardDrawGameCardset.centralize();
     this._cardDrawGameCardset.commandShow();
+    const cards = this.createCardsShuffled();
     const sprites = this._cardDrawGameCardset.setCards(cards, Graphics.boxWidth, Graphics.boxHeight);
     const xSprite1 = -(this._cardDrawGameCardset.x + CardSprite.contentOriginalWidth());
     const ySprite1 = -(this._cardDrawGameCardset.y + CardSprite.contentOriginalHeight());
@@ -5308,6 +5288,15 @@ class StartPhase extends Phase {
     return sprites;
   }
 
+  createCardsShuffled() {
+    const cards = [
+      CardGenerator.generateGameCard('white'),
+      CardGenerator.generateGameCard('black'),
+    ];
+    this._cards = ArrayHelper.shuffle(cards);
+    return this._cards;
+  }
+
   startCardDrawGame(selectHandler) {
     this.addAction(this.commandStartCardDrawGame, selectHandler);
   }
@@ -5315,7 +5304,16 @@ class StartPhase extends Phase {
   commandStartCardDrawGame(selectHandler) {
     this.showCards();
     this.moveAllCardsToCenter();
-    this.selectMode(selectHandler);
+    const handlerDecorator = (cards) => {
+      const selectedIndex = cards.shift();
+      const white = 4;
+      const result = this._cards[selectedIndex].color === white;
+      this.createResultWindow(result);
+      this.endCardDrawGame(selectedIndex);
+      this.openResultWindow();
+      selectHandler(result);
+    }
+    this.selectMode(handlerDecorator);
   }
 
   showCards() {
@@ -5424,8 +5422,9 @@ class StartPhase extends Phase {
     cardset.flipTurnToUpCards(sprites);
   }
 
-  createResultWindow(text) {
-    this._resultWindow = TextWindow.createWindowOneFourthSize(0, 0, text);
+  createResultWindow(result) {
+    const text = result ? 'You win!' : 'You lose!';
+    this._resultWindow = TextWindow.createWindowOneFourthSize(0, 0, [text]);
     this._resultWindow.alignCenterAboveMiddle();
     this._resultWindow.alignTextCenter();
     this.addWindow(this._resultWindow);
@@ -8358,24 +8357,18 @@ class ChallengePhaseTest extends SceneTest {
 }
 class StartPhaseTest extends SceneTest {
   phase;
+  result;
+  endTest;
 
   create() {
     this.phase = new StartPhase(this.scene);
-    const title = TextWindow.setTextColor('Start Phase', GameColors.ORANGE);
-    const text = [title];
-    this.phase.createTitleWindow(text);
-    const line = 'Draw Calumon to go first.';
-    const text2 = [line];
-    this.phase.createDescriptionWindow(text2);
-    const cards = [
-      CardGenerator.generateGameCard('white'),
-      CardGenerator.generateGameCard('black'),
-    ];
-    const shuffledCards = ArrayHelper.shuffle(cards);
-    this.sprites = this.phase.createCardDrawGameCardset(shuffledCards);
+    this.phase.createTitleWindow('Start Phase');
+    this.phase.createDescriptionWindow('Draw Calumon to go first.');
+    this.sprites = this.phase.createCardDrawGameCardset();
     this.addHiddenWatched(this.phase._titleWindow);
     this.addHiddenWatched(this.phase._descriptionWindow);
     this.addHiddenWatched(this.phase._cardDrawGameCardset);
+    this.addHiddenWatched(this.phase._resultWindow);
     this.endTest = this.createHandler();
   }
 
@@ -8397,16 +8390,9 @@ class StartPhaseTest extends SceneTest {
         this.phase.commandCloseDescriptionWindow,
       ]);
       this.phase.stepCardDrawGame();
-      this.phase.startCardDrawGame((cards) => {
-        const selectedIndex = cards.shift();
-        const selectedSprite = this.sprites[selectedIndex];
-        const colorName = selectedSprite.getColorName();
-        const result = colorName === 'WHITE';
-        const text = result ? ['You win!'] : ['You lose!'];
-        this.phase.createResultWindow(text);
-        this.phase.endCardDrawGame(selectedIndex);
-        this.phase.openResultWindow();
+      this.phase.startCardDrawGame((result) => {
         this.phase.stepEndCardDrawGame();
+        this.result = result;
       });
     }
     if (this.phase.isStepEndCardDrawGame() && Input.isTriggered('ok')) {
@@ -8422,6 +8408,9 @@ class StartPhaseTest extends SceneTest {
     this.describe('Deve apresentar etapas de fase de início e jogo da sorte.');
     this.expectWasTrue('A janela de título foi apresentada?', 'visible', this.phase._titleWindow);
     this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase._descriptionWindow);
+    this.expectWasTrue('A janela de resultado foi apresentada?', 'visible', this.phase._resultWindow);
+    // cardset foi apresentado?
+    this.expectTrue('O resultado do jogo da sorte foi apresentado?', typeof this.result === 'boolean');
   }
 }
 
