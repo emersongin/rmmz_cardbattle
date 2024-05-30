@@ -1,5 +1,6 @@
 class ChallengePhaseTest extends SceneTest {
   phase;
+  endTest;
   selectFolderIndex = -1;
 
   create() {

@@ -1,7 +1,7 @@
 class StartPhaseTest extends SceneTest {
   phase;
-  gameResult;
   endTest;
+  gameResult;
 
   create() {
     this.phase = new StartPhase(this.scene);
