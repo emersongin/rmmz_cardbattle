@@ -3,15 +3,17 @@ class ChallengePhase extends Phase {
   _descriptionWindow;
   _folderWindow;
 
-  createTitleWindow(title) {
-    this._titleWindow = TextWindow.createWindowFullSize(0, 0, title);
+  createTitleWindow(text) {
+    const title = TextWindow.setTextColor(text, GameColors.ORANGE);
+    this._titleWindow = TextWindow.createWindowFullSize(0, 0, [title]);
     this._titleWindow.alignCenterAboveMiddle();
     this._titleWindow.alignTextCenter();
     this.attachChild(this._titleWindow);
   }
 
-  createDescriptionWindow(text) {
-    this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, text);
+  createDescriptionWindow(textLvl, description) {
+    const content = [textLvl, description];
+    this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, content);
     this._descriptionWindow.alignCenterMiddle();
     this.attachChild(this._descriptionWindow);
   }
@@ -21,7 +23,8 @@ class ChallengePhase extends Phase {
     const commands = folders.map((folder, index) => {
       return FolderWindow.createCommand(folder.name, `FOLDER_${index}`, folder.handler, energies[index])
     });
-    this._folderWindow = FolderWindow.create(0, 0, text, commands);
+    const title = CommandWindow.setTextColor(text, GameColors.ORANGE);
+    this._folderWindow = FolderWindow.create(0, 0, [title], commands);
     this._folderWindow.alignMiddle();
     this._folderWindow.alignTextCenter();
     this.attachChild(this._folderWindow);

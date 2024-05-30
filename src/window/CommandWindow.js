@@ -456,6 +456,13 @@ class CommandWindow extends Window_Command {
     return super.isOpen();
   }
 
+  callHandler(symbol) {
+    if (this.isHandled(symbol)) {
+      const index = this.findSymbol(symbol);
+      this._handlers[symbol](index);
+    }
+  }
+
   //mute
   playCursorSound() {
     // SoundManager.playCursor();

@@ -901,6 +901,13 @@ class CommandWindow extends Window_Command {
     });
   }
 
+  callHandler(symbol) {
+    if (this.isHandled(symbol)) {
+      const index = this.findSymbol(symbol);
+      this._handlers[symbol](index);
+    }
+  }
+
   clearContents() {
     this.contents.clear();
     this.contentsBack.clear();
@@ -5157,15 +5164,17 @@ class ChallengePhase extends Phase {
   _descriptionWindow;
   _folderWindow;
 
-  createTitleWindow(title) {
-    this._titleWindow = TextWindow.createWindowFullSize(0, 0, title);
+  createTitleWindow(text) {
+    const title = TextWindow.setTextColor(text, GameColors.ORANGE);
+    this._titleWindow = TextWindow.createWindowFullSize(0, 0, [title]);
     this._titleWindow.alignCenterAboveMiddle();
     this._titleWindow.alignTextCenter();
     this.attachChild(this._titleWindow);
   }
 
-  createDescriptionWindow(text) {
-    this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, text);
+  createDescriptionWindow(textLvl, description) {
+    const content = [textLvl, description];
+    this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, content);
     this._descriptionWindow.alignCenterMiddle();
     this.attachChild(this._descriptionWindow);
   }
@@ -5175,7 +5184,8 @@ class ChallengePhase extends Phase {
     const commands = folders.map((folder, index) => {
       return FolderWindow.createCommand(folder.name, `FOLDER_${index}`, folder.handler, energies[index])
     });
-    this._folderWindow = FolderWindow.create(0, 0, text, commands);
+    const title = CommandWindow.setTextColor(text, GameColors.ORANGE);
+    this._folderWindow = FolderWindow.create(0, 0, [title], commands);
     this._folderWindow.alignMiddle();
     this._folderWindow.alignTextCenter();
     this.attachChild(this._folderWindow);
@@ -8279,43 +8289,29 @@ class ChallengePhaseTest extends SceneTest {
 
   create() {
     this.phase = new ChallengePhase(this.scene);
-    const title = TextWindow.setTextColor('Challenge Phase', GameColors.ORANGE);
-    const text = [title];
-    this.phase.createTitleWindow(text);
-    const line = 'lv. 85';
-    const line2 = 'Amaterasu Duel King';
-    const text2 = [line, line2];
-    this.phase.createDescriptionWindow(text2);
+    this.phase.createTitleWindow('Challenge Phase');
+    this.phase.createDescriptionWindow('lv. 85', 'Amaterasu Duel King');
+    const handler = (index) => {
+      this.phase.closeFolderWindow();
+      this.selectFolderIndex = index;
+      this.phase.stepEndSelectFolder();
+      console.log(index);
+    };
     const folders = [
       {
         name: 'Folder 1',
         energies: [10, 10, 5, 5, 5, 5],
-        handler: () => {
-          this.phase.closeFolderWindow();
-          this.selectFolderIndex = 0;
-          this.phase.stepEndSelectFolder();
-        }
+        handler, 
       }, {
         name: 'Folder 2',
         energies: [10, 10, 10, 10, 10, 10],
-        handler: () => {
-          this.phase.closeFolderWindow();
-          this.selectFolderIndex = 1;
-          this.phase.stepEndSelectFolder();
-        }
+        handler, 
       }, {
         name: 'Folder 3',
         energies: [10, 10, 10, 0, 0, 0],
-        handler: () => {
-          this.phase.closeFolderWindow();
-          this.selectFolderIndex = 2;
-          this.phase.stepEndSelectFolder();
-        }
+        handler, 
     }];
-    const title2 = CommandWindow.setTextColor('Choose a folder', GameColors.ORANGE);
-    const text3 = [title2];
-    this.phase.createFolderWindow(text3, folders);
-    //
+    this.phase.createFolderWindow('Choose a folder', folders);
     this.addHiddenWatched(this.phase._titleWindow);
     this.addHiddenWatched(this.phase._descriptionWindow);
     this.addHiddenWatched(this.phase._folderWindow);
@@ -8357,14 +8353,14 @@ class ChallengePhaseTest extends SceneTest {
 }
 class StartPhaseTest extends SceneTest {
   phase;
-  result;
+  gameResult;
   endTest;
 
   create() {
     this.phase = new StartPhase(this.scene);
     this.phase.createTitleWindow('Start Phase');
     this.phase.createDescriptionWindow('Draw Calumon to go first.');
-    this.sprites = this.phase.createCardDrawGameCardset();
+    this.phase.createCardDrawGameCardset();
     this.addHiddenWatched(this.phase._titleWindow);
     this.addHiddenWatched(this.phase._descriptionWindow);
     this.addHiddenWatched(this.phase._cardDrawGameCardset);
@@ -8390,9 +8386,9 @@ class StartPhaseTest extends SceneTest {
         this.phase.commandCloseDescriptionWindow,
       ]);
       this.phase.stepCardDrawGame();
-      this.phase.startCardDrawGame((result) => {
+      this.phase.startCardDrawGame((win) => {
         this.phase.stepEndCardDrawGame();
-        this.result = result;
+        this.gameResult = win;
       });
     }
     if (this.phase.isStepEndCardDrawGame() && Input.isTriggered('ok')) {
@@ -8410,7 +8406,7 @@ class StartPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase._descriptionWindow);
     this.expectWasTrue('A janela de resultado foi apresentada?', 'visible', this.phase._resultWindow);
     // cardset foi apresentado?
-    this.expectTrue('O resultado do jogo da sorte foi apresentado?', typeof this.result === 'boolean');
+    this.expectTrue('O resultado do jogo da sorte foi apresentado?', typeof this.gameResult === 'boolean');
   }
 }
 
@@ -8652,8 +8648,8 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const phase = [
-      // ChallengePhaseTest,
-      StartPhaseTest,
+      ChallengePhaseTest,
+      // StartPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

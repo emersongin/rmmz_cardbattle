@@ -4,43 +4,28 @@ class ChallengePhaseTest extends SceneTest {
 
   create() {
     this.phase = new ChallengePhase(this.scene);
-    const title = TextWindow.setTextColor('Challenge Phase', GameColors.ORANGE);
-    const text = [title];
-    this.phase.createTitleWindow(text);
-    const line = 'lv. 85';
-    const line2 = 'Amaterasu Duel King';
-    const text2 = [line, line2];
-    this.phase.createDescriptionWindow(text2);
+    this.phase.createTitleWindow('Challenge Phase');
+    this.phase.createDescriptionWindow('lv. 85', 'Amaterasu Duel King');
+    const handler = (index) => {
+      this.selectFolderIndex = index;
+      this.phase.closeFolderWindow();
+      this.phase.stepEndSelectFolder();
+    };
     const folders = [
       {
         name: 'Folder 1',
         energies: [10, 10, 5, 5, 5, 5],
-        handler: () => {
-          this.phase.closeFolderWindow();
-          this.selectFolderIndex = 0;
-          this.phase.stepEndSelectFolder();
-        }
+        handler, 
       }, {
         name: 'Folder 2',
         energies: [10, 10, 10, 10, 10, 10],
-        handler: () => {
-          this.phase.closeFolderWindow();
-          this.selectFolderIndex = 1;
-          this.phase.stepEndSelectFolder();
-        }
+        handler, 
       }, {
         name: 'Folder 3',
         energies: [10, 10, 10, 0, 0, 0],
-        handler: () => {
-          this.phase.closeFolderWindow();
-          this.selectFolderIndex = 2;
-          this.phase.stepEndSelectFolder();
-        }
+        handler, 
     }];
-    const title2 = CommandWindow.setTextColor('Choose a folder', GameColors.ORANGE);
-    const text3 = [title2];
-    this.phase.createFolderWindow(text3, folders);
-    //
+    this.phase.createFolderWindow('Choose a folder', folders);
     this.addHiddenWatched(this.phase._titleWindow);
     this.addHiddenWatched(this.phase._descriptionWindow);
     this.addHiddenWatched(this.phase._folderWindow);

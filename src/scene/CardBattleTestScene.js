@@ -177,8 +177,8 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const phase = [
-      // ChallengePhaseTest,
-      StartPhaseTest,
+      ChallengePhaseTest,
+      // StartPhaseTest,
     ];
     return [
       // ...cardSpriteTests,
