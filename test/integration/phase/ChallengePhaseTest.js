@@ -7,7 +7,7 @@ class ChallengePhaseTest extends SceneTest {
     this.phase = new ChallengePhase(this.scene);
     this.phase.createTitleWindow('Challenge Phase');
     this.phase.createDescriptionWindow('lv. 85', 'Amaterasu Duel King');
-    const handler = (index) => {
+    const selectHandler = (index) => {
       this.selectFolderIndex = index;
       this.phase.closeFolderWindow();
       this.phase.stepEndSelectFolder();
@@ -16,15 +16,15 @@ class ChallengePhaseTest extends SceneTest {
       {
         name: 'Folder 1',
         energies: [10, 10, 5, 5, 5, 5],
-        handler, 
+        handler: selectHandler, 
       }, {
         name: 'Folder 2',
         energies: [10, 10, 10, 10, 10, 10],
-        handler, 
+        handler: selectHandler, 
       }, {
         name: 'Folder 3',
         energies: [10, 10, 10, 0, 0, 0],
-        handler, 
+        handler: selectHandler, 
     }];
     this.phase.createFolderWindow('Choose a folder', folders);
     this.addHiddenWatched(this.phase._titleWindow);
@@ -36,20 +36,14 @@ class ChallengePhaseTest extends SceneTest {
   start() {
     this.scene.setPhase(this.phase);
     this.phase.addChildren();
-    this.phase.addActions([
-      this.phase.commandOpenTitleWindow,
-      this.phase.commandOpenDescriptionWindow,
-    ]);
+    this.phase.openTextWindows();
     this.phase.stepStart();
   }
   
   update() {
     if (this.phase.isBusy()) return false;
     if (this.phase.isStepStart() && Input.isTriggered('ok')) {
-      this.phase.addActions([
-        this.phase.commandCloseTitleWindow,
-        this.phase.commandCloseDescriptionWindow,
-      ]);
+      this.phase.closeTextWindows();
       this.phase.stepSelectFolder();
       this.phase.openFolderWindow();
     }

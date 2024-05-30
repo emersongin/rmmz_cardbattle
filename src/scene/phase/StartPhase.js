@@ -98,33 +98,31 @@ class StartPhase extends Phase {
     this._cardDrawGameCardset.selectMode(selectHandler, selectNumber);
   }
 
-  openTitleWindow() {
-    this.addAction(this.commandOpenTitleWindow);
+  openTextWindows() {
+    this.addActions([
+      this.commandOpenTitleWindow,
+      this.commandOpenDescriptionWindow,
+    ]);
   }
 
   commandOpenTitleWindow() {
     this._titleWindow.open();
   }
 
-  closeTitleWindow() {
-    this.addAction(this.commandCloseTitleWindow);
+  commandOpenDescriptionWindow() {
+    this._descriptionWindow.open();
+  }
+
+  closeTextWindows() {
+    this.addActions([
+      this.commandCloseTitleWindow,
+      this.commandCloseDescriptionWindow,
+    ]);
   }
 
   commandCloseTitleWindow() {
     this._titleWindow.close();
   } 
-
-  openDescriptionWindow() {
-    this.addAction(this.commandOpenDescriptionWindow);
-  }
-
-  commandOpenDescriptionWindow() {
-    this._descriptionWindow.open();
-  }
-
-  closeDescriptionWindow() {
-    this.addAction(this.commandCloseDescriptionWindow);
-  }
 
   commandCloseDescriptionWindow() {
     this._descriptionWindow.close();
@@ -188,16 +186,15 @@ class StartPhase extends Phase {
     this._resultWindow.open();
   }
 
-  closeResultWindow() {
-    this.addAction(this.commandCloseResultWindow);
+  closeGameObjects() {
+    this.addActions([
+      this.commandCloseResultWindow,
+      this.commandCloseCardDrawGameCardset,
+    ]);
   }
-
+  
   commandCloseResultWindow() {
     this._resultWindow.close();
-  }
-
-  closeCardDrawGameCardset() {
-    this.addAction(this.commandCloseCardDrawGameCardset);
   }
 
   commandCloseCardDrawGameCardset() {

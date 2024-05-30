@@ -901,13 +901,6 @@ class CommandWindow extends Window_Command {
     });
   }
 
-  callHandler(symbol) {
-    if (this.isHandled(symbol)) {
-      const index = this.findSymbol(symbol);
-      this._handlers[symbol](index);
-    }
-  }
-
   clearContents() {
     this.contents.clear();
     this.contentsBack.clear();
@@ -1255,6 +1248,13 @@ class CommandWindow extends Window_Command {
 
   isOpen() {
     return super.isOpen();
+  }
+
+  callHandler(symbol) {
+    if (this.isHandled(symbol)) {
+      const index = this.findSymbol(symbol);
+      this._handlers[symbol](index);
+    }
   }
 
   //mute
@@ -5191,33 +5191,31 @@ class ChallengePhase extends Phase {
     this.attachChild(this._folderWindow);
   }
 
-  openTitleWindow() {
-    this.addAction(this.commandOpenTitleWindow);
+  openTextWindows() {
+    this.addActions([
+      this.commandOpenTitleWindow,
+      this.commandOpenDescriptionWindow,
+    ]);
   }
 
   commandOpenTitleWindow() {
     this._titleWindow.open();
   }
 
-  closeTitleWindow() {
-    this.addAction(this.commandCloseTitleWindow);
+  commandOpenDescriptionWindow() {
+    this._descriptionWindow.open();
+  }
+
+  closeTextWindows() {
+    this.addActions([
+      this.commandCloseTitleWindow,
+      this.commandCloseDescriptionWindow,
+    ]);
   }
 
   commandCloseTitleWindow() {
     this._titleWindow.close();
   } 
-
-  openDescriptionWindow() {
-    this.addAction(this.commandOpenDescriptionWindow);
-  }
-
-  commandOpenDescriptionWindow() {
-    this._descriptionWindow.open();
-  }
-
-  closeDescriptionWindow() {
-    this.addAction(this.commandCloseDescriptionWindow);
-  }
 
   commandCloseDescriptionWindow() {
     this._descriptionWindow.close();
@@ -5358,33 +5356,31 @@ class StartPhase extends Phase {
     this._cardDrawGameCardset.selectMode(selectHandler, selectNumber);
   }
 
-  openTitleWindow() {
-    this.addAction(this.commandOpenTitleWindow);
+  openTextWindows() {
+    this.addActions([
+      this.commandOpenTitleWindow,
+      this.commandOpenDescriptionWindow,
+    ]);
   }
 
   commandOpenTitleWindow() {
     this._titleWindow.open();
   }
 
-  closeTitleWindow() {
-    this.addAction(this.commandCloseTitleWindow);
+  commandOpenDescriptionWindow() {
+    this._descriptionWindow.open();
+  }
+
+  closeTextWindows() {
+    this.addActions([
+      this.commandCloseTitleWindow,
+      this.commandCloseDescriptionWindow,
+    ]);
   }
 
   commandCloseTitleWindow() {
     this._titleWindow.close();
   } 
-
-  openDescriptionWindow() {
-    this.addAction(this.commandOpenDescriptionWindow);
-  }
-
-  commandOpenDescriptionWindow() {
-    this._descriptionWindow.open();
-  }
-
-  closeDescriptionWindow() {
-    this.addAction(this.commandCloseDescriptionWindow);
-  }
 
   commandCloseDescriptionWindow() {
     this._descriptionWindow.close();
@@ -5448,16 +5444,15 @@ class StartPhase extends Phase {
     this._resultWindow.open();
   }
 
-  closeResultWindow() {
-    this.addAction(this.commandCloseResultWindow);
+  closeGameObjects() {
+    this.addActions([
+      this.commandCloseResultWindow,
+      this.commandCloseCardDrawGameCardset,
+    ]);
   }
-
+  
   commandCloseResultWindow() {
     this._resultWindow.close();
-  }
-
-  closeCardDrawGameCardset() {
-    this.addAction(this.commandCloseCardDrawGameCardset);
   }
 
   commandCloseCardDrawGameCardset() {
@@ -8285,31 +8280,31 @@ class CreateFolderWindowTest extends SceneTest {
 // test PHASE
 class ChallengePhaseTest extends SceneTest {
   phase;
+  endTest;
   selectFolderIndex = -1;
 
   create() {
     this.phase = new ChallengePhase(this.scene);
     this.phase.createTitleWindow('Challenge Phase');
     this.phase.createDescriptionWindow('lv. 85', 'Amaterasu Duel King');
-    const handler = (index) => {
-      this.phase.closeFolderWindow();
+    const selectHandler = (index) => {
       this.selectFolderIndex = index;
+      this.phase.closeFolderWindow();
       this.phase.stepEndSelectFolder();
-      console.log(index);
     };
     const folders = [
       {
         name: 'Folder 1',
         energies: [10, 10, 5, 5, 5, 5],
-        handler, 
+        handler: selectHandler, 
       }, {
         name: 'Folder 2',
         energies: [10, 10, 10, 10, 10, 10],
-        handler, 
+        handler: selectHandler, 
       }, {
         name: 'Folder 3',
         energies: [10, 10, 10, 0, 0, 0],
-        handler, 
+        handler: selectHandler, 
     }];
     this.phase.createFolderWindow('Choose a folder', folders);
     this.addHiddenWatched(this.phase._titleWindow);
@@ -8321,20 +8316,14 @@ class ChallengePhaseTest extends SceneTest {
   start() {
     this.scene.setPhase(this.phase);
     this.phase.addChildren();
-    this.phase.addActions([
-      this.phase.commandOpenTitleWindow,
-      this.phase.commandOpenDescriptionWindow,
-    ]);
+    this.phase.openTextWindows();
     this.phase.stepStart();
   }
   
   update() {
     if (this.phase.isBusy()) return false;
     if (this.phase.isStepStart() && Input.isTriggered('ok')) {
-      this.phase.addActions([
-        this.phase.commandCloseTitleWindow,
-        this.phase.commandCloseDescriptionWindow,
-      ]);
+      this.phase.closeTextWindows();
       this.phase.stepSelectFolder();
       this.phase.openFolderWindow();
     }
@@ -8353,8 +8342,8 @@ class ChallengePhaseTest extends SceneTest {
 }
 class StartPhaseTest extends SceneTest {
   phase;
-  gameResult;
   endTest;
+  gameResult;
 
   create() {
     this.phase = new StartPhase(this.scene);
@@ -8371,31 +8360,23 @@ class StartPhaseTest extends SceneTest {
   start() {
     this.scene.setPhase(this.phase);
     this.phase.addChildren();
-    this.phase.addActions([
-      this.phase.commandOpenTitleWindow,
-      this.phase.commandOpenDescriptionWindow,
-    ]);
+    this.phase.openTextWindows();
     this.phase.stepStart();
   }
   
   update() {
     if (this.phase.isBusy()) return false;
     if (this.phase.isStepStart() && Input.isTriggered('ok')) {
-      this.phase.addActions([
-        this.phase.commandCloseTitleWindow,
-        this.phase.commandCloseDescriptionWindow,
-      ]);
+      this.phase.closeTextWindows();
       this.phase.stepCardDrawGame();
-      this.phase.startCardDrawGame((win) => {
+      const resultHandler = (win) => {
         this.phase.stepEndCardDrawGame();
         this.gameResult = win;
-      });
+      };
+      this.phase.startCardDrawGame(resultHandler);
     }
     if (this.phase.isStepEndCardDrawGame() && Input.isTriggered('ok')) {
-      this.phase.addActions([
-        this.phase.commandCloseResultWindow,
-        this.phase.commandCloseCardDrawGameCardset,
-      ]);
+      this.phase.closeGameObjects();
       this.phase.addAction(this.endTest);
     }
   }
@@ -8405,7 +8386,11 @@ class StartPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de título foi apresentada?', 'visible', this.phase._titleWindow);
     this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase._descriptionWindow);
     this.expectWasTrue('A janela de resultado foi apresentada?', 'visible', this.phase._resultWindow);
-    // cardset foi apresentado?
+    this.expectWasTrue(
+      'O set de cartas estava em modo seleção?', 
+      function isSelectMode() {}, 
+      this.phase._cardDrawGameCardset
+    );
     this.expectTrue('O resultado do jogo da sorte foi apresentado?', typeof this.gameResult === 'boolean');
   }
 }
@@ -8648,8 +8633,8 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const phase = [
-      ChallengePhaseTest,
-      // StartPhaseTest,
+      // ChallengePhaseTest,
+      StartPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

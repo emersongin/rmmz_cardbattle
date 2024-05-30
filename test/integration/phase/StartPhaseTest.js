@@ -18,31 +18,23 @@ class StartPhaseTest extends SceneTest {
   start() {
     this.scene.setPhase(this.phase);
     this.phase.addChildren();
-    this.phase.addActions([
-      this.phase.commandOpenTitleWindow,
-      this.phase.commandOpenDescriptionWindow,
-    ]);
+    this.phase.openTextWindows();
     this.phase.stepStart();
   }
   
   update() {
     if (this.phase.isBusy()) return false;
     if (this.phase.isStepStart() && Input.isTriggered('ok')) {
-      this.phase.addActions([
-        this.phase.commandCloseTitleWindow,
-        this.phase.commandCloseDescriptionWindow,
-      ]);
+      this.phase.closeTextWindows();
       this.phase.stepCardDrawGame();
-      this.phase.startCardDrawGame((win) => {
+      const resultHandler = (win) => {
         this.phase.stepEndCardDrawGame();
         this.gameResult = win;
-      });
+      };
+      this.phase.startCardDrawGame(resultHandler);
     }
     if (this.phase.isStepEndCardDrawGame() && Input.isTriggered('ok')) {
-      this.phase.addActions([
-        this.phase.commandCloseResultWindow,
-        this.phase.commandCloseCardDrawGameCardset,
-      ]);
+      this.phase.closeGameObjects();
       this.phase.addAction(this.endTest);
     }
   }
@@ -52,7 +44,11 @@ class StartPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de título foi apresentada?', 'visible', this.phase._titleWindow);
     this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase._descriptionWindow);
     this.expectWasTrue('A janela de resultado foi apresentada?', 'visible', this.phase._resultWindow);
-    // cardset foi apresentado?
+    this.expectWasTrue(
+      'O set de cartas estava em modo seleção?', 
+      this.phase._cardDrawGameCardset.isSelectMode, 
+      this.phase._cardDrawGameCardset
+    );
     this.expectTrue('O resultado do jogo da sorte foi apresentado?', typeof this.gameResult === 'boolean');
   }
 }
