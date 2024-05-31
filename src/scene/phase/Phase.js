@@ -1,15 +1,62 @@
 class Phase {
-  _scene;
+  _scene = {};
   _actionsQueue = [];
   _step = 'START';
   _wait = 0;
   _childrenToAdd = [];
+  _titleWindow = {};
+  _descriptionWindow = {};
 
   constructor(scene) {
     if ((scene instanceof Scene_Message) === false) {
       throw new Error('Scene must be an instance of Scene_Message');
     }
     this._scene = scene;
+  }
+
+  createTitleWindow(text) {
+    const title = TextWindow.setTextColor(text, GameColors.ORANGE);
+    this._titleWindow = TextWindow.createWindowFullSize(0, 0, [title]);
+    this._titleWindow.alignCenterAboveMiddle();
+    this._titleWindow.alignTextCenter();
+    this.attachChild(this._titleWindow);
+  }
+
+  createDescriptionWindow(...texts) {
+    const content = [...texts];
+    this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, content);
+    this._descriptionWindow.alignCenterMiddle();
+    this.attachChild(this._descriptionWindow);
+  }
+
+  openTextWindows() {
+    this.addActions([
+      this.commandOpenTitleWindow,
+      this.commandOpenDescriptionWindow,
+    ]);
+  }
+
+  commandOpenTitleWindow() {
+    this._titleWindow.open();
+  }
+
+  commandOpenDescriptionWindow() {
+    this._descriptionWindow.open();
+  }
+
+  closeTextWindows() {
+    this.addActions([
+      this.commandCloseTitleWindow,
+      this.commandCloseDescriptionWindow,
+    ]);
+  }
+
+  commandCloseTitleWindow() {
+    this._titleWindow.close();
+  } 
+
+  commandCloseDescriptionWindow() {
+    this._descriptionWindow.close();
   }
 
   update() {
@@ -97,11 +144,11 @@ class Phase {
   }
 
   isStepStart() {
-    return this.getStep() === GameConst.START_PHASE;
+    return this.isCurrentStep(GameConst.START_PHASE);
   }
 
-  getStep() {
-    return this._step;
+  isCurrentStep(step) {
+    return this._step === step;
   }
 
   attachChild(child) {

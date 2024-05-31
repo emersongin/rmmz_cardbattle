@@ -23,10 +23,10 @@ class ValuesWindow extends StateWindow {
       return this.setValue(name, value);
     }
     Object.defineProperty(this._values, name, {
-        value: value,
-        writable: true,
-        enumerable: true,
-        configurable: true
+      value: value,
+      writable: true,
+      enumerable: true,
+      configurable: true
     });
   }
 

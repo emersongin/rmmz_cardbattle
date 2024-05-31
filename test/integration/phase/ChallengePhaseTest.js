@@ -53,7 +53,7 @@ class ChallengePhaseTest extends SceneTest {
   }
 
   asserts() {
-    this.describe('Deve apresentar etapas de fase de desafio e seleção de pasta.');
+    this.describe('Deve apresentar etapas de fase de desafiado e seleção de pasta.');
     this.expectWasTrue('A janela de título foi apresentada?', 'visible', this.phase._titleWindow);
     this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase._descriptionWindow);
     this.expectWasTrue('A Janela de escolah de pastas foi apresentada?', 'visible', this.phase._folderWindow);

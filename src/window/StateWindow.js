@@ -259,6 +259,32 @@ class StateWindow extends Window_Base {
     this.y = StateWindow.getVerticalAlign(position, this);
   }
 
+  alignVerticalAboveThis(window) {
+    this.addCommand(this.commandAlignVerticalAboveThis, window);
+  }
+
+  commandAlignVerticalAboveThis(window) {
+    if (!this.isStopped()) return false;
+    this.setVerticalAlignAboveThis(window);
+  }
+
+  setVerticalAlignAboveThis(window) {
+    this.y = window.y - this.height - CommandWindow.windowPadding() / 2;
+  }
+
+  alignVerticalBelowThis(window) {
+    this.addCommand(this.commandAlignVerticalBelowThis, window);
+  }
+
+  commandAlignVerticalBelowThis(window) {
+    if (!this.isStopped()) return false;
+    this.setVerticalAlignBelowThis(window);
+  }
+
+  setVerticalAlignBelowThis(window) {
+    this.y = window.y + window.height + CommandWindow.windowPadding() / 2;
+  }
+
   isOneFourthSize() {
     return this.width === Graphics.boxWidth / 4;
   }

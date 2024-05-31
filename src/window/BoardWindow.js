@@ -20,14 +20,14 @@ class BoardWindow extends ValuesWindow {
     this.refreshPoints();
   }
 
-  refreshPoints() {
-    this.addValue(GameConst.RED_POINTS, 0);
-    this.addValue(GameConst.BLUE_POINTS, 0);
-    this.addValue(GameConst.GREEN_POINTS, 0);
-    this.addValue(GameConst.BLACK_POINTS, 0);
-    this.addValue(GameConst.WHITE_POINTS, 0);
-    this.addValue(GameConst.NUM_CARDS_IN_DECK, 0);
-    this.addValue(GameConst.NUM_CARDS_IN_HAND, 0);
+  refreshPoints(redPoints = 0, bluePoints = 0, greenPoints = 0, blackPoints = 0, whitePoints = 0, cardsInDeck = 0, cardsInHand = 0) {
+    this.addValue(GameConst.RED_POINTS, redPoints);
+    this.addValue(GameConst.BLUE_POINTS, bluePoints);
+    this.addValue(GameConst.GREEN_POINTS, greenPoints);
+    this.addValue(GameConst.BLACK_POINTS, blackPoints);
+    this.addValue(GameConst.WHITE_POINTS, whitePoints);
+    this.addValue(GameConst.NUM_CARDS_IN_DECK, cardsInDeck);
+    this.addValue(GameConst.NUM_CARDS_IN_HAND, cardsInHand);
     this.noPass();
   }
 
