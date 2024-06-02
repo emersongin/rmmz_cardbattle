@@ -8,7 +8,7 @@ class AlignTopCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinha a janela no topo.');
-    const positionY = CommandWindow.getVerticalAlign(GameConst.TOP, this.subject, this.scene._windowLayer);
-    this.expect('Esta na posição vertical do topo?', this.subject.y).toBe(positionY);
+    const y = ScreenHelper.getTopPosition();
+    this.expect('Esta na posição vertical do topo?', this.subject.y).toBe(y);
   }
 }

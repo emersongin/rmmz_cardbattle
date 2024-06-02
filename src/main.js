@@ -36,6 +36,7 @@
 // include ../test/integration/SceneTest.js
 
 // tests CARD Sprite
+// include ../test/integration/card/SizeCardSpriteTest.js
 // include ../test/integration/card/ErroOnCreateCardSpriteTest.js
 // include ../test/integration/card/StartOpenCardSpriteTest.js
 // include ../test/integration/card/StartClosedCardSpriteTest.js
@@ -97,7 +98,6 @@
 // include ../test/integration/statewindow/CloseStateWindowTest.js
 // include ../test/integration/statewindow/CreateOneFourthSizeStateWindowTest.js
 // include ../test/integration/statewindow/CreateMiddleSizeStateWindowTest.js
-// include ../test/integration/statewindow/CreateThreeFourthSizeStateWindowTest.js
 // include ../test/integration/statewindow/CreateFullSizeStateWindowTest.js
 // include ../test/integration/statewindow/ChangeBlueColorStateWindowTest.js
 // include ../test/integration/statewindow/ChangeRedColorStateWindowTest.js

@@ -15,7 +15,7 @@ class AnimationCardSpriteTest extends SceneTest {
       card.health
     );
     this.addHiddenWatched(this.subject);
-    const centerXPosition = (this.base.width / 2 - this.subject.width / 2);
+    const centerXPosition = ScreenHelper.getPositionInCenterOf(this.base.width, this.subject.width);
     const centerYPosition = 0;
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();

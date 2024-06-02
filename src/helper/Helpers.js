@@ -1,3 +1,81 @@
+class ScreenHelper {
+  static getOneFourthWidth() {
+    return Graphics.boxWidth / 4;
+  }
+
+  static getHalfWidth() {
+    return Graphics.boxWidth / 2;
+  }
+
+  static getFullWidth() {
+    return Graphics.boxWidth;
+  }
+
+  static getFullHeight() {
+    return Graphics.boxHeight;
+  }
+  
+  static getTopPosition() {
+    return 0;
+  }
+
+  static getAboveMiddlePosition(objHeight) {
+    return Graphics.boxHeight / 2 - objHeight;
+  }
+
+  static getMiddlePosition(objHeight) {
+    return Graphics.boxHeight / 2 - objHeight / 2;
+  }
+
+  static getBelowMiddlePosition(objHeight) {
+    return Graphics.boxHeight / 2;
+  }
+
+  static getBottomPosition(objHeight) {
+    return Graphics.boxHeight - objHeight;
+  }
+
+  static getStartPosition() {
+    return 0;
+  }
+
+  static getStartCenterPosition(objWidth) {
+    return Graphics.boxWidth / 2 - objWidth;
+  }
+
+  static getCenterPosition(objWidth) {
+    return Graphics.boxWidth / 2 - objWidth / 2;
+  }
+
+  static getEndCenterPosition(objWidth) {
+    return Graphics.boxWidth / 2;
+  }
+
+  static getEndPosition(objWidth) {
+    return Graphics.boxWidth - objWidth;
+  }
+
+  static getPositionInFrontOf(xAgent, widthReceptor) {
+    return xAgent - widthReceptor;
+  }
+
+  static getPositionInBackOf(xAgent, widthAgent) {
+    return xAgent + widthAgent;
+  }
+
+  static getPositionInCenterOf(baseWidth, subjectWidth) {
+    return baseWidth / 2 - subjectWidth / 2;
+  }
+
+  static getPositionAboveOf(yAgent, heightReceptor) {
+    return yAgent - heightReceptor;
+  }
+
+  static getPositionBelowOf(yAgent, heightAgent) {
+    return yAgent + heightAgent;
+  }
+} 
+
 class StringHelper {
   static convertPointsDisplay(value = 0) {
     return value.toString().padStart(2, ' ');

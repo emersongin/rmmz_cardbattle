@@ -10,7 +10,9 @@ class AlignCenterMiddleStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no centro e no meio!');
-    this.expect('Esta na posição horizontal do centro?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
-    this.expect('Esta na posição vertical do meio?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
+    const x = ScreenHelper.getCenterPosition(this.subject.width);
+    const y = ScreenHelper.getMiddlePosition(this.subject.height);
+    this.expectTrue('Esta na posição horizontal do centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical embaixo?', this.subject.y === y);
   }
 }

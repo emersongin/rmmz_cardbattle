@@ -107,7 +107,7 @@ class CardSprite extends ActionSprite {
   }
 
   static contentOriginalHeight() {
-    return 128;
+    return 120;
   }
 
   createLayers() {

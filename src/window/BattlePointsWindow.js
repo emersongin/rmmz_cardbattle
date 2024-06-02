@@ -1,6 +1,6 @@
 class BattlePointsWindow extends ValuesWindow {
   static create(x, y) {
-    const width = Graphics.boxWidth / 4;
+    const width = ScreenHelper.getOneFourthWidth();
     const height = StateWindow.minHeight();
     return new BattlePointsWindow(new Rectangle(x, y, width, height));
   }

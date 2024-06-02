@@ -3,12 +3,12 @@
 
 class StateWindow extends Window_Base {
   static createWindowOneFourthSize(x, y) {
-    const width = Graphics.boxWidth / 4;
-    const height = CommandWindow.windowPadding() * 2;
+    const width = ScreenHelper.getOneFourthWidth();
+    const height = StateWindow.borderHeight() * 2;
     return StateWindow.create(x, y, width, height);
   }
 
-  static windowPadding() {
+  static borderHeight() {
     return 12;
   }
 
@@ -17,51 +17,19 @@ class StateWindow extends Window_Base {
   }
 
   static createWindowMiddleSize(x, y) {
-    const width = Graphics.boxWidth / 2;
-    const height = CommandWindow.windowPadding() * 2
-    return StateWindow.create(x, y, width, height);
-  }
-
-  static createWindowThreeFourthSize(x, y) {
-    const width = Graphics.boxWidth * 3 / 4;
-    const height = CommandWindow.windowPadding() * 2
+    const width = ScreenHelper.getHalfWidth();
+    const height = StateWindow.borderHeight() * 2
     return StateWindow.create(x, y, width, height);
   }
 
   static createWindowFullSize(x, y) {
-    const width = Graphics.boxWidth;
-    const height = CommandWindow.windowPadding() * 2
+    const width = ScreenHelper.getFullWidth();
+    const height = StateWindow.borderHeight() * 2
     return StateWindow.create(x, y, width, height);
   }
 
   static create(x, y, width, height) {
     return new StateWindow(new Rectangle(x, y, width, height));
-  }
-
-  static getVerticalAlign(position, window) {
-    switch (position) {
-      case GameConst.MIDDLE:
-        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
-        break;
-      case GameConst.BOTTOM:
-        return Graphics.boxHeight - (window.height || 0);
-        break;
-      default: //TOP
-        return 0;
-    }
-  }
-
-  static getHorizontalAlign(position, window) {
-    switch (position) {
-      case GameConst.CENTER:
-        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
-        break;
-      case GameConst.END:
-        return (Graphics.boxWidth - (window.width || 0));
-        break;
-      default: //START
-        return 0;
-    }
   }
 
   initialize(rect) {
@@ -210,79 +178,75 @@ class StateWindow extends Window_Base {
   }
 
   alignStartTop() {
-    this.addCommand(this.commandAlign, GameConst.START, GameConst.TOP);
+    const x = ScreenHelper.getStartPosition();
+    const y = ScreenHelper.getTopPosition();
+    this.addCommand(this.commandAlign, x, y);
   }
 
   alignCenterTop() {
-    this.addCommand(this.commandAlign, GameConst.CENTER, GameConst.TOP);
+    const x = ScreenHelper.getCenterPosition(this.width);
+    const y = ScreenHelper.getTopPosition();
+    this.addCommand(this.commandAlign, x, y);
   }
 
   alignEndTop() {
-    this.addCommand(this.commandAlign, GameConst.END, GameConst.TOP);
+    const x = ScreenHelper.getEndPosition(this.width);
+    const y = ScreenHelper.getTopPosition();
+    this.addCommand(this.commandAlign, x, y);
   }
 
   alignStartMiddle() {
-    this.addCommand(this.commandAlign, GameConst.START, GameConst.MIDDLE);
+    const x = ScreenHelper.getStartPosition();
+    const y = ScreenHelper.getMiddlePosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
+  }
+
+  alignCenterAboveMiddle() {
+    const x = ScreenHelper.getCenterPosition(this.width);
+    const y = ScreenHelper.getAboveMiddlePosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
   }
 
   alignCenterMiddle() {
-    this.addCommand(this.commandAlign, GameConst.CENTER, GameConst.MIDDLE);
+    const x = ScreenHelper.getCenterPosition(this.width);
+    const y = ScreenHelper.getMiddlePosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
+  }
+
+  alignCenterBelowMiddle() {
+    const x = ScreenHelper.getCenterPosition(this.width);
+    const y = ScreenHelper.getBelowMiddlePosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
   }
 
   alignEndMiddle() {
-    this.addCommand(this.commandAlign, GameConst.END, GameConst.MIDDLE);
+    const x = ScreenHelper.getEndPosition(this.width);
+    const y = ScreenHelper.getMiddlePosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
   }
 
   alignStartBottom() {
-    this.addCommand(this.commandAlign, GameConst.START, GameConst.BOTTOM);
+    const x = ScreenHelper.getStartPosition();
+    const y = ScreenHelper.getBottomPosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
   }
 
   alignCenterBottom() {
-    this.addCommand(this.commandAlign, GameConst.CENTER, GameConst.BOTTOM);
+    const x = ScreenHelper.getCenterPosition(this.width);
+    const y = ScreenHelper.getBottomPosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
   }
 
   alignEndBottom() {
-    this.addCommand(this.commandAlign, GameConst.END, GameConst.BOTTOM);
+    const x = ScreenHelper.getEndPosition(this.width);
+    const y = ScreenHelper.getBottomPosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
   }
 
-  commandAlign(horizontalAlign, verticalAlign) {
+  commandAlign(x, y) {
     if (!this.isStopped()) return false;
-    this.setHorizontalAlign(horizontalAlign);
-    this.setVerticalAlign(verticalAlign);
-  }
-
-  setHorizontalAlign(position) {
-    this.x = StateWindow.getHorizontalAlign(position, this);
-  }
-
-  setVerticalAlign(position) {
-    this.y = StateWindow.getVerticalAlign(position, this);
-  }
-
-  alignVerticalAboveThis(window) {
-    this.addCommand(this.commandAlignVerticalAboveThis, window);
-  }
-
-  commandAlignVerticalAboveThis(window) {
-    if (!this.isStopped()) return false;
-    this.setVerticalAlignAboveThis(window);
-  }
-
-  setVerticalAlignAboveThis(window) {
-    this.y = window.y - this.height - CommandWindow.windowPadding() / 2;
-  }
-
-  alignVerticalBelowThis(window) {
-    this.addCommand(this.commandAlignVerticalBelowThis, window);
-  }
-
-  commandAlignVerticalBelowThis(window) {
-    if (!this.isStopped()) return false;
-    this.setVerticalAlignBelowThis(window);
-  }
-
-  setVerticalAlignBelowThis(window) {
-    this.y = window.y + window.height + CommandWindow.windowPadding() / 2;
+    this.x = x;
+    this.y = y;
   }
 
   isOneFourthSize() {

@@ -3,7 +3,7 @@ class CommandWindow extends Window_Command {
     if (!Array.isArray(text)) {
       throw new Error('text must be an array!');
     }
-    const width = Graphics.boxWidth;
+    const width = ScreenHelper.getFullWidth();
     const windowPadding = CommandWindow.windowPadding() * 2;
     const textHeight = CommandWindow.textHeight() * Math.max(text.length, 0);
     const itemsPadding = CommandWindow.itemPadding() * Math.max(commands.length - 1, 0);
@@ -42,21 +42,6 @@ class CommandWindow extends Window_Command {
   static setTextColor(text, color) {
     let colorIndex = ColorHelper.getColorIndex(color);
     return `\\c[${colorIndex}]${text}`;
-  }
-
-  static getVerticalAlign(position, window, parent) {
-    const parentY = parent?.y || 0;
-    const boxHeight = (Graphics.boxHeight - parentY);
-    switch (position) {
-      case GameConst.MIDDLE:
-        return ((Graphics.boxHeight / 2) - parentY) - ((window.height || 0) / 2);
-        break;
-      case GameConst.BOTTOM:
-        return boxHeight - ((window.height || 0) + (boxHeight / 6));
-        break;
-      default: //TOP
-        return boxHeight / 6;
-    }
   }
 
   initialize(rect, text, commands) {
@@ -193,18 +178,6 @@ class CommandWindow extends Window_Command {
     return this._textAlignment;
   }
 
-  getXAlignment(textWidth, maxWidth, align) {
-    maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
-    switch (align) {
-      case GameConst.CENTER:
-        return (maxWidth / 2) - (textWidth / 2);
-      case GameConst.RIGHT:
-        return maxWidth - textWidth;
-      default: // GameConst.LEFT
-        return 0;
-    }
-  }
-
   lineRect(index, x = 0) {
     const y = index * this.lineHeight();
     const width = this.contentsWidth();
@@ -224,6 +197,18 @@ class CommandWindow extends Window_Command {
 
   createHistory(symbol, content) {
     return { symbol, content };
+  }
+
+  getXAlignment(textWidth, maxWidth, align) {
+    maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
+    switch (align) {
+      case GameConst.CENTER:
+        return (maxWidth / 2) - (textWidth / 2);
+      case GameConst.RIGHT:
+        return maxWidth - textWidth;
+      default: // GameConst.LEFT
+        return 0;
+    }
   }
 
   hasCommands() {
@@ -310,30 +295,26 @@ class CommandWindow extends Window_Command {
   }
 
   alignTop() {
-    this.addAction(this.commandAlign, GameConst.TOP);
+    const x = ScreenHelper.getStartPosition();
+    const y = ScreenHelper.getTopPosition();
+    this.addAction(this.commandAlign, x, y);
   }
 
-  commandAlign(verticalAlign) {
-    if (this.isBusy()) return false;
-    this.setVerticalAlign(verticalAlign);
-    this.setHorizontalAlign();
-  }
-
-  setVerticalAlign(position) {
-    this.y = CommandWindow.getVerticalAlign(position, this, this.parent);
-  }
-
-  setHorizontalAlign() {
-    const parentX = this.parent?.x || 0;
-    this.x = -parentX;
-  }
-
-  alignMiddle(parent) {
-    this.addAction(this.commandAlign, GameConst.MIDDLE, parent);
+  alignMiddle() {
+    const x = ScreenHelper.getStartPosition();
+    const y = ScreenHelper.getMiddlePosition(this.height);
+    this.addAction(this.commandAlign, x, y);
   }
 
   alignBottom() {
-    this.addAction(this.commandAlign, GameConst.BOTTOM);
+    const x = ScreenHelper.getStartPosition();
+    const y = ScreenHelper.getBottomPosition(this.height);
+    this.addAction(this.commandAlign, x, y);
+  }
+
+  commandAlign(x, y) {
+    this.x = x;
+    this.y = y;
   }
 
   changeBlueColor() {

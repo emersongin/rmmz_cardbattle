@@ -9,9 +9,11 @@ class StartClosedCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startClosed(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startClosed(x, y);
     this.subject.show();
   }
 

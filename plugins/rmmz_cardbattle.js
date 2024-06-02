@@ -168,6 +168,84 @@ const playerDecksData = [
   }
 ];
 
+class ScreenHelper {
+  static getOneFourthWidth() {
+    return Graphics.boxWidth / 4;
+  }
+
+  static getHalfWidth() {
+    return Graphics.boxWidth / 2;
+  }
+
+  static getFullWidth() {
+    return Graphics.boxWidth;
+  }
+
+  static getFullHeight() {
+    return Graphics.boxHeight;
+  }
+  
+  static getTopPosition() {
+    return 0;
+  }
+
+  static getAboveMiddlePosition(objHeight) {
+    return Graphics.boxHeight / 2 - objHeight;
+  }
+
+  static getMiddlePosition(objHeight) {
+    return Graphics.boxHeight / 2 - objHeight / 2;
+  }
+
+  static getBelowMiddlePosition(objHeight) {
+    return Graphics.boxHeight / 2;
+  }
+
+  static getBottomPosition(objHeight) {
+    return Graphics.boxHeight - objHeight;
+  }
+
+  static getStartPosition() {
+    return 0;
+  }
+
+  static getStartCenterPosition(objWidth) {
+    return Graphics.boxWidth / 2 - objWidth;
+  }
+
+  static getCenterPosition(objWidth) {
+    return Graphics.boxWidth / 2 - objWidth / 2;
+  }
+
+  static getEndCenterPosition(objWidth) {
+    return Graphics.boxWidth / 2;
+  }
+
+  static getEndPosition(objWidth) {
+    return Graphics.boxWidth - objWidth;
+  }
+
+  static getPositionInFrontOf(xAgent, widthReceptor) {
+    return xAgent - widthReceptor;
+  }
+
+  static getPositionInBackOf(xAgent, widthAgent) {
+    return xAgent + widthAgent;
+  }
+
+  static getPositionInCenterOf(baseWidth, subjectWidth) {
+    return baseWidth / 2 - subjectWidth / 2;
+  }
+
+  static getPositionAboveOf(yAgent, heightReceptor) {
+    return yAgent - heightReceptor;
+  }
+
+  static getPositionBelowOf(yAgent, heightAgent) {
+    return yAgent + heightAgent;
+  }
+} 
+
 class StringHelper {
   static convertPointsDisplay(value = 0) {
     return value.toString().padStart(2, ' ');
@@ -469,37 +547,37 @@ class TextWindow extends Window_Base {
     return TextWindow.create(x, y, width, height, text);
   }
 
-  static getVerticalAlign(position, window) {
-    switch (position) {
-      case GameConst.ABOVE_MIDDLE:
-        return (Graphics.boxHeight / 4) - ((window.height || 0) / 2);
-        break;
-      case GameConst.MIDDLE:
-        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
-        break;
-      case GameConst.BELOW_MIDDLE:
-        return (Graphics.boxHeight * 3 / 4) - ((window.height || 0) / 2);
-        break;
-      case GameConst.BOTTOM:
-        return Graphics.boxHeight - (window.height || 0);
-        break;
-      default: //TOP
-        return 0;
-    }
-  }
+  // static getVerticalAlign(position, window) {
+  //   switch (position) {
+  //     case GameConst.ABOVE_MIDDLE:
+  //       return (Graphics.boxHeight / 4) - ((window.height || 0) / 2);
+  //       break;
+  //     case GameConst.MIDDLE:
+  //       return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
+  //       break;
+  //     case GameConst.BELOW_MIDDLE:
+  //       return (Graphics.boxHeight * 3 / 4) - ((window.height || 0) / 2);
+  //       break;
+  //     case GameConst.BOTTOM:
+  //       return Graphics.boxHeight - (window.height || 0);
+  //       break;
+  //     default: //TOP
+  //       return 0;
+  //   }
+  // }
 
-  static getHorizontalAlign(position, window) {
-    switch (position) {
-      case GameConst.CENTER:
-        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
-        break;
-      case GameConst.END:
-        return (Graphics.boxWidth - (window.width || 0));
-        break;
-      default: //START
-        return 0;
-    }
-  }
+  // static getHorizontalAlign(position, window) {
+  //   switch (position) {
+  //     case GameConst.CENTER:
+  //       return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
+  //       break;
+  //     case GameConst.END:
+  //       return (Graphics.boxWidth - (window.width || 0));
+  //       break;
+  //     default: //START
+  //       return 0;
+  //   }
+  // }
 
   static setTextColor(text, color) {
     let colorIndex = ColorHelper.getColorIndex(color);
@@ -601,20 +679,20 @@ class TextWindow extends Window_Base {
     return this._textAlignment;
   }
 
-  getXAlignment(textWidth, maxWidth, align) {
-    maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
-    switch (align) {
-      case GameConst.CENTER:
-        return (maxWidth / 2) - (textWidth / 2);
-      case GameConst.RIGHT:
-        return maxWidth - textWidth;
-      default: // GameConst.LEFT
-        return 0;
-    }
-  }
+  // getXAlignment(textWidth, maxWidth, align) {
+  //   maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
+  //   switch (align) {
+  //     case GameConst.CENTER:
+  //       return (maxWidth / 2) - (textWidth / 2);
+  //     case GameConst.RIGHT:
+  //       return maxWidth - textWidth;
+  //     default: // GameConst.LEFT
+  //       return 0;
+  //   }
+  // }
 
   lineRect(index, x = 0) {
-    const y = index * this.lineHeight();
+    this.y = index * this.lineHeight();
     const width = this.contentsWidth();
     const height = this.lineHeight();
     return new Rectangle(x, y, width, height);
@@ -645,66 +723,58 @@ class TextWindow extends Window_Base {
   }
 
   alignStartTop() {
-    this.setHorizontalAlign(GameConst.START);
-    this.setVerticalAlign(GameConst.TOP);
-  }
-
-  setHorizontalAlign(position) {
-    this.x = TextWindow.getHorizontalAlign(position, this);
-  }
-
-  setVerticalAlign(position) {
-    this.y = TextWindow.getVerticalAlign(position, this);
+    this.x = ScreenHelper.getStartPosition();
+    this.y = ScreenHelper.getTopPosition();
   }
 
   alignCenterTop() {
-    this.setHorizontalAlign(GameConst.CENTER);
-    this.setVerticalAlign(GameConst.TOP);
+    this.x = ScreenHelper.getCenterPosition(this.width);
+    this.y = ScreenHelper.getTopPosition();
   }
 
   alignEndTop() {
-    this.setHorizontalAlign(GameConst.END);
-    this.setVerticalAlign(GameConst.TOP);
+    this.x = ScreenHelper.getEndPosition(this.width);
+    this.y = ScreenHelper.getTopPosition();
   }
 
   alignStartMiddle() {
-    this.setHorizontalAlign(GameConst.START);
-    this.setVerticalAlign(GameConst.MIDDLE);
+    this.x = ScreenHelper.getStartPosition();
+    this.y = ScreenHelper.getMiddlePosition(this.height);
   }
 
   alignCenterAboveMiddle() {
-    this.setHorizontalAlign(GameConst.CENTER);
-    this.setVerticalAlign(GameConst.ABOVE_MIDDLE);
+    this.x = ScreenHelper.getCenterPosition(this.width);
+    this.y = ScreenHelper.getAboveMiddlePosition(this.height);
   }
 
   alignCenterMiddle() {
-    this.setHorizontalAlign(GameConst.CENTER);
-    this.setVerticalAlign(GameConst.MIDDLE);
+    this.x = ScreenHelper.getCenterPosition(this.width);
+    this.y = ScreenHelper.getMiddlePosition(this.height);
   }
 
   alignCenterBelowMiddle() {
-    this.setHorizontalAlign(GameConst.CENTER);
-    this.setVerticalAlign(GameConst.BELOW_MIDDLE);
+    this.x = ScreenHelper.getCenterPosition(this.width);
+    this.y = ScreenHelper.getBelowMiddlePosition(this.height);
   }
 
   alignEndMiddle() {
-    this.setHorizontalAlign(GameConst.END);
-    this.setVerticalAlign(GameConst.MIDDLE);
+    this.x = ScreenHelper.getEndPosition(this.width);
+    this.y = ScreenHelper.getMiddlePosition(this.height);
   }
 
   alignStartBottom() {
-    this.setHorizontalAlign(GameConst.START);
-    this.setVerticalAlign(GameConst.BOTTOM);
+    this.x = ScreenHelper.getStartPosition();
+    this.y = ScreenHelper.getBottomPosition(this.height);
   }
 
   alignCenterBottom() {
-    this.setHorizontalAlign(GameConst.CENTER);
-    this.setVerticalAlign(GameConst.BOTTOM);
+    this.x = ScreenHelper.getCenterPosition(this.width);
+    this.y = ScreenHelper.getBottomPosition(this.height);
   }
 
   alignEndBottom() {
-    this.setHorizontalAlign(GameConst.END);
-    this.setVerticalAlign(GameConst.BOTTOM);
+    this.x = ScreenHelper.getEndPosition(this.width);
+    this.y = ScreenHelper.getBottomPosition(this.height);
   }
 
   changeDefaultColor() {
@@ -799,7 +869,7 @@ class CommandWindow extends Window_Command {
     if (!Array.isArray(text)) {
       throw new Error('text must be an array!');
     }
-    const width = Graphics.boxWidth;
+    const width = ScreenHelper.getFullWidth();
     const windowPadding = CommandWindow.windowPadding() * 2;
     const textHeight = CommandWindow.textHeight() * Math.max(text.length, 0);
     const itemsPadding = CommandWindow.itemPadding() * Math.max(commands.length - 1, 0);
@@ -838,21 +908,6 @@ class CommandWindow extends Window_Command {
   static setTextColor(text, color) {
     let colorIndex = ColorHelper.getColorIndex(color);
     return `\\c[${colorIndex}]${text}`;
-  }
-
-  static getVerticalAlign(position, window, parent) {
-    const parentY = parent?.y || 0;
-    const boxHeight = (Graphics.boxHeight - parentY);
-    switch (position) {
-      case GameConst.MIDDLE:
-        return ((Graphics.boxHeight / 2) - parentY) - ((window.height || 0) / 2);
-        break;
-      case GameConst.BOTTOM:
-        return boxHeight - ((window.height || 0) + (boxHeight / 6));
-        break;
-      default: //TOP
-        return boxHeight / 6;
-    }
   }
 
   initialize(rect, text, commands) {
@@ -989,18 +1044,6 @@ class CommandWindow extends Window_Command {
     return this._textAlignment;
   }
 
-  getXAlignment(textWidth, maxWidth, align) {
-    maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
-    switch (align) {
-      case GameConst.CENTER:
-        return (maxWidth / 2) - (textWidth / 2);
-      case GameConst.RIGHT:
-        return maxWidth - textWidth;
-      default: // GameConst.LEFT
-        return 0;
-    }
-  }
-
   lineRect(index, x = 0) {
     const y = index * this.lineHeight();
     const width = this.contentsWidth();
@@ -1020,6 +1063,18 @@ class CommandWindow extends Window_Command {
 
   createHistory(symbol, content) {
     return { symbol, content };
+  }
+
+  getXAlignment(textWidth, maxWidth, align) {
+    maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
+    switch (align) {
+      case GameConst.CENTER:
+        return (maxWidth / 2) - (textWidth / 2);
+      case GameConst.RIGHT:
+        return maxWidth - textWidth;
+      default: // GameConst.LEFT
+        return 0;
+    }
   }
 
   hasCommands() {
@@ -1106,30 +1161,26 @@ class CommandWindow extends Window_Command {
   }
 
   alignTop() {
-    this.addAction(this.commandAlign, GameConst.TOP);
+    const x = ScreenHelper.getStartPosition();
+    const y = ScreenHelper.getTopPosition();
+    this.addAction(this.commandAlign, x, y);
   }
 
-  commandAlign(verticalAlign) {
-    if (this.isBusy()) return false;
-    this.setVerticalAlign(verticalAlign);
-    this.setHorizontalAlign();
-  }
-
-  setVerticalAlign(position) {
-    this.y = CommandWindow.getVerticalAlign(position, this, this.parent);
-  }
-
-  setHorizontalAlign() {
-    const parentX = this.parent?.x || 0;
-    this.x = -parentX;
-  }
-
-  alignMiddle(parent) {
-    this.addAction(this.commandAlign, GameConst.MIDDLE, parent);
+  alignMiddle() {
+    const x = ScreenHelper.getStartPosition();
+    const y = ScreenHelper.getMiddlePosition(this.height);
+    this.addAction(this.commandAlign, x, y);
   }
 
   alignBottom() {
-    this.addAction(this.commandAlign, GameConst.BOTTOM);
+    const x = ScreenHelper.getStartPosition();
+    const y = ScreenHelper.getBottomPosition(this.height);
+    this.addAction(this.commandAlign, x, y);
+  }
+
+  commandAlign(x, y) {
+    this.x = x;
+    this.y = y;
   }
 
   changeBlueColor() {
@@ -1465,12 +1516,12 @@ class WindowUpdatedState {
 
 class StateWindow extends Window_Base {
   static createWindowOneFourthSize(x, y) {
-    const width = Graphics.boxWidth / 4;
-    const height = CommandWindow.windowPadding() * 2;
+    const width = ScreenHelper.getOneFourthWidth();
+    const height = StateWindow.borderHeight() * 2;
     return StateWindow.create(x, y, width, height);
   }
 
-  static windowPadding() {
+  static borderHeight() {
     return 12;
   }
 
@@ -1479,51 +1530,19 @@ class StateWindow extends Window_Base {
   }
 
   static createWindowMiddleSize(x, y) {
-    const width = Graphics.boxWidth / 2;
-    const height = CommandWindow.windowPadding() * 2
-    return StateWindow.create(x, y, width, height);
-  }
-
-  static createWindowThreeFourthSize(x, y) {
-    const width = Graphics.boxWidth * 3 / 4;
-    const height = CommandWindow.windowPadding() * 2
+    const width = ScreenHelper.getHalfWidth();
+    const height = StateWindow.borderHeight() * 2
     return StateWindow.create(x, y, width, height);
   }
 
   static createWindowFullSize(x, y) {
-    const width = Graphics.boxWidth;
-    const height = CommandWindow.windowPadding() * 2
+    const width = ScreenHelper.getFullWidth();
+    const height = StateWindow.borderHeight() * 2
     return StateWindow.create(x, y, width, height);
   }
 
   static create(x, y, width, height) {
     return new StateWindow(new Rectangle(x, y, width, height));
-  }
-
-  static getVerticalAlign(position, window) {
-    switch (position) {
-      case GameConst.MIDDLE:
-        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
-        break;
-      case GameConst.BOTTOM:
-        return Graphics.boxHeight - (window.height || 0);
-        break;
-      default: //TOP
-        return 0;
-    }
-  }
-
-  static getHorizontalAlign(position, window) {
-    switch (position) {
-      case GameConst.CENTER:
-        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
-        break;
-      case GameConst.END:
-        return (Graphics.boxWidth - (window.width || 0));
-        break;
-      default: //START
-        return 0;
-    }
   }
 
   initialize(rect) {
@@ -1672,79 +1691,75 @@ class StateWindow extends Window_Base {
   }
 
   alignStartTop() {
-    this.addCommand(this.commandAlign, GameConst.START, GameConst.TOP);
+    const x = ScreenHelper.getStartPosition();
+    const y = ScreenHelper.getTopPosition();
+    this.addCommand(this.commandAlign, x, y);
   }
 
   alignCenterTop() {
-    this.addCommand(this.commandAlign, GameConst.CENTER, GameConst.TOP);
+    const x = ScreenHelper.getCenterPosition(this.width);
+    const y = ScreenHelper.getTopPosition();
+    this.addCommand(this.commandAlign, x, y);
   }
 
   alignEndTop() {
-    this.addCommand(this.commandAlign, GameConst.END, GameConst.TOP);
+    const x = ScreenHelper.getEndPosition(this.width);
+    const y = ScreenHelper.getTopPosition();
+    this.addCommand(this.commandAlign, x, y);
   }
 
   alignStartMiddle() {
-    this.addCommand(this.commandAlign, GameConst.START, GameConst.MIDDLE);
+    const x = ScreenHelper.getStartPosition();
+    const y = ScreenHelper.getMiddlePosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
+  }
+
+  alignCenterAboveMiddle() {
+    const x = ScreenHelper.getCenterPosition(this.width);
+    const y = ScreenHelper.getAboveMiddlePosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
   }
 
   alignCenterMiddle() {
-    this.addCommand(this.commandAlign, GameConst.CENTER, GameConst.MIDDLE);
+    const x = ScreenHelper.getCenterPosition(this.width);
+    const y = ScreenHelper.getMiddlePosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
+  }
+
+  alignCenterBelowMiddle() {
+    const x = ScreenHelper.getCenterPosition(this.width);
+    const y = ScreenHelper.getBelowMiddlePosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
   }
 
   alignEndMiddle() {
-    this.addCommand(this.commandAlign, GameConst.END, GameConst.MIDDLE);
+    const x = ScreenHelper.getEndPosition(this.width);
+    const y = ScreenHelper.getMiddlePosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
   }
 
   alignStartBottom() {
-    this.addCommand(this.commandAlign, GameConst.START, GameConst.BOTTOM);
+    const x = ScreenHelper.getStartPosition();
+    const y = ScreenHelper.getBottomPosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
   }
 
   alignCenterBottom() {
-    this.addCommand(this.commandAlign, GameConst.CENTER, GameConst.BOTTOM);
+    const x = ScreenHelper.getCenterPosition(this.width);
+    const y = ScreenHelper.getBottomPosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
   }
 
   alignEndBottom() {
-    this.addCommand(this.commandAlign, GameConst.END, GameConst.BOTTOM);
+    const x = ScreenHelper.getEndPosition(this.width);
+    const y = ScreenHelper.getBottomPosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
   }
 
-  commandAlign(horizontalAlign, verticalAlign) {
+  commandAlign(x, y) {
     if (!this.isStopped()) return false;
-    this.setHorizontalAlign(horizontalAlign);
-    this.setVerticalAlign(verticalAlign);
-  }
-
-  setHorizontalAlign(position) {
-    this.x = StateWindow.getHorizontalAlign(position, this);
-  }
-
-  setVerticalAlign(position) {
-    this.y = StateWindow.getVerticalAlign(position, this);
-  }
-
-  alignVerticalAboveThis(window) {
-    this.addCommand(this.commandAlignVerticalAboveThis, window);
-  }
-
-  commandAlignVerticalAboveThis(window) {
-    if (!this.isStopped()) return false;
-    this.setVerticalAlignAboveThis(window);
-  }
-
-  setVerticalAlignAboveThis(window) {
-    this.y = window.y - this.height - CommandWindow.windowPadding() / 2;
-  }
-
-  alignVerticalBelowThis(window) {
-    this.addCommand(this.commandAlignVerticalBelowThis, window);
-  }
-
-  commandAlignVerticalBelowThis(window) {
-    if (!this.isStopped()) return false;
-    this.setVerticalAlignBelowThis(window);
-  }
-
-  setVerticalAlignBelowThis(window) {
-    this.y = window.y + window.height + CommandWindow.windowPadding() / 2;
+    this.x = x;
+    this.y = y;
   }
 
   isOneFourthSize() {
@@ -1986,7 +2001,7 @@ class BoardWindow extends ValuesWindow {
 }
 class BattlePointsWindow extends ValuesWindow {
   static create(x, y) {
-    const width = Graphics.boxWidth / 4;
+    const width = ScreenHelper.getOneFourthWidth();
     const height = StateWindow.minHeight();
     return new BattlePointsWindow(new Rectangle(x, y, width, height));
   }
@@ -3196,7 +3211,7 @@ class CardSprite extends ActionSprite {
   }
 
   static contentOriginalHeight() {
-    return 128;
+    return 120;
   }
 
   createLayers() {
@@ -5972,6 +5987,34 @@ class SceneTest {
 }
 
 // tests CARD Sprite
+class SizeCardSpriteTest extends SceneTest {
+  create() {
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
+    );
+    this.addWatched(this.subject);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
+    this.subject.show();
+  }
+
+  asserts() {
+    const cardWidth = 96;
+    const cardHeight = 120;
+    this.describe('Deve validar a proporção do card!');
+    this.expectTrue('Esta com a largura informada?', this.subject.width === cardWidth);
+    this.expectTrue('Esta com a altura informada?', this.subject.height === cardHeight);
+    this.expectTrue('Esta aberto?', this.subject.isOpened());
+  }
+}
 class ErroOnCreateCardSpriteTest extends SceneTest {
   create() {
     CardSprite.create();
@@ -5993,9 +6036,11 @@ class StartOpenCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
     this.subject.show();
   }
 
@@ -6015,9 +6060,11 @@ class StartClosedCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startClosed(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startClosed(x, y);
     this.subject.show();
   }
 
@@ -6037,9 +6084,11 @@ class OpenCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startClosed(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
     this.subject.open();
   }
 
@@ -6059,9 +6108,11 @@ class CloseCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
     this.subject.close();
   }
 
@@ -6081,9 +6132,11 @@ class DisableCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
     this.subject.show();
     this.subject.enable();
     this.subject.disable();
@@ -6105,9 +6158,11 @@ class EnableCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
     this.subject.show();
     this.subject.disable();
     this.subject.enable();
@@ -6162,9 +6217,11 @@ class HoveredCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
     this.subject.show();
     this.subject.hover();
   }
@@ -6185,9 +6242,11 @@ class UnhoveredCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
     this.subject.show();
     this.subject.hover();
     this.subject.unhover();
@@ -6209,9 +6268,11 @@ class SelectedCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
     this.subject.show();
     this.subject.select();
   }
@@ -6232,9 +6293,11 @@ class UnselectedCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
     this.subject.show();
     this.subject.select();
     this.subject.unselect();
@@ -6256,9 +6319,11 @@ class IluminatedCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
     this.subject.show();
     this.subject.iluminate();
   }
@@ -6279,9 +6344,11 @@ class UniluminatedCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
     this.subject.show();
     this.subject.iluminate();
     this.subject.uniluminate();
@@ -6303,9 +6370,11 @@ class FlashCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
     this.subject.show();
     const color = 'white';
     const duration = GameConst.FPS;
@@ -6335,7 +6404,7 @@ class AnimationCardSpriteTest extends SceneTest {
       card.health
     );
     this.addHiddenWatched(this.subject);
-    const centerXPosition = (this.base.width / 2 - this.subject.width / 2);
+    const centerXPosition = ScreenHelper.getPositionInCenterOf(this.base.width, this.subject.width);
     const centerYPosition = 0;
     this.subject.startOpen(centerXPosition, centerYPosition);
     this.subject.show();
@@ -6361,9 +6430,11 @@ class QuakeCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
     this.subject.show();
     const times = 10;
     this.subject.quake(times);
@@ -6385,9 +6456,11 @@ class ZoomCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
     this.subject.show();
     this.subject.zoom();
   }
@@ -6408,9 +6481,11 @@ class ZoomOutCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
     this.subject.show();
     this.subject.zoom();
     this.subject.zoomOut();
@@ -6432,9 +6507,11 @@ class LeaveCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
     this.subject.show();
     this.subject.leave();
   }
@@ -6457,9 +6534,11 @@ class FlipTurnToUpCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
     this.subject.setTurnToDown();
     this.subject.show();
     this.subject.flipTurnToUp();
@@ -6482,9 +6561,11 @@ class FlipTurnToDownCardSpriteTest extends SceneTest {
       card.health
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
     this.subject.setTurnToUp();
     this.subject.show();
     this.subject.flipTurnToDown();
@@ -6507,9 +6588,11 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
       0
     );
     this.addWatched(this.subject);
-    const centerXPosition = (Graphics.boxWidth / 2 - this.subject.width / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - this.subject.height / 2);
-    this.subject.startOpen(centerXPosition, centerYPosition);
+    const cardWidth = CardSprite.contentOriginalWidth();
+    const cardHeight = CardSprite.contentOriginalHeight();
+    const x = ScreenHelper.getCenterPosition(cardWidth);
+    const y = ScreenHelper.getMiddlePosition(cardHeight);
+    this.subject.startOpen(x, y);
     this.subject.show();
     this.subject.changePoints(25, 18);
   }
@@ -7282,21 +7365,6 @@ class CreateMiddleSizeStateWindowTest extends SceneTest {
   }
   
 }
-class CreateThreeFourthSizeStateWindowTest extends SceneTest {
-  create() {
-    const x = 0;
-    const y = 0;
-    this.subject = StateWindow.createWindowThreeFourthSize(x, y);
-    this.addWatched(this.subject);
-    this.subject.open();
-  }
-
-  asserts() {
-    this.describe('Deve criar uma janela de batalha com 3/4 do tamanho da tela!');
-    this.expectTrue('Esta na largura de 3/4 da tela?', this.subject.isThreeFourthSize());
-  }
-  
-}
 class CreateFullSizeStateWindowTest extends SceneTest {
   create() {
     const x = 0;
@@ -7362,8 +7430,10 @@ class AlignStartTopStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no início e no topo!');
-    this.expect('Esta na posição horizontal do início?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.START, this.subject));
-    this.expect('Esta na posição vertical do topo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.TOP, this.subject));
+    const x = ScreenHelper.getStartPosition();
+    const y = ScreenHelper.getTopPosition();
+    this.expectTrue('Esta na posição horizontal do centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical embaixo?', this.subject.y === y);
   }
 }
 class AlignStartMiddleStateWindowTest extends SceneTest {
@@ -7378,8 +7448,10 @@ class AlignStartMiddleStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no início e no meio!');
-    this.expect('Esta na posição horizontal do início?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.START, this.subject));
-    this.expect('Esta na posição vertical do meio?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
+    const x = ScreenHelper.getStartPosition();
+    const y = ScreenHelper.getMiddlePosition(this.subject.height);
+    this.expectTrue('Esta na posição horizontal do centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical embaixo?', this.subject.y === y);
   }
 }
 class AlignStartBottomStateWindowTest  extends SceneTest {
@@ -7394,8 +7466,10 @@ class AlignStartBottomStateWindowTest  extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no início e embaixo!');
-    this.expect('Esta na posição horizontal do início?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.START, this.subject));
-    this.expect('Esta na posição vertical embaixo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
+    const x = ScreenHelper.getStartPosition();
+    const y = ScreenHelper.getBottomPosition(this.subject.height);
+    this.expectTrue('Esta na posição horizontal do centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical embaixo?', this.subject.y === y);
   }
 }
 class AlignCenterTopStateWindowTest extends SceneTest {
@@ -7410,8 +7484,10 @@ class AlignCenterTopStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no centro e no topo!');
-    this.expect('Esta na posição horizontal do centro?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
-    this.expect('Esta na posição vertical do topo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.TOP, this.subject));
+    const x = ScreenHelper.getCenterPosition(this.subject.width);
+    const y = ScreenHelper.getTopPosition();
+    this.expectTrue('Esta na posição horizontal do centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical embaixo?', this.subject.y === y);
   }
 }
 class AlignCenterMiddleStateWindowTest extends SceneTest {
@@ -7426,8 +7502,10 @@ class AlignCenterMiddleStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no centro e no meio!');
-    this.expect('Esta na posição horizontal do centro?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
-    this.expect('Esta na posição vertical do meio?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
+    const x = ScreenHelper.getCenterPosition(this.subject.width);
+    const y = ScreenHelper.getMiddlePosition(this.subject.height);
+    this.expectTrue('Esta na posição horizontal do centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical embaixo?', this.subject.y === y);
   }
 }
 class AlignCenterBottomStateWindowTest extends SceneTest {
@@ -7442,8 +7520,10 @@ class AlignCenterBottomStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no centro e embaixo!');
-    this.expect('Esta na posição horizontal do centro?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
-    this.expect('Esta na posição vertical embaixo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
+    const x = ScreenHelper.getCenterPosition(this.subject.width);
+    const y = ScreenHelper.getBottomPosition(this.subject.height);
+    this.expectTrue('Esta na posição horizontal do centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical embaixo?', this.subject.y === y);
   }
 }
 class AlignEndTopStateWindowTest extends SceneTest {
@@ -7458,8 +7538,10 @@ class AlignEndTopStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no final e no topo!');
-    this.expect('Esta na posição horizontal do final?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.END, this.subject));
-    this.expect('Esta na posição vertical do topo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.TOP, this.subject));
+    const x = ScreenHelper.getEndPosition(this.subject.width);
+    const y = ScreenHelper.getTopPosition();
+    this.expectTrue('Esta na posição horizontal do centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical embaixo?', this.subject.y === y);
   }
 }
 class AlignEndMiddleStateWindowTest extends SceneTest {
@@ -7474,8 +7556,10 @@ class AlignEndMiddleStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no final e no meio!');
-    this.expect('Esta na posição horizontal do final?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.END, this.subject));
-    this.expect('Esta na posição vertical do meio?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.MIDDLE, this.subject));
+    const x = ScreenHelper.getEndPosition(this.subject.width);
+    const y = ScreenHelper.getMiddlePosition(this.subject.height);
+    this.expectTrue('Esta na posição horizontal do centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical embaixo?', this.subject.y === y);
   }
 }
 class AlignEndBottomStateWindowTest extends SceneTest {
@@ -7490,8 +7574,10 @@ class AlignEndBottomStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no final e embaixo!');
-    this.expect('Esta na posição horizontal do final?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.END, this.subject));
-    this.expect('Esta na posição vertical embaixo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.BOTTOM, this.subject));
+    const x = ScreenHelper.getEndPosition(this.subject.width);
+    const y = ScreenHelper.getBottomPosition(this.subject.height);
+    this.expectTrue('Esta na posição horizontal do centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical embaixo?', this.subject.y === y);
   }
 }
 // tests BOARD WINDOW
@@ -8140,8 +8226,8 @@ class AlignTopCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinha a janela no topo.');
-    const positionY = CommandWindow.getVerticalAlign(GameConst.TOP, this.subject, this.scene._windowLayer);
-    this.expect('Esta na posição vertical do topo?', this.subject.y).toBe(positionY);
+    const y = ScreenHelper.getTopPosition();
+    this.expect('Esta na posição vertical do topo?', this.subject.y).toBe(y);
   }
 }
 class AlignMiddleCommandWindowTest extends SceneTest {
@@ -8154,8 +8240,8 @@ class AlignMiddleCommandWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinha a janela no meio.');
-    const positionY = CommandWindow.getVerticalAlign(GameConst.MIDDLE, this.subject, this.scene._windowLayer);
-    this.expect('Esta na posição vertical do meio?', this.subject.y).toBe(positionY);
+    const y = ScreenHelper.getMiddlePosition(this.subject.height);
+    this.expect('Esta na posição vertical do meio?', this.subject.y).toBe(y);
   }
 }
 class AlignBottomCommandWindowTest extends SceneTest {
@@ -8168,8 +8254,8 @@ class AlignBottomCommandWindowTest extends SceneTest {
   
   asserts() {
     this.describe('Deve alinha a janela embaixo.');
-    const positionY = CommandWindow.getVerticalAlign(GameConst.BOTTOM, this.subject, this.scene._windowLayer);
-    this.expect('Esta na posição vertical embaixo?', this.subject.y).toBe(positionY);
+    const y = ScreenHelper.getBottomPosition(this.subject.height);
+    this.expect('Esta na posição vertical embaixo?', this.subject.y).toBe(y);
   }
 }
 class AlignTextLeftCommandWindowTest extends SceneTest {
@@ -8674,6 +8760,7 @@ class CardBattleTestScene extends Scene_Message {
   
   testsData() {
     const cardSpriteTests = [
+      SizeCardSpriteTest,
       ErroOnCreateCardSpriteTest,
       StartOpenCardSpriteTest,
       StartClosedCardSpriteTest,
@@ -8735,7 +8822,6 @@ class CardBattleTestScene extends Scene_Message {
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,
       CreateMiddleSizeStateWindowTest,
-      CreateThreeFourthSizeStateWindowTest,
       CreateFullSizeStateWindowTest,
       OpenStateWindowTest,
       CloseStateWindowTest,
@@ -8829,14 +8915,14 @@ class CardBattleTestScene extends Scene_Message {
       // ...cardSpriteTests,
       // ...cardsetSpriteTests,
       // ...commandWindow,
-      // ...StateWindowTests,
+      ...StateWindowTests,
       // ...textWindowTests,
       // ...boardWindowTests,
       // ...battlePointsWindow,
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      ...phase,
+      // ...phase,
     ];
   }
 

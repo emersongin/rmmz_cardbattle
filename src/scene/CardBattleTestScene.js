@@ -30,6 +30,7 @@ class CardBattleTestScene extends Scene_Message {
   
   testsData() {
     const cardSpriteTests = [
+      SizeCardSpriteTest,
       ErroOnCreateCardSpriteTest,
       StartOpenCardSpriteTest,
       StartClosedCardSpriteTest,
@@ -91,7 +92,6 @@ class CardBattleTestScene extends Scene_Message {
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,
       CreateMiddleSizeStateWindowTest,
-      CreateThreeFourthSizeStateWindowTest,
       CreateFullSizeStateWindowTest,
       OpenStateWindowTest,
       CloseStateWindowTest,
@@ -185,14 +185,14 @@ class CardBattleTestScene extends Scene_Message {
       // ...cardSpriteTests,
       // ...cardsetSpriteTests,
       // ...commandWindow,
-      // ...StateWindowTests,
+      ...StateWindowTests,
       // ...textWindowTests,
       // ...boardWindowTests,
       // ...battlePointsWindow,
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      ...phase,
+      // ...phase,
     ];
   }
 

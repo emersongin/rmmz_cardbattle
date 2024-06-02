@@ -10,7 +10,9 @@ class AlignCenterTopStateWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no centro e no topo!');
-    this.expect('Esta na posição horizontal do centro?', this.subject.x).toBe(StateWindow.getHorizontalAlign(GameConst.CENTER, this.subject));
-    this.expect('Esta na posição vertical do topo?', this.subject.y).toBe(StateWindow.getVerticalAlign(GameConst.TOP, this.subject));
+    const x = ScreenHelper.getCenterPosition(this.subject.width);
+    const y = ScreenHelper.getTopPosition();
+    this.expectTrue('Esta na posição horizontal do centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical embaixo?', this.subject.y === y);
   }
 }

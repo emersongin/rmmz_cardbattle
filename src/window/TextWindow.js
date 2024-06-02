@@ -42,37 +42,37 @@ class TextWindow extends Window_Base {
     return TextWindow.create(x, y, width, height, text);
   }
 
-  static getVerticalAlign(position, window) {
-    switch (position) {
-      case GameConst.ABOVE_MIDDLE:
-        return (Graphics.boxHeight / 4) - ((window.height || 0) / 2);
-        break;
-      case GameConst.MIDDLE:
-        return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
-        break;
-      case GameConst.BELOW_MIDDLE:
-        return (Graphics.boxHeight * 3 / 4) - ((window.height || 0) / 2);
-        break;
-      case GameConst.BOTTOM:
-        return Graphics.boxHeight - (window.height || 0);
-        break;
-      default: //TOP
-        return 0;
-    }
-  }
+  // static getVerticalAlign(position, window) {
+  //   switch (position) {
+  //     case GameConst.ABOVE_MIDDLE:
+  //       return (Graphics.boxHeight / 4) - ((window.height || 0) / 2);
+  //       break;
+  //     case GameConst.MIDDLE:
+  //       return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
+  //       break;
+  //     case GameConst.BELOW_MIDDLE:
+  //       return (Graphics.boxHeight * 3 / 4) - ((window.height || 0) / 2);
+  //       break;
+  //     case GameConst.BOTTOM:
+  //       return Graphics.boxHeight - (window.height || 0);
+  //       break;
+  //     default: //TOP
+  //       return 0;
+  //   }
+  // }
 
-  static getHorizontalAlign(position, window) {
-    switch (position) {
-      case GameConst.CENTER:
-        return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
-        break;
-      case GameConst.END:
-        return (Graphics.boxWidth - (window.width || 0));
-        break;
-      default: //START
-        return 0;
-    }
-  }
+  // static getHorizontalAlign(position, window) {
+  //   switch (position) {
+  //     case GameConst.CENTER:
+  //       return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
+  //       break;
+  //     case GameConst.END:
+  //       return (Graphics.boxWidth - (window.width || 0));
+  //       break;
+  //     default: //START
+  //       return 0;
+  //   }
+  // }
 
   static setTextColor(text, color) {
     let colorIndex = ColorHelper.getColorIndex(color);
@@ -174,20 +174,20 @@ class TextWindow extends Window_Base {
     return this._textAlignment;
   }
 
-  getXAlignment(textWidth, maxWidth, align) {
-    maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
-    switch (align) {
-      case GameConst.CENTER:
-        return (maxWidth / 2) - (textWidth / 2);
-      case GameConst.RIGHT:
-        return maxWidth - textWidth;
-      default: // GameConst.LEFT
-        return 0;
-    }
-  }
+  // getXAlignment(textWidth, maxWidth, align) {
+  //   maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
+  //   switch (align) {
+  //     case GameConst.CENTER:
+  //       return (maxWidth / 2) - (textWidth / 2);
+  //     case GameConst.RIGHT:
+  //       return maxWidth - textWidth;
+  //     default: // GameConst.LEFT
+  //       return 0;
+  //   }
+  // }
 
   lineRect(index, x = 0) {
-    const y = index * this.lineHeight();
+    this.y = index * this.lineHeight();
     const width = this.contentsWidth();
     const height = this.lineHeight();
     return new Rectangle(x, y, width, height);
@@ -218,66 +218,58 @@ class TextWindow extends Window_Base {
   }
 
   alignStartTop() {
-    this.setHorizontalAlign(GameConst.START);
-    this.setVerticalAlign(GameConst.TOP);
-  }
-
-  setHorizontalAlign(position) {
-    this.x = TextWindow.getHorizontalAlign(position, this);
-  }
-
-  setVerticalAlign(position) {
-    this.y = TextWindow.getVerticalAlign(position, this);
+    this.x = ScreenHelper.getStartPosition();
+    this.y = ScreenHelper.getTopPosition();
   }
 
   alignCenterTop() {
-    this.setHorizontalAlign(GameConst.CENTER);
-    this.setVerticalAlign(GameConst.TOP);
+    this.x = ScreenHelper.getCenterPosition(this.width);
+    this.y = ScreenHelper.getTopPosition();
   }
 
   alignEndTop() {
-    this.setHorizontalAlign(GameConst.END);
-    this.setVerticalAlign(GameConst.TOP);
+    this.x = ScreenHelper.getEndPosition(this.width);
+    this.y = ScreenHelper.getTopPosition();
   }
 
   alignStartMiddle() {
-    this.setHorizontalAlign(GameConst.START);
-    this.setVerticalAlign(GameConst.MIDDLE);
+    this.x = ScreenHelper.getStartPosition();
+    this.y = ScreenHelper.getMiddlePosition(this.height);
   }
 
   alignCenterAboveMiddle() {
-    this.setHorizontalAlign(GameConst.CENTER);
-    this.setVerticalAlign(GameConst.ABOVE_MIDDLE);
+    this.x = ScreenHelper.getCenterPosition(this.width);
+    this.y = ScreenHelper.getAboveMiddlePosition(this.height);
   }
 
   alignCenterMiddle() {
-    this.setHorizontalAlign(GameConst.CENTER);
-    this.setVerticalAlign(GameConst.MIDDLE);
+    this.x = ScreenHelper.getCenterPosition(this.width);
+    this.y = ScreenHelper.getMiddlePosition(this.height);
   }
 
   alignCenterBelowMiddle() {
-    this.setHorizontalAlign(GameConst.CENTER);
-    this.setVerticalAlign(GameConst.BELOW_MIDDLE);
+    this.x = ScreenHelper.getCenterPosition(this.width);
+    this.y = ScreenHelper.getBelowMiddlePosition(this.height);
   }
 
   alignEndMiddle() {
-    this.setHorizontalAlign(GameConst.END);
-    this.setVerticalAlign(GameConst.MIDDLE);
+    this.x = ScreenHelper.getEndPosition(this.width);
+    this.y = ScreenHelper.getMiddlePosition(this.height);
   }
 
   alignStartBottom() {
-    this.setHorizontalAlign(GameConst.START);
-    this.setVerticalAlign(GameConst.BOTTOM);
+    this.x = ScreenHelper.getStartPosition();
+    this.y = ScreenHelper.getBottomPosition(this.height);
   }
 
   alignCenterBottom() {
-    this.setHorizontalAlign(GameConst.CENTER);
-    this.setVerticalAlign(GameConst.BOTTOM);
+    this.x = ScreenHelper.getCenterPosition(this.width);
+    this.y = ScreenHelper.getBottomPosition(this.height);
   }
 
   alignEndBottom() {
-    this.setHorizontalAlign(GameConst.END);
-    this.setVerticalAlign(GameConst.BOTTOM);
+    this.x = ScreenHelper.getEndPosition(this.width);
+    this.y = ScreenHelper.getBottomPosition(this.height);
   }
 
   changeDefaultColor() {

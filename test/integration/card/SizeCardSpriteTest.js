@@ -1,4 +1,4 @@
-class IluminatedCardSpriteTest extends SceneTest {
+class SizeCardSpriteTest extends SceneTest {
   create() {
     const card = CardGenerator.generateCard();
     this.subject = CardSprite.create(
@@ -15,11 +15,14 @@ class IluminatedCardSpriteTest extends SceneTest {
     const y = ScreenHelper.getMiddlePosition(cardHeight);
     this.subject.startOpen(x, y);
     this.subject.show();
-    this.subject.iluminate();
   }
 
   asserts() {
-    this.describe('Deve colocar o card em iluminado!');
-    this.expectTrue('Esta em iluminado?', this.subject.isIluminated());
+    const cardWidth = 96;
+    const cardHeight = 120;
+    this.describe('Deve validar a proporção do card!');
+    this.expectTrue('Esta com a largura informada?', this.subject.width === cardWidth);
+    this.expectTrue('Esta com a altura informada?', this.subject.height === cardHeight);
+    this.expectTrue('Esta aberto?', this.subject.isOpened());
   }
 }
