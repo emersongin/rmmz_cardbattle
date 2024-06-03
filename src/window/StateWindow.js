@@ -105,10 +105,10 @@ class StateWindow extends Window_Base {
   updateTone() {
     switch (this._windowColor) {
       case GameConst.BLUE_COLOR:
-        this.setTone(0, 0, 255);
+        this.setTone(0, 0, 155);
         break;
       case GameConst.RED_COLOR:
-        this.setTone(255, 0, 0);
+        this.setTone(155, 0, 0);
         break;
       default:
         this.setTone(0, 0, 0);
@@ -207,6 +207,12 @@ class StateWindow extends Window_Base {
     this.addCommand(this.commandAlign, x, y);
   }
 
+  alignEndAboveMiddle() {
+    const x = ScreenHelper.getEndPosition(this.width);
+    const y = ScreenHelper.getAboveMiddlePosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
+  }
+
   alignCenterMiddle() {
     const x = ScreenHelper.getCenterPosition(this.width);
     const y = ScreenHelper.getMiddlePosition(this.height);
@@ -215,6 +221,12 @@ class StateWindow extends Window_Base {
 
   alignCenterBelowMiddle() {
     const x = ScreenHelper.getCenterPosition(this.width);
+    const y = ScreenHelper.getBelowMiddlePosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
+  }
+
+  alignEndBelowMiddle() {
+    const x = ScreenHelper.getEndPosition(this.width);
     const y = ScreenHelper.getBelowMiddlePosition(this.height);
     this.addCommand(this.commandAlign, x, y);
   }
@@ -245,17 +257,19 @@ class StateWindow extends Window_Base {
 
   alignAboveOf(obj) {
     const { y } = obj;
+    const receptorX = undefined;
     const receptorY = ScreenHelper.getPositionAboveOf(y, this.height);
-    this.addCommand(this.commandAlign, this.x, receptorY);
+    this.addCommand(this.commandAlign, receptorX, receptorY);
   }
 
   alignBelowOf(obj) {
     const { y, height } = obj;
+    const receptorX = undefined;
     const receptorY = ScreenHelper.getPositionBelowOf(y, height);
-    this.addCommand(this.commandAlign, this.x, receptorY);
+    this.addCommand(this.commandAlign, receptorX, receptorY);
   }
 
-  commandAlign(x, y) {
+  commandAlign(x = this.x, y = this.y) {
     if (!this.isStopped()) return false;
     this.x = x;
     this.y = y;

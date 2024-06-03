@@ -23,8 +23,11 @@ class Phase {
   }
 
   createDescriptionWindow(...texts) {
-    const content = [...texts];
-    this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, content);
+    const maxSize = 3;
+    const heightLines = Array(maxSize).fill('\n');
+    const content = [...texts, ...heightLines];
+    const maxContent = content.slice(0, maxSize);
+    this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, maxContent);
     this._descriptionWindow.alignCenterBelowMiddle();
     this.attachChild(this._descriptionWindow);
   }

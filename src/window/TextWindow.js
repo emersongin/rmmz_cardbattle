@@ -163,10 +163,10 @@ class TextWindow extends Window_Base {
   updateTone() {
     switch (this._windowColor) {
       case GameConst.BLUE_COLOR:
-        this.setTone(0, 0, 255);
+        this.setTone(0, 0, 155);
         break;
       case GameConst.RED_COLOR:
-        this.setTone(255, 0, 0);
+        this.setTone(155, 0, 0);
         break;
       default:
         this.setTone(0, 0, 0);

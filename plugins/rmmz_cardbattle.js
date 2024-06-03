@@ -668,10 +668,10 @@ class TextWindow extends Window_Base {
   updateTone() {
     switch (this._windowColor) {
       case GameConst.BLUE_COLOR:
-        this.setTone(0, 0, 255);
+        this.setTone(0, 0, 155);
         break;
       case GameConst.RED_COLOR:
-        this.setTone(255, 0, 0);
+        this.setTone(155, 0, 0);
         break;
       default:
         this.setTone(0, 0, 0);
@@ -1082,10 +1082,10 @@ class CommandWindow extends Window_Command {
   updateTone() {
     switch (this._windowColor) {
       case GameConst.BLUE_COLOR:
-        this.setTone(0, 0, 255);
+        this.setTone(0, 0, 155);
         break;
       case GameConst.RED_COLOR:
-        this.setTone(255, 0, 0);
+        this.setTone(155, 0, 0);
         break;
       default:
         this.setTone(0, 0, 0);
@@ -1590,10 +1590,10 @@ class StateWindow extends Window_Base {
   updateTone() {
     switch (this._windowColor) {
       case GameConst.BLUE_COLOR:
-        this.setTone(0, 0, 255);
+        this.setTone(0, 0, 155);
         break;
       case GameConst.RED_COLOR:
-        this.setTone(255, 0, 0);
+        this.setTone(155, 0, 0);
         break;
       default:
         this.setTone(0, 0, 0);
@@ -1692,6 +1692,12 @@ class StateWindow extends Window_Base {
     this.addCommand(this.commandAlign, x, y);
   }
 
+  alignEndAboveMiddle() {
+    const x = ScreenHelper.getEndPosition(this.width);
+    const y = ScreenHelper.getAboveMiddlePosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
+  }
+
   alignCenterMiddle() {
     const x = ScreenHelper.getCenterPosition(this.width);
     const y = ScreenHelper.getMiddlePosition(this.height);
@@ -1700,6 +1706,12 @@ class StateWindow extends Window_Base {
 
   alignCenterBelowMiddle() {
     const x = ScreenHelper.getCenterPosition(this.width);
+    const y = ScreenHelper.getBelowMiddlePosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
+  }
+
+  alignEndBelowMiddle() {
+    const x = ScreenHelper.getEndPosition(this.width);
     const y = ScreenHelper.getBelowMiddlePosition(this.height);
     this.addCommand(this.commandAlign, x, y);
   }
@@ -1730,17 +1742,19 @@ class StateWindow extends Window_Base {
 
   alignAboveOf(obj) {
     const { y } = obj;
+    const receptorX = undefined;
     const receptorY = ScreenHelper.getPositionAboveOf(y, this.height);
-    this.addCommand(this.commandAlign, this.x, receptorY);
+    this.addCommand(this.commandAlign, receptorX, receptorY);
   }
 
   alignBelowOf(obj) {
     const { y, height } = obj;
+    const receptorX = undefined;
     const receptorY = ScreenHelper.getPositionBelowOf(y, height);
-    this.addCommand(this.commandAlign, this.x, receptorY);
+    this.addCommand(this.commandAlign, receptorX, receptorY);
   }
 
-  commandAlign(x, y) {
+  commandAlign(x = this.x, y = this.y) {
     if (!this.isStopped()) return false;
     this.x = x;
     this.y = y;
@@ -5080,8 +5094,11 @@ class Phase {
   }
 
   createDescriptionWindow(...texts) {
-    const content = [...texts];
-    this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, content);
+    const maxSize = 3;
+    const heightLines = Array(maxSize).fill('\n');
+    const content = [...texts, ...heightLines];
+    const maxContent = content.slice(0, maxSize);
+    this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, maxContent);
     this._descriptionWindow.alignCenterBelowMiddle();
     this.attachChild(this._descriptionWindow);
   }
@@ -5511,6 +5528,7 @@ class DrawPhase extends Phase {
 
   createPlayerBoardWindow(energies, cardsInDeck, cardsInHand) {
     this._playerBoardWindow = BoardWindow.create(0, 0);
+    this._playerBoardWindow.changeBlueColor();
     this._playerBoardWindow.alignStartBottom();
     const points = [...energies, cardsInDeck, cardsInHand];
     this._playerBoardWindow.refreshPoints(...points);
@@ -5519,23 +5537,30 @@ class DrawPhase extends Phase {
 
   createPlayerBattleWindow() {
     this._playerBattleWindow = BattlePointsWindow.create(0, 0);
+    this._playerBattleWindow.changeBlueColor();
     this._playerBattleWindow.alignStartBottom();
-    this._playerBattleWindow.alignVerticalAboveThis(this._playerBoardWindow);
+    const height = this._playerBoardWindow.height;
+    const y = ScreenHelper.getBottomPosition(height);
+    this._playerBattleWindow.alignAboveOf({ y, height });
     this._playerBattleWindow.refresh();
     this.attachChild(this._playerBattleWindow);
   }
 
   createPlayerTrashWindow(cardsInTrash) {
     this._playerTrashWindow = TrashWindow.create(0, 0);
-    this._playerTrashWindow.alignEndMiddle();
+    this._playerTrashWindow.changeBlueColor();
+    this._playerTrashWindow.alignEndBelowMiddle();
     this._playerTrashWindow.refresh();
     this.attachChild(this._playerTrashWindow);
   }
 
   createPlayerScoreWindow(victories) {
     this._playerScoreWindow = ScoreWindow.create(0, 0);
+    this._playerScoreWindow.changeBlueColor();
     this._playerScoreWindow.alignEndBottom();
-    this._playerScoreWindow.alignVerticalAboveThis(this._playerBoardWindow);
+    const height = this._playerBoardWindow.height;
+    const y = ScreenHelper.getBottomPosition(height);
+    this._playerScoreWindow.alignAboveOf({ y, height });
     this._playerScoreWindow.refresh(victories);
     this.attachChild(this._playerScoreWindow);
   }
@@ -5549,6 +5574,7 @@ class DrawPhase extends Phase {
 
   createChallengeBoardWindow(energies, cardsInDeck, cardsInHand) {
     this._challengeBoardWindow = BoardWindow.create(0, 0);
+    this._challengeBoardWindow.changeRedColor();
     this._challengeBoardWindow.alignStartTop();
     const points = [...energies, cardsInDeck, cardsInHand];
     this._challengeBoardWindow.refreshPoints(...points);
@@ -5557,23 +5583,30 @@ class DrawPhase extends Phase {
 
   createChallengeBattleWindow() {
     this._challengeBattleWindow = BattlePointsWindow.create(0, 0);
+    this._challengeBattleWindow.changeRedColor();
     this._challengeBattleWindow.alignStartTop();
-    this._challengeBattleWindow.alignVerticalBelowThis(this._challengeBoardWindow);
+    const height = this._playerBoardWindow.height;
+    const y = ScreenHelper.getTopPosition(height);
+    this._challengeBattleWindow.alignBelowOf({ y, height });
     this._challengeBattleWindow.refresh();
     this.attachChild(this._challengeBattleWindow);
   }
 
   createChallengeTrashWindow(cardsInTrash) {
     this._challengeTrashWindow = TrashWindow.create(0, 0);
-    this._challengeTrashWindow.alignEndMiddle();
+    this._challengeTrashWindow.changeRedColor();
+    this._challengeTrashWindow.alignEndAboveMiddle();
     this._challengeTrashWindow.refresh();
     this.attachChild(this._challengeTrashWindow);
   }
 
   createChallengeScoreWindow(victories) {
     this._challengeScoreWindow = ScoreWindow.create(0, 0);
+    this._challengeScoreWindow.changeRedColor();
     this._challengeScoreWindow.alignEndTop();
-    this._challengeScoreWindow.alignVerticalBelowThis(this._challengeBoardWindow);
+    const height = this._playerBoardWindow.height;
+    const y = ScreenHelper.getTopPosition(height);
+    this._challengeScoreWindow.alignBelowOf({ y, height });
     this._challengeScoreWindow.refresh(victories);
     this.attachChild(this._challengeScoreWindow);
   }
@@ -8995,7 +9028,7 @@ class CardBattleTestScene extends Scene_Message {
     const phase = [
       ChallengePhaseTest,
       StartPhaseTest,
-      // DrawPhaseTest,
+      DrawPhaseTest,
     ];
     return [
       // ...cardSpriteTests,
