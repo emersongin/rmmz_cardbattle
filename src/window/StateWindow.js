@@ -243,6 +243,18 @@ class StateWindow extends Window_Base {
     this.addCommand(this.commandAlign, x, y);
   }
 
+  alignAboveOf(obj) {
+    const { y } = obj;
+    const receptorY = ScreenHelper.getPositionAboveOf(y, this.height);
+    this.addCommand(this.commandAlign, this.x, receptorY);
+  }
+
+  alignBelowOf(obj) {
+    const { y, height } = obj;
+    const receptorY = ScreenHelper.getPositionBelowOf(y, height);
+    this.addCommand(this.commandAlign, this.x, receptorY);
+  }
+
   commandAlign(x, y) {
     if (!this.isStopped()) return false;
     this.x = x;

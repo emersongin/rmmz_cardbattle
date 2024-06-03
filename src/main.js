@@ -106,11 +106,15 @@
 // include ../test/integration/statewindow/AlignStartMiddleStateWindowTest.js
 // include ../test/integration/statewindow/AlignStartBottomStateWindowTest.js
 // include ../test/integration/statewindow/AlignCenterTopStateWindowTest.js
+// include ../test/integration/statewindow/AlignCenterAboveMiddleStateWindowTest.js
 // include ../test/integration/statewindow/AlignCenterMiddleStateWindowTest.js
+// include ../test/integration/statewindow/AlignCenterBelowMiddleStateWindowTest.js
 // include ../test/integration/statewindow/AlignCenterBottomStateWindowTest.js
 // include ../test/integration/statewindow/AlignEndTopStateWindowTest.js
 // include ../test/integration/statewindow/AlignEndMiddleStateWindowTest.js
 // include ../test/integration/statewindow/AlignEndBottomStateWindowTest.js
+// include ../test/integration/statewindow/AlignAboveOfStateWindowTest.js
+// include ../test/integration/statewindow/AlignBelowOfStateWindowTest.js
 // tests BOARD WINDOW
 // include ../test/integration/boardwindow/PassBoardWindowTest.js
 // include ../test/integration/boardwindow/NoPassBoardWindowTest.js

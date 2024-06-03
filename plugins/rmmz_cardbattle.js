@@ -1718,6 +1718,18 @@ class StateWindow extends Window_Base {
     this.addCommand(this.commandAlign, x, y);
   }
 
+  alignAboveOf(obj) {
+    const { y } = obj;
+    const receptorY = ScreenHelper.getPositionAboveOf(y, this.height);
+    this.addCommand(this.commandAlign, this.x, receptorY);
+  }
+
+  alignBelowOf(obj) {
+    const { y, height } = obj;
+    const receptorY = ScreenHelper.getPositionBelowOf(y, height);
+    this.addCommand(this.commandAlign, this.x, receptorY);
+  }
+
   commandAlign(x, y) {
     if (!this.isStopped()) return false;
     this.x = x;
@@ -7452,6 +7464,22 @@ class AlignCenterTopStateWindowTest extends SceneTest {
     this.expectTrue('Esta na posição vertical embaixo?', this.subject.y === y);
   }
 }
+class AlignCenterAboveMiddleStateWindowTest extends SceneTest {
+  create() {
+    this.subject = StateWindow.createWindowOneFourthSize(0, 0);
+    this.addWatched(this.subject);
+    this.subject.alignCenterAboveMiddle();
+    this.subject.open();
+  }
+
+  asserts() {
+    this.describe('Deve alinhar no centro e acima do meio!');
+    const x = ScreenHelper.getCenterPosition(this.subject.width);
+    const y = ScreenHelper.getAboveMiddlePosition(this.subject.height);
+    this.expectTrue('Esta na posição horizontal centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical acima do meio?', this.subject.y === y);
+  }
+}
 class AlignCenterMiddleStateWindowTest extends SceneTest {
   create() {
     const x = 0;
@@ -7468,6 +7496,22 @@ class AlignCenterMiddleStateWindowTest extends SceneTest {
     const y = ScreenHelper.getMiddlePosition(this.subject.height);
     this.expectTrue('Esta na posição horizontal do centro?', this.subject.x === x);
     this.expectTrue('Esta na posição vertical embaixo?', this.subject.y === y);
+  }
+}
+class AlignCenterBelowMiddleStateWindowTest  extends SceneTest {
+  create() {
+    this.subject = StateWindow.createWindowOneFourthSize(0, 0);
+    this.addWatched(this.subject);
+    this.subject.alignCenterBelowMiddle();
+    this.subject.open();
+  }
+
+  asserts() {
+    this.describe('Deve alinhar no centro e abaixo do meio!');
+    const x = ScreenHelper.getCenterPosition(this.subject.width);
+    const y = ScreenHelper.getBelowMiddlePosition(this.subject.height);
+    this.expectTrue('Esta na posição horizontal centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical abaixo do meio?', this.subject.y === y);
   }
 }
 class AlignCenterBottomStateWindowTest extends SceneTest {
@@ -7540,6 +7584,44 @@ class AlignEndBottomStateWindowTest extends SceneTest {
     const y = ScreenHelper.getBottomPosition(this.subject.height);
     this.expectTrue('Esta na posição horizontal do centro?', this.subject.x === x);
     this.expectTrue('Esta na posição vertical embaixo?', this.subject.y === y);
+  }
+}
+class AlignAboveOfStateWindowTest extends SceneTest {
+  create() {
+    const x = ScreenHelper.getCenterPosition(ScreenHelper.getOneFourthWidth());
+    const y = ScreenHelper.getMiddlePosition(StateWindow.borderHeight() * 2);
+    this.base = StateWindow.createWindowOneFourthSize(x, y);
+    this.subject = StateWindow.createWindowOneFourthSize(0, 0);
+    this.attachChild(this.base);
+    this.addWatched(this.subject);
+    this.base.open();
+    this.subject.alignAboveOf(this.base);
+    this.subject.open();
+  }
+
+  asserts() {
+    this.describe('Deve alinhar no centro e acima do meio!');
+    const y = ScreenHelper.getPositionAboveOf(this.base.y, this.subject.height);
+    this.expectTrue('Esta na posição vertical acima do meio?', this.subject.y === y);
+  }
+}
+class AlignBelowOfStateWindowTest extends SceneTest {
+  create() {
+    const x = ScreenHelper.getCenterPosition(ScreenHelper.getOneFourthWidth());
+    const y = ScreenHelper.getMiddlePosition(StateWindow.borderHeight() * 2);
+    this.base = StateWindow.createWindowOneFourthSize(x, y);
+    this.subject = StateWindow.createWindowOneFourthSize(0, 0);
+    this.attachChild(this.base);
+    this.addWatched(this.subject);
+    this.base.open();
+    this.subject.alignBelowOf(this.base);
+    this.subject.open();
+  }
+
+  asserts() {
+    this.describe('Deve alinhar no centro e acima do meio!');
+    const y = ScreenHelper.getPositionBelowOf(this.base.y, this.base.height);
+    this.expectTrue('Esta na posição vertical acima do meio?', this.subject.y === y);
   }
 }
 // tests BOARD WINDOW
@@ -7832,7 +7914,6 @@ class AlignCenterAboveMiddleTextWindowTest extends SceneTest {
     this.describe('Deve alinhar no centro e acima do meio!');
     const x = ScreenHelper.getCenterPosition(this.subject.width);
     const y = ScreenHelper.getAboveMiddlePosition(this.subject.height);
-    console.log('getAboveMiddlePosition', y, this.subject.y);
     this.expectTrue('Esta na posição horizontal centro?', this.subject.x === x);
     this.expectTrue('Esta na posição vertical acima do meio?', this.subject.y === y);
   }
@@ -7849,7 +7930,6 @@ class AlignCenterMiddleTextWindowTest extends SceneTest {
     this.describe('Deve alinhar no centro e meio!');
     const x = ScreenHelper.getCenterPosition(this.subject.width);
     const y = ScreenHelper.getMiddlePosition(this.subject.height);
-    console.log('getMiddlePosition', y, this.subject.y);
     this.expectTrue('Esta na posição horizontal centro?', this.subject.x === x);
     this.expectTrue('Esta na posição vertical abaixo do meio?', this.subject.y === y);
   }
@@ -7866,7 +7946,6 @@ class AlignCenterBelowMiddleTextWindowTest  extends SceneTest {
     this.describe('Deve alinhar no centro e abaixo do meio!');
     const x = ScreenHelper.getCenterPosition(this.subject.width);
     const y = ScreenHelper.getBelowMiddlePosition(this.subject.height);
-    console.log('getBelowMiddlePosition', y, this.subject.y);
     this.expectTrue('Esta na posição horizontal centro?', this.subject.x === x);
     this.expectTrue('Esta na posição vertical abaixo do meio?', this.subject.y === y);
   }
@@ -8773,23 +8852,27 @@ class CardBattleTestScene extends Scene_Message {
       FlipTurnToUpCardsCardsetSpriteTest,
     ];
     const StateWindowTests = [
-      CreateOneFourthSizeStateWindowTest,
-      CreateMiddleSizeStateWindowTest,
-      CreateFullSizeStateWindowTest,
-      OpenStateWindowTest,
-      CloseStateWindowTest,
-      ChangeBlueColorStateWindowTest,
-      ChangeRedColorStateWindowTest,
-      ChangeDefaultColorStateWindowTest,
-      AlignStartTopStateWindowTest,
-      AlignStartMiddleStateWindowTest,
-      AlignStartBottomStateWindowTest,
-      AlignCenterTopStateWindowTest,
-      AlignCenterMiddleStateWindowTest,
-      AlignCenterBottomStateWindowTest,
-      AlignEndTopStateWindowTest,
-      AlignEndMiddleStateWindowTest,
-      AlignEndBottomStateWindowTest,
+      // CreateOneFourthSizeStateWindowTest,
+      // CreateMiddleSizeStateWindowTest,
+      // CreateFullSizeStateWindowTest,
+      // OpenStateWindowTest,
+      // CloseStateWindowTest,
+      // ChangeBlueColorStateWindowTest,
+      // ChangeRedColorStateWindowTest,
+      // ChangeDefaultColorStateWindowTest,
+      // AlignStartTopStateWindowTest,
+      // AlignStartMiddleStateWindowTest,
+      // AlignStartBottomStateWindowTest,
+      // AlignCenterTopStateWindowTest,
+      // AlignCenterAboveMiddleStateWindowTest,
+      // AlignCenterMiddleStateWindowTest,
+      // AlignCenterBelowMiddleStateWindowTest,
+      // AlignCenterBottomStateWindowTest,
+      // AlignEndTopStateWindowTest,
+      // AlignEndMiddleStateWindowTest,
+      // AlignEndBottomStateWindowTest,
+      AlignAboveOfStateWindowTest,
+      AlignBelowOfStateWindowTest,
     ];
     const textWindowTests = [
       CreateOneFourthSizeTextWindowTest,
@@ -8867,8 +8950,8 @@ class CardBattleTestScene extends Scene_Message {
       // ...cardSpriteTests,
       // ...cardsetSpriteTests,
       // ...commandWindow,
-      // ...StateWindowTests,
-      ...textWindowTests,
+      ...StateWindowTests,
+      // ...textWindowTests,
       // ...boardWindowTests,
       // ...battlePointsWindow,
       // ...trashWindow,
