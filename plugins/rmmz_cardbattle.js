@@ -190,7 +190,7 @@ class ScreenHelper {
   }
 
   static getAboveMiddlePosition(objHeight) {
-    return Graphics.boxHeight / 2 - objHeight;
+    return (Graphics.boxHeight / 2) - objHeight;
   }
 
   static getMiddlePosition(objHeight) {
@@ -505,7 +505,7 @@ class HashGenerator {
 }
 class TextWindow extends Window_Base {
   static createWindowOneFourthSize(x, y, text) {
-    const width = Graphics.boxWidth / 4;
+    const width = ScreenHelper.getOneFourthWidth();
     const height = undefined;
     return TextWindow.create(x, y, width, height, text);
   }
@@ -530,54 +530,16 @@ class TextWindow extends Window_Base {
   }
 
   static createWindowMiddleSize(x, y, text) {
-    const width = Graphics.boxWidth / 2;
-    const height = undefined;
-    return TextWindow.create(x, y, width, height, text);
-  }
-
-  static createWindowThreeFourthSize(x, y, text) {
-    const width = Graphics.boxWidth * 3 / 4;
+    const width = ScreenHelper.getHalfWidth();
     const height = undefined;
     return TextWindow.create(x, y, width, height, text);
   }
 
   static createWindowFullSize(x, y, text) {
-    const width = Graphics.boxWidth;
+    const width = ScreenHelper.getFullWidth();
     const height = undefined;
     return TextWindow.create(x, y, width, height, text);
   }
-
-  // static getVerticalAlign(position, window) {
-  //   switch (position) {
-  //     case GameConst.ABOVE_MIDDLE:
-  //       return (Graphics.boxHeight / 4) - ((window.height || 0) / 2);
-  //       break;
-  //     case GameConst.MIDDLE:
-  //       return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
-  //       break;
-  //     case GameConst.BELOW_MIDDLE:
-  //       return (Graphics.boxHeight * 3 / 4) - ((window.height || 0) / 2);
-  //       break;
-  //     case GameConst.BOTTOM:
-  //       return Graphics.boxHeight - (window.height || 0);
-  //       break;
-  //     default: //TOP
-  //       return 0;
-  //   }
-  // }
-
-  // static getHorizontalAlign(position, window) {
-  //   switch (position) {
-  //     case GameConst.CENTER:
-  //       return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
-  //       break;
-  //     case GameConst.END:
-  //       return (Graphics.boxWidth - (window.width || 0));
-  //       break;
-  //     default: //START
-  //       return 0;
-  //   }
-  // }
 
   static setTextColor(text, color) {
     let colorIndex = ColorHelper.getColorIndex(color);
@@ -679,20 +641,20 @@ class TextWindow extends Window_Base {
     return this._textAlignment;
   }
 
-  // getXAlignment(textWidth, maxWidth, align) {
-  //   maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
-  //   switch (align) {
-  //     case GameConst.CENTER:
-  //       return (maxWidth / 2) - (textWidth / 2);
-  //     case GameConst.RIGHT:
-  //       return maxWidth - textWidth;
-  //     default: // GameConst.LEFT
-  //       return 0;
-  //   }
-  // }
+  getXAlignment(textWidth, maxWidth, align) {
+    maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
+    switch (align) {
+      case GameConst.CENTER:
+        return (maxWidth / 2) - (textWidth / 2);
+      case GameConst.RIGHT:
+        return maxWidth - textWidth;
+      default: // GameConst.LEFT
+        return 0;
+    }
+  }
 
   lineRect(index, x = 0) {
-    this.y = index * this.lineHeight();
+    const y = index * this.lineHeight();
     const width = this.contentsWidth();
     const height = this.lineHeight();
     return new Rectangle(x, y, width, height);
@@ -7766,18 +7728,6 @@ class CreateMiddleSizeTextWindowTest extends SceneTest {
     this.expectTrue('Esta na largura metade da tela?', this.subject.isMiddleSize());
   }
 }
-class CreateThreeFourthSizeTextWindowTest extends SceneTest {
-  create() {
-    this.subject = TextWindow.createWindowThreeFourthSize(0, 0);
-    this.addWatched(this.subject);
-    this.subject.open();
-  }
-
-  asserts() {
-    this.describe('Deve criar uma janela de batalha com 3/4 do tamanho da tela!');
-    this.expectTrue('Esta na largura de 3/4 da tela?', this.subject.isThreeFourthSize());
-  }
-}
 class CreateFullSizeTextWindowTest extends SceneTest {
   create() {
     this.subject = TextWindow.createWindowFullSize(0, 0);
@@ -7864,10 +7814,10 @@ class AlignCenterBottomTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no centro e embaixo!');
-    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject);
-    const verticalAlign = TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject);
-    this.expect('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
-    this.expect('Esta na posição vertical embaixo?', this.subject.y).toBe(verticalAlign);
+    const x = ScreenHelper.getCenterPosition(this.subject.width);
+    const y = ScreenHelper.getBottomPosition(this.subject.height);
+    this.expectTrue('Esta na posição horizontal centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical abaixo do meio?', this.subject.y === y);
   }
 }
 class AlignCenterAboveMiddleTextWindowTest extends SceneTest {
@@ -7880,10 +7830,11 @@ class AlignCenterAboveMiddleTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no centro e acima do meio!');
-    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject);
-    const verticalAlign = TextWindow.getVerticalAlign(GameConst.ABOVE_MIDDLE, this.subject);
-    this.expect('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
-    this.expect('Esta na posição vertical acima do meio?', this.subject.y).toBe(verticalAlign);
+    const x = ScreenHelper.getCenterPosition(this.subject.width);
+    const y = ScreenHelper.getAboveMiddlePosition(this.subject.height);
+    console.log('getAboveMiddlePosition', y, this.subject.y);
+    this.expectTrue('Esta na posição horizontal centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical acima do meio?', this.subject.y === y);
   }
 }
 class AlignCenterMiddleTextWindowTest extends SceneTest {
@@ -7896,10 +7847,11 @@ class AlignCenterMiddleTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no centro e meio!');
-    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject);
-    const verticalAlign = TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject);
-    this.expect('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
-    this.expect('Esta na posição vertical meio?', this.subject.y).toBe(verticalAlign);
+    const x = ScreenHelper.getCenterPosition(this.subject.width);
+    const y = ScreenHelper.getMiddlePosition(this.subject.height);
+    console.log('getMiddlePosition', y, this.subject.y);
+    this.expectTrue('Esta na posição horizontal centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical abaixo do meio?', this.subject.y === y);
   }
 }
 class AlignCenterBelowMiddleTextWindowTest  extends SceneTest {
@@ -7912,10 +7864,11 @@ class AlignCenterBelowMiddleTextWindowTest  extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no centro e abaixo do meio!');
-    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject);
-    const verticalAlign = TextWindow.getVerticalAlign(GameConst.BELOW_MIDDLE, this.subject);
-    this.expect('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
-    this.expect('Esta na posição vertical abaixo meio?', this.subject.y).toBe(verticalAlign);
+    const x = ScreenHelper.getCenterPosition(this.subject.width);
+    const y = ScreenHelper.getBelowMiddlePosition(this.subject.height);
+    console.log('getBelowMiddlePosition', y, this.subject.y);
+    this.expectTrue('Esta na posição horizontal centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical abaixo do meio?', this.subject.y === y);
   }
 }
 class AlignCenterTopTextWindowTest extends SceneTest {
@@ -7928,10 +7881,10 @@ class AlignCenterTopTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no centro e topo!');
-    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.CENTER, this.subject);
-    const verticalAlign = TextWindow.getVerticalAlign(GameConst.TOP, this.subject);
-    this.expect('Esta na posição horizontal centro?', this.subject.x).toBe(horizontalAlign);
-    this.expect('Esta na posição vertical topo?', this.subject.y).toBe(verticalAlign);
+    const x = ScreenHelper.getCenterPosition(this.subject.width);
+    const y = ScreenHelper.getTopPosition();
+    this.expectTrue('Esta na posição horizontal centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical abaixo do meio?', this.subject.y === y);
   }
 }
 class AlignEndBottomTextWindowTest extends SceneTest {
@@ -7944,10 +7897,10 @@ class AlignEndBottomTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no final e embaixo!');
-    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.END, this.subject);
-    const verticalAlign = TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject);
-    this.expect('Esta na posição horizontal final?', this.subject.x).toBe(horizontalAlign);
-    this.expect('Esta na posição vertical embaixo?', this.subject.y).toBe(verticalAlign);
+    const x = ScreenHelper.getEndPosition(this.subject.width);
+    const y = ScreenHelper.getBottomPosition(this.subject.height);
+    this.expectTrue('Esta na posição horizontal centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical abaixo do meio?', this.subject.y === y);
   }
 }
 class AlignEndMiddleTextWindowTest extends SceneTest {
@@ -7960,10 +7913,10 @@ class AlignEndMiddleTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no final e meio!');
-    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.END, this.subject);
-    const verticalAlign = TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject);
-    this.expect('Esta na posição horizontal final?', this.subject.x).toBe(horizontalAlign);
-    this.expect('Esta na posição vertical meio?', this.subject.y).toBe(verticalAlign);
+    const x = ScreenHelper.getEndPosition(this.subject.width);
+    const y = ScreenHelper.getMiddlePosition(this.subject.height);
+    this.expectTrue('Esta na posição horizontal centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical abaixo do meio?', this.subject.y === y);
   }
 }
 class AlignEndTopTextWindowTest extends SceneTest {
@@ -7976,10 +7929,10 @@ class AlignEndTopTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no final e topo!');
-    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.END, this.subject);
-    const verticalAlign = TextWindow.getVerticalAlign(GameConst.TOP, this.subject);
-    this.expect('Esta na posição horizontal final?', this.subject.x).toBe(horizontalAlign);
-    this.expect('Esta na posição vertical topo?', this.subject.y).toBe(verticalAlign);
+    const x = ScreenHelper.getEndPosition(this.subject.width);
+    const y = ScreenHelper.getTopPosition(this.subject.height);
+    this.expectTrue('Esta na posição horizontal centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical abaixo do meio?', this.subject.y === y);
   }
 }
 class AlignStartBottomTextWindowTest extends SceneTest {
@@ -7992,10 +7945,10 @@ class AlignStartBottomTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no início e embaixo!');
-    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.START, this.subject);
-    const verticalAlign = TextWindow.getVerticalAlign(GameConst.BOTTOM, this.subject);
-    this.expect('Esta na posição horizontal início?', this.subject.x).toBe(horizontalAlign);
-    this.expect('Esta na posição vertical embaixo?', this.subject.y).toBe(verticalAlign);
+    const x = ScreenHelper.getStartPosition();
+    const y = ScreenHelper.getBottomPosition(this.subject.height);
+    this.expectTrue('Esta na posição horizontal centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical abaixo do meio?', this.subject.y === y);
   }
 }
 class AlignStartMiddleTextWindowTest extends SceneTest {
@@ -8008,10 +7961,10 @@ class AlignStartMiddleTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no início e meio!');
-    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.START, this.subject);
-    const verticalAlign = TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject);
-    this.expect('Esta na posição horizontal início?', this.subject.x).toBe(horizontalAlign);
-    this.expect('Esta na posição vertical meio?', this.subject.y).toBe(verticalAlign);
+    const x = ScreenHelper.getStartPosition();
+    const y = ScreenHelper.getMiddlePosition(this.subject.height);
+    this.expectTrue('Esta na posição horizontal centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical abaixo do meio?', this.subject.y === y);
   }
 }
 class AlignStartTopTextWindowTest extends SceneTest {
@@ -8024,10 +7977,10 @@ class AlignStartTopTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no início e meio!');
-    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.START, this.subject);
-    const verticalAlign = TextWindow.getVerticalAlign(GameConst.TOP, this.subject);
-    this.expect('Esta na posição horizontal início?', this.subject.x).toBe(horizontalAlign);
-    this.expect('Esta na posição vertical topo?', this.subject.y).toBe(verticalAlign);
+    const x = ScreenHelper.getStartPosition();
+    const y = ScreenHelper.getTopPosition();
+    this.expectTrue('Esta na posição horizontal centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical abaixo do meio?', this.subject.y === y);
   }
 }
 class AlignTextCenterTextWindowTest extends SceneTest {
@@ -8046,7 +7999,7 @@ class AlignTextCenterTextWindowTest extends SceneTest {
   asserts() {
     this.describe('Deve mostrar o texto alinhado no centro.');
     const aligment = GameConst.CENTER;
-    this.expect('Foi desenhando no centro?', this.subject.getTextAlignment()).toBe(aligment);
+    this.expectTrue('Foi desenhando no centro?', this.subject.getTextAlignment() === aligment);
   }
 }
 class AlignTextLeftTextWindowTest extends SceneTest {
@@ -8065,7 +8018,7 @@ class AlignTextLeftTextWindowTest extends SceneTest {
   asserts() {
     this.describe('Deve mostrar o texto alinhado na esquerda.');
     const aligment = GameConst.LEFT;
-    this.expect('Foi desenhando na esquerda?', this.subject.getTextAlignment()).toBe(aligment);
+    this.expectTrue('Foi desenhando na esquerda?', this.subject.getTextAlignment() === aligment);
   }
 }
 class AlignTextRightTextWindowTest extends SceneTest {
@@ -8084,7 +8037,7 @@ class AlignTextRightTextWindowTest extends SceneTest {
   asserts() {
     this.describe('Deve mostrar o texto alinhado na direita.');
     const aligment = GameConst.RIGHT;
-    this.expect('Foi desenhando na direita?', this.subject.getTextAlignment()).toBe(aligment);
+    this.expectTrue('Foi desenhando na direita?', this.subject.getTextAlignment() === aligment);
   }
 }
 class TextTextWindowTest extends SceneTest {
@@ -8751,7 +8704,7 @@ class CardBattleTestScene extends Scene_Message {
       try {
         instanceCreated.create();
       } catch (error) { 
-        this.printAssertError(`Assert: ${error}`);
+        this.printAssertError(`Test : ${test.name}, Assert: ${error}`);
         instanceCreated.addThrowableError(error);
       }
       return instanceCreated;
@@ -8841,7 +8794,6 @@ class CardBattleTestScene extends Scene_Message {
     const textWindowTests = [
       CreateOneFourthSizeTextWindowTest,
       CreateMiddleSizeTextWindowTest,
-      CreateThreeFourthSizeTextWindowTest,
       CreateFullSizeTextWindowTest,
       OpenTextWindowTest,
       CloseTextWindowTest,
@@ -8915,8 +8867,8 @@ class CardBattleTestScene extends Scene_Message {
       // ...cardSpriteTests,
       // ...cardsetSpriteTests,
       // ...commandWindow,
-      ...StateWindowTests,
-      // ...textWindowTests,
+      // ...StateWindowTests,
+      ...textWindowTests,
       // ...boardWindowTests,
       // ...battlePointsWindow,
       // ...trashWindow,

@@ -127,7 +127,6 @@
 // tests TEXT WINDOW
 // include ../test/integration/textwindow/CreateOneFourthSizeTextWindowTest.js
 // include ../test/integration/textwindow/CreateMiddleSizeTextWindowTest.js
-// include ../test/integration/textwindow/CreateThreeFourthSizeTextWindowTest.js
 // include ../test/integration/textwindow/CreateFullsizeTextWindowTest.js
 // include ../test/integration/textwindow/OpenTextWindowTest.js
 // include ../test/integration/textwindow/CloseTextWindowTest.js

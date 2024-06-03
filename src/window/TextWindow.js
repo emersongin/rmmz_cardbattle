@@ -1,6 +1,6 @@
 class TextWindow extends Window_Base {
   static createWindowOneFourthSize(x, y, text) {
-    const width = Graphics.boxWidth / 4;
+    const width = ScreenHelper.getOneFourthWidth();
     const height = undefined;
     return TextWindow.create(x, y, width, height, text);
   }
@@ -25,54 +25,16 @@ class TextWindow extends Window_Base {
   }
 
   static createWindowMiddleSize(x, y, text) {
-    const width = Graphics.boxWidth / 2;
-    const height = undefined;
-    return TextWindow.create(x, y, width, height, text);
-  }
-
-  static createWindowThreeFourthSize(x, y, text) {
-    const width = Graphics.boxWidth * 3 / 4;
+    const width = ScreenHelper.getHalfWidth();
     const height = undefined;
     return TextWindow.create(x, y, width, height, text);
   }
 
   static createWindowFullSize(x, y, text) {
-    const width = Graphics.boxWidth;
+    const width = ScreenHelper.getFullWidth();
     const height = undefined;
     return TextWindow.create(x, y, width, height, text);
   }
-
-  // static getVerticalAlign(position, window) {
-  //   switch (position) {
-  //     case GameConst.ABOVE_MIDDLE:
-  //       return (Graphics.boxHeight / 4) - ((window.height || 0) / 2);
-  //       break;
-  //     case GameConst.MIDDLE:
-  //       return (Graphics.boxHeight / 2) - ((window.height || 0) / 2);
-  //       break;
-  //     case GameConst.BELOW_MIDDLE:
-  //       return (Graphics.boxHeight * 3 / 4) - ((window.height || 0) / 2);
-  //       break;
-  //     case GameConst.BOTTOM:
-  //       return Graphics.boxHeight - (window.height || 0);
-  //       break;
-  //     default: //TOP
-  //       return 0;
-  //   }
-  // }
-
-  // static getHorizontalAlign(position, window) {
-  //   switch (position) {
-  //     case GameConst.CENTER:
-  //       return (Graphics.boxWidth / 2) - ((window.width || 0) / 2);
-  //       break;
-  //     case GameConst.END:
-  //       return (Graphics.boxWidth - (window.width || 0));
-  //       break;
-  //     default: //START
-  //       return 0;
-  //   }
-  // }
 
   static setTextColor(text, color) {
     let colorIndex = ColorHelper.getColorIndex(color);
@@ -174,20 +136,20 @@ class TextWindow extends Window_Base {
     return this._textAlignment;
   }
 
-  // getXAlignment(textWidth, maxWidth, align) {
-  //   maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
-  //   switch (align) {
-  //     case GameConst.CENTER:
-  //       return (maxWidth / 2) - (textWidth / 2);
-  //     case GameConst.RIGHT:
-  //       return maxWidth - textWidth;
-  //     default: // GameConst.LEFT
-  //       return 0;
-  //   }
-  // }
+  getXAlignment(textWidth, maxWidth, align) {
+    maxWidth = Math.max(maxWidth, this.width - this.padding * 2);
+    switch (align) {
+      case GameConst.CENTER:
+        return (maxWidth / 2) - (textWidth / 2);
+      case GameConst.RIGHT:
+        return maxWidth - textWidth;
+      default: // GameConst.LEFT
+        return 0;
+    }
+  }
 
   lineRect(index, x = 0) {
-    this.y = index * this.lineHeight();
+    const y = index * this.lineHeight();
     const width = this.contentsWidth();
     const height = this.lineHeight();
     return new Rectangle(x, y, width, height);

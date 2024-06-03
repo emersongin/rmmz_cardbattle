@@ -21,7 +21,7 @@ class CardBattleTestScene extends Scene_Message {
       try {
         instanceCreated.create();
       } catch (error) { 
-        this.printAssertError(`Assert: ${error}`);
+        this.printAssertError(`Test : ${test.name}, Assert: ${error}`);
         instanceCreated.addThrowableError(error);
       }
       return instanceCreated;
@@ -111,7 +111,6 @@ class CardBattleTestScene extends Scene_Message {
     const textWindowTests = [
       CreateOneFourthSizeTextWindowTest,
       CreateMiddleSizeTextWindowTest,
-      CreateThreeFourthSizeTextWindowTest,
       CreateFullSizeTextWindowTest,
       OpenTextWindowTest,
       CloseTextWindowTest,
@@ -185,8 +184,8 @@ class CardBattleTestScene extends Scene_Message {
       // ...cardSpriteTests,
       // ...cardsetSpriteTests,
       // ...commandWindow,
-      ...StateWindowTests,
-      // ...textWindowTests,
+      // ...StateWindowTests,
+      ...textWindowTests,
       // ...boardWindowTests,
       // ...battlePointsWindow,
       // ...trashWindow,

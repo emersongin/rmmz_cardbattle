@@ -20,7 +20,7 @@ class ScreenHelper {
   }
 
   static getAboveMiddlePosition(objHeight) {
-    return Graphics.boxHeight / 2 - objHeight;
+    return (Graphics.boxHeight / 2) - objHeight;
   }
 
   static getMiddlePosition(objHeight) {

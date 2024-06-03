@@ -8,9 +8,9 @@ class AlignEndMiddleTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no final e meio!');
-    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.END, this.subject);
-    const verticalAlign = TextWindow.getVerticalAlign(GameConst.MIDDLE, this.subject);
-    this.expect('Esta na posição horizontal final?', this.subject.x).toBe(horizontalAlign);
-    this.expect('Esta na posição vertical meio?', this.subject.y).toBe(verticalAlign);
+    const x = ScreenHelper.getEndPosition(this.subject.width);
+    const y = ScreenHelper.getMiddlePosition(this.subject.height);
+    this.expectTrue('Esta na posição horizontal centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical abaixo do meio?', this.subject.y === y);
   }
 }

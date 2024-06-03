@@ -14,6 +14,6 @@ class AlignTextLeftTextWindowTest extends SceneTest {
   asserts() {
     this.describe('Deve mostrar o texto alinhado na esquerda.');
     const aligment = GameConst.LEFT;
-    this.expect('Foi desenhando na esquerda?', this.subject.getTextAlignment()).toBe(aligment);
+    this.expectTrue('Foi desenhando na esquerda?', this.subject.getTextAlignment() === aligment);
   }
 }

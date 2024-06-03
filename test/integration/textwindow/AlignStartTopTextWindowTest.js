@@ -8,9 +8,9 @@ class AlignStartTopTextWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve alinhar no início e meio!');
-    const horizontalAlign = TextWindow.getHorizontalAlign(GameConst.START, this.subject);
-    const verticalAlign = TextWindow.getVerticalAlign(GameConst.TOP, this.subject);
-    this.expect('Esta na posição horizontal início?', this.subject.x).toBe(horizontalAlign);
-    this.expect('Esta na posição vertical topo?', this.subject.y).toBe(verticalAlign);
+    const x = ScreenHelper.getStartPosition();
+    const y = ScreenHelper.getTopPosition();
+    this.expectTrue('Esta na posição horizontal centro?', this.subject.x === x);
+    this.expectTrue('Esta na posição vertical abaixo do meio?', this.subject.y === y);
   }
 }
