@@ -9,14 +9,14 @@ class TextWindow extends Window_Base {
     if (!Array.isArray(text)) {
       throw new Error('text must be an array!');
     }
-    const windowPadding = TextWindow.windowPadding() * 2;
+    const borderHeight = TextWindow.borderHeight() * 2;
     const textHeight = TextWindow.textHeight() * Math.max(text.length, 0);
-    const height = windowPadding + textHeight;
+    const height = borderHeight + textHeight;
     const rect = new Rectangle(x, y, width, height);
     return new TextWindow(rect, text);
   }
 
-  static windowPadding() {
+  static borderHeight() {
     return 12;
   }
 
@@ -232,6 +232,16 @@ class TextWindow extends Window_Base {
   alignEndBottom() {
     this.x = ScreenHelper.getEndPosition(this.width);
     this.y = ScreenHelper.getBottomPosition(this.height);
+  }
+
+  alignAboveOf(obj) {
+    const { y } = obj;
+    this.y = ScreenHelper.getPositionAboveOf(y, this.height);
+  }
+
+  alignBelowOf(obj) {
+    const { y, height } = obj;
+    this.y = ScreenHelper.getPositionBelowOf(y, height);
   }
 
   changeDefaultColor() {

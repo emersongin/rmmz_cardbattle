@@ -127,7 +127,8 @@ class StartPhase extends Phase {
   createResultWindow(result) {
     const text = result ? 'You win!' : 'You lose!';
     this._resultWindow = TextWindow.createWindowOneFourthSize(0, 0, [text]);
-    this._resultWindow.alignCenterAboveMiddle();
+    this._resultWindow.alignCenterMiddle();
+    this._resultWindow.alignBelowOf({ y: 100, height: 0 });
     this._resultWindow.alignTextCenter();
     this.addWindow(this._resultWindow);
   }

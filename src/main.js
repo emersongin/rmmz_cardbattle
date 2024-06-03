@@ -153,6 +153,8 @@
 // include ../test/integration/textwindow/AlignTextRightTextWindowTest.js
 // include ../test/integration/textwindow/TextTextWindowTest.js
 // include ../test/integration/textwindow/ChangeTextColorTextWindowTest.js
+// include ../test/integration/textwindow/AlignAboveOfTextWindowTest.js
+// include ../test/integration/textwindow/AlignBelowOfTextWindowTest.js
 // tests COMMAND WINDOW
 // include ../test/integration/commandwindow/CreateFullsizeCommandWindowTest.js
 // include ../test/integration/commandwindow/OpenCommandWindowTest.js

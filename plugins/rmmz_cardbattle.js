@@ -514,14 +514,14 @@ class TextWindow extends Window_Base {
     if (!Array.isArray(text)) {
       throw new Error('text must be an array!');
     }
-    const windowPadding = TextWindow.windowPadding() * 2;
+    const borderHeight = TextWindow.borderHeight() * 2;
     const textHeight = TextWindow.textHeight() * Math.max(text.length, 0);
-    const height = windowPadding + textHeight;
+    const height = borderHeight + textHeight;
     const rect = new Rectangle(x, y, width, height);
     return new TextWindow(rect, text);
   }
 
-  static windowPadding() {
+  static borderHeight() {
     return 12;
   }
 
@@ -737,6 +737,16 @@ class TextWindow extends Window_Base {
   alignEndBottom() {
     this.x = ScreenHelper.getEndPosition(this.width);
     this.y = ScreenHelper.getBottomPosition(this.height);
+  }
+
+  alignAboveOf(obj) {
+    const { y } = obj;
+    this.y = ScreenHelper.getPositionAboveOf(y, this.height);
+  }
+
+  alignBelowOf(obj) {
+    const { y, height } = obj;
+    this.y = ScreenHelper.getPositionBelowOf(y, height);
   }
 
   changeDefaultColor() {
@@ -5064,7 +5074,7 @@ class Phase {
   createTitleWindow(text) {
     const title = TextWindow.setTextColor(text, GameColors.ORANGE);
     this._titleWindow = TextWindow.createWindowFullSize(0, 0, [title]);
-    this._titleWindow.alignCenterAboveMiddle();
+    this._titleWindow.alignBelowOf({ y: 200, height: 0 });
     this._titleWindow.alignTextCenter();
     this.attachChild(this._titleWindow);
   }
@@ -5072,7 +5082,7 @@ class Phase {
   createDescriptionWindow(...texts) {
     const content = [...texts];
     this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, content);
-    this._descriptionWindow.alignCenterMiddle();
+    this._descriptionWindow.alignCenterBelowMiddle();
     this.attachChild(this._descriptionWindow);
   }
 
@@ -5402,7 +5412,8 @@ class StartPhase extends Phase {
   createResultWindow(result) {
     const text = result ? 'You win!' : 'You lose!';
     this._resultWindow = TextWindow.createWindowOneFourthSize(0, 0, [text]);
-    this._resultWindow.alignCenterAboveMiddle();
+    this._resultWindow.alignCenterMiddle();
+    this._resultWindow.alignBelowOf({ y: 100, height: 0 });
     this._resultWindow.alignTextCenter();
     this.addWindow(this._resultWindow);
   }
@@ -7619,9 +7630,9 @@ class AlignBelowOfStateWindowTest extends SceneTest {
   }
 
   asserts() {
-    this.describe('Deve alinhar no centro e acima do meio!');
+    this.describe('Deve alinhar no centro e abaixo do meio!');
     const y = ScreenHelper.getPositionBelowOf(this.base.y, this.base.height);
-    this.expectTrue('Esta na posição vertical acima do meio?', this.subject.y === y);
+    this.expectTrue('Esta na posição vertical abaixo do meio?', this.subject.y === y);
   }
 }
 // tests BOARD WINDOW
@@ -8169,6 +8180,44 @@ class ChangeTextColorTextWindowTest extends SceneTest {
     const color2 = ColorHelper.getColorIndex(GameColors.DEFAULT);
     this.expectTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_0', color1));
     this.expectTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_1', color2));
+  }
+}
+class AlignAboveOfTextWindowTest extends SceneTest {
+  create() {
+    const x = ScreenHelper.getCenterPosition(ScreenHelper.getOneFourthWidth());
+    const y = ScreenHelper.getMiddlePosition(TextWindow.borderHeight() * 2);
+    this.base = TextWindow.createWindowOneFourthSize(x, y);
+    this.subject = TextWindow.createWindowOneFourthSize(0, 0);
+    this.attachChild(this.base);
+    this.addWatched(this.subject);
+    this.base.open();
+    this.subject.alignAboveOf(this.base);
+    this.subject.open();
+  }
+
+  asserts() {
+    this.describe('Deve alinhar no centro e acima do meio!');
+    const y = ScreenHelper.getPositionAboveOf(this.base.y, this.subject.height);
+    this.expectTrue('Esta na posição vertical acima do meio?', this.subject.y === y);
+  }
+}
+class AlignBelowOfTextWindowTest extends SceneTest {
+  create() {
+    const x = ScreenHelper.getCenterPosition(ScreenHelper.getOneFourthWidth());
+    const y = ScreenHelper.getMiddlePosition(TextWindow.borderHeight() * 2);
+    this.base = TextWindow.createWindowOneFourthSize(x, y);
+    this.subject = TextWindow.createWindowOneFourthSize(0, 0);
+    this.attachChild(this.base);
+    this.addWatched(this.subject);
+    this.base.open();
+    this.subject.alignBelowOf(this.base);
+    this.subject.open();
+  }
+
+  asserts() {
+    this.describe('Deve alinhar no centro e abaixo do meio!');
+    const y = ScreenHelper.getPositionBelowOf(this.base.y, this.base.height);
+    this.expectTrue('Esta na posição vertical abaixo do meio?', this.subject.y === y);
   }
 }
 // tests COMMAND WINDOW
@@ -8852,25 +8901,25 @@ class CardBattleTestScene extends Scene_Message {
       FlipTurnToUpCardsCardsetSpriteTest,
     ];
     const StateWindowTests = [
-      // CreateOneFourthSizeStateWindowTest,
-      // CreateMiddleSizeStateWindowTest,
-      // CreateFullSizeStateWindowTest,
-      // OpenStateWindowTest,
-      // CloseStateWindowTest,
-      // ChangeBlueColorStateWindowTest,
-      // ChangeRedColorStateWindowTest,
-      // ChangeDefaultColorStateWindowTest,
-      // AlignStartTopStateWindowTest,
-      // AlignStartMiddleStateWindowTest,
-      // AlignStartBottomStateWindowTest,
-      // AlignCenterTopStateWindowTest,
-      // AlignCenterAboveMiddleStateWindowTest,
-      // AlignCenterMiddleStateWindowTest,
-      // AlignCenterBelowMiddleStateWindowTest,
-      // AlignCenterBottomStateWindowTest,
-      // AlignEndTopStateWindowTest,
-      // AlignEndMiddleStateWindowTest,
-      // AlignEndBottomStateWindowTest,
+      CreateOneFourthSizeStateWindowTest,
+      CreateMiddleSizeStateWindowTest,
+      CreateFullSizeStateWindowTest,
+      OpenStateWindowTest,
+      CloseStateWindowTest,
+      ChangeBlueColorStateWindowTest,
+      ChangeRedColorStateWindowTest,
+      ChangeDefaultColorStateWindowTest,
+      AlignStartTopStateWindowTest,
+      AlignStartMiddleStateWindowTest,
+      AlignStartBottomStateWindowTest,
+      AlignCenterTopStateWindowTest,
+      AlignCenterAboveMiddleStateWindowTest,
+      AlignCenterMiddleStateWindowTest,
+      AlignCenterBelowMiddleStateWindowTest,
+      AlignCenterBottomStateWindowTest,
+      AlignEndTopStateWindowTest,
+      AlignEndMiddleStateWindowTest,
+      AlignEndBottomStateWindowTest,
       AlignAboveOfStateWindowTest,
       AlignBelowOfStateWindowTest,
     ];
@@ -8899,6 +8948,8 @@ class CardBattleTestScene extends Scene_Message {
       AlignTextRightTextWindowTest,
       TextTextWindowTest,
       ChangeTextColorTextWindowTest,
+      AlignAboveOfTextWindowTest,
+      AlignBelowOfTextWindowTest,
     ];
     const boardWindowTests = [
       PassBoardWindowTest,
@@ -8942,22 +8993,22 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const phase = [
-      // ChallengePhaseTest,
-      // StartPhaseTest,
-      DrawPhaseTest,
+      ChallengePhaseTest,
+      StartPhaseTest,
+      // DrawPhaseTest,
     ];
     return [
       // ...cardSpriteTests,
       // ...cardsetSpriteTests,
       // ...commandWindow,
-      ...StateWindowTests,
+      // ...StateWindowTests,
       // ...textWindowTests,
       // ...boardWindowTests,
       // ...battlePointsWindow,
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      // ...phase,
+      ...phase,
     ];
   }
 

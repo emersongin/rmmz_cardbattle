@@ -1,9 +1,9 @@
-class AlignBelowOfStateWindowTest extends SceneTest {
+class AlignBelowOfTextWindowTest extends SceneTest {
   create() {
     const x = ScreenHelper.getCenterPosition(ScreenHelper.getOneFourthWidth());
-    const y = ScreenHelper.getMiddlePosition(StateWindow.borderHeight() * 2);
-    this.base = StateWindow.createWindowOneFourthSize(x, y);
-    this.subject = StateWindow.createWindowOneFourthSize(0, 0);
+    const y = ScreenHelper.getMiddlePosition(TextWindow.borderHeight() * 2);
+    this.base = TextWindow.createWindowOneFourthSize(x, y);
+    this.subject = TextWindow.createWindowOneFourthSize(0, 0);
     this.attachChild(this.base);
     this.addWatched(this.subject);
     this.base.open();

@@ -17,7 +17,7 @@ class Phase {
   createTitleWindow(text) {
     const title = TextWindow.setTextColor(text, GameColors.ORANGE);
     this._titleWindow = TextWindow.createWindowFullSize(0, 0, [title]);
-    this._titleWindow.alignCenterAboveMiddle();
+    this._titleWindow.alignBelowOf({ y: 200, height: 0 });
     this._titleWindow.alignTextCenter();
     this.attachChild(this._titleWindow);
   }
@@ -25,7 +25,7 @@ class Phase {
   createDescriptionWindow(...texts) {
     const content = [...texts];
     this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, content);
-    this._descriptionWindow.alignCenterMiddle();
+    this._descriptionWindow.alignCenterBelowMiddle();
     this.attachChild(this._descriptionWindow);
   }
 
