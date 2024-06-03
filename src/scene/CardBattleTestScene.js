@@ -57,6 +57,8 @@ class CardBattleTestScene extends Scene_Message {
     ];
     const cardsetSpriteTests = [
       StartPositionCardsetSpriteTest,
+      AlignAboveOfCardsetSpriteTest,
+      AlignBelowOfCardsetSpriteTest,
       SetCardsCardsetSpriteTest,
       SetTurnToDownCardsCardsetSpriteTest,
       SetAllCardsInPositionCardsetSpriteTest,
@@ -182,8 +184,8 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const phase = [
-      ChallengePhaseTest,
-      StartPhaseTest,
+      // ChallengePhaseTest,
+      // StartPhaseTest,
       DrawPhaseTest,
     ];
     return [

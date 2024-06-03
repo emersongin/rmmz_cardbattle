@@ -5,6 +5,7 @@ class OneWinUpdatingScoreWindowTest extends SceneTest {
     this.subject.alignCenterMiddle();
     this.subject.open();
     this.subject.changeScore(1);
+    this.createHandler();
   }
 
   asserts() {

@@ -9,15 +9,16 @@ class ScoreWindow extends StateWindow {
 
   initialize(rect) {
     super.initialize(rect);
-    this.reset();
-  }
-
-  reset() {
     this._score = 0;
-    this.refresh(this._score);
+    this.refresh();
   }
 
-  refresh(score = 0) {
+  refreshScore(score = 0) {
+    this._score = score;
+    this.refresh(score);
+  }
+
+  refresh(score = this._score) {
     super.refresh();
     this.drawScore(score);
   }

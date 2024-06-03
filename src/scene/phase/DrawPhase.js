@@ -3,10 +3,12 @@ class DrawPhase extends Phase {
   _playerBattleWindow;
   _playerTrashWindow;
   _playerScoreWindow;
+  _playerBattleField;
   _challengeBoardWindow;
   _challengeBattleWindow;
   _challengeTrashWindow;
   _challengeScoreWindow;
+  _challengeBattleField;
 
   createPlayerGameBoard(cardsInTrash, cardsInDeck, cardsInHand, energies, victories) {
     this.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand);
@@ -39,7 +41,7 @@ class DrawPhase extends Phase {
     this._playerTrashWindow = TrashWindow.create(0, 0);
     this._playerTrashWindow.changeBlueColor();
     this._playerTrashWindow.alignEndBelowMiddle();
-    this._playerTrashWindow.refresh();
+    this._playerTrashWindow.refreshPoints(cardsInTrash);
     this.attachChild(this._playerTrashWindow);
   }
 
@@ -50,8 +52,17 @@ class DrawPhase extends Phase {
     const height = this._playerBoardWindow.height;
     const y = ScreenHelper.getBottomPosition(height);
     this._playerScoreWindow.alignAboveOf({ y, height });
-    this._playerScoreWindow.refresh(victories);
+    this._playerScoreWindow.refreshScore(victories);
     this.attachChild(this._playerScoreWindow);
+  }
+
+  createPlayerBattlefield(cards) {
+    this._playerBattleField = CardsetSprite.create(20, 0);
+    this._playerBattleField.setBackgroundColor('blue');
+    const height = 120;
+    const y = ScreenHelper.getBottomPosition(height);
+    this._playerBattleField.alignAboveOf({ y, height });
+    this.attachChild(this._playerBattleField);
   }
 
   createChallengeGameBoard(cardsInTrash, cardsInDeck, cardsInHand, energies, victories) {
@@ -75,7 +86,7 @@ class DrawPhase extends Phase {
     this._challengeBattleWindow.changeRedColor();
     this._challengeBattleWindow.alignStartTop();
     const height = this._playerBoardWindow.height;
-    const y = ScreenHelper.getTopPosition(height);
+    const y = ScreenHelper.getTopPosition();
     this._challengeBattleWindow.alignBelowOf({ y, height });
     this._challengeBattleWindow.refresh();
     this.attachChild(this._challengeBattleWindow);
@@ -85,7 +96,7 @@ class DrawPhase extends Phase {
     this._challengeTrashWindow = TrashWindow.create(0, 0);
     this._challengeTrashWindow.changeRedColor();
     this._challengeTrashWindow.alignEndAboveMiddle();
-    this._challengeTrashWindow.refresh();
+    this._challengeTrashWindow.refreshPoints(cardsInTrash);
     this.attachChild(this._challengeTrashWindow);
   }
 
@@ -94,10 +105,19 @@ class DrawPhase extends Phase {
     this._challengeScoreWindow.changeRedColor();
     this._challengeScoreWindow.alignEndTop();
     const height = this._playerBoardWindow.height;
-    const y = ScreenHelper.getTopPosition(height);
+    const y = ScreenHelper.getTopPosition();
     this._challengeScoreWindow.alignBelowOf({ y, height });
-    this._challengeScoreWindow.refresh(victories);
+    this._challengeScoreWindow.refreshScore(victories);
     this.attachChild(this._challengeScoreWindow);
+  }
+
+  createChallengeBattlefield(cards) {
+    this._challengeBattleField = CardsetSprite.create(20, 0);
+    this._challengeBattleField.setBackgroundColor('red');
+    const height = 128;
+    const y = ScreenHelper.getTopPosition();
+    this._challengeBattleField.alignBelowOf({ y, height });
+    this.attachChild(this._challengeBattleField);
   }
 
   stepDrawCards() {
@@ -114,10 +134,12 @@ class DrawPhase extends Phase {
       this.commandOpenPlayerBattleWindow,
       this.commandOpenPlayerTrashWindow,
       this.commandOpenPlayerScoreWindow,
+      this.commandShowPlayerBattlefield,
       this.commandOpenChallengeBoardWindow,
       this.commandOpenChallengeBattleWindow,
       this.commandOpenChallengeTrashWindow,
-      this.commandOpenChallengeScoreWindow
+      this.commandOpenChallengeScoreWindow,
+      this.commandShowChallengeBattlefield,
     ]);
   }
 
@@ -137,6 +159,10 @@ class DrawPhase extends Phase {
     this._playerScoreWindow.open();
   }
 
+  commandShowPlayerBattlefield() {
+    this._playerBattleField.show();
+  }
+  
   commandOpenChallengeBoardWindow() {
     this._challengeBoardWindow.open();
   }
@@ -151,6 +177,10 @@ class DrawPhase extends Phase {
 
   commandOpenChallengeScoreWindow() {
     this._challengeScoreWindow.open();
+  }
+
+  commandShowChallengeBattlefield() {
+    this._challengeBattleField.show();
   }
 
 }

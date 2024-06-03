@@ -20,8 +20,9 @@ class TrashWindow extends ValuesWindow {
     this.refreshPoints();
   }
 
-  refreshPoints() {
-    this.addValue(GameConst.NUM_CARDS_IN_TRASH, 0);
+  refreshPoints(cardsInTrash = 0) {
+    this.addValue(GameConst.NUM_CARDS_IN_TRASH, cardsInTrash);
+    this.refresh();
   }
 
   orderedIcons() {

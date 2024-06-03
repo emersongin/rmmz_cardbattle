@@ -22,6 +22,7 @@ class BattlePointsWindow extends ValuesWindow {
   refreshPoints() {
     this.addValue(GameConst.ATTACK_POINTS, 0);
     this.addValue(GameConst.HEALTH_POINTS, 0);
+    this.refresh();
   }
 
   refresh() {

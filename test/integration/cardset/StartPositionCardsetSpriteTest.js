@@ -3,6 +3,7 @@ class StartPositionCardsetSpriteTest extends SceneTest {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
     const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
     this.subject = CardsetSprite.create(centerXPosition, centerYPosition);
+    this.subject.setBackgroundColor('orange');
     this.addWatched(this.subject);
     this.subject.show();
   }

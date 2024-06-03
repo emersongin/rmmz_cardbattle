@@ -24,8 +24,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   static contentOriginalHeight() {
-    const heightLimit = 128;
-    return heightLimit;
+    return CardSprite.contentOriginalHeight();
   }
 
   static createPositionsList(numCards) {

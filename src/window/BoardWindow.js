@@ -14,9 +14,10 @@ class BoardWindow extends ValuesWindow {
     super.initialize(rect);
     this.reset();
   }
-
+  
   reset() {
     super.reset();
+    this._pass = false;
     this.refreshPoints();
   }
 
@@ -28,7 +29,7 @@ class BoardWindow extends ValuesWindow {
     this.addValue(GameConst.WHITE_POINTS, whitePoints);
     this.addValue(GameConst.NUM_CARDS_IN_DECK, cardsInDeck);
     this.addValue(GameConst.NUM_CARDS_IN_HAND, cardsInHand);
-    this.noPass();
+    this.refresh();
   }
 
   noPass() {

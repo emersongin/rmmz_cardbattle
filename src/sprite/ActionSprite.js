@@ -92,6 +92,25 @@ class ActionSprite extends Sprite {
     this.visible = false;
   }
 
+  alignAboveOf(obj) {
+    const { y } = obj;
+    const receptorX = undefined;
+    const receptorY = ScreenHelper.getPositionAboveOf(y, this.height);
+    this.addCommand(this.commandAlign, receptorX, receptorY);
+  }
+
+  alignBelowOf(obj) {
+    const { y, height } = obj;
+    const receptorX = undefined;
+    const receptorY = ScreenHelper.getPositionBelowOf(y, height);
+    this.addCommand(this.commandAlign, receptorX, receptorY);
+  }
+
+  commandAlign(x = this.x, y = this.y) {
+    this.x = x;
+    this.y = y;
+  }
+
   update() {
     super.update();
     if (this._wait > 0) return this._wait--;
