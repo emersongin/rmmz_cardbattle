@@ -24,6 +24,34 @@ class CardSpriteOpeningState {
     this._interval = NumberHelper.calculateTimeInterval(0, CardSprite.contentOriginalWidth(), this._duration);
   }
 
+  stop() {
+    this._card.changeStatus(CardSpriteStoppedState);
+  }
+
+  open() {
+    return false;
+  }
+
+  close() {
+    return false;
+  }
+  
+  toMove() {
+    return false;
+  }
+  
+  zoom() {
+    return false;
+  }
+  
+  zoomOut() {
+    return false;
+  }
+  
+  leave() {
+    return false;
+  }
+
   updateStatus() {
     const that = this._card;
     if (this.isUpdatingPosition() || this.isUpdatingOpening()) {
@@ -34,7 +62,7 @@ class CardSpriteOpeningState {
     }
     if (that.isOpened()) that.opened();
     if (that.isClosed()) that.closed();
-    that.changeStatus(CardSpriteStoppedState);
+    this.stop();
   }
 
   isUpdatingPosition() {

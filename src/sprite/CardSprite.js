@@ -73,13 +73,13 @@ class CardSprite extends ActionSprite {
     this._flashedLayer = {};
     this._hoveredLayer = {};
     this._selectedLayer = {};
+    this._status = new CardSpriteStoppedState(this);
     this.setup();
   }
 
   setup() {
     this.hide();
     this.enable();
-    this.stop();
     this.setTurnToUp();
     this.setOriginalSize();
     this.createLayers();
@@ -90,7 +90,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandStop() {
-    this.changeStatus(CardSpriteStoppedState);
+    return this._status.stop();
   }
 
   setTurnToUp() {
@@ -414,10 +414,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandOpen() {
-    if (!(this.isStopped() && this.isClosed())) return false;
-    const xPositionOpening = this.x - (CardSprite.contentOriginalWidth() / 2);
-    const yPositionOpening = this.y;
-    this.changeStatus(CardSpriteOpeningState, xPositionOpening, yPositionOpening);
+    return this._status.open();
   }
 
   isStopped() {
@@ -430,10 +427,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandClose() {
-    if (!(this.isOpened() && this.isStopped())) return false;
-    const xPositionClosing = this.x + (CardSprite.contentOriginalWidth() / 2);
-    const yPositionOpening = this.y;
-    this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionOpening);
+    return this._status.close();
   }
 
   static createMove(destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration) {
@@ -448,18 +442,11 @@ class CardSprite extends ActionSprite {
 
   toMove(moves) {
     moves = this.toArray(moves);
-    this.addCommand(
-      this.commandMoving,
-      moves
-    );
+    this.addCommand(this.commandMoving, moves);
   }
 
   commandMoving(moves) {
-    if (!(this.isOpened() && this.isStopped())) return false;
-    this.changeStatus( 
-      CardSpriteMovingState,
-      moves
-    );
+    return this._status.toMove(moves);
   }
 
   hover() {
@@ -664,18 +651,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandZoom() {
-    if (!this.isOpened() && this.isStopped() && this.isOriginalScale()) return false;
-    const destinyXPosition = this.x - ((this.width / 2) / 2);
-    const destinyYPosition = this.y - ((this.height / 2) / 2);
-    const destinyXScale = (this.scale.x / 2) * 3;
-    const destinyYScale = (this.scale.y / 2) * 3;
-    this.changeStatus(
-      CardSpriteZoomState,
-      destinyXPosition,
-      destinyYPosition,
-      destinyXScale,
-      destinyYScale
-    );
+    return this._status.zoom();
   }
 
   isOriginalScale() {
@@ -687,18 +663,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandZoomOut() {
-    if (!this.isOpened() && this.isStopped() && this.isZoom()) return false;
-    const destinyXPosition = this.x + ((this.width / 2) / 2);
-    const destinyYPosition = this.y + ((this.height / 2) / 2);
-    const destinyXScale = ((this.scale.x / 3) * 2);
-    const destinyYScale = ((this.scale.y / 3) * 2);
-    this.changeStatus(
-      CardSpriteZoomState,
-      destinyXPosition,
-      destinyYPosition, 
-      destinyXScale,
-      destinyYScale        
-    );
+    return this._status.zoomOut();
   }
 
   isZoom() {
@@ -711,10 +676,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandLeave() {
-    if (!this.isOpened() && this.isStopped()) return false;
-    const xPositionClosing = this.x + (CardSprite.contentOriginalWidth() / 2);
-    const yPositionClosing = this.y + (CardSprite.contentOriginalHeight() / 2);
-    this.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionClosing);
+    return this._status.leave();
   }
 
   flipTurnToUp() {

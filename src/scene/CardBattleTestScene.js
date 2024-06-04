@@ -189,7 +189,7 @@ class CardBattleTestScene extends Scene_Message {
       DrawPhaseTest,
     ];
     return [
-      // ...cardSpriteTests,
+      ...cardSpriteTests,
       // ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
@@ -199,7 +199,7 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      ...phase,
+      // ...phase,
     ];
   }
 

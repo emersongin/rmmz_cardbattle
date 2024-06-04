@@ -23,6 +23,34 @@ class CardSpriteZoomState {
     this.defineScale(this._duration);
   }
 
+  stop() {
+    this._card.changeStatus(CardSpriteStoppedState);
+  }
+
+  open() {
+    return false;
+  }
+
+  close() {
+    return false;
+  }
+  
+  toMove() {
+    return false;
+  }
+  
+  zoom() {
+    return false;
+  }
+  
+  zoomOut() {
+    return false;
+  }
+  
+  leave() {
+    return false;
+  }
+
   definePosition(duration) {
     const that = this._card;
     const originXPosition = that.x;
@@ -57,7 +85,7 @@ class CardSpriteZoomState {
       this.updateXScale();
       this.updateYScale();
     } else {
-      that.changeStatus(CardSpriteStoppedState);
+      this.stop();
     }
   }
 

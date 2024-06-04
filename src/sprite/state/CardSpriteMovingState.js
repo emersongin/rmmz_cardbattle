@@ -17,6 +17,34 @@ class CardSpriteMovingState {
     this._y = this._card.y;
   }
 
+  stop() {
+    this._card.changeStatus(CardSpriteStoppedState);
+  }
+
+  open() {
+    return false;
+  }
+
+  close() {
+    return false;
+  }
+  
+  toMove() {
+    return false;
+  }
+  
+  zoom() {
+    return false;
+  }
+  
+  zoomOut() {
+    return false;
+  }
+  
+  leave() {
+    return false;
+  }
+
   updateStatus() {
     const that = this._card;
     if (this.hasMoves() && this.isStopped()) this.startMove();
@@ -24,7 +52,7 @@ class CardSpriteMovingState {
       this.updateXPosition();
       this.updateYPosition();
     } else {
-      that.changeStatus(CardSpriteStoppedState);
+      this.stop();
     }
   }
 
