@@ -181,6 +181,10 @@ class ScreenHelper {
     return Graphics.boxWidth;
   }
 
+  static getFieldWidth() {
+    return ScreenHelper.getFullWidth() - (ScreenHelper.getOneFourthWidth() / 2);
+  }
+
   static getFullHeight() {
     return Graphics.boxHeight;
   }
@@ -5590,7 +5594,11 @@ class DrawPhase extends Phase {
   }
 
   createPlayerBattlefield(cards) {
-    this._playerBattleField = CardsetSprite.create(20, 0);
+    const fieldWidth = ScreenHelper.getFieldWidth();
+    const battlefieldWidth = CardsetSprite.contentOriginalWidth();
+    const paddingLeft = (fieldWidth - battlefieldWidth) / 2;
+
+    this._playerBattleField = CardsetSprite.create(paddingLeft, 0);
     this._playerBattleField.setBackgroundColor('blue');
     const height = 120;
     const y = ScreenHelper.getBottomPosition(height);
@@ -5645,7 +5653,11 @@ class DrawPhase extends Phase {
   }
 
   createChallengeBattlefield(cards) {
-    this._challengeBattleField = CardsetSprite.create(20, 0);
+    const fieldWidth = ScreenHelper.getFieldWidth();
+    const battlefieldWidth = CardsetSprite.contentOriginalWidth();
+    const paddingLeft = (fieldWidth - battlefieldWidth) / 2;
+
+    this._challengeBattleField = CardsetSprite.create(paddingLeft, 0);
     this._challengeBattleField.setBackgroundColor('red');
     const height = 128;
     const y = ScreenHelper.getTopPosition();

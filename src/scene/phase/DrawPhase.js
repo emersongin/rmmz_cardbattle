@@ -57,12 +57,20 @@ class DrawPhase extends Phase {
   }
 
   createPlayerBattlefield(cards) {
-    this._playerBattleField = CardsetSprite.create(20, 0);
+    const paddingLeft = this.getPaddingLeftBattleField();
+    this._playerBattleField = CardsetSprite.create(paddingLeft, 0);
     this._playerBattleField.setBackgroundColor('blue');
     const height = 120;
     const y = ScreenHelper.getBottomPosition(height);
     this._playerBattleField.alignAboveOf({ y, height });
     this.attachChild(this._playerBattleField);
+  }
+
+  getPaddingLeftBattleField() {
+    const fieldWidth = ScreenHelper.getFieldWidth();
+    const battlefieldWidth = CardsetSprite.contentOriginalWidth();
+    const paddingLeft = (fieldWidth - battlefieldWidth) / 2;
+    return paddingLeft;
   }
 
   createChallengeGameBoard(cardsInTrash, cardsInDeck, cardsInHand, energies, victories) {
@@ -112,7 +120,8 @@ class DrawPhase extends Phase {
   }
 
   createChallengeBattlefield(cards) {
-    this._challengeBattleField = CardsetSprite.create(20, 0);
+    const paddingLeft = this.getPaddingLeftBattleField();
+    this._challengeBattleField = CardsetSprite.create(paddingLeft, 0);
     this._challengeBattleField.setBackgroundColor('red');
     const height = 128;
     const y = ScreenHelper.getTopPosition();

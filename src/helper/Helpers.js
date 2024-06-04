@@ -11,6 +11,10 @@ class ScreenHelper {
     return Graphics.boxWidth;
   }
 
+  static getFieldWidth() {
+    return ScreenHelper.getFullWidth() - (ScreenHelper.getOneFourthWidth() / 2);
+  }
+
   static getFullHeight() {
     return Graphics.boxHeight;
   }
