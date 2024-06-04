@@ -18,10 +18,8 @@ class DrawPhaseTest extends SceneTest {
     const challengeEnergies = [0, 0, 0, 0, 0, 0];
     const challengeVictories = 2;
     this.phase.createChallengeGameBoard(challengeCardsInTrash, challengeCardsInDeck, challengeCardsInHand, challengeEnergies, challengeVictories);
-    const playerCards = [];
-    this.phase.createPlayerBattlefield(playerCards);
-    const challengeCards = [];
-    this.phase.createChallengeBattlefield(challengeCards);
+    this.phase.createPlayerBattlefield();
+    this.phase.createChallengeBattlefield();
     this.addHiddenWatched(this.phase._titleWindow);
     this.addHiddenWatched(this.phase._descriptionWindow);
     this.addHiddenWatched(this.phase._playerBoardWindow);
@@ -45,9 +43,11 @@ class DrawPhaseTest extends SceneTest {
   update() {
     if (this.phase.isBusy()) return false;
     if (this.phase.isStepStart() && Input.isTriggered('ok')) {
+      const playerCards = CardGenerator.generateCards(6);
+      const challengeCards = CardGenerator.generateCards(6);
       this.phase.closeTextWindows();
       this.phase.stepDrawCards();
-      this.phase.openGameBoards();
+      this.phase.openGameBoards(playerCards, challengeCards);
     }
     if (this.phase.isStepDrawCards() && Input.isTriggered('ok')) {
       this.phase.addAction(this.endTest);

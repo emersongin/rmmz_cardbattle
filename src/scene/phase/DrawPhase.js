@@ -4,11 +4,13 @@ class DrawPhase extends Phase {
   _playerTrashWindow;
   _playerScoreWindow;
   _playerBattleField;
+  _playerCards;
   _challengeBoardWindow;
   _challengeBattleWindow;
   _challengeTrashWindow;
   _challengeScoreWindow;
   _challengeBattleField;
+  _challengeCards;
 
   createPlayerGameBoard(cardsInTrash, cardsInDeck, cardsInHand, energies, victories) {
     this.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand);
@@ -56,14 +58,15 @@ class DrawPhase extends Phase {
     this.attachChild(this._playerScoreWindow);
   }
 
-  createPlayerBattlefield(cards) {
+  createPlayerBattlefield() {
     const paddingLeft = this.getPaddingLeftBattleField();
     this._playerBattleField = CardsetSprite.create(paddingLeft, 0);
-    this._playerBattleField.setBackgroundColor('blue');
     const height = 120;
     const y = ScreenHelper.getBottomPosition(height);
     this._playerBattleField.alignAboveOf({ y, height });
     this.attachChild(this._playerBattleField);
+    
+
   }
 
   getPaddingLeftBattleField() {
@@ -119,10 +122,9 @@ class DrawPhase extends Phase {
     this.attachChild(this._challengeScoreWindow);
   }
 
-  createChallengeBattlefield(cards) {
+  createChallengeBattlefield() {
     const paddingLeft = this.getPaddingLeftBattleField();
     this._challengeBattleField = CardsetSprite.create(paddingLeft, 0);
-    this._challengeBattleField.setBackgroundColor('red');
     const height = 128;
     const y = ScreenHelper.getTopPosition();
     this._challengeBattleField.alignBelowOf({ y, height });
@@ -137,7 +139,9 @@ class DrawPhase extends Phase {
     return this.isCurrentStep(GameConst.START_DRAW_CARDS);
   }
 
-  openGameBoards() {
+  openGameBoards(playerCards, challengeCards) {
+    this._playerCards = playerCards;
+    this._challengeCards = challengeCards;
     this.addActions([
       this.commandOpenPlayerBoardWindow,
       this.commandOpenPlayerBattleWindow,
@@ -170,6 +174,12 @@ class DrawPhase extends Phase {
 
   commandShowPlayerBattlefield() {
     this._playerBattleField.show();
+    const screenWidth = ScreenHelper.getFullWidth();
+    const sprites = this._playerBattleField.setCards(this._playerCards, screenWidth);
+    this._playerBattleField.showCards(sprites);
+    this._playerBattleField.setTurnToDownCards(sprites);
+    this._playerBattleField.moveCardsInlist(sprites);
+    this._playerBattleField.flipTurnToUpCards(sprites);
   }
   
   commandOpenChallengeBoardWindow() {
@@ -190,6 +200,12 @@ class DrawPhase extends Phase {
 
   commandShowChallengeBattlefield() {
     this._challengeBattleField.show();
+    const screenWidth = ScreenHelper.getFullWidth();
+    const sprites = this._challengeBattleField.setCards(this._challengeCards, screenWidth);
+    this._challengeBattleField.showCards(sprites);
+    this._challengeBattleField.setTurnToDownCards(sprites);
+    this._challengeBattleField.moveCardsInlist(sprites);
+    this._challengeBattleField.flipTurnToUpCards(sprites);
   }
 
 }

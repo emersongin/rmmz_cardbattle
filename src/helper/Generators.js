@@ -1,8 +1,8 @@
 class CardGenerator {
-  static generateCards(amount = 1) {
+  static generateCards(amount = 1, type) {
     const cards = [];
     for (let i = 0; i < amount; i++) {
-      cards.push(CardGenerator.generateCard());
+      cards.push(CardGenerator.generateCard(type));
     }
     return cards;
   }
