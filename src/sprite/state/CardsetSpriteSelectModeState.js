@@ -20,6 +20,14 @@ class CardsetSpriteSelectModeState {
     this.updateHoverSprites();
   }
 
+  staticMode() {
+    this._cardset.changeStatus(CardsetSpriteStaticModeState);
+  }
+
+  selectMode() {
+    return false;
+  }
+
   updateHoverSprites() {
     const cardset = this._cardset;
     const sprites = cardset.getSprites();

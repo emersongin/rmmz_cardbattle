@@ -189,8 +189,8 @@ class CardBattleTestScene extends Scene_Message {
       DrawPhaseTest,
     ];
     return [
-      ...cardSpriteTests,
-      // ...cardsetSpriteTests,
+      // ...cardSpriteTests,
+      ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,

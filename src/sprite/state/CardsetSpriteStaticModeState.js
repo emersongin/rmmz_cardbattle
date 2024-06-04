@@ -9,6 +9,14 @@ class CardsetSpriteStaticModeState {
     this.unhouverSprites();
   }
 
+  staticMode() {
+    return false;
+  }
+
+  selectMode(selectHandler, number) {
+    this._cardset.changeStatus(CardsetSpriteSelectModeState, selectHandler, number);
+  }
+
   unhouverSprites() {
     const spritesHovered = this.getSpritesHovered();
     spritesHovered.forEach(({ sprite, index }) => {

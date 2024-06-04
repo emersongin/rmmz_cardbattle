@@ -47,6 +47,7 @@ class CardsetSprite extends ActionSprite {
     super.initialize(x, y);
     this._sprites = [];
     this._orderingSprites = [];
+    this._status = new CardsetSpriteStaticModeState(this);
     this.setup();
   }
 
@@ -54,7 +55,6 @@ class CardsetSprite extends ActionSprite {
     this.setBackgroundColor('none');
     this.setSize();
     this.commandHide();
-    this.staticMode();
   }
 
   setBackgroundColor(color) {
@@ -73,7 +73,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandStaticMode() {
-    this.changeStatus(CardsetSpriteStaticModeState);
+    return this._status.staticMode();
   }
 
   setCards(cards, x, y) {
@@ -346,7 +346,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandSelectMode(selectHandler, number) {
-    this.changeStatus(CardsetSpriteSelectModeState, selectHandler, number);
+    return this._status.selectMode(selectHandler, number);
   }
 
   allCardsAreOpened(sprites = this._sprites) {
