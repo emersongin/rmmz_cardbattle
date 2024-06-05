@@ -23,8 +23,8 @@ class CardGenerator {
 
   static generateCard(type, color, figure, attack, health) {
     return {
-      type: CardGenerator.getTypes()[type ? type : (Math.floor(Math.random() * 2) + 1)],
-      color: CardGenerator.getColors()[color ? color : Math.floor(Math.random() * 4) + 1],
+      type: CardGenerator.getTypes()[type ? type : Math.floor(Math.random() * 3)],
+      color: CardGenerator.getColors()[color ? color : Math.floor(Math.random() * 6)],
       figureName: figure || 'default',
       attack: attack || Math.floor(Math.random() * 99) + 1,
       health: health || Math.floor(Math.random() * 99) + 1

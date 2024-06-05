@@ -182,14 +182,24 @@ class DrawPhase extends Phase {
     this._challengeScoreWindow.open();
   }
 
-  drawCards(playerCards, challengeCards) {
+  drawCards(player, challenge) {
+    const { 
+      cards: playerCards, 
+      cardsInHand: playerCardsInHand, 
+      cardsInDeck: playerCardsInDeck, 
+    } = player;
+    const { 
+      cards: challengeCards, 
+      cardsInHand: challengeCardsInHand, 
+      cardsInDeck: challengeCardsInDeck, 
+    } = challenge;
     this.addActions([
-      [this.commandDrawPlayerCards, playerCards],
-      [this.commandDrawChallengeCards, challengeCards],
+      [this.commandDrawPlayerCards, playerCards, playerCardsInDeck, playerCardsInHand],
+      [this.commandDrawChallengeCards, challengeCards, challengeCardsInDeck, challengeCardsInHand],
     ]);
   }
   
-  commandDrawPlayerCards(cards) {
+  commandDrawPlayerCards(cards, cardsInDeck, cardsInHand) {
     this._playerBattleField.show();
     const screenWidth = ScreenHelper.getFullWidth();
     const sprites = this._playerBattleField.setCards(cards, screenWidth);
@@ -197,9 +207,17 @@ class DrawPhase extends Phase {
     this._playerBattleField.setTurnToDownCards(sprites);
     this._playerBattleField.moveCardsInlist(sprites);
     this._playerBattleField.flipTurnToUpCards(sprites);
+
+    const updateDeckPoints = BoardWindow.createValueUpdate(GameConst.CARDS_IN_DECK, cardsInDeck);
+    const updateHandPoints = BoardWindow.createValueUpdate(GameConst.CARDS_IN_HAND, cardsInHand);
+    const manyUpdates = [
+      updateDeckPoints,
+      updateHandPoints
+    ];
+    this._playerBoardWindow.updateValues(manyUpdates);
   }
 
-  commandDrawChallengeCards(cards) {
+  commandDrawChallengeCards(cards, cardsInDeck, cardsInHand) {
     this._challengeBattleField.show();
     const screenWidth = ScreenHelper.getFullWidth();
     const sprites = this._challengeBattleField.setCards(cards, screenWidth);
@@ -207,5 +225,65 @@ class DrawPhase extends Phase {
     this._challengeBattleField.setTurnToDownCards(sprites);
     this._challengeBattleField.moveCardsInlist(sprites);
     this._challengeBattleField.flipTurnToUpCards(sprites);
+
+    const updateDeckPoints = BoardWindow.createValueUpdate(GameConst.CARDS_IN_DECK, cardsInDeck);
+    const updateHandPoints = BoardWindow.createValueUpdate(GameConst.CARDS_IN_HAND, cardsInHand);
+    const manyUpdates = [
+      updateDeckPoints,
+      updateHandPoints
+    ];
+    this._challengeBoardWindow.updateValues(manyUpdates);
+  }
+
+  updateGameBoards(playerUpdates, challengeUpdates) {
+    const updates = playerUpdates.map((playerUpdate, index) => {
+      const challengeUpdate = challengeUpdates[index] || false;
+      return [playerUpdate, challengeUpdate];
+    });
+    updates.forEach(([playerUpdate, challengeUpdate]) => {
+      const { cardIndex: playerCardIndex, updatePoint: playerUpdatePoint } = playerUpdate;
+      const { cardIndex: chanllengeCardIndex, updatePoint: challengeUpdatePoint } = challengeUpdate;
+      this.addActions([
+        [this.commandPlayerLoadEnergy, playerCardIndex, playerUpdatePoint],
+        [this.commandChallengeLoadEnergy, chanllengeCardIndex, challengeUpdatePoint],
+      ]);
+    });
+  }
+
+  commandPlayerLoadEnergy(cardIndex, updatePoint) {
+    const sprites = this._playerBattleField.getSprites();
+    const sprite = sprites[cardIndex];
+    if (updatePoint) {
+      this._playerBattleField.flashCardsAnimate(sprite, 'white', 4);
+      this._playerBoardWindow.updateValues(updatePoint);
+    }
+  }
+
+  commandChallengeLoadEnergy(cardIndex, updatePoint) {
+    const sprites = this._challengeBattleField.getSprites();
+    const sprite = sprites[cardIndex];
+    if (updatePoint) {
+      this._challengeBattleField.flashCardsAnimate(sprite, 'white', 4);
+      this._challengeBoardWindow.updateValues(updatePoint);
+    }
+  }
+
+  isBusy() {
+    return super.isBusy() || 
+      this._playerBoardWindow.isBusy() ||
+      this._playerBattleWindow.isBusy() ||
+      this._playerTrashWindow.isBusy() ||
+      this._playerScoreWindow.isBusy() ||
+      this._challengeBoardWindow.isBusy() ||
+      this._challengeBattleWindow.isBusy() ||
+      this._challengeTrashWindow.isBusy() ||
+      this._challengeScoreWindow.isBusy() ||
+      this.someChildrenIsBusy();
+  }
+
+  someChildrenIsBusy() {
+    return this._scene.children.some(sprite => {
+      return (sprite instanceof CardsetSprite) && (sprite.hasCommands() || sprite.isBusy());
+    });
   }
 }

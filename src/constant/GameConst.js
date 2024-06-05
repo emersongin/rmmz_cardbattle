@@ -8,6 +8,7 @@ const GameConst = {
   GREEN: 'GREEN',
   BLACK: 'BLACK',
   WHITE: 'WHITE',
+  BROWN: 'BROWN',
   //
   CARDS_IN_DECK: 'CARDS_IN_DECK',
   CARDS_IN_HAND: 'CARDS_IN_HAND',
