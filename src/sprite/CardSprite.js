@@ -59,8 +59,8 @@ class CardSprite extends ActionSprite {
 
   initialize(x, y) {
     super.initialize(x, y);
-    this._type = 0;
-    this._color = 0;
+    this._type = '';
+    this._color = '';
     this._figure = {};
     this._backImage = {};
     this._behaviors = [];
@@ -206,19 +206,19 @@ class CardSprite extends ActionSprite {
 
   getBorderColor() {
     switch (this._color) {
-      case ColorTypes.RED:
+      case GameConst.RED:
         return ColorHelper.getColorHex(GameColors.FADEDRED);
         break;
-      case ColorTypes.GREEN:
+      case GameConst.GREEN:
         return ColorHelper.getColorHex(GameColors.FADEDGREEN);
         break;
-      case ColorTypes.BLUE:
+      case GameConst.BLUE:
         return ColorHelper.getColorHex(GameColors.FADEDBLUE);
         break;
-      case ColorTypes.WHITE:
+      case GameConst.WHITE:
         return ColorHelper.getColorHex(GameColors.FADEDWHITE);
         break;
-      case ColorTypes.BLACK:
+      case GameConst.BLACK:
         return ColorHelper.getColorHex(GameColors.FADEDBLACK);
         break;
       default:
@@ -229,19 +229,19 @@ class CardSprite extends ActionSprite {
 
   getBackgroundColor() {
     switch (this._color) {
-      case ColorTypes.RED:
+      case GameConst.RED:
         return ColorHelper.getColorHex(GameColors.RED);
         break;
-      case ColorTypes.GREEN:
+      case GameConst.GREEN:
         return ColorHelper.getColorHex(GameColors.GREEN);
         break;
-      case ColorTypes.BLUE:
+      case GameConst.BLUE:
         return ColorHelper.getColorHex(GameColors.BLUE);
         break;
-      case ColorTypes.WHITE:
+      case GameConst.WHITE:
         return ColorHelper.getColorHex(GameColors.WHITE);
         break;
-      case ColorTypes.BLACK:
+      case GameConst.BLACK:
         return ColorHelper.getColorHex(GameColors.BLACK);
         break;
       default:
@@ -278,10 +278,10 @@ class CardSprite extends ActionSprite {
 
   drawDisplay() {
     switch (this._type) {
-      case CardTypes.BATTLE:
+      case GameConst.BATTLE:
           this.drawPoints();
         break;
-      case CardTypes.POWER:
+      case GameConst.POWER:
         this.drawPowerCaption();
         break;
       default:

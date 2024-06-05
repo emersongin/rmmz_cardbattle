@@ -4,13 +4,11 @@ class DrawPhase extends Phase {
   _playerTrashWindow;
   _playerScoreWindow;
   _playerBattleField;
-  _playerCards;
   _challengeBoardWindow;
   _challengeBattleWindow;
   _challengeTrashWindow;
   _challengeScoreWindow;
   _challengeBattleField;
-  _challengeCards;
 
   createPlayerGameBoard(cardsInTrash, cardsInDeck, cardsInHand, energies, victories) {
     this.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand);
@@ -139,20 +137,16 @@ class DrawPhase extends Phase {
     return this.isCurrentStep(GameConst.START_DRAW_CARDS);
   }
 
-  openGameBoards(playerCards, challengeCards) {
-    this._playerCards = playerCards;
-    this._challengeCards = challengeCards;
+  openGameBoards() {
     this.addActions([
       this.commandOpenPlayerBoardWindow,
       this.commandOpenPlayerBattleWindow,
       this.commandOpenPlayerTrashWindow,
       this.commandOpenPlayerScoreWindow,
-      this.commandShowPlayerBattlefield,
       this.commandOpenChallengeBoardWindow,
       this.commandOpenChallengeBattleWindow,
       this.commandOpenChallengeTrashWindow,
       this.commandOpenChallengeScoreWindow,
-      this.commandShowChallengeBattlefield,
     ]);
   }
 
@@ -171,16 +165,6 @@ class DrawPhase extends Phase {
   commandOpenPlayerScoreWindow() {
     this._playerScoreWindow.open();
   }
-
-  commandShowPlayerBattlefield() {
-    this._playerBattleField.show();
-    const screenWidth = ScreenHelper.getFullWidth();
-    const sprites = this._playerBattleField.setCards(this._playerCards, screenWidth);
-    this._playerBattleField.showCards(sprites);
-    this._playerBattleField.setTurnToDownCards(sprites);
-    this._playerBattleField.moveCardsInlist(sprites);
-    this._playerBattleField.flipTurnToUpCards(sprites);
-  }
   
   commandOpenChallengeBoardWindow() {
     this._challengeBoardWindow.open();
@@ -198,14 +182,30 @@ class DrawPhase extends Phase {
     this._challengeScoreWindow.open();
   }
 
-  commandShowChallengeBattlefield() {
+  drawCards(playerCards, challengeCards) {
+    this.addActions([
+      [this.commandDrawPlayerCards, playerCards],
+      [this.commandDrawChallengeCards, challengeCards],
+    ]);
+  }
+  
+  commandDrawPlayerCards(cards) {
+    this._playerBattleField.show();
+    const screenWidth = ScreenHelper.getFullWidth();
+    const sprites = this._playerBattleField.setCards(cards, screenWidth);
+    this._playerBattleField.showCards(sprites);
+    this._playerBattleField.setTurnToDownCards(sprites);
+    this._playerBattleField.moveCardsInlist(sprites);
+    this._playerBattleField.flipTurnToUpCards(sprites);
+  }
+
+  commandDrawChallengeCards(cards) {
     this._challengeBattleField.show();
     const screenWidth = ScreenHelper.getFullWidth();
-    const sprites = this._challengeBattleField.setCards(this._challengeCards, screenWidth);
+    const sprites = this._challengeBattleField.setCards(cards, screenWidth);
     this._challengeBattleField.showCards(sprites);
     this._challengeBattleField.setTurnToDownCards(sprites);
     this._challengeBattleField.moveCardsInlist(sprites);
     this._challengeBattleField.flipTurnToUpCards(sprites);
   }
-
 }

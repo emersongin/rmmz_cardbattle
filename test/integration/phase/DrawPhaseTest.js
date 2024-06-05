@@ -43,11 +43,16 @@ class DrawPhaseTest extends SceneTest {
   update() {
     if (this.phase.isBusy()) return false;
     if (this.phase.isStepStart() && Input.isTriggered('ok')) {
-      const playerCards = CardGenerator.generateCards(6);
-      const challengeCards = CardGenerator.generateCards(6);
+      const playerCards = CardGenerator.generateCardsData(6, 1);
+      const challengeCards = CardGenerator.generateCardsData(6, 1);
       this.phase.closeTextWindows();
       this.phase.stepDrawCards();
-      this.phase.openGameBoards(playerCards, challengeCards);
+      this.phase.openGameBoards();
+      this.phase.drawCards(playerCards, challengeCards);
+      playerCards.array.forEach(card => {
+        const { color } = card;
+        updatePoint = BoardWindow.createValueUpdate(color, 1);
+      });
     }
     if (this.phase.isStepDrawCards() && Input.isTriggered('ok')) {
       this.phase.addAction(this.endTest);

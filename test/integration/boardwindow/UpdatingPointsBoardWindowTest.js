@@ -5,13 +5,13 @@ class UpdatingPointsBoardWindowTest extends SceneTest {
     this.subject.alignCenterMiddle();
     this.subject.refresh();
     this.subject.open();
-    const updateRedPoints = BoardWindow.createValueUpdate(GameConst.RED_POINTS, 10);
-    const updateBluePoints = BoardWindow.createValueUpdate(GameConst.BLUE_POINTS, 10);
-    const updateGreenPoints = BoardWindow.createValueUpdate(GameConst.GREEN_POINTS, 10);
-    const updateBlackPoints = BoardWindow.createValueUpdate(GameConst.BLACK_POINTS, 10);
-    const updateWhitePoints = BoardWindow.createValueUpdate(GameConst.WHITE_POINTS, 10);
-    const updateDeckPoints = BoardWindow.createValueUpdate(GameConst.NUM_CARDS_IN_DECK, 10);
-    const updateHandPoints = BoardWindow.createValueUpdate(GameConst.NUM_CARDS_IN_HAND, 10);
+    const updateRedPoints = BoardWindow.createValueUpdate(GameConst.RED, 10);
+    const updateBluePoints = BoardWindow.createValueUpdate(GameConst.BLUE, 10);
+    const updateGreenPoints = BoardWindow.createValueUpdate(GameConst.GREEN, 10);
+    const updateBlackPoints = BoardWindow.createValueUpdate(GameConst.BLACK, 10);
+    const updateWhitePoints = BoardWindow.createValueUpdate(GameConst.WHITE, 10);
+    const updateDeckPoints = BoardWindow.createValueUpdate(GameConst.CARDS_IN_DECK, 10);
+    const updateHandPoints = BoardWindow.createValueUpdate(GameConst.CARDS_IN_HAND, 10);
     const manyUpdates = [
       updateRedPoints,
       updateBluePoints,

@@ -121,7 +121,10 @@ class Phase {
 
   addActions(actions) {
     actions = this.toArray(actions);
-    actions = actions.map((fn, ...params) => this.createAction(fn, ...params));
+    actions = actions.map((fn, ...params) => {
+      if (Array.isArray(fn)) return this.createAction(fn[0], ...fn.slice(1));
+      return this.createAction(fn)
+    });
     this._actionsQueue.push(actions);
   }
 
