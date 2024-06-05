@@ -24,8 +24,8 @@ class StartPhase extends Phase {
 
   createCardsShuffled() {
     const cards = [
-      CardGenerator.generateGameCard('white'),
-      CardGenerator.generateGameCard('black'),
+      CardGenerator.generateGameCard(GameConst.WHITE),
+      CardGenerator.generateGameCard(GameConst.BLACK),
     ];
     this._cards = ArrayHelper.shuffle(cards);
     return this._cards;

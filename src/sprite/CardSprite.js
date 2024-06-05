@@ -11,6 +11,7 @@
 
 class CardSprite extends ActionSprite {
   static create(type, color, figureName, attack, health, x, y) {
+    console.log(type, color, figureName, attack, health, x, y);
     if (!type || !color || !figureName) {
       throw new Error('Card inválido!');
     }

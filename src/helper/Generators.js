@@ -1,22 +1,22 @@
 class CardGenerator {
   static generateGameCard(color) {
-    const game = 3;
+    const game = 2;
     switch (color) {
       case GameConst.WHITE:
         const white = 3;
-        return CardGenerator.generateCardData(game, white);
+        return CardGenerator.generateCard(game, white);
       case GameConst.BLACK:
         const black = 4;
-        return CardGenerator.generateCardData(game, black);
+        return CardGenerator.generateCard(game, black);
       default:
-        return CardGenerator.generateCardData(game);
+        return CardGenerator.generateCard(game);
     }
   }
 
   static generateCards(amount = 1, type) {
     const cards = [];
     for (let i = 0; i < amount; i++) {
-      cards.push(CardGenerator.generateCardData(type));
+      cards.push(CardGenerator.generateCard(type));
     }
     return cards;
   }
