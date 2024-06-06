@@ -275,13 +275,13 @@ class CardsetSprite extends ActionSprite {
     });
   }
 
-  moveCardsInlist(sprites = this._sprites, delay = 6) {
+  moveCardsInlist(sprites = this._sprites, delay = 6, chainActions) {
     sprites = this.toArray(sprites);
     const numCards = sprites.length;
     const positions = CardsetSprite.createPositionsList(numCards);
     let moves = this.moveCardsPositions(positions, sprites);
     moves = moves.map(({ sprite, x, y }) => [sprite, x, y]);
-    const commands = this.createDelayCommands(this.commandMoveCard, delay, moves);
+    const commands = this.createDelayCommands(this.commandMoveCard, delay, moves, chainActions);
     this.addCommands(commands);
   }
 
@@ -388,9 +388,9 @@ class CardsetSprite extends ActionSprite {
     this.addChildAt(sprite, index);
   }
 
-  flashCardsAnimate(sprites = this._sprites, color = 'white', duration = 10, times = 1) {
+  flashCardsAnimate(sprites = this._sprites, color = 'white', duration = 10, times = 1, chainAction) {
     sprites = this.toArray(sprites);
-    this.addCommand(this.commandAnimateCardsFlash, sprites, color, duration, times);
+    this.addCommand(this.commandAnimateCardsFlash, sprites, color, duration, times, chainAction);
   }
 
   commandAnimateCardsFlash(sprites, color, duration, times) {

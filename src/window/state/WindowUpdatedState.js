@@ -4,8 +4,9 @@ class WindowUpdatedState {
   _interval = 0;
   _counter = 0;
 
-  constructor(window, updates) {
+  constructor(window, updates, fps = 1) {
     this._window = window;
+    this._fps = fps;
     this.restore();
     this.processUpdates(updates);
     this.calculateInterval(updates);
@@ -39,8 +40,7 @@ class WindowUpdatedState {
       return Math.abs(currentValue - newValue);
     });
     const highValue = Math.max(...values);
-    const fps = 30;
-    this._interval = Math.floor(fps / (highValue || 1)) || 1;
+    this._interval = Math.floor(this._fps / (highValue || 1)) || 1;
   }
 
   updateStatus() {

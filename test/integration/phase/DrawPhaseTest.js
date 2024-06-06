@@ -7,17 +7,35 @@ class DrawPhaseTest extends SceneTest {
     this.phase.createTitleWindow('Draw Phase');
     this.phase.createDescriptionWindow('6 cards will be drawn.');
     const playerCardsInTrash = 0;
-    const playerCardsInDeck = 40;
     const playerCardsInHand = 0;
-    const playerEnergies = [0, 0, 0, 0, 0];
+    this.playerCardsInHand = [];
+    this.playerCardsInDeck = CardGenerator.generateCards(40, 1);
+    const playerTotalCardsInDeck = this.playerCardsInDeck.length;
+    this.playerEnergies = {
+      [GameConst.RED]: 0,
+      [GameConst.BLUE]: 0,
+      [GameConst.GREEN]: 0,
+      [GameConst.BLACK]: 0,
+      [GameConst.WHITE]: 0,
+    };
+    const playerEnergies = Object.values(this.playerEnergies);
     const playerVictories = 0;
-    this.phase.createPlayerGameBoard(playerCardsInTrash, playerCardsInDeck, playerCardsInHand, playerEnergies, playerVictories);
+    this.phase.createPlayerGameBoard(playerCardsInTrash, playerTotalCardsInDeck, playerCardsInHand, playerEnergies, playerVictories);
     const challengeCardsInTrash = 0;
-    const challengeCardsInDeck = 40;
     const challengeCardsInHand = 0;
-    const challengeEnergies = [0, 0, 0, 0, 0];
+    this.challengeCardsInHand = [];
+    this.challengeCardsInDeck = CardGenerator.generateCards(40, 1);
+    const challengeTotalCardsInDeck = this.challengeCardsInDeck.length;
+    this.challengeEnergies = {
+      [GameConst.RED]: 0,
+      [GameConst.BLUE]: 0,
+      [GameConst.GREEN]: 0,
+      [GameConst.BLACK]: 0,
+      [GameConst.WHITE]: 0,
+    };
+    const challengeEnergies = Object.values(this.challengeEnergies);
     const challengeVictories = 0;
-    this.phase.createChallengeGameBoard(challengeCardsInTrash, challengeCardsInDeck, challengeCardsInHand, challengeEnergies, challengeVictories);
+    this.phase.createChallengeGameBoard(challengeCardsInTrash, challengeTotalCardsInDeck, challengeCardsInHand, challengeEnergies, challengeVictories);
     this.phase.createPlayerBattlefield();
     this.phase.createChallengeBattlefield();
     this.addHiddenWatched(this.phase._titleWindow);
@@ -43,42 +61,58 @@ class DrawPhaseTest extends SceneTest {
   update() {
     if (this.phase.isBusy()) return false;
     if (this.phase.isStepStart() && Input.isTriggered('ok')) {
-      const playerCards = CardGenerator.generateCards(6, 1);
-      const challengeCards = CardGenerator.generateCards(6, 1);
       this.phase.closeTextWindows();
       this.phase.stepDrawCards();
       this.phase.openGameBoards();
-
+      
+      const playerCardsInDeck = this.playerCardsInDeck.length;
+      const challengeCardsInDeck = this.challengeCardsInDeck.length;
+      const playerCards = this.playerCardsInDeck.splice(0, 6);
+      const challengeCards = this.challengeCardsInDeck.splice(0, 6);
+      this.playerCardsInHand = playerCards;
+      this.challengeCardsInHand = challengeCards;
       const playerData = {
         cards: playerCards,
-        cardsInHand: 6,
-        cardsInDeck: (40 - 6),
+        cardsInDeck: playerCardsInDeck,
       };
       const challengeData = {
         cards: challengeCards,
-        cardsInHand: 6,
-        cardsInDeck: (40 - 6),
+        cardsInDeck: challengeCardsInDeck,
       };
       this.phase.drawCards(playerData, challengeData);
 
-      const playerFieldUpdates = playerCards.map((card, cardIndex) => {
-        const { color } = card;
-        if (color === GameConst.BROWN) return false;
-        const updatePoint = BoardWindow.createValueUpdate(color, 1);
-        return { cardIndex, updatePoint };
-      });
-      const challengeFieldUpdates = challengeCards.map((card, cardIndex) => {
-        const { color } = card;
-        if (color === GameConst.BROWN) return false;
-        const updatePoint = BoardWindow.createValueUpdate(color, 1);
-        return { cardIndex, updatePoint };
-      });
+      const playerEnergies = Object.assign({}, this.playerEnergies);
+      const { 
+        fieldUpdates: playerFieldUpdates, 
+        energies: playerEnergiesUpdated 
+      } = this.createFieldUpdates(playerCards, playerEnergies);
+      this.playerEnergies = playerEnergiesUpdated;
+
+      const challengeEnergies = Object.assign({}, this.challengeEnergies);
+      const { 
+        fieldUpdates: challengeFieldUpdates, 
+        energies: challengeEnergiesUpdated 
+      } = this.createFieldUpdates(challengeCards, challengeEnergies);
+      this.challengeEnergies = challengeEnergiesUpdated;
 
       this.phase.updateGameBoards(playerFieldUpdates, challengeFieldUpdates);
     }
     if (this.phase.isStepDrawCards() && Input.isTriggered('ok')) {
+      this.phase.closeGameObjects();
       this.phase.addAction(this.endTest);
     }
+  }
+
+  createFieldUpdates(cards, energies) {
+    const fieldUpdates = cards.map((card, cardIndex) => {
+      const { color } = card;
+      if (color === GameConst.BROWN) return false;
+      energies[color] += 1;
+      const points = energies[color];
+      const updatePoint = BoardWindow.createValueUpdate(color, points);
+      return { cardIndex, updatePoint };
+    });
+    return { fieldUpdates, energies };
   }
   
   asserts() {
@@ -93,5 +127,9 @@ class DrawPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de batalha do desafiante foi apresentada?', 'visible', this.phase._challengeBattleWindow);
     this.expectWasTrue('A janela de lixo do desafiante foi apresentada?', 'visible', this.phase._challengeTrashWindow);
     this.expectWasTrue('A janela de pontuação do desafiante foi apresentada?', 'visible', this.phase._challengeScoreWindow);
+    this.expectTrue('O total de cards no campo do jogar é?', this.playerCardsInDeck.length === 34);
+    this.expectTrue('O total de cards no campo do desafiante é?', this.challengeCardsInDeck.length === 34);
+    this.expectTrue('O total de cards na mão do jogador é?', this.playerCardsInHand.length === 6);
+    this.expectTrue('O total de cards na mão do desafiante é?', this.challengeCardsInHand.length === 6);
   }
 }

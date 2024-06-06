@@ -60,12 +60,14 @@ class ActionSprite extends Sprite {
     return (Array.isArray(items) === false) ? [items] : items;
   }
 
-  createDelayCommands(fn, delay, set) {
+  createDelayCommands(fn, delay, set, chainActions) {
+    const hasChainActions = chainActions && chainActions.length > 0;
     const commands = set.map((params, index) => {
       const appliedDelay = (index > 0) ? delay : 0;
       const command = this.createCommand({
         fn,
         delay: appliedDelay,
+        chainAction: hasChainActions ? chainActions[index] : undefined,
       }, ...params);
       return command;
     });

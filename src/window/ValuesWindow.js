@@ -8,14 +8,14 @@ class ValuesWindow extends StateWindow {
     this._values = {};
   }
 
-  updateValues(updates) {
+  updateValues(updates, fps) {
     updates = Array.isArray(updates) ? updates : [updates];
-    this.addCommand(this.commandUpdateValues, updates);
+    this.addCommand(this.commandUpdateValues, updates, fps);
   }
 
-  commandUpdateValues(updates) {
+  commandUpdateValues(updates, fps) {
     if (!(this.isOpen() && this.isStopped())) return false;
-    this.changeStatus(WindowUpdatedState, updates);
+    this.changeStatus(WindowUpdatedState, updates, fps);
   }
 
   addValue(name, value) {

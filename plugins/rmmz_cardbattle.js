@@ -1445,8 +1445,9 @@ class WindowUpdatedState {
   _interval = 0;
   _counter = 0;
 
-  constructor(window, updates) {
+  constructor(window, updates, fps = 1) {
     this._window = window;
+    this._fps = fps;
     this.restore();
     this.processUpdates(updates);
     this.calculateInterval(updates);
@@ -1480,8 +1481,7 @@ class WindowUpdatedState {
       return Math.abs(currentValue - newValue);
     });
     const highValue = Math.max(...values);
-    const fps = 30;
-    this._interval = Math.floor(fps / (highValue || 1)) || 1;
+    this._interval = Math.floor(this._fps / (highValue || 1)) || 1;
   }
 
   updateStatus() {
@@ -1854,14 +1854,14 @@ class ValuesWindow extends StateWindow {
     this._values = {};
   }
 
-  updateValues(updates) {
+  updateValues(updates, fps) {
     updates = Array.isArray(updates) ? updates : [updates];
-    this.addCommand(this.commandUpdateValues, updates);
+    this.addCommand(this.commandUpdateValues, updates, fps);
   }
 
-  commandUpdateValues(updates) {
+  commandUpdateValues(updates, fps) {
     if (!(this.isOpen() && this.isStopped())) return false;
-    this.changeStatus(WindowUpdatedState, updates);
+    this.changeStatus(WindowUpdatedState, updates, fps);
   }
 
   addValue(name, value) {
@@ -2401,12 +2401,14 @@ class ActionSprite extends Sprite {
     return (Array.isArray(items) === false) ? [items] : items;
   }
 
-  createDelayCommands(fn, delay, set) {
+  createDelayCommands(fn, delay, set, chainActions) {
+    const hasChainActions = chainActions && chainActions.length > 0;
     const commands = set.map((params, index) => {
       const appliedDelay = (index > 0) ? delay : 0;
       const command = this.createCommand({
         fn,
         delay: appliedDelay,
+        chainAction: hasChainActions ? chainActions[index] : undefined,
       }, ...params);
       return command;
     });
@@ -4588,13 +4590,13 @@ class CardsetSprite extends ActionSprite {
     });
   }
 
-  moveCardsInlist(sprites = this._sprites, delay = 6) {
+  moveCardsInlist(sprites = this._sprites, delay = 6, chainActions) {
     sprites = this.toArray(sprites);
     const numCards = sprites.length;
     const positions = CardsetSprite.createPositionsList(numCards);
     let moves = this.moveCardsPositions(positions, sprites);
     moves = moves.map(({ sprite, x, y }) => [sprite, x, y]);
-    const commands = this.createDelayCommands(this.commandMoveCard, delay, moves);
+    const commands = this.createDelayCommands(this.commandMoveCard, delay, moves, chainActions);
     this.addCommands(commands);
   }
 
@@ -4701,9 +4703,9 @@ class CardsetSprite extends ActionSprite {
     this.addChildAt(sprite, index);
   }
 
-  flashCardsAnimate(sprites = this._sprites, color = 'white', duration = 10, times = 1) {
+  flashCardsAnimate(sprites = this._sprites, color = 'white', duration = 10, times = 1, chainAction) {
     sprites = this.toArray(sprites);
-    this.addCommand(this.commandAnimateCardsFlash, sprites, color, duration, times);
+    this.addCommand(this.commandAnimateCardsFlash, sprites, color, duration, times, chainAction);
   }
 
   commandAnimateCardsFlash(sprites, color, duration, times) {
@@ -5609,7 +5611,7 @@ class StartPhase extends Phase {
   }
 
   createResultWindow(result) {
-    const text = result ? 'You win!' : 'You lose!';
+    const text = result ? 'You go first!' : 'You go next!';
     this._resultWindow = TextWindow.createWindowOneFourthSize(0, 0, [text]);
     this._resultWindow.alignCenterMiddle();
     this._resultWindow.alignBelowOf({ y: 100, height: 0 });
@@ -5798,6 +5800,7 @@ class DrawPhase extends Phase {
     this._challengeTrashWindow = TrashWindow.create(0, 0);
     this._challengeTrashWindow.changeRedColor();
     this._challengeTrashWindow.alignEndAboveMiddle();
+    this._challengeTrashWindow.reverseIcons();
     this._challengeTrashWindow.refreshPoints(cardsInTrash);
     this.attachChild(this._challengeTrashWindow);
   }
@@ -5877,55 +5880,58 @@ class DrawPhase extends Phase {
 
   drawCards(player, challenge) {
     const { 
-      cards: playerCards, 
-      cardsInHand: playerCardsInHand, 
+      cards: playerCards,
       cardsInDeck: playerCardsInDeck, 
     } = player;
     const { 
-      cards: challengeCards, 
-      cardsInHand: challengeCardsInHand, 
+      cards: challengeCards,
       cardsInDeck: challengeCardsInDeck, 
     } = challenge;
     this.addActions([
-      [this.commandDrawPlayerCards, playerCards, playerCardsInDeck, playerCardsInHand],
-      [this.commandDrawChallengeCards, challengeCards, challengeCardsInDeck, challengeCardsInHand],
+      [this.commandDrawPlayerCards, playerCards, playerCardsInDeck],
+      [this.commandDrawChallengeCards, challengeCards, challengeCardsInDeck],
     ]);
   }
   
-  commandDrawPlayerCards(cards, cardsInDeck, cardsInHand) {
+  commandDrawPlayerCards(cards, cardsInDeck) {
     this._playerBattleField.show();
     const screenWidth = ScreenHelper.getFullWidth();
     const sprites = this._playerBattleField.setCards(cards, screenWidth);
     this._playerBattleField.showCards(sprites);
     this._playerBattleField.setTurnToDownCards(sprites);
-    this._playerBattleField.moveCardsInlist(sprites);
+    const fieldUpdates = sprites.map((sprite, index) => {
+      const count = index + 1;
+      const countCardsInDeck = cardsInDeck - count;
+      const updateDeckPoints = BoardWindow.createValueUpdate(GameConst.CARDS_IN_DECK, countCardsInDeck);
+      const updateHandPoints = BoardWindow.createValueUpdate(GameConst.CARDS_IN_HAND, count);
+      const manyUpdates = [
+        updateDeckPoints,
+        updateHandPoints
+      ];
+      this._playerBoardWindow.updateValues(manyUpdates);
+    });
+    this._playerBattleField.moveCardsInlist(sprites, 6, fieldUpdates);
     this._playerBattleField.flipTurnToUpCards(sprites);
-
-    const updateDeckPoints = BoardWindow.createValueUpdate(GameConst.CARDS_IN_DECK, cardsInDeck);
-    const updateHandPoints = BoardWindow.createValueUpdate(GameConst.CARDS_IN_HAND, cardsInHand);
-    const manyUpdates = [
-      updateDeckPoints,
-      updateHandPoints
-    ];
-    this._playerBoardWindow.updateValues(manyUpdates);
   }
 
-  commandDrawChallengeCards(cards, cardsInDeck, cardsInHand) {
+  commandDrawChallengeCards(cards, cardsInDeck) {
     this._challengeBattleField.show();
     const screenWidth = ScreenHelper.getFullWidth();
     const sprites = this._challengeBattleField.setCards(cards, screenWidth);
     this._challengeBattleField.showCards(sprites);
     this._challengeBattleField.setTurnToDownCards(sprites);
-    this._challengeBattleField.moveCardsInlist(sprites);
-    this._challengeBattleField.flipTurnToUpCards(sprites);
-
-    const updateDeckPoints = BoardWindow.createValueUpdate(GameConst.CARDS_IN_DECK, cardsInDeck);
-    const updateHandPoints = BoardWindow.createValueUpdate(GameConst.CARDS_IN_HAND, cardsInHand);
-    const manyUpdates = [
-      updateDeckPoints,
-      updateHandPoints
-    ];
-    this._challengeBoardWindow.updateValues(manyUpdates);
+    const fieldUpdates = sprites.map((sprite, index) => {
+      const count = index + 1;
+      const countCardsInDeck = cardsInDeck - count;
+      const updateDeckPoints = BoardWindow.createValueUpdate(GameConst.CARDS_IN_DECK, countCardsInDeck);
+      const updateHandPoints = BoardWindow.createValueUpdate(GameConst.CARDS_IN_HAND, count);
+      const manyUpdates = [
+        updateDeckPoints,
+        updateHandPoints
+      ];
+      this._challengeBoardWindow.updateValues(manyUpdates);
+    });
+    this._challengeBattleField.moveCardsInlist(sprites, 6, fieldUpdates);
   }
 
   updateGameBoards(playerUpdates, challengeUpdates) {
@@ -5947,8 +5953,10 @@ class DrawPhase extends Phase {
     const sprites = this._playerBattleField.getSprites();
     const sprite = sprites[cardIndex];
     if (updatePoint) {
-      this._playerBattleField.flashCardsAnimate(sprite, 'white', 6);
-      // this._playerBoardWindow.updateValues(updatePoint);
+      const chainAction = () => {
+        this._playerBoardWindow.updateValues(updatePoint);
+      };
+      this._playerBattleField.flashCardsAnimate(sprite, 'white', 6, 1, chainAction);
     }
   }
 
@@ -5956,9 +5964,66 @@ class DrawPhase extends Phase {
     const sprites = this._challengeBattleField.getSprites();
     const sprite = sprites[cardIndex];
     if (updatePoint) {
-      this._challengeBattleField.flashCardsAnimate(sprite, 'white', 6);
-      // this._challengeBoardWindow.updateValues(updatePoint);
+      const chainAction = () => {
+        this._challengeBoardWindow.updateValues(updatePoint);
+      };
+      this._challengeBattleField.flashCardsAnimate(sprite, 'white', 6, 1, chainAction);
     }
+  }
+
+  closeGameObjects() {
+    this.addActions([
+      this.commandClosePlayerBattleField,
+      this.commandCloseChallengeBattleField,
+      this.commandClosePlayerBoardWindow,
+      this.commandClosePlayerBattleWindow,
+      this.commandClosePlayerTrashWindow,
+      this.commandClosePlayerScoreWindow,
+      this.commandCloseChallengeBoardWindow,
+      this.commandCloseChallengeBattleWindow,
+      this.commandCloseChallengeTrashWindow,
+      this.commandCloseChallengeScoreWindow,
+    ]);
+  }
+
+  commandClosePlayerBattleField() {
+    this._playerBattleField.closeCards();
+  }
+
+  commandCloseChallengeBattleField() {
+    this._challengeBattleField.closeCards();
+  }
+
+  commandClosePlayerBoardWindow() {
+    this._playerBoardWindow.close();
+  }
+
+  commandClosePlayerBattleWindow() {
+    this._playerBattleWindow.close();
+  }
+
+  commandClosePlayerTrashWindow() {
+    this._playerTrashWindow.close();
+  }
+
+  commandClosePlayerScoreWindow() {
+    this._playerScoreWindow.close();
+  }
+
+  commandCloseChallengeBoardWindow() {
+    this._challengeBoardWindow.close();
+  }
+
+  commandCloseChallengeBattleWindow() {
+    this._challengeBattleWindow.close();
+  }
+
+  commandCloseChallengeTrashWindow() {
+    this._challengeTrashWindow.close();
+  }
+
+  commandCloseChallengeScoreWindow() {
+    this._challengeScoreWindow.close();
   }
 
   isBusy() {
@@ -7742,7 +7807,6 @@ class ChainActionCardsetSpriteTest extends SceneTest {
     const chainAction = () => {
       this._chainActionActived = true;
       this.subject.damageCardsAnimate(times, sprites, this.scene, chainAction);
-      console.log('chainAction');
     }
     this.subject.damageCardsAnimate(times, sprites, this.scene, chainAction);
   }
@@ -9155,17 +9219,35 @@ class DrawPhaseTest extends SceneTest {
     this.phase.createTitleWindow('Draw Phase');
     this.phase.createDescriptionWindow('6 cards will be drawn.');
     const playerCardsInTrash = 0;
-    const playerCardsInDeck = 40;
     const playerCardsInHand = 0;
-    const playerEnergies = [0, 0, 0, 0, 0];
+    this.playerCardsInHand = [];
+    this.playerCardsInDeck = CardGenerator.generateCards(40, 1);
+    const playerTotalCardsInDeck = this.playerCardsInDeck.length;
+    this.playerEnergies = {
+      [GameConst.RED]: 0,
+      [GameConst.BLUE]: 0,
+      [GameConst.GREEN]: 0,
+      [GameConst.BLACK]: 0,
+      [GameConst.WHITE]: 0,
+    };
+    const playerEnergies = Object.values(this.playerEnergies);
     const playerVictories = 0;
-    this.phase.createPlayerGameBoard(playerCardsInTrash, playerCardsInDeck, playerCardsInHand, playerEnergies, playerVictories);
+    this.phase.createPlayerGameBoard(playerCardsInTrash, playerTotalCardsInDeck, playerCardsInHand, playerEnergies, playerVictories);
     const challengeCardsInTrash = 0;
-    const challengeCardsInDeck = 40;
     const challengeCardsInHand = 0;
-    const challengeEnergies = [0, 0, 0, 0, 0];
+    this.challengeCardsInHand = [];
+    this.challengeCardsInDeck = CardGenerator.generateCards(40, 1);
+    const challengeTotalCardsInDeck = this.challengeCardsInDeck.length;
+    this.challengeEnergies = {
+      [GameConst.RED]: 0,
+      [GameConst.BLUE]: 0,
+      [GameConst.GREEN]: 0,
+      [GameConst.BLACK]: 0,
+      [GameConst.WHITE]: 0,
+    };
+    const challengeEnergies = Object.values(this.challengeEnergies);
     const challengeVictories = 0;
-    this.phase.createChallengeGameBoard(challengeCardsInTrash, challengeCardsInDeck, challengeCardsInHand, challengeEnergies, challengeVictories);
+    this.phase.createChallengeGameBoard(challengeCardsInTrash, challengeTotalCardsInDeck, challengeCardsInHand, challengeEnergies, challengeVictories);
     this.phase.createPlayerBattlefield();
     this.phase.createChallengeBattlefield();
     this.addHiddenWatched(this.phase._titleWindow);
@@ -9191,42 +9273,58 @@ class DrawPhaseTest extends SceneTest {
   update() {
     if (this.phase.isBusy()) return false;
     if (this.phase.isStepStart() && Input.isTriggered('ok')) {
-      const playerCards = CardGenerator.generateCards(6, 1);
-      const challengeCards = CardGenerator.generateCards(6, 1);
       this.phase.closeTextWindows();
       this.phase.stepDrawCards();
       this.phase.openGameBoards();
-
+      
+      const playerCardsInDeck = this.playerCardsInDeck.length;
+      const challengeCardsInDeck = this.challengeCardsInDeck.length;
+      const playerCards = this.playerCardsInDeck.splice(0, 6);
+      const challengeCards = this.challengeCardsInDeck.splice(0, 6);
+      this.playerCardsInHand = playerCards;
+      this.challengeCardsInHand = challengeCards;
       const playerData = {
         cards: playerCards,
-        cardsInHand: 6,
-        cardsInDeck: (40 - 6),
+        cardsInDeck: playerCardsInDeck,
       };
       const challengeData = {
         cards: challengeCards,
-        cardsInHand: 6,
-        cardsInDeck: (40 - 6),
+        cardsInDeck: challengeCardsInDeck,
       };
       this.phase.drawCards(playerData, challengeData);
 
-      const playerFieldUpdates = playerCards.map((card, cardIndex) => {
-        const { color } = card;
-        if (color === GameConst.BROWN) return false;
-        const updatePoint = BoardWindow.createValueUpdate(color, 1);
-        return { cardIndex, updatePoint };
-      });
-      const challengeFieldUpdates = challengeCards.map((card, cardIndex) => {
-        const { color } = card;
-        if (color === GameConst.BROWN) return false;
-        const updatePoint = BoardWindow.createValueUpdate(color, 1);
-        return { cardIndex, updatePoint };
-      });
+      const playerEnergies = Object.assign({}, this.playerEnergies);
+      const { 
+        fieldUpdates: playerFieldUpdates, 
+        energies: playerEnergiesUpdated 
+      } = this.createFieldUpdates(playerCards, playerEnergies);
+      this.playerEnergies = playerEnergiesUpdated;
+
+      const challengeEnergies = Object.assign({}, this.challengeEnergies);
+      const { 
+        fieldUpdates: challengeFieldUpdates, 
+        energies: challengeEnergiesUpdated 
+      } = this.createFieldUpdates(challengeCards, challengeEnergies);
+      this.challengeEnergies = challengeEnergiesUpdated;
 
       this.phase.updateGameBoards(playerFieldUpdates, challengeFieldUpdates);
     }
     if (this.phase.isStepDrawCards() && Input.isTriggered('ok')) {
+      this.phase.closeGameObjects();
       this.phase.addAction(this.endTest);
     }
+  }
+
+  createFieldUpdates(cards, energies) {
+    const fieldUpdates = cards.map((card, cardIndex) => {
+      const { color } = card;
+      if (color === GameConst.BROWN) return false;
+      energies[color] += 1;
+      const points = energies[color];
+      const updatePoint = BoardWindow.createValueUpdate(color, points);
+      return { cardIndex, updatePoint };
+    });
+    return { fieldUpdates, energies };
   }
   
   asserts() {
@@ -9241,6 +9339,10 @@ class DrawPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de batalha do desafiante foi apresentada?', 'visible', this.phase._challengeBattleWindow);
     this.expectWasTrue('A janela de lixo do desafiante foi apresentada?', 'visible', this.phase._challengeTrashWindow);
     this.expectWasTrue('A janela de pontuação do desafiante foi apresentada?', 'visible', this.phase._challengeScoreWindow);
+    this.expectTrue('O total de cards no campo do jogar é?', this.playerCardsInDeck.length === 34);
+    this.expectTrue('O total de cards no campo do desafiante é?', this.challengeCardsInDeck.length === 34);
+    this.expectTrue('O total de cards na mão do jogador é?', this.playerCardsInHand.length === 6);
+    this.expectTrue('O total de cards na mão do desafiante é?', this.challengeCardsInHand.length === 6);
   }
 }
 
@@ -9497,7 +9599,7 @@ class CardBattleTestScene extends Scene_Message {
     ];
     return [
       // ...cardSpriteTests,
-      ...cardsetSpriteTests,
+      // ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,
@@ -9506,7 +9608,7 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      // ...phase,
+      ...phase,
     ];
   }
 
