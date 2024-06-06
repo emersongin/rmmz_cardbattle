@@ -60,6 +60,7 @@
 // include ../test/integration/card/FlipTurnToUpCardSpriteTest.js
 // include ../test/integration/card/FlipTurnToDownCardSpriteTest.js
 // include ../test/integration/card/UpdatingPointsCardSpriteTest.js
+// include ../test/integration/card/ChainAcitonCardSpriteTest.js
 // tests CARDSET
 // include ../test/integration/cardset/StartPositionCardsetSpriteTest.js
 // include ../test/integration/cardset/SetCardsCardsetSpriteTest.js

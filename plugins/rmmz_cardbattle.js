@@ -2366,7 +2366,10 @@ class ActionSprite extends Sprite {
   }
 
   addCommand(fn, ...params) {
-    const command = this.createCommand({ fn, delay: 0 }, ...params);
+    const pop = params.slice(-1)[0];
+    let chainAction = null;
+    if (pop) chainAction = pop;
+    const command = this.createCommand({ fn, delay: 0, chainAction }, ...params);
     this.addCommands(command);
   }
 
@@ -2376,12 +2379,13 @@ class ActionSprite extends Sprite {
   }
 
   createCommand(props, ...params) {
-    const { fn, delay } = props;
+    const { fn, delay, chainAction } = props;
     const command = { 
       fn: fn.name || 'anonymous',
       delay: delay || 0,
       execute: () => {
         const result = fn.call(this, ...params);
+        if (typeof chainAction === 'function') chainAction();
         return typeof result === 'boolean' ? result : true;
       }
     };
@@ -3879,9 +3883,9 @@ class CardSprite extends ActionSprite {
     return this.getBehavior(CardSpriteFlashedBehavior) instanceof CardSpriteFlashedBehavior;
   }
 
-  damage(times = 1, anchorParent = this.parent) {
+  damage(times = 1, anchorParent = this.parent, chainAction) {
     const animation = this.damageAnimation();
-    this.addCommand(this.commandAnimate, animation, times, anchorParent);
+    this.addCommand(this.commandAnimate, animation, times, anchorParent, chainAction);
   }
 
   damageAnimation() {
@@ -5943,8 +5947,8 @@ class DrawPhase extends Phase {
     const sprites = this._playerBattleField.getSprites();
     const sprite = sprites[cardIndex];
     if (updatePoint) {
-      this._playerBattleField.flashCardsAnimate(sprite, 'white', 4);
-      this._playerBoardWindow.updateValues(updatePoint);
+      this._playerBattleField.flashCardsAnimate(sprite, 'white', 6);
+      // this._playerBoardWindow.updateValues(updatePoint);
     }
   }
 
@@ -5952,8 +5956,8 @@ class DrawPhase extends Phase {
     const sprites = this._challengeBattleField.getSprites();
     const sprite = sprites[cardIndex];
     if (updatePoint) {
-      this._challengeBattleField.flashCardsAnimate(sprite, 'white', 4);
-      this._challengeBoardWindow.updateValues(updatePoint);
+      this._challengeBattleField.flashCardsAnimate(sprite, 'white', 6);
+      // this._challengeBoardWindow.updateValues(updatePoint);
     }
   }
 
@@ -6929,6 +6933,48 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
   asserts() {
     this.describe('Deve atualizar os pontos do card!');
     this.expectWasTrue('Foram atualizandos?', this.subject.isUpdatingPoints);
+  }
+}
+class ChainAcitonCardSpriteTest extends SceneTest {
+  create() {
+    const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
+    const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
+    this.base = CardsetSprite.create(x, y);
+    this.attachChild(this.base);
+    this.base.setBackgroundColor('black');
+    this.base.show();
+    const card = CardGenerator.generateCard();
+    this.subject = CardSprite.create(
+      card.type,
+      card.color,
+      card.figureName,
+      card.attack,
+      card.health
+    );
+    this.addHiddenWatched(this.subject);
+    const centerXPosition = ScreenHelper.getPositionInCenterOf(this.base.width, this.subject.width);
+    const centerYPosition = 0;
+    this.subject.startOpen(centerXPosition, centerYPosition);
+    this.subject.show();
+    this.base.addChild(this.subject);
+    const times = 1;
+    this._chainActionActived = false;
+    const chainAction = () => {
+      this._chainActionActived = true;
+      this.subject.damage(times, this.scene);
+    }
+    this.subject.damage(times, this.scene, chainAction);
+  }
+
+  start() {
+    this.counter = (GameConst.FPS * 3);
+  }
+
+  asserts() {
+    this.describe('Deve receber uma animação em cadeia!');
+    this.expectTrue('Base é visível?', this.base.isVisible());
+    this.expectWasTrue('Houve animação?', this.subject.isAnimationPlaying);
+    this.expectTrue('Houve animação em cadeia?', this._chainActionActived);
   }
 }
 // tests CARDSET
@@ -9259,30 +9305,31 @@ class CardBattleTestScene extends Scene_Message {
   
   testsData() {
     const cardSpriteTests = [
-      SizeCardSpriteTest,
-      ErroOnCreateCardSpriteTest,
-      StartOpenCardSpriteTest,
-      StartClosedCardSpriteTest,
-      OpenCardSpriteTest,
-      CloseCardSpriteTest,
-      DisableCardSpriteTest,
-      EnableCardSpriteTest,
-      MoveCardSpriteTest,
-      HoveredCardSpriteTest,
-      UnhoveredCardSpriteTest,
-      SelectedCardSpriteTest,
-      UnselectedCardSpriteTest,
-      IluminatedCardSpriteTest,
-      UniluminatedCardSpriteTest,
-      FlashCardSpriteTest,
-      AnimationCardSpriteTest,
-      QuakeCardSpriteTest,
-      ZoomCardSpriteTest,
-      ZoomOutCardSpriteTest,
-      LeaveCardSpriteTest,
-      FlipTurnToUpCardSpriteTest,
-      FlipTurnToDownCardSpriteTest,
-      UpdatingPointsCardSpriteTest
+      // SizeCardSpriteTest,
+      // ErroOnCreateCardSpriteTest,
+      // StartOpenCardSpriteTest,
+      // StartClosedCardSpriteTest,
+      // OpenCardSpriteTest,
+      // CloseCardSpriteTest,
+      // DisableCardSpriteTest,
+      // EnableCardSpriteTest,
+      // MoveCardSpriteTest,
+      // HoveredCardSpriteTest,
+      // UnhoveredCardSpriteTest,
+      // SelectedCardSpriteTest,
+      // UnselectedCardSpriteTest,
+      // IluminatedCardSpriteTest,
+      // UniluminatedCardSpriteTest,
+      // FlashCardSpriteTest,
+      // AnimationCardSpriteTest,
+      // QuakeCardSpriteTest,
+      // ZoomCardSpriteTest,
+      // ZoomOutCardSpriteTest,
+      // LeaveCardSpriteTest,
+      // FlipTurnToUpCardSpriteTest,
+      // FlipTurnToDownCardSpriteTest,
+      // UpdatingPointsCardSpriteTest,
+      ChainAcitonCardSpriteTest,
     ];
     const cardsetSpriteTests = [
       StartPositionCardsetSpriteTest,
@@ -9418,7 +9465,7 @@ class CardBattleTestScene extends Scene_Message {
       DrawPhaseTest,
     ];
     return [
-      // ...cardSpriteTests,
+      ...cardSpriteTests,
       // ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
@@ -9428,7 +9475,7 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      ...phase,
+      // ...phase,
     ];
   }
 

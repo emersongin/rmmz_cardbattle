@@ -25,7 +25,10 @@ class ActionSprite extends Sprite {
   }
 
   addCommand(fn, ...params) {
-    const command = this.createCommand({ fn, delay: 0 }, ...params);
+    const pop = params.slice(-1)[0];
+    let chainAction = null;
+    if (pop) chainAction = pop;
+    const command = this.createCommand({ fn, delay: 0, chainAction }, ...params);
     this.addCommands(command);
   }
 
@@ -35,12 +38,13 @@ class ActionSprite extends Sprite {
   }
 
   createCommand(props, ...params) {
-    const { fn, delay } = props;
+    const { fn, delay, chainAction } = props;
     const command = { 
       fn: fn.name || 'anonymous',
       delay: delay || 0,
       execute: () => {
         const result = fn.call(this, ...params);
+        if (typeof chainAction === 'function') chainAction();
         return typeof result === 'boolean' ? result : true;
       }
     };

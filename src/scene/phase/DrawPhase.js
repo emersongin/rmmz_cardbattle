@@ -254,8 +254,8 @@ class DrawPhase extends Phase {
     const sprites = this._playerBattleField.getSprites();
     const sprite = sprites[cardIndex];
     if (updatePoint) {
-      this._playerBattleField.flashCardsAnimate(sprite, 'white', 4);
-      this._playerBoardWindow.updateValues(updatePoint);
+      this._playerBattleField.flashCardsAnimate(sprite, 'white', 6);
+      // this._playerBoardWindow.updateValues(updatePoint);
     }
   }
 
@@ -263,8 +263,8 @@ class DrawPhase extends Phase {
     const sprites = this._challengeBattleField.getSprites();
     const sprite = sprites[cardIndex];
     if (updatePoint) {
-      this._challengeBattleField.flashCardsAnimate(sprite, 'white', 4);
-      this._challengeBoardWindow.updateValues(updatePoint);
+      this._challengeBattleField.flashCardsAnimate(sprite, 'white', 6);
+      // this._challengeBoardWindow.updateValues(updatePoint);
     }
   }
 

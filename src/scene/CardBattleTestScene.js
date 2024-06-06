@@ -30,30 +30,31 @@ class CardBattleTestScene extends Scene_Message {
   
   testsData() {
     const cardSpriteTests = [
-      SizeCardSpriteTest,
-      ErroOnCreateCardSpriteTest,
-      StartOpenCardSpriteTest,
-      StartClosedCardSpriteTest,
-      OpenCardSpriteTest,
-      CloseCardSpriteTest,
-      DisableCardSpriteTest,
-      EnableCardSpriteTest,
-      MoveCardSpriteTest,
-      HoveredCardSpriteTest,
-      UnhoveredCardSpriteTest,
-      SelectedCardSpriteTest,
-      UnselectedCardSpriteTest,
-      IluminatedCardSpriteTest,
-      UniluminatedCardSpriteTest,
-      FlashCardSpriteTest,
-      AnimationCardSpriteTest,
-      QuakeCardSpriteTest,
-      ZoomCardSpriteTest,
-      ZoomOutCardSpriteTest,
-      LeaveCardSpriteTest,
-      FlipTurnToUpCardSpriteTest,
-      FlipTurnToDownCardSpriteTest,
-      UpdatingPointsCardSpriteTest
+      // SizeCardSpriteTest,
+      // ErroOnCreateCardSpriteTest,
+      // StartOpenCardSpriteTest,
+      // StartClosedCardSpriteTest,
+      // OpenCardSpriteTest,
+      // CloseCardSpriteTest,
+      // DisableCardSpriteTest,
+      // EnableCardSpriteTest,
+      // MoveCardSpriteTest,
+      // HoveredCardSpriteTest,
+      // UnhoveredCardSpriteTest,
+      // SelectedCardSpriteTest,
+      // UnselectedCardSpriteTest,
+      // IluminatedCardSpriteTest,
+      // UniluminatedCardSpriteTest,
+      // FlashCardSpriteTest,
+      // AnimationCardSpriteTest,
+      // QuakeCardSpriteTest,
+      // ZoomCardSpriteTest,
+      // ZoomOutCardSpriteTest,
+      // LeaveCardSpriteTest,
+      // FlipTurnToUpCardSpriteTest,
+      // FlipTurnToDownCardSpriteTest,
+      // UpdatingPointsCardSpriteTest,
+      ChainAcitonCardSpriteTest,
     ];
     const cardsetSpriteTests = [
       StartPositionCardsetSpriteTest,
@@ -189,7 +190,7 @@ class CardBattleTestScene extends Scene_Message {
       DrawPhaseTest,
     ];
     return [
-      // ...cardSpriteTests,
+      ...cardSpriteTests,
       // ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
@@ -199,7 +200,7 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      ...phase,
+      // ...phase,
     ];
   }
 
