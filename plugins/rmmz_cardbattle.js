@@ -4734,9 +4734,9 @@ class CardsetSprite extends ActionSprite {
     return this._sprites.some(sprite => sprite.isMoving());
   }
 
-  damageCardsAnimate(times = 1, sprites = this._sprites, anchorParent = this.parent) {
+  damageCardsAnimate(times = 1, sprites = this._sprites, anchorParent = this.parent, chainAction) {
     sprites = this.toArray(sprites);
-    this.addCommand(this.commandAnimateCardsDamage, times, sprites, anchorParent);
+    this.addCommand(this.commandAnimateCardsDamage, times, sprites, anchorParent, chainAction);
   }
 
   commandAnimateCardsDamage(times, sprites, anchorParent) {
@@ -7727,6 +7727,36 @@ class AlignBelowOfCardsetSpriteTest extends SceneTest {
     this.expectTrue('Esta na posição vertical acima do meio?', this.subject.y === y);
   }
 }
+class ChainActionCardsetSpriteTest extends SceneTest {
+  create() {
+    this.subject = CardsetSprite.create(0, 0);
+    this.addWatched(this.subject);
+    this.subject.centralize();
+    this.subject.show();
+    const numCards = 6;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.listCards(cards);
+    this.subject.showCards(sprites);
+    const times = 1;
+    this._chainActionActived = false;
+    const chainAction = () => {
+      this._chainActionActived = true;
+      this.subject.damageCardsAnimate(times, sprites, this.scene, chainAction);
+      console.log('chainAction');
+    }
+    this.subject.damageCardsAnimate(times, sprites, this.scene, chainAction);
+  }
+
+  start() {
+    this.counter = (GameConst.FPS * 3);
+  }
+
+  asserts() {
+    this.describe('Deve animar as cartas!');
+    this.expectWasTrue('Houve um frame de animação?', this.subject.someSpriteIsAnimationPlaying);
+    this.expectTrue('Houve animação em cadeia?', this._chainActionActived);
+  }
+}
 // tests STATE WINDOW
 class OpenStateWindowTest extends SceneTest {
   create() {
@@ -9332,40 +9362,41 @@ class CardBattleTestScene extends Scene_Message {
       ChainAcitonCardSpriteTest,
     ];
     const cardsetSpriteTests = [
-      StartPositionCardsetSpriteTest,
-      AlignAboveOfCardsetSpriteTest,
-      AlignBelowOfCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      SetTurnToDownCardsCardsetSpriteTest,
-      SetAllCardsInPositionCardsetSpriteTest,
-      SetAllCardsInPositionsCardsetSpriteTest,
-      ListCardsCardsetSpriteTest,
-      StartClosedCardsCardsetSpriteTest,
-      OpenAllCardsCardsetSpriteTest,
-      OpenCardsCardsetSpriteTest,
-      CloseAllCardsCardsetSpriteTest,
-      CloseCardsCardsetSpriteTest,
-      MoveAllCardsInListCardsetSpriteTest,
-      MoveCardsInListCardsetSpriteTest,
-      MoveAllCardsToPositionCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
-      MoveAllCardsToPositionsCardsetSpriteTest,
-      AddAllCardsToListCardsetSpriteTest,
-      AddCardsToListCardsetSpriteTest,
-      DisableCardsCardsetSpriteTest,
-      StaticModeCardsetSpriteTest,
-      SelectModeCardsetSpriteTest,
-      SelectModeNoSelectCardsetSpriteTest,
-      SelectModeLimitedCardsetSpriteTest,
-      FlashCardsCardsetSpriteTest,
-      QuakeCardsCardsetSpriteTest,
-      AnimationCardsCardsetSpriteTest,
-      ShowOrderingCardsCardsetSpriteTest,
-      ShowReverseOrderingCardsCardsetSpriteTest,
-      ZoomAllCardsCardsetSpriteTest,
-      ZoomOutAllCardsCardsetSpriteTest,
-      FlipTurnToUpAllCardsCardsetSpriteTest,
-      FlipTurnToUpCardsCardsetSpriteTest,
+      // StartPositionCardsetSpriteTest,
+      // AlignAboveOfCardsetSpriteTest,
+      // AlignBelowOfCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      // SetTurnToDownCardsCardsetSpriteTest,
+      // SetAllCardsInPositionCardsetSpriteTest,
+      // SetAllCardsInPositionsCardsetSpriteTest,
+      // ListCardsCardsetSpriteTest,
+      // StartClosedCardsCardsetSpriteTest,
+      // OpenAllCardsCardsetSpriteTest,
+      // OpenCardsCardsetSpriteTest,
+      // CloseAllCardsCardsetSpriteTest,
+      // CloseCardsCardsetSpriteTest,
+      // MoveAllCardsInListCardsetSpriteTest,
+      // MoveCardsInListCardsetSpriteTest,
+      // MoveAllCardsToPositionCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
+      // MoveAllCardsToPositionsCardsetSpriteTest,
+      // AddAllCardsToListCardsetSpriteTest,
+      // AddCardsToListCardsetSpriteTest,
+      // DisableCardsCardsetSpriteTest,
+      // StaticModeCardsetSpriteTest,
+      // SelectModeCardsetSpriteTest,
+      // SelectModeNoSelectCardsetSpriteTest,
+      // SelectModeLimitedCardsetSpriteTest,
+      // FlashCardsCardsetSpriteTest,
+      // QuakeCardsCardsetSpriteTest,
+      // AnimationCardsCardsetSpriteTest,
+      // ShowOrderingCardsCardsetSpriteTest,
+      // ShowReverseOrderingCardsCardsetSpriteTest,
+      // ZoomAllCardsCardsetSpriteTest,
+      // ZoomOutAllCardsCardsetSpriteTest,
+      // FlipTurnToUpAllCardsCardsetSpriteTest,
+      // FlipTurnToUpCardsCardsetSpriteTest,
+      ChainActionCardsetSpriteTest,
     ];
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,
@@ -9465,8 +9496,8 @@ class CardBattleTestScene extends Scene_Message {
       DrawPhaseTest,
     ];
     return [
-      ...cardSpriteTests,
-      // ...cardsetSpriteTests,
+      // ...cardSpriteTests,
+      ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,

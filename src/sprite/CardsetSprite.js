@@ -421,9 +421,9 @@ class CardsetSprite extends ActionSprite {
     return this._sprites.some(sprite => sprite.isMoving());
   }
 
-  damageCardsAnimate(times = 1, sprites = this._sprites, anchorParent = this.parent) {
+  damageCardsAnimate(times = 1, sprites = this._sprites, anchorParent = this.parent, chainAction) {
     sprites = this.toArray(sprites);
-    this.addCommand(this.commandAnimateCardsDamage, times, sprites, anchorParent);
+    this.addCommand(this.commandAnimateCardsDamage, times, sprites, anchorParent, chainAction);
   }
 
   commandAnimateCardsDamage(times, sprites, anchorParent) {
