@@ -1,7 +1,7 @@
 class StartPhase extends Phase {
-  _cardDrawGameCardset;
+  _cardDrawGameCardset = {};
   _resultWindow = {};
-  _cards;
+  _cards = [];
 
   createCardDrawGameCardset() {
     this._cardDrawGameCardset = CardsetSprite.create(0, 0);

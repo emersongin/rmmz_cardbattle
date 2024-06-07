@@ -4,6 +4,7 @@ class Phase {
   _step = 'START';
   _wait = 0;
   _childrenToAdd = [];
+  _childrenToAddLast = [];
   _titleWindow = {};
   _descriptionWindow = {};
 
@@ -161,8 +162,13 @@ class Phase {
     this._childrenToAdd.push(child);
   }
 
+  attachChildLast(child) {
+    this._childrenToAddLast.push(child);
+  }
+
   addChildren() {
     this._childrenToAdd.forEach(child => this.addChild(child));
+    this._childrenToAddLast.forEach(child => this.addChild(child));
   }
 
   addChild(child) {

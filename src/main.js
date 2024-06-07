@@ -33,6 +33,7 @@
 // include ./scene/phase/ChallengePhase.js
 // include ./scene/phase/StartPhase.js
 // include ./scene/phase/DrawPhase.js
+// include ./scene/phase/LoadPhase.js
 // include ../test/integration/SceneTest.js
 
 // tests CARD Sprite
@@ -186,6 +187,7 @@
 // include ../test/integration/phase/ChallengePhaseTest.js
 // include ../test/integration/phase/StartPhaseTest.js
 // include ../test/integration/phase/DrawPhaseTest.js
+// include ../test/integration/phase/LoadPhaseTest.js
 
 // include ./scene/CardBattleScene.js
 // include ./scene/CardBattleTestScene.js

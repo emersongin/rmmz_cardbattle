@@ -1,5 +1,5 @@
 class ChallengePhase extends Phase {
-  _folderWindow;
+  _folderWindow = {};
 
   createFolderWindow(text, folders) {
     const energies = folders.map(folder => FolderWindow.createEnergies(...folder.energies));

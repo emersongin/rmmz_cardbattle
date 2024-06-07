@@ -1,14 +1,14 @@
 class DrawPhase extends Phase {
-  _playerBoardWindow;
-  _playerBattleWindow;
-  _playerTrashWindow;
-  _playerScoreWindow;
-  _playerBattleField;
-  _challengeBoardWindow;
-  _challengeBattleWindow;
-  _challengeTrashWindow;
-  _challengeScoreWindow;
-  _challengeBattleField;
+  _playerBoardWindow = {};
+  _playerBattleWindow = {};
+  _playerTrashWindow = {};
+  _playerScoreWindow = {};
+  _playerBattleField = {};
+  _challengeBoardWindow = {};
+  _challengeBattleWindow = {};
+  _challengeTrashWindow = {};
+  _challengeScoreWindow = {};
+  _challengeBattleField = {};
 
   createPlayerGameBoard(cardsInTrash, cardsInDeck, cardsInHand, energies, victories) {
     this.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand);
@@ -63,8 +63,6 @@ class DrawPhase extends Phase {
     const y = ScreenHelper.getBottomPosition(height);
     this._playerBattleField.alignAboveOf({ y, height });
     this.attachChild(this._playerBattleField);
-    
-
   }
 
   getPaddingLeftBattleField() {
