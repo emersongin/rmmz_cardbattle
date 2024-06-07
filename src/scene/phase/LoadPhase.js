@@ -1,5 +1,6 @@
 class LoadPhase extends Phase {
   _textWindow = {};
+  _askWindow = {};
   _playerBoardWindow = {};
   _playerBattleWindow = {};
   _playerTrashWindow = {};
@@ -133,8 +134,9 @@ class LoadPhase extends Phase {
     return this.isCurrentStep(GameConst.CHALLENGE_LOAD_PHASE);
   }
 
-  stepEndLoadPhase() {
-    this.addAction(this.commandChangeStep, GameConst.END_LOAD_PHASE);
+  stepWaintingPhase() {
+    this._step = GameConst.WAITING_PHASE;
+    this._wait = 0.5 * GameConst.FPS;
   }
 
   openGameBoards() {
@@ -212,6 +214,30 @@ class LoadPhase extends Phase {
 
   commandPlayerPass() {
     this._playerBoardWindow.pass();
+  }
+
+  createAskWindow(text, yesHandler, noHanlder) {
+    const commandYes = CommandWindow.createCommand('Yes', 'YES', yesHandler);
+    const commandNo = CommandWindow.createCommand('No', 'NO', noHanlder);
+    this._askWindow = CommandWindow.create(0, 0, [text], [commandYes, commandNo]);
+    this._askWindow.alignBottom();
+    this.addWindow(this._askWindow);
+  }
+
+  openAskWindow() {
+    this.addAction(this.commandOpenAskWindow);
+  }
+
+  commandOpenAskWindow() {
+    this._askWindow.open();
+  }
+
+  closeAskWindow() {
+    this.addAction(this.commandCloseAskWindow);
+  }
+
+  commandCloseAskWindow() {
+    this._askWindow.close();
   }
   
   isBusy() {

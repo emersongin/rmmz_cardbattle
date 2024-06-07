@@ -80,14 +80,27 @@ class LoadPhaseTest extends SceneTest {
     if (this.phase.isStepChallengeLoadPhase()) {
       this.challengePassed = true;
       this.phase.chanllengePass();
-      this.phase.stepEndLoadPhase();
+      this.phase.stepWaintingPhase();
       if (!this.playerPassed) this.phase.stepPlayerLoadPhase();
     }
     if (this.phase.isStepPlayerLoadPhase()) {
-      this.playerPassed = true;
-      this.phase.playerPass();
-      this.phase.stepEndLoadPhase();
-      if (!this.challengePassed) this.phase.stepChallengeLoadPhase();
+      const commandYes = () => {
+        this.phase.closeAskWindow();
+        this.playerPassed = true;
+        this.phase.playerPass();
+        this.phase.stepWaintingPhase();
+        if (!this.challengePassed) this.phase.stepChallengeLoadPhase();
+      };
+      const commandNo = () => {
+        this.phase.closeAskWindow();
+        this.playerPassed = true;
+        this.phase.playerPass();
+        this.phase.stepWaintingPhase();
+        if (!this.challengePassed) this.phase.stepChallengeLoadPhase();
+      };
+      this.phase.createAskWindow('Use a Program Card?', commandYes, commandNo);
+      this.phase.openAskWindow();
+      this.phase.stepWaintingPhase();
     }
     if (this.playerPassed && this.challengePassed) {
       this.phase.addAction(this.endTest);

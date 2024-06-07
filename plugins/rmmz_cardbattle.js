@@ -75,6 +75,7 @@ const GameConst = {
   PLAYER_LOAD_PHASE: 'PLAYER_LOAD_PHASE',
   CHALLENGE_LOAD_PHASE: 'CHALLENGE_LOAD_PHASE',
   END_LOAD_PHASE: 'END_LOAD_PHASE',
+  WAITING_PHASE: 'WAITING_PHASE',
 };
 
 const CardTypes = {
@@ -1114,6 +1115,7 @@ class CommandWindow extends Window_Command {
 
   executeAction() {
     const action = this._actionQueue[0];
+    console.log(action);
     const executed = action.execute();
     if (executed) {
       this._actionQueue.shift();
@@ -6055,6 +6057,7 @@ class DrawPhase extends Phase {
 }
 class LoadPhase extends Phase {
   _textWindow = {};
+  _askWindow = {};
   _playerBoardWindow = {};
   _playerBattleWindow = {};
   _playerTrashWindow = {};
@@ -6188,8 +6191,9 @@ class LoadPhase extends Phase {
     return this.isCurrentStep(GameConst.CHALLENGE_LOAD_PHASE);
   }
 
-  stepEndLoadPhase() {
-    this.addAction(this.commandChangeStep, GameConst.END_LOAD_PHASE);
+  stepWaintingPhase() {
+    this._step = GameConst.WAITING_PHASE;
+    this._wait = 0.5 * GameConst.FPS;
   }
 
   openGameBoards() {
@@ -6267,6 +6271,30 @@ class LoadPhase extends Phase {
 
   commandPlayerPass() {
     this._playerBoardWindow.pass();
+  }
+
+  createAskWindow(text, yesHandler, noHanlder) {
+    const commandYes = CommandWindow.createCommand('Yes', 'YES', yesHandler);
+    const commandNo = CommandWindow.createCommand('No', 'NO', noHanlder);
+    this._askWindow = CommandWindow.create(0, 0, [text], [commandYes, commandNo]);
+    this._askWindow.alignBottom();
+    this.addWindow(this._askWindow);
+  }
+
+  openAskWindow() {
+    this.addAction(this.commandOpenAskWindow);
+  }
+
+  commandOpenAskWindow() {
+    this._askWindow.open();
+  }
+
+  closeAskWindow() {
+    this.addAction(this.commandCloseAskWindow);
+  }
+
+  commandCloseAskWindow() {
+    this._askWindow.close();
   }
   
   isBusy() {
@@ -9671,14 +9699,27 @@ class LoadPhaseTest extends SceneTest {
     if (this.phase.isStepChallengeLoadPhase()) {
       this.challengePassed = true;
       this.phase.chanllengePass();
-      this.phase.stepEndLoadPhase();
+      this.phase.stepWaintingPhase();
       if (!this.playerPassed) this.phase.stepPlayerLoadPhase();
     }
     if (this.phase.isStepPlayerLoadPhase()) {
-      this.playerPassed = true;
-      this.phase.playerPass();
-      this.phase.stepEndLoadPhase();
-      if (!this.challengePassed) this.phase.stepChallengeLoadPhase();
+      const commandYes = () => {
+        this.phase.closeAskWindow();
+        this.playerPassed = true;
+        this.phase.playerPass();
+        this.phase.stepWaintingPhase();
+        if (!this.challengePassed) this.phase.stepChallengeLoadPhase();
+      };
+      const commandNo = () => {
+        this.phase.closeAskWindow();
+        this.playerPassed = true;
+        this.phase.playerPass();
+        this.phase.stepWaintingPhase();
+        if (!this.challengePassed) this.phase.stepChallengeLoadPhase();
+      };
+      this.phase.createAskWindow('Use a Program Card?', commandYes, commandNo);
+      this.phase.openAskWindow();
+      this.phase.stepWaintingPhase();
     }
     if (this.playerPassed && this.challengePassed) {
       this.phase.addAction(this.endTest);
