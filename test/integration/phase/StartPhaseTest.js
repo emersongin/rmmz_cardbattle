@@ -8,8 +8,8 @@ class StartPhaseTest extends SceneTest {
     this.phase.createTitleWindow('Start Phase');
     this.phase.createDescriptionWindow('Draw Calumon to go first.');
     this.phase.createCardDrawGameCardset();
-    this.addHiddenWatched(this.phase._titleWindow);
-    this.addHiddenWatched(this.phase._descriptionWindow);
+    this.addHiddenWatched(this.phase.getTitleWindow());
+    this.addHiddenWatched(this.phase.getDescriptionWindow());
     this.addHiddenWatched(this.phase._cardDrawGameCardset);
     this.addHiddenWatched(this.phase._resultWindow);
     this.endTest = this.createHandler();
@@ -41,14 +41,11 @@ class StartPhaseTest extends SceneTest {
 
   asserts() {
     this.describe('Deve apresentar etapas de fase de início e jogo da sorte.');
-    this.expectWasTrue('A janela de título foi apresentada?', 'visible', this.phase._titleWindow);
-    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase._descriptionWindow);
-    this.expectWasTrue('A janela de resultado foi apresentada?', 'visible', this.phase._resultWindow);
-    this.expectWasTrue(
-      'O set de cartas estava em modo seleção?', 
-      this.phase._cardDrawGameCardset.isSelectMode, 
-      this.phase._cardDrawGameCardset
-    );
+    const cardset = this.phase.getCardDrawGameCardset();
+    this.expectWasTrue('A janela de título foi apresentada?', 'visible', this.phase.getTitleWindow());
+    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase.getDescriptionWindow());
+    this.expectWasTrue('A janela de resultado foi apresentada?', 'visible', this.phase.getResultWindow());
+    this.expectWasTrue('O set de cartas estava em modo seleção?', cardset.isSelectMode, cardset);
     this.expectTrue('O resultado do jogo da sorte foi apresentado?', typeof this.gameResult === 'boolean');
   }
 }

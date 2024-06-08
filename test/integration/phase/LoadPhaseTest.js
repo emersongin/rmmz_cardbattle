@@ -40,17 +40,17 @@ class LoadPhaseTest extends SceneTest {
     const challengeEnergies = Object.values(this.challengeEnergies);
     const challengeVictories = 0;
     this.phase.createChallengeGameBoard(challengeCardsInTrash, challengeTotalCardsInDeck, challengeCardsInHand, challengeEnergies, challengeVictories);
-    this.addHiddenWatched(this.phase._titleWindow);
-    this.addHiddenWatched(this.phase._descriptionWindow);
-    this.addHiddenWatched(this.phase._textWindow);
-    this.addHiddenWatched(this.phase._playerBoardWindow);
-    this.addHiddenWatched(this.phase._playerBattleWindow);
-    this.addHiddenWatched(this.phase._playerTrashWindow);
-    this.addHiddenWatched(this.phase._playerScoreWindow);
-    this.addHiddenWatched(this.phase._challengeBoardWindow);
-    this.addHiddenWatched(this.phase._challengeBattleWindow);
-    this.addHiddenWatched(this.phase._challengeTrashWindow);
-    this.addHiddenWatched(this.phase._challengeScoreWindow);
+    this.addHiddenWatched(this.phase.getTitleWindow());
+    this.addHiddenWatched(this.phase.getDescriptionWindow());
+    this.addHiddenWatched(this.phase.getTextWindow());
+    this.addHiddenWatched(this.phase.getPlayerBoardWindow());
+    this.addHiddenWatched(this.phase.getPlayerBattleWindow());
+    this.addHiddenWatched(this.phase.getPlayerTrashWindow());
+    this.addHiddenWatched(this.phase.getPlayerScoreWindow());
+    this.addHiddenWatched(this.phase.getChallengeBoardWindow());
+    this.addHiddenWatched(this.phase.getChallengeBattleWindow());
+    this.addHiddenWatched(this.phase.getChallengeTrashWindow());
+    this.addHiddenWatched(this.phase.getChallengeScoreWindow());
     this.endTest = this.createHandler();
   }
   
@@ -109,6 +109,6 @@ class LoadPhaseTest extends SceneTest {
   
   asserts() {
     this.describe('Deve apresentar etapas de fase de carregamento.');
-    this.expectWasTrue('A janela de texto foi apresentada?', 'visible', this.phase._textWindow);
+    this.expectWasTrue('A janela de texto foi apresentada?', 'visible', this.phase.getTextWindow());
   }
 }

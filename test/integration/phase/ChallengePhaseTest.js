@@ -27,9 +27,9 @@ class ChallengePhaseTest extends SceneTest {
         handler: selectHandler, 
     }];
     this.phase.createFolderWindow('Choose a folder', folders);
-    this.addHiddenWatched(this.phase._titleWindow);
-    this.addHiddenWatched(this.phase._descriptionWindow);
-    this.addHiddenWatched(this.phase._folderWindow);
+    this.addHiddenWatched(this.phase.getTitleWindow());
+    this.addHiddenWatched(this.phase.getDescriptionWindow());
+    this.addHiddenWatched(this.phase.getFolderWindow());
     this.endTest = this.createHandler();
   }
 
@@ -54,9 +54,9 @@ class ChallengePhaseTest extends SceneTest {
 
   asserts() {
     this.describe('Deve apresentar etapas de fase de desafiado e seleção de pasta.');
-    this.expectWasTrue('A janela de título foi apresentada?', 'visible', this.phase._titleWindow);
-    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase._descriptionWindow);
-    this.expectWasTrue('A Janela de escolah de pastas foi apresentada?', 'visible', this.phase._folderWindow);
+    this.expectWasTrue('A janela de título foi apresentada?', 'visible', this.phase.getTitleWindow());
+    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase.getDescriptionWindow());
+    this.expectWasTrue('A Janela de escolah de pastas foi apresentada?', 'visible', this.phase.getFolderWindow());
     this.expectTrue('Foi escolhido uma pasta válida?', this.selectFolderIndex !== -1);
   }
 }

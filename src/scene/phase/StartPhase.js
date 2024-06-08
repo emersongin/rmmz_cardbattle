@@ -1,7 +1,7 @@
 class StartPhase extends Phase {
-  _cardDrawGameCardset = {};
   _resultWindow = {};
   _cards = [];
+  _cardDrawGameCardset = {};
 
   createCardDrawGameCardset() {
     this._cardDrawGameCardset = CardsetSprite.create(0, 0);
@@ -29,6 +29,15 @@ class StartPhase extends Phase {
     ];
     this._cards = ArrayHelper.shuffle(cards);
     return this._cards;
+  }
+
+  createResultWindow(result) {
+    const text = result ? 'You go first!' : 'You go next!';
+    this._resultWindow = TextWindow.createWindowOneFourthSize(0, 0, [text]);
+    this._resultWindow.alignCenterMiddle();
+    this._resultWindow.alignBelowOf({ y: 100, height: 0 });
+    this._resultWindow.alignTextCenter();
+    this.addWindow(this._resultWindow);
   }
 
   startCardDrawGame(selectHandler) {
@@ -96,15 +105,8 @@ class StartPhase extends Phase {
   
   isBusy() {
     return super.isBusy() || 
-      this._titleWindow.isBusy() || 
-      this._descriptionWindow.isBusy() ||
-      this.someChildrenIsBusy();
-  }
-
-  someChildrenIsBusy() {
-    return this._scene.children.some(sprite => {
-      return (sprite instanceof CardsetSprite) && (sprite.hasCommands() || sprite.isBusy());
-    });
+      (this._cardDrawGameCardset.isBusy ? this._cardDrawGameCardset.isBusy() : false) || 
+      (this._resultWindow.isBusy ? this._resultWindow.isBusy() : false);
   }
 
   endCardDrawGame(selectedIndex) {
@@ -122,15 +124,6 @@ class StartPhase extends Phase {
     cardset.zoomOutAllCards(selectedSprite);
     cardset.addWait();
     cardset.flipTurnToUpCards(sprites);
-  }
-
-  createResultWindow(result) {
-    const text = result ? 'You go first!' : 'You go next!';
-    this._resultWindow = TextWindow.createWindowOneFourthSize(0, 0, [text]);
-    this._resultWindow.alignCenterMiddle();
-    this._resultWindow.alignBelowOf({ y: 100, height: 0 });
-    this._resultWindow.alignTextCenter();
-    this.addWindow(this._resultWindow);
   }
 
   openResultWindow() {
@@ -156,6 +149,13 @@ class StartPhase extends Phase {
     this._cardDrawGameCardset.closeAllCards();
   }
 
+  getResultWindow() {
+    return this._resultWindow;
+  }
+
+  getCardDrawGameCardset() {
+    return this._cardDrawGameCardset;
+  }
 
 
 
@@ -168,7 +168,6 @@ class StartPhase extends Phase {
 
 
 
-  
 
   // createConfirmWindow(message) {
   //   // message = 'confirm the selection?'
