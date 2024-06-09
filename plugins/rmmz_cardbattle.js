@@ -5269,12 +5269,14 @@ class Phase {
     battleWindow: {},
     trashWindow: {},
     scoreWindow: {},
+    battlefield: {},
   };
   _challenge = {
     boardWindow: {},
     battleWindow: {},
     trashWindow: {},
     scoreWindow: {},
+    battlefield: {},
   };
 
   constructor(scene) {
@@ -5289,6 +5291,7 @@ class Phase {
     this.createPlayerBattleWindow();
     this.createPlayerTrashWindow(cardsInTrash);
     this.createPlayerScoreWindow(victories);
+    this.createPlayerBattlefield();
   }
 
   createTitleWindow(text) {
@@ -5348,11 +5351,28 @@ class Phase {
     this.attachChild(this._player.scoreWindow);
   }
 
+  createPlayerBattlefield() {
+    const paddingLeft = this.getPaddingLeftBattleField();
+    this._player.battlefield = CardsetSprite.create(paddingLeft, 0);
+    const height = 120;
+    const y = ScreenHelper.getBottomPosition(height);
+    this._player.battlefield.alignAboveOf({ y, height });
+    this.attachChild(this._player.battlefield);
+  }
+
+  getPaddingLeftBattleField() {
+    const fieldWidth = ScreenHelper.getFieldWidth();
+    const battlefieldWidth = CardsetSprite.contentOriginalWidth();
+    const paddingLeft = (fieldWidth - battlefieldWidth) / 2;
+    return paddingLeft;
+  }
+
   createChallengeGameBoard(cardsInTrash, cardsInDeck, cardsInHand, energies, victories) {
     this.createChallengeBoardWindow(energies, cardsInDeck, cardsInHand);
     this.createChallengeBattleWindow();
     this.createChallengeTrashWindow(cardsInTrash);
     this.createChallengeScoreWindow(victories);
+    this.createChallengeBattlefield();
   }
 
   createChallengeBoardWindow(energies, cardsInDeck, cardsInHand) {
@@ -5393,6 +5413,15 @@ class Phase {
     this._challenge.scoreWindow.alignBelowOf({ y, height });
     this._challenge.scoreWindow.refreshScore(victories);
     this.attachChild(this._challenge.scoreWindow);
+  }
+
+  createChallengeBattlefield() {
+    const paddingLeft = this.getPaddingLeftBattleField();
+    this._challenge.battlefield = CardsetSprite.create(paddingLeft, 0);
+    const height = 128;
+    const y = ScreenHelper.getTopPosition();
+    this._challenge.battlefield.alignBelowOf({ y, height });
+    this.attachChild(this._challenge.battlefield);
   }
 
   openTextWindows() {
@@ -5535,20 +5564,20 @@ class Phase {
   }
 
   isBusy() {
-    const player = this._player;
-    const challenge = this._challenge;
-    return (this._wait > 0) || 
-      this._titleWindow.isBusy() ||
-      this._descriptionWindow.isBusy() ||
-      (player.boardWindow.isBusy ? player.boardWindow.isBusy() : false) ||
-      (player.battleWindow.isBusy ? player.battleWindow.isBusy() : false) ||
-      (player.trashWindow.isBusy ? player.trashWindow.isBusy() : false) ||
-      (player.scoreWindow.isBusy ? player.scoreWindow.isBusy() : false) ||
-      (challenge.boardWindow.isBusy ? challenge.boardWindow.isBusy() : false) ||
-      (challenge.battleWindow.isBusy ? challenge.battleWindow.isBusy() : false) ||
-      (challenge.trashWindow.isBusy ? challenge.trashWindow.isBusy() : false) ||
-      (challenge.scoreWindow.isBusy ? challenge.scoreWindow.isBusy() : false) ||
-      this.someChildrenIsBusy();
+    const children = [
+      this._titleWindow,
+      this._descriptionWindow,
+      this._player.boardWindow,
+      this._player.battleWindow,
+      this._player.trashWindow,
+      this._player.scoreWindow,
+      this._challenge.boardWindow,
+      this._challenge.battleWindow,
+      this._challenge.trashWindow,
+      this._challenge.scoreWindow,
+    ];
+    return this._wait > 0 || this.someChildrenIsBusy() ||
+      children.some(obj => (obj.isBusy ? obj.isBusy() : false));
   }
 
   someChildrenIsBusy() {
@@ -5725,6 +5754,14 @@ class Phase {
   commandPlayerPass() {
     this._player.boardWindow.pass();
   }
+
+  commandClosePlayerBattleField() {
+    this._player.battlefield.closeCards();
+  }
+
+  commandCloseChallengeBattleField() {
+    this._challenge.battlefield.closeCards();
+  }
 }
 class ChallengePhase extends Phase {
   _folderWindow = {};
@@ -5770,8 +5807,10 @@ class ChallengePhase extends Phase {
   }
 
   isBusy() {
-    return super.isBusy() || 
-      (this._folderWindow.isBusy ? this._folderWindow.isBusy() : false);
+    const children = [
+      this._folderWindow
+    ];
+    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
   }
 
   getFolderWindow() {
@@ -5884,9 +5923,11 @@ class StartPhase extends Phase {
   }
   
   isBusy() {
-    return super.isBusy() || 
-      (this._cardDrawGameCardset.isBusy ? this._cardDrawGameCardset.isBusy() : false) || 
-      (this._resultWindow.isBusy ? this._resultWindow.isBusy() : false);
+    const children = [
+      this._cardDrawGameCardset,
+      this._resultWindow,
+    ];
+    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
   }
 
   endCardDrawGame(selectedIndex) {
@@ -5987,34 +6028,6 @@ class StartPhase extends Phase {
   // }
 }
 class DrawPhase extends Phase {
-  _playerBattleField = {};
-  _challengeBattleField = {};
-
-  createPlayerBattlefield() {
-    const paddingLeft = this.getPaddingLeftBattleField();
-    this._playerBattleField = CardsetSprite.create(paddingLeft, 0);
-    const height = 120;
-    const y = ScreenHelper.getBottomPosition(height);
-    this._playerBattleField.alignAboveOf({ y, height });
-    this.attachChild(this._playerBattleField);
-  }
-
-  getPaddingLeftBattleField() {
-    const fieldWidth = ScreenHelper.getFieldWidth();
-    const battlefieldWidth = CardsetSprite.contentOriginalWidth();
-    const paddingLeft = (fieldWidth - battlefieldWidth) / 2;
-    return paddingLeft;
-  }
-
-  createChallengeBattlefield() {
-    const paddingLeft = this.getPaddingLeftBattleField();
-    this._challengeBattleField = CardsetSprite.create(paddingLeft, 0);
-    const height = 128;
-    const y = ScreenHelper.getTopPosition();
-    this._challengeBattleField.alignBelowOf({ y, height });
-    this.attachChild(this._challengeBattleField);
-  }
-
   stepDrawCards() {
     this.addAction(this.commandChangeStep, GameConst.START_DRAW_CARDS);
   }
@@ -6039,11 +6052,11 @@ class DrawPhase extends Phase {
   }
   
   commandDrawPlayerCards(cards, cardsInDeck) {
-    this._playerBattleField.show();
+    this._player.battlefield.show();
     const screenWidth = ScreenHelper.getFullWidth();
-    const sprites = this._playerBattleField.setCards(cards, screenWidth);
-    this._playerBattleField.showCards(sprites);
-    this._playerBattleField.setTurnToDownCards(sprites);
+    const sprites = this._player.battlefield.setCards(cards, screenWidth);
+    this._player.battlefield.showCards(sprites);
+    this._player.battlefield.setTurnToDownCards(sprites);
     const fieldUpdates = sprites.map((sprite, index) => {
       const count = index + 1;
       const countCardsInDeck = cardsInDeck - count;
@@ -6056,16 +6069,16 @@ class DrawPhase extends Phase {
       const boardWindow = this.getPlayerBoardWindow();
       boardWindow.updateValues(manyUpdates);
     });
-    this._playerBattleField.moveCardsInlist(sprites, 6, fieldUpdates);
-    this._playerBattleField.flipTurnToUpCards(sprites);
+    this._player.battlefield.moveCardsInlist(sprites, 6, fieldUpdates);
+    this._player.battlefield.flipTurnToUpCards(sprites);
   }
 
   commandDrawChallengeCards(cards, cardsInDeck) {
-    this._challengeBattleField.show();
+    this._challenge.battlefield.show();
     const screenWidth = ScreenHelper.getFullWidth();
-    const sprites = this._challengeBattleField.setCards(cards, screenWidth);
-    this._challengeBattleField.showCards(sprites);
-    this._challengeBattleField.setTurnToDownCards(sprites);
+    const sprites = this._challenge.battlefield.setCards(cards, screenWidth);
+    this._challenge.battlefield.showCards(sprites);
+    this._challenge.battlefield.setTurnToDownCards(sprites);
     const fieldUpdates = sprites.map((sprite, index) => {
       const count = index + 1;
       const countCardsInDeck = cardsInDeck - count;
@@ -6078,7 +6091,7 @@ class DrawPhase extends Phase {
       const boardWindow = this.getChallengeBoardWindow();
       boardWindow.updateValues(manyUpdates);
     });
-    this._challengeBattleField.moveCardsInlist(sprites, 6, fieldUpdates);
+    this._challenge.battlefield.moveCardsInlist(sprites, 6, fieldUpdates);
   }
 
   updateGameBoards(playerUpdates, challengeUpdates) {
@@ -6097,35 +6110,27 @@ class DrawPhase extends Phase {
   }
 
   commandPlayerLoadEnergy(cardIndex, updatePoint) {
-    const sprites = this._playerBattleField.getSprites();
+    const sprites = this._player.battlefield.getSprites();
     const sprite = sprites[cardIndex];
     if (updatePoint) {
       const chainAction = () => {
         const boardWindow = this.getPlayerBoardWindow();
         boardWindow.updateValues(updatePoint);
       };
-      this._playerBattleField.flashCardsAnimate(sprite, 'white', 6, 1, chainAction);
+      this._player.battlefield.flashCardsAnimate(sprite, 'white', 6, 1, chainAction);
     }
   }
 
   commandChallengeLoadEnergy(cardIndex, updatePoint) {
-    const sprites = this._challengeBattleField.getSprites();
+    const sprites = this._challenge.battlefield.getSprites();
     const sprite = sprites[cardIndex];
     if (updatePoint) {
       const chainAction = () => {
         const boardWindow = this.getChallengeBoardWindow();
         boardWindow.updateValues(updatePoint);
       };
-      this._challengeBattleField.flashCardsAnimate(sprite, 'white', 6, 1, chainAction);
+      this._challenge.battlefield.flashCardsAnimate(sprite, 'white', 6, 1, chainAction);
     }
-  }
-
-  commandClosePlayerBattleField() {
-    this._playerBattleField.closeCards();
-  }
-
-  commandCloseChallengeBattleField() {
-    this._challengeBattleField.closeCards();
   }
 }
 
@@ -6205,7 +6210,10 @@ class LoadPhase extends Phase {
   }
 
   isBusy() {
-    return super.isBusy() || (this._textWindow.isBusy ? this._textWindow.isBusy() : false);
+    const children = [
+      this._textWindow
+    ];
+    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
   }
 
   getTextWindow() {

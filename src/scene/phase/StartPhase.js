@@ -104,9 +104,11 @@ class StartPhase extends Phase {
   }
   
   isBusy() {
-    return super.isBusy() || 
-      (this._cardDrawGameCardset.isBusy ? this._cardDrawGameCardset.isBusy() : false) || 
-      (this._resultWindow.isBusy ? this._resultWindow.isBusy() : false);
+    const children = [
+      this._cardDrawGameCardset,
+      this._resultWindow,
+    ];
+    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
   }
 
   endCardDrawGame(selectedIndex) {

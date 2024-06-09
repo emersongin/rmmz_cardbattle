@@ -42,8 +42,10 @@ class ChallengePhase extends Phase {
   }
 
   isBusy() {
-    return super.isBusy() || 
-      (this._folderWindow.isBusy ? this._folderWindow.isBusy() : false);
+    const children = [
+      this._folderWindow
+    ];
+    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
   }
 
   getFolderWindow() {

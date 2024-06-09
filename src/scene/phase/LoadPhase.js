@@ -74,7 +74,10 @@ class LoadPhase extends Phase {
   }
 
   isBusy() {
-    return super.isBusy() || (this._textWindow.isBusy ? this._textWindow.isBusy() : false);
+    const children = [
+      this._textWindow
+    ];
+    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
   }
 
   getTextWindow() {

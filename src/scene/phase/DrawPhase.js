@@ -1,32 +1,4 @@
 class DrawPhase extends Phase {
-  _playerBattleField = {};
-  _challengeBattleField = {};
-
-  createPlayerBattlefield() {
-    const paddingLeft = this.getPaddingLeftBattleField();
-    this._playerBattleField = CardsetSprite.create(paddingLeft, 0);
-    const height = 120;
-    const y = ScreenHelper.getBottomPosition(height);
-    this._playerBattleField.alignAboveOf({ y, height });
-    this.attachChild(this._playerBattleField);
-  }
-
-  getPaddingLeftBattleField() {
-    const fieldWidth = ScreenHelper.getFieldWidth();
-    const battlefieldWidth = CardsetSprite.contentOriginalWidth();
-    const paddingLeft = (fieldWidth - battlefieldWidth) / 2;
-    return paddingLeft;
-  }
-
-  createChallengeBattlefield() {
-    const paddingLeft = this.getPaddingLeftBattleField();
-    this._challengeBattleField = CardsetSprite.create(paddingLeft, 0);
-    const height = 128;
-    const y = ScreenHelper.getTopPosition();
-    this._challengeBattleField.alignBelowOf({ y, height });
-    this.attachChild(this._challengeBattleField);
-  }
-
   stepDrawCards() {
     this.addAction(this.commandChangeStep, GameConst.START_DRAW_CARDS);
   }
@@ -51,11 +23,11 @@ class DrawPhase extends Phase {
   }
   
   commandDrawPlayerCards(cards, cardsInDeck) {
-    this._playerBattleField.show();
+    this._player.battlefield.show();
     const screenWidth = ScreenHelper.getFullWidth();
-    const sprites = this._playerBattleField.setCards(cards, screenWidth);
-    this._playerBattleField.showCards(sprites);
-    this._playerBattleField.setTurnToDownCards(sprites);
+    const sprites = this._player.battlefield.setCards(cards, screenWidth);
+    this._player.battlefield.showCards(sprites);
+    this._player.battlefield.setTurnToDownCards(sprites);
     const fieldUpdates = sprites.map((sprite, index) => {
       const count = index + 1;
       const countCardsInDeck = cardsInDeck - count;
@@ -68,16 +40,16 @@ class DrawPhase extends Phase {
       const boardWindow = this.getPlayerBoardWindow();
       boardWindow.updateValues(manyUpdates);
     });
-    this._playerBattleField.moveCardsInlist(sprites, 6, fieldUpdates);
-    this._playerBattleField.flipTurnToUpCards(sprites);
+    this._player.battlefield.moveCardsInlist(sprites, 6, fieldUpdates);
+    this._player.battlefield.flipTurnToUpCards(sprites);
   }
 
   commandDrawChallengeCards(cards, cardsInDeck) {
-    this._challengeBattleField.show();
+    this._challenge.battlefield.show();
     const screenWidth = ScreenHelper.getFullWidth();
-    const sprites = this._challengeBattleField.setCards(cards, screenWidth);
-    this._challengeBattleField.showCards(sprites);
-    this._challengeBattleField.setTurnToDownCards(sprites);
+    const sprites = this._challenge.battlefield.setCards(cards, screenWidth);
+    this._challenge.battlefield.showCards(sprites);
+    this._challenge.battlefield.setTurnToDownCards(sprites);
     const fieldUpdates = sprites.map((sprite, index) => {
       const count = index + 1;
       const countCardsInDeck = cardsInDeck - count;
@@ -90,7 +62,7 @@ class DrawPhase extends Phase {
       const boardWindow = this.getChallengeBoardWindow();
       boardWindow.updateValues(manyUpdates);
     });
-    this._challengeBattleField.moveCardsInlist(sprites, 6, fieldUpdates);
+    this._challenge.battlefield.moveCardsInlist(sprites, 6, fieldUpdates);
   }
 
   updateGameBoards(playerUpdates, challengeUpdates) {
@@ -109,34 +81,26 @@ class DrawPhase extends Phase {
   }
 
   commandPlayerLoadEnergy(cardIndex, updatePoint) {
-    const sprites = this._playerBattleField.getSprites();
+    const sprites = this._player.battlefield.getSprites();
     const sprite = sprites[cardIndex];
     if (updatePoint) {
       const chainAction = () => {
         const boardWindow = this.getPlayerBoardWindow();
         boardWindow.updateValues(updatePoint);
       };
-      this._playerBattleField.flashCardsAnimate(sprite, 'white', 6, 1, chainAction);
+      this._player.battlefield.flashCardsAnimate(sprite, 'white', 6, 1, chainAction);
     }
   }
 
   commandChallengeLoadEnergy(cardIndex, updatePoint) {
-    const sprites = this._challengeBattleField.getSprites();
+    const sprites = this._challenge.battlefield.getSprites();
     const sprite = sprites[cardIndex];
     if (updatePoint) {
       const chainAction = () => {
         const boardWindow = this.getChallengeBoardWindow();
         boardWindow.updateValues(updatePoint);
       };
-      this._challengeBattleField.flashCardsAnimate(sprite, 'white', 6, 1, chainAction);
+      this._challenge.battlefield.flashCardsAnimate(sprite, 'white', 6, 1, chainAction);
     }
-  }
-
-  commandClosePlayerBattleField() {
-    this._playerBattleField.closeCards();
-  }
-
-  commandCloseChallengeBattleField() {
-    this._challengeBattleField.closeCards();
   }
 }
