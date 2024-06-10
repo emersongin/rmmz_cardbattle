@@ -10,7 +10,7 @@ class LoadPhaseTest extends SceneTest {
     this.phase.createTitleWindow('Load Phase');
     this.phase.createDescriptionWindow('Select and use a Program Card.');
     this.phase.createTextWindow('Begin Load Phase');
-    this.playerCardsInHand = [];
+    this.playerCardsInHand = CardGenerator.generateCards(6, 1);
     this.playerCardsInDeck = CardGenerator.generateCards(34, 1);
     this.playerEnergies = {
       [GameConst.RED]: 0,
@@ -27,7 +27,7 @@ class LoadPhaseTest extends SceneTest {
       victories: 0 
     };
     this.phase.createPlayerGameBoard(playerData, playerEnergies);
-    this.challengeCardsInHand = [];
+    this.challengeCardsInHand = CardGenerator.generateCards(6, 1);
     this.challengeCardsInDeck = CardGenerator.generateCards(34, 1);
     this.challengeEnergies = {
       [GameConst.RED]: 0,
@@ -44,7 +44,7 @@ class LoadPhaseTest extends SceneTest {
       victories: 0 
     };
     this.phase.createChallengeGameBoard(challengeData, challengeEnergies);
-    this.phase.createPlayerHandset();
+    this.phase.createPlayerHandset(this.playerCardsInHand);
     this.addHiddenWatched(this.phase.getTitleWindow());
     this.addHiddenWatched(this.phase.getDescriptionWindow());
     this.addHiddenWatched(this.phase.getTextWindow());
@@ -64,7 +64,13 @@ class LoadPhaseTest extends SceneTest {
     this.phase.addChildren();
     // this.phase.openTextWindows();
     // this.phase.stepStart();
-    this.phase.openPlayerHand();
+    const onChangeCursor = index => {
+      const card = this.playerCardsInHand[index];
+      this.phase.commandSetTextCardNameWindow(['card.name' + index]);
+      this.phase.commandSetTextCardDescriptionWindow(['card.description' + index]);
+      this.phase.commandSetTextCardPropsWindow(['card.props' + index]);
+    };
+    this.phase.openPlayerHand(onChangeCursor);
   }
 
   update() {

@@ -11,12 +11,12 @@ class SelectModeNoSelectCardsetSpriteTest extends SceneTest {
     const disableSprites = sprites.filter((sprite, index) => disableCardsIndex.includes(index));
     this.subject.disableCards(disableSprites);
     this.subject.showCards(sprites);
-    const selectNumber = 0;
+    const noSelect = 0;
     this.cardsSelected = [];
     const selectHandler = (cards) => {
       this.cardsSelected = cards;
     };
-    this.subject.selectMode(selectNumber, selectHandler);
+    this.subject.selectMode(noSelect, selectHandler);
   }
 
   asserts() {

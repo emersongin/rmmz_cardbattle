@@ -734,12 +734,7 @@ class TextWindow extends Window_Base {
     }
   }
 
-  open(text = []) {
-    if (text.length > 0) {
-      this.setText(text);
-      this.resizeByText(text);
-      this.refresh();
-    }
+  open() {
     this.visible = true;
     this.activate();
     super.open();
@@ -895,6 +890,14 @@ class TextWindow extends Window_Base {
 
   isOpen() {
     return super.isOpen();
+  }
+
+  refreshContent(text = []) {
+    if (text.length > 0) {
+      this.setText(text);
+      this.resizeByText(text);
+      this.refresh();
+    }
   }
 }
 class CommandWindow extends Window_Command {
@@ -6234,19 +6237,22 @@ class LoadPhase extends Phase {
     this.addWindow(this._askWindow);
   }
 
-  createPlayerHandset() {
-    this.createPlayerHand();
+  createPlayerHandset(cards) {
+    this.createPlayerHand(cards);
     this.createLocationWindow();
     this.createCardNameWindow();
     this.createCardDescriptionWindow();
     this.createCardPropsWindow();
   }
 
-  createPlayerHand() {
+  createPlayerHand(cards) {
     const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
     const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
     this._playerHand = CardsetSprite.create(x, y);
     this._playerHand.setBackgroundColor('blue');
+    this._playerHand.show();
+    const sprites = this._playerHand.listCards(cards);
+    this._playerHand.startClosedCards(sprites);
     this.attachChild(this._playerHand);
   }
 
@@ -6341,7 +6347,13 @@ class LoadPhase extends Phase {
 
   isBusy() {
     const children = [
-      this._textWindow
+      this._textWindow,
+      this._askWindow,
+      this._locationWindow,
+      this._cardNameWindow,
+      this._cardDescriptionWindow,
+      this._cardPropsWindow,
+      this._playerHand
     ];
     return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
   }
@@ -6350,19 +6362,26 @@ class LoadPhase extends Phase {
     return this._textWindow;
   }
 
-  openPlayerHand() {
-    const locationText = 'Player Hand';
+  openPlayerHand(onChangeCursor) {
     this.addActions([
-      [this.commandOpenLocationWindow, [locationText]],
+      this.commandOpenPlayerHand,
+      [this.commandPlayerHandSelectMode, onChangeCursor]
+    ]);
+    this.addActions([
+      this.commandSetTextLocationWindow,
+      this.commandOpenLocationWindow,
       this.commandOpenCardNameWindow,
       this.commandOpenCardDescriptionWindow,
       this.commandOpenCardPropsWindow,
-      this.commandOpenPlayerHand
     ]);
   }
 
-  commandOpenLocationWindow(text) {
-    this._locationWindow.open(text);
+  commandSetTextLocationWindow() {
+    this._locationWindow.refreshContent(['Player Hand']);
+  }
+
+  commandOpenLocationWindow() {
+    this._locationWindow.open();
   }
 
   commandOpenCardNameWindow() {
@@ -6378,8 +6397,25 @@ class LoadPhase extends Phase {
   }
 
   commandOpenPlayerHand() {
-    this._playerHand.show();
     this._playerHand.openCards();
+  }
+
+  commandPlayerHandSelectMode(onChangeCursor) {
+    const selectNumber = 0;
+    const selectHandler = (cards) => {};
+    this._playerHand.selectMode(selectNumber, selectHandler, onChangeCursor);
+  }
+
+  commandSetTextCardNameWindow(text) {
+    this._cardNameWindow.refreshContent(text);
+  }
+
+  commandSetTextCardDescriptionWindow(text) {
+    this._cardDescriptionWindow.refreshContent(text);
+  }
+
+  commandSetTextCardPropsWindow(text) {
+    this._cardPropsWindow.refreshContent(text);
   }
 }
 
@@ -7870,12 +7906,12 @@ class SelectModeNoSelectCardsetSpriteTest extends SceneTest {
     const disableSprites = sprites.filter((sprite, index) => disableCardsIndex.includes(index));
     this.subject.disableCards(disableSprites);
     this.subject.showCards(sprites);
-    const selectNumber = 0;
+    const noSelect = 0;
     this.cardsSelected = [];
     const selectHandler = (cards) => {
       this.cardsSelected = cards;
     };
-    this.subject.selectMode(selectNumber, selectHandler);
+    this.subject.selectMode(noSelect, selectHandler);
   }
 
   asserts() {
@@ -9741,7 +9777,7 @@ class LoadPhaseTest extends SceneTest {
     this.phase.createTitleWindow('Load Phase');
     this.phase.createDescriptionWindow('Select and use a Program Card.');
     this.phase.createTextWindow('Begin Load Phase');
-    this.playerCardsInHand = [];
+    this.playerCardsInHand = CardGenerator.generateCards(6, 1);
     this.playerCardsInDeck = CardGenerator.generateCards(34, 1);
     this.playerEnergies = {
       [GameConst.RED]: 0,
@@ -9758,7 +9794,7 @@ class LoadPhaseTest extends SceneTest {
       victories: 0 
     };
     this.phase.createPlayerGameBoard(playerData, playerEnergies);
-    this.challengeCardsInHand = [];
+    this.challengeCardsInHand = CardGenerator.generateCards(6, 1);
     this.challengeCardsInDeck = CardGenerator.generateCards(34, 1);
     this.challengeEnergies = {
       [GameConst.RED]: 0,
@@ -9775,7 +9811,7 @@ class LoadPhaseTest extends SceneTest {
       victories: 0 
     };
     this.phase.createChallengeGameBoard(challengeData, challengeEnergies);
-    this.phase.createPlayerHandset();
+    this.phase.createPlayerHandset(this.playerCardsInHand);
     this.addHiddenWatched(this.phase.getTitleWindow());
     this.addHiddenWatched(this.phase.getDescriptionWindow());
     this.addHiddenWatched(this.phase.getTextWindow());
@@ -9795,7 +9831,13 @@ class LoadPhaseTest extends SceneTest {
     this.phase.addChildren();
     // this.phase.openTextWindows();
     // this.phase.stepStart();
-    this.phase.openPlayerHand();
+    const onChangeCursor = index => {
+      const card = this.playerCardsInHand[index];
+      this.phase.commandSetTextCardNameWindow(['card.name' + index]);
+      this.phase.commandSetTextCardDescriptionWindow(['card.description' + index]);
+      this.phase.commandSetTextCardPropsWindow(['card.props' + index]);
+    };
+    this.phase.openPlayerHand(onChangeCursor);
   }
 
   update() {
@@ -10107,7 +10149,7 @@ class CardBattleTestScene extends Scene_Message {
     ];
     return [
       // ...cardSpriteTests,
-      ...cardsetSpriteTests,
+      // ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,
@@ -10116,7 +10158,7 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      // ...phase,
+      ...phase,
     ];
   }
 

@@ -22,19 +22,22 @@ class LoadPhase extends Phase {
     this.addWindow(this._askWindow);
   }
 
-  createPlayerHandset() {
-    this.createPlayerHand();
+  createPlayerHandset(cards) {
+    this.createPlayerHand(cards);
     this.createLocationWindow();
     this.createCardNameWindow();
     this.createCardDescriptionWindow();
     this.createCardPropsWindow();
   }
 
-  createPlayerHand() {
+  createPlayerHand(cards) {
     const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
     const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
     this._playerHand = CardsetSprite.create(x, y);
     this._playerHand.setBackgroundColor('blue');
+    this._playerHand.show();
+    const sprites = this._playerHand.listCards(cards);
+    this._playerHand.startClosedCards(sprites);
     this.attachChild(this._playerHand);
   }
 
@@ -129,7 +132,13 @@ class LoadPhase extends Phase {
 
   isBusy() {
     const children = [
-      this._textWindow
+      this._textWindow,
+      this._askWindow,
+      this._locationWindow,
+      this._cardNameWindow,
+      this._cardDescriptionWindow,
+      this._cardPropsWindow,
+      this._playerHand
     ];
     return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
   }
@@ -138,19 +147,26 @@ class LoadPhase extends Phase {
     return this._textWindow;
   }
 
-  openPlayerHand() {
-    const locationText = 'Player Hand';
+  openPlayerHand(onChangeCursor) {
     this.addActions([
-      [this.commandOpenLocationWindow, [locationText]],
+      this.commandOpenPlayerHand,
+      [this.commandPlayerHandSelectMode, onChangeCursor]
+    ]);
+    this.addActions([
+      this.commandSetTextLocationWindow,
+      this.commandOpenLocationWindow,
       this.commandOpenCardNameWindow,
       this.commandOpenCardDescriptionWindow,
       this.commandOpenCardPropsWindow,
-      this.commandOpenPlayerHand
     ]);
   }
 
-  commandOpenLocationWindow(text) {
-    this._locationWindow.open(text);
+  commandSetTextLocationWindow() {
+    this._locationWindow.refreshContent(['Player Hand']);
+  }
+
+  commandOpenLocationWindow() {
+    this._locationWindow.open();
   }
 
   commandOpenCardNameWindow() {
@@ -166,7 +182,24 @@ class LoadPhase extends Phase {
   }
 
   commandOpenPlayerHand() {
-    this._playerHand.show();
     this._playerHand.openCards();
+  }
+
+  commandPlayerHandSelectMode(onChangeCursor) {
+    const selectNumber = 0;
+    const selectHandler = (cards) => {};
+    this._playerHand.selectMode(selectNumber, selectHandler, onChangeCursor);
+  }
+
+  commandSetTextCardNameWindow(text) {
+    this._cardNameWindow.refreshContent(text);
+  }
+
+  commandSetTextCardDescriptionWindow(text) {
+    this._cardDescriptionWindow.refreshContent(text);
+  }
+
+  commandSetTextCardPropsWindow(text) {
+    this._cardPropsWindow.refreshContent(text);
   }
 }

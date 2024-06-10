@@ -186,12 +186,7 @@ class TextWindow extends Window_Base {
     }
   }
 
-  open(text = []) {
-    if (text.length > 0) {
-      this.setText(text);
-      this.resizeByText(text);
-      this.refresh();
-    }
+  open() {
     this.visible = true;
     this.activate();
     super.open();
@@ -347,5 +342,13 @@ class TextWindow extends Window_Base {
 
   isOpen() {
     return super.isOpen();
+  }
+
+  refreshContent(text = []) {
+    if (text.length > 0) {
+      this.setText(text);
+      this.resizeByText(text);
+      this.refresh();
+    }
   }
 }
