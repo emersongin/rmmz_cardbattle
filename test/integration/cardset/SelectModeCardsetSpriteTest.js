@@ -14,11 +14,11 @@ class SelectModeCardsetSpriteTest extends SceneTest {
     const endTest = this.createHandler();
     const unlimited = -1;
     this.cardsSelected = [];
-    const selectHandler = (cards) => {
+    const onSelectHandler = (cards) => {
       this.cardsSelected = cards;
       endTest();
     };
-    this.subject.selectMode(selectHandler, unlimited);
+    this.subject.selectMode(unlimited, onSelectHandler);
   }
 
   asserts() {

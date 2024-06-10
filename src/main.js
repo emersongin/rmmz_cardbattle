@@ -99,6 +99,7 @@
 // include ../test/integration/cardset/AlignBelowOfCardsetSpriteTest.js
 // include ../test/integration/cardset/AlignCenterMiddleCardsetSpriteTest.js
 // include ../test/integration/cardset/ChainActionCardsetSpriteTest.js
+// include ../test/integration/cardset/OnChangeCursorSelectModeCardsetSpriteTest.js
 // tests STATE WINDOW
 // include ../test/integration/statewindow/OpenStateWindowTest.js
 // include ../test/integration/statewindow/CloseStateWindowTest.js

@@ -42,7 +42,7 @@ class LoadPhase extends Phase {
     this._locationWindow = TextWindow.createWindowMiddleSize(0, 0);
     this._locationWindow.alignStartTop();
     this._locationWindow.alignAboveOf(this._playerHand);
-    this._locationWindow.y -= 100;
+    this._locationWindow.y -= 160;
     this._locationWindow.alignTextCenter();
     this.attachChildLast(this._locationWindow);
   }
@@ -51,7 +51,7 @@ class LoadPhase extends Phase {
     this._cardNameWindow = TextWindow.createWindowMiddleSize(0, 0);
     this._cardNameWindow.alignEndTop();
     this._cardNameWindow.alignAboveOf(this._playerHand);
-    this._cardNameWindow.y -= 100;
+    this._cardNameWindow.y -= 160;
     this.attachChildLast(this._cardNameWindow);
   }
 
@@ -139,8 +139,9 @@ class LoadPhase extends Phase {
   }
 
   openPlayerHand() {
+    const locationText = 'Player Hand';
     this.addActions([
-      this.commandOpenLocationWindow,
+      [this.commandOpenLocationWindow, [locationText]],
       this.commandOpenCardNameWindow,
       this.commandOpenCardDescriptionWindow,
       this.commandOpenCardPropsWindow,
@@ -148,8 +149,8 @@ class LoadPhase extends Phase {
     ]);
   }
 
-  commandOpenLocationWindow() {
-    this._locationWindow.open();
+  commandOpenLocationWindow(text) {
+    this._locationWindow.open(text);
   }
 
   commandOpenCardNameWindow() {

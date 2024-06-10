@@ -347,12 +347,13 @@ class CardsetSprite extends ActionSprite {
     return indexs.every(index => this.getCardIndex(index).isDisabled());
   }
 
-  selectMode(selectHandler, number) {
-    this.addCommand(this.commandSelectMode, selectHandler, number);
+  selectMode(selectNumber, onSelectHandler, onChangeCursor) {
+    const chainActionVoid = () => {};
+    this.addCommand(this.commandSelectMode, selectNumber, onSelectHandler, onChangeCursor, chainActionVoid);
   }
 
-  commandSelectMode(selectHandler, number) {
-    return this._status.selectMode(selectHandler, number);
+  commandSelectMode(selectNumber, onSelectHandler, onChangeCursor) {
+    return this._status.selectMode(selectNumber, onSelectHandler, onChangeCursor);
   }
 
   allCardsAreOpened(sprites = this._sprites) {

@@ -549,17 +549,14 @@ class HashGenerator {
 class TextWindow extends Window_Base {
   static createWindowOneFourthSize(x, y, text) {
     const width = ScreenHelper.getOneFourthWidth();
-    const height = undefined;
+    const height = null;
     return TextWindow.create(x, y, width, height, text);
   }
 
-  static create(x, y, width, h, text = []) {
+  static create(x = 0, y = 0, width = 0, height = 0, text = []) {
     if (!Array.isArray(text)) {
       throw new Error('text must be an array!');
     }
-    const borderHeight = TextWindow.borderHeight() * 2;
-    const textHeight = TextWindow.textHeight() * Math.max(text.length, 0);
-    const height = borderHeight + textHeight;
     const rect = new Rectangle(x, y, width, height);
     return new TextWindow(rect, text);
   }
@@ -574,13 +571,13 @@ class TextWindow extends Window_Base {
 
   static createWindowMiddleSize(x, y, text) {
     const width = ScreenHelper.getHalfWidth();
-    const height = undefined;
+    const height = null;
     return TextWindow.create(x, y, width, height, text);
   }
 
   static createWindowFullSize(x, y, text) {
     const width = ScreenHelper.getFullWidth();
-    const height = undefined;
+    const height = null;
     return TextWindow.create(x, y, width, height, text);
   }
 
@@ -591,12 +588,28 @@ class TextWindow extends Window_Base {
 
   initialize(rect, text) {
     super.initialize(rect);
-    this._text = text || [];
     this._textAlignment = GameConst.LEFT;
     this._windowColor = GameConst.DEFAULT_COLOR;
     this._history = [];
+    this.setText(text);
+    this.resizeByText(text);
     this.closed();
     this.refresh();
+  }
+
+  setText(text) {
+    this._text = text;
+  }
+
+  resizeByText(text) {
+    const borderHeight = TextWindow.borderHeight() * 2;
+    const textHeight = TextWindow.textHeight() * Math.max(text.length, 0);
+    const height = borderHeight + textHeight;
+    this.move(this.x, this.y, this.width, height);
+    this.updatePadding();
+    this.updateBackOpacity();
+    this.updateTone();
+    this.createContents();
   }
 
   closed() {
@@ -721,7 +734,12 @@ class TextWindow extends Window_Base {
     }
   }
 
-  open() {
+  open(text = []) {
+    if (text.length > 0) {
+      this.setText(text);
+      this.resizeByText(text);
+      this.refresh();
+    }
     this.visible = true;
     this.activate();
     super.open();
@@ -4133,8 +4151,8 @@ class CardsetSpriteStaticModeState {
     return false;
   }
 
-  selectMode(selectHandler, number) {
-    this._cardset.changeStatus(CardsetSpriteSelectModeState, selectHandler, number);
+  selectMode(selectNumber, onSelectHandler, onChangeCursor) {
+    this._cardset.changeStatus(CardsetSpriteSelectModeState, selectNumber, onSelectHandler, onChangeCursor);
   }
 
   unhouverSprites() {
@@ -4173,20 +4191,29 @@ class CardsetSpriteSelectModeState {
   _cursorIndex;
   _selectedIndexs;
   _selectNumber;
-  _selectHandler;
+  _onSelectHandler;
+  _onChangeCursor;
 
-  constructor(sprite, selectHandler, number = -1) {
+  constructor(sprite, selectNumber = -1, onSelectHandler = () => {}, onChangeCursor = () => {}) {
     if (!(sprite instanceof CardsetSprite)) {
       throw new Error('sprite is not a CardsetSprite instance!');
     }
-    if (typeof selectHandler !== 'function') {
-      throw new Error('selectHandler is not a function!');
+    if (typeof selectNumber !== 'number') {
+      throw new Error('selectNumber is not a number!');
+    }
+    if (typeof onSelectHandler !== 'function') {
+      throw new Error('onSelectHandler is not a function!');
+    }
+    if (typeof onChangeCursor !== 'function') {
+      throw new Error('onChangeCursor is not a function!');
     }
     this._cardset = sprite;
     this._cursorIndex = 0;
     this._selectedIndexs = [];
-    this._selectNumber = number;
-    this._selectHandler = selectHandler;
+    this._selectNumber = selectNumber;
+    this._onSelectHandler = onSelectHandler;
+    this._onChangeCursor = onChangeCursor;
+    this.updateOnChangeCursor();
     this.updateHoverSprites();
   }
 
@@ -4196,6 +4223,11 @@ class CardsetSpriteSelectModeState {
 
   selectMode() {
     return false;
+  }
+
+  updateOnChangeCursor() {
+    const cardset = this._cardset;
+    cardset.addCommand(this._onChangeCursor, this._cursorIndex);
   }
 
   updateHoverSprites() {
@@ -4239,10 +4271,9 @@ class CardsetSpriteSelectModeState {
     const keys = ['right', 'left'];
     if (cardset.isAvailable()) {
       this.updateCursor();
-      if (Input.isAnyKeyActiveIn(keys)) return this.updateHoverSprites();
       if (this.isSelectable()) {
         if (Input.isTriggered('cancel') || this.selectIsFull()) {
-          cardset.addCommand(this._selectHandler, this._selectedIndexs);
+          cardset.addCommand(this._onSelectHandler, this._selectedIndexs);
           cardset.commandStaticMode();
           return;
         }
@@ -4252,11 +4283,23 @@ class CardsetSpriteSelectModeState {
   }
 
   updateCursor() {
-    if (Input.isRepeated('right') || Input.isLongPressed('right')) {
+    if (this.isRepeatedOrLongPressedRight()) {
       this.moveCursorRight();
-    } else if (Input.isRepeated('left') || Input.isLongPressed('left')) {
+    } else if (this.isRepeatedOrLongPressedLeft()) {
       this.moveCursorLeft();
     }
+    if (this.isRepeatedOrLongPressedRight() || this.isRepeatedOrLongPressedLeft()) {
+      this.updateOnChangeCursor();
+      this.updateHoverSprites();
+    }
+  }
+
+  isRepeatedOrLongPressedRight() {
+    return Input.isRepeated('right') || Input.isLongPressed('right');
+  }
+
+  isRepeatedOrLongPressedLeft() {
+    return Input.isRepeated('left') || Input.isLongPressed('left');
   }
 
   moveCursorRight(times = 1) {
@@ -4674,12 +4717,13 @@ class CardsetSprite extends ActionSprite {
     return indexs.every(index => this.getCardIndex(index).isDisabled());
   }
 
-  selectMode(selectHandler, number) {
-    this.addCommand(this.commandSelectMode, selectHandler, number);
+  selectMode(selectNumber, onSelectHandler, onChangeCursor) {
+    const chainActionVoid = () => {};
+    this.addCommand(this.commandSelectMode, selectNumber, onSelectHandler, onChangeCursor, chainActionVoid);
   }
 
-  commandSelectMode(selectHandler, number) {
-    return this._status.selectMode(selectHandler, number);
+  commandSelectMode(selectNumber, onSelectHandler, onChangeCursor) {
+    return this._status.selectMode(selectNumber, onSelectHandler, onChangeCursor);
   }
 
   allCardsAreOpened(sprites = this._sprites) {
@@ -6210,7 +6254,7 @@ class LoadPhase extends Phase {
     this._locationWindow = TextWindow.createWindowMiddleSize(0, 0);
     this._locationWindow.alignStartTop();
     this._locationWindow.alignAboveOf(this._playerHand);
-    this._locationWindow.y -= 100;
+    this._locationWindow.y -= 160;
     this._locationWindow.alignTextCenter();
     this.attachChildLast(this._locationWindow);
   }
@@ -6219,7 +6263,7 @@ class LoadPhase extends Phase {
     this._cardNameWindow = TextWindow.createWindowMiddleSize(0, 0);
     this._cardNameWindow.alignEndTop();
     this._cardNameWindow.alignAboveOf(this._playerHand);
-    this._cardNameWindow.y -= 100;
+    this._cardNameWindow.y -= 160;
     this.attachChildLast(this._cardNameWindow);
   }
 
@@ -6307,8 +6351,9 @@ class LoadPhase extends Phase {
   }
 
   openPlayerHand() {
+    const locationText = 'Player Hand';
     this.addActions([
-      this.commandOpenLocationWindow,
+      [this.commandOpenLocationWindow, [locationText]],
       this.commandOpenCardNameWindow,
       this.commandOpenCardDescriptionWindow,
       this.commandOpenCardPropsWindow,
@@ -6316,8 +6361,8 @@ class LoadPhase extends Phase {
     ]);
   }
 
-  commandOpenLocationWindow() {
-    this._locationWindow.open();
+  commandOpenLocationWindow(text) {
+    this._locationWindow.open(text);
   }
 
   commandOpenCardNameWindow() {
@@ -7774,8 +7819,7 @@ class StaticModeCardsetSpriteTest extends SceneTest {
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     this.subject.showCards(sprites);
-    const selectCards = (cards) => {};
-    this.subject.selectMode(selectCards);
+    this.subject.selectMode();
     this.subject.staticMode();
   }
 
@@ -7800,11 +7844,11 @@ class SelectModeCardsetSpriteTest extends SceneTest {
     const endTest = this.createHandler();
     const unlimited = -1;
     this.cardsSelected = [];
-    const selectHandler = (cards) => {
+    const onSelectHandler = (cards) => {
       this.cardsSelected = cards;
       endTest();
     };
-    this.subject.selectMode(selectHandler, unlimited);
+    this.subject.selectMode(unlimited, onSelectHandler);
   }
 
   asserts() {
@@ -7831,7 +7875,7 @@ class SelectModeNoSelectCardsetSpriteTest extends SceneTest {
     const selectHandler = (cards) => {
       this.cardsSelected = cards;
     };
-    this.subject.selectMode(selectHandler, selectNumber);
+    this.subject.selectMode(selectNumber, selectHandler);
   }
 
   asserts() {
@@ -7856,11 +7900,11 @@ class SelectModeLimitedCardsetSpriteTest extends SceneTest {
     const endTest = this.createHandler();
     const selectNumber = 1;
     this.cardsSelected = [];
-    const selectHandler = (cards) => {
+    const onSelectHandler = (cards) => {
       this.cardsSelected = cards;
       endTest();
     };
-    this.subject.selectMode(selectHandler, selectNumber);
+    this.subject.selectMode(selectNumber, onSelectHandler);
   }
 
   asserts() {
@@ -8128,6 +8172,36 @@ class ChainActionCardsetSpriteTest extends SceneTest {
     this.describe('Deve animar as cartas!');
     this.expectWasTrue('Houve um frame de animação?', this.subject.someSpriteIsAnimationPlaying);
     this.expectTrue('Houve animação em cadeia?', this._chainActionActived);
+  }
+}
+class OnChangeCursorSelectModeCardsetSpriteTest extends SceneTest {
+  create() {
+    this.subject = CardsetSprite.create(0, 0);
+    this.addWatched(this.subject);
+    this.subject.centralize();
+    this.subject.show();
+    const numCards = 10;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.listCards(cards);
+    const disableCardsIndex = [3, 4, 5, 6, 7, 8, 9];
+    const disableSprites = sprites.filter((sprite, index) => disableCardsIndex.includes(index));
+    this.subject.disableCards(disableSprites);
+    this.subject.showCards(sprites);
+    const endTest = this.createHandler();
+    const noSelect = 0;
+    this.currentIndex = null;
+    const onSelectHandler = () => {};
+    const onChangeCursor = (index) => {
+      this.currentIndex = index;
+      endTest();
+    };
+    this.subject.selectMode(noSelect, onSelectHandler, onChangeCursor);
+  }
+
+  asserts() {
+    this.describe('Deve entrar em modo seleção com escolha!');
+    this.expectTrue('Foi obtido um numerico ao movimentar curso?', typeof this.currentIndex === 'number');
+    this.expectWasTrue('Esta em modo seleção?', this.subject.isSelectMode);
   }
 }
 // tests STATE WINDOW
@@ -9931,6 +10005,7 @@ class CardBattleTestScene extends Scene_Message {
       FlipTurnToUpAllCardsCardsetSpriteTest,
       FlipTurnToUpCardsCardsetSpriteTest,
       ChainActionCardsetSpriteTest,
+      OnChangeCursorSelectModeCardsetSpriteTest,
     ];
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,
@@ -9956,32 +10031,32 @@ class CardBattleTestScene extends Scene_Message {
       AlignBelowOfStateWindowTest,
     ];
     const textWindowTests = [
-      CreateOneFourthSizeTextWindowTest,
-      CreateMiddleSizeTextWindowTest,
-      CreateFullSizeTextWindowTest,
-      OpenTextWindowTest,
-      CloseTextWindowTest,
-      ChangeBlueColorTextWindowTest,
-      ChangeRedColorTextWindowTest,
-      ChangeDefaultColorTextWindowTest,
-      AlignStartTopTextWindowTest,
-      AlignStartMiddleTextWindowTest,
-      AlignStartBottomTextWindowTest,
-      AlignCenterTopTextWindowTest,
-      AlignCenterAboveMiddleTextWindowTest,
-      AlignCenterMiddleTextWindowTest,
-      AlignCenterBelowMiddleTextWindowTest,
-      AlignCenterBottomTextWindowTest,
-      AlignEndTopTextWindowTest,
-      AlignEndMiddleTextWindowTest,
-      AlignEndBottomTextWindowTest,
-      AlignTextLeftTextWindowTest,
-      AlignTextCenterTextWindowTest,
-      AlignTextRightTextWindowTest,
+      // CreateOneFourthSizeTextWindowTest,
+      // CreateMiddleSizeTextWindowTest,
+      // CreateFullSizeTextWindowTest,
+      // OpenTextWindowTest,
+      // CloseTextWindowTest,
+      // ChangeBlueColorTextWindowTest,
+      // ChangeRedColorTextWindowTest,
+      // ChangeDefaultColorTextWindowTest,
+      // AlignStartTopTextWindowTest,
+      // AlignStartMiddleTextWindowTest,
+      // AlignStartBottomTextWindowTest,
+      // AlignCenterTopTextWindowTest,
+      // AlignCenterAboveMiddleTextWindowTest,
+      // AlignCenterMiddleTextWindowTest,
+      // AlignCenterBelowMiddleTextWindowTest,
+      // AlignCenterBottomTextWindowTest,
+      // AlignEndTopTextWindowTest,
+      // AlignEndMiddleTextWindowTest,
+      // AlignEndBottomTextWindowTest,
+      // AlignTextLeftTextWindowTest,
+      // AlignTextCenterTextWindowTest,
+      // AlignTextRightTextWindowTest,
       TextTextWindowTest,
-      ChangeTextColorTextWindowTest,
-      AlignAboveOfTextWindowTest,
-      AlignBelowOfTextWindowTest,
+      // ChangeTextColorTextWindowTest,
+      // AlignAboveOfTextWindowTest,
+      // AlignBelowOfTextWindowTest,
     ];
     const boardWindowTests = [
       PassBoardWindowTest,
@@ -10032,7 +10107,7 @@ class CardBattleTestScene extends Scene_Message {
     ];
     return [
       // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
+      ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,
@@ -10041,7 +10116,7 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      ...phase,
+      // ...phase,
     ];
   }
 

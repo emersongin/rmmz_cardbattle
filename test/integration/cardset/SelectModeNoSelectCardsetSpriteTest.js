@@ -16,7 +16,7 @@ class SelectModeNoSelectCardsetSpriteTest extends SceneTest {
     const selectHandler = (cards) => {
       this.cardsSelected = cards;
     };
-    this.subject.selectMode(selectHandler, selectNumber);
+    this.subject.selectMode(selectNumber, selectHandler);
   }
 
   asserts() {

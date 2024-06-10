@@ -1,17 +1,14 @@
 class TextWindow extends Window_Base {
   static createWindowOneFourthSize(x, y, text) {
     const width = ScreenHelper.getOneFourthWidth();
-    const height = undefined;
+    const height = null;
     return TextWindow.create(x, y, width, height, text);
   }
 
-  static create(x, y, width, h, text = []) {
+  static create(x = 0, y = 0, width = 0, height = 0, text = []) {
     if (!Array.isArray(text)) {
       throw new Error('text must be an array!');
     }
-    const borderHeight = TextWindow.borderHeight() * 2;
-    const textHeight = TextWindow.textHeight() * Math.max(text.length, 0);
-    const height = borderHeight + textHeight;
     const rect = new Rectangle(x, y, width, height);
     return new TextWindow(rect, text);
   }
@@ -26,13 +23,13 @@ class TextWindow extends Window_Base {
 
   static createWindowMiddleSize(x, y, text) {
     const width = ScreenHelper.getHalfWidth();
-    const height = undefined;
+    const height = null;
     return TextWindow.create(x, y, width, height, text);
   }
 
   static createWindowFullSize(x, y, text) {
     const width = ScreenHelper.getFullWidth();
-    const height = undefined;
+    const height = null;
     return TextWindow.create(x, y, width, height, text);
   }
 
@@ -43,12 +40,28 @@ class TextWindow extends Window_Base {
 
   initialize(rect, text) {
     super.initialize(rect);
-    this._text = text || [];
     this._textAlignment = GameConst.LEFT;
     this._windowColor = GameConst.DEFAULT_COLOR;
     this._history = [];
+    this.setText(text);
+    this.resizeByText(text);
     this.closed();
     this.refresh();
+  }
+
+  setText(text) {
+    this._text = text;
+  }
+
+  resizeByText(text) {
+    const borderHeight = TextWindow.borderHeight() * 2;
+    const textHeight = TextWindow.textHeight() * Math.max(text.length, 0);
+    const height = borderHeight + textHeight;
+    this.move(this.x, this.y, this.width, height);
+    this.updatePadding();
+    this.updateBackOpacity();
+    this.updateTone();
+    this.createContents();
   }
 
   closed() {
@@ -173,7 +186,12 @@ class TextWindow extends Window_Base {
     }
   }
 
-  open() {
+  open(text = []) {
+    if (text.length > 0) {
+      this.setText(text);
+      this.resizeByText(text);
+      this.refresh();
+    }
     this.visible = true;
     this.activate();
     super.open();

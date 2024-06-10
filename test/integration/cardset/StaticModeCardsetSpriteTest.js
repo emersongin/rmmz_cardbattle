@@ -8,8 +8,7 @@ class StaticModeCardsetSpriteTest extends SceneTest {
     const cards = CardGenerator.generateCards(numCards);
     const sprites = this.subject.listCards(cards);
     this.subject.showCards(sprites);
-    const selectCards = (cards) => {};
-    this.subject.selectMode(selectCards);
+    this.subject.selectMode();
     this.subject.staticMode();
   }
 
