@@ -6,11 +6,8 @@ class DrawPhaseTest extends SceneTest {
     this.phase = new DrawPhase(this.scene);
     this.phase.createTitleWindow('Draw Phase');
     this.phase.createDescriptionWindow('6 cards will be drawn.');
-    const playerCardsInTrash = 0;
-    const playerCardsInHand = 0;
     this.playerCardsInHand = [];
     this.playerCardsInDeck = CardGenerator.generateCards(40, 1);
-    const playerTotalCardsInDeck = this.playerCardsInDeck.length;
     this.playerEnergies = {
       [GameConst.RED]: 0,
       [GameConst.BLUE]: 0,
@@ -19,13 +16,15 @@ class DrawPhaseTest extends SceneTest {
       [GameConst.WHITE]: 0,
     };
     const playerEnergies = Object.values(this.playerEnergies);
-    const playerVictories = 0;
-    this.phase.createPlayerGameBoard(playerCardsInTrash, playerTotalCardsInDeck, playerCardsInHand, playerEnergies, playerVictories);
-    const challengeCardsInTrash = 0;
-    const challengeCardsInHand = 0;
+    const playerData = { 
+      cardsInTrash: 0, 
+      cardsInDeck: this.playerCardsInDeck.length, 
+      cardsInHand : 0, 
+      victories: 0 
+    };
+    this.phase.createPlayerGameBoard(playerData, playerEnergies);
     this.challengeCardsInHand = [];
     this.challengeCardsInDeck = CardGenerator.generateCards(40, 1);
-    const challengeTotalCardsInDeck = this.challengeCardsInDeck.length;
     this.challengeEnergies = {
       [GameConst.RED]: 0,
       [GameConst.BLUE]: 0,
@@ -34,8 +33,13 @@ class DrawPhaseTest extends SceneTest {
       [GameConst.WHITE]: 0,
     };
     const challengeEnergies = Object.values(this.challengeEnergies);
-    const challengeVictories = 0;
-    this.phase.createChallengeGameBoard(challengeCardsInTrash, challengeTotalCardsInDeck, challengeCardsInHand, challengeEnergies, challengeVictories);
+    const challengeData = { 
+      cardsInTrash: 0, 
+      cardsInDeck: this.challengeCardsInDeck.length, 
+      cardsInHand : 0, 
+      victories: 0 
+    };
+    this.phase.createChallengeGameBoard(challengeData, challengeEnergies);
     this.phase.createPlayerBattlefield();
     this.phase.createChallengeBattlefield();
     this.addHiddenWatched(this.phase.getTitleWindow());
@@ -98,7 +102,7 @@ class DrawPhaseTest extends SceneTest {
       this.phase.updateGameBoards(playerFieldUpdates, challengeFieldUpdates);
     }
     if (this.phase.isStepDrawCards() && Input.isTriggered('ok')) {
-      this.phase.closeGameObjects();
+      this.phase.closeGameBoards();
       this.phase.addAction(this.endTest);
     }
   }

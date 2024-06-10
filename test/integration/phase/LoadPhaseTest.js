@@ -10,11 +10,8 @@ class LoadPhaseTest extends SceneTest {
     this.phase.createTitleWindow('Load Phase');
     this.phase.createDescriptionWindow('Select and use a Program Card.');
     this.phase.createTextWindow('Begin Load Phase');
-    const playerCardsInTrash = 0;
-    const playerCardsInHand = 6;
     this.playerCardsInHand = [];
     this.playerCardsInDeck = CardGenerator.generateCards(34, 1);
-    const playerTotalCardsInDeck = this.playerCardsInDeck.length;
     this.playerEnergies = {
       [GameConst.RED]: 0,
       [GameConst.BLUE]: 0,
@@ -23,13 +20,15 @@ class LoadPhaseTest extends SceneTest {
       [GameConst.WHITE]: 0,
     };
     const playerEnergies = Object.values(this.playerEnergies);
-    const playerVictories = 0;
-    this.phase.createPlayerGameBoard(playerCardsInTrash, playerTotalCardsInDeck, playerCardsInHand, playerEnergies, playerVictories);
-    const challengeCardsInTrash = 0;
-    const challengeCardsInHand = 6;
+    const playerData = { 
+      cardsInTrash: 0, 
+      cardsInDeck: this.playerCardsInDeck.length, 
+      cardsInHand : 6, 
+      victories: 0 
+    };
+    this.phase.createPlayerGameBoard(playerData, playerEnergies);
     this.challengeCardsInHand = [];
     this.challengeCardsInDeck = CardGenerator.generateCards(34, 1);
-    const challengeTotalCardsInDeck = this.challengeCardsInDeck.length;
     this.challengeEnergies = {
       [GameConst.RED]: 0,
       [GameConst.BLUE]: 0,
@@ -38,8 +37,14 @@ class LoadPhaseTest extends SceneTest {
       [GameConst.WHITE]: 0,
     };
     const challengeEnergies = Object.values(this.challengeEnergies);
-    const challengeVictories = 0;
-    this.phase.createChallengeGameBoard(challengeCardsInTrash, challengeTotalCardsInDeck, challengeCardsInHand, challengeEnergies, challengeVictories);
+    const challengeData = { 
+      cardsInTrash: 0, 
+      cardsInDeck: this.challengeCardsInDeck.length, 
+      cardsInHand : 6, 
+      victories: 0 
+    };
+    this.phase.createChallengeGameBoard(challengeData, challengeEnergies);
+    this.phase.createPlayerHandset();
     this.addHiddenWatched(this.phase.getTitleWindow());
     this.addHiddenWatched(this.phase.getDescriptionWindow());
     this.addHiddenWatched(this.phase.getTextWindow());
@@ -57,8 +62,9 @@ class LoadPhaseTest extends SceneTest {
   start() {
     this.scene.setPhase(this.phase);
     this.phase.addChildren();
-    this.phase.openTextWindows();
-    this.phase.stepStart();
+    // this.phase.openTextWindows();
+    // this.phase.stepStart();
+    this.phase.openPlayerHand();
   }
 
   update() {
@@ -79,31 +85,32 @@ class LoadPhaseTest extends SceneTest {
     }
     if (this.phase.isStepChallengeLoadPhase()) {
       this.challengePassed = true;
-      this.phase.chanllengePass();
-      this.phase.stepWaintingPhase();
+      this.phase.challengePass();
+      this.phase.stepWainting();
       if (!this.playerPassed) this.phase.stepPlayerLoadPhase();
     }
     if (this.phase.isStepPlayerLoadPhase()) {
       const commandYes = () => {
-        this.phase.closeAskWindow();
-        this.playerPassed = true;
-        this.phase.playerPass();
-        this.phase.stepWaintingPhase();
-        if (!this.challengePassed) this.phase.stepChallengeLoadPhase();
+        this.phase.commandCloseAskWindow();
+        this.phase.closeGameBoards();
+        this.phase.openPlayerHand();
       };
       const commandNo = () => {
-        this.phase.closeAskWindow();
+        this.phase.commandCloseAskWindow();
         this.playerPassed = true;
         this.phase.playerPass();
-        this.phase.stepWaintingPhase();
+        this.phase.stepWainting();
         if (!this.challengePassed) this.phase.stepChallengeLoadPhase();
       };
       this.phase.createAskWindow('Use a Program Card?', commandYes, commandNo);
       this.phase.openAskWindow();
-      this.phase.stepWaintingPhase();
+      this.phase.stepWainting();
     }
-    if (this.playerPassed && this.challengePassed) {
+    if (this.playerPassed && this.challengePassed && this.phase.isStepEnd() === false) {
+      this.phase.addWait();
+      this.phase.closeGameBoards();
       this.phase.addAction(this.endTest);
+      this.phase.stepEnd();
     }
   }
   

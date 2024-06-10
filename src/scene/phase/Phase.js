@@ -29,7 +29,8 @@ class Phase {
     this._scene = scene;
   }
 
-  createPlayerGameBoard(cardsInTrash, cardsInDeck, cardsInHand, energies, victories) {
+  createPlayerGameBoard(player, energies) {
+    const { cardsInTrash, cardsInDeck, cardsInHand, victories } = player;
     this.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand);
     this.createPlayerBattleWindow();
     this.createPlayerTrashWindow(cardsInTrash);
@@ -110,7 +111,8 @@ class Phase {
     return paddingLeft;
   }
 
-  createChallengeGameBoard(cardsInTrash, cardsInDeck, cardsInHand, energies, victories) {
+  createChallengeGameBoard(challenge, energies) {
+    const { cardsInTrash, cardsInDeck, cardsInHand, victories } = challenge;
     this.createChallengeBoardWindow(energies, cardsInDeck, cardsInHand);
     this.createChallengeBattleWindow();
     this.createChallengeTrashWindow(cardsInTrash);
@@ -203,10 +205,12 @@ class Phase {
       this.commandOpenPlayerBattleWindow,
       this.commandOpenPlayerTrashWindow,
       this.commandOpenPlayerScoreWindow,
+      this.commandOpenPlayerBattlefield,
       this.commandOpenChallengeBoardWindow,
       this.commandOpenChallengeBattleWindow,
       this.commandOpenChallengeTrashWindow,
       this.commandOpenChallengeScoreWindow,
+      this.commandOpenChallengeBattlefield,
     ]);
   }
 
@@ -225,6 +229,10 @@ class Phase {
   commandOpenPlayerScoreWindow() {
     this._player.scoreWindow.open();
   }
+
+  commandOpenPlayerBattlefield() {
+    this._player.battlefield.openCards();
+  }
   
   commandOpenChallengeBoardWindow() {
     this._challenge.boardWindow.open();
@@ -242,18 +250,22 @@ class Phase {
     this._challenge.scoreWindow.open();
   }
 
-  closeGameObjects() {
+  commandOpenChallengeBattlefield() {
+    this._challenge.battlefield.openCards();
+  }
+
+  closeGameBoards() {
     this.addActions([
-      this.commandClosePlayerBattleField,
-      this.commandCloseChallengeBattleField,
       this.commandClosePlayerBoardWindow,
       this.commandClosePlayerBattleWindow,
       this.commandClosePlayerTrashWindow,
       this.commandClosePlayerScoreWindow,
+      this.commandClosePlayerBattlefield,
       this.commandCloseChallengeBoardWindow,
       this.commandCloseChallengeBattleWindow,
       this.commandCloseChallengeTrashWindow,
       this.commandCloseChallengeScoreWindow,
+      this.commandCloseChallengeBattlefield,
     ]);
   }
 
@@ -273,6 +285,10 @@ class Phase {
     this._player.scoreWindow.close();
   }
 
+  commandClosePlayerBattlefield() {
+    this._player.battlefield.closeCards();
+  }
+
   commandCloseChallengeBoardWindow() {
     this._challenge.boardWindow.close();
   }
@@ -289,6 +305,10 @@ class Phase {
     this._challenge.scoreWindow.close();
   }
 
+  commandCloseChallengeBattlefield() {
+    this._challenge.battlefield.closeCards();
+  }
+
   update() {
     if (this._wait > 0) return this._wait--;
     if (this.hasActions() && this.isAvailable()) this.executeAction();
@@ -299,11 +319,7 @@ class Phase {
   }
 
   isAvailable() {
-    return !this.isBusy();
-  }
-
-  isBusy() {
-    return ;
+    return this.isBusy() === false;
   }
 
   isBusy() {
@@ -314,13 +330,14 @@ class Phase {
       this._player.battleWindow,
       this._player.trashWindow,
       this._player.scoreWindow,
+      this._player.battlefield,
       this._challenge.boardWindow,
       this._challenge.battleWindow,
       this._challenge.trashWindow,
       this._challenge.scoreWindow,
+      this._challenge.battlefield,
     ];
-    return this._wait > 0 || this.someChildrenIsBusy() ||
-      children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+    return this._wait > 0 || children.some(obj => (obj.isBusy ? obj.isBusy() : false)) || this.someChildrenIsBusy();
   }
 
   someChildrenIsBusy() {
@@ -391,15 +408,16 @@ class Phase {
   }
 
   stepStart() {
-    this.addAction(this.commandChangeStep, GameConst.START_PHASE);
-  }
-
-  commandChangeStep(step) {
-    this._step = step;
+    this._step = GameConst.START_PHASE;
     this._wait = 0.5 * GameConst.FPS;
   }
 
-  stepWaintingPhase() {
+  stepEnd() {
+    this._step = GameConst.END_PHASE;
+    this._wait = 0.5 * GameConst.FPS;
+  }
+
+  stepWainting() {
     this._step = GameConst.WAITING_PHASE;
     this._wait = 0.5 * GameConst.FPS;
   }
@@ -408,8 +426,17 @@ class Phase {
     return this.isCurrentStep(GameConst.START_PHASE);
   }
 
+  isStepEnd() {
+    return this.isCurrentStep(GameConst.END_PHASE);
+  }
+
   isCurrentStep(step) {
     return this._step === step;
+  }
+
+  commandChangeStep(step) {
+    this._step = step;
+    this._wait = 0.5 * GameConst.FPS;
   }
 
   attachChild(child) {
@@ -482,7 +509,7 @@ class Phase {
     return this._challenge.scoreWindow;
   }
 
-  chanllengePass() {
+  challengePass() {
     this.addAction(this.commandChallengePass);
   }
 
@@ -496,13 +523,5 @@ class Phase {
 
   commandPlayerPass() {
     this._player.boardWindow.pass();
-  }
-
-  commandClosePlayerBattleField() {
-    this._player.battlefield.closeCards();
-  }
-
-  commandCloseChallengeBattleField() {
-    this._challenge.battlefield.closeCards();
   }
 }

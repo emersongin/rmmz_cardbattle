@@ -253,4 +253,10 @@ class ActionSprite extends Sprite {
       });
     }
   }
+
+  alignCenterMiddle() {
+    const x = ScreenHelper.getCenterPosition(this.width);
+    const y = ScreenHelper.getMiddlePosition(this.height);
+    this.addCommand(this.commandAlign, x, y);
+  }
 }

@@ -227,11 +227,16 @@ class CardsetSprite extends ActionSprite {
   }
 
   openCards(sprites = this._sprites, delay = 6, reverse = false) {
+    if (this.noSprites()) return;
     sprites = this.toArray(sprites);
     sprites = sprites.map(sprite => [sprite]);
     if (reverse) sprites.reverse();
     const commands = this.createDelayCommands(this.commandOpenCard, delay, sprites);
     this.addCommands(commands);
+  }
+
+  noSprites() {
+    return this._sprites.length === 0;
   }
 
   commandOpenCard(sprite) {
@@ -240,6 +245,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   closeCards(sprites = this._sprites, delay = 6, reverse = false) {
+    if (this.noSprites()) return;
     sprites = this.toArray(sprites);
     sprites = sprites.map(sprite => [sprite]);
     if (reverse) sprites.reverse();
