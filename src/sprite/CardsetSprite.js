@@ -347,13 +347,13 @@ class CardsetSprite extends ActionSprite {
     return indexs.every(index => this.getCardIndex(index).isDisabled());
   }
 
-  selectMode(selectNumber, onSelectHandler, onChangeCursor) {
+  selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
     const chainActionVoid = () => {};
-    this.addCommand(this.commandSelectMode, selectNumber, onSelectHandler, onChangeCursor, chainActionVoid);
+    this.addCommand(this.commandSelectMode, selectNumber, onSelectHandler, onChangeCursor, onCancelHandler, chainActionVoid);
   }
 
-  commandSelectMode(selectNumber, onSelectHandler, onChangeCursor) {
-    return this._status.selectMode(selectNumber, onSelectHandler, onChangeCursor);
+  commandSelectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
+    return this._status.selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
   }
 
   allCardsAreOpened(sprites = this._sprites) {
@@ -531,6 +531,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   getSprites(index) {
+    if (Array.isArray(index)) index = index[0];
     if (index >= 0) return this._sprites[index];
     return this._sprites;
   }
@@ -606,15 +607,16 @@ class CardsetSprite extends ActionSprite {
     sprite.flipTurnToUp();
   }
 
-  addChildToEnd(sprite) {
-    this.addCommand(this.commandAddChildToEnd, sprite);
+  addChildToEnd(sprites) {
+    this.addCommand(this.commandAddChildToEnd, sprites);
   }
 
-  commandAddChildToEnd(spriteToAdd) {
+  commandAddChildToEnd(spritesToAdd) {
     if (this.isHidden()) return false;
+    spritesToAdd = this.toArray(spritesToAdd);
     const indexsAmount = this._sprites.length - 1;
     this._sprites.forEach((sprite, index) => {
-      if (spriteToAdd === sprite) {
+      if (spritesToAdd.includes(sprite)) {
         this.removeChild(sprite);
         this.addChildAt(sprite, indexsAmount);
       } else {

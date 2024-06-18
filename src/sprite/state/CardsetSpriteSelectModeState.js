@@ -5,8 +5,9 @@ class CardsetSpriteSelectModeState {
   _selectNumber;
   _onSelectHandler;
   _onChangeCursor;
+  _onCancelHandler;
 
-  constructor(sprite, selectNumber = -1, onSelectHandler = () => {}, onChangeCursor = () => {}) {
+  constructor(sprite, selectNumber = -1, onSelectHandler = () => {}, onChangeCursor = () => {}, onCancelHandler = () => {}) {
     if (!(sprite instanceof CardsetSprite)) {
       throw new Error('sprite is not a CardsetSprite instance!');
     }
@@ -19,12 +20,16 @@ class CardsetSpriteSelectModeState {
     if (typeof onChangeCursor !== 'function') {
       throw new Error('onChangeCursor is not a function!');
     }
+    if (typeof onCancelHandler !== 'function') {
+      throw new Error('onCancelHandler is not a function!');
+    }
     this._cardset = sprite;
     this._cursorIndex = 0;
     this._selectedIndexs = [];
     this._selectNumber = selectNumber;
     this._onSelectHandler = onSelectHandler;
     this._onChangeCursor = onChangeCursor;
+    this._onCancelHandler = onCancelHandler;
     this.updateOnChangeCursor();
     this.updateHoverSprites();
   }
@@ -79,10 +84,13 @@ class CardsetSpriteSelectModeState {
     if (cardset.isAvailable()) {
       this.updateCursor();
       if (this.isSelectable()) {
-        if (Input.isTriggered('cancel') || this.selectIsFull()) {
+        if (Input.isTriggered('cancel')) {
+          cardset.addCommand(this._onCancelHandler);
+          return cardset.commandStaticMode();
+        }
+        if (this.selectIsFull()) {
           cardset.addCommand(this._onSelectHandler, this._selectedIndexs);
-          cardset.commandStaticMode();
-          return;
+          return cardset.commandStaticMode();
         }
         if (Input.isTriggered('ok')) this.selectSprite();
       }

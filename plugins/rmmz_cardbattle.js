@@ -77,6 +77,7 @@ const GameConst = {
   CHALLENGE_LOAD_PHASE: 'CHALLENGE_LOAD_PHASE',
   END_LOAD_PHASE: 'END_LOAD_PHASE',
   WAITING_PHASE: 'WAITING_PHASE',
+  ACTIVE_POWER_CARD: 'ACTIVE_POWER_CARD',
 };
 
 const CardTypes = {
@@ -520,8 +521,8 @@ class CardGenerator {
 
   static generateCard(type, color, figure, attack, health) {
     return {
-      type: CardGenerator.getTypes()[type ? type : Math.floor(Math.random() * 3)],
-      color: CardGenerator.getColors()[color ? color : Math.floor(Math.random() * 6)],
+      type: CardGenerator.getTypes()[type >= 0 ? type : Math.floor(Math.random() * 3)],
+      color: CardGenerator.getColors()[color >= 0 ? color : Math.floor(Math.random() * 6)],
       figureName: figure || 'default',
       attack: attack || Math.floor(Math.random() * 99) + 1,
       health: health || Math.floor(Math.random() * 99) + 1
@@ -4154,8 +4155,8 @@ class CardsetSpriteStaticModeState {
     return false;
   }
 
-  selectMode(selectNumber, onSelectHandler, onChangeCursor) {
-    this._cardset.changeStatus(CardsetSpriteSelectModeState, selectNumber, onSelectHandler, onChangeCursor);
+  selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
+    this._cardset.changeStatus(CardsetSpriteSelectModeState, selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
   }
 
   unhouverSprites() {
@@ -4196,8 +4197,9 @@ class CardsetSpriteSelectModeState {
   _selectNumber;
   _onSelectHandler;
   _onChangeCursor;
+  _onCancelHandler;
 
-  constructor(sprite, selectNumber = -1, onSelectHandler = () => {}, onChangeCursor = () => {}) {
+  constructor(sprite, selectNumber = -1, onSelectHandler = () => {}, onChangeCursor = () => {}, onCancelHandler = () => {}) {
     if (!(sprite instanceof CardsetSprite)) {
       throw new Error('sprite is not a CardsetSprite instance!');
     }
@@ -4210,12 +4212,16 @@ class CardsetSpriteSelectModeState {
     if (typeof onChangeCursor !== 'function') {
       throw new Error('onChangeCursor is not a function!');
     }
+    if (typeof onCancelHandler !== 'function') {
+      throw new Error('onCancelHandler is not a function!');
+    }
     this._cardset = sprite;
     this._cursorIndex = 0;
     this._selectedIndexs = [];
     this._selectNumber = selectNumber;
     this._onSelectHandler = onSelectHandler;
     this._onChangeCursor = onChangeCursor;
+    this._onCancelHandler = onCancelHandler;
     this.updateOnChangeCursor();
     this.updateHoverSprites();
   }
@@ -4270,10 +4276,13 @@ class CardsetSpriteSelectModeState {
     if (cardset.isAvailable()) {
       this.updateCursor();
       if (this.isSelectable()) {
-        if (Input.isTriggered('cancel') || this.selectIsFull()) {
+        if (Input.isTriggered('cancel')) {
+          cardset.addCommand(this._onCancelHandler);
+          return cardset.commandStaticMode();
+        }
+        if (this.selectIsFull()) {
           cardset.addCommand(this._onSelectHandler, this._selectedIndexs);
-          cardset.commandStaticMode();
-          return;
+          return cardset.commandStaticMode();
         }
         if (Input.isTriggered('ok')) this.selectSprite();
       }
@@ -4715,13 +4724,13 @@ class CardsetSprite extends ActionSprite {
     return indexs.every(index => this.getCardIndex(index).isDisabled());
   }
 
-  selectMode(selectNumber, onSelectHandler, onChangeCursor) {
+  selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
     const chainActionVoid = () => {};
-    this.addCommand(this.commandSelectMode, selectNumber, onSelectHandler, onChangeCursor, chainActionVoid);
+    this.addCommand(this.commandSelectMode, selectNumber, onSelectHandler, onChangeCursor, onCancelHandler, chainActionVoid);
   }
 
-  commandSelectMode(selectNumber, onSelectHandler, onChangeCursor) {
-    return this._status.selectMode(selectNumber, onSelectHandler, onChangeCursor);
+  commandSelectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
+    return this._status.selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
   }
 
   allCardsAreOpened(sprites = this._sprites) {
@@ -4899,6 +4908,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   getSprites(index) {
+    if (Array.isArray(index)) index = index[0];
     if (index >= 0) return this._sprites[index];
     return this._sprites;
   }
@@ -4974,15 +4984,16 @@ class CardsetSprite extends ActionSprite {
     sprite.flipTurnToUp();
   }
 
-  addChildToEnd(sprite) {
-    this.addCommand(this.commandAddChildToEnd, sprite);
+  addChildToEnd(sprites) {
+    this.addCommand(this.commandAddChildToEnd, sprites);
   }
 
-  commandAddChildToEnd(spriteToAdd) {
+  commandAddChildToEnd(spritesToAdd) {
     if (this.isHidden()) return false;
+    spritesToAdd = this.toArray(spritesToAdd);
     const indexsAmount = this._sprites.length - 1;
     this._sprites.forEach((sprite, index) => {
-      if (spriteToAdd === sprite) {
+      if (spritesToAdd.includes(sprite)) {
         this.removeChild(sprite);
         this.addChildAt(sprite, indexsAmount);
       } else {
@@ -5701,6 +5712,21 @@ class Phase {
     return processed;
   }
 
+  setStep(step) {
+    this.addAction(this.commandChangeStep, step);
+    this.stepWainting();
+  }
+
+  commandChangeStep(step) {
+    this._step = step;
+    this.commandWait(0.5);
+  }
+
+  stepWainting() {
+    this._step = GameConst.WAITING_PHASE;
+    this.commandWait(0.5);
+  }
+
   addAction(fn, ...params) {
     const action = this.createAction(fn, ...params);
     const actions = this.toArray(action);
@@ -5731,6 +5757,16 @@ class Phase {
     return (Array.isArray(items) === false) ? [items] : items;
   }
 
+  stepStart() {
+    this._step = GameConst.START_PHASE;
+    this.commandWait(0.5);
+  }
+
+  stepEnd() {
+    this._step = GameConst.END_PHASE;
+    this.commandWait(0.5);
+  }
+
   addWait(seconds = 0.6) {
     this.addAction(this.commandWait, seconds);
   }
@@ -5739,36 +5775,8 @@ class Phase {
     this._wait = seconds * GameConst.FPS;
   }
 
-  stepStart() {
-    this._step = GameConst.START_PHASE;
-    this._wait = 0.5 * GameConst.FPS;
-  }
-
-  stepEnd() {
-    this._step = GameConst.END_PHASE;
-    this._wait = 0.5 * GameConst.FPS;
-  }
-
-  stepWainting() {
-    this._step = GameConst.WAITING_PHASE;
-    this._wait = 0.5 * GameConst.FPS;
-  }
-
-  isStepStart() {
-    return this.isCurrentStep(GameConst.START_PHASE);
-  }
-
-  isStepEnd() {
-    return this.isCurrentStep(GameConst.END_PHASE);
-  }
-
   isCurrentStep(step) {
     return this._step === step;
-  }
-
-  commandChangeStep(step) {
-    this._step = step;
-    this._wait = 0.5 * GameConst.FPS;
   }
 
   attachChild(child) {
@@ -5799,6 +5807,10 @@ class Phase {
 
   addWindow(window) {
     this._scene.addWindow(window);
+  }
+
+  removeChild(child) {
+    this._scene.removeChild(child);
   }
 
   getTitleWindow() {
@@ -6236,6 +6248,7 @@ class LoadPhase extends Phase {
   _cardDescriptionWindow = {};
   _cardPropsWindow = {};
   _playerHand = {};
+  _powerfield = {};
 
   createTextWindow(text) {
     this._textWindow = TextWindow.createWindowFullSize(0, 0, [text]);
@@ -6335,30 +6348,6 @@ class LoadPhase extends Phase {
     this._askWindow.close();
   }
 
-  stepBeginLoadPhase() {
-    this.addAction(this.commandChangeStep, GameConst.BEGIN_LOAD_PHASE);
-  }
-
-  isStepBeginLoadPhase() {
-    return this.isCurrentStep(GameConst.BEGIN_LOAD_PHASE);
-  }
-
-  stepPlayerLoadPhase() {
-    this.addAction(this.commandChangeStep, GameConst.PLAYER_LOAD_PHASE);
-  }
-
-  isStepPlayerLoadPhase() {
-    return this.isCurrentStep(GameConst.PLAYER_LOAD_PHASE);
-  }
-
-  stepChallengeLoadPhase() {
-    this.addAction(this.commandChangeStep, GameConst.CHALLENGE_LOAD_PHASE);
-  }
-
-  isStepChallengeLoadPhase() {
-    return this.isCurrentStep(GameConst.CHALLENGE_LOAD_PHASE);
-  }
-
   isBusy() {
     const children = [
       this._textWindow,
@@ -6376,10 +6365,10 @@ class LoadPhase extends Phase {
     return this._textWindow;
   }
 
-  openPlayerHand(onSelectHandler, onChangeCursor) {
+  openPlayerHand(onSelectHandler, onChangeCursor, onCancelHandler) {
     this.addActions([
       this.commandOpenPlayerHand,
-      [this.commandPlayerHandSelectMode, onSelectHandler, onChangeCursor]
+      [this.commandPlayerHandSelectMode, onSelectHandler, onChangeCursor, onCancelHandler]
     ]);
     this.addActions([
       this.commandSetTextLocationWindow,
@@ -6415,9 +6404,9 @@ class LoadPhase extends Phase {
     this._playerHand.openCards();
   }
 
-  commandPlayerHandSelectMode(onSelectHandler, onChangeCursor) {
+  commandPlayerHandSelectMode(onSelectHandler, onChangeCursor, onCancelHandler) {
     const selectNumber = 1;
-    this._playerHand.selectMode(selectNumber, onSelectHandler, onChangeCursor);
+    this._playerHand.selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
   }
 
   commandSetTextCardNameWindow(text) {
@@ -6432,23 +6421,24 @@ class LoadPhase extends Phase {
     this._cardPropsWindow.refreshContent(text);
   }
 
-  commandGetSprites() {
-    return this._playerHand.getSprites();
+  commandGetSprites(index) {
+    return this._playerHand.getSprites(index);
   }
 
   commandSelectMovement(sprites) {
     const cardset = this._playerHand;
-    const sprite = sprites[0];
-    console.log(sprite, sprites);
-    cardset.addChildToEnd(sprite);
+    cardset.addChildToEnd(sprites);
     cardset.zoomAllCards(sprites);
     cardset.zoomOutAllCards(sprites);
   }
 
-  closePlayerHand(sprites) {
+  selectPowerCard(sprites) {
     this.addActions([
       [this.commandSelectMovement, sprites],
     ]);
+  }
+
+  closePlayerHand() {
     this.addActions([
       this.commandCloseLocationWindow,
       this.commandCloseCardNameWindow,
@@ -6479,6 +6469,35 @@ class LoadPhase extends Phase {
 
   commandClosePlayerHand() {
     this._playerHand.closeCards();
+  }
+
+  activatePowerCard(cards) {
+    this.addAction(this.commandActivatePowerCard, cards);
+  }
+
+  commandActivatePowerCard(cards) {
+    this.createPowerfield(cards);
+    this._powerfield.openCards();
+  }
+
+  createPowerfield(cards) {
+    const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
+    const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
+    if (this._powerfield instanceof CardsetSprite) this.removeChild(this._powerfield);
+    this._powerfield = CardsetSprite.create(x, y);
+    this._powerfield.show();
+    const xCard = CardsetSprite.contentOriginalWidth() - CardSprite.contentOriginalWidth();
+    const sprites = this._powerfield.setCards(cards, xCard);
+    this._powerfield.startClosedCards(sprites);
+    this.addChild(this._powerfield);
+  }
+
+  leavePowerCard() {
+    this.addAction(this.commandLeavePowerCard);
+  }
+
+  commandLeavePowerCard() {
+    this._powerfield.closeCards();
   }
 }
 
@@ -9867,8 +9886,8 @@ class LoadPhaseTest extends SceneTest {
     this.phase.createTitleWindow('Load Phase');
     this.phase.createDescriptionWindow('Select and use a Program Card.');
     this.phase.createTextWindow('Begin Load Phase');
-    this.playerCardsInHand = CardGenerator.generateCards(6, 1);
-    this.playerCardsInDeck = CardGenerator.generateCards(34, 1);
+    this.playerCardsInHand = CardGenerator.generateCards(6, 0);
+    this.playerCardsInDeck = CardGenerator.generateCards(34, 0);
     this.playerEnergies = {
       [GameConst.RED]: 0,
       [GameConst.BLUE]: 0,
@@ -9884,8 +9903,8 @@ class LoadPhaseTest extends SceneTest {
       victories: 0 
     };
     this.phase.createPlayerGameBoard(playerData, playerEnergies);
-    this.challengeCardsInHand = CardGenerator.generateCards(6, 1);
-    this.challengeCardsInDeck = CardGenerator.generateCards(34, 1);
+    this.challengeCardsInHand = CardGenerator.generateCards(6, 0);
+    this.challengeCardsInDeck = CardGenerator.generateCards(34, 0);
     this.challengeEnergies = {
       [GameConst.RED]: 0,
       [GameConst.BLUE]: 0,
@@ -9925,63 +9944,87 @@ class LoadPhaseTest extends SceneTest {
 
   update() {
     if (this.phase.isBusy()) return false;
-    if (this.phase.isStepStart() && Input.isTriggered('ok')) {
+    if (this.phase.isCurrentStep(GameConst.START_PHASE) && Input.isTriggered('ok')) {
       this.phase.closeTextWindows();
-      this.phase.stepBeginLoadPhase();
       this.phase.openGameBoards();
       this.phase.openBeginLoadPhaseWindow();
-      this.phase.stepWainting();
+      this.phase.setStep(GameConst.BEGIN_LOAD_PHASE);
     }
-    if (this.phase.isStepBeginLoadPhase() && Input.isTriggered('ok')) {
+    if (this.phase.isCurrentStep(GameConst.BEGIN_LOAD_PHASE) && Input.isTriggered('ok')) {
       this.phase.closeBeginLoadPhaseWindow();
       if (this.startPlay) {
-        this.phase.stepPlayerLoadPhase();
+        this.phase.setStep(GameConst.PLAYER_LOAD_PHASE);
       } else {
-        this.phase.stepChallengeLoadPhase();
+        this.phase.setStep(GameConst.CHALLENGE_LOAD_PHASE);
       }
-      this.phase.stepWainting();
     }
-    if (this.phase.isStepChallengeLoadPhase()) {
+    if (this.phase.isCurrentStep(GameConst.CHALLENGE_LOAD_PHASE)) {
       this.challengePassed = true;
       this.phase.challengePass();
       this.phase.stepWainting();
-      if (!this.playerPassed) this.phase.stepPlayerLoadPhase();
+      if (!this.playerPassed) this.phase.setStep(GameConst.PLAYER_LOAD_PHASE);
     }
-    if (this.phase.isStepPlayerLoadPhase()) {
+    if (this.phase.isCurrentStep(GameConst.PLAYER_LOAD_PHASE)) {
       const commandYes = () => {
         this.phase.commandCloseAskWindow();
         this.phase.closeGameBoards();
-
-        const onChangeCursor = index => {
-          const card = this.playerCardsInHand[index];
-          this.phase.commandSetTextCardNameWindow(['card.name' + index]);
-          this.phase.commandSetTextCardDescriptionWindow(['card.description' + index]);
-          this.phase.commandSetTextCardPropsWindow(['card.props' + index]);
-        };
-        const onSelectHandler = cards => {
-          const index = cards.shift();
-          const sprites = this.phase.commandGetSprites().slice(index, index + 1);
-          this.phase.closePlayerHand(sprites);
-        };
-        this.phase.openPlayerHand(onSelectHandler, onChangeCursor);
+        this.commandYesPlayer();
       };
       const commandNo = () => {
         this.phase.commandCloseAskWindow();
-        this.playerPassed = true;
-        this.phase.playerPass();
-        this.phase.stepWainting();
-        if (!this.challengePassed) this.phase.stepChallengeLoadPhase();
+        this.commandNoPlayer();
       };
       this.phase.createAskWindow('Use a Program Card?', commandYes, commandNo);
       this.phase.openAskWindow();
       this.phase.stepWainting();
     }
-    if (this.playerPassed && this.challengePassed && this.phase.isStepEnd() === false) {
+
+    if (this.phase.isCurrentStep(GameConst.ACTIVE_POWER_CARD) && Input.isTriggered('cancel')) {
+      this.phase.closeGameBoards();
+      this.phase.leavePowerCard();
+      this.commandYesPlayer();
+      this.phase.stepWainting();
+    }
+
+
+
+    if ((this.playerPassed && this.challengePassed) && this.phase.isCurrentStep(GameConst.END_PHASE) === false) {
       this.phase.addWait();
       this.phase.closeGameBoards();
       this.phase.addAction(this.endTest);
       this.phase.stepEnd();
     }
+  }
+
+  commandYesPlayer() {
+    const onChangeCursor = index => {
+      const card = this.playerCardsInHand[index];
+      this.phase.commandSetTextCardNameWindow(['card.name' + index]);
+      this.phase.commandSetTextCardDescriptionWindow(['card.description' + index]);
+      this.phase.commandSetTextCardPropsWindow(['card.props' + index]);
+    };
+    const onSelectHandler = cardIndexs => {
+      const sprite = this.phase.commandGetSprites(cardIndexs);
+      this.phase.selectPowerCard(sprite);
+      this.phase.closePlayerHand();
+      this.phase.openGameBoards();
+      const cards = CardGenerator.generateCards(1, 1);
+      this.phase.activatePowerCard(cards);
+      this.phase.setStep(GameConst.ACTIVE_POWER_CARD);
+    };
+    const onCancelHandler = () => {
+      this.phase.closePlayerHand();
+      this.phase.openGameBoards();
+      this.phase.setStep(GameConst.PLAYER_LOAD_PHASE);
+    };
+    this.phase.openPlayerHand(onSelectHandler, onChangeCursor, onCancelHandler);
+  }
+
+  commandNoPlayer() {
+    this.playerPassed = true;
+    this.phase.playerPass();
+    this.phase.stepWainting();
+    if (!this.challengePassed) this.phase.setStep(GameConst.CHALLENGE_LOAD_PHASE);
   }
   
   asserts() {

@@ -13,8 +13,8 @@ class CardsetSpriteStaticModeState {
     return false;
   }
 
-  selectMode(selectNumber, onSelectHandler, onChangeCursor) {
-    this._cardset.changeStatus(CardsetSpriteSelectModeState, selectNumber, onSelectHandler, onChangeCursor);
+  selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
+    this._cardset.changeStatus(CardsetSpriteSelectModeState, selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
   }
 
   unhouverSprites() {

@@ -6,6 +6,7 @@ class LoadPhase extends Phase {
   _cardDescriptionWindow = {};
   _cardPropsWindow = {};
   _playerHand = {};
+  _powerfield = {};
 
   createTextWindow(text) {
     this._textWindow = TextWindow.createWindowFullSize(0, 0, [text]);
@@ -105,30 +106,6 @@ class LoadPhase extends Phase {
     this._askWindow.close();
   }
 
-  stepBeginLoadPhase() {
-    this.addAction(this.commandChangeStep, GameConst.BEGIN_LOAD_PHASE);
-  }
-
-  isStepBeginLoadPhase() {
-    return this.isCurrentStep(GameConst.BEGIN_LOAD_PHASE);
-  }
-
-  stepPlayerLoadPhase() {
-    this.addAction(this.commandChangeStep, GameConst.PLAYER_LOAD_PHASE);
-  }
-
-  isStepPlayerLoadPhase() {
-    return this.isCurrentStep(GameConst.PLAYER_LOAD_PHASE);
-  }
-
-  stepChallengeLoadPhase() {
-    this.addAction(this.commandChangeStep, GameConst.CHALLENGE_LOAD_PHASE);
-  }
-
-  isStepChallengeLoadPhase() {
-    return this.isCurrentStep(GameConst.CHALLENGE_LOAD_PHASE);
-  }
-
   isBusy() {
     const children = [
       this._textWindow,
@@ -146,10 +123,10 @@ class LoadPhase extends Phase {
     return this._textWindow;
   }
 
-  openPlayerHand(onSelectHandler, onChangeCursor) {
+  openPlayerHand(onSelectHandler, onChangeCursor, onCancelHandler) {
     this.addActions([
       this.commandOpenPlayerHand,
-      [this.commandPlayerHandSelectMode, onSelectHandler, onChangeCursor]
+      [this.commandPlayerHandSelectMode, onSelectHandler, onChangeCursor, onCancelHandler]
     ]);
     this.addActions([
       this.commandSetTextLocationWindow,
@@ -185,9 +162,9 @@ class LoadPhase extends Phase {
     this._playerHand.openCards();
   }
 
-  commandPlayerHandSelectMode(onSelectHandler, onChangeCursor) {
+  commandPlayerHandSelectMode(onSelectHandler, onChangeCursor, onCancelHandler) {
     const selectNumber = 1;
-    this._playerHand.selectMode(selectNumber, onSelectHandler, onChangeCursor);
+    this._playerHand.selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
   }
 
   commandSetTextCardNameWindow(text) {
@@ -202,23 +179,24 @@ class LoadPhase extends Phase {
     this._cardPropsWindow.refreshContent(text);
   }
 
-  commandGetSprites() {
-    return this._playerHand.getSprites();
+  commandGetSprites(index) {
+    return this._playerHand.getSprites(index);
   }
 
   commandSelectMovement(sprites) {
     const cardset = this._playerHand;
-    const sprite = sprites[0];
-    console.log(sprite, sprites);
-    cardset.addChildToEnd(sprite);
+    cardset.addChildToEnd(sprites);
     cardset.zoomAllCards(sprites);
     cardset.zoomOutAllCards(sprites);
   }
 
-  closePlayerHand(sprites) {
+  selectPowerCard(sprites) {
     this.addActions([
       [this.commandSelectMovement, sprites],
     ]);
+  }
+
+  closePlayerHand() {
     this.addActions([
       this.commandCloseLocationWindow,
       this.commandCloseCardNameWindow,
@@ -249,5 +227,34 @@ class LoadPhase extends Phase {
 
   commandClosePlayerHand() {
     this._playerHand.closeCards();
+  }
+
+  activatePowerCard(cards) {
+    this.addAction(this.commandActivatePowerCard, cards);
+  }
+
+  commandActivatePowerCard(cards) {
+    this.createPowerfield(cards);
+    this._powerfield.openCards();
+  }
+
+  createPowerfield(cards) {
+    const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
+    const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
+    if (this._powerfield instanceof CardsetSprite) this.removeChild(this._powerfield);
+    this._powerfield = CardsetSprite.create(x, y);
+    this._powerfield.show();
+    const xCard = CardsetSprite.contentOriginalWidth() - CardSprite.contentOriginalWidth();
+    const sprites = this._powerfield.setCards(cards, xCard);
+    this._powerfield.startClosedCards(sprites);
+    this.addChild(this._powerfield);
+  }
+
+  leavePowerCard() {
+    this.addAction(this.commandLeavePowerCard);
+  }
+
+  commandLeavePowerCard() {
+    this._powerfield.closeCards();
   }
 }

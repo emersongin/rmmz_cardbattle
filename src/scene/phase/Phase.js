@@ -369,6 +369,21 @@ class Phase {
     return processed;
   }
 
+  setStep(step) {
+    this.addAction(this.commandChangeStep, step);
+    this.stepWainting();
+  }
+
+  commandChangeStep(step) {
+    this._step = step;
+    this.commandWait(0.5);
+  }
+
+  stepWainting() {
+    this._step = GameConst.WAITING_PHASE;
+    this.commandWait(0.5);
+  }
+
   addAction(fn, ...params) {
     const action = this.createAction(fn, ...params);
     const actions = this.toArray(action);
@@ -399,6 +414,16 @@ class Phase {
     return (Array.isArray(items) === false) ? [items] : items;
   }
 
+  stepStart() {
+    this._step = GameConst.START_PHASE;
+    this.commandWait(0.5);
+  }
+
+  stepEnd() {
+    this._step = GameConst.END_PHASE;
+    this.commandWait(0.5);
+  }
+
   addWait(seconds = 0.6) {
     this.addAction(this.commandWait, seconds);
   }
@@ -407,36 +432,8 @@ class Phase {
     this._wait = seconds * GameConst.FPS;
   }
 
-  stepStart() {
-    this._step = GameConst.START_PHASE;
-    this._wait = 0.5 * GameConst.FPS;
-  }
-
-  stepEnd() {
-    this._step = GameConst.END_PHASE;
-    this._wait = 0.5 * GameConst.FPS;
-  }
-
-  stepWainting() {
-    this._step = GameConst.WAITING_PHASE;
-    this._wait = 0.5 * GameConst.FPS;
-  }
-
-  isStepStart() {
-    return this.isCurrentStep(GameConst.START_PHASE);
-  }
-
-  isStepEnd() {
-    return this.isCurrentStep(GameConst.END_PHASE);
-  }
-
   isCurrentStep(step) {
     return this._step === step;
-  }
-
-  commandChangeStep(step) {
-    this._step = step;
-    this._wait = 0.5 * GameConst.FPS;
   }
 
   attachChild(child) {
@@ -467,6 +464,10 @@ class Phase {
 
   addWindow(window) {
     this._scene.addWindow(window);
+  }
+
+  removeChild(child) {
+    this._scene.removeChild(child);
   }
 
   getTitleWindow() {
