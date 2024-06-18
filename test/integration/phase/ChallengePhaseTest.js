@@ -45,6 +45,7 @@ class ChallengePhaseTest extends SceneTest {
     if (this.phase.isStepStart() && Input.isTriggered('ok')) {
       this.phase.closeTextWindows();
       this.phase.stepSelectFolder();
+      this.phase.stepWainting();
       this.phase.openFolderWindow();
     }
     if (this.phase.isStepEndSelectFolder()) {

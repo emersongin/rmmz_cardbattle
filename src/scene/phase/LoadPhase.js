@@ -34,7 +34,6 @@ class LoadPhase extends Phase {
     const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
     const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
     this._playerHand = CardsetSprite.create(x, y);
-    this._playerHand.setBackgroundColor('blue');
     this._playerHand.show();
     const sprites = this._playerHand.listCards(cards);
     this._playerHand.startClosedCards(sprites);
@@ -147,10 +146,10 @@ class LoadPhase extends Phase {
     return this._textWindow;
   }
 
-  openPlayerHand(onChangeCursor) {
+  openPlayerHand(onSelectHandler, onChangeCursor) {
     this.addActions([
       this.commandOpenPlayerHand,
-      [this.commandPlayerHandSelectMode, onChangeCursor]
+      [this.commandPlayerHandSelectMode, onSelectHandler, onChangeCursor]
     ]);
     this.addActions([
       this.commandSetTextLocationWindow,
@@ -158,6 +157,7 @@ class LoadPhase extends Phase {
       this.commandOpenCardNameWindow,
       this.commandOpenCardDescriptionWindow,
       this.commandOpenCardPropsWindow,
+      this.commandOpenPlayerBoardWindow,
     ]);
   }
 
@@ -185,10 +185,9 @@ class LoadPhase extends Phase {
     this._playerHand.openCards();
   }
 
-  commandPlayerHandSelectMode(onChangeCursor) {
-    const selectNumber = 0;
-    const selectHandler = (cards) => {};
-    this._playerHand.selectMode(selectNumber, selectHandler, onChangeCursor);
+  commandPlayerHandSelectMode(onSelectHandler, onChangeCursor) {
+    const selectNumber = 1;
+    this._playerHand.selectMode(selectNumber, onSelectHandler, onChangeCursor);
   }
 
   commandSetTextCardNameWindow(text) {
@@ -201,5 +200,54 @@ class LoadPhase extends Phase {
 
   commandSetTextCardPropsWindow(text) {
     this._cardPropsWindow.refreshContent(text);
+  }
+
+  commandGetSprites() {
+    return this._playerHand.getSprites();
+  }
+
+  commandSelectMovement(sprites) {
+    const cardset = this._playerHand;
+    const sprite = sprites[0];
+    console.log(sprite, sprites);
+    cardset.addChildToEnd(sprite);
+    cardset.zoomAllCards(sprites);
+    cardset.zoomOutAllCards(sprites);
+  }
+
+  closePlayerHand(sprites) {
+    this.addActions([
+      [this.commandSelectMovement, sprites],
+    ]);
+    this.addActions([
+      this.commandCloseLocationWindow,
+      this.commandCloseCardNameWindow,
+      this.commandCloseCardDescriptionWindow,
+      this.commandCloseCardPropsWindow,
+      this.commandClosePlayerBoardWindow,
+    ]);
+    this.addActions([
+      this.commandClosePlayerHand
+    ]);
+  }
+
+  commandCloseLocationWindow() {
+    this._locationWindow.close();
+  }
+
+  commandCloseCardNameWindow() {
+    this._cardNameWindow.close();
+  }
+
+  commandCloseCardDescriptionWindow() {
+    this._cardDescriptionWindow.close();
+  }
+
+  commandCloseCardPropsWindow() {
+    this._cardPropsWindow.close();
+  }
+
+  commandClosePlayerHand() {
+    this._playerHand.closeCards();
   }
 }

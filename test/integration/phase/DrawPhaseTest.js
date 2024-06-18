@@ -67,6 +67,7 @@ class DrawPhaseTest extends SceneTest {
     if (this.phase.isStepStart() && Input.isTriggered('ok')) {
       this.phase.closeTextWindows();
       this.phase.stepDrawCards();
+      this.phase.stepWainting();
       this.phase.openGameBoards();
       
       const playerCardsInDeck = this.playerCardsInDeck.length;

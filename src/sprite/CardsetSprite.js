@@ -530,7 +530,8 @@ class CardsetSprite extends ActionSprite {
     return this.getSprites().filter(sprite => sprite.isEnabled()).length;
   }
 
-  getSprites() {
+  getSprites(index) {
+    if (index >= 0) return this._sprites[index];
     return this._sprites;
   }
 
@@ -603,5 +604,24 @@ class CardsetSprite extends ActionSprite {
   commandFlipTurnToUpCard(sprite) {
     if (this.isHidden()) return false;
     sprite.flipTurnToUp();
+  }
+
+  addChildToEnd(sprite) {
+    this.addCommand(this.commandAddChildToEnd, sprite);
+  }
+
+  commandAddChildToEnd(spriteToAdd) {
+    if (this.isHidden()) return false;
+    const indexsAmount = this._sprites.length - 1;
+    this._sprites.forEach((sprite, index) => {
+      if (spriteToAdd === sprite) {
+        this.removeChild(sprite);
+        this.addChildAt(sprite, indexsAmount);
+      } else {
+        this.removeChild(sprite);
+        const fixLastCardIndex = (index === indexsAmount ? indexsAmount - 1 : index);
+        this.addChildAt(sprite, fixLastCardIndex);
+      }
+    });
   }
 }

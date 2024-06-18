@@ -27,6 +27,7 @@ class StartPhaseTest extends SceneTest {
     if (this.phase.isStepStart() && Input.isTriggered('ok')) {
       this.phase.closeTextWindows();
       this.phase.stepCardDrawGame();
+      this.phase.stepWainting();
       const resultHandler = (win) => {
         this.phase.stepEndCardDrawGame();
         this.gameResult = win;
@@ -36,6 +37,7 @@ class StartPhaseTest extends SceneTest {
     if (this.phase.isStepEndCardDrawGame() && Input.isTriggered('ok')) {
       this.phase.closeGameObjects();
       this.phase.addAction(this.endTest);
+      this.phase.stepWainting();
     }
   }
 

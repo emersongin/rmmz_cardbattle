@@ -45,18 +45,13 @@ class CardsetSpriteSelectModeState {
   updateHoverSprites() {
     const cardset = this._cardset;
     const sprites = cardset.getSprites();
-    const indexsAmount = sprites.length - 1;
+    const spriteToAdd = cardset.getSprites(this._cursorIndex);
+    cardset.commandAddChildToEnd(spriteToAdd);
     sprites.forEach((sprite, index) => {
-      if (index === this._cursorIndex) {
-        this.hoverSprite(sprite);
-        cardset.removeChild(sprite);
-        cardset.addChildAt(sprite, indexsAmount);
-      } else {
-        this.unhoverSprite(sprite);
-        cardset.removeChild(sprite);
-        const fixLastCardIndex = (index === indexsAmount ? indexsAmount - 1 : index);
-        cardset.addChildAt(sprite, fixLastCardIndex);
-      }
+      if (spriteToAdd === sprite) {
+        return this.hoverSprite(sprite);
+      } 
+      this.unhoverSprite(sprite);
     });
   }
 

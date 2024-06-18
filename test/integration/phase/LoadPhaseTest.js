@@ -62,15 +62,8 @@ class LoadPhaseTest extends SceneTest {
   start() {
     this.scene.setPhase(this.phase);
     this.phase.addChildren();
-    // this.phase.openTextWindows();
-    // this.phase.stepStart();
-    const onChangeCursor = index => {
-      const card = this.playerCardsInHand[index];
-      this.phase.commandSetTextCardNameWindow(['card.name' + index]);
-      this.phase.commandSetTextCardDescriptionWindow(['card.description' + index]);
-      this.phase.commandSetTextCardPropsWindow(['card.props' + index]);
-    };
-    this.phase.openPlayerHand(onChangeCursor);
+    this.phase.openTextWindows();
+    this.phase.stepStart();
   }
 
   update() {
@@ -80,6 +73,7 @@ class LoadPhaseTest extends SceneTest {
       this.phase.stepBeginLoadPhase();
       this.phase.openGameBoards();
       this.phase.openBeginLoadPhaseWindow();
+      this.phase.stepWainting();
     }
     if (this.phase.isStepBeginLoadPhase() && Input.isTriggered('ok')) {
       this.phase.closeBeginLoadPhaseWindow();
@@ -88,6 +82,7 @@ class LoadPhaseTest extends SceneTest {
       } else {
         this.phase.stepChallengeLoadPhase();
       }
+      this.phase.stepWainting();
     }
     if (this.phase.isStepChallengeLoadPhase()) {
       this.challengePassed = true;
@@ -99,7 +94,19 @@ class LoadPhaseTest extends SceneTest {
       const commandYes = () => {
         this.phase.commandCloseAskWindow();
         this.phase.closeGameBoards();
-        this.phase.openPlayerHand();
+
+        const onChangeCursor = index => {
+          const card = this.playerCardsInHand[index];
+          this.phase.commandSetTextCardNameWindow(['card.name' + index]);
+          this.phase.commandSetTextCardDescriptionWindow(['card.description' + index]);
+          this.phase.commandSetTextCardPropsWindow(['card.props' + index]);
+        };
+        const onSelectHandler = cards => {
+          const index = cards.shift();
+          const sprites = this.phase.commandGetSprites().slice(index, index + 1);
+          this.phase.closePlayerHand(sprites);
+        };
+        this.phase.openPlayerHand(onSelectHandler, onChangeCursor);
       };
       const commandNo = () => {
         this.phase.commandCloseAskWindow();

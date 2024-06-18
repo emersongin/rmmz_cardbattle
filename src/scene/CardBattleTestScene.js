@@ -94,6 +94,7 @@ class CardBattleTestScene extends Scene_Message {
       FlipTurnToUpCardsCardsetSpriteTest,
       ChainActionCardsetSpriteTest,
       OnChangeCursorSelectModeCardsetSpriteTest,
+      AddChildToEndCardsetSpriteTest,
     ];
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,
