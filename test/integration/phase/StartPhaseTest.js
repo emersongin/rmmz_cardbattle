@@ -1,7 +1,7 @@
 class StartPhaseTest extends SceneTest {
   phase;
   endTest;
-  manager = { win: false };
+  manager = { win: undefined };
 
   create() {
     this.phase = new StartPhase(this.scene);
@@ -44,10 +44,10 @@ class StartPhaseTest extends SceneTest {
   asserts() {
     this.describe('Deve apresentar etapas de fase de início e jogo da sorte.');
     const cardset = this.phase.getDrawCardGameCardset();
+    this.expectWasTrue('O set de cartas estava em modo seleção?', cardset.isSelectMode, cardset);
     this.expectWasTrue('A janela de título foi apresentada?', 'visible', this.phase.getTitleWindow());
     this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase.getDescriptionWindow());
     this.expectWasTrue('A janela de resultado foi apresentada?', 'visible', this.phase.getResultWindow());
-    this.expectWasTrue('O set de cartas estava em modo seleção?', cardset.isSelectMode, cardset);
     this.expectTrue('O resultado do jogo da sorte foi apresentado?', typeof this.manager.win === 'boolean');
   }
 }
