@@ -68,8 +68,8 @@ const GameConst = {
   END_PHASE: 'END_PHASE',
   START_SELECT_FOLDER: 'START_SELECT_FOLDER',
   END_SELECT_FOLDER: 'END_SELECT_FOLDER',
-  START_CARD_DRAW_GAME: 'START_CARD_DRAW_GAME',
-  END_CARD_DRAW_GAME: 'END_CARD_DRAW_GAME',
+  START_DRAW_CARD_GAME: 'START_DRAW_CARD_GAME',
+  END_DRAW_CARD_GAME: 'END_DRAW_CARD_GAME',
   START_DRAW_CARDS: 'START_DRAW_CARDS',
   END_DRAW_CARDS: 'END_DRAW_CARDS',
   BEGIN_LOAD_PHASE: 'BEGIN_LOAD_PHASE',
@@ -4199,20 +4199,20 @@ class CardsetSpriteSelectModeState {
   _onChangeCursor;
   _onCancelHandler;
 
-  constructor(sprite, selectNumber = -1, onSelectHandler = () => {}, onChangeCursor = () => {}, onCancelHandler = () => {}) {
+  constructor(sprite, selectNumber = -1, onSelectHandler, onChangeCursor, onCancelHandler) {
     if (!(sprite instanceof CardsetSprite)) {
       throw new Error('sprite is not a CardsetSprite instance!');
     }
     if (typeof selectNumber !== 'number') {
       throw new Error('selectNumber is not a number!');
     }
-    if (typeof onSelectHandler !== 'function') {
+    if (onSelectHandler && typeof onSelectHandler !== 'function') {
       throw new Error('onSelectHandler is not a function!');
     }
-    if (typeof onChangeCursor !== 'function') {
+    if (onChangeCursor && typeof onChangeCursor !== 'function') {
       throw new Error('onChangeCursor is not a function!');
     }
-    if (typeof onCancelHandler !== 'function') {
+    if (onCancelHandler && typeof onCancelHandler !== 'function') {
       throw new Error('onCancelHandler is not a function!');
     }
     this._cardset = sprite;
@@ -4235,8 +4235,10 @@ class CardsetSpriteSelectModeState {
   }
 
   updateOnChangeCursor() {
-    const cardset = this._cardset;
-    cardset.addCommand(this._onChangeCursor, this._cursorIndex);
+    if (this._onChangeCursor) {
+      const cardset = this._cardset;
+      cardset.addCommand(this._onChangeCursor, this._cursorIndex);
+    }
   }
 
   updateHoverSprites() {
@@ -4276,7 +4278,7 @@ class CardsetSpriteSelectModeState {
     if (cardset.isAvailable()) {
       this.updateCursor();
       if (this.isSelectable()) {
-        if (Input.isTriggered('cancel')) {
+        if (this._onCancelHandler && Input.isTriggered('cancel')) {
           cardset.addCommand(this._onCancelHandler);
           return cardset.commandStaticMode();
         }
@@ -5939,50 +5941,52 @@ class ChallengePhase extends Phase {
 class StartPhase extends Phase {
   _resultWindow = {};
   _cards = [];
-  _cardDrawGameCardset = {};
+  _drawCardGame = {};
 
-  createCardDrawGameCardset() {
-    this._cardDrawGameCardset = CardsetSprite.create(0, 0);
-    this._cardDrawGameCardset.centralize();
-    this._cardDrawGameCardset.commandShow();
+  createDrawCardGame() {
+    this._drawCardGame = CardsetSprite.create(0, 0);
+    this._drawCardGame.centralize();
+    this._drawCardGame.commandShow();
     const cards = this.createCardsShuffled();
-    const sprites = this._cardDrawGameCardset.setCards(cards, Graphics.boxWidth, Graphics.boxHeight);
-    const xSprite1 = -(this._cardDrawGameCardset.x + CardSprite.contentOriginalWidth());
-    const ySprite1 = -(this._cardDrawGameCardset.y + CardSprite.contentOriginalHeight());
+    const sprites = this._drawCardGame.setCards(cards, Graphics.boxWidth, Graphics.boxHeight);
+    const xSprite1 = -(this._drawCardGame.x + CardSprite.contentOriginalWidth());
+    const ySprite1 = -(this._drawCardGame.y + CardSprite.contentOriginalHeight());
     const position1 = CardSprite.createPosition(xSprite1, ySprite1, 0);
-    const xSprite2 = (Graphics.boxWidth - this._cardDrawGameCardset.x);
-    const ySprite2 = (Graphics.boxHeight - this._cardDrawGameCardset.y);
+    const xSprite2 = (Graphics.boxWidth - this._drawCardGame.x);
+    const ySprite2 = (Graphics.boxHeight - this._drawCardGame.y);
     const position2 = CardSprite.createPosition(xSprite2, ySprite2, 1);
     const positions = [position1, position2];
-    this._cardDrawGameCardset.setAllCardsInPositions(sprites, positions);
-    this._cardDrawGameCardset.setTurnToDownCards(sprites);
-    this.attachChild(this._cardDrawGameCardset);
-    return sprites;
+    this._drawCardGame.setAllCardsInPositions(sprites, positions);
+    this._drawCardGame.setTurnToDownCards(sprites);
+    this.addChild(this._drawCardGame);
   }
 
   createCardsShuffled() {
     const cards = [
-      CardGenerator.generateGameCard(GameConst.WHITE),
-      CardGenerator.generateGameCard(GameConst.BLACK),
+      {
+        type: 2,
+        color: GameConst.WHITE,
+        figureName: 'default',
+        attack: 0,
+        health: 0
+      },
+      {
+        type: 2,
+        color: GameConst.BLACK,
+        figureName: 'default',
+        attack: 0,
+        health: 0
+      },
     ];
     this._cards = ArrayHelper.shuffle(cards);
     return this._cards;
   }
 
-  createResultWindow(result) {
-    const text = result ? 'You go first!' : 'You go next!';
-    this._resultWindow = TextWindow.createWindowOneFourthSize(0, 0, [text]);
-    this._resultWindow.alignCenterMiddle();
-    this._resultWindow.alignBelowOf({ y: 100, height: 0 });
-    this._resultWindow.alignTextCenter();
-    this.addWindow(this._resultWindow);
+  startDrawCardGame(onSelectHandler) {
+    this.addAction(this.commandStartDrawCardGame, onSelectHandler);
   }
 
-  startCardDrawGame(selectHandler) {
-    this.addAction(this.commandStartCardDrawGame, selectHandler);
-  }
-
-  commandStartCardDrawGame(selectHandler) {
+  commandStartDrawCardGame(onSelectHandler) {
     this.showCards();
     this.moveAllCardsToCenter();
     const handlerDecorator = (cards) => {
@@ -5990,9 +5994,9 @@ class StartPhase extends Phase {
       const white = 4;
       const result = this._cards[selectedIndex].color === white;
       this.createResultWindow(result);
-      this.endCardDrawGame(selectedIndex);
+      this.endDrawCardGame(selectedIndex);
       this.openResultWindow();
-      selectHandler(result);
+      onSelectHandler(result);
     }
     this.selectMode(handlerDecorator);
   }
@@ -6002,7 +6006,7 @@ class StartPhase extends Phase {
   }
   
   commandShowCards() {
-    this._cardDrawGameCardset.showCards();
+    this._drawCardGame.showCards();
   }
 
   moveAllCardsToCenter() {
@@ -6010,51 +6014,48 @@ class StartPhase extends Phase {
   }
 
   commandMoveAllCardsToCenter() {
-    const center = this._cardDrawGameCardset.width / 2;
+    const center = this._drawCardGame.width / 2;
     const x = center - CardSprite.contentOriginalWidth();
     const space = 2;
     const position1 = CardSprite.createPosition(x - space, 0, 0);
     const position2 = CardSprite.createPosition(center + space, 0, 1);
     const positions = [position1, position2];
-    const sprites = this._cardDrawGameCardset.getSprites();
-    this._cardDrawGameCardset.moveAllCardsToPositions(sprites, positions);
+    const sprites = this._drawCardGame.getSprites();
+    this._drawCardGame.moveAllCardsToPositions(sprites, positions);
   }
 
-  selectMode(selectHandler) {
-    this.addAction(this.commandSelectMode, selectHandler);
+  createResultWindow(result) {
+    const text = result ? 'You go first!' : 'You go next!';
+    this._resultWindow = TextWindow.createWindowOneFourthSize(0, 0, [text]);
+    this._resultWindow.alignCenterMiddle();
+    this._resultWindow.alignBelowOf({ y: 100, height: 0 });
+    this._resultWindow.alignTextCenter();
+    this.addChild(this._resultWindow);
   }
 
-  commandSelectMode(selectHandler) {
+  selectMode(onSelectHandler) {
+    this.addAction(this.commandSelectMode, onSelectHandler);
+  }
+
+  commandSelectMode(onSelectHandler) {
     const selectNumber = 1;
-    this._cardDrawGameCardset.selectMode(selectHandler, selectNumber);
-  }
-
-  stepCardDrawGame() {
-    this.addAction(this.commandChangeStep, GameConst.START_CARD_DRAW_GAME);
-  }
-
-  stepEndCardDrawGame() {
-    this.addAction(this.commandChangeStep, GameConst.END_CARD_DRAW_GAME);
-  }
-
-  isStepEndCardDrawGame() {
-    return this.isCurrentStep(GameConst.END_CARD_DRAW_GAME);
+    this._drawCardGame.selectMode(selectNumber, onSelectHandler);
   }
   
   isBusy() {
     const children = [
-      this._cardDrawGameCardset,
+      this._drawCardGame,
       this._resultWindow,
     ];
     return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
   }
 
-  endCardDrawGame(selectedIndex) {
-    this.addAction(this.commandEndCardDrawGame, selectedIndex);
+  endDrawCardGame(selectedIndex) {
+    this.addAction(this.commandEndDrawCardGame, selectedIndex);
   }
 
-  commandEndCardDrawGame(selectedIndex) {
-    const cardset = this._cardDrawGameCardset;
+  commandEndDrawCardGame(selectedIndex) {
+    const cardset = this._drawCardGame;
     const sprites = ArrayHelper.moveToStartByIndex(cardset.getSprites(), selectedIndex);
     const selectedSprite = sprites[0];
     const startIndex = 0;
@@ -6074,10 +6075,10 @@ class StartPhase extends Phase {
     this._resultWindow.open();
   }
 
-  closeGameObjects() {
+  closeDrawCardGame() {
     this.addActions([
       this.commandCloseResultWindow,
-      this.commandCloseCardDrawGameCardset,
+      this.commandCloseDrawCardGame,
     ]);
   }
   
@@ -6085,16 +6086,31 @@ class StartPhase extends Phase {
     this._resultWindow.close();
   }
 
-  commandCloseCardDrawGameCardset() {
-    this._cardDrawGameCardset.closeAllCards();
+  commandCloseDrawCardGame() {
+    this._drawCardGame.closeAllCards();
+  }
+
+  leaveDrawCardGame() {
+    this.addActions([
+      this.commandLeaveDrawCardGame,
+      this.commandLeaveResultWindow,
+    ]);
+  }
+
+  commandLeaveDrawCardGame() {
+    this.removeChild(this._drawCardGame);
+  }
+
+  commandLeaveResultWindow() {
+    this.removeChild(this._resultWindow);
   }
 
   getResultWindow() {
     return this._resultWindow;
   }
 
-  getCardDrawGameCardset() {
-    return this._cardDrawGameCardset;
+  getDrawCardGameCardset() {
+    return this._drawCardGame;
   }
 
 
@@ -6112,7 +6128,7 @@ class StartPhase extends Phase {
   // createConfirmWindow(message) {
   //   // message = 'confirm the selection?'
   //   const confirmHandler = () => {
-  //     this._selectHandler(this._selectedIndexs);
+  //     this._onSelectHandler(this._selectedIndexs);
   //   };
   //   const returnHandler = () => {
   //     this.returnToSelection();
@@ -9638,6 +9654,8 @@ class ChallengePhaseTest extends SceneTest {
   manager = { folders: [], index: -1 };
 
   create() {
+    this.phase = new ChallengePhase(this.scene);
+    this.endTest = this.createHandler();
     this.manager.folders = [
       {
         name: 'Folder 1',
@@ -9649,8 +9667,6 @@ class ChallengePhaseTest extends SceneTest {
         name: 'Folder 3',
         energies: [10, 10, 10, 0, 0, 0],
     }];
-    this.phase = new ChallengePhase(this.scene);
-    this.endTest = this.createHandler();
   }
 
   start() {
@@ -9701,54 +9717,54 @@ class ChallengePhaseTest extends SceneTest {
 class StartPhaseTest extends SceneTest {
   phase;
   endTest;
-  gameResult;
+  manager = { win: false };
 
   create() {
     this.phase = new StartPhase(this.scene);
-    this.phase.createTitleWindow('Start Phase');
-    this.phase.createDescriptionWindow('Draw Calumon to go first.');
-    this.phase.createCardDrawGameCardset();
-    this.addHiddenWatched(this.phase.getTitleWindow());
-    this.addHiddenWatched(this.phase.getDescriptionWindow());
-    this.addHiddenWatched(this.phase._cardDrawGameCardset);
-    this.addHiddenWatched(this.phase._resultWindow);
     this.endTest = this.createHandler();
   }
 
   start() {
     this.scene.setPhase(this.phase);
-    this.phase.addChildren();
+    this.phase.createTitleWindow('Start Phase');
+    this.phase.createDescriptionWindow('Draw Calumon to go first.');
+    this.addHiddenWatched(this.phase.getTitleWindow());
+    this.addHiddenWatched(this.phase.getDescriptionWindow());
     this.phase.openTextWindows();
     this.phase.stepStart();
   }
   
   update() {
     if (this.phase.isBusy()) return false;
-    if (this.phase.isStepStart() && Input.isTriggered('ok')) {
-      this.phase.closeTextWindows();
-      this.phase.stepCardDrawGame();
-      this.phase.stepWainting();
+    if (this.phase.isCurrentStep(GameConst.START_PHASE) && Input.isTriggered('ok')) {
+      this.phase.commandCloseTextWindows();
+      this.phase.leaveTextWindows();
       const resultHandler = (win) => {
-        this.phase.stepEndCardDrawGame();
-        this.gameResult = win;
+        this.manager.win = win;
+        this.phase.setStep(GameConst.END_DRAW_CARD_GAME);
       };
-      this.phase.startCardDrawGame(resultHandler);
+      this.phase.createDrawCardGame();
+      this.addHiddenWatched(this.phase.getDrawCardGameCardset());
+      this.addHiddenWatched(this.phase.getResultWindow());
+      this.phase.startDrawCardGame(resultHandler);
+      this.phase.setStep(GameConst.START_DRAW_CARD_GAME);
     }
-    if (this.phase.isStepEndCardDrawGame() && Input.isTriggered('ok')) {
-      this.phase.closeGameObjects();
+    if (this.phase.isCurrentStep(GameConst.END_DRAW_CARD_GAME) && Input.isTriggered('ok')) {
+      this.phase.closeDrawCardGame();
+      this.phase.leaveDrawCardGame();
+      this.phase.addWait();
       this.phase.addAction(this.endTest);
-      this.phase.stepWainting();
     }
   }
 
   asserts() {
     this.describe('Deve apresentar etapas de fase de início e jogo da sorte.');
-    const cardset = this.phase.getCardDrawGameCardset();
+    const cardset = this.phase.getDrawCardGameCardset();
     this.expectWasTrue('A janela de título foi apresentada?', 'visible', this.phase.getTitleWindow());
     this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase.getDescriptionWindow());
     this.expectWasTrue('A janela de resultado foi apresentada?', 'visible', this.phase.getResultWindow());
     this.expectWasTrue('O set de cartas estava em modo seleção?', cardset.isSelectMode, cardset);
-    this.expectTrue('O resultado do jogo da sorte foi apresentado?', typeof this.gameResult === 'boolean');
+    this.expectTrue('O resultado do jogo da sorte foi apresentado?', typeof this.manager.win === 'boolean');
   }
 }
 class DrawPhaseTest extends SceneTest {
@@ -10300,8 +10316,8 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const phase = [
-      ChallengePhaseTest,
-      // StartPhaseTest,
+      // ChallengePhaseTest,
+      StartPhaseTest,
       // DrawPhaseTest,
       // LoadPhaseTest,
     ];

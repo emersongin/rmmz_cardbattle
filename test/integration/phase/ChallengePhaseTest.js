@@ -4,6 +4,8 @@ class ChallengePhaseTest extends SceneTest {
   manager = { folders: [], index: -1 };
 
   create() {
+    this.phase = new ChallengePhase(this.scene);
+    this.endTest = this.createHandler();
     this.manager.folders = [
       {
         name: 'Folder 1',
@@ -15,8 +17,6 @@ class ChallengePhaseTest extends SceneTest {
         name: 'Folder 3',
         energies: [10, 10, 10, 0, 0, 0],
     }];
-    this.phase = new ChallengePhase(this.scene);
-    this.endTest = this.createHandler();
   }
 
   start() {
