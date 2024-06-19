@@ -10,7 +10,11 @@ class ChallengePhase extends Phase {
     this._folderWindow = FolderWindow.create(0, 0, [title], commands);
     this._folderWindow.alignMiddle();
     this._folderWindow.alignTextCenter();
-    this.attachChild(this._folderWindow);
+    this.addChild(this._folderWindow);
+  }
+
+  getFolderWindow() {
+    return this._folderWindow;
   }
 
   openFolderWindow() {
@@ -29,16 +33,12 @@ class ChallengePhase extends Phase {
     this._folderWindow.close();
   }
 
-  stepSelectFolder() {
-    this.addAction(this.commandChangeStep, GameConst.START_SELECT_FOLDER);
+  leaveFolderWindow() {
+    this.addAction(this.commandLeaveFolderWindow);
   }
 
-  stepEndSelectFolder() {
-    this.addAction(this.commandChangeStep, GameConst.END_SELECT_FOLDER);
-  }
-
-  isStepEndSelectFolder() {
-    return this.isCurrentStep(GameConst.END_SELECT_FOLDER);
+  commandLeaveFolderWindow() {
+    this.removeChild(this._folderWindow);
   }
 
   isBusy() {
@@ -46,9 +46,5 @@ class ChallengePhase extends Phase {
       this._folderWindow
     ];
     return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
-  }
-
-  getFolderWindow() {
-    return this._folderWindow;
   }
 }

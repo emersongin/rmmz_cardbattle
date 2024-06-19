@@ -234,6 +234,7 @@ class SceneTest {
   }
 
   assertWatched(reference, watching, fnOrValue, params) {
+    if (!watching) return false;
     if (this.isFunction(fnOrValue)) {
       const fnName = fnOrValue.name;
       watching = ObjectHelper.mergeObjects(reference, watching);

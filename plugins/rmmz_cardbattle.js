@@ -5386,7 +5386,7 @@ class Phase {
     this._titleWindow = TextWindow.createWindowFullSize(0, 0, [title]);
     this._titleWindow.alignBelowOf({ y: 200, height: 0 });
     this._titleWindow.alignTextCenter();
-    this.attachChild(this._titleWindow);
+    this.addChild(this._titleWindow);
   }
 
   createDescriptionWindow(...texts) {
@@ -5396,7 +5396,7 @@ class Phase {
     const maxContent = content.slice(0, maxSize);
     this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, maxContent);
     this._descriptionWindow.alignCenterBelowMiddle();
-    this.attachChild(this._descriptionWindow);
+    this.addChild(this._descriptionWindow);
   }
 
   createPlayerBoardWindow(energies, cardsInDeck, cardsInHand) {
@@ -5527,11 +5527,9 @@ class Phase {
     this._descriptionWindow.open();
   }
 
-  closeTextWindows() {
-    this.addActions([
-      this.commandCloseTitleWindow,
-      this.commandCloseDescriptionWindow,
-    ]);
+  commandCloseTextWindows() {
+    this.commandCloseTitleWindow();
+    this.commandCloseDescriptionWindow();
   }
 
   commandCloseTitleWindow() {
@@ -5809,8 +5807,16 @@ class Phase {
     this._scene.addWindow(window);
   }
 
+  removeChildren(children) {
+    children.forEach(child => this.removeChild(child));
+  }
+
   removeChild(child) {
-    this._scene.removeChild(child);
+    if (child instanceof Window_Base) {
+      this._scene.addWindow(child);
+    } else {
+      this._scene.removeChild(child);
+    }
   }
 
   getTitleWindow() {
@@ -5868,6 +5874,17 @@ class Phase {
   commandPlayerPass() {
     this._player.boardWindow.pass();
   }
+
+  leaveTextWindows() {
+    this.addAction(this.commandLeaveTextWindows);
+  }
+
+  commandLeaveTextWindows() {
+    this.removeChildren([
+      this._titleWindow,
+      this._descriptionWindow,
+    ]);
+  }
 }
 class ChallengePhase extends Phase {
   _folderWindow = {};
@@ -5881,7 +5898,11 @@ class ChallengePhase extends Phase {
     this._folderWindow = FolderWindow.create(0, 0, [title], commands);
     this._folderWindow.alignMiddle();
     this._folderWindow.alignTextCenter();
-    this.attachChild(this._folderWindow);
+    this.addChild(this._folderWindow);
+  }
+
+  getFolderWindow() {
+    return this._folderWindow;
   }
 
   openFolderWindow() {
@@ -5900,16 +5921,12 @@ class ChallengePhase extends Phase {
     this._folderWindow.close();
   }
 
-  stepSelectFolder() {
-    this.addAction(this.commandChangeStep, GameConst.START_SELECT_FOLDER);
+  leaveFolderWindow() {
+    this.addAction(this.commandLeaveFolderWindow);
   }
 
-  stepEndSelectFolder() {
-    this.addAction(this.commandChangeStep, GameConst.END_SELECT_FOLDER);
-  }
-
-  isStepEndSelectFolder() {
-    return this.isCurrentStep(GameConst.END_SELECT_FOLDER);
+  commandLeaveFolderWindow() {
+    this.removeChild(this._folderWindow);
   }
 
   isBusy() {
@@ -5917,10 +5934,6 @@ class ChallengePhase extends Phase {
       this._folderWindow
     ];
     return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
-  }
-
-  getFolderWindow() {
-    return this._folderWindow;
   }
 }
 class StartPhase extends Phase {
@@ -6737,6 +6750,7 @@ class SceneTest {
   }
 
   assertWatched(reference, watching, fnOrValue, params) {
+    if (!watching) return false;
     if (this.isFunction(fnOrValue)) {
       const fnName = fnOrValue.name;
       watching = ObjectHelper.mergeObjects(reference, watching);
@@ -9621,54 +9635,57 @@ class CreateFolderWindowTest extends SceneTest {
 class ChallengePhaseTest extends SceneTest {
   phase;
   endTest;
-  selectFolderIndex = -1;
+  manager = { folders: [], index: -1 };
 
   create() {
-    this.phase = new ChallengePhase(this.scene);
-    this.phase.createTitleWindow('Challenge Phase');
-    this.phase.createDescriptionWindow('lv. 85', 'Amaterasu Duel King');
-    const selectHandler = (index) => {
-      this.selectFolderIndex = index;
-      this.phase.closeFolderWindow();
-      this.phase.stepEndSelectFolder();
-    };
-    const folders = [
+    this.manager.folders = [
       {
         name: 'Folder 1',
-        energies: [10, 10, 5, 5, 5, 5],
-        handler: selectHandler, 
+        energies: [10, 10, 5, 5, 5, 5]
       }, {
         name: 'Folder 2',
         energies: [10, 10, 10, 10, 10, 10],
-        handler: selectHandler, 
       }, {
         name: 'Folder 3',
         energies: [10, 10, 10, 0, 0, 0],
-        handler: selectHandler, 
     }];
-    this.phase.createFolderWindow('Choose a folder', folders);
-    this.addHiddenWatched(this.phase.getTitleWindow());
-    this.addHiddenWatched(this.phase.getDescriptionWindow());
-    this.addHiddenWatched(this.phase.getFolderWindow());
+    this.phase = new ChallengePhase(this.scene);
     this.endTest = this.createHandler();
   }
 
   start() {
     this.scene.setPhase(this.phase);
-    this.phase.addChildren();
+    this.phase.createTitleWindow('Challenge Phase');
+    this.phase.createDescriptionWindow('lv. 85', 'Amaterasu Duel King');
+    this.addHiddenWatched(this.phase.getTitleWindow());
+    this.addHiddenWatched(this.phase.getDescriptionWindow());
     this.phase.openTextWindows();
     this.phase.stepStart();
   }
   
   update() {
     if (this.phase.isBusy()) return false;
-    if (this.phase.isStepStart() && Input.isTriggered('ok')) {
-      this.phase.closeTextWindows();
-      this.phase.stepSelectFolder();
-      this.phase.stepWainting();
+    if (this.phase.isCurrentStep(GameConst.START_PHASE) && Input.isTriggered('ok')) {
+      this.phase.commandCloseTextWindows();
+      this.phase.leaveTextWindows();
+      const selectHandler = (index) => {
+        this.manager.index = index;
+        this.phase.commandCloseFolderWindow();
+        this.phase.leaveFolderWindow();
+        this.phase.setStep(GameConst.END_SELECT_FOLDER);
+      };
+      let folders = this.manager.folders;
+      folders = folders.map(folder => {
+        folder.handler = selectHandler;
+        return folder;
+      });
+      this.phase.createFolderWindow('Choose a folder', folders);
+      this.addHiddenWatched(this.phase.getFolderWindow());
+      this.phase.addWait();
       this.phase.openFolderWindow();
+      this.phase.setStep(GameConst.START_SELECT_FOLDER);
     }
-    if (this.phase.isStepEndSelectFolder()) {
+    if (this.phase.isCurrentStep(GameConst.END_SELECT_FOLDER)) {
       this.phase.addAction(this.endTest);
     }
   }
@@ -9678,7 +9695,7 @@ class ChallengePhaseTest extends SceneTest {
     this.expectWasTrue('A janela de título foi apresentada?', 'visible', this.phase.getTitleWindow());
     this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase.getDescriptionWindow());
     this.expectWasTrue('A Janela de escolah de pastas foi apresentada?', 'visible', this.phase.getFolderWindow());
-    this.expectTrue('Foi escolhido uma pasta válida?', this.selectFolderIndex !== -1);
+    this.expectTrue('Foi escolhido uma pasta válida?', this.manager.index !== -1);
   }
 }
 class StartPhaseTest extends SceneTest {
@@ -10283,10 +10300,10 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const phase = [
-      // ChallengePhaseTest,
+      ChallengePhaseTest,
       // StartPhaseTest,
       // DrawPhaseTest,
-      LoadPhaseTest,
+      // LoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

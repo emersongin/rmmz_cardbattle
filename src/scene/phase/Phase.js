@@ -43,7 +43,7 @@ class Phase {
     this._titleWindow = TextWindow.createWindowFullSize(0, 0, [title]);
     this._titleWindow.alignBelowOf({ y: 200, height: 0 });
     this._titleWindow.alignTextCenter();
-    this.attachChild(this._titleWindow);
+    this.addChild(this._titleWindow);
   }
 
   createDescriptionWindow(...texts) {
@@ -53,7 +53,7 @@ class Phase {
     const maxContent = content.slice(0, maxSize);
     this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, maxContent);
     this._descriptionWindow.alignCenterBelowMiddle();
-    this.attachChild(this._descriptionWindow);
+    this.addChild(this._descriptionWindow);
   }
 
   createPlayerBoardWindow(energies, cardsInDeck, cardsInHand) {
@@ -184,11 +184,9 @@ class Phase {
     this._descriptionWindow.open();
   }
 
-  closeTextWindows() {
-    this.addActions([
-      this.commandCloseTitleWindow,
-      this.commandCloseDescriptionWindow,
-    ]);
+  commandCloseTextWindows() {
+    this.commandCloseTitleWindow();
+    this.commandCloseDescriptionWindow();
   }
 
   commandCloseTitleWindow() {
@@ -466,8 +464,16 @@ class Phase {
     this._scene.addWindow(window);
   }
 
+  removeChildren(children) {
+    children.forEach(child => this.removeChild(child));
+  }
+
   removeChild(child) {
-    this._scene.removeChild(child);
+    if (child instanceof Window_Base) {
+      this._scene.addWindow(child);
+    } else {
+      this._scene.removeChild(child);
+    }
   }
 
   getTitleWindow() {
@@ -524,5 +530,16 @@ class Phase {
 
   commandPlayerPass() {
     this._player.boardWindow.pass();
+  }
+
+  leaveTextWindows() {
+    this.addAction(this.commandLeaveTextWindows);
+  }
+
+  commandLeaveTextWindows() {
+    this.removeChildren([
+      this._titleWindow,
+      this._descriptionWindow,
+    ]);
   }
 }
