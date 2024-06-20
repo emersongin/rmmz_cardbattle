@@ -201,6 +201,7 @@ class DrawPhaseTest extends SceneTest {
 
     if (this.phase.isCurrentStep(GameConst.START_DRAW_CARDS) && Input.isTriggered('ok')) {
       this.phase.closeGameBoards();
+      this.phase.leaveGameBoards();
       this.phase.addAction(this.endTest);
     }
   }

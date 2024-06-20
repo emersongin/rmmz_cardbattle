@@ -550,4 +550,23 @@ class Phase {
       this._descriptionWindow,
     ]);
   }
+
+  leaveGameBoards() {
+    this.addAction(this.commandLeaveGameBoards);
+  }
+
+  commandLeaveGameBoards() {
+    this.removeChildren([
+      this._player.boardWindow,
+      this._player.battleWindow,
+      this._player.trashWindow,
+      this._player.scoreWindow,
+      this._player.battlefield,
+      this._challenge.boardWindow,
+      this._challenge.battleWindow,
+      this._challenge.trashWindow,
+      this._challenge.scoreWindow,
+      this._challenge.battlefield,
+    ]);
+  }
 }
