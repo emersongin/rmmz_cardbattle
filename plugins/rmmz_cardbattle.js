@@ -5809,19 +5809,6 @@ class Phase {
     return this._step === step;
   }
 
-  // attachChild(child) {
-  //   this._childrenToAdd.push(child);
-  // }
-
-  // attachChildLast(child) {
-  //   this._childrenToAddLast.push(child);
-  // }
-
-  // addChildren() {
-  //   this._childrenToAdd.forEach(child => this.addChild(child));
-  //   this._childrenToAddLast.forEach(child => this.addChild(child));
-  // }
-
   addChild(child) {
     if (child instanceof Window_Base) {
       this.addWindows(child);
@@ -5949,6 +5936,10 @@ class ChallengePhase extends Phase {
   _folderWindow = {};
 
   createFolderWindow(text, folders) {
+    this.addAction(this.commandCreateFolderWindow, text, folders);
+  }
+
+  commandCreateFolderWindow(text, folders) {
     const energies = folders.map(folder => FolderWindow.createEnergies(...folder.energies));
     const commands = folders.map((folder, index) => {
       return FolderWindow.createCommand(folder.name, `FOLDER_${index}`, folder.handler, energies[index])
@@ -6001,6 +5992,10 @@ class StartPhase extends Phase {
   _drawCardGame = {};
 
   createDrawCardGame() {
+    this.addAction(this.commandCreateDrawCardGame);
+  }
+
+  commandCreateDrawCardGame() {
     this._drawCardGame = CardsetSprite.create(0, 0);
     this._drawCardGame.centralize();
     this._drawCardGame.commandShow();
@@ -6329,6 +6324,10 @@ class LoadPhase extends Phase {
   _powerfield = {};
 
   createTextWindow(text) {
+    this.addAction(this.commandCreateTextWindow, text);
+  }
+
+  commandCreateTextWindow(text) {
     this._textWindow = TextWindow.createWindowFullSize(0, 0, [text]);
     this._textWindow.alignCenterMiddle();
     this._textWindow.alignTextCenter();
@@ -6336,22 +6335,28 @@ class LoadPhase extends Phase {
   }
 
   createAskWindow(text, yesHandler, noHanlder) {
+    this.addAction(this.commandCreateAskWindow, text, yesHandler, noHanlder);
+  }
+
+  commandCreateAskWindow(text, yesHandler, noHanlder) {
     const commandYes = CommandWindow.createCommand('Yes', 'YES', yesHandler);
     const commandNo = CommandWindow.createCommand('No', 'NO', noHanlder);
     this._askWindow = CommandWindow.create(0, 0, [text], [commandYes, commandNo]);
     this._askWindow.alignBottom();
-    this.addWindow(this._askWindow);
+    this.addChild(this._askWindow);
   }
 
   createPlayerHandset(cards) {
-    this.createPlayerHand(cards);
-    this.createLocationWindow();
-    this.createCardNameWindow();
-    this.createCardDescriptionWindow();
-    this.createCardPropsWindow();
+    this.addActions([
+      [this.commandCreatePlayerHand, cards],
+      this.commandCreateLocationWindow,
+      this.commandreateCardNameWindow,
+      this.commandreateCardDescriptionWindow,
+      this.commandreateCardPropsWindow,
+    ]);
   }
 
-  createPlayerHand(cards) {
+  commandCreatePlayerHand(cards) {
     const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
     const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
     this._playerHand = CardsetSprite.create(x, y);
@@ -6361,7 +6366,7 @@ class LoadPhase extends Phase {
     this.addChild(this._playerHand);
   }
 
-  createLocationWindow() {
+  commandCreateLocationWindow() {
     this._locationWindow = TextWindow.createWindowMiddleSize(0, 0);
     this._locationWindow.alignStartTop();
     this._locationWindow.alignAboveOf(this._playerHand);
@@ -6370,7 +6375,7 @@ class LoadPhase extends Phase {
     this.addChild(this._locationWindow);
   }
 
-  createCardNameWindow() {
+  commandreateCardNameWindow() {
     this._cardNameWindow = TextWindow.createWindowMiddleSize(0, 0);
     this._cardNameWindow.alignEndTop();
     this._cardNameWindow.alignAboveOf(this._playerHand);
@@ -6378,7 +6383,7 @@ class LoadPhase extends Phase {
     this.addChild(this._cardNameWindow);
   }
 
-  createCardDescriptionWindow() {
+  commandreateCardDescriptionWindow() {
     this._cardDescriptionWindow = TextWindow.createWindowMiddleSize(0, 0);
     this._cardDescriptionWindow.alignStartBottom();
     this._cardDescriptionWindow.alignBelowOf(this._playerHand);
@@ -6386,7 +6391,7 @@ class LoadPhase extends Phase {
     this.addChild(this._cardDescriptionWindow);
   }
 
-  createCardPropsWindow() {
+  commandreateCardPropsWindow() {
     this._cardPropsWindow = TextWindow.createWindowMiddleSize(0, 0);
     this._cardPropsWindow.alignEndBottom();
     this._cardPropsWindow.alignBelowOf(this._playerHand);
@@ -6558,11 +6563,11 @@ class LoadPhase extends Phase {
   }
 
   commandActivatePowerCard(cards) {
-    this.createPowerfield(cards);
+    this.commandCreatePowerfield(cards);
     this._powerfield.openCards();
   }
 
-  createPowerfield(cards) {
+  commandCreatePowerfield(cards) {
     const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
     const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
     if (this._powerfield instanceof CardsetSprite) this.removeChild(this._powerfield);

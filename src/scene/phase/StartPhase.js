@@ -4,6 +4,10 @@ class StartPhase extends Phase {
   _drawCardGame = {};
 
   createDrawCardGame() {
+    this.addAction(this.commandCreateDrawCardGame);
+  }
+
+  commandCreateDrawCardGame() {
     this._drawCardGame = CardsetSprite.create(0, 0);
     this._drawCardGame.centralize();
     this._drawCardGame.commandShow();

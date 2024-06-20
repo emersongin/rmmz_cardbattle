@@ -2,6 +2,10 @@ class ChallengePhase extends Phase {
   _folderWindow = {};
 
   createFolderWindow(text, folders) {
+    this.addAction(this.commandCreateFolderWindow, text, folders);
+  }
+
+  commandCreateFolderWindow(text, folders) {
     const energies = folders.map(folder => FolderWindow.createEnergies(...folder.energies));
     const commands = folders.map((folder, index) => {
       return FolderWindow.createCommand(folder.name, `FOLDER_${index}`, folder.handler, energies[index])

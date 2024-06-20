@@ -464,19 +464,6 @@ class Phase {
     return this._step === step;
   }
 
-  // attachChild(child) {
-  //   this._childrenToAdd.push(child);
-  // }
-
-  // attachChildLast(child) {
-  //   this._childrenToAddLast.push(child);
-  // }
-
-  // addChildren() {
-  //   this._childrenToAdd.forEach(child => this.addChild(child));
-  //   this._childrenToAddLast.forEach(child => this.addChild(child));
-  // }
-
   addChild(child) {
     if (child instanceof Window_Base) {
       this.addWindows(child);
