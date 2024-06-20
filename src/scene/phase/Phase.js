@@ -62,7 +62,7 @@ class Phase {
     this._player.boardWindow.alignStartBottom();
     const points = [...energies, cardsInDeck, cardsInHand];
     this._player.boardWindow.refreshPoints(...points);
-    this.attachChild(this._player.boardWindow);
+    this.addChild(this._player.boardWindow);
   }
 
   createPlayerBattleWindow() {
@@ -73,7 +73,7 @@ class Phase {
     const y = ScreenHelper.getBottomPosition(height);
     this._player.battleWindow.alignAboveOf({ y, height });
     this._player.battleWindow.refresh();
-    this.attachChild(this._player.battleWindow);
+    this.addChild(this._player.battleWindow);
   }
 
   createPlayerTrashWindow(cardsInTrash) {
@@ -81,7 +81,7 @@ class Phase {
     this._player.trashWindow.changeBlueColor();
     this._player.trashWindow.alignEndBelowMiddle();
     this._player.trashWindow.refreshPoints(cardsInTrash);
-    this.attachChild(this._player.trashWindow);
+    this.addChild(this._player.trashWindow);
   }
 
   createPlayerScoreWindow(victories) {
@@ -92,7 +92,7 @@ class Phase {
     const y = ScreenHelper.getBottomPosition(height);
     this._player.scoreWindow.alignAboveOf({ y, height });
     this._player.scoreWindow.refreshScore(victories);
-    this.attachChild(this._player.scoreWindow);
+    this.addChild(this._player.scoreWindow);
   }
 
   createPlayerBattlefield() {
@@ -101,7 +101,7 @@ class Phase {
     const height = 120;
     const y = ScreenHelper.getBottomPosition(height);
     this._player.battlefield.alignAboveOf({ y, height });
-    this.attachChild(this._player.battlefield);
+    this.addChild(this._player.battlefield);
   }
 
   getPaddingLeftBattleField() {
@@ -126,7 +126,7 @@ class Phase {
     this._challenge.boardWindow.alignStartTop();
     const points = [...energies, cardsInDeck, cardsInHand];
     this._challenge.boardWindow.refreshPoints(...points);
-    this.attachChild(this._challenge.boardWindow);
+    this.addChild(this._challenge.boardWindow);
   }
 
   createChallengeBattleWindow() {
@@ -137,7 +137,7 @@ class Phase {
     const y = ScreenHelper.getTopPosition();
     this._challenge.battleWindow.alignBelowOf({ y, height });
     this._challenge.battleWindow.refresh();
-    this.attachChild(this._challenge.battleWindow);
+    this.addChild(this._challenge.battleWindow);
   }
 
   createChallengeTrashWindow(cardsInTrash) {
@@ -146,7 +146,7 @@ class Phase {
     this._challenge.trashWindow.alignEndAboveMiddle();
     this._challenge.trashWindow.reverseIcons();
     this._challenge.trashWindow.refreshPoints(cardsInTrash);
-    this.attachChild(this._challenge.trashWindow);
+    this.addChild(this._challenge.trashWindow);
   }
 
   createChallengeScoreWindow(victories) {
@@ -157,7 +157,7 @@ class Phase {
     const y = ScreenHelper.getTopPosition();
     this._challenge.scoreWindow.alignBelowOf({ y, height });
     this._challenge.scoreWindow.refreshScore(victories);
-    this.attachChild(this._challenge.scoreWindow);
+    this.addChild(this._challenge.scoreWindow);
   }
 
   createChallengeBattlefield() {
@@ -166,7 +166,7 @@ class Phase {
     const height = 128;
     const y = ScreenHelper.getTopPosition();
     this._challenge.battlefield.alignBelowOf({ y, height });
-    this.attachChild(this._challenge.battlefield);
+    this.addChild(this._challenge.battlefield);
   }
 
   openTextWindows() {
@@ -500,6 +500,10 @@ class Phase {
     return this._player.scoreWindow;
   }
 
+  getPlayerBattlefield() {
+    return this._player.battlefield;
+  }
+
   getChallengeBoardWindow() {
     return this._challenge.boardWindow;
   }
@@ -514,6 +518,10 @@ class Phase {
 
   getChallengeScoreWindow() {
     return this._challenge.scoreWindow;
+  }
+
+  getChallengeBattlefield() {
+    return this._challenge.battlefield;
   }
 
   challengePass() {

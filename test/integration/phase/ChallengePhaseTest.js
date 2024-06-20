@@ -26,7 +26,7 @@ class ChallengePhaseTest extends SceneTest {
     this.addHiddenWatched(this.phase.getTitleWindow());
     this.addHiddenWatched(this.phase.getDescriptionWindow());
     this.phase.openTextWindows();
-    this.phase.stepStart();
+    this.phase.setStep(GameConst.START_PHASE);
   }
   
   update() {

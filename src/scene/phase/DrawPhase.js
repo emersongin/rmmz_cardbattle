@@ -1,12 +1,4 @@
 class DrawPhase extends Phase {
-  stepDrawCards() {
-    this.addAction(this.commandChangeStep, GameConst.START_DRAW_CARDS);
-  }
-
-  isStepDrawCards() {
-    return this.isCurrentStep(GameConst.START_DRAW_CARDS);
-  }
-
   drawCards(player, challenge) {
     const { 
       cards: playerCards,
