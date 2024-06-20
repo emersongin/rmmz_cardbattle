@@ -29,16 +29,11 @@ class Phase {
     this._scene = scene;
   }
 
-  // createPlayerGameBoard(player, energies) {
-  //   const { cardsInTrash, cardsInDeck, cardsInHand, victories } = player;
-  //   this.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand);
-  //   this.createPlayerBattleWindow();
-  //   this.createPlayerTrashWindow(cardsInTrash);
-  //   this.createPlayerScoreWindow(victories);
-  //   this.createPlayerBattlefield();
-  // }
-
   createTitleWindow(text) {
+    this.addAction(this.commandCreateTitleWindow, text);
+  }
+
+  commandCreateTitleWindow(text) {
     const title = TextWindow.setTextColor(text, GameColors.ORANGE);
     this._titleWindow = TextWindow.createWindowFullSize(0, 0, [title]);
     this._titleWindow.alignBelowOf({ y: 200, height: 0 });
@@ -47,6 +42,10 @@ class Phase {
   }
 
   createDescriptionWindow(...texts) {
+    this.addAction(this.commandCreateDescriptionWindow, ...texts);
+  }
+
+  commandCreateDescriptionWindow(...texts) {
     const maxSize = 3;
     const heightLines = Array(maxSize).fill('\n');
     const content = [...texts, ...heightLines];
@@ -57,6 +56,10 @@ class Phase {
   }
 
   createPlayerBoardWindow(energies, cardsInDeck, cardsInHand) {
+    this.addAction(this.commandCreatePlayerBoardWindow, energies, cardsInDeck, cardsInHand);
+  }
+
+  commandCreatePlayerBoardWindow(energies, cardsInDeck, cardsInHand) {
     this._player.boardWindow = BoardWindow.create(0, 0);
     this._player.boardWindow.changeBlueColor();
     this._player.boardWindow.alignStartBottom();
@@ -66,6 +69,10 @@ class Phase {
   }
 
   createPlayerBattleWindow() {
+    this.addAction(this.commandCreatePlayerBattleWindow);
+  }
+
+  commandCreatePlayerBattleWindow() {
     this._player.battleWindow = BattlePointsWindow.create(0, 0);
     this._player.battleWindow.changeBlueColor();
     this._player.battleWindow.alignStartBottom();
@@ -77,6 +84,10 @@ class Phase {
   }
 
   createPlayerTrashWindow(cardsInTrash) {
+    this.addAction(this.commandCreatePlayerTrashWindow, cardsInTrash);
+  }
+
+  commandCreatePlayerTrashWindow(cardsInTrash) {
     this._player.trashWindow = TrashWindow.create(0, 0);
     this._player.trashWindow.changeBlueColor();
     this._player.trashWindow.alignEndBelowMiddle();
@@ -85,6 +96,10 @@ class Phase {
   }
 
   createPlayerScoreWindow(victories) {
+    this.addAction(this.commandCreatePlayerScoreWindow, victories);
+  }
+
+  commandCreatePlayerScoreWindow(victories) {
     this._player.scoreWindow = ScoreWindow.create(0, 0);
     this._player.scoreWindow.changeBlueColor();
     this._player.scoreWindow.alignEndBottom();
@@ -96,6 +111,10 @@ class Phase {
   }
 
   createPlayerBattlefield() {
+    this.addAction(this.commandCreatePlayerBattlefield);
+  }
+
+  commandCreatePlayerBattlefield() {
     const paddingLeft = this.getPaddingLeftBattleField();
     this._player.battlefield = CardsetSprite.create(paddingLeft, 0);
     const height = 120;
@@ -111,16 +130,11 @@ class Phase {
     return paddingLeft;
   }
 
-  createChallengeGameBoard(challenge, energies) {
-    const { cardsInTrash, cardsInDeck, cardsInHand, victories } = challenge;
-    this.createChallengeBoardWindow(energies, cardsInDeck, cardsInHand);
-    this.createChallengeBattleWindow();
-    this.createChallengeTrashWindow(cardsInTrash);
-    this.createChallengeScoreWindow(victories);
-    this.createChallengeBattlefield();
+  createChallengeBoardWindow(energies, cardsInDeck, cardsInHand) {
+    this.addAction(this.commandCreateChallengeBoardWindow, energies, cardsInDeck, cardsInHand);
   }
 
-  createChallengeBoardWindow(energies, cardsInDeck, cardsInHand) {
+  commandCreateChallengeBoardWindow(energies, cardsInDeck, cardsInHand) {
     this._challenge.boardWindow = BoardWindow.create(0, 0);
     this._challenge.boardWindow.changeRedColor();
     this._challenge.boardWindow.alignStartTop();
@@ -130,6 +144,10 @@ class Phase {
   }
 
   createChallengeBattleWindow() {
+    this.addAction(this.commandCreateChallengeBattleWindow);
+  }
+
+  commandCreateChallengeBattleWindow() {
     this._challenge.battleWindow = BattlePointsWindow.create(0, 0);
     this._challenge.battleWindow.changeRedColor();
     this._challenge.battleWindow.alignStartTop();
@@ -141,6 +159,10 @@ class Phase {
   }
 
   createChallengeTrashWindow(cardsInTrash) {
+    this.addAction(this.commandCreateChallengeTrashWindow, cardsInTrash);
+  }
+
+  commandCreateChallengeTrashWindow(cardsInTrash) {
     this._challenge.trashWindow = TrashWindow.create(0, 0);
     this._challenge.trashWindow.changeRedColor();
     this._challenge.trashWindow.alignEndAboveMiddle();
@@ -150,6 +172,10 @@ class Phase {
   }
 
   createChallengeScoreWindow(victories) {
+    this.addAction(this.commandCreateChallengeScoreWindow, victories);
+  }
+
+  commandCreateChallengeScoreWindow(victories) {
     this._challenge.scoreWindow = ScoreWindow.create(0, 0);
     this._challenge.scoreWindow.changeRedColor();
     this._challenge.scoreWindow.alignEndTop();
@@ -161,6 +187,10 @@ class Phase {
   }
 
   createChallengeBattlefield() {
+    this.addAction(this.commandCreateChallengeBattlefield);
+  }
+
+  commandCreateChallengeBattlefield() {
     const paddingLeft = this.getPaddingLeftBattleField();
     this._challenge.battlefield = CardsetSprite.create(paddingLeft, 0);
     const height = 128;
@@ -434,18 +464,18 @@ class Phase {
     return this._step === step;
   }
 
-  attachChild(child) {
-    this._childrenToAdd.push(child);
-  }
+  // attachChild(child) {
+  //   this._childrenToAdd.push(child);
+  // }
 
-  attachChildLast(child) {
-    this._childrenToAddLast.push(child);
-  }
+  // attachChildLast(child) {
+  //   this._childrenToAddLast.push(child);
+  // }
 
-  addChildren() {
-    this._childrenToAdd.forEach(child => this.addChild(child));
-    this._childrenToAddLast.forEach(child => this.addChild(child));
-  }
+  // addChildren() {
+  //   this._childrenToAdd.forEach(child => this.addChild(child));
+  //   this._childrenToAddLast.forEach(child => this.addChild(child));
+  // }
 
   addChild(child) {
     if (child instanceof Window_Base) {

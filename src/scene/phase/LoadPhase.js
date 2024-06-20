@@ -12,7 +12,7 @@ class LoadPhase extends Phase {
     this._textWindow = TextWindow.createWindowFullSize(0, 0, [text]);
     this._textWindow.alignCenterMiddle();
     this._textWindow.alignTextCenter();
-    this.attachChildLast(this._textWindow);
+    this.addChild(this._textWindow);
   }
 
   createAskWindow(text, yesHandler, noHanlder) {
@@ -38,7 +38,7 @@ class LoadPhase extends Phase {
     this._playerHand.show();
     const sprites = this._playerHand.listCards(cards);
     this._playerHand.startClosedCards(sprites);
-    this.attachChild(this._playerHand);
+    this.addChild(this._playerHand);
   }
 
   createLocationWindow() {
@@ -47,7 +47,7 @@ class LoadPhase extends Phase {
     this._locationWindow.alignAboveOf(this._playerHand);
     this._locationWindow.y -= 160;
     this._locationWindow.alignTextCenter();
-    this.attachChildLast(this._locationWindow);
+    this.addChild(this._locationWindow);
   }
 
   createCardNameWindow() {
@@ -55,7 +55,7 @@ class LoadPhase extends Phase {
     this._cardNameWindow.alignEndTop();
     this._cardNameWindow.alignAboveOf(this._playerHand);
     this._cardNameWindow.y -= 160;
-    this.attachChildLast(this._cardNameWindow);
+    this.addChild(this._cardNameWindow);
   }
 
   createCardDescriptionWindow() {
@@ -63,7 +63,7 @@ class LoadPhase extends Phase {
     this._cardDescriptionWindow.alignStartBottom();
     this._cardDescriptionWindow.alignBelowOf(this._playerHand);
     this._cardDescriptionWindow.y += 100;
-    this.attachChildLast(this._cardDescriptionWindow);
+    this.addChild(this._cardDescriptionWindow);
   }
 
   createCardPropsWindow() {
@@ -71,7 +71,7 @@ class LoadPhase extends Phase {
     this._cardPropsWindow.alignEndBottom();
     this._cardPropsWindow.alignBelowOf(this._playerHand);
     this._cardPropsWindow.y += 100;
-    this.attachChildLast(this._cardPropsWindow);
+    this.addChild(this._cardPropsWindow);
   }
 
   openBeginLoadPhaseWindow() {
@@ -209,6 +209,10 @@ class LoadPhase extends Phase {
     ]);
   }
 
+  commandClosePlayerBoardWindow() {
+    super.commandClosePlayerBoardWindow();
+  }
+
   commandCloseLocationWindow() {
     this._locationWindow.close();
   }
@@ -250,11 +254,50 @@ class LoadPhase extends Phase {
     this.addChild(this._powerfield);
   }
 
+  closePowerCard() {
+    this.addAction(this.commandClosePowerCard);
+  }
+
+  commandClosePowerCard() {
+    this._powerfield.closeCards();
+  }
+
   leavePowerCard() {
     this.addAction(this.commandLeavePowerCard);
   }
 
   commandLeavePowerCard() {
-    this._powerfield.closeCards();
+    this.removeChild(this._powerfield);
+  }
+
+  leaveBeginLoadPhaseWindow() {
+    this.addAction(this.commandLeaveBeginLoadPhaseWindow);
+  }
+
+  commandLeaveBeginLoadPhaseWindow() {
+    this.removeChild(this._textWindow);
+  }
+
+  leavePlayerHand() {
+    this.addAction(this.commandLeavePlayerHand);
+  }
+
+  commandLeavePlayerHand() {
+    this.removeChildren([
+      this._locationWindow,
+      this._cardNameWindow,
+      this._cardDescriptionWindow,
+      this._cardPropsWindow,
+      this._playerHand,
+      this._player.boardWindow,
+    ]);
+  }
+
+  leaveAskWindow() {
+    this.addAction(this.commandLeaveAskWindow);
+  }
+
+  commandLeaveAskWindow() {
+    this.removeChild(this._askWindow);
   }
 }
