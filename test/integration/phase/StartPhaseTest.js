@@ -10,10 +10,10 @@ class StartPhaseTest extends SceneTest {
 
   start() {
     this.scene.setPhase(this.phase);
-    this.phase.createTitleWindow('Start Phase');
-    this.phase.createDescriptionWindow('Draw Calumon to go first.');
-    this.addHiddenWatched(this.phase.getTitleWindow());
-    this.addHiddenWatched(this.phase.getDescriptionWindow());
+    const titleWindow = this.phase.createTitleWindow('Start Phase');
+    const descriptionWindow = this.phase.createDescriptionWindow('Draw Calumon to go first.');
+    this.addHiddenWatched(titleWindow);
+    this.addHiddenWatched(descriptionWindow);
     this.phase.openTextWindows();
     this.phase.setStep(GameConst.START_PHASE);
   }
@@ -23,13 +23,14 @@ class StartPhaseTest extends SceneTest {
     if (this.phase.isCurrentStep(GameConst.START_PHASE) && Input.isTriggered('ok')) {
       this.phase.commandCloseTextWindows();
       this.phase.leaveTextWindows();
-      const resultHandler = (win) => {
+      const resultHandler = (win, resultWindow) => {
         this.manager.win = win;
+        this.addHiddenWatched(resultWindow);
+        this.phase.openResultWindow();
         this.phase.setStep(GameConst.END_DRAW_CARD_GAME);
       };
-      this.phase.createDrawCardGame();
-      this.addHiddenWatched(this.phase.getDrawCardGameCardset());
-      this.addHiddenWatched(this.phase.getResultWindow());
+      const drawCardGame = this.phase.createDrawCardGame();
+      this.addHiddenWatched(drawCardGame);
       this.phase.startDrawCardGame(resultHandler);
       this.phase.setStep(GameConst.START_DRAW_CARD_GAME);
     }

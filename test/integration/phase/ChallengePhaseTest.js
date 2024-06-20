@@ -21,10 +21,10 @@ class ChallengePhaseTest extends SceneTest {
 
   start() {
     this.scene.setPhase(this.phase);
-    this.phase.createTitleWindow('Challenge Phase');
-    this.phase.createDescriptionWindow('lv. 85', 'Amaterasu Duel King');
-    this.addHiddenWatched(this.phase.getTitleWindow());
-    this.addHiddenWatched(this.phase.getDescriptionWindow());
+    const titleWindow = this.phase.createTitleWindow('Challenge Phase');
+    const descriptionWindow = this.phase.createDescriptionWindow('lv. 85', 'Amaterasu Duel King');
+    this.addHiddenWatched(titleWindow);
+    this.addHiddenWatched(descriptionWindow);
     this.phase.openTextWindows();
     this.phase.setStep(GameConst.START_PHASE);
   }
@@ -45,8 +45,8 @@ class ChallengePhaseTest extends SceneTest {
         folder.handler = selectHandler;
         return folder;
       });
-      this.phase.createFolderWindow('Choose a folder', folders);
-      this.addHiddenWatched(this.phase.getFolderWindow());
+      const folderWindow = this.phase.createFolderWindow('Choose a folder', folders);
+      this.addHiddenWatched(folderWindow);
       this.phase.addWait();
       this.phase.openFolderWindow();
       this.phase.setStep(GameConst.START_SELECT_FOLDER);

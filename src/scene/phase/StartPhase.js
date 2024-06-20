@@ -4,25 +4,27 @@ class StartPhase extends Phase {
   _drawCardGame = {};
 
   createDrawCardGame() {
-    this.addAction(this.commandCreateDrawCardGame);
-  }
-
-  commandCreateDrawCardGame() {
-    this._drawCardGame = CardsetSprite.create(0, 0);
-    this._drawCardGame.centralize();
-    this._drawCardGame.commandShow();
+    const drawCardGame = CardsetSprite.create(0, 0);
+    drawCardGame.centralize();
+    drawCardGame.commandShow();
     const cards = this.createCardsShuffled();
-    const sprites = this._drawCardGame.setCards(cards, Graphics.boxWidth, Graphics.boxHeight);
-    const xSprite1 = -(this._drawCardGame.x + CardSprite.contentOriginalWidth());
-    const ySprite1 = -(this._drawCardGame.y + CardSprite.contentOriginalHeight());
+    const sprites = drawCardGame.setCards(cards, Graphics.boxWidth, Graphics.boxHeight);
+    const xSprite1 = -(drawCardGame.x + CardSprite.contentOriginalWidth());
+    const ySprite1 = -(drawCardGame.y + CardSprite.contentOriginalHeight());
     const position1 = CardSprite.createPosition(xSprite1, ySprite1, 0);
-    const xSprite2 = (Graphics.boxWidth - this._drawCardGame.x);
-    const ySprite2 = (Graphics.boxHeight - this._drawCardGame.y);
+    const xSprite2 = (Graphics.boxWidth - drawCardGame.x);
+    const ySprite2 = (Graphics.boxHeight - drawCardGame.y);
     const position2 = CardSprite.createPosition(xSprite2, ySprite2, 1);
     const positions = [position1, position2];
-    this._drawCardGame.setAllCardsInPositions(sprites, positions);
-    this._drawCardGame.setTurnToDownCards(sprites);
-    this.addChild(this._drawCardGame);
+    drawCardGame.setAllCardsInPositions(sprites, positions);
+    drawCardGame.setTurnToDownCards(sprites);
+    this.addAction(this.commandCreateDrawCardGame, drawCardGame);
+    return drawCardGame;
+  }
+
+  commandCreateDrawCardGame(drawCardGame) {
+    this._drawCardGame = drawCardGame;
+    this.commandAddChild(drawCardGame);
   }
 
   createCardsShuffled() {
@@ -55,12 +57,11 @@ class StartPhase extends Phase {
     this.moveAllCardsToCenter();
     const handlerDecorator = (cards) => {
       const selectedIndex = cards.shift();
-      const white = 4;
-      const result = this._cards[selectedIndex].color === white;
-      this.createResultWindow(result);
+      const cardColor = this._cards[selectedIndex].color;
+      const win = cardColor === GameConst.WHITE;
+      const resultWindow = this.createResultWindow(win);
       this.endDrawCardGame(selectedIndex);
-      this.openResultWindow();
-      onSelectHandler(result);
+      onSelectHandler(win, resultWindow);
     }
     this.selectMode(handlerDecorator);
   }
@@ -88,13 +89,19 @@ class StartPhase extends Phase {
     this._drawCardGame.moveAllCardsToPositions(sprites, positions);
   }
 
-  createResultWindow(result) {
-    const text = result ? 'You go first!' : 'You go next!';
-    this._resultWindow = TextWindow.createWindowOneFourthSize(0, 0, [text]);
-    this._resultWindow.alignCenterMiddle();
-    this._resultWindow.alignBelowOf({ y: 100, height: 0 });
-    this._resultWindow.alignTextCenter();
-    this.addChild(this._resultWindow);
+  createResultWindow(win) {
+    const text = win ? 'You go first!' : 'You go next!';
+    const resultWindow = TextWindow.createWindowOneFourthSize(0, 0, [text]);
+    resultWindow.alignCenterMiddle();
+    resultWindow.alignBelowOf({ y: 100, height: 0 });
+    resultWindow.alignTextCenter();
+    this.addAction(this.commandCreateResultWindow, resultWindow);
+    return resultWindow;
+  }
+
+  commandCreateResultWindow(resultWindow) {
+    this._resultWindow = resultWindow;
+    this.commandAddChild(resultWindow);
   }
 
   selectMode(onSelectHandler) {

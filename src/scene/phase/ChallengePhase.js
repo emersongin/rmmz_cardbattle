@@ -2,19 +2,21 @@ class ChallengePhase extends Phase {
   _folderWindow = {};
 
   createFolderWindow(text, folders) {
-    this.addAction(this.commandCreateFolderWindow, text, folders);
-  }
-
-  commandCreateFolderWindow(text, folders) {
     const energies = folders.map(folder => FolderWindow.createEnergies(...folder.energies));
     const commands = folders.map((folder, index) => {
       return FolderWindow.createCommand(folder.name, `FOLDER_${index}`, folder.handler, energies[index])
     });
     const title = CommandWindow.setTextColor(text, GameColors.ORANGE);
-    this._folderWindow = FolderWindow.create(0, 0, [title], commands);
-    this._folderWindow.alignMiddle();
-    this._folderWindow.alignTextCenter();
-    this.addChild(this._folderWindow);
+    const folderWindow = FolderWindow.create(0, 0, [title], commands);
+    folderWindow.alignMiddle();
+    folderWindow.alignTextCenter();
+    this.addAction(this.commandCreateFolderWindow, folderWindow);
+    return folderWindow;
+  }
+
+  commandCreateFolderWindow(folderWindow) {
+    this._folderWindow = folderWindow
+    this.commandAddChild(folderWindow);
   }
 
   getFolderWindow() {

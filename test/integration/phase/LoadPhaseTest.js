@@ -124,10 +124,10 @@ class LoadPhaseTest extends SceneTest {
   
   start() {
     this.scene.setPhase(this.phase);
-    this.phase.createTitleWindow('Load Phase');
-    this.phase.createDescriptionWindow('Select and use a Program Card.');
-    this.addHiddenWatched(this.phase.getTitleWindow());
-    this.addHiddenWatched(this.phase.getDescriptionWindow());
+    const titleWindow = this.phase.createTitleWindow('Load Phase');
+    const descriptionWindow = this.phase.createDescriptionWindow('Select and use a Program Card.');
+    this.addHiddenWatched(titleWindow);
+    this.addHiddenWatched(descriptionWindow);
     this.phase.openTextWindows();
     this.phase.setStep(GameConst.START_PHASE);
   }
@@ -140,9 +140,9 @@ class LoadPhaseTest extends SceneTest {
       this.createPlayerGameBoard();
       this.createChallengeGameBoard();
       this.phase.openGameBoards();
-      this.phase.createTextWindow('Begin Load Phase');
+      const textWindow = this.phase.createTextWindow('Begin Load Phase');
+      this.addHiddenWatched(textWindow);
       this.phase.openBeginLoadPhaseWindow();
-      this.addHiddenWatched(this.phase.getTextWindow());
       this.phase.setStep(GameConst.BEGIN_LOAD_PHASE);
     }
     if (this.phase.isCurrentStep(GameConst.BEGIN_LOAD_PHASE) && Input.isTriggered('ok')) {
@@ -203,16 +203,16 @@ class LoadPhaseTest extends SceneTest {
     const playerCardsInHand = this.manager.player.hand.length;
     const playerCardsInTrash = this.manager.player.trash.length;
     const playerVictories = this.manager.player.victories;
-    this.phase.createPlayerBoardWindow(playerEnergies, playerCardsInDeck, playerCardsInHand);
-    this.phase.createPlayerBattleWindow();
-    this.phase.createPlayerTrashWindow(playerCardsInTrash);
-    this.phase.createPlayerScoreWindow(playerVictories);
-    this.phase.createPlayerBattlefield();
-    this.addHiddenWatched(this.phase.getPlayerBoardWindow());
-    this.addHiddenWatched(this.phase.getPlayerBattleWindow());
-    this.addHiddenWatched(this.phase.getPlayerTrashWindow());
-    this.addHiddenWatched(this.phase.getPlayerScoreWindow());
-    this.addHiddenWatched(this.phase.getPlayerBattlefield());
+    const boardWindow = this.phase.createPlayerBoardWindow(playerEnergies, playerCardsInDeck, playerCardsInHand);
+    const battleWindow = this.phase.createPlayerBattleWindow();
+    const trashWindow = this.phase.createPlayerTrashWindow(playerCardsInTrash);
+    const scoreWindow = this.phase.createPlayerScoreWindow(playerVictories);
+    const battlefield = this.phase.createPlayerBattlefield();
+    this.addHiddenWatched(boardWindow);
+    this.addHiddenWatched(battleWindow);
+    this.addHiddenWatched(trashWindow);
+    this.addHiddenWatched(scoreWindow);
+    this.addHiddenWatched(battlefield);
   }
 
   createChallengeGameBoard() {
@@ -221,16 +221,16 @@ class LoadPhaseTest extends SceneTest {
     const challengeCardsInHand = this.manager.challenge.hand.length;
     const challengeCardsInTrash = this.manager.challenge.trash.length;
     const challengeVictories = this.manager.challenge.victories;
-    this.phase.createChallengeBoardWindow(challengeEnergies, challengeCardsInDeck, challengeCardsInHand);
-    this.phase.createChallengeBattleWindow();
-    this.phase.createChallengeTrashWindow(challengeCardsInTrash);
-    this.phase.createChallengeScoreWindow(challengeVictories);
-    this.phase.createChallengeBattlefield();
-    this.addHiddenWatched(this.phase.getChallengeBoardWindow());
-    this.addHiddenWatched(this.phase.getChallengeBattleWindow());
-    this.addHiddenWatched(this.phase.getChallengeTrashWindow());
-    this.addHiddenWatched(this.phase.getChallengeScoreWindow());
-    this.addHiddenWatched(this.phase.getChallengeBattlefield());
+    const boardWindow = this.phase.createChallengeBoardWindow(challengeEnergies, challengeCardsInDeck, challengeCardsInHand);
+    const battleWindow = this.phase.createChallengeBattleWindow();
+    const trashWindow = this.phase.createChallengeTrashWindow(challengeCardsInTrash);
+    const scoreWindow = this.phase.createChallengeScoreWindow(challengeVictories);
+    const battlefield = this.phase.createChallengeBattlefield();
+    this.addHiddenWatched(boardWindow);
+    this.addHiddenWatched(battleWindow);
+    this.addHiddenWatched(trashWindow);
+    this.addHiddenWatched(scoreWindow);
+    this.addHiddenWatched(battlefield);
   }
 
   commandPlayerHand() {
@@ -249,7 +249,9 @@ class LoadPhaseTest extends SceneTest {
       this.createChallengeGameBoard();
       this.phase.openGameBoards();
       const cards = CardGenerator.generateCards(1, 1);
-      this.phase.activatePowerCard(cards);
+      const powerfield = this.phase.createPowerfield(cards);
+      this.addHiddenWatched(powerfield);
+      this.phase.openPowerfield();
       this.phase.setStep(GameConst.ACTIVE_POWER_CARD);
     };
     const onCancelHandler = () => {

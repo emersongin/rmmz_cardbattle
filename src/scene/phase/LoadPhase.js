@@ -9,79 +9,112 @@ class LoadPhase extends Phase {
   _powerfield = {};
 
   createTextWindow(text) {
-    this.addAction(this.commandCreateTextWindow, text);
+    const textWindow = TextWindow.createWindowFullSize(0, 0, [text]);
+    textWindow.alignCenterMiddle();
+    textWindow.alignTextCenter();
+    this.addAction(this.commandCreateTextWindow, textWindow);
+    return textWindow;
   }
 
-  commandCreateTextWindow(text) {
-    this._textWindow = TextWindow.createWindowFullSize(0, 0, [text]);
-    this._textWindow.alignCenterMiddle();
-    this._textWindow.alignTextCenter();
-    this.addChild(this._textWindow);
+  commandCreateTextWindow(textWindow) {
+    this._textWindow = textWindow;
+    this.commandAddChild(textWindow);
   }
 
   createAskWindow(text, yesHandler, noHanlder) {
-    this.addAction(this.commandCreateAskWindow, text, yesHandler, noHanlder);
-  }
-
-  commandCreateAskWindow(text, yesHandler, noHanlder) {
     const commandYes = CommandWindow.createCommand('Yes', 'YES', yesHandler);
     const commandNo = CommandWindow.createCommand('No', 'NO', noHanlder);
-    this._askWindow = CommandWindow.create(0, 0, [text], [commandYes, commandNo]);
-    this._askWindow.alignBottom();
-    this.addChild(this._askWindow);
+    const askWindow = CommandWindow.create(0, 0, [text], [commandYes, commandNo]);
+    askWindow.alignBottom();
+    this.addAction(this.commandCreateAskWindow, askWindow);
+    return askWindow;
+  }
+
+  commandCreateAskWindow(askWindow) {
+    this._askWindow = askWindow;
+    this.commandAddChild(askWindow);
   }
 
   createPlayerHandset(cards) {
-    this.addActions([
-      [this.commandCreatePlayerHand, cards],
-      this.commandCreateLocationWindow,
-      this.commandreateCardNameWindow,
-      this.commandreateCardDescriptionWindow,
-      this.commandreateCardPropsWindow,
-    ]);
+    const playerHand = this.createPlayerHand(cards);
+    const locationWindow = this.createLocationWindow(playerHand);
+    const cardNameWindow = this.createCardNameWindow(playerHand);
+    const cardDescriptionWindow = this.createCardDescriptionWindow(playerHand);
+    const cardPropsWindow = this.createCardPropsWindow(playerHand);
+    return { playerHand, locationWindow, cardNameWindow, cardDescriptionWindow, cardPropsWindow };
   }
 
-  commandCreatePlayerHand(cards) {
+  createPlayerHand(cards) {
     const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
     const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
-    this._playerHand = CardsetSprite.create(x, y);
-    this._playerHand.show();
-    const sprites = this._playerHand.listCards(cards);
-    this._playerHand.startClosedCards(sprites);
-    this.addChild(this._playerHand);
+    const playerHand = CardsetSprite.create(x, y);
+    playerHand.show();
+    const sprites = playerHand.listCards(cards);
+    playerHand.startClosedCards(sprites);
+    this.addAction(this.commandCreatePlayerHand, playerHand);
+    return playerHand;
   }
 
-  commandCreateLocationWindow() {
-    this._locationWindow = TextWindow.createWindowMiddleSize(0, 0);
-    this._locationWindow.alignStartTop();
-    this._locationWindow.alignAboveOf(this._playerHand);
-    this._locationWindow.y -= 160;
-    this._locationWindow.alignTextCenter();
-    this.addChild(this._locationWindow);
+  commandCreatePlayerHand(playerHand) {
+    this._playerHand = playerHand
+    this.commandAddChild(playerHand);
   }
 
-  commandreateCardNameWindow() {
-    this._cardNameWindow = TextWindow.createWindowMiddleSize(0, 0);
-    this._cardNameWindow.alignEndTop();
-    this._cardNameWindow.alignAboveOf(this._playerHand);
-    this._cardNameWindow.y -= 160;
-    this.addChild(this._cardNameWindow);
+  createLocationWindow(playerHand = this._playerHand) {
+    const locationWindow = TextWindow.createWindowMiddleSize(0, 0);
+    locationWindow.alignStartTop();
+    locationWindow.alignAboveOf(playerHand);
+    locationWindow.y -= 160;
+    locationWindow.alignTextCenter();
+    this.addAction(this.commandCreateLocationWindow, locationWindow);
+    return locationWindow;
   }
 
-  commandreateCardDescriptionWindow() {
-    this._cardDescriptionWindow = TextWindow.createWindowMiddleSize(0, 0);
-    this._cardDescriptionWindow.alignStartBottom();
-    this._cardDescriptionWindow.alignBelowOf(this._playerHand);
-    this._cardDescriptionWindow.y += 100;
-    this.addChild(this._cardDescriptionWindow);
+  commandCreateLocationWindow(locationWindow) {
+    this._locationWindow = locationWindow;
+    this.commandAddChild(locationWindow);
   }
 
-  commandreateCardPropsWindow() {
-    this._cardPropsWindow = TextWindow.createWindowMiddleSize(0, 0);
-    this._cardPropsWindow.alignEndBottom();
-    this._cardPropsWindow.alignBelowOf(this._playerHand);
-    this._cardPropsWindow.y += 100;
-    this.addChild(this._cardPropsWindow);
+  createCardNameWindow(playerHand = this._playerHand) {
+    const cardNameWindow = TextWindow.createWindowMiddleSize(0, 0);
+    cardNameWindow.alignEndTop();
+    cardNameWindow.alignAboveOf(playerHand);
+    cardNameWindow.y -= 160;
+    this.addAction(this.commandCreateCardNameWindow, cardNameWindow);
+    return cardNameWindow;
+  }
+
+  commandCreateCardNameWindow(cardNameWindow) {
+    this._cardNameWindow = cardNameWindow;
+    this.commandAddChild(cardNameWindow);
+  }
+
+  createCardDescriptionWindow(playerHand = this._playerHand) {
+    const cardDescriptionWindow = TextWindow.createWindowMiddleSize(0, 0);
+    cardDescriptionWindow.alignStartBottom();
+    cardDescriptionWindow.alignBelowOf(playerHand);
+    cardDescriptionWindow.y += 100;
+    this.addAction(this.commandCreateCardDescriptionWindow, cardDescriptionWindow);
+    return cardDescriptionWindow;
+  }
+
+  commandCreateCardDescriptionWindow(cardDescriptionWindow) {
+    this._cardDescriptionWindow = cardDescriptionWindow;
+    this.commandAddChild(cardDescriptionWindow);
+  }
+
+  createCardPropsWindow(playerHand = this._playerHand) {
+    const cardPropsWindow = TextWindow.createWindowMiddleSize(0, 0);
+    cardPropsWindow.alignEndBottom();
+    cardPropsWindow.alignBelowOf(playerHand);
+    cardPropsWindow.y += 100;
+    this.addAction(this.commandCreateCardPropsWindow, cardPropsWindow);
+    return cardPropsWindow;
+  }
+
+  commandCreateCardPropsWindow(cardPropsWindow) {
+    this._cardPropsWindow = cardPropsWindow;
+    this.commandAddChild(cardPropsWindow);
   }
 
   openBeginLoadPhaseWindow() {
@@ -243,25 +276,29 @@ class LoadPhase extends Phase {
     this._playerHand.closeCards();
   }
 
-  activatePowerCard(cards) {
-    this.addAction(this.commandActivatePowerCard, cards);
+  openPowerfield() {
+    this.addAction(this.commandOpenPowerfield);
   }
 
-  commandActivatePowerCard(cards) {
-    this.commandCreatePowerfield(cards);
+  commandOpenPowerfield() {
     this._powerfield.openCards();
   }
 
-  commandCreatePowerfield(cards) {
+  createPowerfield(cards) {
     const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
     const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
-    if (this._powerfield instanceof CardsetSprite) this.removeChild(this._powerfield);
-    this._powerfield = CardsetSprite.create(x, y);
-    this._powerfield.show();
+    const powerfield = CardsetSprite.create(x, y);
+    powerfield.show();
     const xCard = CardsetSprite.contentOriginalWidth() - CardSprite.contentOriginalWidth();
-    const sprites = this._powerfield.setCards(cards, xCard);
-    this._powerfield.startClosedCards(sprites);
-    this.addChild(this._powerfield);
+    const sprites = powerfield.setCards(cards, xCard);
+    powerfield.startClosedCards(sprites);
+    this.addAction(this.commandCreatePowerfield, powerfield);
+    return powerfield;
+  }
+
+  commandCreatePowerfield(powerfield) {
+    this._powerfield = powerfield;
+    this.commandAddChild(powerfield);
   }
 
   closePowerCard() {

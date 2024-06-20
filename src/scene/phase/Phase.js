@@ -30,97 +30,109 @@ class Phase {
   }
 
   createTitleWindow(text) {
-    this.addAction(this.commandCreateTitleWindow, text);
+    const title = TextWindow.setTextColor(text, GameColors.ORANGE);
+    const titleWindow = TextWindow.createWindowFullSize(0, 0, [title]);
+    titleWindow.alignBelowOf({ y: 200, height: 0 });
+    titleWindow.alignTextCenter();
+    this.addAction(this.commandCreateTitleWindow, titleWindow);
+    return titleWindow;
   }
 
-  commandCreateTitleWindow(text) {
-    const title = TextWindow.setTextColor(text, GameColors.ORANGE);
-    this._titleWindow = TextWindow.createWindowFullSize(0, 0, [title]);
-    this._titleWindow.alignBelowOf({ y: 200, height: 0 });
-    this._titleWindow.alignTextCenter();
-    this.addChild(this._titleWindow);
+  commandCreateTitleWindow(titleWindow) {
+    this._titleWindow = titleWindow;
+    this.commandAddChild(titleWindow);
   }
 
   createDescriptionWindow(...texts) {
-    this.addAction(this.commandCreateDescriptionWindow, ...texts);
-  }
-
-  commandCreateDescriptionWindow(...texts) {
     const maxSize = 3;
     const heightLines = Array(maxSize).fill('\n');
     const content = [...texts, ...heightLines];
     const maxContent = content.slice(0, maxSize);
-    this._descriptionWindow = TextWindow.createWindowFullSize(0, 0, maxContent);
-    this._descriptionWindow.alignCenterBelowMiddle();
-    this.addChild(this._descriptionWindow);
+    const descriptionWindow = TextWindow.createWindowFullSize(0, 0, maxContent);
+    descriptionWindow.alignCenterBelowMiddle();
+    this.addAction(this.commandCreateDescriptionWindow, descriptionWindow);
+    return descriptionWindow;
+  }
+
+  commandCreateDescriptionWindow(descriptionWindow) {
+    this._descriptionWindow = descriptionWindow;
+    this.commandAddChild(descriptionWindow);
   }
 
   createPlayerBoardWindow(energies, cardsInDeck, cardsInHand) {
-    this.addAction(this.commandCreatePlayerBoardWindow, energies, cardsInDeck, cardsInHand);
-  }
-
-  commandCreatePlayerBoardWindow(energies, cardsInDeck, cardsInHand) {
-    this._player.boardWindow = BoardWindow.create(0, 0);
-    this._player.boardWindow.changeBlueColor();
-    this._player.boardWindow.alignStartBottom();
+    const boardWindow = BoardWindow.create(0, 0);
+    boardWindow.changeBlueColor();
+    boardWindow.alignStartBottom();
     const points = [...energies, cardsInDeck, cardsInHand];
-    this._player.boardWindow.refreshPoints(...points);
-    this.addChild(this._player.boardWindow);
+    boardWindow.refreshPoints(...points);
+    this.addAction(this.commandCreatePlayerBoardWindow, boardWindow);
+    return boardWindow;
   }
 
-  createPlayerBattleWindow() {
-    this.addAction(this.commandCreatePlayerBattleWindow);
+  commandCreatePlayerBoardWindow(boardWindow) {
+    this._player.boardWindow = boardWindow;
+    this.commandAddChild(boardWindow);
   }
 
-  commandCreatePlayerBattleWindow() {
-    this._player.battleWindow = BattlePointsWindow.create(0, 0);
-    this._player.battleWindow.changeBlueColor();
-    this._player.battleWindow.alignStartBottom();
-    const height = this._player.boardWindow.height;
+  createPlayerBattleWindow(height = this._player.boardWindow.height) {
+    const battleWindow = BattlePointsWindow.create(0, 0);
+    battleWindow.changeBlueColor();
+    battleWindow.alignStartBottom();
     const y = ScreenHelper.getBottomPosition(height);
-    this._player.battleWindow.alignAboveOf({ y, height });
-    this._player.battleWindow.refresh();
-    this.addChild(this._player.battleWindow);
+    battleWindow.alignAboveOf({ y, height });
+    battleWindow.refresh();
+    this.addAction(this.commandCreatePlayerBattleWindow, battleWindow);
+    return battleWindow;
+  }
+
+  commandCreatePlayerBattleWindow(battleWindow) {
+    this._player.battleWindow = battleWindow;
+    this.commandAddChild(this._player.battleWindow);
   }
 
   createPlayerTrashWindow(cardsInTrash) {
-    this.addAction(this.commandCreatePlayerTrashWindow, cardsInTrash);
+    const trashWindow = TrashWindow.create(0, 0);
+    trashWindow.changeBlueColor();
+    trashWindow.alignEndBelowMiddle();
+    trashWindow.refreshPoints(cardsInTrash);
+    this.addAction(this.commandCreatePlayerTrashWindow, trashWindow);
+    return trashWindow;
   }
 
-  commandCreatePlayerTrashWindow(cardsInTrash) {
-    this._player.trashWindow = TrashWindow.create(0, 0);
-    this._player.trashWindow.changeBlueColor();
-    this._player.trashWindow.alignEndBelowMiddle();
-    this._player.trashWindow.refreshPoints(cardsInTrash);
-    this.addChild(this._player.trashWindow);
+  commandCreatePlayerTrashWindow(trashWindow) {
+    this._player.trashWindow = trashWindow;
+    this.commandAddChild(trashWindow);
   }
 
-  createPlayerScoreWindow(victories) {
-    this.addAction(this.commandCreatePlayerScoreWindow, victories);
-  }
-
-  commandCreatePlayerScoreWindow(victories) {
-    this._player.scoreWindow = ScoreWindow.create(0, 0);
-    this._player.scoreWindow.changeBlueColor();
-    this._player.scoreWindow.alignEndBottom();
-    const height = this._player.boardWindow.height;
+  createPlayerScoreWindow(victories, height = this._player.boardWindow.height) {
+    const scoreWindow = ScoreWindow.create(0, 0);
+    scoreWindow.changeBlueColor();
+    scoreWindow.alignEndBottom();
     const y = ScreenHelper.getBottomPosition(height);
-    this._player.scoreWindow.alignAboveOf({ y, height });
-    this._player.scoreWindow.refreshScore(victories);
-    this.addChild(this._player.scoreWindow);
+    scoreWindow.alignAboveOf({ y, height });
+    scoreWindow.refreshScore(victories);
+    this.addAction(this.commandCreatePlayerScoreWindow, scoreWindow);
+    return scoreWindow;
+  }
+
+  commandCreatePlayerScoreWindow(scoreWindow) {
+    this._player.scoreWindow = scoreWindow;
+    this.commandAddChild(scoreWindow);
   }
 
   createPlayerBattlefield() {
-    this.addAction(this.commandCreatePlayerBattlefield);
-  }
-
-  commandCreatePlayerBattlefield() {
     const paddingLeft = this.getPaddingLeftBattleField();
-    this._player.battlefield = CardsetSprite.create(paddingLeft, 0);
+    const battlefield = CardsetSprite.create(paddingLeft, 0);
     const height = 120;
     const y = ScreenHelper.getBottomPosition(height);
-    this._player.battlefield.alignAboveOf({ y, height });
-    this.addChild(this._player.battlefield);
+    battlefield.alignAboveOf({ y, height });
+    this.addAction(this.commandCreatePlayerBattlefield, battlefield);
+    return battlefield;
+  }
+
+  commandCreatePlayerBattlefield(battlefield) {
+    this._player.battlefield = battlefield;
+    this.commandAddChild(battlefield);
   }
 
   getPaddingLeftBattleField() {
@@ -131,72 +143,80 @@ class Phase {
   }
 
   createChallengeBoardWindow(energies, cardsInDeck, cardsInHand) {
-    this.addAction(this.commandCreateChallengeBoardWindow, energies, cardsInDeck, cardsInHand);
-  }
-
-  commandCreateChallengeBoardWindow(energies, cardsInDeck, cardsInHand) {
-    this._challenge.boardWindow = BoardWindow.create(0, 0);
-    this._challenge.boardWindow.changeRedColor();
-    this._challenge.boardWindow.alignStartTop();
+    const boardWindow = BoardWindow.create(0, 0);
+    boardWindow.changeRedColor();
+    boardWindow.alignStartTop();
     const points = [...energies, cardsInDeck, cardsInHand];
-    this._challenge.boardWindow.refreshPoints(...points);
-    this.addChild(this._challenge.boardWindow);
+    boardWindow.refreshPoints(...points);
+    this.addAction(this.commandCreateChallengeBoardWindow, boardWindow);
+    return boardWindow;
   }
 
-  createChallengeBattleWindow() {
-    this.addAction(this.commandCreateChallengeBattleWindow);
+  commandCreateChallengeBoardWindow(boardWindow) {
+    this._challenge.boardWindow = boardWindow;
+    this.commandAddChild(boardWindow);
   }
 
-  commandCreateChallengeBattleWindow() {
-    this._challenge.battleWindow = BattlePointsWindow.create(0, 0);
-    this._challenge.battleWindow.changeRedColor();
-    this._challenge.battleWindow.alignStartTop();
-    const height = this._player.boardWindow.height;
+  createChallengeBattleWindow(height = this._player.boardWindow.height) {
+    const battleWindow = BattlePointsWindow.create(0, 0);
+    battleWindow.changeRedColor();
+    battleWindow.alignStartTop();
     const y = ScreenHelper.getTopPosition();
-    this._challenge.battleWindow.alignBelowOf({ y, height });
-    this._challenge.battleWindow.refresh();
-    this.addChild(this._challenge.battleWindow);
+    battleWindow.alignBelowOf({ y, height });
+    battleWindow.refresh();
+    this.addAction(this.commandCreateChallengeBattleWindow, battleWindow);
+    return battleWindow;
+  }
+
+  commandCreateChallengeBattleWindow(battleWindow) {
+    this._challenge.battleWindow = battleWindow;
+    this.commandAddChild(battleWindow);
   }
 
   createChallengeTrashWindow(cardsInTrash) {
-    this.addAction(this.commandCreateChallengeTrashWindow, cardsInTrash);
+    const trashWindow = TrashWindow.create(0, 0);
+    trashWindow.changeRedColor();
+    trashWindow.alignEndAboveMiddle();
+    trashWindow.reverseIcons();
+    trashWindow.refreshPoints(cardsInTrash);
+    this.addAction(this.commandCreateChallengeTrashWindow, trashWindow);
+    return trashWindow;
   }
 
-  commandCreateChallengeTrashWindow(cardsInTrash) {
-    this._challenge.trashWindow = TrashWindow.create(0, 0);
-    this._challenge.trashWindow.changeRedColor();
-    this._challenge.trashWindow.alignEndAboveMiddle();
-    this._challenge.trashWindow.reverseIcons();
-    this._challenge.trashWindow.refreshPoints(cardsInTrash);
-    this.addChild(this._challenge.trashWindow);
+  commandCreateChallengeTrashWindow(trashWindow) {
+    this._challenge.trashWindow = trashWindow;
+    this.commandAddChild(trashWindow);
   }
 
-  createChallengeScoreWindow(victories) {
-    this.addAction(this.commandCreateChallengeScoreWindow, victories);
-  }
-
-  commandCreateChallengeScoreWindow(victories) {
-    this._challenge.scoreWindow = ScoreWindow.create(0, 0);
-    this._challenge.scoreWindow.changeRedColor();
-    this._challenge.scoreWindow.alignEndTop();
-    const height = this._player.boardWindow.height;
+  createChallengeScoreWindow(victories, height = this._player.boardWindow.height) {
+    const scoreWindow = ScoreWindow.create(0, 0);
+    scoreWindow.changeRedColor();
+    scoreWindow.alignEndTop();
     const y = ScreenHelper.getTopPosition();
-    this._challenge.scoreWindow.alignBelowOf({ y, height });
-    this._challenge.scoreWindow.refreshScore(victories);
-    this.addChild(this._challenge.scoreWindow);
+    scoreWindow.alignBelowOf({ y, height });
+    scoreWindow.refreshScore(victories);
+    this.addAction(this.commandCreateChallengeScoreWindow, scoreWindow);
+    return scoreWindow;
+  }
+
+  commandCreateChallengeScoreWindow(scoreWindow) {
+    this._challenge.scoreWindow = scoreWindow;
+    this.commandAddChild(scoreWindow);
   }
 
   createChallengeBattlefield() {
-    this.addAction(this.commandCreateChallengeBattlefield);
-  }
-
-  commandCreateChallengeBattlefield() {
     const paddingLeft = this.getPaddingLeftBattleField();
-    this._challenge.battlefield = CardsetSprite.create(paddingLeft, 0);
+    const battlefield = CardsetSprite.create(paddingLeft, 0);
     const height = 128;
     const y = ScreenHelper.getTopPosition();
-    this._challenge.battlefield.alignBelowOf({ y, height });
-    this.addChild(this._challenge.battlefield);
+    battlefield.alignBelowOf({ y, height });
+    this.addAction(this.commandCreateChallengeBattlefield, battlefield);
+    return battlefield;
+  }
+
+  commandCreateChallengeBattlefield(battlefield) {
+    this._challenge.battlefield = battlefield;
+    this.commandAddChild(battlefield);
   }
 
   openTextWindows() {
@@ -465,6 +485,10 @@ class Phase {
   }
 
   addChild(child) {
+    this.addAction(this.commandAddChild, child);
+  }
+
+  commandAddChild(child) {
     if (child instanceof Window_Base) {
       this.addWindows(child);
     } else {
@@ -486,6 +510,10 @@ class Phase {
   }
 
   removeChild(child) {
+    this.addAction(this.commandRemoveChild, child);
+  }
+
+  commandRemoveChild(child) {
     if (child instanceof Window_Base) {
       this._scene.addWindow(child);
     } else {
