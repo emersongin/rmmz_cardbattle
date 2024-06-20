@@ -29,14 +29,14 @@ class Phase {
     this._scene = scene;
   }
 
-  createPlayerGameBoard(player, energies) {
-    const { cardsInTrash, cardsInDeck, cardsInHand, victories } = player;
-    this.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand);
-    this.createPlayerBattleWindow();
-    this.createPlayerTrashWindow(cardsInTrash);
-    this.createPlayerScoreWindow(victories);
-    this.createPlayerBattlefield();
-  }
+  // createPlayerGameBoard(player, energies) {
+  //   const { cardsInTrash, cardsInDeck, cardsInHand, victories } = player;
+  //   this.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand);
+  //   this.createPlayerBattleWindow();
+  //   this.createPlayerTrashWindow(cardsInTrash);
+  //   this.createPlayerScoreWindow(victories);
+  //   this.createPlayerBattlefield();
+  // }
 
   createTitleWindow(text) {
     const title = TextWindow.setTextColor(text, GameColors.ORANGE);
