@@ -35,8 +35,8 @@ class LoadPhase extends Phase {
     this.commandAddChild(askWindow);
   }
 
-  createPlayerHandset(cards) {
-    const playerHand = this.createPlayerHand(cards);
+  createPlayerHandset(cards, disableIndexes) {
+    const playerHand = this.createPlayerHand(cards, disableIndexes);
     const locationWindow = this.createLocationWindow(playerHand);
     const cardNameWindow = this.createCardNameWindow(playerHand);
     const cardDescriptionWindow = this.createCardDescriptionWindow(playerHand);
@@ -44,13 +44,15 @@ class LoadPhase extends Phase {
     return { playerHand, locationWindow, cardNameWindow, cardDescriptionWindow, cardPropsWindow };
   }
 
-  createPlayerHand(cards) {
+  createPlayerHand(cards, disableIndexes) {
     const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
     const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
     const playerHand = CardsetSprite.create(x, y);
     playerHand.show();
     const sprites = playerHand.listCards(cards);
     playerHand.startClosedCards(sprites);
+    const disableSprites = sprites.filter((sprite, index) => disableIndexes.includes(index));
+    playerHand.disableCards(disableSprites)
     this.addAction(this.commandCreatePlayerHand, playerHand);
     return playerHand;
   }

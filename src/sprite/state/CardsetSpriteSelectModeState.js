@@ -180,10 +180,13 @@ class CardsetSpriteSelectModeState {
     const allowedAmount = cardset.getEnabledSpritesAmount();
     const selectedAmount = this._selectedIndexs.length;
     let limit = false;
+    let full = false;
     if (this._selectNumber > 0) {
       limit = selectedAmount >= this._selectNumber;
     }
-    const full = selectedAmount === allowedAmount;
+    if (selectedAmount > 0) {
+      full = selectedAmount === allowedAmount;
+    }
     return limit || full;
   }
 }
