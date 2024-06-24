@@ -147,15 +147,17 @@ class DrawPhaseTest extends SceneTest {
   }
 
   createPlayerGameBoard() {
-    const playerEnergies = Object.values(this.manager.player.energies);
-    const playerCardsInDeck = this.manager.player.deck.length;
-    const playerCardsInHand = this.manager.player.hand.length;
-    const playerCardsInTrash = this.manager.player.trash.length;
-    const playerVictories = this.manager.player.victories;
-    const boardWindow = this.phase.createPlayerBoardWindow(playerEnergies, playerCardsInDeck, playerCardsInHand);
-    const battleWindow = this.phase.createPlayerBattleWindow();
-    const trashWindow = this.phase.createPlayerTrashWindow(playerCardsInTrash);
-    const scoreWindow = this.phase.createPlayerScoreWindow(playerVictories);
+    const energies = Object.values(this.manager.player.energies);
+    const cardsInDeck = this.manager.player.deck.length;
+    const cardsInHand = this.manager.player.hand.length;
+    const cardsInTrash = this.manager.player.trash.length;
+    const victories = this.manager.player.victories;
+    const passed = this.manager.player.passed;
+    const boardWindow = this.phase.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand, passed);
+    const boardWindowHeight = boardWindow.height;
+    const battleWindow = this.phase.createPlayerBattleWindow(boardWindowHeight);
+    const trashWindow = this.phase.createPlayerTrashWindow(cardsInTrash);
+    const scoreWindow = this.phase.createPlayerScoreWindow(victories, boardWindowHeight);
     const battlefield = this.phase.createPlayerBattlefield();
     this.addHiddenWatched(boardWindow);
     this.addHiddenWatched(battleWindow);
@@ -165,15 +167,17 @@ class DrawPhaseTest extends SceneTest {
   }
 
   createChallengeGameBoard() {
-    const challengeEnergies = Object.values(this.manager.challenge.energies);
-    const challengeCardsInDeck = this.manager.challenge.deck.length;
-    const challengeCardsInHand = this.manager.challenge.hand.length;
-    const challengeCardsInTrash = this.manager.challenge.trash.length;
-    const challengeVictories = this.manager.challenge.victories;
-    const boardWindow = this.phase.createChallengeBoardWindow(challengeEnergies, challengeCardsInDeck, challengeCardsInHand);
-    const battleWindow = this.phase.createChallengeBattleWindow();
-    const trashWindow = this.phase.createChallengeTrashWindow(challengeCardsInTrash);
-    const scoreWindow = this.phase.createChallengeScoreWindow(challengeVictories);
+    const energies = Object.values(this.manager.challenge.energies);
+    const cardsInDeck = this.manager.challenge.deck.length;
+    const cardsInHand = this.manager.challenge.hand.length;
+    const cardsInTrash = this.manager.challenge.trash.length;
+    const victories = this.manager.challenge.victories;
+    const passed = this.manager.challenge.passed;
+    const boardWindow = this.phase.createChallengeBoardWindow(energies, cardsInDeck, cardsInHand, passed);
+    const boardWindowHeight = boardWindow.height;
+    const battleWindow = this.phase.createChallengeBattleWindow(boardWindowHeight);
+    const trashWindow = this.phase.createChallengeTrashWindow(cardsInTrash);
+    const scoreWindow = this.phase.createChallengeScoreWindow(victories, boardWindowHeight);
     const battlefield = this.phase.createChallengeBattlefield();
     this.addHiddenWatched(boardWindow);
     this.addHiddenWatched(battleWindow);
