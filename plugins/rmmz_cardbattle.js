@@ -4340,6 +4340,8 @@ class CardsetSpriteSelectModeState {
 
   selectSprite() {
     const cursorIndex = this._cursorIndex;
+    const sprite = this._cardset.getSprites(cursorIndex);
+    if (sprite && sprite.isDisabled()) return;
     if (this._selectedIndexs.includes(cursorIndex)) {
       this.removeSelectedIndex(cursorIndex);
     } else {
@@ -6406,8 +6408,10 @@ class LoadPhase extends Phase {
     playerHand.show();
     const sprites = playerHand.listCards(cards);
     playerHand.startClosedCards(sprites);
+
     const disableSprites = sprites.filter((sprite, index) => disableIndexes.includes(index));
-    playerHand.disableCards(disableSprites)
+    playerHand.disableCards(disableSprites);
+
     this.addAction(this.commandCreatePlayerHand, playerHand);
     return playerHand;
   }

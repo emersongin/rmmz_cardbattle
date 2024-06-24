@@ -148,6 +148,8 @@ class CardsetSpriteSelectModeState {
 
   selectSprite() {
     const cursorIndex = this._cursorIndex;
+    const sprite = this._cardset.getSprites(cursorIndex);
+    if (sprite && sprite.isDisabled()) return;
     if (this._selectedIndexs.includes(cursorIndex)) {
       this.removeSelectedIndex(cursorIndex);
     } else {
