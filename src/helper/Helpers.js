@@ -144,6 +144,9 @@ class ObjectHelper {
       '_enableSelected',
       '_selectedIndexs',
       '_openness',
+      '_titleWindow',
+      '_descriptionWindow',
+      '_folderWindow',
       'visible',
     ];
     const newObj = Object.create(Object.getPrototypeOf(obj));

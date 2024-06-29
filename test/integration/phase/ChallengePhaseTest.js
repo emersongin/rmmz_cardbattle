@@ -1,12 +1,8 @@
 class ChallengePhaseTest extends SceneTest {
   phase;
   endTest;
-  manager = { folders: [], index: -1 };
-
-  create() {
-    this.phase = new ChallengePhase(this.scene);
-    this.endTest = this.createHandler();
-    this.manager.folders = [
+  manager = { 
+    folders: [
       {
         name: 'Folder 1',
         energies: [10, 10, 5, 5, 5, 5]
@@ -16,47 +12,28 @@ class ChallengePhaseTest extends SceneTest {
       }, {
         name: 'Folder 3',
         energies: [10, 10, 10, 0, 0, 0],
-    }];
+    }], 
+    index: -1,
+    getChallengeDescription: () => 'lv. 85 - Amaterasu Duel King',
+    getPlayerFolders: () => this.manager.folders,
+    setPlayerFolderIndex: (index) => this.manager.index = index,
+    endPhase: () => {}
+  };
+
+  create() {
+    this.scene._manager = this.manager;
+    this.phase = new ChallengePhase(this.scene);
+    this.manager.endPhase = this.createHandler();
+    this.addHiddenWatched(this.phase);
   }
 
   start() {
     this.scene.setPhase(this.phase);
-    const titleWindow = this.phase.createTitleWindow('Challenge Phase');
-    const descriptionWindow = this.phase.createDescriptionWindow('lv. 85', 'Amaterasu Duel King');
-    this.addHiddenWatched(titleWindow);
-    this.addHiddenWatched(descriptionWindow);
-    this.phase.openTextWindows();
-    this.phase.setStep(GameConst.START_PHASE);
+    this.phase.start(this.manager);
   }
   
-  update() {
-    if (this.phase.isBusy()) return false;
-    if (this.phase.isCurrentStep(GameConst.START_PHASE) && Input.isTriggered('ok')) {
-      this.phase.commandCloseTextWindows();
-      this.phase.leaveTextWindows();
-      const selectHandler = (index) => {
-        this.manager.index = index;
-        this.phase.commandCloseFolderWindow();
-        this.phase.leaveFolderWindow();
-        this.phase.setStep(GameConst.END_SELECT_FOLDER);
-      };
-      let folders = this.manager.folders;
-      folders = folders.map(folder => {
-        folder.handler = selectHandler;
-        return folder;
-      });
-      const folderWindow = this.phase.createFolderWindow('Choose a folder', folders);
-      this.addHiddenWatched(folderWindow);
-      this.phase.addWait();
-      this.phase.openFolderWindow();
-      this.phase.setStep(GameConst.START_SELECT_FOLDER);
-    }
-    if (this.phase.isCurrentStep(GameConst.END_SELECT_FOLDER)) {
-      this.phase.addAction(this.endTest);
-    }
-  }
-
   asserts() {
+    console.log(this.phase.getTitleWindow());
     this.describe('Deve apresentar etapas de fase de desafiado e seleção de pasta.');
     this.expectWasTrue('A janela de título foi apresentada?', 'visible', this.phase.getTitleWindow());
     this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase.getDescriptionWindow());

@@ -6,6 +6,7 @@ class CardBattleTestScene extends Scene_Message {
     this._nextTest = null;
     this._animationSprites = [];
     this._phase = null;
+    this._manager = {};
   }
 
   create() {
@@ -189,10 +190,10 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const phase = [
-      // ChallengePhaseTest,
+      ChallengePhaseTest,
       // StartPhaseTest,
       // DrawPhaseTest,
-      LoadPhaseTest,
+      // LoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,
@@ -319,7 +320,7 @@ class CardBattleTestScene extends Scene_Message {
         this._nextTest.update();
         this._nextTest.updateTest();
       }
-      if (this._phase) this._phase.update();
+      if (this._phase) this._phase.update(this._manager);
     }
     super.update();
   }
