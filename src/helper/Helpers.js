@@ -115,6 +115,10 @@ class ArrayHelper {
     }
     return newArray;
   }
+
+  static toArray(array = []) {
+    return (Array.isArray(array) === false) ? [array] : array;
+  }
 }
 
 class ObjectHelper {

@@ -31,9 +31,14 @@ class ChallengePhaseTest extends SceneTest {
     this.scene.setPhase(this.phase);
     this.phase.start(this.manager);
   }
+
+  update() {
+    this.phase.update(this.manager);
+  }
   
   asserts() {
     console.log(this.phase.getTitleWindow());
+    console.log(this);
     this.describe('Deve apresentar etapas de fase de desafiado e seleção de pasta.');
     this.expectWasTrue('A janela de título foi apresentada?', 'visible', this.phase.getTitleWindow());
     this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase.getDescriptionWindow());

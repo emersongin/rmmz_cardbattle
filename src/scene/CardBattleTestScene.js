@@ -320,7 +320,6 @@ class CardBattleTestScene extends Scene_Message {
         this._nextTest.update();
         this._nextTest.updateTest();
       }
-      if (this._phase) this._phase.update(this._manager);
     }
     super.update();
   }

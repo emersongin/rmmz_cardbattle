@@ -1,8 +1,13 @@
 class CardBattleScene extends Scene_Message {
+  _containerAnimationSprites = [];
+
   initialize() {
     super.initialize();
-    this._phase = null;
-    this._animationSprites = [];
+    this._status = null;
+  }
+
+  setStatus(status, ...params) {
+    this._status = new status(this, ...params);
   }
 
   create() {
@@ -19,14 +24,8 @@ class CardBattleScene extends Scene_Message {
   }
 
   update() {
-    if (this.isActive()) {
-      if (this._phase) this._phase.update();
-    }
     super.update();
-  }
-
-  changePhase(phase) {
-    this._phase = new phase(this);
+    if (this.isActive() && this._status) this._status.update();
   }
 
   isActive() {
@@ -35,7 +34,7 @@ class CardBattleScene extends Scene_Message {
 
   isBusy() {
     return super.isBusy();
-  };
+  }
 
   stop() {
     super.stop();
@@ -49,11 +48,15 @@ class CardBattleScene extends Scene_Message {
     this._windowLayer.removeChild(window);
   };
 
-  addAnimationSprite(animationSprite) {
-    this._animationSprites.push(animationSprite);
+  addAnimationSprite(sprite) {
+    this._containerAnimationSprites.push(sprite);
   }
 
   getLastAnimationSprite() {
-    return this._animationSprites[this._animationSprites.length - 1];
+    return this._containerAnimationSprites[this.getLastAnimationSpritesIndex()];
+  }
+
+  getLastAnimationSpritesIndex() {
+    return this._containerAnimationSprites.length - 1;
   }
 }
