@@ -37,12 +37,10 @@ class ChallengePhaseTest extends SceneTest {
   }
   
   asserts() {
-    console.log(this.phase.getTitleWindow());
-    console.log(this);
     this.describe('Deve apresentar etapas de fase de desafiado e seleção de pasta.');
-    this.expectWasTrue('A janela de título foi apresentada?', 'visible', this.phase.getTitleWindow());
-    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase.getDescriptionWindow());
-    this.expectWasTrue('A Janela de escolah de pastas foi apresentada?', 'visible', this.phase.getFolderWindow());
+    this.expectWasTrue('A janela de título foi apresentada?', this.phase.isTitleWindowVisible);
+    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', this.phase.isDescriptionWindowVisible);
+    this.expectWasTrue('A Janela de escolha de pastas foi apresentada?', this.phase.isFolderWindowVisible);
     this.expectTrue('Foi escolhido uma pasta válida?', this.manager.index !== -1);
   }
 }

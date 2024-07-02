@@ -97,4 +97,8 @@ class ChallengePhase extends Phase {
     ];
     return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
   }
+
+  isFolderWindowVisible() {
+    return this._folderWindow.visible;
+  }
 }

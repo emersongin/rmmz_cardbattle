@@ -10,6 +10,11 @@ class ActionSprite extends Sprite {
     },
   };
 
+  initialize(x, y) { 
+    super.initialize();
+    this.commandSetPosition(x, y);
+  }
+
   isCurrentStatus(status) {
     return this.getStatus() === status;
   }

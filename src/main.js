@@ -1,14 +1,18 @@
 (function() {
 'use strict';
+// CORE
 // include ./core/Input.js
 // include ./core/Scene_Boot.js
 // include ./core/ImageManager.js
+
+// CONSTANTS
 // include ./constant/GameConst.js
 
-// include ./data/playerDecksData.js
-
+// HELPERS
 // include ./helper/Helpers.js
 // include ./helper/Generators.js
+
+// WINDOWS
 // include ./window/TextWindow.js
 // include ./window/CommandWindow.js
 // include ./window/FolderWindow.js
@@ -19,24 +23,23 @@
 // include ./window/TrashWindow.js
 // include ./window/ScoreWindow.js
 
-// include ./object/PowerAction.js
-// include ./object/Energy.js
-// include ./object/Card.js
-// include ./object/CardBattlePlayer.js
+// SPRITES
 // include ./sprite/ActionSprite.js
 // include ./sprite/CardSprite.js
 // include ./sprite/CardsetSprite.js
 // include ./sprite/BackgroundSprite.js
 // include ./sprite/CardBattleSpriteset.js
 
+// SCENE
 // include ./scene/phase/Phase.js
 // include ./scene/phase/ChallengePhase.js
 // include ./scene/phase/StartPhase.js
 // include ./scene/phase/DrawPhase.js
 // include ./scene/phase/LoadPhase.js
-// include ../test/integration/SceneTest.js
 
-// tests CARD Sprite
+// TESTS
+// include ../test/integration/SceneTest.js
+// CARD SPRITE
 // include ../test/integration/card/SizeCardSpriteTest.js
 // include ../test/integration/card/ErroOnCreateCardSpriteTest.js
 // include ../test/integration/card/StartOpenCardSpriteTest.js
@@ -62,7 +65,7 @@
 // include ../test/integration/card/FlipTurnToDownCardSpriteTest.js
 // include ../test/integration/card/UpdatingPointsCardSpriteTest.js
 // include ../test/integration/card/ChainAcitonCardSpriteTest.js
-// tests CARDSET
+// CARDSET SPRITE
 // include ../test/integration/cardset/StartPositionCardsetSpriteTest.js
 // include ../test/integration/cardset/SetCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/SetTurnToDownCardsCardsetSpriteTest.js
@@ -101,7 +104,7 @@
 // include ../test/integration/cardset/ChainActionCardsetSpriteTest.js
 // include ../test/integration/cardset/OnChangeCursorSelectModeCardsetSpriteTest.js
 // include ../test/integration/cardset/AddChildToEndCardsetSpriteTest.js
-// tests STATE WINDOW
+// STETE WINDOW
 // include ../test/integration/statewindow/OpenStateWindowTest.js
 // include ../test/integration/statewindow/CloseStateWindowTest.js
 // include ../test/integration/statewindow/CreateOneFourthSizeStateWindowTest.js
@@ -123,20 +126,20 @@
 // include ../test/integration/statewindow/AlignEndBottomStateWindowTest.js
 // include ../test/integration/statewindow/AlignAboveOfStateWindowTest.js
 // include ../test/integration/statewindow/AlignBelowOfStateWindowTest.js
-// tests BOARD WINDOW
+// BOARD WINDOW
 // include ../test/integration/boardwindow/PassBoardWindowTest.js
 // include ../test/integration/boardwindow/NoPassBoardWindowTest.js
 // include ../test/integration/boardwindow/UpdatingPointsBoardWindowTest.js
-// tests BATTLE POINTS WINDOW
+// BATTLE POINTS WINDOW
 // include ../test/integration/battlepointswindow/UpdatingPointsBattlePointsWindowTest.js
-// tests TRASH WINDOW
+// TRASH WINDOW
 // include ../test/integration/trashwindow/UpdatingPointsTrashWindowTest.js
 // include ../test/integration/trashwindow/OrderedIconsTrashWindowTest.js
 // include ../test/integration/trashwindow/ReverseIconsTrashWindowTest.js
-// tests SCORE WINDOW
+// SCORE WINDOW
 // include ../test/integration/scorewindow/OneWinUpdatingScoreWindowTest.js
 // include ../test/integration/scorewindow/TwoWinsUpdatingScoreWindowTest.js
-// tests TEXT WINDOW
+// TEXT WINDOW
 // include ../test/integration/textwindow/CreateOneFourthSizeTextWindowTest.js
 // include ../test/integration/textwindow/CreateMiddleSizeTextWindowTest.js
 // include ../test/integration/textwindow/CreateFullsizeTextWindowTest.js
@@ -163,7 +166,7 @@
 // include ../test/integration/textwindow/ChangeTextColorTextWindowTest.js
 // include ../test/integration/textwindow/AlignAboveOfTextWindowTest.js
 // include ../test/integration/textwindow/AlignBelowOfTextWindowTest.js
-// tests COMMAND WINDOW
+// COMMAND WINDOW
 // include ../test/integration/commandwindow/CreateFullsizeCommandWindowTest.js
 // include ../test/integration/commandwindow/OpenCommandWindowTest.js
 // include ../test/integration/commandwindow/CloseCommandWindowTest.js
@@ -183,17 +186,15 @@
 // include ../test/integration/commandwindow/ChangeTextColorCommandWindowTest.js
 // include ../test/integration/commandwindow/CommandHandlerCommandWindowTest.js
 // include ../test/integration/commandwindow/CommandHandlerWithTextCommandWindowTest.js
-// test FOLDER WINDOW
+// FOLDER WINDOW
 // include ../test/integration/folderwindow/CreateFolderWindowTest.js
-
-// test PHASE
+// PHASES
 // include ../test/integration/phase/ChallengePhaseTest.js
 // include ../test/integration/phase/StartPhaseTest.js
 // include ../test/integration/phase/DrawPhaseTest.js
 // include ../test/integration/phase/LoadPhaseTest.js
 
-// include ./scene/CardBattleScene.js
-// include ./scene/CardBattleTestScene.js
 // include ./manager/CardBattleManager.js
-
+// include ./scene/CardBattleTestScene.js
+// include ./scene/CardBattleScene.js
 })();

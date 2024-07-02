@@ -1,12 +1,10 @@
 class CardBattleTestScene extends Scene_Message {
   initialize() {
     super.initialize();
-    this._css = 'color: #FFFFFF; font-size: 12px; padding: 5px;';
-    this._tests = [];
-    this._nextTest = null;
     this._animationSprites = [];
+    this._next = null;
+    this._tests = [];
     this._phase = null;
-    this._manager = {};
   }
 
   create() {
@@ -121,32 +119,32 @@ class CardBattleTestScene extends Scene_Message {
       AlignBelowOfStateWindowTest,
     ];
     const textWindowTests = [
-      // CreateOneFourthSizeTextWindowTest,
-      // CreateMiddleSizeTextWindowTest,
-      // CreateFullSizeTextWindowTest,
-      // OpenTextWindowTest,
-      // CloseTextWindowTest,
-      // ChangeBlueColorTextWindowTest,
-      // ChangeRedColorTextWindowTest,
-      // ChangeDefaultColorTextWindowTest,
-      // AlignStartTopTextWindowTest,
-      // AlignStartMiddleTextWindowTest,
-      // AlignStartBottomTextWindowTest,
-      // AlignCenterTopTextWindowTest,
-      // AlignCenterAboveMiddleTextWindowTest,
-      // AlignCenterMiddleTextWindowTest,
-      // AlignCenterBelowMiddleTextWindowTest,
-      // AlignCenterBottomTextWindowTest,
-      // AlignEndTopTextWindowTest,
-      // AlignEndMiddleTextWindowTest,
-      // AlignEndBottomTextWindowTest,
-      // AlignTextLeftTextWindowTest,
-      // AlignTextCenterTextWindowTest,
-      // AlignTextRightTextWindowTest,
+      CreateOneFourthSizeTextWindowTest,
+      CreateMiddleSizeTextWindowTest,
+      CreateFullSizeTextWindowTest,
+      OpenTextWindowTest,
+      CloseTextWindowTest,
+      ChangeBlueColorTextWindowTest,
+      ChangeRedColorTextWindowTest,
+      ChangeDefaultColorTextWindowTest,
+      AlignStartTopTextWindowTest,
+      AlignStartMiddleTextWindowTest,
+      AlignStartBottomTextWindowTest,
+      AlignCenterTopTextWindowTest,
+      AlignCenterAboveMiddleTextWindowTest,
+      AlignCenterMiddleTextWindowTest,
+      AlignCenterBelowMiddleTextWindowTest,
+      AlignCenterBottomTextWindowTest,
+      AlignEndTopTextWindowTest,
+      AlignEndMiddleTextWindowTest,
+      AlignEndBottomTextWindowTest,
+      AlignTextLeftTextWindowTest,
+      AlignTextCenterTextWindowTest,
+      AlignTextRightTextWindowTest,
       TextTextWindowTest,
-      // ChangeTextColorTextWindowTest,
-      // AlignAboveOfTextWindowTest,
-      // AlignBelowOfTextWindowTest,
+      ChangeTextColorTextWindowTest,
+      AlignAboveOfTextWindowTest,
+      AlignBelowOfTextWindowTest,
     ];
     const boardWindowTests = [
       PassBoardWindowTest,
@@ -218,8 +216,8 @@ class CardBattleTestScene extends Scene_Message {
   async startTests() {
     const testsResults = [];
     for (const test of this._tests) {
-      this._nextTest = test;
-      const result = await this._nextTest.run();
+      this._next = test;
+      const result = await this._next.run();
       testsResults.push(result);
       await this.clearScene();
     }
@@ -295,33 +293,33 @@ class CardBattleTestScene extends Scene_Message {
   }
 
   printInfo(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #5DADE2; ${this._css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #5DADE2; color: #FFFFFF; font-size: 12px; padding: 5px;`);
   }
 
   printError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #800000; ${this._css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #800000; color: #FFFFFF; font-size: 12px; padding: 5px;`);
   }
 
   printTestError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #090000; ${this._css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #090000; color: #FFFFFF; font-size: 12px; padding: 5px;`);
   }
 
   printAssertError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #400000; ${this._css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #400000; color: #FFFFFF; font-size: 12px; padding: 5px;`);
   }
 
   printSuccess(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #008000; ${this._css}`);
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #008000; color: #FFFFFF; font-size: 12px; padding: 5px;`);
   }
 
   update() {
+    super.update();
     if (this.isActive()) {
-      if (this._nextTest) {
-        this._nextTest.update();
-        this._nextTest.updateTest();
+      if (this._next) {
+        this._next.update();
+        this._next.updateTest();
       }
     }
-    super.update();
   }
 
   isActive() {
@@ -336,10 +334,6 @@ class CardBattleTestScene extends Scene_Message {
     return this._animationSprites[this._animationSprites.length - 1];
   }
 
-  setPhase(phase) {
-    this._phase = phase;
-  }
-
   addWindow(window) {
     this._windowLayer.addChild(window);
   }
@@ -347,4 +341,8 @@ class CardBattleTestScene extends Scene_Message {
   removeWindow(window) {
     this._windowLayer.removeChild(window);
   };
+
+  setPhase(phase) {
+    this._phase = phase;
+  }
 }

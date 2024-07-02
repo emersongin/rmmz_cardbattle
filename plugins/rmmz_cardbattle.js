@@ -1,5 +1,6 @@
 (function() {
 'use strict';
+// CORE
 Input.isAnyKeyActiveIn = function(keys = []) {
   keys = Array.isArray(keys) ? keys : [keys];
   return keys.some(key => this._latestButton === key);
@@ -15,6 +16,8 @@ Scene_Boot.prototype.start = function() {
 ImageManager.loadCard = function(filename) {
   return this.loadBitmap("img/cards/", filename);
 };
+
+// CONSTANTS
 const GameConst = {
   BATTLE: 'BATTLE',
   POWER: 'POWER',
@@ -154,49 +157,7 @@ const GameColors = {
 };
 
 
-const playerDecksData = [
-  {
-    name: 'Folder 1',
-    cards: [
-      {
-        number: 1,
-        name: 'Dodge',
-        description: 'Dodge',
-        type: CardTypes.BATTLE,
-        attack: 10,
-        health: 10,
-        energy: { type: 1, amount: 1 }
-      },
-      {
-        number: 1,
-        name: 'Dodge',
-        description: 'Dodge',
-        type: CardTypes.BATTLE,
-        attack: 10,
-        health: 10,
-        energy: { type: 1, amount: 1 }
-      },
-      {
-        number: 1,
-        name: 'Dodge',
-        description: 'Dodge',
-        type: CardTypes.BATTLE,
-        attack: 10,
-        health: 10,
-        energy: { type: 1, amount: 1 }
-      }
-    ]
-  },
-  {
-    name: 'Folder 2',
-    cards: []
-  },
-  {
-    name: 'Folder 3',
-    cards: []
-  }
-];
-
+// HELPERS
 class ScreenHelper {
   static getOneFourthWidth() {
     return Graphics.boxWidth / 4;
@@ -313,6 +274,10 @@ class ArrayHelper {
       [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
     }
     return newArray;
+  }
+
+  static toArray(array = []) {
+    return (Array.isArray(array) === false) ? [array] : array;
   }
 }
 
@@ -550,6 +515,8 @@ class HashGenerator {
     });
   }
 }
+
+// WINDOWS
 class TextWindow extends Window_Base {
   static createWindowOneFourthSize(x, y, text) {
     const width = ScreenHelper.getOneFourthWidth();
@@ -2288,88 +2255,7 @@ class ScoreWindow extends StateWindow {
   }
 }
 
-class PowerAction {
-    constructor(command) {
-        this._command = command;
-    }
-}
-class Energy {
-  constructor(type, amount) {
-      this._elementType = type;
-      this._amount = amount;
-  }
-}
-class Card {
-  constructor() {
-    this._id = uuidv4();
-    this._number = 0;
-    this._name = '';
-    this._description = '';
-    this._type = 0;
-    this._attack = 0;
-    this._health = 0;
-    this._energy = null;
-    this._powerAction = null;
-    this._attackState = 0;
-    this._healthState = 0;
-  }
-
-  static makeBattleCard(cardData, energyData) {
-    const battleCard = new Card();
-    battleCard._number = cardData.number;
-    battleCard._name = cardData.name;
-    battleCard._description = cardData.description;
-    battleCard._type = CardTypes.BATTLE;
-    battleCard._attack = cardData.attack;
-    battleCard._health = cardData.health;
-    battleCard._energy = new Energy(energyData.type, energyData.amount);
-    return battleCard;
-  }
-
-  static makePowerCard(cardData, energyData, powerData) {
-    const powerCard = new Card();
-    powerCard._number = cardData.number;
-    powerCard._name = cardData.name;
-    powerCard._description = cardData.description;
-    powerCard._type = CardTypes.POWER;
-    powerCard._energy = new Energy(energyData.type, energyData.amount);
-    powerCard._powerAction = new PowerAction(powerData.command);
-    return powerCard;
-  }
-
-  static makeLuckCard(cardData) {
-    const luckCard = new Card();
-    luckCard._number = cardData.number;
-    luckCard._name = cardData.name;
-    luckCard._description = cardData.description;
-    luckCard._type = CardTypes.LUCK;
-    luckCard._energy = new Energy(energyData.energy, energyData.amount);
-    return luckCard;
-  }
-}
-class CardBattlePlayer {
-  constructor(name, level, deck = null) {
-    this._name = name;
-    this._level = level;
-    this._deck = deck;
-  }
-
-  getName() {
-    return this._name;
-  }
-
-  getLevel() {
-    return this._level;
-  }
-
-  setDeck(deck) {
-    this._deck = deck;
-  }
-
-  hasDeck() {
-    return !!this._deck;
-  }
-}
+// SPRITES
 class ActionSprite extends Sprite {
   initialize(x = 0, y = 0) { 
     super.initialize();
@@ -5351,6 +5237,7 @@ class CardBattleSpriteset extends Spriteset_Base {
   }
 }
 
+// SCENE
 class Phase {
   _scene = {};
   _actionsQueue = [];
@@ -5979,6 +5866,13 @@ class Phase {
     return this._challenge.battlefield;
   }
 
+  isTitleWindowVisible() {
+    return this._titleWindow.visible;
+  }
+
+  isDescriptionWindowVisible() {
+    return this._descriptionWindow.visible;
+  }
 }
 class ChallengePhase extends Phase {
   _folderWindow = {};
@@ -6078,6 +5972,10 @@ class ChallengePhase extends Phase {
       this._folderWindow
     ];
     return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+  }
+
+  isFolderWindowVisible() {
+    return this._folderWindow.visible;
   }
 }
 class StartPhase extends Phase {
@@ -6769,6 +6667,8 @@ class LoadPhase extends Phase {
   }
 }
 
+
+// TESTS
 class SceneTest {
   scene = {};
   status = 'START';
@@ -7108,8 +7008,7 @@ class SceneTest {
     return () => this.waitHandler = false;
   }
 }
-
-// tests CARD Sprite
+// CARD SPRITE
 class SizeCardSpriteTest extends SceneTest {
   create() {
     const card = CardGenerator.generateCard();
@@ -7767,7 +7666,7 @@ class ChainAcitonCardSpriteTest extends SceneTest {
     this.expectTrue('Houve animação em cadeia?', this._chainActionActived);
   }
 }
-// tests CARDSET
+// CARDSET SPRITE
 class StartPositionCardsetSpriteTest extends SceneTest {
   create() {
     const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
@@ -8614,7 +8513,7 @@ class AddChildToEndCardsetSpriteTest extends SceneTest {
     this.expectTrue('O sprite está no final?', lastIndex === indexAmount);
   }
 }
-// tests STATE WINDOW
+// STETE WINDOW
 class OpenStateWindowTest extends SceneTest {
   create() {
     this.subject = StateWindow.createWindowFullSize(0, 0);
@@ -8955,7 +8854,7 @@ class AlignBelowOfStateWindowTest extends SceneTest {
     this.expectTrue('Esta na posição vertical abaixo do meio?', this.subject.y === y);
   }
 }
-// tests BOARD WINDOW
+// BOARD WINDOW
 class PassBoardWindowTest extends SceneTest {
   create() {
     this.subject = BoardWindow.create(0, 0);
@@ -9019,7 +8918,7 @@ class UpdatingPointsBoardWindowTest extends SceneTest {
     this.expectWasTrue('Foram atualizado?', this.subject.isUpdating);
   }
 }
-// tests BATTLE POINTS WINDOW
+// BATTLE POINTS WINDOW
 class UpdatingPointsBattlePointsWindowTest extends SceneTest {
   create() {
     this.subject = BattlePointsWindow.create(0, 0);
@@ -9042,7 +8941,7 @@ class UpdatingPointsBattlePointsWindowTest extends SceneTest {
     this.expectWasTrue('Foram atualizado?', this.subject.isUpdating);
   }
 }
-// tests TRASH WINDOW
+// TRASH WINDOW
 class UpdatingPointsTrashWindowTest extends SceneTest {
   create() {
     this.subject = TrashWindow.create(0, 0);
@@ -9087,7 +8986,7 @@ class ReverseIconsTrashWindowTest extends SceneTest {
     this.expectTrue('Esta em ordem normal?', this.subject.isIconsReverse());
   }
 }
-// tests SCORE WINDOW
+// SCORE WINDOW
 class OneWinUpdatingScoreWindowTest extends SceneTest {
   create() {
     this.subject = ScoreWindow.create(0, 0);
@@ -9116,7 +9015,7 @@ class TwoWinsUpdatingScoreWindowTest extends SceneTest {
     this.expectWasTrue('Foi atualizada?', this.subject.isUpdating);
   }
 }
-// tests TEXT WINDOW
+// TEXT WINDOW
 class CreateOneFourthSizeTextWindowTest extends SceneTest {
   create() {
     this.subject = TextWindow.createWindowOneFourthSize(0, 0);
@@ -9540,7 +9439,7 @@ class AlignBelowOfTextWindowTest extends SceneTest {
     this.expectTrue('Esta na posição vertical abaixo do meio?', this.subject.y === y);
   }
 }
-// tests COMMAND WINDOW
+// COMMAND WINDOW
 class CreateFullsizeCommandWindowTest extends SceneTest {
   create() {
     this.subject = CommandWindow.create(0, 0, []);
@@ -9860,7 +9759,7 @@ class CommandHandlerWithTextCommandWindowTest extends SceneTest {
     this.expectTrue('Esta com os comandos?', this.subject.haveCommands(['YES', 'NO']));
   }
 }
-// test FOLDER WINDOW
+// FOLDER WINDOW
 class CreateFolderWindowTest extends SceneTest {
   create() {
     const handlerDummy = () => {};
@@ -9885,8 +9784,7 @@ class CreateFolderWindowTest extends SceneTest {
     this.expectTrue('Esta aberta?', this.subject.isOpen());
   }
 }
-
-// test PHASE
+// PHASES
 class ChallengePhaseTest extends SceneTest {
   phase;
   endTest;
@@ -9926,12 +9824,10 @@ class ChallengePhaseTest extends SceneTest {
   }
   
   asserts() {
-    console.log(this.phase.getTitleWindow());
-    console.log(this);
     this.describe('Deve apresentar etapas de fase de desafiado e seleção de pasta.');
-    this.expectWasTrue('A janela de título foi apresentada?', 'visible', this.phase.getTitleWindow());
-    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase.getDescriptionWindow());
-    this.expectWasTrue('A Janela de escolah de pastas foi apresentada?', 'visible', this.phase.getFolderWindow());
+    this.expectWasTrue('A janela de título foi apresentada?', this.phase.isTitleWindowVisible);
+    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', this.phase.isDescriptionWindowVisible);
+    this.expectWasTrue('A Janela de escolha de pastas foi apresentada?', this.phase.isFolderWindowVisible);
     this.expectTrue('Foi escolhido uma pasta válida?', this.manager.index !== -1);
   }
 }
@@ -10541,415 +10437,6 @@ class LoadPhaseTest extends SceneTest {
   }
 }
 
-class CardBattleScene extends Scene_Message {
-  initialize() {
-    super.initialize();
-    this._phase = null;
-    this._animationSprites = [];
-  }
-
-  create() {
-    super.create();
-    this.createDisplayObjects();
-  }
-
-  createDisplayObjects() {
-    this.createWindowLayer();
-  }
-
-  start() {
-    super.start();
-  }
-
-  update() {
-    if (this.isActive()) {
-      if (this._phase) this._phase.update();
-    }
-    super.update();
-  }
-
-  changePhase(phase) {
-    this._phase = new phase(this);
-  }
-
-  isActive() {
-    return !this.isBusy();
-  }
-
-  isBusy() {
-    return super.isBusy();
-  };
-
-  stop() {
-    super.stop();
-  }
-
-  terminate() {
-    super.terminate();
-  }
-
-  removeWindow(window) {
-    this._windowLayer.removeChild(window);
-  };
-
-  addAnimationSprite(animationSprite) {
-    this._animationSprites.push(animationSprite);
-  }
-
-  getLastAnimationSprite() {
-    return this._animationSprites[this._animationSprites.length - 1];
-  }
-}
-class CardBattleTestScene extends Scene_Message {
-  initialize() {
-    super.initialize();
-    this._css = 'color: #FFFFFF; font-size: 12px; padding: 5px;';
-    this._tests = [];
-    this._nextTest = null;
-    this._animationSprites = [];
-    this._phase = null;
-    this._manager = {};
-  }
-
-  create() {
-    super.create();
-    this.createWindowLayer();
-    this.createTests();
-  }
-
-  async createTests() {
-    this._tests = this.testsData();
-    this._tests = this._tests.map(test => {
-      const instanceCreated = new test(this);
-      try {
-        instanceCreated.create();
-      } catch (error) { 
-        this.printAssertError(`Test : ${test.name}, Assert: ${error}`);
-        instanceCreated.addThrowableError(error);
-      }
-      return instanceCreated;
-    });
-  }
-  
-  testsData() {
-    const cardSpriteTests = [
-      SizeCardSpriteTest,
-      ErroOnCreateCardSpriteTest,
-      StartOpenCardSpriteTest,
-      StartClosedCardSpriteTest,
-      OpenCardSpriteTest,
-      CloseCardSpriteTest,
-      DisableCardSpriteTest,
-      EnableCardSpriteTest,
-      MoveCardSpriteTest,
-      HoveredCardSpriteTest,
-      UnhoveredCardSpriteTest,
-      SelectedCardSpriteTest,
-      UnselectedCardSpriteTest,
-      IluminatedCardSpriteTest,
-      UniluminatedCardSpriteTest,
-      FlashCardSpriteTest,
-      AnimationCardSpriteTest,
-      QuakeCardSpriteTest,
-      ZoomCardSpriteTest,
-      ZoomOutCardSpriteTest,
-      LeaveCardSpriteTest,
-      FlipTurnToUpCardSpriteTest,
-      FlipTurnToDownCardSpriteTest,
-      UpdatingPointsCardSpriteTest,
-      ChainAcitonCardSpriteTest,
-    ];
-    const cardsetSpriteTests = [
-      StartPositionCardsetSpriteTest,
-      AlignAboveOfCardsetSpriteTest,
-      AlignBelowOfCardsetSpriteTest,
-      AlignCenterMiddleCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      SetTurnToDownCardsCardsetSpriteTest,
-      SetAllCardsInPositionCardsetSpriteTest,
-      SetAllCardsInPositionsCardsetSpriteTest,
-      ListCardsCardsetSpriteTest,
-      StartClosedCardsCardsetSpriteTest,
-      OpenAllCardsCardsetSpriteTest,
-      OpenCardsCardsetSpriteTest,
-      CloseAllCardsCardsetSpriteTest,
-      CloseCardsCardsetSpriteTest,
-      MoveAllCardsInListCardsetSpriteTest,
-      MoveCardsInListCardsetSpriteTest,
-      MoveAllCardsToPositionCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
-      MoveAllCardsToPositionsCardsetSpriteTest,
-      AddAllCardsToListCardsetSpriteTest,
-      AddCardsToListCardsetSpriteTest,
-      DisableCardsCardsetSpriteTest,
-      StaticModeCardsetSpriteTest,
-      SelectModeCardsetSpriteTest,
-      SelectModeNoSelectCardsetSpriteTest,
-      SelectModeLimitedCardsetSpriteTest,
-      FlashCardsCardsetSpriteTest,
-      QuakeCardsCardsetSpriteTest,
-      AnimationCardsCardsetSpriteTest,
-      ShowOrderingCardsCardsetSpriteTest,
-      ShowReverseOrderingCardsCardsetSpriteTest,
-      ZoomAllCardsCardsetSpriteTest,
-      ZoomOutAllCardsCardsetSpriteTest,
-      FlipTurnToUpAllCardsCardsetSpriteTest,
-      FlipTurnToUpCardsCardsetSpriteTest,
-      ChainActionCardsetSpriteTest,
-      OnChangeCursorSelectModeCardsetSpriteTest,
-      AddChildToEndCardsetSpriteTest,
-    ];
-    const StateWindowTests = [
-      CreateOneFourthSizeStateWindowTest,
-      CreateMiddleSizeStateWindowTest,
-      CreateFullSizeStateWindowTest,
-      OpenStateWindowTest,
-      CloseStateWindowTest,
-      ChangeBlueColorStateWindowTest,
-      ChangeRedColorStateWindowTest,
-      ChangeDefaultColorStateWindowTest,
-      AlignStartTopStateWindowTest,
-      AlignStartMiddleStateWindowTest,
-      AlignStartBottomStateWindowTest,
-      AlignCenterTopStateWindowTest,
-      AlignCenterAboveMiddleStateWindowTest,
-      AlignCenterMiddleStateWindowTest,
-      AlignCenterBelowMiddleStateWindowTest,
-      AlignCenterBottomStateWindowTest,
-      AlignEndTopStateWindowTest,
-      AlignEndMiddleStateWindowTest,
-      AlignEndBottomStateWindowTest,
-      AlignAboveOfStateWindowTest,
-      AlignBelowOfStateWindowTest,
-    ];
-    const textWindowTests = [
-      // CreateOneFourthSizeTextWindowTest,
-      // CreateMiddleSizeTextWindowTest,
-      // CreateFullSizeTextWindowTest,
-      // OpenTextWindowTest,
-      // CloseTextWindowTest,
-      // ChangeBlueColorTextWindowTest,
-      // ChangeRedColorTextWindowTest,
-      // ChangeDefaultColorTextWindowTest,
-      // AlignStartTopTextWindowTest,
-      // AlignStartMiddleTextWindowTest,
-      // AlignStartBottomTextWindowTest,
-      // AlignCenterTopTextWindowTest,
-      // AlignCenterAboveMiddleTextWindowTest,
-      // AlignCenterMiddleTextWindowTest,
-      // AlignCenterBelowMiddleTextWindowTest,
-      // AlignCenterBottomTextWindowTest,
-      // AlignEndTopTextWindowTest,
-      // AlignEndMiddleTextWindowTest,
-      // AlignEndBottomTextWindowTest,
-      // AlignTextLeftTextWindowTest,
-      // AlignTextCenterTextWindowTest,
-      // AlignTextRightTextWindowTest,
-      TextTextWindowTest,
-      // ChangeTextColorTextWindowTest,
-      // AlignAboveOfTextWindowTest,
-      // AlignBelowOfTextWindowTest,
-    ];
-    const boardWindowTests = [
-      PassBoardWindowTest,
-      NoPassBoardWindowTest,
-      UpdatingPointsBoardWindowTest,
-    ];
-    const battlePointsWindow = [
-      UpdatingPointsBattlePointsWindowTest,
-    ];
-    const trashWindow = [
-      UpdatingPointsTrashWindowTest,
-      OrderedIconsTrashWindowTest,
-      ReverseIconsTrashWindowTest,
-    ];
-    const scoreWindow = [
-      OneWinUpdatingScoreWindowTest,
-      TwoWinsUpdatingScoreWindowTest
-    ];
-    const commandWindow = [
-      CreateFullsizeCommandWindowTest,
-      OpenCommandWindowTest,
-      CloseCommandWindowTest,
-      ChangeBlueColorCommandWindowTest,
-      ChangeRedColorCommandWindowTest,
-      ChangeDefaultColorCommandWindowTest,
-      AlignTopCommandWindowTest,
-      AlignMiddleCommandWindowTest,
-      AlignBottomCommandWindowTest,
-      AlignTextLeftCommandWindowTest,
-      AlignTextCenterCommandWindowTest,
-      AlignTextRightCommandWindowTest,
-      AlignItemsLeftCommandWindowTest,
-      AlignItemsCenterCommandWindowTest,
-      AlignItemsRightCommandWindowTest,
-      TextCommandWindowTest,
-      ChangeTextColorCommandWindowTest,
-      CommandHandlerCommandWindowTest,
-      CommandHandlerWithTextCommandWindowTest,
-    ];
-    const folderWindow = [
-      CreateFolderWindowTest,
-    ];
-    const phase = [
-      ChallengePhaseTest,
-      // StartPhaseTest,
-      // DrawPhaseTest,
-      // LoadPhaseTest,
-    ];
-    return [
-      // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      // ...commandWindow,
-      // ...StateWindowTests,
-      // ...textWindowTests,
-      // ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow,
-      // ...scoreWindow,
-      // ...folderWindow,
-      ...phase,
-    ];
-  }
-
-  start() {
-    super.start();
-    this.startTests();
-  }
-
-  async startTests() {
-    const testsResults = [];
-    for (const test of this._tests) {
-      this._nextTest = test;
-      const result = await this._nextTest.run();
-      testsResults.push(result);
-      await this.clearScene();
-    }
-    this.printResults(testsResults);
-    this.printTotals(testsResults);
-  }
-
-  clearScene() {
-    return new Promise(async resolve => {
-      await this.clearChildren();
-      await this.clearWindowLayer();
-      resolve(true);
-    });
-  }
-
-  clearChildren() {
-    return new Promise(resolve => {
-      const children = this.children;
-      while (children.length > 1) {
-        children.forEach(async child => {
-          if (child === this._windowLayer) return false;
-          child.destroy();
-          await this.removeChild(child);
-        });
-      }
-      resolve(true);
-    });
-  }
-
-  clearWindowLayer() {
-    return new Promise(resolve => {
-      const windowChildren = this._windowLayer.children;
-      while (windowChildren.length) {
-        windowChildren.forEach(async window => {
-          window.destroy();
-          await this._windowLayer.removeChild(window);
-        });
-      }
-      resolve(true);
-    });
-  }
-
-  printResults(results) {
-    results.forEach(test => {
-      const { passed: isTestPassed, testName, assertsResult } = test;
-      if (isTestPassed) {
-        this.printSuccess(`Teste: ${test.testName} passou!`);
-      } else {
-        this.printTestError(`Teste: ${test.testName} falhou!`);
-        assertsResult.forEach(allAsserts => {
-          const { passed: isAssertsPassed, assertsName, asserts } = allAsserts;
-          if (!isAssertsPassed) {
-              this.printAssertError(`Assert: ${assertsName}`);
-              asserts.forEach(assert => {
-                const { passed: isAssertPassed, title, message } = assert;
-                if (!isAssertPassed) {
-                  this.printError(`${title}: ${message}`);
-                }
-              });
-          }
-        });
-      }
-    });
-  }
-
-  printTotals(results) {
-    const total = results.length;
-    const success = results.filter(result => result.passed === true).length;
-    const failed = total - success;
-    this.printInfo(`Total de testes: ${total}`);
-    this.printSuccess(`Testes passados: ${success}`);
-    this.printError(`Testes falhados: ${failed}`);
-  }
-
-  printInfo(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #5DADE2; ${this._css}`);
-  }
-
-  printError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #800000; ${this._css}`);
-  }
-
-  printTestError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #090000; ${this._css}`);
-  }
-
-  printAssertError(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #400000; ${this._css}`);
-  }
-
-  printSuccess(...msg) {
-    console.log(`%c${msg.map(t => t.toString())}`,`background: #008000; ${this._css}`);
-  }
-
-  update() {
-    if (this.isActive()) {
-      if (this._nextTest) {
-        this._nextTest.update();
-        this._nextTest.updateTest();
-      }
-    }
-    super.update();
-  }
-
-  isActive() {
-    return !this.isBusy();
-  }
-
-  addAnimationSprite(animationSprite) {
-    this._animationSprites.push(animationSprite);
-  }
-
-  getLastAnimationSprite() {
-    return this._animationSprites[this._animationSprites.length - 1];
-  }
-
-  setPhase(phase) {
-    this._phase = phase;
-  }
-
-  addWindow(window) {
-    this._windowLayer.addChild(window);
-  }
-
-  removeWindow(window) {
-    this._windowLayer.removeChild(window);
-  };
-}
 class CardBattleManagerDrawPhaseState {
   _manager;
 
@@ -11130,6 +10617,425 @@ class CardBattleManager {
     return this._phase instanceof StartPhase;
   }
 }
+class CardBattleTestScene extends Scene_Message {
+  initialize() {
+    super.initialize();
+    this._animationSprites = [];
+    this._next = null;
+    this._tests = [];
+    this._phase = null;
+  }
 
+  create() {
+    super.create();
+    this.createWindowLayer();
+    this.createTests();
+  }
+
+  async createTests() {
+    this._tests = this.testsData();
+    this._tests = this._tests.map(test => {
+      const instanceCreated = new test(this);
+      try {
+        instanceCreated.create();
+      } catch (error) { 
+        this.printAssertError(`Test : ${test.name}, Assert: ${error}`);
+        instanceCreated.addThrowableError(error);
+      }
+      return instanceCreated;
+    });
+  }
+  
+  testsData() {
+    const cardSpriteTests = [
+      SizeCardSpriteTest,
+      ErroOnCreateCardSpriteTest,
+      StartOpenCardSpriteTest,
+      StartClosedCardSpriteTest,
+      OpenCardSpriteTest,
+      CloseCardSpriteTest,
+      DisableCardSpriteTest,
+      EnableCardSpriteTest,
+      MoveCardSpriteTest,
+      HoveredCardSpriteTest,
+      UnhoveredCardSpriteTest,
+      SelectedCardSpriteTest,
+      UnselectedCardSpriteTest,
+      IluminatedCardSpriteTest,
+      UniluminatedCardSpriteTest,
+      FlashCardSpriteTest,
+      AnimationCardSpriteTest,
+      QuakeCardSpriteTest,
+      ZoomCardSpriteTest,
+      ZoomOutCardSpriteTest,
+      LeaveCardSpriteTest,
+      FlipTurnToUpCardSpriteTest,
+      FlipTurnToDownCardSpriteTest,
+      UpdatingPointsCardSpriteTest,
+      ChainAcitonCardSpriteTest,
+    ];
+    const cardsetSpriteTests = [
+      StartPositionCardsetSpriteTest,
+      AlignAboveOfCardsetSpriteTest,
+      AlignBelowOfCardsetSpriteTest,
+      AlignCenterMiddleCardsetSpriteTest,
+      SetCardsCardsetSpriteTest,
+      SetTurnToDownCardsCardsetSpriteTest,
+      SetAllCardsInPositionCardsetSpriteTest,
+      SetAllCardsInPositionsCardsetSpriteTest,
+      ListCardsCardsetSpriteTest,
+      StartClosedCardsCardsetSpriteTest,
+      OpenAllCardsCardsetSpriteTest,
+      OpenCardsCardsetSpriteTest,
+      CloseAllCardsCardsetSpriteTest,
+      CloseCardsCardsetSpriteTest,
+      MoveAllCardsInListCardsetSpriteTest,
+      MoveCardsInListCardsetSpriteTest,
+      MoveAllCardsToPositionCardsetSpriteTest,
+      MoveCardsToPositionCardsetSpriteTest,
+      MoveAllCardsToPositionsCardsetSpriteTest,
+      AddAllCardsToListCardsetSpriteTest,
+      AddCardsToListCardsetSpriteTest,
+      DisableCardsCardsetSpriteTest,
+      StaticModeCardsetSpriteTest,
+      SelectModeCardsetSpriteTest,
+      SelectModeNoSelectCardsetSpriteTest,
+      SelectModeLimitedCardsetSpriteTest,
+      FlashCardsCardsetSpriteTest,
+      QuakeCardsCardsetSpriteTest,
+      AnimationCardsCardsetSpriteTest,
+      ShowOrderingCardsCardsetSpriteTest,
+      ShowReverseOrderingCardsCardsetSpriteTest,
+      ZoomAllCardsCardsetSpriteTest,
+      ZoomOutAllCardsCardsetSpriteTest,
+      FlipTurnToUpAllCardsCardsetSpriteTest,
+      FlipTurnToUpCardsCardsetSpriteTest,
+      ChainActionCardsetSpriteTest,
+      OnChangeCursorSelectModeCardsetSpriteTest,
+      AddChildToEndCardsetSpriteTest,
+    ];
+    const StateWindowTests = [
+      CreateOneFourthSizeStateWindowTest,
+      CreateMiddleSizeStateWindowTest,
+      CreateFullSizeStateWindowTest,
+      OpenStateWindowTest,
+      CloseStateWindowTest,
+      ChangeBlueColorStateWindowTest,
+      ChangeRedColorStateWindowTest,
+      ChangeDefaultColorStateWindowTest,
+      AlignStartTopStateWindowTest,
+      AlignStartMiddleStateWindowTest,
+      AlignStartBottomStateWindowTest,
+      AlignCenterTopStateWindowTest,
+      AlignCenterAboveMiddleStateWindowTest,
+      AlignCenterMiddleStateWindowTest,
+      AlignCenterBelowMiddleStateWindowTest,
+      AlignCenterBottomStateWindowTest,
+      AlignEndTopStateWindowTest,
+      AlignEndMiddleStateWindowTest,
+      AlignEndBottomStateWindowTest,
+      AlignAboveOfStateWindowTest,
+      AlignBelowOfStateWindowTest,
+    ];
+    const textWindowTests = [
+      CreateOneFourthSizeTextWindowTest,
+      CreateMiddleSizeTextWindowTest,
+      CreateFullSizeTextWindowTest,
+      OpenTextWindowTest,
+      CloseTextWindowTest,
+      ChangeBlueColorTextWindowTest,
+      ChangeRedColorTextWindowTest,
+      ChangeDefaultColorTextWindowTest,
+      AlignStartTopTextWindowTest,
+      AlignStartMiddleTextWindowTest,
+      AlignStartBottomTextWindowTest,
+      AlignCenterTopTextWindowTest,
+      AlignCenterAboveMiddleTextWindowTest,
+      AlignCenterMiddleTextWindowTest,
+      AlignCenterBelowMiddleTextWindowTest,
+      AlignCenterBottomTextWindowTest,
+      AlignEndTopTextWindowTest,
+      AlignEndMiddleTextWindowTest,
+      AlignEndBottomTextWindowTest,
+      AlignTextLeftTextWindowTest,
+      AlignTextCenterTextWindowTest,
+      AlignTextRightTextWindowTest,
+      TextTextWindowTest,
+      ChangeTextColorTextWindowTest,
+      AlignAboveOfTextWindowTest,
+      AlignBelowOfTextWindowTest,
+    ];
+    const boardWindowTests = [
+      PassBoardWindowTest,
+      NoPassBoardWindowTest,
+      UpdatingPointsBoardWindowTest,
+    ];
+    const battlePointsWindow = [
+      UpdatingPointsBattlePointsWindowTest,
+    ];
+    const trashWindow = [
+      UpdatingPointsTrashWindowTest,
+      OrderedIconsTrashWindowTest,
+      ReverseIconsTrashWindowTest,
+    ];
+    const scoreWindow = [
+      OneWinUpdatingScoreWindowTest,
+      TwoWinsUpdatingScoreWindowTest
+    ];
+    const commandWindow = [
+      CreateFullsizeCommandWindowTest,
+      OpenCommandWindowTest,
+      CloseCommandWindowTest,
+      ChangeBlueColorCommandWindowTest,
+      ChangeRedColorCommandWindowTest,
+      ChangeDefaultColorCommandWindowTest,
+      AlignTopCommandWindowTest,
+      AlignMiddleCommandWindowTest,
+      AlignBottomCommandWindowTest,
+      AlignTextLeftCommandWindowTest,
+      AlignTextCenterCommandWindowTest,
+      AlignTextRightCommandWindowTest,
+      AlignItemsLeftCommandWindowTest,
+      AlignItemsCenterCommandWindowTest,
+      AlignItemsRightCommandWindowTest,
+      TextCommandWindowTest,
+      ChangeTextColorCommandWindowTest,
+      CommandHandlerCommandWindowTest,
+      CommandHandlerWithTextCommandWindowTest,
+    ];
+    const folderWindow = [
+      CreateFolderWindowTest,
+    ];
+    const phase = [
+      ChallengePhaseTest,
+      // StartPhaseTest,
+      // DrawPhaseTest,
+      // LoadPhaseTest,
+    ];
+    return [
+      // ...cardSpriteTests,
+      // ...cardsetSpriteTests,
+      // ...commandWindow,
+      // ...StateWindowTests,
+      // ...textWindowTests,
+      // ...boardWindowTests,
+      // ...battlePointsWindow,
+      // ...trashWindow,
+      // ...scoreWindow,
+      // ...folderWindow,
+      ...phase,
+    ];
+  }
+
+  start() {
+    super.start();
+    this.startTests();
+  }
+
+  async startTests() {
+    const testsResults = [];
+    for (const test of this._tests) {
+      this._next = test;
+      const result = await this._next.run();
+      testsResults.push(result);
+      await this.clearScene();
+    }
+    this.printResults(testsResults);
+    this.printTotals(testsResults);
+  }
+
+  clearScene() {
+    return new Promise(async resolve => {
+      await this.clearChildren();
+      await this.clearWindowLayer();
+      resolve(true);
+    });
+  }
+
+  clearChildren() {
+    return new Promise(resolve => {
+      const children = this.children;
+      while (children.length > 1) {
+        children.forEach(async child => {
+          if (child === this._windowLayer) return false;
+          child.destroy();
+          await this.removeChild(child);
+        });
+      }
+      resolve(true);
+    });
+  }
+
+  clearWindowLayer() {
+    return new Promise(resolve => {
+      const windowChildren = this._windowLayer.children;
+      while (windowChildren.length) {
+        windowChildren.forEach(async window => {
+          window.destroy();
+          await this._windowLayer.removeChild(window);
+        });
+      }
+      resolve(true);
+    });
+  }
+
+  printResults(results) {
+    results.forEach(test => {
+      const { passed: isTestPassed, testName, assertsResult } = test;
+      if (isTestPassed) {
+        this.printSuccess(`Teste: ${test.testName} passou!`);
+      } else {
+        this.printTestError(`Teste: ${test.testName} falhou!`);
+        assertsResult.forEach(allAsserts => {
+          const { passed: isAssertsPassed, assertsName, asserts } = allAsserts;
+          if (!isAssertsPassed) {
+              this.printAssertError(`Assert: ${assertsName}`);
+              asserts.forEach(assert => {
+                const { passed: isAssertPassed, title, message } = assert;
+                if (!isAssertPassed) {
+                  this.printError(`${title}: ${message}`);
+                }
+              });
+          }
+        });
+      }
+    });
+  }
+
+  printTotals(results) {
+    const total = results.length;
+    const success = results.filter(result => result.passed === true).length;
+    const failed = total - success;
+    this.printInfo(`Total de testes: ${total}`);
+    this.printSuccess(`Testes passados: ${success}`);
+    this.printError(`Testes falhados: ${failed}`);
+  }
+
+  printInfo(...msg) {
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #5DADE2; color: #FFFFFF; font-size: 12px; padding: 5px;`);
+  }
+
+  printError(...msg) {
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #800000; color: #FFFFFF; font-size: 12px; padding: 5px;`);
+  }
+
+  printTestError(...msg) {
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #090000; color: #FFFFFF; font-size: 12px; padding: 5px;`);
+  }
+
+  printAssertError(...msg) {
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #400000; color: #FFFFFF; font-size: 12px; padding: 5px;`);
+  }
+
+  printSuccess(...msg) {
+    console.log(`%c${msg.map(t => t.toString())}`,`background: #008000; color: #FFFFFF; font-size: 12px; padding: 5px;`);
+  }
+
+  update() {
+    super.update();
+    if (this.isActive()) {
+      if (this._next) {
+        this._next.update();
+        this._next.updateTest();
+      }
+    }
+  }
+
+  isActive() {
+    return !this.isBusy();
+  }
+
+  addAnimationSprite(animationSprite) {
+    this._animationSprites.push(animationSprite);
+  }
+
+  getLastAnimationSprite() {
+    return this._animationSprites[this._animationSprites.length - 1];
+  }
+
+  addWindow(window) {
+    this._windowLayer.addChild(window);
+  }
+
+  removeWindow(window) {
+    this._windowLayer.removeChild(window);
+  };
+
+  setPhase(phase) {
+    this._phase = phase;
+  }
+}
+class CardBattleScene extends Scene_Message {
+  initialize() {
+    super.initialize();
+    this._status = null;
+    this._containerAnimationSprites = [];
+  }
+
+  setStatus(className, ...params) {
+    const status = new className(this, ...params);
+    if ((status instanceof PhaseSprite) === false) {
+      throw new Error('status must be an instance of Phase');
+    }
+    this._status = status;
+    this._status.start();
+  }
+
+  create() {
+    super.create();
+    this.createDisplayObjects();
+  }
+
+  createDisplayObjects() {
+    this.createWindowLayer();
+  }
+
+  start() {
+    super.start();
+    this.setStatus(PhaseSprite);
+  }
+
+  update() {
+    super.update();
+    if (this.isActive() && this._status) this._status.update();
+  }
+
+  isActive() {
+    return !this.isBusy();
+  }
+
+  isBusy() {
+    return super.isBusy();
+  }
+
+  stop() {
+    super.stop();
+  }
+
+  terminate() {
+    super.terminate();
+  }
+
+  addWindow(window) {
+    this._windowLayer.addChild(window);
+  }
+
+  removeWindow(window) {
+    this._windowLayer.removeChild(window);
+  };
+
+  addAnimationSprite(sprite) {
+    this._containerAnimationSprites.push(sprite);
+  }
+
+  getLastAnimationSprite() {
+    return this._containerAnimationSprites[this.getLastAnimationSpritesIndex()];
+  }
+
+  getLastAnimationSpritesIndex() {
+    return this._containerAnimationSprites.length - 1;
+  }
+}
 })();
+
 

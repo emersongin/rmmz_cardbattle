@@ -1,13 +1,17 @@
 class CardBattleScene extends Scene_Message {
-  _containerAnimationSprites = [];
-
   initialize() {
     super.initialize();
     this._status = null;
+    this._containerAnimationSprites = [];
   }
 
-  setStatus(status, ...params) {
-    this._status = new status(this, ...params);
+  setStatus(className, ...params) {
+    const status = new className(this, ...params);
+    if ((status instanceof PhaseSprite) === false) {
+      throw new Error('status must be an instance of Phase');
+    }
+    this._status = status;
+    this._status.start();
   }
 
   create() {
@@ -21,6 +25,7 @@ class CardBattleScene extends Scene_Message {
 
   start() {
     super.start();
+    this.setStatus(PhaseSprite);
   }
 
   update() {
@@ -42,6 +47,10 @@ class CardBattleScene extends Scene_Message {
 
   terminate() {
     super.terminate();
+  }
+
+  addWindow(window) {
+    this._windowLayer.addChild(window);
   }
 
   removeWindow(window) {

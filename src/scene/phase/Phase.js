@@ -626,4 +626,11 @@ class Phase {
     return this._challenge.battlefield;
   }
 
+  isTitleWindowVisible() {
+    return this._titleWindow.visible;
+  }
+
+  isDescriptionWindowVisible() {
+    return this._descriptionWindow.visible;
+  }
 }
