@@ -18,7 +18,7 @@ class CardSpriteIluminatedBehavior {
     const that = this._card;
     const parent = that.parent;
     const layer = that._selectedLayer;
-    const opacity = parent?._intensityEffect || that._intensityEffect;
+    const opacity = parent?._effects?.intensity.value || that._effects.intensity.value;
     layer.opacity = opacity;
   }
 }

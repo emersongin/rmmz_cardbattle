@@ -18,7 +18,7 @@ class CardSpriteHoveredBehavior {
     const that = this._card;
     const parent = that.parent;
     const layer = that._hoveredLayer;
-    const opacity = parent?._opacityEffect || that._opacityEffect;
+    const opacity = parent?._effects?.opacity || that._effects.opacity;
     layer.opacity = opacity;
   }
 }

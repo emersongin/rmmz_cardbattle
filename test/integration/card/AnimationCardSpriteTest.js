@@ -21,7 +21,7 @@ class AnimationCardSpriteTest extends SceneTest {
     this.subject.show();
     this.base.addChild(this.subject);
     const times = 1;
-    this.subject.damage(times, this.scene);
+    this.subject.damage(times, this._scene);
   }
 
   asserts() {

@@ -24,9 +24,9 @@ class ChainAcitonCardSpriteTest extends SceneTest {
     this._chainActionActived = false;
     const chainAction = () => {
       this._chainActionActived = true;
-      this.subject.damage(times, this.scene);
+      this.subject.damage(times, this._scene);
     }
-    this.subject.damage(times, this.scene, chainAction);
+    this.subject.damage(times, this._scene, chainAction);
   }
 
   start() {

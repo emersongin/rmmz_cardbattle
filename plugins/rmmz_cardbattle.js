@@ -2263,9 +2263,13 @@ class ActionSprite extends Sprite {
     this._delayCommandQueue = [];
     this._wait = 0;
     this._status = null;
-    this._positiveIntensityEffect = false;
-    this._intensityEffect = 255;
-    this._opacityEffect = 255;
+    this._effects = {
+      opacity: 255,
+      intensity: {
+        value: 255,
+        positive: false
+      },
+    };
     this.setPosition(x, y);
   }
 
@@ -2283,26 +2287,28 @@ class ActionSprite extends Sprite {
   }
 
   addCommand(fn, ...params) {
-    const pop = params.slice(-1)[0];
-    let chainAction = null;
-    if (pop) chainAction = pop;
-    const command = this.createCommand({ fn, delay: 0, chainAction }, ...params);
+    const command = this.createCommand({ fn, delay: 0, trigger: null }, ...params);
+    this.addCommands(command);
+  }
+
+  addCommandTrigger(fn, trigger, ...params) {
+    const command = this.createCommand({ fn, delay: 0, trigger }, ...params);
     this.addCommands(command);
   }
 
   createDelayCommand(fn, delay, ...params) {
-    const command = this.createCommand({ fn, delay }, ...params);
+    const command = this.createCommand({ fn, delay, trigger: null }, ...params);
     return command;
   }
 
   createCommand(props, ...params) {
-    const { fn, delay, chainAction } = props;
+    const { fn, delay, trigger } = props;
     const command = { 
       fn: fn.name || 'anonymous',
       delay: delay || 0,
       execute: () => {
         const result = fn.call(this, ...params);
-        if (typeof chainAction === 'function') chainAction();
+        if (typeof trigger === 'function') trigger();
         return typeof result === 'boolean' ? result : true;
       }
     };
@@ -2318,14 +2324,14 @@ class ActionSprite extends Sprite {
     return (Array.isArray(items) === false) ? [items] : items;
   }
 
-  createDelayCommands(fn, delay, set, chainActions) {
-    const hasChainActions = chainActions && chainActions.length > 0;
+  createDelayCommands(fn, delay, set, triggerActions) {
+    const hasTriggerActions = triggerActions && triggerActions.length > 0;
     const commands = set.map((params, index) => {
       const appliedDelay = (index > 0) ? delay : 0;
       const command = this.createCommand({
         fn,
         delay: appliedDelay,
-        chainAction: hasChainActions ? chainActions[index] : undefined,
+        trigger: hasTriggerActions ? triggerActions[index] : undefined,
       }, ...params);
       return command;
     });
@@ -2466,24 +2472,24 @@ class ActionSprite extends Sprite {
   }
 
   updateIntensityEffect() {
-    if (this._intensityEffect <= 255 && !this._positiveIntensityEffect) {
-      this._intensityEffect += 6;
-      if (this._intensityEffect >= 255) {
-        this._positiveIntensityEffect = true;
+    if (this._effects.intensity.value <= 255 && !this._effects.intensity.positive) {
+      this._effects.intensity.value += 6;
+      if (this._effects.intensity.value >= 255) {
+        this._effects.intensity.positive = true;
       }
     }
-    if (this._intensityEffect >= 100 && this._positiveIntensityEffect) {
-      this._intensityEffect -= 6;
-      if (this._intensityEffect <= 100) {
-        this._positiveIntensityEffect = false;
+    if (this._effects.intensity.value >= 100 && this._effects.intensity.positive) {
+      this._effects.intensity.value -= 6;
+      if (this._effects.intensity.value <= 100) {
+        this._effects.intensity.positive = false;
       }
     }
   }
 
   updateOpacityEffect() {
-    this._opacityEffect -= 32;
-    if (this._opacityEffect <= 0) {
-      this._opacityEffect = 255;
+    this._effects.opacity -= 32;
+    if (this._effects.opacity <= 0) {
+      this._effects.opacity = 255;
     }
   }
 
@@ -3145,7 +3151,7 @@ class CardSpriteSelectedBehavior {
     const that = this._card;
     const parent = that.parent;
     const layer = that._selectedLayer;
-    const opacity = parent?._opacityEffect || that._opacityEffect;
+    const opacity = parent?._effects?.opacity || that._effects.opacity;
     layer.opacity = opacity;
   }
 }
@@ -3169,7 +3175,7 @@ class CardSpriteHoveredBehavior {
     const that = this._card;
     const parent = that.parent;
     const layer = that._hoveredLayer;
-    const opacity = parent?._opacityEffect || that._opacityEffect;
+    const opacity = parent?._effects?.opacity || that._effects.opacity;
     layer.opacity = opacity;
   }
 }
@@ -3233,7 +3239,7 @@ class CardSpriteIluminatedBehavior {
     const that = this._card;
     const parent = that.parent;
     const layer = that._selectedLayer;
-    const opacity = parent?._intensityEffect || that._intensityEffect;
+    const opacity = parent?._effects?.intensity.value || that._effects.intensity.value;
     layer.opacity = opacity;
   }
 }
@@ -3808,9 +3814,9 @@ class CardSprite extends ActionSprite {
     return this.getBehavior(CardSpriteFlashedBehavior) instanceof CardSpriteFlashedBehavior;
   }
 
-  damage(times = 1, anchorParent = this.parent, chainAction) {
+  damage(times = 1, anchorParent = this.parent, trigger) {
     const animation = this.damageAnimation();
-    this.addCommand(this.commandAnimate, animation, times, anchorParent, chainAction);
+    this.addCommandTrigger(this.commandAnimate, trigger, animation, times, anchorParent);
   }
 
   damageAnimation() {
@@ -4554,13 +4560,13 @@ class CardsetSprite extends ActionSprite {
     });
   }
 
-  moveCardsInlist(sprites = this._sprites, delay = 6, chainActions) {
+  moveCardsInlist(sprites = this._sprites, delay = 6, triggerActions) {
     sprites = this.toArray(sprites);
     const numCards = sprites.length;
     const positions = CardsetSprite.createPositionsList(numCards);
     let moves = this.moveCardsPositions(positions, sprites);
     moves = moves.map(({ sprite, x, y }) => [sprite, x, y]);
-    const commands = this.createDelayCommands(this.commandMoveCard, delay, moves, chainActions);
+    const commands = this.createDelayCommands(this.commandMoveCard, delay, moves, triggerActions);
     this.addCommands(commands);
   }
 
@@ -4621,8 +4627,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
-    const chainActionVoid = () => {};
-    this.addCommand(this.commandSelectMode, selectNumber, onSelectHandler, onChangeCursor, onCancelHandler, chainActionVoid);
+    this.addCommand(this.commandSelectMode, selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
   }
 
   commandSelectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
@@ -4668,9 +4673,9 @@ class CardsetSprite extends ActionSprite {
     this.addChildAt(sprite, index);
   }
 
-  flashCardsAnimate(sprites = this._sprites, color = 'white', duration = 10, times = 1, chainAction) {
+  flashCardsAnimate(sprites = this._sprites, color = 'white', duration = 10, times = 1, trigger) {
     sprites = this.toArray(sprites);
-    this.addCommand(this.commandAnimateCardsFlash, sprites, color, duration, times, chainAction);
+    this.addCommandTrigger(this.commandAnimateCardsFlash, trigger, sprites, color, duration, times);
   }
 
   commandAnimateCardsFlash(sprites, color, duration, times) {
@@ -4701,9 +4706,9 @@ class CardsetSprite extends ActionSprite {
     return this._sprites.some(sprite => sprite.isMoving());
   }
 
-  damageCardsAnimate(times = 1, sprites = this._sprites, anchorParent = this.parent, chainAction) {
+  damageCardsAnimate(times = 1, sprites = this._sprites, anchorParent = this.parent, trigger) {
     sprites = this.toArray(sprites);
-    this.addCommand(this.commandAnimateCardsDamage, times, sprites, anchorParent, chainAction);
+    this.addCommandTrigger(this.commandAnimateCardsDamage, trigger, times, sprites, anchorParent);
   }
 
   commandAnimateCardsDamage(times, sprites, anchorParent) {
@@ -6670,42 +6675,29 @@ class LoadPhase extends Phase {
 
 // TESTS
 class SceneTest {
-  scene = {};
-  status = 'START';
-  seconds = 1;
-  counter = 0;
-  waitHandler = false;
-  testDescription = 'You must undertake the test(s)!';
-  assertTitle = '';
-  assertValue = undefined;
-  assertsToTest = [];
-  assertsResults = [];
-  pressToStartAsserts = false;
-  results = [];
-  toWatched = [];
-  watched = [];
-  childrenToAdd = [];
-  throwErrors = [];
+  _scene = {};
+  _seconds = 1;
+  _timer = 0;
+  _testDescription = 'You must undertake the test(s)!';
+  _assertTitle = '';
+  _assertValue = undefined;
+  _assertsToTest = [];
+  _assertsResults = [];
+  _results = [];
+  _childrenToAdd = [];
+  _toWatched = [];
+  _watched = [];
+  _errors = [];
+  _handler = false;
+  _pressToAsserts = false;
+  _isFinish = false;
 
   constructor(scene) {
-    this.scene = scene;
+    this._scene = scene;
   }
 
   create() {
     // Override this method in the child class
-  }
-
-  addThrowableError(error) {
-    this.throwErrors.push(error);
-  }
-
-  expectToThrow(title, error) {
-    this.assertsToTest.push({
-      type: 'throwError',
-      title,
-      value: error,
-      toBe: true
-    });
   }
 
   start() {
@@ -6718,9 +6710,9 @@ class SceneTest {
 
   run() {
     return new Promise(async res => {
-      if (this.throwErrors.length) {
-        this.scene._nextTest = null;
-        this.scene._phase = null;
+      if (this._errors.length) {
+        this._scene._nextTest = null;
+        this._scene._phase = null;
         this.asserts();
         await this.processAsserts();
         return res(this.finishResult());
@@ -6731,19 +6723,19 @@ class SceneTest {
   }
 
   startTest() {
-    this.counter = (GameConst.FPS * this.seconds);
+    this._timer = (GameConst.FPS * this._seconds);
     this.start();
     this.addChildren();
   }
 
   addChildren() {
-    this.childrenToAdd.forEach(child => this.addChild(child));
+    this._childrenToAdd.forEach(child => this.addChild(child));
   }
 
   finish() {
     return new Promise(async res => {
       const intervalId = setInterval(() => {
-        if (this.status === 'FINISH') {
+        if (this._isFinish) {
           res(this.finishResult());
           clearInterval(intervalId);
         }
@@ -6760,8 +6752,8 @@ class SceneTest {
       asserts: []
     }];
     if (this.hasResults()) {
-      passed = this.results.every(result => result.passed);
-      assertsResult = this.results;
+      passed = this._results.every(result => result.passed);
+      assertsResult = this._results;
     }
     return { 
       testName, 
@@ -6771,32 +6763,32 @@ class SceneTest {
   }
 
   hasResults() {
-    return this.results.length > 0;
+    return this._results.length > 0;
   }
 
   updateTest() {
     this.copyWatched();
-    if (this.counter) return this.counter--;
-    if (this.pressToStartAsserts && !Input.isTriggered('ok')) return false;
-    if (this.waitHandler) return false;
-    if (this.status === 'START') {
-      this.scene._nextTest = null;
-      this.scene._phase = null;
+    if (this._timer) return this._timer--;
+    if (this._pressToAsserts && !Input.isTriggered('ok')) return false;
+    if (this._handler) return false;
+    if (!this._isFinish) {
+      this._scene._nextTest = null;
+      this._scene._phase = null;
       this.asserts();
       this.processAsserts();
-      this.status = 'FINISH';
+      this._isFinish = true;
     }
   }
 
   copyWatched() {
-    const watched = this.toWatched.map(w => ObjectHelper.copyObject(w));
-    this.watched.push(watched);
+    const watched = this._toWatched.map(w => ObjectHelper.copyObject(w));
+    this._watched.push(watched);
   }
 
   async processAsserts() {
     return new Promise(async res => {
       await this.clear();
-      for (const assert of this.assertsToTest) {
+      for (const assert of this._assertsToTest) {
         const { type } = assert;
         if (type === 'assert') {
           this.processAssertsToBe(assert);
@@ -6809,10 +6801,10 @@ class SceneTest {
         }
       }
       if (this.hasAsserts()) {
-        this.results.push({
-          passed: this.assertsResults.every(assert => assert.passed),
-          assertsName: this.testDescription,
-          asserts: this.assertsResults
+        this._results.push({
+          passed: this._assertsResults.every(assert => assert.passed),
+          assertsName: this._testDescription,
+          asserts: this._assertsResults
         });
       }
       res(true);
@@ -6820,7 +6812,7 @@ class SceneTest {
   }
 
   hasAsserts() {
-    return this.assertsResults.length > 0;
+    return this._assertsResults.length > 0;
   }
 
   clear() {
@@ -6833,12 +6825,12 @@ class SceneTest {
 
   clearChildren() {
     return new Promise(resolve => {
-      const children = this.scene.children;
+      const children = this._scene.children;
       while (children.length > 1) {
         children.forEach(async child => {
-          if (child === this.scene._windowLayer) return false;
+          if (child === this._scene._windowLayer) return false;
           child.destroy();
-          await this.scene.removeChild(child);
+          await this._scene.removeChild(child);
         });
       }
       resolve(true);
@@ -6847,11 +6839,11 @@ class SceneTest {
 
   clearWindows() {
     return new Promise(resolve => {
-      const windowChildren = this.scene._windowLayer.children;
+      const windowChildren = this._scene._windowLayer.children;
       while (windowChildren.length) {
         windowChildren.forEach(async window => {
           window.destroy();
-          await this.scene._windowLayer.removeChild(window);
+          await this._scene._windowLayer.removeChild(window);
         });
       }
       resolve(true);
@@ -6862,7 +6854,7 @@ class SceneTest {
     const { type, title, value, toBe } = assert;
     const test = value === toBe;
     const assertResult = this.resultTest(test, toBe, value, title);
-    this.assertsResults.push(assertResult);
+    this._assertsResults.push(assertResult);
   }
 
   resultTest(test, valueExpected, valueReceived, title) {
@@ -6888,19 +6880,19 @@ class SceneTest {
   processAssertsWas(assert) {
     const { type, title, fnOrValue, reference, params } = assert;
     const indexOfWatched = this.indexOfWatched(reference);
-    const watched = this.watched.map((wat, index) => wat[indexOfWatched || 0]);
+    const watched = this._watched.map((wat, index) => wat[indexOfWatched || 0]);
     const result = watched.some((watching, index) => {
-      const obj = this.toWatched[indexOfWatched || 0];
+      const obj = this._toWatched[indexOfWatched || 0];
       return this.assertWatched(obj, watching, fnOrValue, params);
     });
     const toBe = true;
     const test = result === toBe;
     const assertResult = this.resultTest(test, toBe, result, title);
-    this.assertsResults.push(assertResult);
+    this._assertsResults.push(assertResult);
   }
 
   indexOfWatched(reference) {
-    let index = this.toWatched.indexOf(reference) || 0;
+    let index = this._toWatched.indexOf(reference) || 0;
     return index < 0 ? 0 : index;
   }
 
@@ -6916,9 +6908,9 @@ class SceneTest {
 
   processThrowError(assert) {
     const { title, value, toBe } = assert;
-    const test = this.throwErrors.some(e => e.message === value.message && e.name === value.name);
+    const test = this._errors.some(e => e.message === value.message && e.name === value.name);
     const assertResult = this.resultTest(test, toBe, value, title);
-    this.assertsResults.push(assertResult);
+    this._assertsResults.push(assertResult);
   }
 
   isFunction(fnOrValue) {
@@ -6926,23 +6918,23 @@ class SceneTest {
   }
 
   describe(description = 'You must undertake the test(s)!') {
-    this.testDescription = description;
+    this._testDescription = description;
   }
 
   expect(title, value) {
     if (!title || value === undefined) {
       throw new Error('The expect method must have a title and a value!');
     }
-    this.assertTitle = title;
-    this.assertValue = value;
+    this._assertTitle = title;
+    this._assertValue = value;
     return this;
   }
 
-  toBe(valueToBe, title = this.assertTitle, valueToCompare = this.assertValue) {
+  toBe(valueToBe, title = this._assertTitle, valueToCompare = this._assertValue) {
     if (valueToBe === undefined) {
       throw new Error('The toBe method must have a value to compare!');
     }
-    this.assertsToTest.push({
+    this._assertsToTest.push({
       type: 'assert',
       title: title || '',
       value: valueToCompare,
@@ -6954,8 +6946,8 @@ class SceneTest {
     if (!title || value === undefined) {
       throw new Error('The expectTrue method must have a title and a value!');
     }
-    this.assertTitle = title;
-    this.assertValue = value;
+    this._assertTitle = title;
+    this._assertValue = value;
     const toBe = true;
     this.toBe(toBe, title, value);
   }
@@ -6964,7 +6956,7 @@ class SceneTest {
     if (!title || !fnOrValue) {
       throw new Error('The expectWasTrue method must have a title and a function or value!');
     }
-    this.assertsToTest.push({
+    this._assertsToTest.push({
       type: 'assertWas',
       title,
       fnOrValue,
@@ -6973,39 +6965,52 @@ class SceneTest {
     });
   }
 
-  addWatched(watched) {
-    this.toWatched.push(watched);
-    this.attachChild(watched);
+  addWatched(_watched) {
+    this._toWatched.push(_watched);
+    this.attachChild(_watched);
   }
 
-  addHiddenWatched(watched) {
-    this.toWatched.push(watched);
+  addHiddenWatched(_watched) {
+    this._toWatched.push(_watched);
   }
 
   attachChild(child) {
-    this.childrenToAdd.push(child);
+    this._childrenToAdd.push(child);
   }
 
   addChild(child) {
     if (child instanceof Window_Base) {
       this.addWindow(child);
     } else {
-      this.scene.addChild(child);
+      this._scene.addChild(child);
     }
   }
 
   addWindow(window) {
-    this.scene._windowLayer.addChild(window);
+    this._scene._windowLayer.addChild(window);
   }
 
   pressToAsserts() {
-    this.pressToStartAsserts = true;
+    this._pressToAsserts = true;
   }
 
   createHandler() {
-    this.waitHandler = true;
-    this.seconds = 0;
-    return () => this.waitHandler = false;
+    this._handler = true;
+    this._seconds = 0;
+    return () => this._handler = false;
+  }
+
+  addError(error) {
+    this._errors.push(error);
+  }
+
+  expectToThrow(title, error) {
+    this._assertsToTest.push({
+      type: 'throwError',
+      title,
+      value: error,
+      toBe: true
+    });
   }
 }
 // CARD SPRITE
@@ -7432,7 +7437,7 @@ class AnimationCardSpriteTest extends SceneTest {
     this.subject.show();
     this.base.addChild(this.subject);
     const times = 1;
-    this.subject.damage(times, this.scene);
+    this.subject.damage(times, this._scene);
   }
 
   asserts() {
@@ -7650,9 +7655,9 @@ class ChainAcitonCardSpriteTest extends SceneTest {
     this._chainActionActived = false;
     const chainAction = () => {
       this._chainActionActived = true;
-      this.subject.damage(times, this.scene);
+      this.subject.damage(times, this._scene);
     }
-    this.subject.damage(times, this.scene, chainAction);
+    this.subject.damage(times, this._scene, chainAction);
   }
 
   start() {
@@ -8246,7 +8251,7 @@ class AnimationCardsCardsetSpriteTest extends SceneTest {
     const sprites = this.subject.listCards(cards);
     this.subject.showCards(sprites);
     const times = 1;
-    this.subject.damageCardsAnimate(times, sprites, this.scene);
+    this.subject.damageCardsAnimate(times, sprites, this._scene);
   }
 
   asserts() {
@@ -8445,9 +8450,9 @@ class ChainActionCardsetSpriteTest extends SceneTest {
     this._chainActionActived = false;
     const chainAction = () => {
       this._chainActionActived = true;
-      this.subject.damageCardsAnimate(times, sprites, this.scene, chainAction);
+      this.subject.damageCardsAnimate(times, sprites, this._scene, chainAction);
     }
-    this.subject.damageCardsAnimate(times, sprites, this.scene, chainAction);
+    this.subject.damageCardsAnimate(times, sprites, this._scene, chainAction);
   }
 
   start() {
@@ -9808,14 +9813,13 @@ class ChallengePhaseTest extends SceneTest {
   };
 
   create() {
-    this.scene._manager = this.manager;
-    this.phase = new ChallengePhase(this.scene);
+    this.phase = new ChallengePhase(this._scene);
     this.manager.endPhase = this.createHandler();
     this.addHiddenWatched(this.phase);
   }
 
   start() {
-    this.scene.setPhase(this.phase);
+    this._scene.setPhase(this.phase);
     this.phase.start(this.manager);
   }
 
@@ -10640,7 +10644,7 @@ class CardBattleTestScene extends Scene_Message {
         instanceCreated.create();
       } catch (error) { 
         this.printAssertError(`Test : ${test.name}, Assert: ${error}`);
-        instanceCreated.addThrowableError(error);
+        instanceCreated.addError(error);
       }
       return instanceCreated;
     });
@@ -10813,17 +10817,17 @@ class CardBattleTestScene extends Scene_Message {
       // LoadPhaseTest,
     ];
     return [
-      // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      // ...commandWindow,
-      // ...StateWindowTests,
-      // ...textWindowTests,
-      // ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow,
-      // ...scoreWindow,
-      // ...folderWindow,
-      ...phase,
+      ...cardSpriteTests,
+      ...cardsetSpriteTests,
+      ...commandWindow,
+      ...StateWindowTests,
+      ...textWindowTests,
+      ...boardWindowTests,
+      ...battlePointsWindow,
+      ...trashWindow,
+      ...scoreWindow,
+      ...folderWindow,
+      // ...phase,
     ];
   }
 

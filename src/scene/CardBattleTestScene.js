@@ -21,7 +21,7 @@ class CardBattleTestScene extends Scene_Message {
         instanceCreated.create();
       } catch (error) { 
         this.printAssertError(`Test : ${test.name}, Assert: ${error}`);
-        instanceCreated.addThrowableError(error);
+        instanceCreated.addError(error);
       }
       return instanceCreated;
     });
@@ -194,17 +194,17 @@ class CardBattleTestScene extends Scene_Message {
       // LoadPhaseTest,
     ];
     return [
-      // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      // ...commandWindow,
-      // ...StateWindowTests,
-      // ...textWindowTests,
-      // ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow,
-      // ...scoreWindow,
-      // ...folderWindow,
-      ...phase,
+      ...cardSpriteTests,
+      ...cardsetSpriteTests,
+      ...commandWindow,
+      ...StateWindowTests,
+      ...textWindowTests,
+      ...boardWindowTests,
+      ...battlePointsWindow,
+      ...trashWindow,
+      ...scoreWindow,
+      ...folderWindow,
+      // ...phase,
     ];
   }
 

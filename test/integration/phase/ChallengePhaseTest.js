@@ -21,14 +21,13 @@ class ChallengePhaseTest extends SceneTest {
   };
 
   create() {
-    this.scene._manager = this.manager;
-    this.phase = new ChallengePhase(this.scene);
+    this.phase = new ChallengePhase(this._scene);
     this.manager.endPhase = this.createHandler();
     this.addHiddenWatched(this.phase);
   }
 
   start() {
-    this.scene.setPhase(this.phase);
+    this._scene.setPhase(this.phase);
     this.phase.start(this.manager);
   }
 

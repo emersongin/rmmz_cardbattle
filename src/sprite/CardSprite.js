@@ -579,9 +579,9 @@ class CardSprite extends ActionSprite {
     return this.getBehavior(CardSpriteFlashedBehavior) instanceof CardSpriteFlashedBehavior;
   }
 
-  damage(times = 1, anchorParent = this.parent, chainAction) {
+  damage(times = 1, anchorParent = this.parent, trigger) {
     const animation = this.damageAnimation();
-    this.addCommand(this.commandAnimate, animation, times, anchorParent, chainAction);
+    this.addCommandTrigger(this.commandAnimate, trigger, animation, times, anchorParent);
   }
 
   damageAnimation() {

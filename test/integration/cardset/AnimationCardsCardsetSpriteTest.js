@@ -9,7 +9,7 @@ class AnimationCardsCardsetSpriteTest extends SceneTest {
     const sprites = this.subject.listCards(cards);
     this.subject.showCards(sprites);
     const times = 1;
-    this.subject.damageCardsAnimate(times, sprites, this.scene);
+    this.subject.damageCardsAnimate(times, sprites, this._scene);
   }
 
   asserts() {

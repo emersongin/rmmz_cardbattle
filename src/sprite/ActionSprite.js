@@ -5,9 +5,13 @@ class ActionSprite extends Sprite {
     this._delayCommandQueue = [];
     this._wait = 0;
     this._status = null;
-    this._positiveIntensityEffect = false;
-    this._intensityEffect = 255;
-    this._opacityEffect = 255;
+    this._effects = {
+      opacity: 255,
+      intensity: {
+        value: 255,
+        positive: false
+      },
+    };
     this.setPosition(x, y);
   }
 
@@ -25,26 +29,28 @@ class ActionSprite extends Sprite {
   }
 
   addCommand(fn, ...params) {
-    const pop = params.slice(-1)[0];
-    let chainAction = null;
-    if (pop) chainAction = pop;
-    const command = this.createCommand({ fn, delay: 0, chainAction }, ...params);
+    const command = this.createCommand({ fn, delay: 0, trigger: null }, ...params);
+    this.addCommands(command);
+  }
+
+  addCommandTrigger(fn, trigger, ...params) {
+    const command = this.createCommand({ fn, delay: 0, trigger }, ...params);
     this.addCommands(command);
   }
 
   createDelayCommand(fn, delay, ...params) {
-    const command = this.createCommand({ fn, delay }, ...params);
+    const command = this.createCommand({ fn, delay, trigger: null }, ...params);
     return command;
   }
 
   createCommand(props, ...params) {
-    const { fn, delay, chainAction } = props;
+    const { fn, delay, trigger } = props;
     const command = { 
       fn: fn.name || 'anonymous',
       delay: delay || 0,
       execute: () => {
         const result = fn.call(this, ...params);
-        if (typeof chainAction === 'function') chainAction();
+        if (typeof trigger === 'function') trigger();
         return typeof result === 'boolean' ? result : true;
       }
     };
@@ -60,14 +66,14 @@ class ActionSprite extends Sprite {
     return (Array.isArray(items) === false) ? [items] : items;
   }
 
-  createDelayCommands(fn, delay, set, chainActions) {
-    const hasChainActions = chainActions && chainActions.length > 0;
+  createDelayCommands(fn, delay, set, triggerActions) {
+    const hasTriggerActions = triggerActions && triggerActions.length > 0;
     const commands = set.map((params, index) => {
       const appliedDelay = (index > 0) ? delay : 0;
       const command = this.createCommand({
         fn,
         delay: appliedDelay,
-        chainAction: hasChainActions ? chainActions[index] : undefined,
+        trigger: hasTriggerActions ? triggerActions[index] : undefined,
       }, ...params);
       return command;
     });
@@ -208,24 +214,24 @@ class ActionSprite extends Sprite {
   }
 
   updateIntensityEffect() {
-    if (this._intensityEffect <= 255 && !this._positiveIntensityEffect) {
-      this._intensityEffect += 6;
-      if (this._intensityEffect >= 255) {
-        this._positiveIntensityEffect = true;
+    if (this._effects.intensity.value <= 255 && !this._effects.intensity.positive) {
+      this._effects.intensity.value += 6;
+      if (this._effects.intensity.value >= 255) {
+        this._effects.intensity.positive = true;
       }
     }
-    if (this._intensityEffect >= 100 && this._positiveIntensityEffect) {
-      this._intensityEffect -= 6;
-      if (this._intensityEffect <= 100) {
-        this._positiveIntensityEffect = false;
+    if (this._effects.intensity.value >= 100 && this._effects.intensity.positive) {
+      this._effects.intensity.value -= 6;
+      if (this._effects.intensity.value <= 100) {
+        this._effects.intensity.positive = false;
       }
     }
   }
 
   updateOpacityEffect() {
-    this._opacityEffect -= 32;
-    if (this._opacityEffect <= 0) {
-      this._opacityEffect = 255;
+    this._effects.opacity -= 32;
+    if (this._effects.opacity <= 0) {
+      this._effects.opacity = 255;
     }
   }
 

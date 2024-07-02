@@ -12,9 +12,9 @@ class ChainActionCardsetSpriteTest extends SceneTest {
     this._chainActionActived = false;
     const chainAction = () => {
       this._chainActionActived = true;
-      this.subject.damageCardsAnimate(times, sprites, this.scene, chainAction);
+      this.subject.damageCardsAnimate(times, sprites, this._scene, chainAction);
     }
-    this.subject.damageCardsAnimate(times, sprites, this.scene, chainAction);
+    this.subject.damageCardsAnimate(times, sprites, this._scene, chainAction);
   }
 
   start() {
