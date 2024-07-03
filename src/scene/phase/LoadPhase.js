@@ -351,4 +351,190 @@ class LoadPhase extends Phase {
   commandLeaveAskWindow() {
     this.removeChild(this._askWindow);
   }
+
+  start(manager) {
+    const title = 'Load Phase';
+    const description = 'Select and use a Program Card.';
+    this.createTitleWindow(title);
+    this.createDescriptionWindow(description);
+    this.openTextWindows();
+    this.setStep(GameConst.START_PHASE);
+  }
+
+  update(manager) {
+    super.update();
+    if (this.isBusy()) return false;
+    this.updateStepStart(manager);
+    this.updateStepBeginLoadPhase(manager);
+    this.updateStepChallengeLoadPhase(manager);
+    this.updateStepPlayerLoadPhase(manager);
+    this.updateStepActivePowerCard(manager);
+    this.updateStepEnd(manager);
+  }
+
+  updateStepStart(manager) {
+    if (this.isCurrentStep(GameConst.START_PHASE) && Input.isTriggered('ok')) {
+      this.commandCloseTextWindows();
+      this.leaveTextWindows();
+      this.createPlayerGameBoard(manager);
+      this.createChallengeGameBoard(manager);
+      this.openGameBoards();
+      const text = 'Begin Load Phase';
+      this.createTextWindow(text);
+      this.openBeginLoadPhaseWindow();
+      this.setStep(GameConst.BEGIN_LOAD_PHASE);
+    }
+  }
+
+  updateStepBeginLoadPhase(manager) {
+    if (this.isCurrentStep(GameConst.BEGIN_LOAD_PHASE) && Input.isTriggered('ok')) {
+      this.closeBeginLoadPhaseWindow();
+      this.leaveBeginLoadPhaseWindow();
+      if (manager.startPlay) {
+        this.setStep(GameConst.PLAYER_LOAD_PHASE);
+      } else {
+        this.setStep(GameConst.CHALLENGE_LOAD_PHASE);
+      }
+    }
+  }
+
+  updateStepChallengeLoadPhase(manager) {
+    if (this.isCurrentStep(GameConst.CHALLENGE_LOAD_PHASE)) {
+      manager.challengePassed();
+      this.challengePass();
+      this.stepWainting();
+      if (manager.isPlayerPassed() === false) this.setStep(GameConst.PLAYER_LOAD_PHASE);
+    }
+  }
+
+  updateStepPlayerLoadPhase(manager) {
+    if (this.isCurrentStep(GameConst.PLAYER_LOAD_PHASE)) {
+      const commandYes = () => {
+        this.commandCloseAskWindow();
+        this.leaveAskWindow();
+        this.closeGameBoards();
+        this.leaveGameBoards();
+        this.commandPlayerHand(manager);
+      };
+      const commandNo = () => {
+        this.commandCloseAskWindow();
+        this.leaveAskWindow();
+        this.commandPlayerPassed(manager);
+      };
+      this.createAskWindow('Use a Program Card?', commandYes, commandNo);
+      this.openAskWindow();
+      this.stepWainting();
+    }
+  }
+
+  updateStepActivePowerCard(manager) {
+    if (this.isCurrentStep(GameConst.ACTIVE_POWER_CARD) && Input.isTriggered('cancel')) {
+      this.closeGameBoards();
+      this.leaveGameBoards();
+      this.closePowerCard();
+      this.leavePowerCard();
+      this.commandPlayerHand(manager);
+      this.stepWainting();
+    }
+  }
+
+  updateStepEnd(manager) {
+    if ((manager.isPlayerPassed() && manager.isChallengePassed()) && this.isCurrentStep(GameConst.END_PHASE) === false) {
+      this.addWait();
+      this.closeGameBoards();
+      this.leaveGameBoards();
+      this.addAction(manager.endPhase);
+      this.stepEnd();
+    }
+  }
+
+  createPlayerGameBoard(manager) {
+    const energies = Object.values(manager.getPlayerEnergies());
+    const cardsInDeck = manager.getPlayerDeckLength();
+    const cardsInHand = manager.getPlayerHandLength();
+    const cardsInTrash = manager.getPlayerTrashLength();
+    const victories = manager.getPlayerVictories();
+    const passed = manager.isPlayerPassed();
+    const boardWindow = this.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand, passed);
+    const boardWindowHeight = boardWindow.height;
+    const battleWindow = this.createPlayerBattleWindow(boardWindowHeight);
+    const trashWindow = this.createPlayerTrashWindow(cardsInTrash);
+    const scoreWindow = this.createPlayerScoreWindow(victories, boardWindowHeight);
+    const battlefield = this.createPlayerBattlefield();
+  }
+
+  createChallengeGameBoard(manager) {
+    const energies = Object.values(manager.getChallengeEnergies());
+    const cardsInDeck = manager.getChallengeDeckLength();
+    const cardsInHand = manager.getChallengeHandLength();
+    const cardsInTrash = manager.getChallengeTrashLength();
+    const victories = manager.getChallengeVictories();
+    const passed = manager.isChallengePassed();
+    const boardWindow = this.createChallengeBoardWindow(energies, cardsInDeck, cardsInHand, passed);
+    const boardWindowHeight = boardWindow.height;
+    const battleWindow = this.createChallengeBattleWindow(boardWindowHeight);
+    const trashWindow = this.createChallengeTrashWindow(cardsInTrash);
+    const scoreWindow = this.createChallengeScoreWindow(victories, boardWindowHeight);
+    const battlefield = this.createChallengeBattlefield();
+  }
+
+  commandPlayerHand(manager) {
+    const onChangeCursor = index => {
+      const card = manager.getCardPlayerHandByIndex(index);
+      this.commandSetTextCardNameWindow(['card.name' + index]);
+      this.commandSetTextCardDescriptionWindow(['card.description' + index]);
+      this.commandSetTextCardPropsWindow(['card.props' + index]);
+    };
+    const onSelectHandler = cardIndexs => {
+      const sprite = this.commandGetSprites(cardIndexs);
+      this.selectPowerCard(sprite);
+      this.closePlayerHand();
+      this.leavePlayerHand();
+      this.createPlayerGameBoard(manager);
+      this.createChallengeGameBoard(manager);
+      this.openGameBoards();
+      const cards = cardIndexs.map(index => manager.getCardPlayerHandByIndex(index));
+      this.createPowerfield(cards);
+      this.openPowerfield();
+      this.setStep(GameConst.ACTIVE_POWER_CARD);
+    };
+    const onCancelHandler = () => {
+      this.closePlayerHand();
+      this.leavePlayerHand();
+      this.createPlayerGameBoard(manager);
+      this.createChallengeGameBoard(manager);
+      this.openGameBoards();
+      this.setStep(GameConst.PLAYER_LOAD_PHASE);
+    };
+
+    const playerEnergies = Object.values(manager.getPlayerEnergies());
+    const playerCardsInDeck = manager.getPlayerDeckLength();
+    const playerCardsInHand = manager.getPlayerHandLength();
+    const playerPassed = manager.isPlayerPassed();
+    this.createPlayerBoardWindow(playerEnergies, playerCardsInDeck, playerCardsInHand, playerPassed);
+    
+    // manager.getPlayerDisabledIndexesInLoadPhase
+    const cardsInHand = manager.getPlayerHand();
+    const disableCards = cardsInHand.map((card, index) => {
+      return {
+        index,
+        disable: card.type !== GameConst.POWER || card.isActiveInLoadPhase === false,
+      };
+    });
+    const disableIndexes = disableCards.filter(card => card.disable).map(card => card.index);
+
+    this.createPlayerHandset(cardsInHand, disableIndexes);
+    this.openPlayerHand(onSelectHandler, onChangeCursor, onCancelHandler);
+  }
+
+  commandPlayerPassed(manager) {
+    manager.playerPassed();
+    this.playerPass();
+    this.stepWainting();
+    if (manager.isChallengePassed() === false) this.setStep(GameConst.CHALLENGE_LOAD_PHASE);
+  }
+
+  isPowerFieldVisible() {
+    return this._powerfield.visible;
+  }
 }

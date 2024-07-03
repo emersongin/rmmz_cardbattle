@@ -634,4 +634,44 @@ class Phase {
   isDescriptionWindowVisible() {
     return this._descriptionWindow.visible;
   }
+
+  isPlayerBoardWindowVisible() {
+    return this._player.boardWindow.visible;
+  }
+
+  isChallengeBoardWindowVisible() {
+    return this._challenge.boardWindow.visible;
+  }
+
+  isPlayerBattleWindowVisible() {
+    return this._player.battleWindow.visible;
+  }
+
+  isChallengeBattleWindowVisible() {
+    return this._challenge.battleWindow.visible;
+  }
+
+  isPlayerTrashWindowVisible() {
+    return this._player.trashWindow.visible;
+  }
+
+  isChallengeTrashWindowVisible() {
+    return this._challenge.trashWindow.visible;
+  }
+
+  isPlayerScoreWindowVisible() {
+    return this._player.scoreWindow.visible;
+  }
+
+  isChallengeScoreWindowVisible() {
+    return this._challenge.scoreWindow.visible;
+  }
+
+  isPlayerBattlefieldVisible() {
+    return this._player.battlefield.visible;
+  }
+
+  isChallengeBattlefieldVisible() {
+    return this._challenge.battlefield.visible;
+  }
 }

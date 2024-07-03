@@ -2,6 +2,29 @@ class LoadPhaseTest extends SceneTest {
   phase;
   endTest;
   manager = {
+    getPlayerDeck: () => this.manager.player.deck,
+    getPlayerHand: () => this.manager.player.hand,
+    getPlayerEnergies: () => this.manager.player.energies,
+    getPlayerDeckLength: () => this.manager.player.deck.length,
+    getPlayerHandLength: () => this.manager.player.hand.length,
+    getPlayerTrashLength: () => this.manager.player.trash.length,
+    getPlayerVictories: () => this.manager.player.victories,
+    isPlayerPassed: () => this.manager.player.passed,
+    playerPassed: () => this.manager.player.passed = true,
+    setPlayerHand: (hand) => this.manager.player.hand = hand,
+    setPlayerEnergies: (energies) => this.manager.player.energies = energies,
+    getCardPlayerHandByIndex: (index) => this.manager.player.hand[index],
+    getChallengeDeck: () => this.manager.challenge.deck,
+    getChallengeHand: () => this.manager.challenge.hand,
+    getChallengeEnergies: () => this.manager.challenge.energies,
+    getChallengeDeckLength: () => this.manager.challenge.deck.length,
+    getChallengeHandLength: () => this.manager.challenge.hand.length,
+    getChallengeTrashLength: () => this.manager.challenge.trash.length,
+    getChallengeVictories: () => this.manager.challenge.victories,
+    isChallengePassed: () => this.manager.challenge.passed,
+    challengePassed: () => this.manager.challenge.passed = true,
+    setChallengeHand: (hand) => this.manager.challenge.hand = hand,
+    setChallengeEnergies: (energies) => this.manager.challenge.energies = energies,
     startPlay: false,
     player: {
       deck: [
@@ -118,184 +141,32 @@ class LoadPhaseTest extends SceneTest {
   };
 
   create() {
-    this.phase = new LoadPhase(this.scene);
-    this.endTest = this.createHandler();
+    this.phase = new LoadPhase(this._scene);
+    this.manager.endPhase = this.createHandler();
+    this.addHiddenWatched(this.phase);
   }
-  
+
   start() {
-    this.scene.setPhase(this.phase);
-    const titleWindow = this.phase.createTitleWindow('Load Phase');
-    const descriptionWindow = this.phase.createDescriptionWindow('Select and use a Program Card.');
-    this.addHiddenWatched(titleWindow);
-    this.addHiddenWatched(descriptionWindow);
-    this.phase.openTextWindows();
-    this.phase.setStep(GameConst.START_PHASE);
+    this._scene.setPhase(this.phase);
+    this.phase.start(this.manager);
   }
 
   update() {
-    if (this.phase.isBusy()) return false;
-    if (this.phase.isCurrentStep(GameConst.START_PHASE) && Input.isTriggered('ok')) {
-      this.phase.commandCloseTextWindows();
-      this.phase.leaveTextWindows();
-      this.createPlayerGameBoard();
-      this.createChallengeGameBoard();
-      this.phase.openGameBoards();
-      const textWindow = this.phase.createTextWindow('Begin Load Phase');
-      this.addHiddenWatched(textWindow);
-      this.phase.openBeginLoadPhaseWindow();
-      this.phase.setStep(GameConst.BEGIN_LOAD_PHASE);
-    }
-    if (this.phase.isCurrentStep(GameConst.BEGIN_LOAD_PHASE) && Input.isTriggered('ok')) {
-      this.phase.closeBeginLoadPhaseWindow();
-      this.phase.leaveBeginLoadPhaseWindow();
-      if (this.manager.startPlay) {
-        this.phase.setStep(GameConst.PLAYER_LOAD_PHASE);
-      } else {
-        this.phase.setStep(GameConst.CHALLENGE_LOAD_PHASE);
-      }
-    }
-    if (this.phase.isCurrentStep(GameConst.CHALLENGE_LOAD_PHASE)) {
-      this.manager.challenge.passed = true;
-      this.phase.challengePass();
-      this.phase.stepWainting();
-      if (this.manager.player.passed === false) this.phase.setStep(GameConst.PLAYER_LOAD_PHASE);
-    }
-    if (this.phase.isCurrentStep(GameConst.PLAYER_LOAD_PHASE)) {
-      const commandYes = () => {
-        this.phase.commandCloseAskWindow();
-        this.phase.leaveAskWindow();
-        this.phase.closeGameBoards();
-        this.phase.leaveGameBoards();
-        this.commandPlayerHand();
-      };
-      const commandNo = () => {
-        this.phase.commandCloseAskWindow();
-        this.phase.leaveAskWindow();
-        this.commandPlayerPassed();
-      };
-      this.phase.createAskWindow('Use a Program Card?', commandYes, commandNo);
-      this.phase.openAskWindow();
-      this.phase.stepWainting();
-    }
-
-    if (this.phase.isCurrentStep(GameConst.ACTIVE_POWER_CARD) && Input.isTriggered('cancel')) {
-      this.phase.closeGameBoards();
-      this.phase.leaveGameBoards();
-      this.phase.closePowerCard();
-      this.phase.leavePowerCard();
-      this.commandPlayerHand();
-      this.phase.stepWainting();
-    }
-
-    if ((this.manager.player.passed && this.manager.challenge.passed) && 
-        this.phase.isCurrentStep(GameConst.END_PHASE) === false) {
-      this.phase.addWait();
-      this.phase.closeGameBoards();
-      this.phase.leaveGameBoards();
-      this.phase.addAction(this.endTest);
-      this.phase.stepEnd();
-    }
+    this.phase.update(this.manager);
   }
 
-  createPlayerGameBoard() {
-    const energies = Object.values(this.manager.player.energies);
-    const cardsInDeck = this.manager.player.deck.length;
-    const cardsInHand = this.manager.player.hand.length;
-    const cardsInTrash = this.manager.player.trash.length;
-    const victories = this.manager.player.victories;
-    const passed = this.manager.player.passed;
-    const boardWindow = this.phase.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand, passed);
-    const boardWindowHeight = boardWindow.height;
-    const battleWindow = this.phase.createPlayerBattleWindow(boardWindowHeight);
-    const trashWindow = this.phase.createPlayerTrashWindow(cardsInTrash);
-    const scoreWindow = this.phase.createPlayerScoreWindow(victories, boardWindowHeight);
-    const battlefield = this.phase.createPlayerBattlefield();
-    this.addHiddenWatched(boardWindow);
-    this.addHiddenWatched(battleWindow);
-    this.addHiddenWatched(trashWindow);
-    this.addHiddenWatched(scoreWindow);
-    this.addHiddenWatched(battlefield);
-  }
-
-  createChallengeGameBoard() {
-    const energies = Object.values(this.manager.challenge.energies);
-    const cardsInDeck = this.manager.challenge.deck.length;
-    const cardsInHand = this.manager.challenge.hand.length;
-    const cardsInTrash = this.manager.challenge.trash.length;
-    const victories = this.manager.challenge.victories;
-    const passed = this.manager.challenge.passed;
-    const boardWindow = this.phase.createChallengeBoardWindow(energies, cardsInDeck, cardsInHand, passed);
-    const boardWindowHeight = boardWindow.height;
-    const battleWindow = this.phase.createChallengeBattleWindow(boardWindowHeight);
-    const trashWindow = this.phase.createChallengeTrashWindow(cardsInTrash);
-    const scoreWindow = this.phase.createChallengeScoreWindow(victories, boardWindowHeight);
-    const battlefield = this.phase.createChallengeBattlefield();
-    this.addHiddenWatched(boardWindow);
-    this.addHiddenWatched(battleWindow);
-    this.addHiddenWatched(trashWindow);
-    this.addHiddenWatched(scoreWindow);
-    this.addHiddenWatched(battlefield);
-  }
-
-  commandPlayerHand() {
-    const onChangeCursor = index => {
-      const card = this.manager.player.hand[index];
-      this.phase.commandSetTextCardNameWindow(['card.name' + index]);
-      this.phase.commandSetTextCardDescriptionWindow(['card.description' + index]);
-      this.phase.commandSetTextCardPropsWindow(['card.props' + index]);
-    };
-    const onSelectHandler = cardIndexs => {
-      const sprite = this.phase.commandGetSprites(cardIndexs);
-      this.phase.selectPowerCard(sprite);
-      this.phase.closePlayerHand();
-      this.phase.leavePlayerHand();
-      this.createPlayerGameBoard();
-      this.createChallengeGameBoard();
-      this.phase.openGameBoards();
-      const cards = cardIndexs.map(index => this.manager.player.hand[index]);
-      const powerfield = this.phase.createPowerfield(cards);
-      this.addHiddenWatched(powerfield);
-      this.phase.openPowerfield();
-      this.phase.setStep(GameConst.ACTIVE_POWER_CARD);
-    };
-    const onCancelHandler = () => {
-      this.phase.closePlayerHand();
-      this.phase.leavePlayerHand();
-      this.createPlayerGameBoard();
-      this.createChallengeGameBoard();
-      this.phase.openGameBoards();
-      this.phase.setStep(GameConst.PLAYER_LOAD_PHASE);
-    };
-
-    const playerEnergies = Object.values(this.manager.player.energies);
-    const playerCardsInDeck = this.manager.player.deck.length;
-    const playerCardsInHand = this.manager.player.hand.length;
-    const playerPassed = this.manager.player.passed;
-    this.phase.createPlayerBoardWindow(playerEnergies, playerCardsInDeck, playerCardsInHand, playerPassed);
-    
-    // manager.getPlayerDisabledIndexesInLoadPhase
-    const cardsInHand = this.manager.player.hand;
-    const disableCards = cardsInHand.map((card, index) => {
-      return {
-        index,
-        disable: card.type !== GameConst.POWER || card.isActiveInLoadPhase === false,
-      };
-    });
-    const disableIndexes = disableCards.filter(card => card.disable).map(card => card.index);
-
-    this.phase.createPlayerHandset(cardsInHand, disableIndexes);
-    this.phase.openPlayerHand(onSelectHandler, onChangeCursor, onCancelHandler);
-  }
-
-  commandPlayerPassed() {
-    this.manager.player.passed = true;
-    this.phase.playerPass();
-    this.phase.stepWainting();
-    if (this.manager.challenge.passed === false) this.phase.setStep(GameConst.CHALLENGE_LOAD_PHASE);
-  }
-  
   asserts() {
     this.describe('Deve apresentar etapas de fase de carregamento.');
-    this.expectWasTrue('A janela de texto foi apresentada?', 'visible', this.phase.getTextWindow());
+    this.expectWasTrue('A janela de título foi apresentada?', this.phase.isTitleWindowVisible);
+    this.expectWasTrue('A janela de descrição de sorteio foi apresentada?', this.phase.isDescriptionWindowVisible);
+    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.phase.isPlayerBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.phase.isPlayerBattleWindowVisible);
+    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.phase.isPlayerTrashWindowVisible);
+    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.phase.isPlayerScoreWindowVisible);
+    this.expectWasTrue('A janela de tabuleiro do desafiante foi apresentado?', this.phase.isChallengeBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do desafiante foi apresentada?', this.phase.isChallengeBattleWindowVisible);
+    this.expectWasTrue('A janela de lixo do desafiante foi apresentada?', this.phase.isChallengeTrashWindowVisible);
+    this.expectWasTrue('A janela de pontuação do desafiante foi apresentada?', this.phase.isChallengeScoreWindowVisible);
+    this.expectWasTrue('O campo de poder foi apresentado?', this.phase.isPowerFieldVisible);
   }
 }
