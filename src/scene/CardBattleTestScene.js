@@ -189,8 +189,8 @@ class CardBattleTestScene extends Scene_Message {
     ];
     const phase = [
       // ChallengePhaseTest,
-      StartPhaseTest,
-      // DrawPhaseTest,
+      // StartPhaseTest,
+      DrawPhaseTest,
       // LoadPhaseTest,
     ];
     return [
