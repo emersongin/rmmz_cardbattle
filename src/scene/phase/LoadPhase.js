@@ -537,4 +537,32 @@ class LoadPhase extends Phase {
   isPowerFieldVisible() {
     return this._powerfield.visible;
   }
+
+  isPlayerHandVisible() {
+    return this._playerHand.visible;
+  }
+
+  isTextWindowVisible() {
+    return this._textWindow.visible;
+  }
+
+  isAskWindowVisible() {
+    return this._askWindow.visible;
+  }
+
+  isLocationWindowVisible() {
+    return this._locationWindow.visible;
+  }
+
+  isCardNameWindowVisible() {
+    return this._cardNameWindow.visible;
+  }
+
+  isCardDescriptionWindowVisible() {
+    return this._cardDescriptionWindow.visible;
+  }
+
+  isCardPropsWindowVisible() {
+    return this._cardPropsWindow.visible;
+  }
 }

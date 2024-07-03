@@ -159,6 +159,8 @@ class LoadPhaseTest extends SceneTest {
     this.describe('Deve apresentar etapas de fase de carregamento.');
     this.expectWasTrue('A janela de título foi apresentada?', this.phase.isTitleWindowVisible);
     this.expectWasTrue('A janela de descrição de sorteio foi apresentada?', this.phase.isDescriptionWindowVisible);
+    this.expectWasTrue('A janela de texto de inicio de fase foi apresentada?', this.phase.isTextWindowVisible);
+    this.expectWasTrue('A janela de pergunta foi apresentada?', this.phase.isAskWindowVisible);
     this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.phase.isPlayerBoardWindowVisible);
     this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.phase.isPlayerBattleWindowVisible);
     this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.phase.isPlayerTrashWindowVisible);
@@ -167,6 +169,11 @@ class LoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de batalha do desafiante foi apresentada?', this.phase.isChallengeBattleWindowVisible);
     this.expectWasTrue('A janela de lixo do desafiante foi apresentada?', this.phase.isChallengeTrashWindowVisible);
     this.expectWasTrue('A janela de pontuação do desafiante foi apresentada?', this.phase.isChallengeScoreWindowVisible);
+    this.expectWasTrue('A janela de localização foi apresentada?', this.phase.isLocationWindowVisible);
+    this.expectWasTrue('A janela de nome de cartão foi apresentada?', this.phase.isCardNameWindowVisible);
+    this.expectWasTrue('A janela de descrição de cartão foi apresentada?', this.phase.isCardDescriptionWindowVisible);
+    this.expectWasTrue('A janela de propriedades de cartão foi apresentada?', this.phase.isCardPropsWindowVisible);
+    this.expectWasTrue('O campo de mão do jogador foi apresentado?', this.phase.isPlayerHandVisible);
     this.expectWasTrue('O campo de poder foi apresentado?', this.phase.isPowerFieldVisible);
   }
 }
