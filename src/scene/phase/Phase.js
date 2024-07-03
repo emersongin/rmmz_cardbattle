@@ -59,6 +59,7 @@ class Phase {
   }
 
   someChildrenIsBusy() {
+    if (!this._scene.children || this._scene.children.length === 0) return false;
     return this._scene.children.some(sprite => {
       return (sprite instanceof CardsetSprite) && (sprite.hasCommands() || sprite.isBusy());
     });

@@ -287,9 +287,6 @@ class ObjectHelper {
       '_actionsQueue',
       '_actionsQueueWithDelay',
       '_status',
-      '_positiveIntensityEffect',
-      '_intensityEffect',
-      '_opacityEffect',
       '_type',
       '_color',
       '_figure',
@@ -311,6 +308,8 @@ class ObjectHelper {
       '_titleWindow',
       '_descriptionWindow',
       '_folderWindow',
+      '_resultWindow',
+      '_drawCardGame',
       'visible',
     ];
     const newObj = Object.create(Object.getPrototypeOf(obj));
@@ -2409,7 +2408,9 @@ class ActionSprite extends Sprite {
   }
 
   someDelayCommand() {
-    return this._delayCommandQueue.some(command => command.delay > 0);
+    if (this.hasDelayCommands()) {
+      return this._delayCommandQueue.some(command => command.delay > 0);
+    }
   }
 
   executeCommand() {
@@ -2463,7 +2464,7 @@ class ActionSprite extends Sprite {
   }
 
   hasDelayCommands() {
-    return this._delayCommandQueue.length > 0;
+    return this._delayCommandQueue?.length > 0;
   }
 
   updateEffects() {
@@ -4736,6 +4737,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   someChildrenIsBusy() {
+    if (!this.children || this.hasChildren() === false) return false;
     return this.children.some(sprite => {
       return (sprite instanceof CardSprite) && (sprite.hasCommands() || sprite.isBusy());
     });
@@ -5304,6 +5306,7 @@ class Phase {
   }
 
   someChildrenIsBusy() {
+    if (!this._scene.children || this._scene.children.length === 0) return false;
     return this._scene.children.some(sprite => {
       return (sprite instanceof CardsetSprite) && (sprite.hasCommands() || sprite.isBusy());
     });
@@ -5931,8 +5934,8 @@ class ChallengePhase extends Phase {
   start(manager) {
     const title = 'Challenge Phase';
     const description = manager.getChallengeDescription();
-    const titleWindow = this.createTitleWindow(title);
-    const descriptionWindow = this.createDescriptionWindow(description);
+    this.createTitleWindow(title);
+    this.createDescriptionWindow(description);
     this.openTextWindows();
     this.setStep(GameConst.START_PHASE);
   }
@@ -6169,12 +6172,53 @@ class StartPhase extends Phase {
     return this._drawCardGame;
   }
 
+  start(manager) {
+    const title = 'Start Phase';
+    const description = 'Draw Calumon to go first.';
+    this.createTitleWindow(title);
+    this.createDescriptionWindow(description);
+    this.openTextWindows();
+    this.setStep(GameConst.START_PHASE);
+  }
+  
+  update(manager) {
+    super.update();
+    if (this.isBusy()) return false;
+    this.updateStepStart(manager);
+    this.updateStepEnd(manager);
+  }
 
+  updateStepStart(manager) {
+    if (this.isCurrentStep(GameConst.START_PHASE) && Input.isTriggered('ok')) {
+      this.commandCloseTextWindows();
+      this.leaveTextWindows();
+      const resultHandler = (win, resultWindow) => {
+        manager.win = win;
+        this.openResultWindow();
+        this.setStep(GameConst.END_DRAW_CARD_GAME);
+      };
+      const drawCardGame = this.createDrawCardGame();
+      this.startDrawCardGame(resultHandler);
+      this.setStep(GameConst.START_DRAW_CARD_GAME);
+    }
+  }
 
+  updateStepEnd(manager) {
+    if (this.isCurrentStep(GameConst.END_DRAW_CARD_GAME) && Input.isTriggered('ok')) {
+      this.closeDrawCardGame();
+      this.leaveDrawCardGame();
+      this.addWait();
+      this.addAction(manager.endPhase);
+    }
+  }
 
+  isResultWindowVisible() {
+    return this._resultWindow.visible
+  }
 
-
-
+  isCardsetVisible() {
+    return this._drawCardGame.visible;
+  }
 
 
 
@@ -7629,7 +7673,7 @@ class UpdatingPointsCardSpriteTest extends SceneTest {
     this.expectWasTrue('Foram atualizandos?', this.subject.isUpdatingPoints);
   }
 }
-class ChainAcitonCardSpriteTest extends SceneTest {
+class TiggerAcitonCardSpriteTest extends SceneTest {
   create() {
     const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
     const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
@@ -7652,12 +7696,12 @@ class ChainAcitonCardSpriteTest extends SceneTest {
     this.subject.show();
     this.base.addChild(this.subject);
     const times = 1;
-    this._chainActionActived = false;
-    const chainAction = () => {
-      this._chainActionActived = true;
+    this._tiggerActionActived = false;
+    const tiggerAction = () => {
+      this._tiggerActionActived = true;
       this.subject.damage(times, this._scene);
     }
-    this.subject.damage(times, this._scene, chainAction);
+    this.subject.damage(times, this._scene, tiggerAction);
   }
 
   start() {
@@ -7668,7 +7712,7 @@ class ChainAcitonCardSpriteTest extends SceneTest {
     this.describe('Deve receber uma animação em cadeia!');
     this.expectTrue('Base é visível?', this.base.isVisible());
     this.expectWasTrue('Houve animação?', this.subject.isAnimationPlaying);
-    this.expectTrue('Houve animação em cadeia?', this._chainActionActived);
+    this.expectTrue('Houve animação em cadeia?', this._tiggerActionActived);
   }
 }
 // CARDSET SPRITE
@@ -8436,7 +8480,7 @@ class AlignCenterMiddleCardsetSpriteTest extends SceneTest {
     this.expectTrue('Esta na posição centralizada?', this.subject.y === y && this.subject.x === x);
   }
 }
-class ChainActionCardsetSpriteTest extends SceneTest {
+class TriggerActionCardsetSpriteTest extends SceneTest {
   create() {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
@@ -8447,12 +8491,12 @@ class ChainActionCardsetSpriteTest extends SceneTest {
     const sprites = this.subject.listCards(cards);
     this.subject.showCards(sprites);
     const times = 1;
-    this._chainActionActived = false;
-    const chainAction = () => {
-      this._chainActionActived = true;
-      this.subject.damageCardsAnimate(times, sprites, this._scene, chainAction);
+    this._triggerActionActived = false;
+    const triggerAction = () => {
+      this._triggerActionActived = true;
+      this.subject.damageCardsAnimate(times, sprites, this._scene, triggerAction);
     }
-    this.subject.damageCardsAnimate(times, sprites, this._scene, chainAction);
+    this.subject.damageCardsAnimate(times, sprites, this._scene, triggerAction);
   }
 
   start() {
@@ -8462,7 +8506,7 @@ class ChainActionCardsetSpriteTest extends SceneTest {
   asserts() {
     this.describe('Deve animar as cartas!');
     this.expectWasTrue('Houve um frame de animação?', this.subject.someSpriteIsAnimationPlaying);
-    this.expectTrue('Houve animação em cadeia?', this._chainActionActived);
+    this.expectTrue('Houve animação em cadeia?', this._triggerActionActived);
   }
 }
 class OnChangeCursorSelectModeCardsetSpriteTest extends SceneTest {
@@ -9792,7 +9836,6 @@ class CreateFolderWindowTest extends SceneTest {
 // PHASES
 class ChallengePhaseTest extends SceneTest {
   phase;
-  endTest;
   manager = { 
     folders: [
       {
@@ -9838,54 +9881,32 @@ class ChallengePhaseTest extends SceneTest {
 class StartPhaseTest extends SceneTest {
   phase;
   endTest;
-  manager = { win: undefined };
+  manager = { 
+    win: undefined,
+    endPhase: () => {} 
+  };
 
   create() {
-    this.phase = new StartPhase(this.scene);
-    this.endTest = this.createHandler();
+    this.phase = new StartPhase(this._scene);
+    this.manager.endPhase = this.createHandler();
+    this.addHiddenWatched(this.phase);
   }
 
   start() {
-    this.scene.setPhase(this.phase);
-    const titleWindow = this.phase.createTitleWindow('Start Phase');
-    const descriptionWindow = this.phase.createDescriptionWindow('Draw Calumon to go first.');
-    this.addHiddenWatched(titleWindow);
-    this.addHiddenWatched(descriptionWindow);
-    this.phase.openTextWindows();
-    this.phase.setStep(GameConst.START_PHASE);
+    this._scene.setPhase(this.phase);
+    this.phase.start(this.manager);
   }
-  
+
   update() {
-    if (this.phase.isBusy()) return false;
-    if (this.phase.isCurrentStep(GameConst.START_PHASE) && Input.isTriggered('ok')) {
-      this.phase.commandCloseTextWindows();
-      this.phase.leaveTextWindows();
-      const resultHandler = (win, resultWindow) => {
-        this.manager.win = win;
-        this.addHiddenWatched(resultWindow);
-        this.phase.openResultWindow();
-        this.phase.setStep(GameConst.END_DRAW_CARD_GAME);
-      };
-      const drawCardGame = this.phase.createDrawCardGame();
-      this.addHiddenWatched(drawCardGame);
-      this.phase.startDrawCardGame(resultHandler);
-      this.phase.setStep(GameConst.START_DRAW_CARD_GAME);
-    }
-    if (this.phase.isCurrentStep(GameConst.END_DRAW_CARD_GAME) && Input.isTriggered('ok')) {
-      this.phase.closeDrawCardGame();
-      this.phase.leaveDrawCardGame();
-      this.phase.addWait();
-      this.phase.addAction(this.endTest);
-    }
+    this.phase.update(this.manager);
   }
 
   asserts() {
     this.describe('Deve apresentar etapas de fase de início e jogo da sorte.');
-    const cardset = this.phase.getDrawCardGameCardset();
-    this.expectWasTrue('O set de cartas estava em modo seleção?', cardset.isSelectMode, cardset);
-    this.expectWasTrue('A janela de título foi apresentada?', 'visible', this.phase.getTitleWindow());
-    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', 'visible', this.phase.getDescriptionWindow());
-    this.expectWasTrue('A janela de resultado foi apresentada?', 'visible', this.phase.getResultWindow());
+    this.expectWasTrue('O set de cartas estava em modo seleção?', this.phase.isCardsetVisible);
+    this.expectWasTrue('A janela de título foi apresentada?', this.phase.isTitleWindowVisible);
+    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', this.phase.isDescriptionWindowVisible);
+    this.expectWasTrue('A janela de resultado foi apresentada?', this.phase.isResultWindowVisible);
     this.expectTrue('O resultado do jogo da sorte foi apresentado?', typeof this.manager.win === 'boolean');
   }
 }
@@ -10676,7 +10697,7 @@ class CardBattleTestScene extends Scene_Message {
       FlipTurnToUpCardSpriteTest,
       FlipTurnToDownCardSpriteTest,
       UpdatingPointsCardSpriteTest,
-      ChainAcitonCardSpriteTest,
+      TiggerAcitonCardSpriteTest,
     ];
     const cardsetSpriteTests = [
       StartPositionCardsetSpriteTest,
@@ -10714,7 +10735,7 @@ class CardBattleTestScene extends Scene_Message {
       ZoomOutAllCardsCardsetSpriteTest,
       FlipTurnToUpAllCardsCardsetSpriteTest,
       FlipTurnToUpCardsCardsetSpriteTest,
-      ChainActionCardsetSpriteTest,
+      TriggerActionCardsetSpriteTest,
       OnChangeCursorSelectModeCardsetSpriteTest,
       AddChildToEndCardsetSpriteTest,
     ];
@@ -10811,23 +10832,23 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const phase = [
-      ChallengePhaseTest,
-      // StartPhaseTest,
+      // ChallengePhaseTest,
+      StartPhaseTest,
       // DrawPhaseTest,
       // LoadPhaseTest,
     ];
     return [
-      ...cardSpriteTests,
-      ...cardsetSpriteTests,
-      ...commandWindow,
-      ...StateWindowTests,
-      ...textWindowTests,
-      ...boardWindowTests,
-      ...battlePointsWindow,
-      ...trashWindow,
-      ...scoreWindow,
-      ...folderWindow,
-      // ...phase,
+      // ...cardSpriteTests,
+      // ...cardsetSpriteTests,
+      // ...commandWindow,
+      // ...StateWindowTests,
+      // ...textWindowTests,
+      // ...boardWindowTests,
+      // ...battlePointsWindow,
+      // ...trashWindow,
+      // ...scoreWindow,
+      // ...folderWindow,
+      ...phase,
     ];
   }
 

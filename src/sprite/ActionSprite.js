@@ -151,7 +151,9 @@ class ActionSprite extends Sprite {
   }
 
   someDelayCommand() {
-    return this._delayCommandQueue.some(command => command.delay > 0);
+    if (this.hasDelayCommands()) {
+      return this._delayCommandQueue.some(command => command.delay > 0);
+    }
   }
 
   executeCommand() {
@@ -205,7 +207,7 @@ class ActionSprite extends Sprite {
   }
 
   hasDelayCommands() {
-    return this._delayCommandQueue.length > 0;
+    return this._delayCommandQueue?.length > 0;
   }
 
   updateEffects() {

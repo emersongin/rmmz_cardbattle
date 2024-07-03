@@ -64,7 +64,7 @@
 // include ../test/integration/card/FlipTurnToUpCardSpriteTest.js
 // include ../test/integration/card/FlipTurnToDownCardSpriteTest.js
 // include ../test/integration/card/UpdatingPointsCardSpriteTest.js
-// include ../test/integration/card/ChainAcitonCardSpriteTest.js
+// include ../test/integration/card/TiggerAcitonCardSpriteTest.js
 // CARDSET SPRITE
 // include ../test/integration/cardset/StartPositionCardsetSpriteTest.js
 // include ../test/integration/cardset/SetCardsCardsetSpriteTest.js
@@ -101,7 +101,7 @@
 // include ../test/integration/cardset/AlignAboveOfCardsetSpriteTest.js
 // include ../test/integration/cardset/AlignBelowOfCardsetSpriteTest.js
 // include ../test/integration/cardset/AlignCenterMiddleCardsetSpriteTest.js
-// include ../test/integration/cardset/ChainActionCardsetSpriteTest.js
+// include ../test/integration/cardset/TriggerActionCardsetSpriteTest.js
 // include ../test/integration/cardset/OnChangeCursorSelectModeCardsetSpriteTest.js
 // include ../test/integration/cardset/AddChildToEndCardsetSpriteTest.js
 // STETE WINDOW

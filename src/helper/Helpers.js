@@ -127,9 +127,6 @@ class ObjectHelper {
       '_actionsQueue',
       '_actionsQueueWithDelay',
       '_status',
-      '_positiveIntensityEffect',
-      '_intensityEffect',
-      '_opacityEffect',
       '_type',
       '_color',
       '_figure',
@@ -151,6 +148,8 @@ class ObjectHelper {
       '_titleWindow',
       '_descriptionWindow',
       '_folderWindow',
+      '_resultWindow',
+      '_drawCardGame',
       'visible',
     ];
     const newObj = Object.create(Object.getPrototypeOf(obj));

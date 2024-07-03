@@ -1,4 +1,4 @@
-class ChainAcitonCardSpriteTest extends SceneTest {
+class TiggerAcitonCardSpriteTest extends SceneTest {
   create() {
     const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
     const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
@@ -21,12 +21,12 @@ class ChainAcitonCardSpriteTest extends SceneTest {
     this.subject.show();
     this.base.addChild(this.subject);
     const times = 1;
-    this._chainActionActived = false;
-    const chainAction = () => {
-      this._chainActionActived = true;
+    this._tiggerActionActived = false;
+    const tiggerAction = () => {
+      this._tiggerActionActived = true;
       this.subject.damage(times, this._scene);
     }
-    this.subject.damage(times, this._scene, chainAction);
+    this.subject.damage(times, this._scene, tiggerAction);
   }
 
   start() {
@@ -37,6 +37,6 @@ class ChainAcitonCardSpriteTest extends SceneTest {
     this.describe('Deve receber uma animação em cadeia!');
     this.expectTrue('Base é visível?', this.base.isVisible());
     this.expectWasTrue('Houve animação?', this.subject.isAnimationPlaying);
-    this.expectTrue('Houve animação em cadeia?', this._chainActionActived);
+    this.expectTrue('Houve animação em cadeia?', this._tiggerActionActived);
   }
 }

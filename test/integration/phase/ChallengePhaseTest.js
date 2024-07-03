@@ -1,6 +1,5 @@
 class ChallengePhaseTest extends SceneTest {
   phase;
-  endTest;
   manager = { 
     folders: [
       {

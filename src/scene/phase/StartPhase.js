@@ -184,12 +184,53 @@ class StartPhase extends Phase {
     return this._drawCardGame;
   }
 
+  start(manager) {
+    const title = 'Start Phase';
+    const description = 'Draw Calumon to go first.';
+    this.createTitleWindow(title);
+    this.createDescriptionWindow(description);
+    this.openTextWindows();
+    this.setStep(GameConst.START_PHASE);
+  }
+  
+  update(manager) {
+    super.update();
+    if (this.isBusy()) return false;
+    this.updateStepStart(manager);
+    this.updateStepEnd(manager);
+  }
 
+  updateStepStart(manager) {
+    if (this.isCurrentStep(GameConst.START_PHASE) && Input.isTriggered('ok')) {
+      this.commandCloseTextWindows();
+      this.leaveTextWindows();
+      const resultHandler = (win, resultWindow) => {
+        manager.win = win;
+        this.openResultWindow();
+        this.setStep(GameConst.END_DRAW_CARD_GAME);
+      };
+      const drawCardGame = this.createDrawCardGame();
+      this.startDrawCardGame(resultHandler);
+      this.setStep(GameConst.START_DRAW_CARD_GAME);
+    }
+  }
 
+  updateStepEnd(manager) {
+    if (this.isCurrentStep(GameConst.END_DRAW_CARD_GAME) && Input.isTriggered('ok')) {
+      this.closeDrawCardGame();
+      this.leaveDrawCardGame();
+      this.addWait();
+      this.addAction(manager.endPhase);
+    }
+  }
 
+  isResultWindowVisible() {
+    return this._resultWindow.visible
+  }
 
-
-
+  isCardsetVisible() {
+    return this._drawCardGame.visible;
+  }
 
 
 

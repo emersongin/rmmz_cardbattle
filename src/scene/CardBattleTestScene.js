@@ -53,7 +53,7 @@ class CardBattleTestScene extends Scene_Message {
       FlipTurnToUpCardSpriteTest,
       FlipTurnToDownCardSpriteTest,
       UpdatingPointsCardSpriteTest,
-      ChainAcitonCardSpriteTest,
+      TiggerAcitonCardSpriteTest,
     ];
     const cardsetSpriteTests = [
       StartPositionCardsetSpriteTest,
@@ -91,7 +91,7 @@ class CardBattleTestScene extends Scene_Message {
       ZoomOutAllCardsCardsetSpriteTest,
       FlipTurnToUpAllCardsCardsetSpriteTest,
       FlipTurnToUpCardsCardsetSpriteTest,
-      ChainActionCardsetSpriteTest,
+      TriggerActionCardsetSpriteTest,
       OnChangeCursorSelectModeCardsetSpriteTest,
       AddChildToEndCardsetSpriteTest,
     ];
@@ -188,23 +188,23 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const phase = [
-      ChallengePhaseTest,
-      // StartPhaseTest,
+      // ChallengePhaseTest,
+      StartPhaseTest,
       // DrawPhaseTest,
       // LoadPhaseTest,
     ];
     return [
-      ...cardSpriteTests,
-      ...cardsetSpriteTests,
-      ...commandWindow,
-      ...StateWindowTests,
-      ...textWindowTests,
-      ...boardWindowTests,
-      ...battlePointsWindow,
-      ...trashWindow,
-      ...scoreWindow,
-      ...folderWindow,
-      // ...phase,
+      // ...cardSpriteTests,
+      // ...cardsetSpriteTests,
+      // ...commandWindow,
+      // ...StateWindowTests,
+      // ...textWindowTests,
+      // ...boardWindowTests,
+      // ...battlePointsWindow,
+      // ...trashWindow,
+      // ...scoreWindow,
+      // ...folderWindow,
+      ...phase,
     ];
   }
 

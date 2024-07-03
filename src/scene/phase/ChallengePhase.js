@@ -50,8 +50,8 @@ class ChallengePhase extends Phase {
   start(manager) {
     const title = 'Challenge Phase';
     const description = manager.getChallengeDescription();
-    const titleWindow = this.createTitleWindow(title);
-    const descriptionWindow = this.createDescriptionWindow(description);
+    this.createTitleWindow(title);
+    this.createDescriptionWindow(description);
     this.openTextWindows();
     this.setStep(GameConst.START_PHASE);
   }

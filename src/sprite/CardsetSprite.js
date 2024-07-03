@@ -457,6 +457,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   someChildrenIsBusy() {
+    if (!this.children || this.hasChildren() === false) return false;
     return this.children.some(sprite => {
       return (sprite instanceof CardSprite) && (sprite.hasCommands() || sprite.isBusy());
     });
