@@ -1,5 +1,9 @@
+// include ./status/ActivePowerCardPhaseStatus.js
+// include ./status/WaitingPhaseStatus.js
+
 class Phase {
   _scene = {};
+  _status = null;
   _actionsQueue = [];
   _step = 'START';
   _wait = 0;
@@ -25,6 +29,11 @@ class Phase {
       throw new Error('Scene must be an instance of Scene_Message');
     }
     this._scene = scene;
+    this.changeStatus(WaitingPhaseStatus);
+  }
+
+  changeStatus(status, ...params) {
+    this._status = new status(this, ...params);
   }
 
   update() {

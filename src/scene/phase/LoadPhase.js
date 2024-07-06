@@ -368,7 +368,6 @@ class LoadPhase extends Phase {
     this.updateStepBeginLoadPhase(manager);
     this.updateStepChallengeLoadPhase(manager);
     this.updateStepPlayerLoadPhase(manager);
-    this.updateStepActivePowerCard(manager);
     this.updateStepEnd(manager);
   }
 
@@ -423,17 +422,6 @@ class LoadPhase extends Phase {
       };
       this.createAskWindow('Use a Program Card?', commandYes, commandNo);
       this.openAskWindow();
-      this.stepWainting();
-    }
-  }
-
-  updateStepActivePowerCard(manager) {
-    if (this.isCurrentStep(GameConst.ACTIVE_POWER_CARD) && Input.isTriggered('cancel')) {
-      this.closeGameBoards();
-      this.leaveGameBoards();
-      this.closePowerCard();
-      this.leavePowerCard();
-      this.commandPlayerHand(manager);
       this.stepWainting();
     }
   }
@@ -496,6 +484,7 @@ class LoadPhase extends Phase {
       const cards = cardIndexs.map(index => manager.getCardPlayerHandByIndex(index));
       this.createPowerfield(cards);
       this.openPowerfield();
+      this.activePowerCard(manager);
       this.setStep(GameConst.ACTIVE_POWER_CARD);
     };
     const onCancelHandler = () => {
@@ -525,6 +514,14 @@ class LoadPhase extends Phase {
 
     this.createPlayerHandset(cardsInHand, disableIndexes);
     this.openPlayerHand(onSelectHandler, onChangeCursor, onCancelHandler);
+  }
+
+  activePowerCard(manager) {
+    this.addAction(this.commandActivePowerCard, manager);
+  }
+
+  commandActivePowerCard(manager) {
+    return this._status.activePowerCard(manager);
   }
 
   commandPlayerPassed(manager) {

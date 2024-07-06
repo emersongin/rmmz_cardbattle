@@ -5245,8 +5245,60 @@ class CardBattleSpriteset extends Spriteset_Base {
 }
 
 // SCENE
+class ActivePowerCardPhaseStatus {
+  _phase;
+
+  constructor(phase, manager) {
+    if (phase instanceof LoadPhase === false) {
+      throw new Error("phase is not an instance of LoadPhase");
+    }
+    this._phase = phase;
+    this.start(manager);
+  }
+
+  start(manager) {
+    console.log('start status');
+  }
+
+  update(manager) {
+    const that = this._phase;
+    if (Input.isTriggered('cancel')) {
+      that.closeGameBoards();
+      that.leaveGameBoards();
+      that.closePowerCard();
+      that.leavePowerCard();
+      that.commandPlayerHand(manager);
+      that.stepWainting();
+      that.changeStatus(WaitingPhaseStatus);
+    }
+  }
+}
+class WaitingPhaseStatus  {
+  _phase;
+
+  constructor(phase) {
+    if (phase instanceof LoadPhase === false) {
+      throw new Error("phase is not an instance of LoadPhase");
+    }
+    this._phase = phase;
+  }
+
+  start() {
+    // nothing
+  }
+
+  update() {
+    // nothing to do
+  }
+
+  activePowerCard(manager) {
+    this._phase.changeStatus(ActivePowerCardPhaseStatus, manager);
+  }
+}
+
 class Phase {
   _scene = {};
+  _status = null;
   _actionsQueue = [];
   _step = 'START';
   _wait = 0;
@@ -5272,6 +5324,11 @@ class Phase {
       throw new Error('Scene must be an instance of Scene_Message');
     }
     this._scene = scene;
+    this.changeStatus(WaitingPhaseStatus);
+  }
+
+  changeStatus(status, ...params) {
+    this._status = new status(this, ...params);
   }
 
   update() {
@@ -6882,7 +6939,6 @@ class LoadPhase extends Phase {
     this.updateStepBeginLoadPhase(manager);
     this.updateStepChallengeLoadPhase(manager);
     this.updateStepPlayerLoadPhase(manager);
-    this.updateStepActivePowerCard(manager);
     this.updateStepEnd(manager);
   }
 
@@ -6937,17 +6993,6 @@ class LoadPhase extends Phase {
       };
       this.createAskWindow('Use a Program Card?', commandYes, commandNo);
       this.openAskWindow();
-      this.stepWainting();
-    }
-  }
-
-  updateStepActivePowerCard(manager) {
-    if (this.isCurrentStep(GameConst.ACTIVE_POWER_CARD) && Input.isTriggered('cancel')) {
-      this.closeGameBoards();
-      this.leaveGameBoards();
-      this.closePowerCard();
-      this.leavePowerCard();
-      this.commandPlayerHand(manager);
       this.stepWainting();
     }
   }
@@ -7010,6 +7055,7 @@ class LoadPhase extends Phase {
       const cards = cardIndexs.map(index => manager.getCardPlayerHandByIndex(index));
       this.createPowerfield(cards);
       this.openPowerfield();
+      this.activePowerCard(manager);
       this.setStep(GameConst.ACTIVE_POWER_CARD);
     };
     const onCancelHandler = () => {
@@ -7039,6 +7085,14 @@ class LoadPhase extends Phase {
 
     this.createPlayerHandset(cardsInHand, disableIndexes);
     this.openPlayerHand(onSelectHandler, onChangeCursor, onCancelHandler);
+  }
+
+  activePowerCard(manager) {
+    this.addAction(this.commandActivePowerCard, manager);
+  }
+
+  commandActivePowerCard(manager) {
+    return this._status.activePowerCard(manager);
   }
 
   commandPlayerPassed(manager) {
@@ -10602,6 +10656,9 @@ class LoadPhaseTest extends SceneTest {
 
   update() {
     this.phase.update(this.manager);
+    if (this.phase.isCurrentStep(GameConst.ACTIVE_POWER_CARD)) {
+      this.phase._status.update(this.manager);
+    }
   }
 
   asserts() {

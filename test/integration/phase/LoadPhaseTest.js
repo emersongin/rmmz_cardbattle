@@ -153,6 +153,9 @@ class LoadPhaseTest extends SceneTest {
 
   update() {
     this.phase.update(this.manager);
+    if (this.phase.isCurrentStep(GameConst.ACTIVE_POWER_CARD)) {
+      this.phase._status.update(this.manager);
+    }
   }
 
   asserts() {
