@@ -226,7 +226,7 @@ class LoadPhase extends Phase {
     this._cardPropsWindow.refreshContent(text);
   }
 
-  commandGetSprites(index) {
+  commandGetHandSprites(index) {
     return this._playerHand.getSprites(index);
   }
 
@@ -474,7 +474,7 @@ class LoadPhase extends Phase {
       this.commandSetTextCardPropsWindow(['card.props' + index]);
     };
     const onSelectHandler = cardIndexs => {
-      const sprite = this.commandGetSprites(cardIndexs);
+      const sprite = this.commandGetHandSprites(cardIndexs);
       this.selectPowerCard(sprite);
       this.closePlayerHand();
       this.leavePlayerHand();
@@ -484,7 +484,7 @@ class LoadPhase extends Phase {
       const cards = cardIndexs.map(index => manager.getCardPlayerHandByIndex(index));
       this.createPowerfield(cards);
       this.openPowerfield();
-      this.activePowerCard(manager);
+      this.activePowerCard(cardIndexs[0], manager);
       this.setStep(GameConst.ACTIVE_POWER_CARD);
     };
     const onCancelHandler = () => {
@@ -516,12 +516,12 @@ class LoadPhase extends Phase {
     this.openPlayerHand(onSelectHandler, onChangeCursor, onCancelHandler);
   }
 
-  activePowerCard(manager) {
-    this.addAction(this.commandActivePowerCard, manager);
+  activePowerCard(cardIndexHand, manager) {
+    this.addAction(this.commandActivePowerCard, cardIndexHand, manager);
   }
 
-  commandActivePowerCard(manager) {
-    return this._status.activePowerCard(manager);
+  commandActivePowerCard(cardIndexHand, manager) {
+    return this._status.activePowerCard(cardIndexHand, manager);
   }
 
   commandPlayerPassed(manager) {
@@ -561,5 +561,33 @@ class LoadPhase extends Phase {
 
   isCardPropsWindowVisible() {
     return this._cardPropsWindow.visible;
+  }
+
+  moveCardToPowerfield(sprites) {
+    this.addAction(this.commandMoveCardToPowerfield, sprites);
+  }
+
+  commandMoveCardToPowerfield(sprites) {
+    this._powerfield.moveAllCardsInlist(sprites);
+  }
+
+  commandGetPowerfieldSprites(index) {
+    return this._powerfield.getSprites(index);
+  }
+
+  runPowerCard(manager) {
+    this.addAction(this.commandRunPowerCard, manager);
+  }
+
+  commandRunPowerCard(manager) {
+    this._status.runPowerCard(manager);
+  }
+
+  waitStatus() {
+    this.addAction(this.commandWaitStatus);
+  }
+
+  commandWaitStatus() {
+    this._status.waitStatus();
   }
 }

@@ -16,7 +16,15 @@ class WaitingPhaseStatus  {
     // nothing to do
   }
 
-  activePowerCard(manager) {
-    this._phase.changeStatus(ActivePowerCardPhaseStatus, manager);
+  activePowerCard(cardIndexHand, manager) {
+    this._phase.changeStatus(ActivePowerCardPhaseStatus, cardIndexHand, manager);
+  }
+
+  runPowerCard() {
+    return false;
+  }
+
+  waitStatus() {
+    return false;
   }
 }

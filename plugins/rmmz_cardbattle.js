@@ -5245,19 +5245,22 @@ class CardBattleSpriteset extends Spriteset_Base {
 }
 
 // SCENE
-class ActivePowerCardPhaseStatus {
+class RunPowerCardPhaseStatus {
   _phase;
 
   constructor(phase, manager) {
     if (phase instanceof LoadPhase === false) {
       throw new Error("phase is not an instance of LoadPhase");
     }
+    // if (card instanceof PowerCard === false) {
+    //   throw new Error("card is not an instance of PowerCard");
+    // }
     this._phase = phase;
     this.start(manager);
   }
 
   start(manager) {
-    console.log('start status');
+
   }
 
   update(manager) {
@@ -5268,9 +5271,86 @@ class ActivePowerCardPhaseStatus {
       that.closePowerCard();
       that.leavePowerCard();
       that.commandPlayerHand(manager);
+      that.waitStatus();
       that.stepWainting();
-      that.changeStatus(WaitingPhaseStatus);
     }
+  }
+
+  activePowerCard(cardIndexHand, manager) {
+    return false;
+  }
+
+  runPowerCard(manager) {
+    return false;
+  }
+
+  waitStatus() {
+    this._phase.changeStatus(WaitingPhaseStatus);
+  }
+}
+class ActivePowerCardPhaseStatus {
+  _phase;
+  _cardIndex;
+
+  constructor(phase, cardIndexHand, manager) {
+    if (phase instanceof LoadPhase === false) {
+      throw new Error("phase is not an instance of LoadPhase");
+    }
+    // if (card instanceof PowerCard === false) {
+    //   throw new Error("card is not an instance of PowerCard");
+    // }
+    this._phase = phase;
+    this._cardIndex = cardIndexHand;
+    this.start(cardIndexHand, manager);
+  }
+
+  start(cardIndex, manager) {
+    const card = manager.getCardPlayerHandByIndex(cardIndex);
+    const powerCardParams = manager.getPowerCardParams(card.id);
+    this.setParams(powerCardParams);
+  }
+
+  setParams(params) {
+    const { type } = params;
+    switch (type) {
+      case GameConst.ADD_ENERGIES:
+        console.log('mostra animação de adicionar energias');
+        break;
+      default:
+        break;
+    }
+  }
+
+  update(manager) {
+    const that = this._phase;
+    const cardIndex = this._cardIndex;
+    if (Input.isTriggered('ok')) {
+      manager.moveCardHandToPowerField(cardIndex);
+      const sprite = that.commandGetPowerfieldSprites(cardIndex);
+      that.moveCardToPowerfield(sprite);
+      that.runPowerCard(manager);
+    }
+    if (Input.isTriggered('cancel')) {
+      that.closeGameBoards();
+      that.leaveGameBoards();
+      that.closePowerCard();
+      that.leavePowerCard();
+      that.commandPlayerHand(manager);
+      that.waitStatus();
+      that.stepWainting();
+    }
+  }
+
+  activePowerCard(cardIndexHand, manager) {
+    return false;
+  }
+
+  runPowerCard(manager) {
+    this._phase.changeStatus(RunPowerCardPhaseStatus, manager);
+  }
+
+  waitStatus() {
+    this._phase.changeStatus(WaitingPhaseStatus);
   }
 }
 class WaitingPhaseStatus  {
@@ -5291,8 +5371,16 @@ class WaitingPhaseStatus  {
     // nothing to do
   }
 
-  activePowerCard(manager) {
-    this._phase.changeStatus(ActivePowerCardPhaseStatus, manager);
+  activePowerCard(cardIndexHand, manager) {
+    this._phase.changeStatus(ActivePowerCardPhaseStatus, cardIndexHand, manager);
+  }
+
+  runPowerCard() {
+    return false;
+  }
+
+  waitStatus() {
+    return false;
   }
 }
 
@@ -6797,7 +6885,7 @@ class LoadPhase extends Phase {
     this._cardPropsWindow.refreshContent(text);
   }
 
-  commandGetSprites(index) {
+  commandGetHandSprites(index) {
     return this._playerHand.getSprites(index);
   }
 
@@ -7045,7 +7133,7 @@ class LoadPhase extends Phase {
       this.commandSetTextCardPropsWindow(['card.props' + index]);
     };
     const onSelectHandler = cardIndexs => {
-      const sprite = this.commandGetSprites(cardIndexs);
+      const sprite = this.commandGetHandSprites(cardIndexs);
       this.selectPowerCard(sprite);
       this.closePlayerHand();
       this.leavePlayerHand();
@@ -7055,7 +7143,7 @@ class LoadPhase extends Phase {
       const cards = cardIndexs.map(index => manager.getCardPlayerHandByIndex(index));
       this.createPowerfield(cards);
       this.openPowerfield();
-      this.activePowerCard(manager);
+      this.activePowerCard(cardIndexs[0], manager);
       this.setStep(GameConst.ACTIVE_POWER_CARD);
     };
     const onCancelHandler = () => {
@@ -7087,12 +7175,12 @@ class LoadPhase extends Phase {
     this.openPlayerHand(onSelectHandler, onChangeCursor, onCancelHandler);
   }
 
-  activePowerCard(manager) {
-    this.addAction(this.commandActivePowerCard, manager);
+  activePowerCard(cardIndexHand, manager) {
+    this.addAction(this.commandActivePowerCard, cardIndexHand, manager);
   }
 
-  commandActivePowerCard(manager) {
-    return this._status.activePowerCard(manager);
+  commandActivePowerCard(cardIndexHand, manager) {
+    return this._status.activePowerCard(cardIndexHand, manager);
   }
 
   commandPlayerPassed(manager) {
@@ -7132,6 +7220,34 @@ class LoadPhase extends Phase {
 
   isCardPropsWindowVisible() {
     return this._cardPropsWindow.visible;
+  }
+
+  moveCardToPowerfield(sprites) {
+    this.addAction(this.commandMoveCardToPowerfield, sprites);
+  }
+
+  commandMoveCardToPowerfield(sprites) {
+    this._powerfield.moveAllCardsInlist(sprites);
+  }
+
+  commandGetPowerfieldSprites(index) {
+    return this._powerfield.getSprites(index);
+  }
+
+  runPowerCard(manager) {
+    this.addAction(this.commandRunPowerCard, manager);
+  }
+
+  commandRunPowerCard(manager) {
+    this._status.runPowerCard(manager);
+  }
+
+  waitStatus() {
+    this.addAction(this.commandWaitStatus);
+  }
+
+  commandWaitStatus() {
+    this._status.waitStatus();
   }
 }
 
@@ -10528,51 +10644,69 @@ class LoadPhaseTest extends SceneTest {
     challengePassed: () => this.manager.challenge.passed = true,
     setChallengeHand: (hand) => this.manager.challenge.hand = hand,
     setChallengeEnergies: (energies) => this.manager.challenge.energies = energies,
+    getPowerCardParams: (cardId) => {
+      return {
+        type: GameConst.ADD_ENERGIES,
+      };
+    },
+    moveCardHandToPowerField: (index) => {
+      const card = this.manager.getCardPlayerHandByIndex(index);
+      this.manager.addCardToPowerField(card);
+      this.manager.removeCardFromPlayerHand(index);
+    },
+    addCardToPowerField: (card) => {
+      this.manager.powerfield.push(card);
+    },
+    removeCardFromPlayerHand: (index) => {
+      const newSet = this.manager.player.hand.filter((card, iCard) => iCard !== index);
+      this.manager.setPlayerHand(newSet);
+    },
     startPlay: false,
+    powerfield: [],
     player: {
       deck: [
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
       ],
       hand: [
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
       ],
       trash: [],
       energies: {
@@ -10587,48 +10721,48 @@ class LoadPhaseTest extends SceneTest {
     },
     challenge: {
       deck: [
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
       ],
       hand: [
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { id: 1, type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
       ],
       trash: [],
       energies: {
@@ -10656,6 +10790,8 @@ class LoadPhaseTest extends SceneTest {
 
   update() {
     this.phase.update(this.manager);
+
+    if (this.phase.isBusy()) return false;
     if (this.phase.isCurrentStep(GameConst.ACTIVE_POWER_CARD)) {
       this.phase._status.update(this.manager);
     }
