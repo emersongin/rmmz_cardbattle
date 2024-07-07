@@ -15,6 +15,10 @@ class ActionSprite extends Sprite {
     this.setPosition(x, y);
   }
 
+  getPosition() {
+    return { x: this.x, y: this.y };
+  }
+
   setPosition(xPosition = this.x, yPosition = this.y) {
     this.x = xPosition;
     this.y = yPosition;

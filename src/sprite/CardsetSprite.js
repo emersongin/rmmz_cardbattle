@@ -223,7 +223,29 @@ class CardsetSprite extends ActionSprite {
 
   commandCloseAllCards(sprites) {
     if (this.isHidden()) return false;
-    sprites.forEach(sprite => sprite.close());
+    sprites.forEach(sprite => {
+      const cardIndex = this.indexOfCardSprite(sprite);
+      const orderingSprite = this.getOrderingSpriteByIndex(cardIndex);
+      this.commandHideOrderingSprites([orderingSprite]);
+      sprite.close();
+    });
+  }
+
+  indexOfCardSprite(sprite) {
+    return this._sprites.indexOf(sprite);
+  }
+
+  getOrderingSpriteByIndex(index) {
+    return this._orderingSprites[index];
+  }
+
+  hideOrderingSprites(sprites) {
+    this.addCommand(this.commandHideOrderingSprites, sprites);
+  }
+
+  commandHideOrderingSprites(sprites) {
+    if (this.isHidden()) return false;
+    sprites.forEach(sprite => sprite.hide());
   }
 
   openCards(sprites = this._sprites, delay = 6, reverse = false) {
@@ -255,6 +277,9 @@ class CardsetSprite extends ActionSprite {
 
   commandCloseCard(sprite) {
     if (this.isHidden()) return false;
+    const cardIndex = this.indexOfCardSprite(sprite);
+    const orderingSprite = this.getOrderingSpriteByIndex(cardIndex);
+    this.commandHideOrderingSprites([orderingSprite]);
     sprite.close();
   }
 
@@ -489,15 +514,18 @@ class CardsetSprite extends ActionSprite {
 
   commandSetNumberColor(number, color) {
     const orderingSprite = this._orderingSprites[number - 1];
+    const cardSprite = this._sprites[number - 1];
     if (orderingSprite) {
-      this.redrawOrderingNumber(orderingSprite, number, ColorHelper.getColorHex(color));
+      this.redrawOrderingNumber(orderingSprite, number, cardSprite, ColorHelper.getColorHex(color));
     }
   }
 
-  redrawOrderingNumber(orderingSprite, number, colorHex) {
+  redrawOrderingNumber(orderingSprite, number, cardSprite, colorHex) {
     orderingSprite.bitmap.textColor = colorHex || orderingSprite.bitmap.textColor;
     orderingSprite.bitmap.clear();
     orderingSprite.number = number;
+    orderingSprite.x = (cardSprite.x + cardSprite.width) - orderingSprite.width;
+    orderingSprite.y = (cardSprite.y) - orderingSprite.height;
     orderingSprite.bitmap.drawText(number, 0, 0, orderingSprite.width, orderingSprite.height, 'center');
   }
 
@@ -517,7 +545,8 @@ class CardsetSprite extends ActionSprite {
     if (this.isHidden() || this.hasOrderingNumbers() === false) return false;
     this._orderingSprites.forEach(sprite => {
       const number = this._orderingSprites.length - (sprite.number - 1);
-      this.redrawOrderingNumber(sprite, number);
+      const cardSprite = this._sprites[number - 1];
+      this.redrawOrderingNumber(sprite, number, cardSprite);
     });
     this._orderingSprites.forEach(sprite => sprite.show());
   }

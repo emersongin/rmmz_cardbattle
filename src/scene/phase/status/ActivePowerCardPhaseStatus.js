@@ -37,8 +37,9 @@ class ActivePowerCardPhaseStatus {
     if (Input.isTriggered('ok')) {
       manager.moveCardHandToPowerField(cardIndex);
       const sprite = that.commandGetPowerfieldSprites(cardIndex);
-      that.moveCardToPowerfield(sprite);
-      that.runPowerCard(manager);
+      const number = manager.getPowerfieldLength();
+      that.moveCardToPowerfield(sprite, number, GameConst.PLAYER_1);
+      // that.runPowerCard(manager);
     }
     if (Input.isTriggered('cancel')) {
       that.closeGameBoards();

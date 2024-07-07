@@ -563,12 +563,16 @@ class LoadPhase extends Phase {
     return this._cardPropsWindow.visible;
   }
 
-  moveCardToPowerfield(sprites) {
-    this.addAction(this.commandMoveCardToPowerfield, sprites);
+  moveCardToPowerfield(sprites, number, player) {
+    this.addAction(this.commandMoveCardToPowerfield, sprites, number, player);
   }
 
-  commandMoveCardToPowerfield(sprites) {
+  commandMoveCardToPowerfield(sprites, number, player) {
     this._powerfield.moveAllCardsInlist(sprites);
+    this._powerfield.closeCards(sprites);
+    this._powerfield.openCards(sprites);
+    this._powerfield.setNumberColor(number, (player === GameConst.PLAYER_1) ? GameColors.BLUE : GameColors.RED);
+    this._powerfield.displayReverseOrdering();
   }
 
   commandGetPowerfieldSprites(index) {

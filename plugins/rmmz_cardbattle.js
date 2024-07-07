@@ -33,7 +33,7 @@ const GameConst = {
   CARDS_IN_DECK: 'CARDS_IN_DECK',
   CARDS_IN_HAND: 'CARDS_IN_HAND',
   CARDS_IN_TRASH: 'CARDS_IN_TRASH',
-
+  PLAYER_1: 'PLAYER_1',
 
 
 
@@ -2272,6 +2272,10 @@ class ActionSprite extends Sprite {
     this.setPosition(x, y);
   }
 
+  getPosition() {
+    return { x: this.x, y: this.y };
+  }
+
   setPosition(xPosition = this.x, yPosition = this.y) {
     this.x = xPosition;
     this.y = yPosition;
@@ -4503,7 +4507,29 @@ class CardsetSprite extends ActionSprite {
 
   commandCloseAllCards(sprites) {
     if (this.isHidden()) return false;
-    sprites.forEach(sprite => sprite.close());
+    sprites.forEach(sprite => {
+      const cardIndex = this.indexOfCardSprite(sprite);
+      const orderingSprite = this.getOrderingSpriteByIndex(cardIndex);
+      this.commandHideOrderingSprites([orderingSprite]);
+      sprite.close();
+    });
+  }
+
+  indexOfCardSprite(sprite) {
+    return this._sprites.indexOf(sprite);
+  }
+
+  getOrderingSpriteByIndex(index) {
+    return this._orderingSprites[index];
+  }
+
+  hideOrderingSprites(sprites) {
+    this.addCommand(this.commandHideOrderingSprites, sprites);
+  }
+
+  commandHideOrderingSprites(sprites) {
+    if (this.isHidden()) return false;
+    sprites.forEach(sprite => sprite.hide());
   }
 
   openCards(sprites = this._sprites, delay = 6, reverse = false) {
@@ -4535,6 +4561,9 @@ class CardsetSprite extends ActionSprite {
 
   commandCloseCard(sprite) {
     if (this.isHidden()) return false;
+    const cardIndex = this.indexOfCardSprite(sprite);
+    const orderingSprite = this.getOrderingSpriteByIndex(cardIndex);
+    this.commandHideOrderingSprites([orderingSprite]);
     sprite.close();
   }
 
@@ -4769,15 +4798,18 @@ class CardsetSprite extends ActionSprite {
 
   commandSetNumberColor(number, color) {
     const orderingSprite = this._orderingSprites[number - 1];
+    const cardSprite = this._sprites[number - 1];
     if (orderingSprite) {
-      this.redrawOrderingNumber(orderingSprite, number, ColorHelper.getColorHex(color));
+      this.redrawOrderingNumber(orderingSprite, number, cardSprite, ColorHelper.getColorHex(color));
     }
   }
 
-  redrawOrderingNumber(orderingSprite, number, colorHex) {
+  redrawOrderingNumber(orderingSprite, number, cardSprite, colorHex) {
     orderingSprite.bitmap.textColor = colorHex || orderingSprite.bitmap.textColor;
     orderingSprite.bitmap.clear();
     orderingSprite.number = number;
+    orderingSprite.x = (cardSprite.x + cardSprite.width) - orderingSprite.width;
+    orderingSprite.y = (cardSprite.y) - orderingSprite.height;
     orderingSprite.bitmap.drawText(number, 0, 0, orderingSprite.width, orderingSprite.height, 'center');
   }
 
@@ -4797,7 +4829,8 @@ class CardsetSprite extends ActionSprite {
     if (this.isHidden() || this.hasOrderingNumbers() === false) return false;
     this._orderingSprites.forEach(sprite => {
       const number = this._orderingSprites.length - (sprite.number - 1);
-      this.redrawOrderingNumber(sprite, number);
+      const cardSprite = this._sprites[number - 1];
+      this.redrawOrderingNumber(sprite, number, cardSprite);
     });
     this._orderingSprites.forEach(sprite => sprite.show());
   }
@@ -5327,8 +5360,9 @@ class ActivePowerCardPhaseStatus {
     if (Input.isTriggered('ok')) {
       manager.moveCardHandToPowerField(cardIndex);
       const sprite = that.commandGetPowerfieldSprites(cardIndex);
-      that.moveCardToPowerfield(sprite);
-      that.runPowerCard(manager);
+      const number = manager.getPowerfieldLength();
+      that.moveCardToPowerfield(sprite, number, GameConst.PLAYER_1);
+      // that.runPowerCard(manager);
     }
     if (Input.isTriggered('cancel')) {
       that.closeGameBoards();
@@ -7222,12 +7256,16 @@ class LoadPhase extends Phase {
     return this._cardPropsWindow.visible;
   }
 
-  moveCardToPowerfield(sprites) {
-    this.addAction(this.commandMoveCardToPowerfield, sprites);
+  moveCardToPowerfield(sprites, number, player) {
+    this.addAction(this.commandMoveCardToPowerfield, sprites, number, player);
   }
 
-  commandMoveCardToPowerfield(sprites) {
+  commandMoveCardToPowerfield(sprites, number, player) {
     this._powerfield.moveAllCardsInlist(sprites);
+    this._powerfield.closeCards(sprites);
+    this._powerfield.openCards(sprites);
+    this._powerfield.setNumberColor(number, (player === GameConst.PLAYER_1) ? GameColors.BLUE : GameColors.RED);
+    this._powerfield.displayReverseOrdering();
   }
 
   commandGetPowerfieldSprites(index) {
@@ -10661,6 +10699,7 @@ class LoadPhaseTest extends SceneTest {
       const newSet = this.manager.player.hand.filter((card, iCard) => iCard !== index);
       this.manager.setPlayerHand(newSet);
     },
+    getPowerfieldLength: () => this.manager.powerfield.length,
     startPlay: false,
     powerfield: [],
     player: {
@@ -10701,8 +10740,8 @@ class LoadPhaseTest extends SceneTest {
         { id: 1, type: GameConst.POWER, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
       ],
       hand: [
-        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
         { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
         { id: 1, type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
         { id: 1, type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
         { id: 1, type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },

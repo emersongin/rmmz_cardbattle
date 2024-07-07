@@ -42,6 +42,7 @@ class LoadPhaseTest extends SceneTest {
       const newSet = this.manager.player.hand.filter((card, iCard) => iCard !== index);
       this.manager.setPlayerHand(newSet);
     },
+    getPowerfieldLength: () => this.manager.powerfield.length,
     startPlay: false,
     powerfield: [],
     player: {
@@ -82,8 +83,8 @@ class LoadPhaseTest extends SceneTest {
         { id: 1, type: GameConst.POWER, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
       ],
       hand: [
-        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
         { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
         { id: 1, type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
         { id: 1, type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
         { id: 1, type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
