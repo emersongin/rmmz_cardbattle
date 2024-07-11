@@ -1,8 +1,9 @@
 class ActivePowerCardPhaseStatus {
   _phase;
   _cardIndex;
+  _player;
 
-  constructor(phase, cardIndexHand, manager) {
+  constructor(phase, cardIndexHand, manager, player) {
     if (phase instanceof LoadPhase === false) {
       throw new Error("phase is not an instance of LoadPhase");
     }
@@ -11,6 +12,7 @@ class ActivePowerCardPhaseStatus {
     // }
     this._phase = phase;
     this._cardIndex = cardIndexHand;
+    this._player = player;
     this.start(cardIndexHand, manager);
   }
 
@@ -34,12 +36,16 @@ class ActivePowerCardPhaseStatus {
   update(manager) {
     const that = this._phase;
     const cardIndex = this._cardIndex;
+    const player = this._player;
     if (Input.isTriggered('ok')) {
-      manager.moveCardHandToPowerField(cardIndex);
+      manager.moveCardHandToPowerField(cardIndex, player);
       const sprite = that.commandGetPowerfieldSprites(cardIndex);
       const number = manager.getPowerfieldLength();
-      that.moveCardToPowerfield(sprite, number, GameConst.PLAYER_1);
-      // that.runPowerCard(manager);
+      that.moveCardToPowerfield(sprite, number, player);
+      that.waitStatus();
+      that.setStep(GameConst.CHALLENGE_TURN_PHASE);
+      manager.resetPlayes();
+      manager.playerPassed();
     }
     if (Input.isTriggered('cancel')) {
       that.closeGameBoards();
@@ -52,12 +58,12 @@ class ActivePowerCardPhaseStatus {
     }
   }
 
-  activePowerCard(cardIndexHand, manager) {
+  activePowerCard(cardIndexHand, manager, player) {
     return false;
   }
 
-  runPowerCard(manager) {
-    this._phase.changeStatus(RunPowerCardPhaseStatus, manager);
+  runPowerCard(manager, powerCard) {
+    return false;
   }
 
   waitStatus() {

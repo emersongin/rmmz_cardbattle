@@ -30,19 +30,36 @@ class LoadPhaseTest extends SceneTest {
         type: GameConst.ADD_ENERGIES,
       };
     },
-    moveCardHandToPowerField: (index) => {
+    moveCardHandToPowerField: (index, player) => {
       const card = this.manager.getCardPlayerHandByIndex(index);
-      this.manager.addCardToPowerField(card);
+      this.manager.addCardToPowerField(card, player);
       this.manager.removeCardFromPlayerHand(index);
     },
-    addCardToPowerField: (card) => {
-      this.manager.powerfield.push(card);
+    addCardToPowerField: (card, player) => {
+      const cardSlot = { card, player };
+      this.manager.powerfield.push(cardSlot);
     },
     removeCardFromPlayerHand: (index) => {
       const newSet = this.manager.player.hand.filter((card, iCard) => iCard !== index);
       this.manager.setPlayerHand(newSet);
     },
     getPowerfieldLength: () => this.manager.powerfield.length,
+    resetPlayes: () => {
+      this.manager.player.passed = false;
+      this.manager.challenge.passed = false;
+    },
+    isStartPlays: () => {
+      return !this.manager.player.passed && !this.manager.challenge.passed;
+    },
+    isEndPlays: () => {
+      return this.manager.player.passed && this.manager.challenge.passed;
+    },
+    getPowerfieldLastCardSlot: () => {
+      return this.manager.powerfield[this.manager.powerfield.length - 1];
+    },
+    removePowerfieldLastCardSlot: () => {
+      return this.manager.powerfield.pop();
+    },
     startPlay: false,
     powerfield: [],
     player: {
@@ -172,11 +189,6 @@ class LoadPhaseTest extends SceneTest {
 
   update() {
     this.phase.update(this.manager);
-
-    if (this.phase.isBusy()) return false;
-    if (this.phase.isCurrentStep(GameConst.ACTIVE_POWER_CARD)) {
-      this.phase._status.update(this.manager);
-    }
   }
 
   asserts() {

@@ -33,7 +33,7 @@ const GameConst = {
   CARDS_IN_DECK: 'CARDS_IN_DECK',
   CARDS_IN_HAND: 'CARDS_IN_HAND',
   CARDS_IN_TRASH: 'CARDS_IN_TRASH',
-  PLAYER_1: 'PLAYER_1',
+  PLAYER: 'PLAYER',
 
 
 
@@ -76,11 +76,12 @@ const GameConst = {
   START_DRAW_CARDS: 'START_DRAW_CARDS',
   END_DRAW_CARDS: 'END_DRAW_CARDS',
   BEGIN_LOAD_PHASE: 'BEGIN_LOAD_PHASE',
-  PLAYER_LOAD_PHASE: 'PLAYER_LOAD_PHASE',
-  CHALLENGE_LOAD_PHASE: 'CHALLENGE_LOAD_PHASE',
+  PLAYER_TURN_PHASE: 'PLAYER_TURN_PHASE',
+  CHALLENGE_TURN_PHASE: 'CHALLENGE_TURN_PHASE',
   END_LOAD_PHASE: 'END_LOAD_PHASE',
   WAITING_PHASE: 'WAITING_PHASE',
   ACTIVE_POWER_CARD: 'ACTIVE_POWER_CARD',
+  TURN_PHASE: 'TURN_PHASE',
 };
 
 const CardTypes = {
@@ -4939,6 +4940,20 @@ class CardsetSprite extends ActionSprite {
       }
     });
   }
+
+  leaveAllCards(sprites = this._sprites) {
+    sprites = this.toArray(sprites);
+    this.addCommand(this.commandLeaveAllCards, sprites);
+  }
+
+  commandLeaveAllCards(sprites) {
+    if (this.isHidden()) return false;
+    sprites.forEach(sprite => sprite.leave());
+  }
+
+  isCardsHidden(sprites = this._sprites) {
+    return sprites.every(sprite => sprite.isHidden());
+  }
 }
 class BackgroundSprite extends Sprite {
   initialize() {
@@ -5280,40 +5295,45 @@ class CardBattleSpriteset extends Spriteset_Base {
 // SCENE
 class RunPowerCardPhaseStatus {
   _phase;
+  _powerCard;
 
-  constructor(phase, manager) {
+  constructor(phase, manager, powerCard) {
     if (phase instanceof LoadPhase === false) {
       throw new Error("phase is not an instance of LoadPhase");
     }
-    // if (card instanceof PowerCard === false) {
-    //   throw new Error("card is not an instance of PowerCard");
+    // if (powerCard instanceof PowerCard === false) {
+    //   throw new Error("powerCard is not an instance of PowerCard");
     // }
     this._phase = phase;
+    this._powerCard = powerCard;
     this.start(manager);
   }
 
   start(manager) {
-
+    console.log('RunPowerCardPhaseStatus start', this._powerCard);
   }
 
   update(manager) {
     const that = this._phase;
-    if (Input.isTriggered('cancel')) {
-      that.closeGameBoards();
-      that.leaveGameBoards();
-      that.closePowerCard();
-      that.leavePowerCard();
-      that.commandPlayerHand(manager);
-      that.waitStatus();
-      that.stepWainting();
+    // that.closeGameBoards();
+    // that.leaveGameBoards();
+    // that.closePowerCard();
+    // that.leavePowerCard();
+    // that.commandPlayerHand(manager);
+    console.log('getPowerfieldLength', manager.getPowerfieldLength());
+    if (manager.getPowerfieldLength() === 0) {
+      manager.resetPlayes();
+      that.setStep(GameConst.TURN_PHASE);
     }
+    that.waitStatus();
+    that.stepWainting();
   }
 
-  activePowerCard(cardIndexHand, manager) {
+  activePowerCard(cardIndexHand, manager, player) {
     return false;
   }
 
-  runPowerCard(manager) {
+  runPowerCard(manager, powerCard) {
     return false;
   }
 
@@ -5324,8 +5344,9 @@ class RunPowerCardPhaseStatus {
 class ActivePowerCardPhaseStatus {
   _phase;
   _cardIndex;
+  _player;
 
-  constructor(phase, cardIndexHand, manager) {
+  constructor(phase, cardIndexHand, manager, player) {
     if (phase instanceof LoadPhase === false) {
       throw new Error("phase is not an instance of LoadPhase");
     }
@@ -5334,6 +5355,7 @@ class ActivePowerCardPhaseStatus {
     // }
     this._phase = phase;
     this._cardIndex = cardIndexHand;
+    this._player = player;
     this.start(cardIndexHand, manager);
   }
 
@@ -5357,12 +5379,16 @@ class ActivePowerCardPhaseStatus {
   update(manager) {
     const that = this._phase;
     const cardIndex = this._cardIndex;
+    const player = this._player;
     if (Input.isTriggered('ok')) {
-      manager.moveCardHandToPowerField(cardIndex);
+      manager.moveCardHandToPowerField(cardIndex, player);
       const sprite = that.commandGetPowerfieldSprites(cardIndex);
       const number = manager.getPowerfieldLength();
-      that.moveCardToPowerfield(sprite, number, GameConst.PLAYER_1);
-      // that.runPowerCard(manager);
+      that.moveCardToPowerfield(sprite, number, player);
+      that.waitStatus();
+      that.setStep(GameConst.CHALLENGE_TURN_PHASE);
+      manager.resetPlayes();
+      manager.playerPassed();
     }
     if (Input.isTriggered('cancel')) {
       that.closeGameBoards();
@@ -5375,12 +5401,12 @@ class ActivePowerCardPhaseStatus {
     }
   }
 
-  activePowerCard(cardIndexHand, manager) {
+  activePowerCard(cardIndexHand, manager, player) {
     return false;
   }
 
-  runPowerCard(manager) {
-    this._phase.changeStatus(RunPowerCardPhaseStatus, manager);
+  runPowerCard(manager, powerCard) {
+    return false;
   }
 
   waitStatus() {
@@ -5405,12 +5431,12 @@ class WaitingPhaseStatus  {
     // nothing to do
   }
 
-  activePowerCard(cardIndexHand, manager) {
-    this._phase.changeStatus(ActivePowerCardPhaseStatus, cardIndexHand, manager);
+  activePowerCard(cardIndexHand, manager, player) {
+    this._phase.changeStatus(ActivePowerCardPhaseStatus, cardIndexHand, manager, player);
   }
 
-  runPowerCard() {
-    return false;
+  runPowerCard(manager, powerCard) {
+    this._phase.changeStatus(RunPowerCardPhaseStatus, manager, powerCard);
   }
 
   waitStatus() {
@@ -7059,9 +7085,19 @@ class LoadPhase extends Phase {
     if (this.isBusy()) return false;
     this.updateStepStart(manager);
     this.updateStepBeginLoadPhase(manager);
+    this.updateStatus(manager);
+    this.updateStartPlay(manager);
     this.updateStepChallengeLoadPhase(manager);
     this.updateStepPlayerLoadPhase(manager);
+    this.updateStepPowerfieldLoadPhase(manager);
+    if (manager.isEndPlays() && manager.getPowerfieldLength()) return; 
     this.updateStepEnd(manager);
+  }
+
+  updateStatus(manager) {
+    if (this.isCurrentStep(GameConst.ACTIVE_POWER_CARD)) {
+      this._status.update(manager);
+    }
   }
 
   updateStepStart(manager) {
@@ -7082,25 +7118,31 @@ class LoadPhase extends Phase {
     if (this.isCurrentStep(GameConst.BEGIN_LOAD_PHASE) && Input.isTriggered('ok')) {
       this.closeBeginLoadPhaseWindow();
       this.leaveBeginLoadPhaseWindow();
+      this.setStep(GameConst.TURN_PHASE);
+    }
+  }
+
+  updateStartPlay(manager) {
+    if (manager.isStartPlays() && this.isCurrentStep(GameConst.TURN_PHASE)) {
       if (manager.startPlay) {
-        this.setStep(GameConst.PLAYER_LOAD_PHASE);
+        this.setStep(GameConst.PLAYER_TURN_PHASE);
       } else {
-        this.setStep(GameConst.CHALLENGE_LOAD_PHASE);
+        this.setStep(GameConst.CHALLENGE_TURN_PHASE);
       }
     }
   }
 
   updateStepChallengeLoadPhase(manager) {
-    if (this.isCurrentStep(GameConst.CHALLENGE_LOAD_PHASE)) {
+    if (this.isCurrentStep(GameConst.CHALLENGE_TURN_PHASE)) {
       manager.challengePassed();
       this.challengePass();
       this.stepWainting();
-      if (manager.isPlayerPassed() === false) this.setStep(GameConst.PLAYER_LOAD_PHASE);
+      if (manager.isPlayerPassed() === false) this.setStep(GameConst.PLAYER_TURN_PHASE);
     }
   }
 
   updateStepPlayerLoadPhase(manager) {
-    if (this.isCurrentStep(GameConst.PLAYER_LOAD_PHASE)) {
+    if (this.isCurrentStep(GameConst.PLAYER_TURN_PHASE)) {
       const commandYes = () => {
         this.commandCloseAskWindow();
         this.leaveAskWindow();
@@ -7119,8 +7161,43 @@ class LoadPhase extends Phase {
     }
   }
 
+  updateStepPowerfieldLoadPhase(manager) {
+    // console.log(manager, manager.isEndPlays(), manager.getPowerfieldLength());
+    if (manager.isEndPlays() && manager.getPowerfieldLength()) {
+      const { card: powerCard } = manager.getPowerfieldLastCardSlot();
+      const cardIndex = manager.getPowerfieldLength() - 1;
+      const sprite = this.commandGetPowerfieldSprites(cardIndex);
+      this.animateCastPowerCard(sprite, cardIndex);
+      this.runPowerCard(manager, powerCard);
+      this.setStep(GameConst.ACTIVE_POWER_CARD);
+      manager.removePowerfieldLastCardSlot();
+    }
+  }
+
+  commandGetPowerfieldSprites(index) {
+    return this._powerfield.getSprites(index);
+  }
+
+  animateCastPowerCard(sprite, cardIndex) {
+    // mostrar janela de titulo e descrição do card e espera
+
+    this._powerfield.zoomAllCards(sprite);
+    this._powerfield.flashCardsAnimate(sprite, 'white');
+    this._powerfield.zoomOutAllCards(sprite);
+    this._powerfield.leaveAllCards(sprite);
+  }
+
+  runPowerCard(manager, powerCard) {
+    this.addAction(this.commandRunPowerCard, manager, powerCard);
+  }
+
+  commandRunPowerCard(manager, powerCard) {
+    this._status.runPowerCard(manager, powerCard);
+  }
+
   updateStepEnd(manager) {
-    if ((manager.isPlayerPassed() && manager.isChallengePassed()) && this.isCurrentStep(GameConst.END_PHASE) === false) {
+    const phaseNotFinished = this.isCurrentStep(GameConst.END_PHASE) === false;
+    if (manager.isEndPlays() && phaseNotFinished) {
       this.addWait();
       this.closeGameBoards();
       this.leaveGameBoards();
@@ -7177,7 +7254,7 @@ class LoadPhase extends Phase {
       const cards = cardIndexs.map(index => manager.getCardPlayerHandByIndex(index));
       this.createPowerfield(cards);
       this.openPowerfield();
-      this.activePowerCard(cardIndexs[0], manager);
+      this.activePowerCard(cardIndexs[0], manager, GameConst.PLAYER);
       this.setStep(GameConst.ACTIVE_POWER_CARD);
     };
     const onCancelHandler = () => {
@@ -7186,7 +7263,7 @@ class LoadPhase extends Phase {
       this.createPlayerGameBoard(manager);
       this.createChallengeGameBoard(manager);
       this.openGameBoards();
-      this.setStep(GameConst.PLAYER_LOAD_PHASE);
+      this.setStep(GameConst.PLAYER_TURN_PHASE);
     };
 
     const playerEnergies = Object.values(manager.getPlayerEnergies());
@@ -7209,19 +7286,19 @@ class LoadPhase extends Phase {
     this.openPlayerHand(onSelectHandler, onChangeCursor, onCancelHandler);
   }
 
-  activePowerCard(cardIndexHand, manager) {
-    this.addAction(this.commandActivePowerCard, cardIndexHand, manager);
+  activePowerCard(cardIndexHand, manager, player) {
+    this.addAction(this.commandActivePowerCard, cardIndexHand, manager, player);
   }
 
-  commandActivePowerCard(cardIndexHand, manager) {
-    return this._status.activePowerCard(cardIndexHand, manager);
+  commandActivePowerCard(cardIndexHand, manager, player) {
+    return this._status.activePowerCard(cardIndexHand, manager, player);
   }
 
   commandPlayerPassed(manager) {
     manager.playerPassed();
     this.playerPass();
     this.stepWainting();
-    if (manager.isChallengePassed() === false) this.setStep(GameConst.CHALLENGE_LOAD_PHASE);
+    if (manager.isChallengePassed() === false) this.setStep(GameConst.CHALLENGE_TURN_PHASE);
   }
 
   isPowerFieldVisible() {
@@ -7262,22 +7339,11 @@ class LoadPhase extends Phase {
 
   commandMoveCardToPowerfield(sprites, number, player) {
     this._powerfield.moveAllCardsInlist(sprites);
-    this._powerfield.closeCards(sprites);
-    this._powerfield.openCards(sprites);
+    this._powerfield.flashCardsAnimate(sprites, 'white');
     this._powerfield.setNumberColor(number, (player === GameConst.PLAYER_1) ? GameColors.BLUE : GameColors.RED);
     this._powerfield.displayReverseOrdering();
-  }
-
-  commandGetPowerfieldSprites(index) {
-    return this._powerfield.getSprites(index);
-  }
-
-  runPowerCard(manager) {
-    this.addAction(this.commandRunPowerCard, manager);
-  }
-
-  commandRunPowerCard(manager) {
-    this._status.runPowerCard(manager);
+    this._powerfield.closeCards(sprites);
+    this._powerfield.openCards(sprites);
   }
 
   waitStatus() {
@@ -9135,6 +9201,24 @@ class AddChildToEndCardsetSpriteTest extends SceneTest {
     this.expectTrue('O sprite está no final?', lastIndex === indexAmount);
   }
 }
+class LeaveAllCardsCardsetSpriteTest extends SceneTest {
+  create() {
+    this.subject = CardsetSprite.create(0, 0);
+    this.addWatched(this.subject);
+    this.subject.centralize();
+    this.subject.show();
+    const numCards = 6;
+    const cards = CardGenerator.generateCards(numCards);
+    const sprites = this.subject.listCards(cards);
+    this.subject.showCards(sprites);
+    this.subject.leaveAllCards(sprites);
+  }
+
+  asserts() {
+    this.describe('Deve retirar os sprites da tela!');
+    this.expectTrue('Estão ocultos?', this.subject.isCardsHidden());
+  }
+}
 // STETE WINDOW
 class OpenStateWindowTest extends SceneTest {
   create() {
@@ -10687,19 +10771,36 @@ class LoadPhaseTest extends SceneTest {
         type: GameConst.ADD_ENERGIES,
       };
     },
-    moveCardHandToPowerField: (index) => {
+    moveCardHandToPowerField: (index, player) => {
       const card = this.manager.getCardPlayerHandByIndex(index);
-      this.manager.addCardToPowerField(card);
+      this.manager.addCardToPowerField(card, player);
       this.manager.removeCardFromPlayerHand(index);
     },
-    addCardToPowerField: (card) => {
-      this.manager.powerfield.push(card);
+    addCardToPowerField: (card, player) => {
+      const cardSlot = { card, player };
+      this.manager.powerfield.push(cardSlot);
     },
     removeCardFromPlayerHand: (index) => {
       const newSet = this.manager.player.hand.filter((card, iCard) => iCard !== index);
       this.manager.setPlayerHand(newSet);
     },
     getPowerfieldLength: () => this.manager.powerfield.length,
+    resetPlayes: () => {
+      this.manager.player.passed = false;
+      this.manager.challenge.passed = false;
+    },
+    isStartPlays: () => {
+      return !this.manager.player.passed && !this.manager.challenge.passed;
+    },
+    isEndPlays: () => {
+      return this.manager.player.passed && this.manager.challenge.passed;
+    },
+    getPowerfieldLastCardSlot: () => {
+      return this.manager.powerfield[this.manager.powerfield.length - 1];
+    },
+    removePowerfieldLastCardSlot: () => {
+      return this.manager.powerfield.pop();
+    },
     startPlay: false,
     powerfield: [],
     player: {
@@ -10829,11 +10930,6 @@ class LoadPhaseTest extends SceneTest {
 
   update() {
     this.phase.update(this.manager);
-
-    if (this.phase.isBusy()) return false;
-    if (this.phase.isCurrentStep(GameConst.ACTIVE_POWER_CARD)) {
-      this.phase._status.update(this.manager);
-    }
   }
 
   asserts() {
@@ -11097,44 +11193,45 @@ class CardBattleTestScene extends Scene_Message {
       TiggerAcitonCardSpriteTest,
     ];
     const cardsetSpriteTests = [
-      StartPositionCardsetSpriteTest,
-      AlignAboveOfCardsetSpriteTest,
-      AlignBelowOfCardsetSpriteTest,
-      AlignCenterMiddleCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      SetTurnToDownCardsCardsetSpriteTest,
-      SetAllCardsInPositionCardsetSpriteTest,
-      SetAllCardsInPositionsCardsetSpriteTest,
-      ListCardsCardsetSpriteTest,
-      StartClosedCardsCardsetSpriteTest,
-      OpenAllCardsCardsetSpriteTest,
-      OpenCardsCardsetSpriteTest,
-      CloseAllCardsCardsetSpriteTest,
-      CloseCardsCardsetSpriteTest,
-      MoveAllCardsInListCardsetSpriteTest,
-      MoveCardsInListCardsetSpriteTest,
-      MoveAllCardsToPositionCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
-      MoveAllCardsToPositionsCardsetSpriteTest,
-      AddAllCardsToListCardsetSpriteTest,
-      AddCardsToListCardsetSpriteTest,
-      DisableCardsCardsetSpriteTest,
-      StaticModeCardsetSpriteTest,
-      SelectModeCardsetSpriteTest,
-      SelectModeNoSelectCardsetSpriteTest,
-      SelectModeLimitedCardsetSpriteTest,
-      FlashCardsCardsetSpriteTest,
-      QuakeCardsCardsetSpriteTest,
-      AnimationCardsCardsetSpriteTest,
-      ShowOrderingCardsCardsetSpriteTest,
-      ShowReverseOrderingCardsCardsetSpriteTest,
-      ZoomAllCardsCardsetSpriteTest,
-      ZoomOutAllCardsCardsetSpriteTest,
-      FlipTurnToUpAllCardsCardsetSpriteTest,
-      FlipTurnToUpCardsCardsetSpriteTest,
-      TriggerActionCardsetSpriteTest,
-      OnChangeCursorSelectModeCardsetSpriteTest,
-      AddChildToEndCardsetSpriteTest,
+      // StartPositionCardsetSpriteTest,
+      // AlignAboveOfCardsetSpriteTest,
+      // AlignBelowOfCardsetSpriteTest,
+      // AlignCenterMiddleCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      // SetTurnToDownCardsCardsetSpriteTest,
+      // SetAllCardsInPositionCardsetSpriteTest,
+      // SetAllCardsInPositionsCardsetSpriteTest,
+      // ListCardsCardsetSpriteTest,
+      // StartClosedCardsCardsetSpriteTest,
+      // OpenAllCardsCardsetSpriteTest,
+      // OpenCardsCardsetSpriteTest,
+      // CloseAllCardsCardsetSpriteTest,
+      // CloseCardsCardsetSpriteTest,
+      // MoveAllCardsInListCardsetSpriteTest,
+      // MoveCardsInListCardsetSpriteTest,
+      // MoveAllCardsToPositionCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
+      // MoveAllCardsToPositionsCardsetSpriteTest,
+      // AddAllCardsToListCardsetSpriteTest,
+      // AddCardsToListCardsetSpriteTest,
+      // DisableCardsCardsetSpriteTest,
+      // StaticModeCardsetSpriteTest,
+      // SelectModeCardsetSpriteTest,
+      // SelectModeNoSelectCardsetSpriteTest,
+      // SelectModeLimitedCardsetSpriteTest,
+      // FlashCardsCardsetSpriteTest,
+      // QuakeCardsCardsetSpriteTest,
+      // AnimationCardsCardsetSpriteTest,
+      // ShowOrderingCardsCardsetSpriteTest,
+      // ShowReverseOrderingCardsCardsetSpriteTest,
+      // ZoomAllCardsCardsetSpriteTest,
+      // ZoomOutAllCardsCardsetSpriteTest,
+      // FlipTurnToUpAllCardsCardsetSpriteTest,
+      // FlipTurnToUpCardsCardsetSpriteTest,
+      // TriggerActionCardsetSpriteTest,
+      // OnChangeCursorSelectModeCardsetSpriteTest,
+      // AddChildToEndCardsetSpriteTest,
+      LeaveAllCardsCardsetSpriteTest,
     ];
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,

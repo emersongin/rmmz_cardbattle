@@ -655,4 +655,18 @@ class CardsetSprite extends ActionSprite {
       }
     });
   }
+
+  leaveAllCards(sprites = this._sprites) {
+    sprites = this.toArray(sprites);
+    this.addCommand(this.commandLeaveAllCards, sprites);
+  }
+
+  commandLeaveAllCards(sprites) {
+    if (this.isHidden()) return false;
+    sprites.forEach(sprite => sprite.leave());
+  }
+
+  isCardsHidden(sprites = this._sprites) {
+    return sprites.every(sprite => sprite.isHidden());
+  }
 }

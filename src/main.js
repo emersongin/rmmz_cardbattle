@@ -104,6 +104,7 @@
 // include ../test/integration/cardset/TriggerActionCardsetSpriteTest.js
 // include ../test/integration/cardset/OnChangeCursorSelectModeCardsetSpriteTest.js
 // include ../test/integration/cardset/AddChildToEndCardsetSpriteTest.js
+// include ../test/integration/cardset/LeaveAllCardsCardsetSpriteTest.js
 // STETE WINDOW
 // include ../test/integration/statewindow/OpenStateWindowTest.js
 // include ../test/integration/statewindow/CloseStateWindowTest.js

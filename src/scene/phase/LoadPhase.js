@@ -366,9 +366,19 @@ class LoadPhase extends Phase {
     if (this.isBusy()) return false;
     this.updateStepStart(manager);
     this.updateStepBeginLoadPhase(manager);
+    this.updateStatus(manager);
+    this.updateStartPlay(manager);
     this.updateStepChallengeLoadPhase(manager);
     this.updateStepPlayerLoadPhase(manager);
+    this.updateStepPowerfieldLoadPhase(manager);
+    if (manager.isEndPlays() && manager.getPowerfieldLength()) return; 
     this.updateStepEnd(manager);
+  }
+
+  updateStatus(manager) {
+    if (this.isCurrentStep(GameConst.ACTIVE_POWER_CARD)) {
+      this._status.update(manager);
+    }
   }
 
   updateStepStart(manager) {
@@ -389,25 +399,31 @@ class LoadPhase extends Phase {
     if (this.isCurrentStep(GameConst.BEGIN_LOAD_PHASE) && Input.isTriggered('ok')) {
       this.closeBeginLoadPhaseWindow();
       this.leaveBeginLoadPhaseWindow();
+      this.setStep(GameConst.TURN_PHASE);
+    }
+  }
+
+  updateStartPlay(manager) {
+    if (manager.isStartPlays() && this.isCurrentStep(GameConst.TURN_PHASE)) {
       if (manager.startPlay) {
-        this.setStep(GameConst.PLAYER_LOAD_PHASE);
+        this.setStep(GameConst.PLAYER_TURN_PHASE);
       } else {
-        this.setStep(GameConst.CHALLENGE_LOAD_PHASE);
+        this.setStep(GameConst.CHALLENGE_TURN_PHASE);
       }
     }
   }
 
   updateStepChallengeLoadPhase(manager) {
-    if (this.isCurrentStep(GameConst.CHALLENGE_LOAD_PHASE)) {
+    if (this.isCurrentStep(GameConst.CHALLENGE_TURN_PHASE)) {
       manager.challengePassed();
       this.challengePass();
       this.stepWainting();
-      if (manager.isPlayerPassed() === false) this.setStep(GameConst.PLAYER_LOAD_PHASE);
+      if (manager.isPlayerPassed() === false) this.setStep(GameConst.PLAYER_TURN_PHASE);
     }
   }
 
   updateStepPlayerLoadPhase(manager) {
-    if (this.isCurrentStep(GameConst.PLAYER_LOAD_PHASE)) {
+    if (this.isCurrentStep(GameConst.PLAYER_TURN_PHASE)) {
       const commandYes = () => {
         this.commandCloseAskWindow();
         this.leaveAskWindow();
@@ -426,8 +442,43 @@ class LoadPhase extends Phase {
     }
   }
 
+  updateStepPowerfieldLoadPhase(manager) {
+    // console.log(manager, manager.isEndPlays(), manager.getPowerfieldLength());
+    if (manager.isEndPlays() && manager.getPowerfieldLength()) {
+      const { card: powerCard } = manager.getPowerfieldLastCardSlot();
+      const cardIndex = manager.getPowerfieldLength() - 1;
+      const sprite = this.commandGetPowerfieldSprites(cardIndex);
+      this.animateCastPowerCard(sprite, cardIndex);
+      this.runPowerCard(manager, powerCard);
+      this.setStep(GameConst.ACTIVE_POWER_CARD);
+      manager.removePowerfieldLastCardSlot();
+    }
+  }
+
+  commandGetPowerfieldSprites(index) {
+    return this._powerfield.getSprites(index);
+  }
+
+  animateCastPowerCard(sprite, cardIndex) {
+    // mostrar janela de titulo e descrição do card e espera
+
+    this._powerfield.zoomAllCards(sprite);
+    this._powerfield.flashCardsAnimate(sprite, 'white');
+    this._powerfield.zoomOutAllCards(sprite);
+    this._powerfield.leaveAllCards(sprite);
+  }
+
+  runPowerCard(manager, powerCard) {
+    this.addAction(this.commandRunPowerCard, manager, powerCard);
+  }
+
+  commandRunPowerCard(manager, powerCard) {
+    this._status.runPowerCard(manager, powerCard);
+  }
+
   updateStepEnd(manager) {
-    if ((manager.isPlayerPassed() && manager.isChallengePassed()) && this.isCurrentStep(GameConst.END_PHASE) === false) {
+    const phaseNotFinished = this.isCurrentStep(GameConst.END_PHASE) === false;
+    if (manager.isEndPlays() && phaseNotFinished) {
       this.addWait();
       this.closeGameBoards();
       this.leaveGameBoards();
@@ -484,7 +535,7 @@ class LoadPhase extends Phase {
       const cards = cardIndexs.map(index => manager.getCardPlayerHandByIndex(index));
       this.createPowerfield(cards);
       this.openPowerfield();
-      this.activePowerCard(cardIndexs[0], manager);
+      this.activePowerCard(cardIndexs[0], manager, GameConst.PLAYER);
       this.setStep(GameConst.ACTIVE_POWER_CARD);
     };
     const onCancelHandler = () => {
@@ -493,7 +544,7 @@ class LoadPhase extends Phase {
       this.createPlayerGameBoard(manager);
       this.createChallengeGameBoard(manager);
       this.openGameBoards();
-      this.setStep(GameConst.PLAYER_LOAD_PHASE);
+      this.setStep(GameConst.PLAYER_TURN_PHASE);
     };
 
     const playerEnergies = Object.values(manager.getPlayerEnergies());
@@ -516,19 +567,19 @@ class LoadPhase extends Phase {
     this.openPlayerHand(onSelectHandler, onChangeCursor, onCancelHandler);
   }
 
-  activePowerCard(cardIndexHand, manager) {
-    this.addAction(this.commandActivePowerCard, cardIndexHand, manager);
+  activePowerCard(cardIndexHand, manager, player) {
+    this.addAction(this.commandActivePowerCard, cardIndexHand, manager, player);
   }
 
-  commandActivePowerCard(cardIndexHand, manager) {
-    return this._status.activePowerCard(cardIndexHand, manager);
+  commandActivePowerCard(cardIndexHand, manager, player) {
+    return this._status.activePowerCard(cardIndexHand, manager, player);
   }
 
   commandPlayerPassed(manager) {
     manager.playerPassed();
     this.playerPass();
     this.stepWainting();
-    if (manager.isChallengePassed() === false) this.setStep(GameConst.CHALLENGE_LOAD_PHASE);
+    if (manager.isChallengePassed() === false) this.setStep(GameConst.CHALLENGE_TURN_PHASE);
   }
 
   isPowerFieldVisible() {
@@ -569,22 +620,11 @@ class LoadPhase extends Phase {
 
   commandMoveCardToPowerfield(sprites, number, player) {
     this._powerfield.moveAllCardsInlist(sprites);
-    this._powerfield.closeCards(sprites);
-    this._powerfield.openCards(sprites);
+    this._powerfield.flashCardsAnimate(sprites, 'white');
     this._powerfield.setNumberColor(number, (player === GameConst.PLAYER_1) ? GameColors.BLUE : GameColors.RED);
     this._powerfield.displayReverseOrdering();
-  }
-
-  commandGetPowerfieldSprites(index) {
-    return this._powerfield.getSprites(index);
-  }
-
-  runPowerCard(manager) {
-    this.addAction(this.commandRunPowerCard, manager);
-  }
-
-  commandRunPowerCard(manager) {
-    this._status.runPowerCard(manager);
+    this._powerfield.closeCards(sprites);
+    this._powerfield.openCards(sprites);
   }
 
   waitStatus() {
