@@ -33,6 +33,10 @@ class ActivePowerCardPhaseStatus {
     }
   }
 
+  isBusy() {
+    return false;
+  }
+
   update(manager) {
     const that = this._phase;
     const cardIndex = this._cardIndex;

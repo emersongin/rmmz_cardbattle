@@ -18,6 +18,10 @@ class RunPowerCardPhaseStatus {
     console.log('RunPowerCardPhaseStatus start', this._powerCard);
   }
 
+  isBusy() {
+    return false;
+  }
+
   update(manager) {
     const that = this._phase;
     // that.closeGameBoards();

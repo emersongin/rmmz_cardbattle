@@ -30,7 +30,6 @@ class Phase {
       throw new Error('Scene must be an instance of Scene_Message');
     }
     this._scene = scene;
-    this.changeStatus(WaitingPhaseStatus);
   }
 
   changeStatus(status, ...params) {
