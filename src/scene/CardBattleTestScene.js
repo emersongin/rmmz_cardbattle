@@ -1,9 +1,13 @@
+// include ./step/Step.js
+// include ./step/ChallengeStep.js
+
 class CardBattleTestScene extends Scene_Message {
   initialize() {
     super.initialize();
     this._animationSprites = [];
     this._next = null;
     this._tests = [];
+    this._status = null;
     this._phase = null;
   }
 
@@ -194,6 +198,9 @@ class CardBattleTestScene extends Scene_Message {
       // DrawPhaseTest,
       LoadPhaseTest,
     ];
+    const steps = [
+      ChallengeStepTest
+    ];
     return [
       // ...cardSpriteTests,
       // ...cardsetSpriteTests,
@@ -205,7 +212,8 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      ...phase,
+      // ...phase,
+      ...steps,
     ];
   }
 
@@ -345,5 +353,13 @@ class CardBattleTestScene extends Scene_Message {
 
   setPhase(phase) {
     this._phase = phase;
+  }
+
+  getPhase() {
+    return this._phase;
+  }
+
+  setStep(step) {
+    this._status = step;
   }
 }

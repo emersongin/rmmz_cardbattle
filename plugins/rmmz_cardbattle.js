@@ -7281,7 +7281,6 @@ class LoadPhase extends Phase {
   _powerfield = {};
 
   start(manager) {
-    console.log('1');
     this.changeStatus(WaitingPhaseStatus);
 
     // const title = 'Load Phase';
@@ -11014,6 +11013,36 @@ class LoadPhaseTest extends SceneTest {
   }
 }
 
+
+// STEPS
+class ChallengeStepTest extends SceneTest {
+  manager = {
+    getChallengeDescription: () => 'Desafie um amigo para uma partida de xadrez.',
+  };
+  step;
+
+  create() {
+    this.step = new ChallengeStep(this._scene);
+    this.addHiddenWatched(this.step);
+  }
+
+  start() {
+    this._scene.setPhase(GameConst.CHALLENGE_PHASE);
+    this._scene.setStep(this.phase);
+    this.step.start(this.manager);
+  }
+
+  update() {
+    this.step.update(this.manager);
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar etapa de apresentação de desafiado.');
+    this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
+    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', this.step.isDescriptionWindowVisible);
+  }
+}
+
 class CardBattleManagerDrawPhaseState {
   _manager;
 
@@ -11194,12 +11223,252 @@ class CardBattleManager {
     return this._phase instanceof StartPhase;
   }
 }
+class Step {
+  _scene;
+  _actionsQueue = [];
+  _wait = 0;
+
+  constructor(scene) {
+    if ((scene instanceof Scene_Message) === false) {
+      throw new Error('Scene must be an instance of Scene_Message');
+    }
+    this._scene = scene;
+  }
+
+  update() {
+    if (this._wait > 0) return this._wait--;
+    if (this.hasActions() && this.isAvailable()) this.executeAction();
+  }
+
+  hasActions() {
+    return this._actionsQueue.length > 0;
+  }
+
+  
+  isAvailable() {
+    return this.isBusy() === false;
+  }
+
+  isBusy() {
+    const children = [];
+    return this._wait > 0 || children.some(obj => (obj.isBusy ? obj.isBusy() : false)) || this.someChildrenIsBusy();
+  }
+
+  someChildrenIsBusy() {
+    if (!this._scene.children || this._scene.children.length === 0) return false;
+    return this._scene.children.some(sprite => {
+      return (sprite instanceof CardsetSprite) && (sprite.hasCommands() || sprite.isBusy());
+    });
+  }
+
+  executeAction() {
+    const actions = this._actionsQueue[0];
+    if (actions.length > 0) {
+      const completed = this.processActions(actions);
+      if (completed) {
+        this._actionsQueue.shift();
+      }
+    }
+  }
+
+  processActions(actions) {
+    let processed = false;
+    for (const action of actions) {
+      const completed = action.execute();
+      if (completed) {
+        processed = true;
+        continue;
+      }
+      break;
+    }
+    return processed;
+  }
+
+  addAction(fn, ...params) {
+    const action = this.createAction(fn, ...params);
+    const actions = ArrayHelper.toArray(action);
+    this._actionsQueue.push(actions);
+  }
+
+  createAction(fn, ...params) {
+    const action = { 
+      fn: fn.name || 'anonymous',
+      execute: () => {
+        const result = fn.call(this, ...params);
+        return typeof result === 'boolean' ? result : true;
+      }
+    };
+    return action;
+  }
+
+  addActions(actions) {
+    actions = ArrayHelper.toArray(actions);
+    actions = actions.map((fn, ...params) => {
+      if (Array.isArray(fn)) return this.createAction(fn[0], ...fn.slice(1));
+      return this.createAction(fn)
+    });
+    this._actionsQueue.push(actions);
+  }
+
+  addWait(seconds = 0.6) {
+    this.addAction(this.commandWait, seconds);
+  }
+
+  commandWait(seconds) {
+    this._wait = seconds * GameConst.FPS;
+  }
+
+  addChild(child) {
+    this.addAction(this.commandAddChild, child);
+  }
+
+  commandAddChild(child) {
+    if (child instanceof Window_Base) {
+      this._scene.addWindow(child);
+    } else {
+      this._scene.addChild(child);
+    }
+  }
+
+  removeChildren(children) {
+    children.forEach(child => this.removeChild(child));
+  }
+
+  getPhase() {
+    return this._scene.getPhase();
+  }
+}
+class ChallengeStep extends Step {
+  _titleWindow = {};
+  _descriptionWindow = {};
+
+  start(manager) {
+    const phase = this.getPhase();
+    const title = this.getPhaseTitle(phase);
+    const description = manager.getChallengeDescription();
+    this.createTitleWindow(title);
+    this.createDescriptionWindow(description);
+    this.openTextWindows();
+  }
+
+  getPhaseTitle(phase) {
+    switch (phase) {
+      case GameConst.CHALLENGE_PHASE:
+        return 'Challenge Phase';
+        break;
+      default:
+        return 'Unknown Phase';
+        break;
+    }
+  }
+
+  createTitleWindow(text) {
+    const title = TextWindow.setTextColor(text, GameColors.ORANGE);
+    const titleWindow = TextWindow.createWindowFullSize(0, 0, [title]);
+    titleWindow.alignBelowOf({ y: 200, height: 0 });
+    titleWindow.alignTextCenter();
+    this.addAction(this.commandCreateTitleWindow, titleWindow);
+    return titleWindow;
+  }
+
+  commandCreateTitleWindow(titleWindow) {
+    this._titleWindow = titleWindow;
+    this.commandAddChild(titleWindow);
+  }
+
+  createDescriptionWindow(...texts) {
+    const maxSize = 3;
+    const heightLines = Array(maxSize).fill('\n');
+    const content = [...texts, ...heightLines];
+    const maxContent = content.slice(0, maxSize);
+    const descriptionWindow = TextWindow.createWindowFullSize(0, 0, maxContent);
+    descriptionWindow.alignCenterBelowMiddle();
+    this.addAction(this.commandCreateDescriptionWindow, descriptionWindow);
+    return descriptionWindow;
+  }
+
+  commandCreateDescriptionWindow(descriptionWindow) {
+    this._descriptionWindow = descriptionWindow;
+    this.commandAddChild(descriptionWindow);
+  }
+
+  openTextWindows() {
+    this.addActions([
+      this.commandOpenTitleWindow,
+      this.commandOpenDescriptionWindow,
+    ]);
+  }
+
+  commandOpenTitleWindow() {
+    this._titleWindow.open();
+  }
+
+  commandOpenDescriptionWindow() {
+    this._descriptionWindow.open();
+  }
+
+  update(manager) {
+    super.update();
+    if (this.isBusy()) return false;
+    if (Input.isTriggered('ok')) {
+      const phase = this.getPhase();
+      this.commandCloseTextWindows();
+      this.leaveTextWindows();
+      this.addWait();
+      this.finish(phase);
+    }
+  }
+
+  commandCloseTextWindows() {
+    this.commandCloseTitleWindow();
+    this.commandCloseDescriptionWindow();
+  }
+
+  commandCloseTitleWindow() {
+    this._titleWindow.close();
+  } 
+
+  commandCloseDescriptionWindow() {
+    this._descriptionWindow.close();
+  }
+
+  leaveTextWindows() {
+    this.addAction(this.commandLeaveTextWindows);
+  }
+
+  commandLeaveTextWindows() {
+    this.removeChildren([
+      this._titleWindow,
+      this._descriptionWindow,
+    ]);
+  }
+
+  finish(phase) {
+    switch (phase) {
+      case null:
+        break;
+      default:
+        break;
+    }
+  }
+
+  isTitleWindowVisible() {
+    return this._titleWindow.visible;
+  }
+
+  isDescriptionWindowVisible() {
+    return this._descriptionWindow.visible;
+  }
+  
+}
+
 class CardBattleTestScene extends Scene_Message {
   initialize() {
     super.initialize();
     this._animationSprites = [];
     this._next = null;
     this._tests = [];
+    this._status = null;
     this._phase = null;
   }
 
@@ -11390,6 +11659,9 @@ class CardBattleTestScene extends Scene_Message {
       // DrawPhaseTest,
       LoadPhaseTest,
     ];
+    const steps = [
+      ChallengeStepTest
+    ];
     return [
       // ...cardSpriteTests,
       // ...cardsetSpriteTests,
@@ -11401,7 +11673,8 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      ...phase,
+      // ...phase,
+      ...steps,
     ];
   }
 
@@ -11541,6 +11814,14 @@ class CardBattleTestScene extends Scene_Message {
 
   setPhase(phase) {
     this._phase = phase;
+  }
+
+  getPhase() {
+    return this._phase;
+  }
+
+  setStep(step) {
+    this._status = step;
   }
 }
 class CardBattleScene extends Scene_Message {

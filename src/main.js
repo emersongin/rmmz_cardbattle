@@ -195,6 +195,10 @@
 // include ../test/integration/phase/DrawPhaseTest.js
 // include ../test/integration/phase/LoadPhaseTest.js
 
+
+// STEPS
+// include ../test/integration/step/ChallengeStepTest.js
+
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js
 // include ./scene/CardBattleScene.js
