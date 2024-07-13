@@ -204,7 +204,8 @@ class CardBattleTestScene extends Scene_Message {
       ChallengePhaseDisplayStepTest,
       ChallengePhaseFolderStepTest,
       StartPhaseDisplayStepTest,
-      StartPhaseMiniGameStepTest
+      StartPhaseMiniGameStepTest,
+      DrawPhaseDisplayStepTest,
     ];
     return [
       // ...cardSpriteTests,

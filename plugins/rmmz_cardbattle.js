@@ -35,6 +35,9 @@ const GameConst = {
   CARDS_IN_TRASH: 'CARDS_IN_TRASH',
   PLAYER: 'PLAYER',
 
+  CHALLENGE_PHASE: 'CHALLENGE_PHASE',
+  START_PHASE: 'START_PHASE',
+  DRAW_PHASE: 'DRAW_PHASE',
 
 
 
@@ -67,7 +70,6 @@ const GameConst = {
   RED_COLOR: 'RED_COLOR',
   BLUE_COLOR: 'BLUE_COLOR',
   FPS: 60,
-  START_PHASE: 'START_PHASE',
   END_PHASE: 'END_PHASE',
   START_SELECT_FOLDER: 'START_SELECT_FOLDER',
   END_SELECT_FOLDER: 'END_SELECT_FOLDER',
@@ -11138,6 +11140,33 @@ class StartPhaseMiniGameStepTest extends SceneTest {
     this.expectTrue('O resultado do jogo da sorte foi apresentado?', typeof this.manager.getWin() === 'boolean');
   }
 }
+class DrawPhaseDisplayStepTest extends SceneTest {
+  manager = {
+    getChallengeDescription: () => 'Desafie um amigo para uma partida de xadrez.',
+  };
+  step;
+
+  create() {
+    this.step = new DisplayStep(this._scene, this.createHandler());
+    this.addHiddenWatched(this.step);
+  }
+
+  start() {
+    this._scene.setPhase(GameConst.DRAW_PHASE);
+    this._scene.setStep(this.step);
+    this.step.start(this.manager);
+  }
+
+  update() {
+    this.step.update(this.manager);
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar etapa de apresentação de sacar cartas.');
+    this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
+    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', this.step.isDescriptionWindowVisible);
+  }
+}
 
 class CardBattleManagerDrawPhaseState {
   _manager;
@@ -11467,6 +11496,9 @@ class DisplayStep extends Step {
       case GameConst.START_PHASE:
         return 'Start Phase';
         break;
+      case GameConst.DRAW_PHASE:
+        return 'Draw Phase';
+        break;
       default:
         return 'Unknown Phase';
         break;
@@ -11480,6 +11512,9 @@ class DisplayStep extends Step {
         break;
       case GameConst.START_PHASE:
         return 'Draw Calumon to go first.';
+        break;
+      case GameConst.DRAW_PHASE:
+        return '6 cards will be drawn.';
         break;
       default:
         return 'Unknown Phase';
@@ -12054,7 +12089,8 @@ class CardBattleTestScene extends Scene_Message {
       ChallengePhaseDisplayStepTest,
       ChallengePhaseFolderStepTest,
       StartPhaseDisplayStepTest,
-      StartPhaseMiniGameStepTest
+      StartPhaseMiniGameStepTest,
+      DrawPhaseDisplayStepTest,
     ];
     return [
       // ...cardSpriteTests,

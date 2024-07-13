@@ -201,6 +201,7 @@
 // include ../test/integration/step/ChallengePhaseFolderStepTest.js
 // include ../test/integration/step/StartPhaseDisplayStepTest.js
 // include ../test/integration/step/StartPhaseMiniGameStepTest.js
+// include ../test/integration/step/DrawPhaseDisplayStepTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js

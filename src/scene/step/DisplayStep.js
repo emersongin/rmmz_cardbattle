@@ -19,6 +19,9 @@ class DisplayStep extends Step {
       case GameConst.START_PHASE:
         return 'Start Phase';
         break;
+      case GameConst.DRAW_PHASE:
+        return 'Draw Phase';
+        break;
       default:
         return 'Unknown Phase';
         break;
@@ -32,6 +35,9 @@ class DisplayStep extends Step {
         break;
       case GameConst.START_PHASE:
         return 'Draw Calumon to go first.';
+        break;
+      case GameConst.DRAW_PHASE:
+        return '6 cards will be drawn.';
         break;
       default:
         return 'Unknown Phase';
