@@ -5,13 +5,13 @@ class ChallengePhaseDisplayStepTest extends SceneTest {
   step;
 
   create() {
-    this.step = new DisplayStep(this._scene);
+    this.step = new DisplayStep(this._scene, this.createHandler());
     this.addHiddenWatched(this.step);
   }
 
   start() {
     this._scene.setPhase(GameConst.CHALLENGE_PHASE);
-    this._scene.setStep(this.phase);
+    this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
 

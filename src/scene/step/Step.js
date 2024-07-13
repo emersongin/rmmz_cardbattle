@@ -3,11 +3,12 @@ class Step {
   _actionsQueue = [];
   _wait = 0;
 
-  constructor(scene) {
+  constructor(scene, finish) {
     if ((scene instanceof Scene_Message) === false) {
       throw new Error('Scene must be an instance of Scene_Message');
     }
     this._scene = scene;
+    this._finish = finish;
   }
 
   update() {
@@ -106,6 +107,18 @@ class Step {
 
   removeChildren(children) {
     children.forEach(child => this.removeChild(child));
+  }
+
+  removeChild(child) {
+    this.addAction(this.commandRemoveChild, child);
+  }
+
+  commandRemoveChild(child) {
+    if (child instanceof Window_Base) {
+      this._scene.addWindow(child);
+    } else {
+      this._scene.removeChild(child);
+    }
   }
 
   getPhase() {

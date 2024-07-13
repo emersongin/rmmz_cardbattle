@@ -5,7 +5,7 @@ class DisplayStep extends Step {
   start(manager) {
     const phase = this.getPhase();
     const title = this.getPhaseTitle(phase);
-    const description = this.getPhaseDescription(phase);
+    const description = this.getPhaseDescription(phase, manager);
     this.createTitleWindow(title);
     this.createDescriptionWindow(description);
     this.openTextWindows();
@@ -25,7 +25,7 @@ class DisplayStep extends Step {
     }
   }
 
-  getPhaseDescription(phase) {
+  getPhaseDescription(phase, manager) {
     switch (phase) {
       case GameConst.CHALLENGE_PHASE:
         return manager.getChallengeDescription();
@@ -92,7 +92,7 @@ class DisplayStep extends Step {
       this.commandCloseTextWindows();
       this.leaveTextWindows();
       this.addWait();
-      this.finish(phase);
+      this.addAction(this.finish, phase);
     }
   }
 
@@ -121,6 +121,7 @@ class DisplayStep extends Step {
   }
 
   finish(phase) {
+    if (typeof this._finish === 'function') return this._finish();
     switch (phase) {
       case null:
         break;

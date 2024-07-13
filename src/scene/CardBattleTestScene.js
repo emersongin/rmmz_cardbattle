@@ -1,6 +1,7 @@
 // include ./step/Step.js
 // include ./step/DisplayStep.js
 // include ./step/FolderStep.js
+// include ./step/MiniGameStep.js
 
 class CardBattleTestScene extends Scene_Message {
   initialize() {
@@ -200,9 +201,10 @@ class CardBattleTestScene extends Scene_Message {
       LoadPhaseTest,
     ];
     const steps = [
-      // ChallengePhaseDisplayStepTest,
-      // ChallengePhaseFolderStepTest,
+      ChallengePhaseDisplayStepTest,
+      ChallengePhaseFolderStepTest,
       StartPhaseDisplayStepTest,
+      StartPhaseMiniGameStepTest
     ];
     return [
       // ...cardSpriteTests,

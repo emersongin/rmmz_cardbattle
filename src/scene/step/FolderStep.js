@@ -58,6 +58,7 @@ class FolderStep extends Step {
   }
 
   finish(phase) {
+    if (typeof this._finish === 'function') return this._finish();
     switch (phase) {
       case null:
         break;
