@@ -38,6 +38,7 @@ const GameConst = {
   CHALLENGE_PHASE: 'CHALLENGE_PHASE',
   START_PHASE: 'START_PHASE',
   DRAW_PHASE: 'DRAW_PHASE',
+  LOAD_PHASE: 'LOAD_PHASE',
 
 
 
@@ -11336,6 +11337,33 @@ class DrawPhaseDrawStepTest extends SceneTest {
     this.expectTrue('O total de cards na mão do desafiante é?', this.manager.challenge.hand.length === 6);
   }
 }
+class LoadPhaseDisplayStepTest extends SceneTest {
+  manager = {
+    getChallengeDescription: () => 'Desafie um amigo para uma partida de xadrez.',
+  };
+  step;
+
+  create() {
+    this.step = new DisplayStep(this._scene, this.createHandler());
+    this.addHiddenWatched(this.step);
+  }
+
+  start() {
+    this._scene.setPhase(GameConst.LOAD_PHASE);
+    this._scene.setStep(this.step);
+    this.step.start(this.manager);
+  }
+
+  update() {
+    this.step.update(this.manager);
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar etapa de apresentação de carregar.');
+    this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
+    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', this.step.isDescriptionWindowVisible);
+  }
+}
 
 class CardBattleManagerDrawPhaseState {
   _manager;
@@ -12080,6 +12108,9 @@ class DisplayStep extends Step {
       case GameConst.DRAW_PHASE:
         return 'Draw Phase';
         break;
+      case GameConst.LOAD_PHASE:
+        return 'Load Phase';
+        break;
       default:
         return 'Unknown Phase';
         break;
@@ -12096,6 +12127,9 @@ class DisplayStep extends Step {
         break;
       case GameConst.DRAW_PHASE:
         return '6 cards will be drawn.';
+        break;
+      case GameConst.LOAD_PHASE:
+        return 'Select and use a Program Card.';
         break;
       default:
         return 'Unknown Phase';
@@ -12870,12 +12904,13 @@ class CardBattleTestScene extends Scene_Message {
       LoadPhaseTest,
     ];
     const steps = [
-      // ChallengePhaseDisplayStepTest,
-      // ChallengePhaseFolderStepTest,
-      // StartPhaseDisplayStepTest,
-      // StartPhaseMiniGameStepTest,
-      // DrawPhaseDisplayStepTest,
+      ChallengePhaseDisplayStepTest,
+      ChallengePhaseFolderStepTest,
+      StartPhaseDisplayStepTest,
+      StartPhaseMiniGameStepTest,
+      DrawPhaseDisplayStepTest,
       DrawPhaseDrawStepTest,
+      LoadPhaseDisplayStepTest,
     ];
     return [
       // ...cardSpriteTests,

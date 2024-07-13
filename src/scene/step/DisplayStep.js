@@ -22,6 +22,9 @@ class DisplayStep extends Step {
       case GameConst.DRAW_PHASE:
         return 'Draw Phase';
         break;
+      case GameConst.LOAD_PHASE:
+        return 'Load Phase';
+        break;
       default:
         return 'Unknown Phase';
         break;
@@ -38,6 +41,9 @@ class DisplayStep extends Step {
         break;
       case GameConst.DRAW_PHASE:
         return '6 cards will be drawn.';
+        break;
+      case GameConst.LOAD_PHASE:
+        return 'Select and use a Program Card.';
         break;
       default:
         return 'Unknown Phase';

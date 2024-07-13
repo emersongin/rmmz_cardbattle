@@ -203,6 +203,7 @@
 // include ../test/integration/step/StartPhaseMiniGameStepTest.js
 // include ../test/integration/step/DrawPhaseDisplayStepTest.js
 // include ../test/integration/step/DrawPhaseDrawStepTest.js
+// include ../test/integration/step/LoadPhaseDisplayStepTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js
