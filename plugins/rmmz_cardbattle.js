@@ -11015,14 +11015,14 @@ class LoadPhaseTest extends SceneTest {
 
 
 // STEPS
-class ChallengeStepTest extends SceneTest {
+class ChallengePhaseDisplayStepTest extends SceneTest {
   manager = {
     getChallengeDescription: () => 'Desafie um amigo para uma partida de xadrez.',
   };
   step;
 
   create() {
-    this.step = new ChallengeStep(this._scene);
+    this.step = new DisplayStep(this._scene);
     this.addHiddenWatched(this.step);
   }
 
@@ -11038,6 +11038,72 @@ class ChallengeStepTest extends SceneTest {
   
   asserts() {
     this.describe('Deve apresentar etapa de apresentação de desafiado.');
+    this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
+    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', this.step.isDescriptionWindowVisible);
+  }
+}
+class ChallengePhaseFolderStepTest extends SceneTest {
+  manager = {
+    index: -1,
+    folders: [
+      {
+        name: 'Folder 1',
+        energies: [10, 10, 5, 5, 5, 5]
+      }, {
+        name: 'Folder 2',
+        energies: [10, 10, 10, 10, 10, 10],
+      }, {
+        name: 'Folder 3',
+        energies: [10, 10, 10, 0, 0, 0],
+    }], 
+    setPlayerFolderIndex: (index) => this.manager.index = index,
+    getPlayerFolders: () => this.manager.folders,
+  };
+  step;
+
+  create() {
+    this.step = new FolderStep(this._scene);
+    this.addHiddenWatched(this.step);
+  }
+
+  start() {
+    this._scene.setPhase(GameConst.CHALLENGE_PHASE);
+    this._scene.setStep(this.phase);
+    this.step.start(this.manager);
+  }
+
+  update() {
+    this.step.update(this.manager);
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar etapa de pastas de desafiado.');
+    this.expectWasTrue('A janela de pastas foi apresentada?', this.step.isFolderWindowVisible);
+  }
+}
+class StartPhaseDisplayStepTest extends SceneTest {
+  manager = {
+    getChallengeDescription: () => 'Desafie um amigo para uma partida de xadrez.',
+  };
+  step;
+
+  create() {
+    this.step = new DisplayStep(this._scene);
+    this.addHiddenWatched(this.step);
+  }
+
+  start() {
+    this._scene.setPhase(GameConst.START_PHASE);
+    this._scene.setStep(this.phase);
+    this.step.start(this.manager);
+  }
+
+  update() {
+    this.step.update(this.manager);
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar etapa de apresentação de início de batalha.');
     this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
     this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', this.step.isDescriptionWindowVisible);
   }
@@ -11244,7 +11310,6 @@ class Step {
     return this._actionsQueue.length > 0;
   }
 
-  
   isAvailable() {
     return this.isBusy() === false;
   }
@@ -11338,14 +11403,14 @@ class Step {
     return this._scene.getPhase();
   }
 }
-class ChallengeStep extends Step {
+class DisplayStep extends Step {
   _titleWindow = {};
   _descriptionWindow = {};
 
   start(manager) {
     const phase = this.getPhase();
     const title = this.getPhaseTitle(phase);
-    const description = manager.getChallengeDescription();
+    const description = this.getPhaseDescription(phase);
     this.createTitleWindow(title);
     this.createDescriptionWindow(description);
     this.openTextWindows();
@@ -11355,6 +11420,23 @@ class ChallengeStep extends Step {
     switch (phase) {
       case GameConst.CHALLENGE_PHASE:
         return 'Challenge Phase';
+        break;
+      case GameConst.START_PHASE:
+        return 'Start Phase';
+        break;
+      default:
+        return 'Unknown Phase';
+        break;
+    }
+  }
+
+  getPhaseDescription(phase) {
+    switch (phase) {
+      case GameConst.CHALLENGE_PHASE:
+        return manager.getChallengeDescription();
+        break;
+      case GameConst.START_PHASE:
+        return 'Draw Calumon to go first.';
         break;
       default:
         return 'Unknown Phase';
@@ -11452,6 +11534,14 @@ class ChallengeStep extends Step {
     }
   }
 
+  isBusy() {
+    const children = [
+      this._titleWindow,
+      this._descriptionWindow,
+    ];
+    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+  }
+
   isTitleWindowVisible() {
     return this._titleWindow.visible;
   }
@@ -11460,6 +11550,85 @@ class ChallengeStep extends Step {
     return this._descriptionWindow.visible;
   }
   
+}
+class FolderStep extends Step {
+  _folderWindow = {};
+
+  start(manager) {
+    const phase = this.getPhase();
+    const selectHandler = (folderIndex) => {
+      manager.setPlayerFolderIndex(folderIndex);
+      this.commandCloseFolderWindow();
+      this.leaveFolderWindow();
+      this.addAction(this.finish, phase);
+    };
+    let folders = manager.getPlayerFolders();
+    folders = folders.map(folder => {
+      folder.handler = selectHandler;
+      return folder;
+    });
+    const folderWindow = this.createFolderWindow('Choose a folder', folders);
+    this.addWait();
+    this.openFolderWindow();
+  }
+
+  createFolderWindow(text, folders) {
+    const energies = folders.map(folder => FolderWindow.createEnergies(...folder.energies));
+    const commands = folders.map((folder, index) => {
+      return FolderWindow.createCommand(folder.name, `FOLDER_${index}`, folder.handler, energies[index])
+    });
+    const title = CommandWindow.setTextColor(text, GameColors.ORANGE);
+    const folderWindow = FolderWindow.create(0, 0, [title], commands);
+    folderWindow.alignMiddle();
+    folderWindow.alignTextCenter();
+    this.addAction(this.commandCreateFolderWindow, folderWindow);
+    return folderWindow;
+  }
+
+  commandCreateFolderWindow(folderWindow) {
+    this._folderWindow = folderWindow
+    this.commandAddChild(folderWindow);
+  }
+
+  openFolderWindow() {
+    this.addAction(this.commandOpenFolderWindow);
+  }
+
+  commandOpenFolderWindow() {
+    this._folderWindow.open();
+  }
+
+  commandCloseFolderWindow() {
+    this._folderWindow.close();
+  }
+
+  leaveFolderWindow() {
+    this.addAction(this.commandLeaveFolderWindow);
+  }
+
+  commandLeaveFolderWindow() {
+    this.removeChild(this._folderWindow);
+  }
+
+  finish(phase) {
+    switch (phase) {
+      case null:
+        break;
+      default:
+        break;
+    }
+  }
+
+  isBusy() {
+    const children = [
+      this._folderWindow
+    ];
+    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+  }
+
+  isFolderWindowVisible() {
+    return this._folderWindow.visible;
+  }
 }
 
 class CardBattleTestScene extends Scene_Message {
@@ -11660,7 +11829,9 @@ class CardBattleTestScene extends Scene_Message {
       LoadPhaseTest,
     ];
     const steps = [
-      ChallengeStepTest
+      // ChallengePhaseDisplayStepTest,
+      // ChallengePhaseFolderStepTest,
+      StartPhaseDisplayStepTest,
     ];
     return [
       // ...cardSpriteTests,

@@ -197,7 +197,9 @@
 
 
 // STEPS
-// include ../test/integration/step/ChallengeStepTest.js
+// include ../test/integration/step/ChallengePhaseDisplayStepTest.js
+// include ../test/integration/step/ChallengePhaseFolderStepTest.js
+// include ../test/integration/step/StartPhaseDisplayStepTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js

@@ -1,11 +1,11 @@
-class ChallengeStepTest extends SceneTest {
+class ChallengePhaseDisplayStepTest extends SceneTest {
   manager = {
     getChallengeDescription: () => 'Desafie um amigo para uma partida de xadrez.',
   };
   step;
 
   create() {
-    this.step = new ChallengeStep(this._scene);
+    this.step = new DisplayStep(this._scene);
     this.addHiddenWatched(this.step);
   }
 

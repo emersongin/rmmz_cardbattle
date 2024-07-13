@@ -19,7 +19,6 @@ class Step {
     return this._actionsQueue.length > 0;
   }
 
-  
   isAvailable() {
     return this.isBusy() === false;
   }
