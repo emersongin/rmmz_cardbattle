@@ -150,6 +150,21 @@ class Step {
     return this._scene.getPhase();
   }
 
+  createPlayerGameBoard(manager) {
+    const energies = Object.values(manager.getPlayerEnergies());
+    const cardsInDeck = manager.getPlayerDeckLength();
+    const cardsInHand = manager.getPlayerHandLength();
+    const cardsInTrash = manager.getPlayerTrashLength();
+    const victories = manager.getPlayerVictories();
+    const passed = manager.isPlayerPassed();
+    const boardWindow = this.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand, passed);
+    const boardWindowHeight = boardWindow.height;
+    const battleWindow = this.createPlayerBattleWindow(boardWindowHeight);
+    const trashWindow = this.createPlayerTrashWindow(cardsInTrash);
+    const scoreWindow = this.createPlayerScoreWindow(victories, boardWindowHeight);
+    const battlefield = this.createPlayerBattlefield();
+  }
+
   createPlayerBoardWindow(energies, cardsInDeck, cardsInHand, passed = false) {
     const boardWindow = BoardWindow.create(0, 0);
     boardWindow.changeBlueColor();
@@ -232,6 +247,21 @@ class Step {
   commandCreatePlayerBattlefield(battlefield) {
     this._player.battlefield = battlefield;
     this.commandAddChild(battlefield);
+  }
+
+  createChallengeGameBoard(manager) {
+    const energies = Object.values(manager.getChallengeEnergies());
+    const cardsInDeck = manager.getChallengeDeckLength();
+    const cardsInHand = manager.getChallengeHandLength();
+    const cardsInTrash = manager.getChallengeTrashLength();
+    const victories = manager.getChallengeVictories();
+    const passed = manager.isChallengePassed();
+    const boardWindow = this.createChallengeBoardWindow(energies, cardsInDeck, cardsInHand, passed);
+    const boardWindowHeight = boardWindow.height;
+    const battleWindow = this.createChallengeBattleWindow(boardWindowHeight);
+    const trashWindow = this.createChallengeTrashWindow(cardsInTrash);
+    const scoreWindow = this.createChallengeScoreWindow(victories, boardWindowHeight);
+    const battlefield = this.createChallengeBattlefield();
   }
 
   createChallengeBoardWindow(energies, cardsInDeck, cardsInHand, passed = false) {

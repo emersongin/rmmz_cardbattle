@@ -6,37 +6,7 @@ class DrawStep extends Step {
     this.createChallengeGameBoard(manager);
     this.openGameBoards();
     this.drawCardsToGame(manager);
-    this.updateGameBoardsToGame(manager);
-  }
-
-  createPlayerGameBoard(manager) {
-    const energies = Object.values(manager.getPlayerEnergies());
-    const cardsInDeck = manager.getPlayerDeckLength();
-    const cardsInHand = manager.getPlayerHandLength();
-    const cardsInTrash = manager.getPlayerTrashLength();
-    const victories = manager.getPlayerVictories();
-    const passed = manager.isPlayerPassed();
-    const boardWindow = this.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand, passed);
-    const boardWindowHeight = boardWindow.height;
-    const battleWindow = this.createPlayerBattleWindow(boardWindowHeight);
-    const trashWindow = this.createPlayerTrashWindow(cardsInTrash);
-    const scoreWindow = this.createPlayerScoreWindow(victories, boardWindowHeight);
-    const battlefield = this.createPlayerBattlefield();
-  }
-
-  createChallengeGameBoard(manager) {
-    const energies = Object.values(manager.getChallengeEnergies());
-    const cardsInDeck = manager.getChallengeDeckLength();
-    const cardsInHand = manager.getChallengeHandLength();
-    const cardsInTrash = manager.getChallengeTrashLength();
-    const victories = manager.getChallengeVictories();
-    const passed = manager.isChallengePassed();
-    const boardWindow = this.createChallengeBoardWindow(energies, cardsInDeck, cardsInHand, passed);
-    const boardWindowHeight = boardWindow.height;
-    const battleWindow = this.createChallengeBattleWindow(boardWindowHeight);
-    const trashWindow = this.createChallengeTrashWindow(cardsInTrash);
-    const scoreWindow = this.createChallengeScoreWindow(victories, boardWindowHeight);
-    const battlefield = this.createChallengeBattlefield();
+    this.loadGameBoardsToGame(manager);
   }
 
   drawCardsToGame(manager) {
@@ -115,7 +85,7 @@ class DrawStep extends Step {
     this._challenge.battlefield.moveCardsInlist(sprites, 6, fieldUpdates);
   }
 
-  updateGameBoardsToGame(manager) {
+  loadGameBoardsToGame(manager) {
     const playerCardsInHand = manager.getPlayerHand();
     const playerEnergiesClone = Object.assign({}, manager.getPlayerEnergies());
     const playerUpdates = this.createFieldUpdates(playerCardsInHand, playerEnergiesClone);
@@ -126,7 +96,7 @@ class DrawStep extends Step {
     const challengeUpdates = this.createFieldUpdates(challengeCardsInHand, challengeEnergiesClone);
     const challengeFieldUpdates = challengeUpdates.fieldUpdates;
     manager.setChallengeEnergies(challengeUpdates.energies);
-    this.updateGameBoards(playerFieldUpdates, challengeFieldUpdates);
+    this.loadGameBoards(playerFieldUpdates, challengeFieldUpdates);
   }
 
   createFieldUpdates(cards, energies) {
@@ -141,7 +111,7 @@ class DrawStep extends Step {
     return { fieldUpdates, energies };
   }
 
-  updateGameBoards(playerUpdates, challengeUpdates) {
+  loadGameBoards(playerUpdates, challengeUpdates) {
     const updates = playerUpdates.map((playerUpdate, index) => {
       const challengeUpdate = challengeUpdates[index] || false;
       return [playerUpdate, challengeUpdate];
