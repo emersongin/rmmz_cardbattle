@@ -3,7 +3,7 @@ class DrawStep extends Step {
   start(manager) {
     const phase = this.getPhase();
     this.createPlayerGameBoard(manager);
-    this.createChallengeGameBoard(manager);
+    this.createChallengedGameBoard(manager);
     this.openGameBoards();
     this.drawCardsToGame(manager);
     this.loadGameBoardsToGame(manager);
@@ -17,9 +17,9 @@ class DrawStep extends Step {
       cards: playerCardsDrawed,
       cardsInDeck: playerNumCardsInDeck,
     };
-    const challengeNumCardsInDeck = manager.getChallengeDeckLength();
-    const challengeCardsDrawed = manager.getChallengeDeck().splice(0, 6);
-    manager.setChallengeHand(challengeCardsDrawed);
+    const challengeNumCardsInDeck = manager.getChallengedDeckLength();
+    const challengeCardsDrawed = manager.getChallengedDeck().splice(0, 6);
+    manager.setChallengedHand(challengeCardsDrawed);
     const challengeData = {
       cards: challengeCardsDrawed,
       cardsInDeck: challengeNumCardsInDeck,
@@ -38,7 +38,7 @@ class DrawStep extends Step {
     } = challenge;
     this.addActions([
       [this.commandDrawPlayerCards, playerCards, playerCardsInDeck],
-      [this.commandDrawChallengeCards, challengeCards, challengeCardsInDeck],
+      [this.commandDrawChallengedCards, challengeCards, challengeCardsInDeck],
     ]);
   }
 
@@ -64,12 +64,12 @@ class DrawStep extends Step {
     this._player.battlefield.flipTurnToUpCards(sprites);
   }
 
-  commandDrawChallengeCards(cards, cardsInDeck) {
-    this._challenge.battlefield.show();
+  commandDrawChallengedCards(cards, cardsInDeck) {
+    this.commandShowChallengedBattlefield();
     const screenWidth = ScreenHelper.getFullWidth();
-    const sprites = this._challenge.battlefield.setCards(cards, screenWidth);
-    this._challenge.battlefield.showCards(sprites);
-    this._challenge.battlefield.setTurnToDownCards(sprites);
+    const sprites = this.commandSetCardsChallengedBattlefield(cards, screenWidth);
+    this.commandShowCardsChallengedBattlefield(sprites);
+    this.commandSetTurnToDownCardsChallengedBattlefield(sprites);
     const fieldUpdates = sprites.map((sprite, index) => {
       const count = index + 1;
       const countCardsInDeck = cardsInDeck - count;
@@ -79,10 +79,11 @@ class DrawStep extends Step {
         updateDeckPoints,
         updateHandPoints
       ];
-      const boardWindow = this.getChallengeBoardWindow();
+      const boardWindow = this.getChallengedBoardWindow();
       boardWindow.updateValues(manyUpdates);
     });
-    this._challenge.battlefield.moveCardsInlist(sprites, 6, fieldUpdates);
+    const delay = 6;
+    this.commandMoveCardsInlistChallengedBattlefield(sprites, delay, fieldUpdates);
   }
 
   loadGameBoardsToGame(manager) {
@@ -91,11 +92,11 @@ class DrawStep extends Step {
     const playerUpdates = this.createFieldUpdates(playerCardsInHand, playerEnergiesClone);
     const playerFieldUpdates = playerUpdates.fieldUpdates;
     manager.setPlayerEnergies(playerUpdates.energies);
-    const challengeCardsInHand = manager.getChallengeHand();
-    const challengeEnergiesClone = Object.assign({}, manager.getChallengeEnergies());
+    const challengeCardsInHand = manager.getChallengedHand();
+    const challengeEnergiesClone = Object.assign({}, manager.getChallengedEnergies());
     const challengeUpdates = this.createFieldUpdates(challengeCardsInHand, challengeEnergiesClone);
     const challengeFieldUpdates = challengeUpdates.fieldUpdates;
-    manager.setChallengeEnergies(challengeUpdates.energies);
+    manager.setChallengedEnergies(challengeUpdates.energies);
     this.loadGameBoards(playerFieldUpdates, challengeFieldUpdates);
   }
 
@@ -121,20 +122,23 @@ class DrawStep extends Step {
       const { cardIndex: chanllengeCardIndex, updatePoint: challengeUpdatePoint } = challengeUpdate;
       this.addActions([
         [this.commandPlayerLoadEnergy, playerCardIndex, playerUpdatePoint],
-        [this.commandChallengeLoadEnergy, chanllengeCardIndex, challengeUpdatePoint],
+        [this.commandChallengedLoadEnergy, chanllengeCardIndex, challengeUpdatePoint],
       ]);
     });
   }
 
-  commandChallengeLoadEnergy(cardIndex, updatePoint) {
-    const sprites = this._challenge.battlefield.getSprites();
+  commandChallengedLoadEnergy(cardIndex, updatePoint) {
+    const sprites = this.commandGetSpritesChallengedBattlefield();
     const sprite = sprites[cardIndex];
     if (updatePoint) {
-      const chainAction = () => {
-        const boardWindow = this.getChallengeBoardWindow();
+      const triggerAction = () => {
+        const boardWindow = this.getChallengedBoardWindow();
         boardWindow.updateValues(updatePoint);
       };
-      this._challenge.battlefield.flashCardsAnimate(sprite, 'white', 6, 1, chainAction);
+      const color = 'white';
+      const duration = 6;
+      const times = 1; 
+      this.commandFlashCardsAnimateChallengedBattlefield(sprite, color, duration, times, triggerAction);
     }
   }
 

@@ -203,14 +203,14 @@ class CardBattleTestScene extends Scene_Message {
       LoadPhaseTest,
     ];
     const steps = [
-      // ChallengePhaseDisplayStepTest,
-      // ChallengePhaseFolderStepTest,
-      // StartPhaseDisplayStepTest,
-      // StartPhaseMiniGameStepTest,
-      // DrawPhaseDisplayStepTest,
-      // DrawPhaseDrawStepTest,
-      // LoadPhaseDisplayStepTest,
-      LoadPhaseTurnStepChallengePassedTest,
+      ChallengePhaseDisplayStepTest,
+      ChallengePhaseFolderStepTest,
+      StartPhaseDisplayStepTest,
+      StartPhaseMiniGameStepTest,
+      DrawPhaseDisplayStepTest,
+      DrawPhaseDrawStepTest,
+      LoadPhaseDisplayStepTest,
+      LoadPhaseTurnStepChallengedPassedTest,
     ];
     return [
       // ...cardSpriteTests,

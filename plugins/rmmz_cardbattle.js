@@ -11225,7 +11225,7 @@ class DrawPhaseDrawStepTest extends SceneTest {
       victories: 0,
       passed: false,
     },
-    challenge: {
+    challenged: {
       deck: [
         { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
         { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
@@ -11288,19 +11288,19 @@ class DrawPhaseDrawStepTest extends SceneTest {
     getPlayerHandLength: () => this.manager.player.hand.length,
     getPlayerTrashLength: () => this.manager.player.trash.length,
     getPlayerVictories: () => this.manager.player.victories,
-    getChallengeDeck: () => this.manager.challenge.deck,
-    getChallengeHand: () => this.manager.challenge.hand,
-    getChallengeEnergies: () => this.manager.challenge.energies,
-    getChallengeDeckLength: () => this.manager.challenge.deck.length,
-    getChallengeHandLength: () => this.manager.challenge.hand.length,
-    getChallengeTrashLength: () => this.manager.challenge.trash.length,
-    getChallengeVictories: () => this.manager.challenge.victories,
+    getChallengedDeck: () => this.manager.challenged.deck,
+    getChallengedHand: () => this.manager.challenged.hand,
+    getChallengedEnergies: () => this.manager.challenged.energies,
+    getChallengedDeckLength: () => this.manager.challenged.deck.length,
+    getChallengedHandLength: () => this.manager.challenged.hand.length,
+    getChallengedTrashLength: () => this.manager.challenged.trash.length,
+    getChallengedVictories: () => this.manager.challenged.victories,
     setPlayerHand: (hand) => this.manager.player.hand = hand,
     setPlayerEnergies: (energies) => this.manager.player.energies = energies,
-    setChallengeHand: (hand) => this.manager.challenge.hand = hand,
-    setChallengeEnergies: (energies) => this.manager.challenge.energies = energies,
+    setChallengedHand: (hand) => this.manager.challenged.hand = hand,
+    setChallengedEnergies: (energies) => this.manager.challenged.energies = energies,
     isPlayerPassed: () => this.manager.player.passed,
-    isChallengePassed: () => this.manager.challenge.passed,
+    isChallengedPassed: () => this.manager.challenged.passed,
   };
   step;
 
@@ -11326,15 +11326,15 @@ class DrawPhaseDrawStepTest extends SceneTest {
     this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
     this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
     this.expectWasTrue('O campo de batalha do jogador foi apresentado?', this.step.isPlayerBattlefieldVisible);
-    this.expectWasTrue('A janela de tabuleiro do desafiante foi apresentado?', this.step.isChallengeBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do desafiante foi apresentada?', this.step.isChallengeBattleWindowVisible);
-    this.expectWasTrue('A janela de lixo do desafiante foi apresentada?', this.step.isChallengeTrashWindowVisible);
-    this.expectWasTrue('A janela de pontuação do desafiante foi apresentada?', this.step.isChallengeScoreWindowVisible);
-    this.expectWasTrue('O campo de batalha do desafiante foi apresentado?', this.step.isChallengeBattlefieldVisible);
+    this.expectWasTrue('A janela de tabuleiro do desafiante foi apresentado?', this.step.isChallengedBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do desafiante foi apresentada?', this.step.isChallengedBattleWindowVisible);
+    this.expectWasTrue('A janela de lixo do desafiante foi apresentada?', this.step.isChallengedTrashWindowVisible);
+    this.expectWasTrue('A janela de pontuação do desafiante foi apresentada?', this.step.isChallengedScoreWindowVisible);
+    this.expectWasTrue('O campo de batalha do desafiante foi apresentado?', this.step.isChallengedBattlefieldVisible);
     this.expectTrue('O total de cards no campo do jogar é?', this.manager.player.deck.length === 34);
-    this.expectTrue('O total de cards no campo do desafiante é?', this.manager.challenge.deck.length === 34);
+    this.expectTrue('O total de cards no campo do desafiante é?', this.manager.challenged.deck.length === 34);
     this.expectTrue('O total de cards na mão do jogador é?', this.manager.player.hand.length === 6);
-    this.expectTrue('O total de cards na mão do desafiante é?', this.manager.challenge.hand.length === 6);
+    this.expectTrue('O total de cards na mão do desafiante é?', this.manager.challenged.hand.length === 6);
   }
 }
 class LoadPhaseDisplayStepTest extends SceneTest {
@@ -11364,7 +11364,7 @@ class LoadPhaseDisplayStepTest extends SceneTest {
     this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', this.step.isDescriptionWindowVisible);
   }
 }
-class LoadPhaseTurnStepChallengePassedTest extends SceneTest {
+class LoadPhaseTurnStepChallengedPassedTest extends SceneTest {
   manager = {
     startPlay: false,
     player: {
@@ -12253,6 +12253,34 @@ class Step {
     ]);
   }
 
+  commandShowChallengedBattlefield() {
+    this._challenged.battlefield.show();
+  }
+
+  commandSetCardsChallengedBattlefield(cards, screenWidth) {
+    return this._challenged.battlefield.setCards(cards, screenWidth)
+  }
+
+  commandShowCardsChallengedBattlefield(sprites) {
+    this._challenged.battlefield.showCards(sprites);
+  }
+
+  commandSetTurnToDownCardsChallengedBattlefield(sprites) {
+    this._challenged.battlefield.setTurnToDownCards(sprites);
+  }
+
+  commandMoveCardsInlistChallengedBattlefield(sprites, delay, fieldUpdates) {
+    this._challenged.battlefield.moveCardsInlist(sprites, delay, fieldUpdates);
+  }
+
+  commandFlashCardsAnimateChallengedBattlefield(sprites, color, duration, times, trigger) {
+    this._challenged.battlefield.flashCardsAnimate(sprites, color, duration, times, trigger);
+  }
+
+  commandGetSpritesChallengedBattlefield() {
+    return this._challenged.battlefield.getSprites();
+  }
+
   playerBoardWindowPass() {
     this.addAction(this.commandPlayerBoardWindowPass);
   }
@@ -12732,7 +12760,7 @@ class DrawStep extends Step {
   start(manager) {
     const phase = this.getPhase();
     this.createPlayerGameBoard(manager);
-    this.createChallengeGameBoard(manager);
+    this.createChallengedGameBoard(manager);
     this.openGameBoards();
     this.drawCardsToGame(manager);
     this.loadGameBoardsToGame(manager);
@@ -12746,9 +12774,9 @@ class DrawStep extends Step {
       cards: playerCardsDrawed,
       cardsInDeck: playerNumCardsInDeck,
     };
-    const challengeNumCardsInDeck = manager.getChallengeDeckLength();
-    const challengeCardsDrawed = manager.getChallengeDeck().splice(0, 6);
-    manager.setChallengeHand(challengeCardsDrawed);
+    const challengeNumCardsInDeck = manager.getChallengedDeckLength();
+    const challengeCardsDrawed = manager.getChallengedDeck().splice(0, 6);
+    manager.setChallengedHand(challengeCardsDrawed);
     const challengeData = {
       cards: challengeCardsDrawed,
       cardsInDeck: challengeNumCardsInDeck,
@@ -12767,7 +12795,7 @@ class DrawStep extends Step {
     } = challenge;
     this.addActions([
       [this.commandDrawPlayerCards, playerCards, playerCardsInDeck],
-      [this.commandDrawChallengeCards, challengeCards, challengeCardsInDeck],
+      [this.commandDrawChallengedCards, challengeCards, challengeCardsInDeck],
     ]);
   }
 
@@ -12793,12 +12821,12 @@ class DrawStep extends Step {
     this._player.battlefield.flipTurnToUpCards(sprites);
   }
 
-  commandDrawChallengeCards(cards, cardsInDeck) {
-    this._challenge.battlefield.show();
+  commandDrawChallengedCards(cards, cardsInDeck) {
+    this.commandShowChallengedBattlefield();
     const screenWidth = ScreenHelper.getFullWidth();
-    const sprites = this._challenge.battlefield.setCards(cards, screenWidth);
-    this._challenge.battlefield.showCards(sprites);
-    this._challenge.battlefield.setTurnToDownCards(sprites);
+    const sprites = this.commandSetCardsChallengedBattlefield(cards, screenWidth);
+    this.commandShowCardsChallengedBattlefield(sprites);
+    this.commandSetTurnToDownCardsChallengedBattlefield(sprites);
     const fieldUpdates = sprites.map((sprite, index) => {
       const count = index + 1;
       const countCardsInDeck = cardsInDeck - count;
@@ -12808,10 +12836,11 @@ class DrawStep extends Step {
         updateDeckPoints,
         updateHandPoints
       ];
-      const boardWindow = this.getChallengeBoardWindow();
+      const boardWindow = this.getChallengedBoardWindow();
       boardWindow.updateValues(manyUpdates);
     });
-    this._challenge.battlefield.moveCardsInlist(sprites, 6, fieldUpdates);
+    const delay = 6;
+    this.commandMoveCardsInlistChallengedBattlefield(sprites, delay, fieldUpdates);
   }
 
   loadGameBoardsToGame(manager) {
@@ -12820,11 +12849,11 @@ class DrawStep extends Step {
     const playerUpdates = this.createFieldUpdates(playerCardsInHand, playerEnergiesClone);
     const playerFieldUpdates = playerUpdates.fieldUpdates;
     manager.setPlayerEnergies(playerUpdates.energies);
-    const challengeCardsInHand = manager.getChallengeHand();
-    const challengeEnergiesClone = Object.assign({}, manager.getChallengeEnergies());
+    const challengeCardsInHand = manager.getChallengedHand();
+    const challengeEnergiesClone = Object.assign({}, manager.getChallengedEnergies());
     const challengeUpdates = this.createFieldUpdates(challengeCardsInHand, challengeEnergiesClone);
     const challengeFieldUpdates = challengeUpdates.fieldUpdates;
-    manager.setChallengeEnergies(challengeUpdates.energies);
+    manager.setChallengedEnergies(challengeUpdates.energies);
     this.loadGameBoards(playerFieldUpdates, challengeFieldUpdates);
   }
 
@@ -12850,20 +12879,23 @@ class DrawStep extends Step {
       const { cardIndex: chanllengeCardIndex, updatePoint: challengeUpdatePoint } = challengeUpdate;
       this.addActions([
         [this.commandPlayerLoadEnergy, playerCardIndex, playerUpdatePoint],
-        [this.commandChallengeLoadEnergy, chanllengeCardIndex, challengeUpdatePoint],
+        [this.commandChallengedLoadEnergy, chanllengeCardIndex, challengeUpdatePoint],
       ]);
     });
   }
 
-  commandChallengeLoadEnergy(cardIndex, updatePoint) {
-    const sprites = this._challenge.battlefield.getSprites();
+  commandChallengedLoadEnergy(cardIndex, updatePoint) {
+    const sprites = this.commandGetSpritesChallengedBattlefield();
     const sprite = sprites[cardIndex];
     if (updatePoint) {
-      const chainAction = () => {
-        const boardWindow = this.getChallengeBoardWindow();
+      const triggerAction = () => {
+        const boardWindow = this.getChallengedBoardWindow();
         boardWindow.updateValues(updatePoint);
       };
-      this._challenge.battlefield.flashCardsAnimate(sprite, 'white', 6, 1, chainAction);
+      const color = 'white';
+      const duration = 6;
+      const times = 1; 
+      this.commandFlashCardsAnimateChallengedBattlefield(sprite, color, duration, times, triggerAction);
     }
   }
 
@@ -13264,14 +13296,14 @@ class CardBattleTestScene extends Scene_Message {
       LoadPhaseTest,
     ];
     const steps = [
-      // ChallengePhaseDisplayStepTest,
-      // ChallengePhaseFolderStepTest,
-      // StartPhaseDisplayStepTest,
-      // StartPhaseMiniGameStepTest,
-      // DrawPhaseDisplayStepTest,
-      // DrawPhaseDrawStepTest,
-      // LoadPhaseDisplayStepTest,
-      LoadPhaseTurnStepChallengePassedTest,
+      ChallengePhaseDisplayStepTest,
+      ChallengePhaseFolderStepTest,
+      StartPhaseDisplayStepTest,
+      StartPhaseMiniGameStepTest,
+      DrawPhaseDisplayStepTest,
+      DrawPhaseDrawStepTest,
+      LoadPhaseDisplayStepTest,
+      LoadPhaseTurnStepChallengedPassedTest,
     ];
     return [
       // ...cardSpriteTests,

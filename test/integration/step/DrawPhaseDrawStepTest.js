@@ -55,7 +55,7 @@ class DrawPhaseDrawStepTest extends SceneTest {
       victories: 0,
       passed: false,
     },
-    challenge: {
+    challenged: {
       deck: [
         { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
         { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
@@ -118,19 +118,19 @@ class DrawPhaseDrawStepTest extends SceneTest {
     getPlayerHandLength: () => this.manager.player.hand.length,
     getPlayerTrashLength: () => this.manager.player.trash.length,
     getPlayerVictories: () => this.manager.player.victories,
-    getChallengeDeck: () => this.manager.challenge.deck,
-    getChallengeHand: () => this.manager.challenge.hand,
-    getChallengeEnergies: () => this.manager.challenge.energies,
-    getChallengeDeckLength: () => this.manager.challenge.deck.length,
-    getChallengeHandLength: () => this.manager.challenge.hand.length,
-    getChallengeTrashLength: () => this.manager.challenge.trash.length,
-    getChallengeVictories: () => this.manager.challenge.victories,
+    getChallengedDeck: () => this.manager.challenged.deck,
+    getChallengedHand: () => this.manager.challenged.hand,
+    getChallengedEnergies: () => this.manager.challenged.energies,
+    getChallengedDeckLength: () => this.manager.challenged.deck.length,
+    getChallengedHandLength: () => this.manager.challenged.hand.length,
+    getChallengedTrashLength: () => this.manager.challenged.trash.length,
+    getChallengedVictories: () => this.manager.challenged.victories,
     setPlayerHand: (hand) => this.manager.player.hand = hand,
     setPlayerEnergies: (energies) => this.manager.player.energies = energies,
-    setChallengeHand: (hand) => this.manager.challenge.hand = hand,
-    setChallengeEnergies: (energies) => this.manager.challenge.energies = energies,
+    setChallengedHand: (hand) => this.manager.challenged.hand = hand,
+    setChallengedEnergies: (energies) => this.manager.challenged.energies = energies,
     isPlayerPassed: () => this.manager.player.passed,
-    isChallengePassed: () => this.manager.challenge.passed,
+    isChallengedPassed: () => this.manager.challenged.passed,
   };
   step;
 
@@ -156,14 +156,14 @@ class DrawPhaseDrawStepTest extends SceneTest {
     this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
     this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
     this.expectWasTrue('O campo de batalha do jogador foi apresentado?', this.step.isPlayerBattlefieldVisible);
-    this.expectWasTrue('A janela de tabuleiro do desafiante foi apresentado?', this.step.isChallengeBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do desafiante foi apresentada?', this.step.isChallengeBattleWindowVisible);
-    this.expectWasTrue('A janela de lixo do desafiante foi apresentada?', this.step.isChallengeTrashWindowVisible);
-    this.expectWasTrue('A janela de pontuação do desafiante foi apresentada?', this.step.isChallengeScoreWindowVisible);
-    this.expectWasTrue('O campo de batalha do desafiante foi apresentado?', this.step.isChallengeBattlefieldVisible);
+    this.expectWasTrue('A janela de tabuleiro do desafiante foi apresentado?', this.step.isChallengedBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do desafiante foi apresentada?', this.step.isChallengedBattleWindowVisible);
+    this.expectWasTrue('A janela de lixo do desafiante foi apresentada?', this.step.isChallengedTrashWindowVisible);
+    this.expectWasTrue('A janela de pontuação do desafiante foi apresentada?', this.step.isChallengedScoreWindowVisible);
+    this.expectWasTrue('O campo de batalha do desafiante foi apresentado?', this.step.isChallengedBattlefieldVisible);
     this.expectTrue('O total de cards no campo do jogar é?', this.manager.player.deck.length === 34);
-    this.expectTrue('O total de cards no campo do desafiante é?', this.manager.challenge.deck.length === 34);
+    this.expectTrue('O total de cards no campo do desafiante é?', this.manager.challenged.deck.length === 34);
     this.expectTrue('O total de cards na mão do jogador é?', this.manager.player.hand.length === 6);
-    this.expectTrue('O total de cards na mão do desafiante é?', this.manager.challenge.hand.length === 6);
+    this.expectTrue('O total de cards na mão do desafiante é?', this.manager.challenged.hand.length === 6);
   }
 }

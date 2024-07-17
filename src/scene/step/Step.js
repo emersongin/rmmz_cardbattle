@@ -545,6 +545,34 @@ class Step {
     ]);
   }
 
+  commandShowChallengedBattlefield() {
+    this._challenged.battlefield.show();
+  }
+
+  commandSetCardsChallengedBattlefield(cards, screenWidth) {
+    return this._challenged.battlefield.setCards(cards, screenWidth)
+  }
+
+  commandShowCardsChallengedBattlefield(sprites) {
+    this._challenged.battlefield.showCards(sprites);
+  }
+
+  commandSetTurnToDownCardsChallengedBattlefield(sprites) {
+    this._challenged.battlefield.setTurnToDownCards(sprites);
+  }
+
+  commandMoveCardsInlistChallengedBattlefield(sprites, delay, fieldUpdates) {
+    this._challenged.battlefield.moveCardsInlist(sprites, delay, fieldUpdates);
+  }
+
+  commandFlashCardsAnimateChallengedBattlefield(sprites, color, duration, times, trigger) {
+    this._challenged.battlefield.flashCardsAnimate(sprites, color, duration, times, trigger);
+  }
+
+  commandGetSpritesChallengedBattlefield() {
+    return this._challenged.battlefield.getSprites();
+  }
+
   playerBoardWindowPass() {
     this.addAction(this.commandPlayerBoardWindowPass);
   }
