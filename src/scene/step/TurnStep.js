@@ -74,20 +74,21 @@ class TurnStep extends Step {
     if (this._isStartTurn) {
       if ((startPlay || manager.isChallengedPassed()) && manager.isPlayerPassed() === false) {
 
-        const commandYes = () => {
-          this.commandCloseAskWindow();
-          this.leaveAskWindow();
-          this.closeGameBoards();
-          this.leaveGameBoards();
-          this.commandPlayerHand(manager);
-        };
-        const commandNo = () => {
-          this.commandCloseAskWindow();
-          this.leaveAskWindow();
-          this.commandPlayerPassed(manager);
-        };
-        this.createAskWindow('Use a Program Card?', commandYes, commandNo);
-        this.openAskWindow();
+        // const commandYes = () => {
+        //   this.commandCloseAskWindow();
+        //   this.leaveAskWindow();
+        //   this.closeGameBoards();
+        //   this.leaveGameBoards();
+        //   this.commandPlayerHand(manager);
+        // };
+        // const commandNo = () => {
+        //   this.commandCloseAskWindow();
+        //   this.leaveAskWindow();
+          this.playerBoardWindowPass();
+          this.addAction(this.commandPlayerPassed, manager);
+        // };
+        // this.createAskWindow('Use a Program Card?', commandYes, commandNo);
+        // this.openAskWindow();
 
         return;
       } 
@@ -159,6 +160,8 @@ class TurnStep extends Step {
 
   isBusy() {
     const children = [
+      this._textWindow,
+      this._askWindow,
     ];
     return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
   }
