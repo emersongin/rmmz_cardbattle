@@ -21,7 +21,7 @@ class DisplayStep extends Step {
         break;
       case GameConst.DRAW_PHASE:
         return 'Draw Phase';
-        break;
+        break; 
       case GameConst.LOAD_PHASE:
         return 'Load Phase';
         break;

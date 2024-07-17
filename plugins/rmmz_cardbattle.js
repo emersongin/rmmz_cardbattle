@@ -5470,7 +5470,7 @@ class WaitingPhaseStatus  {
     this.updateStepStart(manager);
     this.updateStepBeginLoadPhase(manager);
     this.updateStartPlay(manager);
-    this.updateStepChallengeLoadPhase(manager);
+    this.updateStepChallengedLoadPhase(manager);
     this.updateStepPlayerLoadPhase(manager);
     this.updateStepPowerfieldLoadPhase(manager);
     if (manager.isEndPlays() && manager.getPowerfieldLength()) return; 
@@ -5484,7 +5484,7 @@ class WaitingPhaseStatus  {
       that.commandCloseTextWindows();
       that.leaveTextWindows();
       this.createPlayerGameBoard(manager);
-      this.createChallengeGameBoard(manager);
+      this.createChallengedGameBoard(manager);
       that.openGameBoards();
       const text = 'Begin Load Phase';
       this.createTextWindow(text);
@@ -5509,20 +5509,20 @@ class WaitingPhaseStatus  {
     const battlefield = that.createPlayerBattlefield();
   }
 
-  createChallengeGameBoard(manager) {
+  createChallengedGameBoard(manager) {
     const that = this._phase;
-    const energies = Object.values(manager.getChallengeEnergies());
-    const cardsInDeck = manager.getChallengeDeckLength();
-    const cardsInHand = manager.getChallengeHandLength();
-    const cardsInTrash = manager.getChallengeTrashLength();
-    const victories = manager.getChallengeVictories();
-    const passed = manager.isChallengePassed();
-    const boardWindow = that.createChallengeBoardWindow(energies, cardsInDeck, cardsInHand, passed);
+    const energies = Object.values(manager.getChallengedEnergies());
+    const cardsInDeck = manager.getChallengedDeckLength();
+    const cardsInHand = manager.getChallengedHandLength();
+    const cardsInTrash = manager.getChallengedTrashLength();
+    const victories = manager.getChallengedVictories();
+    const passed = manager.isChallengedPassed();
+    const boardWindow = that.createChallengedBoardWindow(energies, cardsInDeck, cardsInHand, passed);
     const boardWindowHeight = boardWindow.height;
-    const battleWindow = that.createChallengeBattleWindow(boardWindowHeight);
-    const trashWindow = that.createChallengeTrashWindow(cardsInTrash);
-    const scoreWindow = that.createChallengeScoreWindow(victories, boardWindowHeight);
-    const battlefield = that.createChallengeBattlefield();
+    const battleWindow = that.createChallengedBattleWindow(boardWindowHeight);
+    const trashWindow = that.createChallengedTrashWindow(cardsInTrash);
+    const scoreWindow = that.createChallengedScoreWindow(victories, boardWindowHeight);
+    const battlefield = that.createChallengedBattlefield();
   }
 
   createTextWindow(text) {
@@ -5590,10 +5590,10 @@ class WaitingPhaseStatus  {
     }
   }
 
-  updateStepChallengeLoadPhase(manager) {
+  updateStepChallengedLoadPhase(manager) {
     const that = this._phase;
-    const isChallengeTurnPhase = that.isCurrentStep(GameConst.CHALLENGE_TURN_PHASE);
-    if (isChallengeTurnPhase) {
+    const isChallengedTurnPhase = that.isCurrentStep(GameConst.CHALLENGE_TURN_PHASE);
+    if (isChallengedTurnPhase) {
       manager.challengePassed();
       that.challengePass();
       that.stepWainting();
@@ -5676,7 +5676,7 @@ class WaitingPhaseStatus  {
       this.closePlayerHand();
       this.leavePlayerHand();
       this.createPlayerGameBoard(manager);
-      this.createChallengeGameBoard(manager);
+      this.createChallengedGameBoard(manager);
       that.openGameBoards();
       const cards = cardIndexs.map(index => manager.getCardPlayerHandByIndex(index));
       that.createPowerfield(cards);
@@ -5688,7 +5688,7 @@ class WaitingPhaseStatus  {
       this.closePlayerHand();
       this.leavePlayerHand();
       this.createPlayerGameBoard(manager);
-      this.createChallengeGameBoard(manager);
+      this.createChallengedGameBoard(manager);
       that.openGameBoards();
       that.setStep(GameConst.PLAYER_TURN_PHASE);
     };
@@ -5938,7 +5938,7 @@ class WaitingPhaseStatus  {
     manager.playerPassed();
     that.playerPass();
     that.stepWainting();
-    if (manager.isChallengePassed() === false) that.setStep(GameConst.CHALLENGE_TURN_PHASE);
+    if (manager.isChallengedPassed() === false) that.setStep(GameConst.CHALLENGE_TURN_PHASE);
   }
 
   updateStepPowerfieldLoadPhase(manager) {
@@ -11364,7 +11364,7 @@ class LoadPhaseDisplayStepTest extends SceneTest {
     this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', this.step.isDescriptionWindowVisible);
   }
 }
-class LoadPhasePlaysStepChallengePassedTest extends SceneTest {
+class LoadPhaseTurnStepChallengePassedTest extends SceneTest {
   manager = {
     startPlay: false,
     player: {
@@ -11422,7 +11422,7 @@ class LoadPhasePlaysStepChallengePassedTest extends SceneTest {
       victories: 0,
       passed: false,
     },
-    challenge: {
+    challenged: {
       deck: [
         { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
         { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
@@ -11477,7 +11477,7 @@ class LoadPhasePlaysStepChallengePassedTest extends SceneTest {
       victories: 0,
       passed: false,
     },
-    getChallengeDescription: () => 'Desafie um amigo para uma partida de xadrez.',
+    getChallengedDescription: () => 'Desafie um amigo para uma partida de xadrez.',
     getPlayerDeck: () => this.manager.player.deck,
     getPlayerHand: () => this.manager.player.hand,
     getPlayerEnergies: () => this.manager.player.energies,
@@ -11485,27 +11485,27 @@ class LoadPhasePlaysStepChallengePassedTest extends SceneTest {
     getPlayerHandLength: () => this.manager.player.hand.length,
     getPlayerTrashLength: () => this.manager.player.trash.length,
     getPlayerVictories: () => this.manager.player.victories,
-    getChallengeDeck: () => this.manager.challenge.deck,
-    getChallengeHand: () => this.manager.challenge.hand,
-    getChallengeEnergies: () => this.manager.challenge.energies,
-    getChallengeDeckLength: () => this.manager.challenge.deck.length,
-    getChallengeHandLength: () => this.manager.challenge.hand.length,
-    getChallengeTrashLength: () => this.manager.challenge.trash.length,
-    getChallengeVictories: () => this.manager.challenge.victories,
+    getChallengedDeck: () => this.manager.challenged.deck,
+    getChallengedHand: () => this.manager.challenged.hand,
+    getChallengedEnergies: () => this.manager.challenged.energies,
+    getChallengedDeckLength: () => this.manager.challenged.deck.length,
+    getChallengedHandLength: () => this.manager.challenged.hand.length,
+    getChallengedTrashLength: () => this.manager.challenged.trash.length,
+    getChallengedVictories: () => this.manager.challenged.victories,
     setPlayerHand: (hand) => this.manager.player.hand = hand,
     setPlayerEnergies: (energies) => this.manager.player.energies = energies,
-    setChallengeHand: (hand) => this.manager.challenge.hand = hand,
-    setChallengeEnergies: (energies) => this.manager.challenge.energies = energies,
+    setChallengedHand: (hand) => this.manager.challenged.hand = hand,
+    setChallengedEnergies: (energies) => this.manager.challenged.energies = energies,
     isPlayerPassed: () => this.manager.player.passed,
-    isChallengePassed: () => this.manager.challenge.passed,
+    isChallengedPassed: () => this.manager.challenged.passed,
   };
   step;
 
   create() {
-    this.step = new PlaysStep(this._scene);
     const finishTest = this.createHandler();
-    this.manager.challengePassed = () => {
-      this.manager.challenge.passed = true;
+    this.step = new TurnStep(this._scene, finishTest);
+    this.manager.challengedPassed = () => {
+      this.manager.challenged.passed = true;
       finishTest();
     };
   }
@@ -11522,7 +11522,7 @@ class LoadPhasePlaysStepChallengePassedTest extends SceneTest {
   
   asserts() {
     this.describe('O desafiado deve passar a jogada na etapa de jogadas de fase de carregar.');
-    this.expectTrue('O desafiado passou a jogada?', this.manager.isChallengePassed());
+    this.expectTrue('O desafiado passou a jogada?', this.manager.isChallengedPassed());
   }
 }
 
@@ -11717,13 +11717,14 @@ class Step {
     scoreWindow: {},
     battlefield: {},
   };
-  _challenge = {
+  _challenged = {
     boardWindow: {},
     battleWindow: {},
     trashWindow: {},
     scoreWindow: {},
     battlefield: {},
   };
+  _powerfield = {};
 
   constructor(scene, finish) {
     if ((scene instanceof Scene_Message) === false) {
@@ -11753,11 +11754,11 @@ class Step {
       this._player.trashWindow,
       this._player.scoreWindow,
       this._player.battlefield,
-      this._challenge.boardWindow,
-      this._challenge.battleWindow,
-      this._challenge.trashWindow,
-      this._challenge.scoreWindow,
-      this._challenge.battlefield,
+      this._challenged.boardWindow,
+      this._challenged.battleWindow,
+      this._challenged.trashWindow,
+      this._challenged.scoreWindow,
+      this._challenged.battlefield,
     ];
     return this._wait > 0 || children.some(obj => (obj.isBusy ? obj.isBusy() : false)) || this.someChildrenIsBusy();
   }
@@ -11957,97 +11958,114 @@ class Step {
     this.commandAddChild(battlefield);
   }
 
-  createChallengeGameBoard(manager) {
-    const energies = Object.values(manager.getChallengeEnergies());
-    const cardsInDeck = manager.getChallengeDeckLength();
-    const cardsInHand = manager.getChallengeHandLength();
-    const cardsInTrash = manager.getChallengeTrashLength();
-    const victories = manager.getChallengeVictories();
-    const passed = manager.isChallengePassed();
-    const boardWindow = this.createChallengeBoardWindow(energies, cardsInDeck, cardsInHand, passed);
+  createChallengedGameBoard(manager) {
+    const energies = Object.values(manager.getChallengedEnergies());
+    const cardsInDeck = manager.getChallengedDeckLength();
+    const cardsInHand = manager.getChallengedHandLength();
+    const cardsInTrash = manager.getChallengedTrashLength();
+    const victories = manager.getChallengedVictories();
+    const passed = manager.isChallengedPassed();
+    const boardWindow = this.createChallengedBoardWindow(energies, cardsInDeck, cardsInHand, passed);
     const boardWindowHeight = boardWindow.height;
-    const battleWindow = this.createChallengeBattleWindow(boardWindowHeight);
-    const trashWindow = this.createChallengeTrashWindow(cardsInTrash);
-    const scoreWindow = this.createChallengeScoreWindow(victories, boardWindowHeight);
-    const battlefield = this.createChallengeBattlefield();
+    const battleWindow = this.createChallengedBattleWindow(boardWindowHeight);
+    const trashWindow = this.createChallengedTrashWindow(cardsInTrash);
+    const scoreWindow = this.createChallengedScoreWindow(victories, boardWindowHeight);
+    const battlefield = this.createChallengedBattlefield();
   }
 
-  createChallengeBoardWindow(energies, cardsInDeck, cardsInHand, passed = false) {
+  createChallengedBoardWindow(energies, cardsInDeck, cardsInHand, passed = false) {
     const boardWindow = BoardWindow.create(0, 0);
     boardWindow.changeRedColor();
     boardWindow.alignStartTop();
     const points = [...energies, cardsInDeck, cardsInHand];
     boardWindow.refreshPoints(...points);
     if (passed) boardWindow.pass();
-    this.addAction(this.commandCreateChallengeBoardWindow, boardWindow);
+    this.addAction(this.commandCreateChallengedBoardWindow, boardWindow);
     return boardWindow;
   }
 
-  commandCreateChallengeBoardWindow(boardWindow) {
-    this._challenge.boardWindow = boardWindow;
+  commandCreateChallengedBoardWindow(boardWindow) {
+    this._challenged.boardWindow = boardWindow;
     this.commandAddChild(boardWindow);
   }
 
-  createChallengeBattleWindow(height = this._challenge.boardWindow.height) {
+  createChallengedBattleWindow(height = this._challenged.boardWindow.height) {
     const battleWindow = BattlePointsWindow.create(0, 0);
     battleWindow.changeRedColor();
     battleWindow.alignStartTop();
     const y = ScreenHelper.getTopPosition();
     battleWindow.alignBelowOf({ y, height });
     battleWindow.refresh();
-    this.addAction(this.commandCreateChallengeBattleWindow, battleWindow);
+    this.addAction(this.commandCreateChallengedBattleWindow, battleWindow);
     return battleWindow;
   }
 
-  commandCreateChallengeBattleWindow(battleWindow) {
-    this._challenge.battleWindow = battleWindow;
+  commandCreateChallengedBattleWindow(battleWindow) {
+    this._challenged.battleWindow = battleWindow;
     this.commandAddChild(battleWindow);
   }
 
-  createChallengeTrashWindow(cardsInTrash) {
+  createChallengedTrashWindow(cardsInTrash) {
     const trashWindow = TrashWindow.create(0, 0);
     trashWindow.changeRedColor();
     trashWindow.alignEndAboveMiddle();
     trashWindow.reverseIcons();
     trashWindow.refreshPoints(cardsInTrash);
-    this.addAction(this.commandCreateChallengeTrashWindow, trashWindow);
+    this.addAction(this.commandCreateChallengedTrashWindow, trashWindow);
     return trashWindow;
   }
 
-  commandCreateChallengeTrashWindow(trashWindow) {
-    this._challenge.trashWindow = trashWindow;
+  commandCreateChallengedTrashWindow(trashWindow) {
+    this._challenged.trashWindow = trashWindow;
     this.commandAddChild(trashWindow);
   }
 
-  createChallengeScoreWindow(victories, height = this._challenge.boardWindow.height) {
+  createChallengedScoreWindow(victories, height = this._challenged.boardWindow.height) {
     const scoreWindow = ScoreWindow.create(0, 0);
     scoreWindow.changeRedColor();
     scoreWindow.alignEndTop();
     const y = ScreenHelper.getTopPosition();
     scoreWindow.alignBelowOf({ y, height });
     scoreWindow.refreshScore(victories);
-    this.addAction(this.commandCreateChallengeScoreWindow, scoreWindow);
+    this.addAction(this.commandCreateChallengedScoreWindow, scoreWindow);
     return scoreWindow;
   }
 
-  commandCreateChallengeScoreWindow(scoreWindow) {
-    this._challenge.scoreWindow = scoreWindow;
+  commandCreateChallengedScoreWindow(scoreWindow) {
+    this._challenged.scoreWindow = scoreWindow;
     this.commandAddChild(scoreWindow);
   }
 
-  createChallengeBattlefield() {
+  createChallengedBattlefield() {
     const paddingLeft = this.getPaddingLeftBattleField();
     const battlefield = CardsetSprite.create(paddingLeft, 0);
     const height = 128;
     const y = ScreenHelper.getTopPosition();
     battlefield.alignBelowOf({ y, height });
-    this.addAction(this.commandCreateChallengeBattlefield, battlefield);
+    this.addAction(this.commandCreateChallengedBattlefield, battlefield);
     return battlefield;
   }
 
-  commandCreateChallengeBattlefield(battlefield) {
-    this._challenge.battlefield = battlefield;
+  commandCreateChallengedBattlefield(battlefield) {
+    this._challenged.battlefield = battlefield;
     this.commandAddChild(battlefield);
+  }
+
+  createPowerfield(cards) {
+    const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
+    const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
+    const powerfield = CardsetSprite.create(x, y);
+    powerfield.show();
+    const xCard = CardsetSprite.contentOriginalWidth() - CardSprite.contentOriginalWidth();
+    const sprites = powerfield.setCards(cards, xCard);
+    powerfield.startClosedCards(sprites);
+    this.addAction(this.commandCreatePowerfield, powerfield);
+    return powerfield;
+  }
+
+  commandCreatePowerfield(powerfield) {
+    this._powerfield = powerfield;
+    this.commandAddChild(powerfield);
   }
 
   getPlayerBoardWindow() {
@@ -12070,30 +12088,30 @@ class Step {
     return this._player.battlefield;
   }
 
-  getChallengeBoardWindow() {
-    return this._challenge.boardWindow;
+  getChallengedBoardWindow() {
+    return this._challenged.boardWindow;
   }
 
-  getChallengeBattleWindow() {
-    return this._challenge.battleWindow;
+  getChallengedBattleWindow() {
+    return this._challenged.battleWindow;
   }
 
-  getChallengeTrashWindow() {
-    return this._challenge.trashWindow;
+  getChallengedTrashWindow() {
+    return this._challenged.trashWindow;
   }
 
-  getChallengeScoreWindow() {
-    return this._challenge.scoreWindow;
+  getChallengedScoreWindow() {
+    return this._challenged.scoreWindow;
   }
 
-  getChallengeBattlefield() {
-    return this._challenge.battlefield;
+  getChallengedBattlefield() {
+    return this._challenged.battlefield;
   }
 
   openGameBoards() {
     this.addActions([
       this.commandOpenPlayerGameBoard,
-      this.commandOpenChallengeGameBoard,
+      this.commandOpenChallengedGameBoard,
     ]);
   }
 
@@ -12125,38 +12143,38 @@ class Step {
     this._player.battlefield.openCards();
   }
   
-  commandOpenChallengeGameBoard() {
-    this.commandOpenChallengeBoardWindow();
-    this.commandOpenChallengeBattleWindow();
-    this.commandOpenChallengeTrashWindow();
-    this.commandOpenChallengeScoreWindow();
-    this.commandOpenChallengeBattlefield();
+  commandOpenChallengedGameBoard() {
+    this.commandOpenChallengedBoardWindow();
+    this.commandOpenChallengedBattleWindow();
+    this.commandOpenChallengedTrashWindow();
+    this.commandOpenChallengedScoreWindow();
+    this.commandOpenChallengedBattlefield();
   }
 
-  commandOpenChallengeBoardWindow() {
-    this._challenge.boardWindow.open();
+  commandOpenChallengedBoardWindow() {
+    this._challenged.boardWindow.open();
   }
 
-  commandOpenChallengeBattleWindow() {
-    this._challenge.battleWindow.open();
+  commandOpenChallengedBattleWindow() {
+    this._challenged.battleWindow.open();
   }
 
-  commandOpenChallengeTrashWindow() {
-    this._challenge.trashWindow.open();
+  commandOpenChallengedTrashWindow() {
+    this._challenged.trashWindow.open();
   }
 
-  commandOpenChallengeScoreWindow() {
-    this._challenge.scoreWindow.open();
+  commandOpenChallengedScoreWindow() {
+    this._challenged.scoreWindow.open();
   }
 
-  commandOpenChallengeBattlefield() {
-    this._challenge.battlefield.openCards();
+  commandOpenChallengedBattlefield() {
+    this._challenged.battlefield.openCards();
   }
 
   closeGameBoards() {
     this.addActions([
       this.closePlayerGameBoard,
-      this.closeChallengeGameBoard
+      this.closeChallengedGameBoard
     ]);
   }
 
@@ -12188,32 +12206,32 @@ class Step {
     this._player.battlefield.closeCards();
   }
 
-  closeChallengeGameBoard() {
-    this.commandCloseChallengeBoardWindow();
-    this.commandCloseChallengeBattleWindow();
-    this.commandCloseChallengeTrashWindow();
-    this.commandCloseChallengeScoreWindow();
-    this.commandCloseChallengeBattlefield();
+  closeChallengedGameBoard() {
+    this.commandCloseChallengedBoardWindow();
+    this.commandCloseChallengedBattleWindow();
+    this.commandCloseChallengedTrashWindow();
+    this.commandCloseChallengedScoreWindow();
+    this.commandCloseChallengedBattlefield();
   }
 
-  commandCloseChallengeBoardWindow() {
-    this._challenge.boardWindow.close();
+  commandCloseChallengedBoardWindow() {
+    this._challenged.boardWindow.close();
   }
 
-  commandCloseChallengeBattleWindow() {
-    this._challenge.battleWindow.close();
+  commandCloseChallengedBattleWindow() {
+    this._challenged.battleWindow.close();
   }
 
-  commandCloseChallengeTrashWindow() {
-    this._challenge.trashWindow.close();
+  commandCloseChallengedTrashWindow() {
+    this._challenged.trashWindow.close();
   }
 
-  commandCloseChallengeScoreWindow() {
-    this._challenge.scoreWindow.close();
+  commandCloseChallengedScoreWindow() {
+    this._challenged.scoreWindow.close();
   }
 
-  commandCloseChallengeBattlefield() {
-    this._challenge.battlefield.closeCards();
+  commandCloseChallengedBattlefield() {
+    this._challenged.battlefield.closeCards();
   }
 
   leaveGameBoards() {
@@ -12227,52 +12245,68 @@ class Step {
       this._player.trashWindow,
       this._player.scoreWindow,
       this._player.battlefield,
-      this._challenge.boardWindow,
-      this._challenge.battleWindow,
-      this._challenge.trashWindow,
-      this._challenge.scoreWindow,
-      this._challenge.battlefield,
+      this._challenged.boardWindow,
+      this._challenged.battleWindow,
+      this._challenged.trashWindow,
+      this._challenged.scoreWindow,
+      this._challenged.battlefield,
     ]);
+  }
+
+  playerBoardWindowPass() {
+    this.addAction(this.commandPlayerBoardWindowPass);
+  }
+
+  commandPlayerBoardWindowPass() {
+    this._player.boardWindow.pass();
+  }
+
+  challengedBoardWindowPass() {
+    this.addAction(this.commandChallengedBoardWindowPass);
+  }
+
+  commandChallengedBoardWindowPass() {
+    this._challenged.boardWindow.pass();
   }
 
   isPlayerBoardWindowVisible() {
     return this._player.boardWindow.visible;
   }
 
-  isChallengeBoardWindowVisible() {
-    return this._challenge.boardWindow.visible;
+  isChallengedBoardWindowVisible() {
+    return this._challenged.boardWindow.visible;
   }
 
   isPlayerBattleWindowVisible() {
     return this._player.battleWindow.visible;
   }
 
-  isChallengeBattleWindowVisible() {
-    return this._challenge.battleWindow.visible;
+  isChallengedBattleWindowVisible() {
+    return this._challenged.battleWindow.visible;
   }
 
   isPlayerTrashWindowVisible() {
     return this._player.trashWindow.visible;
   }
 
-  isChallengeTrashWindowVisible() {
-    return this._challenge.trashWindow.visible;
+  isChallengedTrashWindowVisible() {
+    return this._challenged.trashWindow.visible;
   }
 
   isPlayerScoreWindowVisible() {
     return this._player.scoreWindow.visible;
   }
 
-  isChallengeScoreWindowVisible() {
-    return this._challenge.scoreWindow.visible;
+  isChallengedScoreWindowVisible() {
+    return this._challenged.scoreWindow.visible;
   }
 
   isPlayerBattlefieldVisible() {
     return this._player.battlefield.visible;
   }
 
-  isChallengeBattlefieldVisible() {
-    return this._challenge.battlefield.visible;
+  isChallengedBattlefieldVisible() {
+    return this._challenged.battlefield.visible;
   }
 }
 class DisplayStep extends Step {
@@ -12298,7 +12332,7 @@ class DisplayStep extends Step {
         break;
       case GameConst.DRAW_PHASE:
         return 'Draw Phase';
-        break;
+        break; 
       case GameConst.LOAD_PHASE:
         return 'Load Phase';
         break;
@@ -12701,7 +12735,7 @@ class DrawStep extends Step {
     this.createChallengeGameBoard(manager);
     this.openGameBoards();
     this.drawCardsToGame(manager);
-    this.updateGameBoardsToGame(manager);
+    this.loadGameBoardsToGame(manager);
   }
 
   drawCardsToGame(manager) {
@@ -12780,7 +12814,7 @@ class DrawStep extends Step {
     this._challenge.battlefield.moveCardsInlist(sprites, 6, fieldUpdates);
   }
 
-  updateGameBoardsToGame(manager) {
+  loadGameBoardsToGame(manager) {
     const playerCardsInHand = manager.getPlayerHand();
     const playerEnergiesClone = Object.assign({}, manager.getPlayerEnergies());
     const playerUpdates = this.createFieldUpdates(playerCardsInHand, playerEnergiesClone);
@@ -12791,7 +12825,7 @@ class DrawStep extends Step {
     const challengeUpdates = this.createFieldUpdates(challengeCardsInHand, challengeEnergiesClone);
     const challengeFieldUpdates = challengeUpdates.fieldUpdates;
     manager.setChallengeEnergies(challengeUpdates.energies);
-    this.updateGameBoards(playerFieldUpdates, challengeFieldUpdates);
+    this.loadGameBoards(playerFieldUpdates, challengeFieldUpdates);
   }
 
   createFieldUpdates(cards, energies) {
@@ -12806,7 +12840,7 @@ class DrawStep extends Step {
     return { fieldUpdates, energies };
   }
 
-  updateGameBoards(playerUpdates, challengeUpdates) {
+  loadGameBoards(playerUpdates, challengeUpdates) {
     const updates = playerUpdates.map((playerUpdate, index) => {
       const challengeUpdate = challengeUpdates[index] || false;
       return [playerUpdate, challengeUpdate];
@@ -12866,15 +12900,16 @@ class DrawStep extends Step {
     }
   }
 }
-class PlaysStep extends Step {
+class TurnStep extends Step {
+  _isStartTurn = false;
   _textWindow = {};
+  _askWindow = {};
 
-  start(manager) {
+  start(manager, text = 'Begin Load Phase') {
     const phase = this.getPhase();
     this.createPlayerGameBoard(manager);
-    this.createChallengeGameBoard(manager);
+    this.createChallengedGameBoard(manager);
     this.openGameBoards();
-    const text = 'Begin Load Phase';
     this.createTextWindow(text);
     this.openBeginLoadPhaseWindow();
   }
@@ -12900,15 +12935,118 @@ class PlaysStep extends Step {
     this._textWindow.open();
   }
 
+  closeBeginLoadPhaseWindow() {
+    this.addAction(this.commandCloseTextWindow);
+  }
+
+  commandCloseTextWindow() {
+    this._textWindow.close();
+  }
+
+  leaveBeginLoadPhaseWindow() {
+    this.addAction(this.commandLeaveBeginLoadPhaseWindow);
+  }
+
+  commandLeaveBeginLoadPhaseWindow() {
+    this.removeChild(this._textWindow);
+  }
+
   update(manager) {
     super.update();
     if (this.isBusy()) return false;
-    if (Input.isTriggered('ok')) {
-      const phase = this.getPhase();
-      // this.closeGameBoards();
-      // this.leaveGameBoards();
-      // this.addAction(this.finish, phase);
+    this.updateStartTurn();
+    this.updateTurn(manager);
+  }
+
+  updateStartTurn() {
+    if (this._isStartTurn === false && Input.isTriggered('ok')) {
+      this.closeBeginLoadPhaseWindow();
+      this.leaveBeginLoadPhaseWindow();
+      this.addAction(this.startTurn);
     }
+  }
+
+  startTurn() {
+    this._isStartTurn = true;
+  }
+
+  updateTurn(manager) {
+    const phase = this.getPhase();
+    const startPlay = manager.startPlay;
+    if (this._isStartTurn) {
+      if ((startPlay || manager.isChallengedPassed()) && manager.isPlayerPassed() === false) {
+
+        const commandYes = () => {
+          this.commandCloseAskWindow();
+          this.leaveAskWindow();
+          this.closeGameBoards();
+          this.leaveGameBoards();
+          this.commandPlayerHand(manager);
+        };
+        const commandNo = () => {
+          this.commandCloseAskWindow();
+          this.leaveAskWindow();
+          this.commandPlayerPassed(manager);
+        };
+        this.createAskWindow('Use a Program Card?', commandYes, commandNo);
+        this.openAskWindow();
+
+        return;
+      } 
+      if (manager.isChallengedPassed() === false) {
+        this.challengedBoardWindowPass();
+        this.addAction(this.commandChallengedPassed, manager);
+        return;
+      }
+      this.addAction(this.finish, phase);
+    }
+  }
+
+  commandChallengedPassed(manager) {
+    manager.challengedPassed();
+  }
+
+  createAskWindow(text, yesHandler, noHanlder) {
+    const commandYes = CommandWindow.createCommand('Yes', 'YES', yesHandler);
+    const commandNo = CommandWindow.createCommand('No', 'NO', noHanlder);
+    const askWindow = CommandWindow.create(0, 0, [text], [commandYes, commandNo]);
+    askWindow.alignBottom();
+    this.addAction(this.commandCreateAskWindow, askWindow);
+    return askWindow;
+  }
+
+  commandCreateAskWindow(askWindow) {
+    this._askWindow = askWindow;
+    this.commandAddChild(askWindow);
+  }
+
+  openAskWindow() {
+    this.addAction(this.commandOpenAskWindow);
+  }
+
+  commandOpenAskWindow() {
+    this._askWindow.open();
+  }
+
+  commandCloseAskWindow() {
+    this._askWindow.close();
+  }
+
+  leaveAskWindow() {
+    this.addAction(this.commandLeaveAskWindow);
+  }
+
+  commandLeaveAskWindow() {
+    this.removeChild(this._askWindow);
+  }
+
+  commandPlayerHand(manager) {
+    console.log('hand');
+  }
+
+  commandPlayerPassed(manager) {
+    this.playerBoardWindowPass();
+    manager.playerPassed();
   }
 
   finish(phase) {
@@ -13133,7 +13271,7 @@ class CardBattleTestScene extends Scene_Message {
       // DrawPhaseDisplayStepTest,
       // DrawPhaseDrawStepTest,
       // LoadPhaseDisplayStepTest,
-      LoadPhasePlaysStepChallengePassedTest,
+      LoadPhaseTurnStepChallengePassedTest,
     ];
     return [
       // ...cardSpriteTests,
@@ -13161,6 +13299,7 @@ class CardBattleTestScene extends Scene_Message {
     for (const test of this._tests) {
       this._next = test;
       const result = await this._next.run();
+      this._next = null;
       testsResults.push(result);
       await this.clearScene();
     }

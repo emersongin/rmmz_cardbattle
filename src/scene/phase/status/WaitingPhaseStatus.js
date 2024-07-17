@@ -44,7 +44,7 @@ class WaitingPhaseStatus  {
     this.updateStepStart(manager);
     this.updateStepBeginLoadPhase(manager);
     this.updateStartPlay(manager);
-    this.updateStepChallengeLoadPhase(manager);
+    this.updateStepChallengedLoadPhase(manager);
     this.updateStepPlayerLoadPhase(manager);
     this.updateStepPowerfieldLoadPhase(manager);
     if (manager.isEndPlays() && manager.getPowerfieldLength()) return; 
@@ -58,7 +58,7 @@ class WaitingPhaseStatus  {
       that.commandCloseTextWindows();
       that.leaveTextWindows();
       this.createPlayerGameBoard(manager);
-      this.createChallengeGameBoard(manager);
+      this.createChallengedGameBoard(manager);
       that.openGameBoards();
       const text = 'Begin Load Phase';
       this.createTextWindow(text);
@@ -83,20 +83,20 @@ class WaitingPhaseStatus  {
     const battlefield = that.createPlayerBattlefield();
   }
 
-  createChallengeGameBoard(manager) {
+  createChallengedGameBoard(manager) {
     const that = this._phase;
-    const energies = Object.values(manager.getChallengeEnergies());
-    const cardsInDeck = manager.getChallengeDeckLength();
-    const cardsInHand = manager.getChallengeHandLength();
-    const cardsInTrash = manager.getChallengeTrashLength();
-    const victories = manager.getChallengeVictories();
-    const passed = manager.isChallengePassed();
-    const boardWindow = that.createChallengeBoardWindow(energies, cardsInDeck, cardsInHand, passed);
+    const energies = Object.values(manager.getChallengedEnergies());
+    const cardsInDeck = manager.getChallengedDeckLength();
+    const cardsInHand = manager.getChallengedHandLength();
+    const cardsInTrash = manager.getChallengedTrashLength();
+    const victories = manager.getChallengedVictories();
+    const passed = manager.isChallengedPassed();
+    const boardWindow = that.createChallengedBoardWindow(energies, cardsInDeck, cardsInHand, passed);
     const boardWindowHeight = boardWindow.height;
-    const battleWindow = that.createChallengeBattleWindow(boardWindowHeight);
-    const trashWindow = that.createChallengeTrashWindow(cardsInTrash);
-    const scoreWindow = that.createChallengeScoreWindow(victories, boardWindowHeight);
-    const battlefield = that.createChallengeBattlefield();
+    const battleWindow = that.createChallengedBattleWindow(boardWindowHeight);
+    const trashWindow = that.createChallengedTrashWindow(cardsInTrash);
+    const scoreWindow = that.createChallengedScoreWindow(victories, boardWindowHeight);
+    const battlefield = that.createChallengedBattlefield();
   }
 
   createTextWindow(text) {
@@ -164,10 +164,10 @@ class WaitingPhaseStatus  {
     }
   }
 
-  updateStepChallengeLoadPhase(manager) {
+  updateStepChallengedLoadPhase(manager) {
     const that = this._phase;
-    const isChallengeTurnPhase = that.isCurrentStep(GameConst.CHALLENGE_TURN_PHASE);
-    if (isChallengeTurnPhase) {
+    const isChallengedTurnPhase = that.isCurrentStep(GameConst.CHALLENGE_TURN_PHASE);
+    if (isChallengedTurnPhase) {
       manager.challengePassed();
       that.challengePass();
       that.stepWainting();
@@ -250,7 +250,7 @@ class WaitingPhaseStatus  {
       this.closePlayerHand();
       this.leavePlayerHand();
       this.createPlayerGameBoard(manager);
-      this.createChallengeGameBoard(manager);
+      this.createChallengedGameBoard(manager);
       that.openGameBoards();
       const cards = cardIndexs.map(index => manager.getCardPlayerHandByIndex(index));
       that.createPowerfield(cards);
@@ -262,7 +262,7 @@ class WaitingPhaseStatus  {
       this.closePlayerHand();
       this.leavePlayerHand();
       this.createPlayerGameBoard(manager);
-      this.createChallengeGameBoard(manager);
+      this.createChallengedGameBoard(manager);
       that.openGameBoards();
       that.setStep(GameConst.PLAYER_TURN_PHASE);
     };
@@ -512,7 +512,7 @@ class WaitingPhaseStatus  {
     manager.playerPassed();
     that.playerPass();
     that.stepWainting();
-    if (manager.isChallengePassed() === false) that.setStep(GameConst.CHALLENGE_TURN_PHASE);
+    if (manager.isChallengedPassed() === false) that.setStep(GameConst.CHALLENGE_TURN_PHASE);
   }
 
   updateStepPowerfieldLoadPhase(manager) {

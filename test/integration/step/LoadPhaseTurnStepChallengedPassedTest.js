@@ -1,4 +1,4 @@
-class LoadPhasePlaysStepChallengePassedTest extends SceneTest {
+class LoadPhaseTurnStepChallengedPassedTest extends SceneTest {
   manager = {
     startPlay: false,
     player: {
@@ -56,7 +56,7 @@ class LoadPhasePlaysStepChallengePassedTest extends SceneTest {
       victories: 0,
       passed: false,
     },
-    challenge: {
+    challenged: {
       deck: [
         { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
         { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
@@ -111,7 +111,7 @@ class LoadPhasePlaysStepChallengePassedTest extends SceneTest {
       victories: 0,
       passed: false,
     },
-    getChallengeDescription: () => 'Desafie um amigo para uma partida de xadrez.',
+    getChallengedDescription: () => 'Desafie um amigo para uma partida de xadrez.',
     getPlayerDeck: () => this.manager.player.deck,
     getPlayerHand: () => this.manager.player.hand,
     getPlayerEnergies: () => this.manager.player.energies,
@@ -119,27 +119,27 @@ class LoadPhasePlaysStepChallengePassedTest extends SceneTest {
     getPlayerHandLength: () => this.manager.player.hand.length,
     getPlayerTrashLength: () => this.manager.player.trash.length,
     getPlayerVictories: () => this.manager.player.victories,
-    getChallengeDeck: () => this.manager.challenge.deck,
-    getChallengeHand: () => this.manager.challenge.hand,
-    getChallengeEnergies: () => this.manager.challenge.energies,
-    getChallengeDeckLength: () => this.manager.challenge.deck.length,
-    getChallengeHandLength: () => this.manager.challenge.hand.length,
-    getChallengeTrashLength: () => this.manager.challenge.trash.length,
-    getChallengeVictories: () => this.manager.challenge.victories,
+    getChallengedDeck: () => this.manager.challenged.deck,
+    getChallengedHand: () => this.manager.challenged.hand,
+    getChallengedEnergies: () => this.manager.challenged.energies,
+    getChallengedDeckLength: () => this.manager.challenged.deck.length,
+    getChallengedHandLength: () => this.manager.challenged.hand.length,
+    getChallengedTrashLength: () => this.manager.challenged.trash.length,
+    getChallengedVictories: () => this.manager.challenged.victories,
     setPlayerHand: (hand) => this.manager.player.hand = hand,
     setPlayerEnergies: (energies) => this.manager.player.energies = energies,
-    setChallengeHand: (hand) => this.manager.challenge.hand = hand,
-    setChallengeEnergies: (energies) => this.manager.challenge.energies = energies,
+    setChallengedHand: (hand) => this.manager.challenged.hand = hand,
+    setChallengedEnergies: (energies) => this.manager.challenged.energies = energies,
     isPlayerPassed: () => this.manager.player.passed,
-    isChallengePassed: () => this.manager.challenge.passed,
+    isChallengedPassed: () => this.manager.challenged.passed,
   };
   step;
 
   create() {
-    this.step = new PlaysStep(this._scene);
     const finishTest = this.createHandler();
-    this.manager.challengePassed = () => {
-      this.manager.challenge.passed = true;
+    this.step = new TurnStep(this._scene, finishTest);
+    this.manager.challengedPassed = () => {
+      this.manager.challenged.passed = true;
       finishTest();
     };
   }
@@ -156,6 +156,6 @@ class LoadPhasePlaysStepChallengePassedTest extends SceneTest {
   
   asserts() {
     this.describe('O desafiado deve passar a jogada na etapa de jogadas de fase de carregar.');
-    this.expectTrue('O desafiado passou a jogada?', this.manager.isChallengePassed());
+    this.expectTrue('O desafiado passou a jogada?', this.manager.isChallengedPassed());
   }
 }

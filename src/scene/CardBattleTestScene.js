@@ -3,7 +3,7 @@
 // include ./step/FolderStep.js
 // include ./step/MiniGameStep.js
 // include ./step/DrawStep.js
-// include ./step/PlaysStep.js
+// include ./step/TurnStep.js
 
 class CardBattleTestScene extends Scene_Message {
   initialize() {
@@ -210,7 +210,7 @@ class CardBattleTestScene extends Scene_Message {
       // DrawPhaseDisplayStepTest,
       // DrawPhaseDrawStepTest,
       // LoadPhaseDisplayStepTest,
-      LoadPhasePlaysStepChallengePassedTest,
+      LoadPhaseTurnStepChallengePassedTest,
     ];
     return [
       // ...cardSpriteTests,
@@ -238,6 +238,7 @@ class CardBattleTestScene extends Scene_Message {
     for (const test of this._tests) {
       this._next = test;
       const result = await this._next.run();
+      this._next = null;
       testsResults.push(result);
       await this.clearScene();
     }
