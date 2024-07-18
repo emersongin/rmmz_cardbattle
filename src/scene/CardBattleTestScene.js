@@ -3,6 +3,7 @@
 // include ./step/FolderStep.js
 // include ./step/MiniGameStep.js
 // include ./step/DrawStep.js
+// include ./step/PowerfieldStep.js
 // include ./step/TurnStep.js
 
 class CardBattleTestScene extends Scene_Message {
@@ -203,17 +204,18 @@ class CardBattleTestScene extends Scene_Message {
       LoadPhaseTest,
     ];
     const steps = [
-      // ChallengePhaseDisplayStepTest,
-      // ChallengePhaseFolderStepTest,
-      // StartPhaseDisplayStepTest,
-      // StartPhaseMiniGameStepTest,
-      // DrawPhaseDisplayStepTest,
-      // DrawPhaseDrawStepTest,
-      // LoadPhaseDisplayStepTest,
-      // LoadPhaseTurnStepPlayerStartFirstTest,
-      // LoadPhaseTurnStepPlayerPlaysNextTest,
-      // LoadPhaseTurnStepChallengedPassedTest,
-      // LoadPhaseTurnStepPlayerPassedTest,
+      ChallengePhaseDisplayStepTest,
+      ChallengePhaseFolderStepTest,
+      StartPhaseDisplayStepTest,
+      StartPhaseMiniGameStepTest,
+      DrawPhaseDisplayStepTest,
+      DrawPhaseDrawStepTest,
+      LoadPhaseDisplayStepTest,
+      LoadPhaseTurnStepPlayerStartFirstTest,
+      LoadPhaseTurnStepPlayerPlaysNextTest,
+      LoadPhaseTurnStepChallengedPassedTest,
+      LoadPhaseTurnStepPlayerPassedTest,
+      LoadPhaseTurnStepPowerfieldActiveTest,
     ];
     return [
       // ...cardSpriteTests,
@@ -376,5 +378,9 @@ class CardBattleTestScene extends Scene_Message {
 
   setStep(step) {
     this._status = step;
+  }
+
+  isCurrentStep(step) {
+    return this._status instanceof step;
   }
 }

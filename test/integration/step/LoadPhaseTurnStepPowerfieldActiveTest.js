@@ -1,4 +1,4 @@
-class LoadPhaseTurnStepPlayerPlaysNextTest extends SceneTest {
+class LoadPhaseTurnStepPowerfieldActiveTest extends SceneTest {
   manager = {
     playerStartTurn: false,
     player: {
@@ -29,7 +29,9 @@ class LoadPhaseTurnStepPlayerPlaysNextTest extends SceneTest {
       victories: 0,
       passed: false,
     },
-    powerfield: [],
+    powerfield: [
+      { type: GameConst.POWER, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
+    ],
     getPowerfieldLength: () => this.manager.powerfield.length,
     getPlayerDeck: () => this.manager.player.deck,
     getPlayerHand: () => this.manager.player.hand,
@@ -60,12 +62,20 @@ class LoadPhaseTurnStepPlayerPlaysNextTest extends SceneTest {
 
   create() {
     this.step = new TurnStep(this._scene);
+    this.manager.playerPassed();
+    this.manager.challengedPassed();
   }
 
   start() {
     this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
+    const finishTest = this.createHandler();
+    const _setStep = this._scene.setStep.bind(this._scene);
+    this._scene.setStep = (step) => {
+      _setStep(step);
+      finishTest();
+    };
   }
 
   update() {
@@ -73,7 +83,7 @@ class LoadPhaseTurnStepPlayerPlaysNextTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('O jogador não deve iniciar a jogada na etapa de jogadas de fase de carregar.');
-    this.expectTrue('O jogador não iniciou a jogada?', this.manager.isPlayerStartTurn() === false);
+    this.describe('A fase campo de poder deve ser ativada tendo pelo menos um cartão de poder!');
+    this.expectTrue('Esta na fase campo de poder?', this._scene.isCurrentStep(PowerfieldStep));
   }
 }

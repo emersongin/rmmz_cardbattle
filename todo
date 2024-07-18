@@ -2,7 +2,7 @@ Create tests to throw Error
 
 next tests:
 
-#Jogador joga primeiro
+&OK Jogador joga primeiro
 &OK Jogador_passou 
 #Jogador ativou cartão de poder
 #Desafiado joga primeiro

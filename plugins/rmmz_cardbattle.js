@@ -11281,7 +11281,6 @@ class DrawPhaseDrawStepTest extends SceneTest {
       victories: 0,
       passed: false,
     },
-    getChallengeDescription: () => 'Desafie um amigo para uma partida de xadrez.',
     getPlayerDeck: () => this.manager.player.deck,
     getPlayerHand: () => this.manager.player.hand,
     getPlayerEnergies: () => this.manager.player.energies,
@@ -11367,7 +11366,7 @@ class LoadPhaseDisplayStepTest extends SceneTest {
 }
 class LoadPhaseTurnStepChallengedPassedTest extends SceneTest {
   manager = {
-    startPlay: false,
+    playerStartTurn: false,
     player: {
       deck: [],
       hand: [],
@@ -11396,7 +11395,8 @@ class LoadPhaseTurnStepChallengedPassedTest extends SceneTest {
       victories: 0,
       passed: false,
     },
-    getChallengedDescription: () => 'Desafie um amigo para uma partida de xadrez.',
+    powerfield: [],
+    getPowerfieldLength: () => this.manager.powerfield.length,
     getPlayerDeck: () => this.manager.player.deck,
     getPlayerHand: () => this.manager.player.hand,
     getPlayerEnergies: () => this.manager.player.energies,
@@ -11415,6 +11415,10 @@ class LoadPhaseTurnStepChallengedPassedTest extends SceneTest {
     setPlayerEnergies: (energies) => this.manager.player.energies = energies,
     setChallengedHand: (hand) => this.manager.challenged.hand = hand,
     setChallengedEnergies: (energies) => this.manager.challenged.energies = energies,
+    playerStart: () => this.manager.playerStartTurn = true,
+    playerPassed: () => this.manager.player.passed = true,
+    challengedPassed: () => this.manager.challenged.passed = true,
+    isPlayerStartTurn: () => this.manager.playerStartTurn,
     isPlayerPassed: () => this.manager.player.passed,
     isChallengedPassed: () => this.manager.challenged.passed,
   };
@@ -11446,7 +11450,7 @@ class LoadPhaseTurnStepChallengedPassedTest extends SceneTest {
 }
 class LoadPhaseTurnStepPlayerPassedTest extends SceneTest {
   manager = {
-    startPlay: true,
+    playerStartTurn: false,
     player: {
       deck: [],
       hand: [],
@@ -11475,7 +11479,8 @@ class LoadPhaseTurnStepPlayerPassedTest extends SceneTest {
       victories: 0,
       passed: false,
     },
-    getChallengedDescription: () => 'Desafie um amigo para uma partida de xadrez.',
+    powerfield: [],
+    getPowerfieldLength: () => this.manager.powerfield.length,
     getPlayerDeck: () => this.manager.player.deck,
     getPlayerHand: () => this.manager.player.hand,
     getPlayerEnergies: () => this.manager.player.energies,
@@ -11494,7 +11499,10 @@ class LoadPhaseTurnStepPlayerPassedTest extends SceneTest {
     setPlayerEnergies: (energies) => this.manager.player.energies = energies,
     setChallengedHand: (hand) => this.manager.challenged.hand = hand,
     setChallengedEnergies: (energies) => this.manager.challenged.energies = energies,
+    playerStart: () => this.manager.playerStartTurn = true,
+    playerPassed: () => this.manager.player.passed = true,
     challengedPassed: () => this.manager.challenged.passed = true,
+    isPlayerStartTurn: () => this.manager.playerStartTurn,
     isPlayerPassed: () => this.manager.player.passed,
     isChallengedPassed: () => this.manager.challenged.passed,
   };
@@ -11555,7 +11563,8 @@ class LoadPhaseTurnStepPlayerStartFirstTest extends SceneTest {
       victories: 0,
       passed: false,
     },
-    getChallengedDescription: () => 'Desafie um amigo para uma partida de xadrez.',
+    powerfield: [],
+    getPowerfieldLength: () => this.manager.powerfield.length,
     getPlayerDeck: () => this.manager.player.deck,
     getPlayerHand: () => this.manager.player.hand,
     getPlayerEnergies: () => this.manager.player.energies,
@@ -11574,7 +11583,7 @@ class LoadPhaseTurnStepPlayerStartFirstTest extends SceneTest {
     setPlayerEnergies: (energies) => this.manager.player.energies = energies,
     setChallengedHand: (hand) => this.manager.challenged.hand = hand,
     setChallengedEnergies: (energies) => this.manager.challenged.energies = energies,
-    playerStart: () => this.manager.playerStartTurn = false,
+    playerStart: () => this.manager.playerStartTurn = true,
     playerPassed: () => this.manager.player.passed = true,
     challengedPassed: () => this.manager.challenged.passed = true,
     isPlayerStartTurn: () => this.manager.playerStartTurn,
@@ -11644,7 +11653,8 @@ class LoadPhaseTurnStepPlayerPlaysNextTest extends SceneTest {
       victories: 0,
       passed: false,
     },
-    getChallengedDescription: () => 'Desafie um amigo para uma partida de xadrez.',
+    powerfield: [],
+    getPowerfieldLength: () => this.manager.powerfield.length,
     getPlayerDeck: () => this.manager.player.deck,
     getPlayerHand: () => this.manager.player.hand,
     getPlayerEnergies: () => this.manager.player.energies,
@@ -11689,6 +11699,95 @@ class LoadPhaseTurnStepPlayerPlaysNextTest extends SceneTest {
   asserts() {
     this.describe('O jogador não deve iniciar a jogada na etapa de jogadas de fase de carregar.');
     this.expectTrue('O jogador não iniciou a jogada?', this.manager.isPlayerStartTurn() === false);
+  }
+}
+class LoadPhaseTurnStepPowerfieldActiveTest extends SceneTest {
+  manager = {
+    playerStartTurn: false,
+    player: {
+      deck: [],
+      hand: [],
+      trash: [],
+      energies: {
+        [GameConst.RED]: 0,
+        [GameConst.BLUE]: 0,
+        [GameConst.GREEN]: 0,
+        [GameConst.BLACK]: 0,
+        [GameConst.WHITE]: 0,
+      },
+      victories: 0,
+      passed: false,
+    },
+    challenged: {
+      deck: [],
+      hand: [],
+      trash: [],
+      energies: {
+        [GameConst.RED]: 0,
+        [GameConst.BLUE]: 0,
+        [GameConst.GREEN]: 0,
+        [GameConst.BLACK]: 0,
+        [GameConst.WHITE]: 0,
+      },
+      victories: 0,
+      passed: false,
+    },
+    powerfield: [
+      { type: GameConst.POWER, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
+    ],
+    getPowerfieldLength: () => this.manager.powerfield.length,
+    getPlayerDeck: () => this.manager.player.deck,
+    getPlayerHand: () => this.manager.player.hand,
+    getPlayerEnergies: () => this.manager.player.energies,
+    getPlayerDeckLength: () => this.manager.player.deck.length,
+    getPlayerHandLength: () => this.manager.player.hand.length,
+    getPlayerTrashLength: () => this.manager.player.trash.length,
+    getPlayerVictories: () => this.manager.player.victories,
+    getChallengedDeck: () => this.manager.challenged.deck,
+    getChallengedHand: () => this.manager.challenged.hand,
+    getChallengedEnergies: () => this.manager.challenged.energies,
+    getChallengedDeckLength: () => this.manager.challenged.deck.length,
+    getChallengedHandLength: () => this.manager.challenged.hand.length,
+    getChallengedTrashLength: () => this.manager.challenged.trash.length,
+    getChallengedVictories: () => this.manager.challenged.victories,
+    setPlayerHand: (hand) => this.manager.player.hand = hand,
+    setPlayerEnergies: (energies) => this.manager.player.energies = energies,
+    setChallengedHand: (hand) => this.manager.challenged.hand = hand,
+    setChallengedEnergies: (energies) => this.manager.challenged.energies = energies,
+    playerStart: () => this.manager.playerStartTurn = true,
+    playerPassed: () => this.manager.player.passed = true,
+    challengedPassed: () => this.manager.challenged.passed = true,
+    isPlayerStartTurn: () => this.manager.playerStartTurn,
+    isPlayerPassed: () => this.manager.player.passed,
+    isChallengedPassed: () => this.manager.challenged.passed,
+  };
+  step;
+
+  create() {
+    this.step = new TurnStep(this._scene);
+    this.manager.playerPassed();
+    this.manager.challengedPassed();
+  }
+
+  start() {
+    this._scene.setPhase(GameConst.LOAD_PHASE);
+    this._scene.setStep(this.step);
+    this.step.start(this.manager);
+    const finishTest = this.createHandler();
+    const _setStep = this._scene.setStep.bind(this._scene);
+    this._scene.setStep = (step) => {
+      _setStep(step);
+      finishTest();
+    };
+  }
+
+  update() {
+    this.step.update(this.manager);
+  }
+  
+  asserts() {
+    this.describe('A fase campo de poder deve ser ativada tendo pelo menos um cartão de poder!');
+    this.expectTrue('Esta na fase campo de poder?', this._scene.isCurrentStep(PowerfieldStep));
   }
 }
 
@@ -11891,6 +11990,7 @@ class Step {
     battlefield: {},
   };
   _powerfield = {};
+  _finish = null;
 
   constructor(scene, finish) {
     if ((scene instanceof Scene_Message) === false) {
@@ -11926,7 +12026,7 @@ class Step {
       this._challenged.scoreWindow,
       this._challenged.battlefield,
     ];
-    return this._wait > 0 || children.some(obj => (obj.isBusy ? obj.isBusy() : false)) || this.someChildrenIsBusy();
+    return this._wait > 0 || children.some(obj => (obj?.isBusy ? obj.isBusy() : false)) || this.someChildrenIsBusy();
   }
 
   someChildrenIsBusy() {
@@ -11938,6 +12038,7 @@ class Step {
 
   executeAction() {
     const actions = this._actionsQueue[0];
+    console.log(actions);
     if (actions.length > 0) {
       const completed = this.processActions(actions);
       if (completed) {
@@ -12019,6 +12120,25 @@ class Step {
     } else {
       this._scene.removeChild(child);
     }
+  }
+
+  changePhase(phase) {
+    this._scene.setPhase(phase);
+  }
+
+  changeStep(stepName) {
+    const step = new stepName(this._scene);
+    this._scene.setStep(step);
+    this.destroy();
+  }
+
+  destroy() {
+    this._actionsQueue = [];
+    this._wait = 0;
+    this._player = {};
+    this._challenged = {};
+    this._powerfield = {};
+    this._finish = null;
   }
 
   getPhase() {
@@ -12603,7 +12723,7 @@ class DisplayStep extends Step {
 
   update(manager) {
     super.update();
-    if (this.isBusy()) return false;
+    if (this.isBusy() || this.hasActions()) return false;
     if (Input.isTriggered('ok')) {
       const phase = this.getPhase();
       this.commandCloseTextWindows();
@@ -13079,7 +13199,7 @@ class DrawStep extends Step {
 
   update(manager) {
     super.update();
-    if (this.isBusy()) return false;
+    if (this.isBusy() || this.hasActions()) return false;
     if (Input.isTriggered('ok')) {
       const phase = this.getPhase();
       this.closeGameBoards();
@@ -13098,8 +13218,35 @@ class DrawStep extends Step {
     }
   }
 }
+class PowerfieldStep extends Step {
+  start(manager) {
+    const phase = this.getPhase();
+
+  }
+  
+  update(manager) {
+    if (this.isBusy() || this.hasActions()) return false;
+  }
+
+  finish(phase) {
+    if (typeof this._finish === 'function') return this._finish();
+    switch (phase) {
+      case null:
+        break;
+      default:
+        break;
+    }
+  }
+
+  isBusy() {
+    const children = [
+    ];
+    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+  }
+}
 class TurnStep extends Step {
-  _isStartTurn = false;
+  _startTurn = false;
+  _awaitingDecision = false;
   _textWindow = {};
   _askWindow = {};
 
@@ -13151,13 +13298,13 @@ class TurnStep extends Step {
 
   update(manager) {
     super.update();
-    if (this.isBusy()) return false;
+    if (this.isBusy() || this.hasActions() || this.isAwaitingDecision()) return false;
     this.updateStartTurn();
     this.updateTurn(manager);
   }
 
   updateStartTurn() {
-    if (this._isStartTurn === false && Input.isTriggered('ok')) {
+    if (this.isReady() && Input.isTriggered('ok')) {
       this.closeBeginLoadPhaseWindow();
       this.leaveBeginLoadPhaseWindow();
       this.addAction(this.startTurn);
@@ -13165,14 +13312,28 @@ class TurnStep extends Step {
   }
 
   startTurn() {
-    this._isStartTurn = true;
+    this._startTurn = true;
+  }
+
+  isReady() {
+    return this._startTurn === false;
+  }
+
+  isStarted() {
+    return this._startTurn;
   }
 
   updateTurn(manager) {
     const phase = this.getPhase();
-    const startPlay = manager.isPlayerStartTurn();
-    if (this._isStartTurn) {
+    if (this.isStarted()) {
+      const isPowerfieldFull = manager.getPowerfieldLength() >= 3;
+      if (isPowerfieldFull) {
+        this.changeStep(PowerfieldStep);
+        return;
+      }
+      const startPlay = manager.isPlayerStartTurn();
       if ((startPlay || manager.isChallengedPassed()) && manager.isPlayerPassed() === false) {
+        this._awaitingDecision = true;
 
         // const commandYes = () => {
         //   this.commandCloseAskWindow();
@@ -13186,6 +13347,7 @@ class TurnStep extends Step {
         //   this.leaveAskWindow();
           this.playerBoardWindowPass();
           this.addAction(this.commandPlayerPassed, manager);
+          this.addAction(this.commandDropDecision);
         // };
         // this.createAskWindow('Use a Program Card?', commandYes, commandNo);
         // this.openAskWindow();
@@ -13193,12 +13355,21 @@ class TurnStep extends Step {
         return;
       } 
       if (manager.isChallengedPassed() === false) {
+        console.log('challenged passed');
         this.challengedBoardWindowPass();
         this.addAction(this.commandChallengedPassed, manager);
         return;
       }
+      if (manager.getPowerfieldLength() > 0) {
+        this.changeStep(PowerfieldStep);
+        return;
+      }
       this.addAction(this.finish, phase);
     }
+  }
+
+  commandDropDecision() {
+    this._awaitingDecision = false;
   }
 
   commandChallengedPassed(manager) {
@@ -13244,7 +13415,6 @@ class TurnStep extends Step {
   }
 
   commandPlayerPassed(manager) {
-    this.playerBoardWindowPass();
     manager.playerPassed();
   }
 
@@ -13264,6 +13434,10 @@ class TurnStep extends Step {
       this._askWindow,
     ];
     return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+  }
+
+  isAwaitingDecision() {
+    return this._awaitingDecision;
   }
 }
 
@@ -13465,17 +13639,18 @@ class CardBattleTestScene extends Scene_Message {
       LoadPhaseTest,
     ];
     const steps = [
-      // ChallengePhaseDisplayStepTest,
-      // ChallengePhaseFolderStepTest,
-      // StartPhaseDisplayStepTest,
-      // StartPhaseMiniGameStepTest,
-      // DrawPhaseDisplayStepTest,
-      // DrawPhaseDrawStepTest,
-      // LoadPhaseDisplayStepTest,
+      ChallengePhaseDisplayStepTest,
+      ChallengePhaseFolderStepTest,
+      StartPhaseDisplayStepTest,
+      StartPhaseMiniGameStepTest,
+      DrawPhaseDisplayStepTest,
+      DrawPhaseDrawStepTest,
+      LoadPhaseDisplayStepTest,
       LoadPhaseTurnStepPlayerStartFirstTest,
       LoadPhaseTurnStepPlayerPlaysNextTest,
-      // LoadPhaseTurnStepChallengedPassedTest,
-      // LoadPhaseTurnStepPlayerPassedTest,
+      LoadPhaseTurnStepChallengedPassedTest,
+      LoadPhaseTurnStepPlayerPassedTest,
+      LoadPhaseTurnStepPowerfieldActiveTest,
     ];
     return [
       // ...cardSpriteTests,
@@ -13638,6 +13813,10 @@ class CardBattleTestScene extends Scene_Message {
 
   setStep(step) {
     this._status = step;
+  }
+
+  isCurrentStep(step) {
+    return this._status instanceof step;
   }
 }
 class CardBattleScene extends Scene_Message {

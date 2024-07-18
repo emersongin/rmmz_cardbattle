@@ -1,6 +1,6 @@
 class LoadPhaseTurnStepPlayerPassedTest extends SceneTest {
   manager = {
-    startPlay: true,
+    playerStartTurn: false,
     player: {
       deck: [],
       hand: [],
@@ -29,7 +29,8 @@ class LoadPhaseTurnStepPlayerPassedTest extends SceneTest {
       victories: 0,
       passed: false,
     },
-    getChallengedDescription: () => 'Desafie um amigo para uma partida de xadrez.',
+    powerfield: [],
+    getPowerfieldLength: () => this.manager.powerfield.length,
     getPlayerDeck: () => this.manager.player.deck,
     getPlayerHand: () => this.manager.player.hand,
     getPlayerEnergies: () => this.manager.player.energies,
@@ -48,7 +49,10 @@ class LoadPhaseTurnStepPlayerPassedTest extends SceneTest {
     setPlayerEnergies: (energies) => this.manager.player.energies = energies,
     setChallengedHand: (hand) => this.manager.challenged.hand = hand,
     setChallengedEnergies: (energies) => this.manager.challenged.energies = energies,
+    playerStart: () => this.manager.playerStartTurn = true,
+    playerPassed: () => this.manager.player.passed = true,
     challengedPassed: () => this.manager.challenged.passed = true,
+    isPlayerStartTurn: () => this.manager.playerStartTurn,
     isPlayerPassed: () => this.manager.player.passed,
     isChallengedPassed: () => this.manager.challenged.passed,
   };

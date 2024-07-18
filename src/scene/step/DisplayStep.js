@@ -98,7 +98,7 @@ class DisplayStep extends Step {
 
   update(manager) {
     super.update();
-    if (this.isBusy()) return false;
+    if (this.isBusy() || this.hasActions()) return false;
     if (Input.isTriggered('ok')) {
       const phase = this.getPhase();
       this.commandCloseTextWindows();

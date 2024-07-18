@@ -110,7 +110,6 @@ class DrawPhaseDrawStepTest extends SceneTest {
       victories: 0,
       passed: false,
     },
-    getChallengeDescription: () => 'Desafie um amigo para uma partida de xadrez.',
     getPlayerDeck: () => this.manager.player.deck,
     getPlayerHand: () => this.manager.player.hand,
     getPlayerEnergies: () => this.manager.player.energies,

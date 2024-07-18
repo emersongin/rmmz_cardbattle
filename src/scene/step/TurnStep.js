@@ -1,5 +1,6 @@
 class TurnStep extends Step {
-  _isStartTurn = false;
+  _startTurn = false;
+  _awaitingDecision = false;
   _textWindow = {};
   _askWindow = {};
 
@@ -51,13 +52,13 @@ class TurnStep extends Step {
 
   update(manager) {
     super.update();
-    if (this.isBusy()) return false;
+    if (this.isBusy() || this.hasActions() || this.isAwaitingDecision()) return false;
     this.updateStartTurn();
     this.updateTurn(manager);
   }
 
   updateStartTurn() {
-    if (this._isStartTurn === false && Input.isTriggered('ok')) {
+    if (this.isReady() && Input.isTriggered('ok')) {
       this.closeBeginLoadPhaseWindow();
       this.leaveBeginLoadPhaseWindow();
       this.addAction(this.startTurn);
@@ -65,14 +66,28 @@ class TurnStep extends Step {
   }
 
   startTurn() {
-    this._isStartTurn = true;
+    this._startTurn = true;
+  }
+
+  isReady() {
+    return this._startTurn === false;
+  }
+
+  isStarted() {
+    return this._startTurn;
   }
 
   updateTurn(manager) {
     const phase = this.getPhase();
-    const startPlay = manager.isPlayerStartTurn();
-    if (this._isStartTurn) {
+    if (this.isStarted()) {
+      const isPowerfieldFull = manager.getPowerfieldLength() >= 3;
+      if (isPowerfieldFull) {
+        this.changeStep(PowerfieldStep);
+        return;
+      }
+      const startPlay = manager.isPlayerStartTurn();
       if ((startPlay || manager.isChallengedPassed()) && manager.isPlayerPassed() === false) {
+        this._awaitingDecision = true;
 
         // const commandYes = () => {
         //   this.commandCloseAskWindow();
@@ -86,6 +101,7 @@ class TurnStep extends Step {
         //   this.leaveAskWindow();
           this.playerBoardWindowPass();
           this.addAction(this.commandPlayerPassed, manager);
+          this.addAction(this.commandDropDecision);
         // };
         // this.createAskWindow('Use a Program Card?', commandYes, commandNo);
         // this.openAskWindow();
@@ -93,12 +109,21 @@ class TurnStep extends Step {
         return;
       } 
       if (manager.isChallengedPassed() === false) {
+        console.log('challenged passed');
         this.challengedBoardWindowPass();
         this.addAction(this.commandChallengedPassed, manager);
         return;
       }
+      if (manager.getPowerfieldLength() > 0) {
+        this.changeStep(PowerfieldStep);
+        return;
+      }
       this.addAction(this.finish, phase);
     }
+  }
+
+  commandDropDecision() {
+    this._awaitingDecision = false;
   }
 
   commandChallengedPassed(manager) {
@@ -144,7 +169,6 @@ class TurnStep extends Step {
   }
 
   commandPlayerPassed(manager) {
-    this.playerBoardWindowPass();
     manager.playerPassed();
   }
 
@@ -164,5 +188,9 @@ class TurnStep extends Step {
       this._askWindow,
     ];
     return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+  }
+
+  isAwaitingDecision() {
+    return this._awaitingDecision;
   }
 }

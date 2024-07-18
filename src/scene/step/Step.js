@@ -17,6 +17,7 @@ class Step {
     battlefield: {},
   };
   _powerfield = {};
+  _finish = null;
 
   constructor(scene, finish) {
     if ((scene instanceof Scene_Message) === false) {
@@ -52,7 +53,7 @@ class Step {
       this._challenged.scoreWindow,
       this._challenged.battlefield,
     ];
-    return this._wait > 0 || children.some(obj => (obj.isBusy ? obj.isBusy() : false)) || this.someChildrenIsBusy();
+    return this._wait > 0 || children.some(obj => (obj?.isBusy ? obj.isBusy() : false)) || this.someChildrenIsBusy();
   }
 
   someChildrenIsBusy() {
@@ -145,6 +146,25 @@ class Step {
     } else {
       this._scene.removeChild(child);
     }
+  }
+
+  changePhase(phase) {
+    this._scene.setPhase(phase);
+  }
+
+  changeStep(stepName) {
+    const step = new stepName(this._scene);
+    this._scene.setStep(step);
+    this.destroy();
+  }
+
+  destroy() {
+    this._actionsQueue = [];
+    this._wait = 0;
+    this._player = {};
+    this._challenged = {};
+    this._powerfield = {};
+    this._finish = null;
   }
 
   getPhase() {
