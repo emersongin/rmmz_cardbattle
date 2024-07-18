@@ -1,1 +1,12 @@
-Criar teste de throw Error
+Create tests to throw Error
+
+next tests:
+
+#Jogador joga primeiro
+&OK Jogador_passou 
+#Jogador ativou cartão de poder
+#Desafiado joga primeiro
+&OK Desafiado passou
+#Desafiado ativou cartão de poder
+#Iniciar Campo de power
+#Iniciar campo de power no limite de 3 cartões

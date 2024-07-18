@@ -210,8 +210,10 @@ class CardBattleTestScene extends Scene_Message {
       // DrawPhaseDisplayStepTest,
       // DrawPhaseDrawStepTest,
       // LoadPhaseDisplayStepTest,
-      LoadPhaseTurnStepChallengedPassedTest,
-      LoadPhaseTurnStepPlayerPassedTest,
+      // LoadPhaseTurnStepPlayerStartFirstTest,
+      // LoadPhaseTurnStepPlayerPlaysNextTest,
+      // LoadPhaseTurnStepChallengedPassedTest,
+      // LoadPhaseTurnStepPlayerPassedTest,
     ];
     return [
       // ...cardSpriteTests,

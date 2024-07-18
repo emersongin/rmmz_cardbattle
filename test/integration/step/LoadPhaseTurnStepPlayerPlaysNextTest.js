@@ -1,6 +1,6 @@
-class LoadPhaseTurnStepPlayerPassedTest extends SceneTest {
+class LoadPhaseTurnStepPlayerPlaysNextTest extends SceneTest {
   manager = {
-    startPlay: true,
+    playerStartTurn: false,
     player: {
       deck: [],
       hand: [],
@@ -48,19 +48,17 @@ class LoadPhaseTurnStepPlayerPassedTest extends SceneTest {
     setPlayerEnergies: (energies) => this.manager.player.energies = energies,
     setChallengedHand: (hand) => this.manager.challenged.hand = hand,
     setChallengedEnergies: (energies) => this.manager.challenged.energies = energies,
+    playerStart: () => this.manager.playerStartTurn = true,
+    playerPassed: () => this.manager.player.passed = true,
     challengedPassed: () => this.manager.challenged.passed = true,
+    isPlayerStartTurn: () => this.manager.playerStartTurn,
     isPlayerPassed: () => this.manager.player.passed,
     isChallengedPassed: () => this.manager.challenged.passed,
   };
   step;
 
   create() {
-    const finishTest = this.createHandler();
-    this.step = new TurnStep(this._scene, finishTest);
-    this.manager.playerPassed = () => {
-      this.manager.player.passed = true;
-      finishTest();
-    };
+    this.step = new TurnStep(this._scene);
   }
 
   start() {
@@ -74,7 +72,7 @@ class LoadPhaseTurnStepPlayerPassedTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('O jogador deve passar a jogada na etapa de jogadas de fase de carregar.');
-    this.expectTrue('O jogador passou a jogada?', this.manager.isPlayerPassed());
+    this.describe('O jogador não deve iniciar a jogada na etapa de jogadas de fase de carregar.');
+    this.expectTrue('O jogador não iniciou a jogada?', this.manager.isPlayerStartTurn() === false);
   }
 }

@@ -70,7 +70,7 @@ class TurnStep extends Step {
 
   updateTurn(manager) {
     const phase = this.getPhase();
-    const startPlay = manager.startPlay;
+    const startPlay = manager.isPlayerStartTurn();
     if (this._isStartTurn) {
       if ((startPlay || manager.isChallengedPassed()) && manager.isPlayerPassed() === false) {
 
