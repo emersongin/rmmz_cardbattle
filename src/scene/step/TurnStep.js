@@ -82,7 +82,7 @@ class TurnStep extends Step {
     if (this.isStarted()) {
       const isPowerfieldFull = manager.getPowerfieldLength() >= 3;
       if (isPowerfieldFull) {
-        this.changeStep(PowerfieldStep);
+        this.commandActivePowerfield();
         return;
       }
       const startPlay = manager.isPlayerStartTurn();
@@ -109,17 +109,22 @@ class TurnStep extends Step {
         return;
       } 
       if (manager.isChallengedPassed() === false) {
-        console.log('challenged passed');
         this.challengedBoardWindowPass();
         this.addAction(this.commandChallengedPassed, manager);
         return;
       }
       if (manager.getPowerfieldLength() > 0) {
-        this.changeStep(PowerfieldStep);
+        this.commandActivePowerfield();
         return;
       }
       this.addAction(this.finish, phase);
     }
+  }
+
+  commandActivePowerfield() {
+    this.changeStep(PowerfieldStep);
+    if (typeof this._finish === 'function') return this._finish();
+    this.destroy();
   }
 
   commandDropDecision() {

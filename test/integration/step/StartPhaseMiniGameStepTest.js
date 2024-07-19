@@ -1,9 +1,5 @@
 class StartPhaseMiniGameStepTest extends SceneTest {
-  manager = {
-    win: false,
-    getChallengeDescription: () => 'Desafie um amigo para uma partida de xadrez.',
-    getWin: () => this.manager.win,
-  };
+  manager = CardBattleManager;
   step;
 
   create() {

@@ -1,20 +1,5 @@
 class ChallengePhaseFolderStepTest extends SceneTest {
-  manager = {
-    index: -1,
-    folders: [
-      {
-        name: 'Folder 1',
-        energies: [10, 10, 5, 5, 5, 5]
-      }, {
-        name: 'Folder 2',
-        energies: [10, 10, 10, 10, 10, 10],
-      }, {
-        name: 'Folder 3',
-        energies: [10, 10, 10, 0, 0, 0],
-    }], 
-    setPlayerFolderIndex: (index) => this.manager.index = index,
-    getPlayerFolders: () => this.manager.folders,
-  };
+  manager = CardBattleManager;
   step;
 
   create() {

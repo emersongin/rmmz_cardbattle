@@ -155,7 +155,6 @@ class Step {
   changeStep(stepName) {
     const step = new stepName(this._scene);
     this._scene.setStep(step);
-    this.destroy();
   }
 
   destroy() {

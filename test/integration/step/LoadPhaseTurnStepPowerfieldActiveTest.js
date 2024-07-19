@@ -61,7 +61,8 @@ class LoadPhaseTurnStepPowerfieldActiveTest extends SceneTest {
   step;
 
   create() {
-    this.step = new TurnStep(this._scene);
+    const finishTest = this.createHandler();
+    this.step = new TurnStep(this._scene, finishTest);
     this.manager.playerPassed();
     this.manager.challengedPassed();
   }
@@ -70,12 +71,6 @@ class LoadPhaseTurnStepPowerfieldActiveTest extends SceneTest {
     this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
-    const finishTest = this.createHandler();
-    const _setStep = this._scene.setStep.bind(this._scene);
-    this._scene.setStep = (step) => {
-      _setStep(step);
-      finishTest();
-    };
   }
 
   update() {

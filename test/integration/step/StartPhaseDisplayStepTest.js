@@ -1,7 +1,5 @@
 class StartPhaseDisplayStepTest extends SceneTest {
-  manager = {
-    getChallengeDescription: () => 'Desafie um amigo para uma partida de xadrez.',
-  };
+  manager = CardBattleManager;
   step;
 
   create() {

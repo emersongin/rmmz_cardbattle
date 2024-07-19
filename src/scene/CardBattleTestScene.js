@@ -246,6 +246,7 @@ class CardBattleTestScene extends Scene_Message {
       this._next = null;
       testsResults.push(result);
       await this.clearScene();
+      CardBattleManager.reset();
     }
     this.printResults(testsResults);
     this.printTotals(testsResults);
