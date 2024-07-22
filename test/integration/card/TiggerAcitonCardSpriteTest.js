@@ -14,7 +14,7 @@ class TiggerAcitonCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
-    this.addHiddenWatched(this.subject);
+    this.addAssistedHidden(this.subject);
     const centerXPosition = ScreenHelper.getPositionInCenterOf(this.base.width, this.subject.width);
     const centerYPosition = 0;
     this.subject.startOpen(centerXPosition, centerYPosition);

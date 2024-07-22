@@ -3,8 +3,9 @@ class ChallengePhaseFolderStepTest extends SceneTest {
   step;
 
   create() {
-    this.step = new FolderStep(this._scene, this.createHandler());
-    this.addHiddenWatched(this.step);
+    const finish = this.createHandler();
+    this.step = new FolderStep(this._scene, finish);
+    this.addAssistedHidden(this.step);
   }
 
   start() {

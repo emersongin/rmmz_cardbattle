@@ -15,6 +15,7 @@ class SceneTest {
   _handler = false;
   _pressToAsserts = false;
   _isFinish = false;
+  _functionsMocked = [];
 
   constructor(scene) {
     this._scene = scene;
@@ -30,6 +31,19 @@ class SceneTest {
 
   update() {
     // Override this method in the child class
+  }
+
+  restore() {
+    const fns = this._functionsMocked;
+    for (const fn of fns) {
+      fn.obj[fn.fnName] = fn.originalFn;
+    }
+  }
+
+  mockFunction(obj, fnName, fn) {
+    const originalFn = obj[fnName];
+    obj[fnName] = fn;
+    this._functionsMocked.push({ obj, fnName, originalFn });
   }
 
   run() {
@@ -96,8 +110,6 @@ class SceneTest {
     if (this._pressToAsserts && !Input.isTriggered('ok')) return false;
     if (this._handler) return false;
     if (!this._isFinish) {
-      this._scene._nextTest = null;
-      this._scene._phase = null;
       this.asserts();
       this.processAsserts();
       this._isFinish = true;
@@ -294,7 +306,7 @@ class SceneTest {
     this.attachChild(_watched);
   }
 
-  addHiddenWatched(_watched) {
+  addAssistedHidden(_watched) {
     this._toWatched.push(_watched);
   }
 

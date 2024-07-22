@@ -22,7 +22,7 @@ class ChallengePhaseTest extends SceneTest {
   create() {
     this.phase = new ChallengePhase(this._scene);
     this.manager.endPhase = this.createHandler();
-    this.addHiddenWatched(this.phase);
+    this.addAssistedHidden(this.phase);
   }
 
   start() {

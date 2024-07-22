@@ -179,7 +179,7 @@ class LoadPhaseTest extends SceneTest {
   create() {
     this.phase = new LoadPhase(this._scene);
     this.manager.endPhase = this.createHandler();
-    this.addHiddenWatched(this.phase);
+    this.addAssistedHidden(this.phase);
   }
 
   start() {

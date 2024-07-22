@@ -7436,6 +7436,7 @@ class SceneTest {
   _handler = false;
   _pressToAsserts = false;
   _isFinish = false;
+  _functionsMocked = [];
 
   constructor(scene) {
     this._scene = scene;
@@ -7451,6 +7452,19 @@ class SceneTest {
 
   update() {
     // Override this method in the child class
+  }
+
+  restore() {
+    const fns = this._functionsMocked;
+    for (const fn of fns) {
+      fn.obj[fn.fnName] = fn.originalFn;
+    }
+  }
+
+  mockFunction(obj, fnName, fn) {
+    const originalFn = obj[fnName];
+    obj[fnName] = fn;
+    this._functionsMocked.push({ obj, fnName, originalFn });
   }
 
   run() {
@@ -7517,8 +7531,6 @@ class SceneTest {
     if (this._pressToAsserts && !Input.isTriggered('ok')) return false;
     if (this._handler) return false;
     if (!this._isFinish) {
-      this._scene._nextTest = null;
-      this._scene._phase = null;
       this.asserts();
       this.processAsserts();
       this._isFinish = true;
@@ -7715,7 +7727,7 @@ class SceneTest {
     this.attachChild(_watched);
   }
 
-  addHiddenWatched(_watched) {
+  addAssistedHidden(_watched) {
     this._toWatched.push(_watched);
   }
 
@@ -8175,7 +8187,7 @@ class AnimationCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
-    this.addHiddenWatched(this.subject);
+    this.addAssistedHidden(this.subject);
     const centerXPosition = ScreenHelper.getPositionInCenterOf(this.base.width, this.subject.width);
     const centerYPosition = 0;
     this.subject.startOpen(centerXPosition, centerYPosition);
@@ -8390,7 +8402,7 @@ class TiggerAcitonCardSpriteTest extends SceneTest {
       card.attack,
       card.health
     );
-    this.addHiddenWatched(this.subject);
+    this.addAssistedHidden(this.subject);
     const centerXPosition = ScreenHelper.getPositionInCenterOf(this.base.width, this.subject.width);
     const centerYPosition = 0;
     this.subject.startOpen(centerXPosition, centerYPosition);
@@ -10577,7 +10589,7 @@ class ChallengePhaseTest extends SceneTest {
   create() {
     this.phase = new ChallengePhase(this._scene);
     this.manager.endPhase = this.createHandler();
-    this.addHiddenWatched(this.phase);
+    this.addAssistedHidden(this.phase);
   }
 
   start() {
@@ -10608,7 +10620,7 @@ class StartPhaseTest extends SceneTest {
   create() {
     this.phase = new StartPhase(this._scene);
     this.manager.endPhase = this.createHandler();
-    this.addHiddenWatched(this.phase);
+    this.addAssistedHidden(this.phase);
   }
 
   start() {
@@ -10769,7 +10781,7 @@ class DrawPhaseTest extends SceneTest {
   create() {
     this.phase = new DrawPhase(this._scene);
     this.manager.endPhase = this.createHandler();
-    this.addHiddenWatched(this.phase);
+    this.addAssistedHidden(this.phase);
   }
 
   start() {
@@ -10982,7 +10994,7 @@ class LoadPhaseTest extends SceneTest {
   create() {
     this.phase = new LoadPhase(this._scene);
     this.manager.endPhase = this.createHandler();
-    this.addHiddenWatched(this.phase);
+    this.addAssistedHidden(this.phase);
   }
 
   start() {
@@ -11024,8 +11036,9 @@ class ChallengePhaseDisplayStepTest extends SceneTest {
   step;
 
   create() {
-    this.step = new DisplayStep(this._scene, this.createHandler());
-    this.addHiddenWatched(this.step);
+    const finish = this.createHandler();
+    this.step = new DisplayStep(this._scene, finish);
+    this.addAssistedHidden(this.step);
   }
 
   start() {
@@ -11049,8 +11062,9 @@ class ChallengePhaseFolderStepTest extends SceneTest {
   step;
 
   create() {
-    this.step = new FolderStep(this._scene, this.createHandler());
-    this.addHiddenWatched(this.step);
+    const finish = this.createHandler();
+    this.step = new FolderStep(this._scene, finish);
+    this.addAssistedHidden(this.step);
   }
 
   start() {
@@ -11073,8 +11087,9 @@ class StartPhaseDisplayStepTest extends SceneTest {
   step;
 
   create() {
-    this.step = new DisplayStep(this._scene, this.createHandler());
-    this.addHiddenWatched(this.step);
+    const finish = this.createHandler();
+    this.step = new DisplayStep(this._scene, finish);
+    this.addAssistedHidden(this.step);
   }
 
   start() {
@@ -11098,8 +11113,9 @@ class StartPhaseMiniGameStepTest extends SceneTest {
   step;
 
   create() {
-    this.step = new MiniGameStep(this._scene, this.createHandler());
-    this.addHiddenWatched(this.step);
+    const finish = this.createHandler();
+    this.step = new MiniGameStep(this._scene, finish);
+    this.addAssistedHidden(this.step);
   }
 
   start() {
@@ -11124,8 +11140,9 @@ class DrawPhaseDisplayStepTest extends SceneTest {
   step;
 
   create() {
-    this.step = new DisplayStep(this._scene, this.createHandler());
-    this.addHiddenWatched(this.step);
+    const finish = this.createHandler();
+    this.step = new DisplayStep(this._scene, finish);
+    this.addAssistedHidden(this.step);
   }
 
   start() {
@@ -11149,11 +11166,14 @@ class DrawPhaseDrawStepTest extends SceneTest {
   step;
 
   create() {
-    this.step = new DrawStep(this._scene, this.createHandler());
-    this.addHiddenWatched(this.step);
+    const finish = this.createHandler();
+    this.step = new DrawStep(this._scene, finish);
+    this.addAssistedHidden(this.step);
   }
 
   start() {
+    this.manager.setPlayerDeck();
+    this.manager.setChallengedDeck();
     this._scene.setPhase(GameConst.DRAW_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
@@ -11175,10 +11195,10 @@ class DrawPhaseDrawStepTest extends SceneTest {
     this.expectWasTrue('A janela de lixo do desafiante foi apresentada?', this.step.isChallengedTrashWindowVisible);
     this.expectWasTrue('A janela de pontuação do desafiante foi apresentada?', this.step.isChallengedScoreWindowVisible);
     this.expectWasTrue('O campo de batalha do desafiante foi apresentado?', this.step.isChallengedBattlefieldVisible);
-    this.expectTrue('O total de cards no campo do jogar é?', this.manager.player.deck.length === 34);
-    this.expectTrue('O total de cards no campo do desafiante é?', this.manager.challenged.deck.length === 34);
-    this.expectTrue('O total de cards na mão do jogador é?', this.manager.player.hand.length === 6);
-    this.expectTrue('O total de cards na mão do desafiante é?', this.manager.challenged.hand.length === 6);
+    this.expectTrue('O total de cards no campo do jogar é?', this.manager.getPlayerDeckLength() === 34);
+    this.expectTrue('O total de cards no campo do desafiante é?', this.manager.getChallengedDeckLength() === 34);
+    this.expectTrue('O total de cards na mão do jogador é?', this.manager.getPlayerHandLength() === 6);
+    this.expectTrue('O total de cards na mão do desafiante é?', this.manager.getChallengedHandLength() === 6);
   }
 }
 class LoadPhaseDisplayStepTest extends SceneTest {
@@ -11186,8 +11206,9 @@ class LoadPhaseDisplayStepTest extends SceneTest {
   step;
 
   create() {
-    this.step = new DisplayStep(this._scene, this.createHandler());
-    this.addHiddenWatched(this.step);
+    const finish = this.createHandler();
+    this.step = new DisplayStep(this._scene, finish);
+    this.addAssistedHidden(this.step);
   }
 
   start() {
@@ -11211,15 +11232,18 @@ class LoadPhaseTurnStepChallengedPassedTest extends SceneTest {
   step;
 
   create() {
-    const finishTest = this.createHandler();
-    this.step = new TurnStep(this._scene, finishTest);
-    this.manager.challengedPassed = () => {
-      this.manager.challenged.passed = true;
-      finishTest();
-    };
+    const finish = this.createHandler();
+    this.step = new TurnStep(this._scene, finish);
   }
 
   start() {
+    this.manager.setPlayerDeck();
+    this.manager.setChallengedDeck();
+    const finish = this.createHandler();
+    this.mockFunction(this.manager, 'challengedPassed', () => {
+      this.manager.challenged.passed = true;
+      finish();
+    });
     this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
@@ -11239,15 +11263,18 @@ class LoadPhaseTurnStepPlayerPassedTest extends SceneTest {
   step;
 
   create() {
-    const finishTest = this.createHandler();
-    this.step = new TurnStep(this._scene, finishTest);
-    this.manager.playerPassed = () => {
-      this.manager.player.passed = true;
-      finishTest();
-    };
+    const finish = this.createHandler();
+    this.step = new TurnStep(this._scene, finish);
   }
 
   start() {
+    this.manager.setPlayerDeck();
+    this.manager.setChallengedDeck();
+    const finish = this.createHandler();
+    this.mockFunction(this.manager, 'playerPassed', () => {
+      this.manager.player.passed = true;
+      finish();
+    });
     this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
@@ -11268,20 +11295,23 @@ class LoadPhaseTurnStepPlayerStartFirstTest extends SceneTest {
   turns = [];
 
   create() {
-    this.step = new TurnStep(this._scene);
-    this.manager.playerStart = () => {
-      this.playerStartTurn = true;
-      this.turns.push(GameConst.PLAYER);
-    };
     const finish = this.createHandler();
-    this.manager.isPlayerStartTurn = () => {
-      finish();
-      return this.playerStartTurn;
-    }
-    this.manager.playerStart();
+    this.step = new TurnStep(this._scene, finish);
   }
 
   start() {
+    this.manager.setPlayerDeck();
+    this.manager.setChallengedDeck();
+    const finish = this.createHandler();
+    this.mockFunction(this.manager, 'playerStart', () => {
+      this.turns.push(GameConst.PLAYER);
+      this.manager.playerStartTurn = true;
+    });
+    this.mockFunction(this.manager, 'isPlayerStartTurn', () => {
+      finish();
+      return this.manager.playerStartTurn;
+    });
+    this.manager.playerStart();
     this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
@@ -11301,10 +11331,13 @@ class LoadPhaseTurnStepPlayerPlaysNextTest extends SceneTest {
   step;
 
   create() {
-    this.step = new TurnStep(this._scene);
+    const finish = this.createHandler();
+    this.step = new TurnStep(this._scene, finish);
   }
 
   start() {
+    this.manager.setPlayerDeck();
+    this.manager.setChallengedDeck();
     this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
@@ -11320,75 +11353,19 @@ class LoadPhaseTurnStepPlayerPlaysNextTest extends SceneTest {
   }
 }
 class LoadPhaseTurnStepPowerfieldActiveTest extends SceneTest {
-  manager = {
-    playerStartTurn: false,
-    player: {
-      deck: [],
-      hand: [],
-      trash: [],
-      energies: {
-        [GameConst.RED]: 0,
-        [GameConst.BLUE]: 0,
-        [GameConst.GREEN]: 0,
-        [GameConst.BLACK]: 0,
-        [GameConst.WHITE]: 0,
-      },
-      victories: 0,
-      passed: false,
-    },
-    challenged: {
-      deck: [],
-      hand: [],
-      trash: [],
-      energies: {
-        [GameConst.RED]: 0,
-        [GameConst.BLUE]: 0,
-        [GameConst.GREEN]: 0,
-        [GameConst.BLACK]: 0,
-        [GameConst.WHITE]: 0,
-      },
-      victories: 0,
-      passed: false,
-    },
-    powerfield: [
-      { type: GameConst.POWER, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-    ],
-    getPowerfieldLength: () => this.manager.powerfield.length,
-    getPlayerDeck: () => this.manager.player.deck,
-    getPlayerHand: () => this.manager.player.hand,
-    getPlayerEnergies: () => this.manager.player.energies,
-    getPlayerDeckLength: () => this.manager.player.deck.length,
-    getPlayerHandLength: () => this.manager.player.hand.length,
-    getPlayerTrashLength: () => this.manager.player.trash.length,
-    getPlayerVictories: () => this.manager.player.victories,
-    getChallengedDeck: () => this.manager.challenged.deck,
-    getChallengedHand: () => this.manager.challenged.hand,
-    getChallengedEnergies: () => this.manager.challenged.energies,
-    getChallengedDeckLength: () => this.manager.challenged.deck.length,
-    getChallengedHandLength: () => this.manager.challenged.hand.length,
-    getChallengedTrashLength: () => this.manager.challenged.trash.length,
-    getChallengedVictories: () => this.manager.challenged.victories,
-    setPlayerHand: (hand) => this.manager.player.hand = hand,
-    setPlayerEnergies: (energies) => this.manager.player.energies = energies,
-    setChallengedHand: (hand) => this.manager.challenged.hand = hand,
-    setChallengedEnergies: (energies) => this.manager.challenged.energies = energies,
-    playerStart: () => this.manager.playerStartTurn = true,
-    playerPassed: () => this.manager.player.passed = true,
-    challengedPassed: () => this.manager.challenged.passed = true,
-    isPlayerStartTurn: () => this.manager.playerStartTurn,
-    isPlayerPassed: () => this.manager.player.passed,
-    isChallengedPassed: () => this.manager.challenged.passed,
-  };
+  manager = CardBattleManager;
   step;
 
   create() {
-    const finishTest = this.createHandler();
-    this.step = new TurnStep(this._scene, finishTest);
-    this.manager.playerPassed();
-    this.manager.challengedPassed();
+    const finish = this.createHandler();
+    this.step = new TurnStep(this._scene, finish);
   }
 
   start() {
+    this.manager.playerPassed();
+    this.manager.challengedPassed();
+    const powerCard = { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 };
+    this.manager.addPowerCardToPowerfield(powerCard);
     this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
@@ -11405,65 +11382,70 @@ class LoadPhaseTurnStepPowerfieldActiveTest extends SceneTest {
 }
 
 class CardBattleManager {
-  static folderIndex = -1;
-
   static folders = [
     {
       name: 'Folder 1',
-      energies: [10, 10, 5, 5, 5, 5]
+      energies: [10, 10, 5, 5, 5, 5],
+      set: [
+        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
+      ]
     }, {
       name: 'Folder 2',
       energies: [10, 10, 10, 10, 10, 10],
+      set: []
     }, {
       name: 'Folder 3',
       energies: [10, 10, 10, 0, 0, 0],
+      set: []
   }];
+
+  static folderIndex = -1;
 
   static miniGameWin = false;
 
+  static playerStartTurn = false;
+
   static player = {
-    deck: [
-      { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-    ],
+    deck: [],
     hand: [],
     trash: [],
     energies: {
@@ -11478,48 +11460,7 @@ class CardBattleManager {
   };
 
   static challenged = {
-    deck: [
-      { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-      { type: GameConst.POWER, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-    ],
+    deck: [],
     hand: [],
     trash: [],
     energies: {
@@ -11533,14 +11474,10 @@ class CardBattleManager {
     passed: false,
   };
 
-  static powerfield = [
-    { type: GameConst.POWER, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-  ];
-
-  static playerStartTurn = false;
+  static powerfield = [];
 
   static getChallengeDescription () {
-    return 'Desafie um amigo para uma partida de xadrez.';
+    return 'descrição de desafiado, variando de acordo com o desafio.';
   }
 
   static setPlayerFolderIndex(index) {
@@ -11659,8 +11596,46 @@ class CardBattleManager {
     CardBattleManager.folderIndex = -1;
     CardBattleManager.miniGameWin = false;
     CardBattleManager.playerStartTurn = false;
-    CardBattleManager.player.passed = false;
-    CardBattleManager.challenged.passed = false;
+    CardBattleManager.player = {
+      deck: [],
+      hand: [],
+      trash: [],
+      energies: {
+        [GameConst.RED]: 0,
+        [GameConst.BLUE]: 0,
+        [GameConst.GREEN]: 0,
+        [GameConst.BLACK]: 0,
+        [GameConst.WHITE]: 0,
+      },
+      victories: 0,
+      passed: false,
+    };
+    CardBattleManager.challenged = {
+      deck: [],
+      hand: [],
+      trash: [],
+      energies: {
+        [GameConst.RED]: 0,
+        [GameConst.BLUE]: 0,
+        [GameConst.GREEN]: 0,
+        [GameConst.BLACK]: 0,
+        [GameConst.WHITE]: 0,
+      },
+      victories: 0,
+      passed: false,
+    };
+  }
+
+  static setPlayerDeck(folderIndex = 0) {
+    CardBattleManager.player.deck = CardBattleManager.folders[folderIndex].set.clone();
+  }
+
+  static setChallengedDeck(folderIndex = 0) {
+    CardBattleManager.challenged.deck = CardBattleManager.folders[folderIndex].set.clone();
+  }
+
+  static addPowerCardToPowerfield(card) {
+    CardBattleManager.powerfield.push(card);
   }
 }
 class Step {
@@ -13373,10 +13348,11 @@ class CardBattleTestScene extends Scene_Message {
     for (const test of this._tests) {
       this._next = test;
       const result = await this._next.run();
-      this._next = null;
       testsResults.push(result);
-      await this.clearScene();
+      this._next.restore();
+      this._next = null;
       CardBattleManager.reset();
+      await this.clearScene();
     }
     this.printResults(testsResults);
     this.printTotals(testsResults);

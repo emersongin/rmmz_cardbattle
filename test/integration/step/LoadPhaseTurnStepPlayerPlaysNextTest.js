@@ -3,10 +3,13 @@ class LoadPhaseTurnStepPlayerPlaysNextTest extends SceneTest {
   step;
 
   create() {
-    this.step = new TurnStep(this._scene);
+    const finish = this.createHandler();
+    this.step = new TurnStep(this._scene, finish);
   }
 
   start() {
+    this.manager.setPlayerDeck();
+    this.manager.setChallengedDeck();
     this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);

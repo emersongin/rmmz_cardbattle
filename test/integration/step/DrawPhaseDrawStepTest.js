@@ -3,11 +3,14 @@ class DrawPhaseDrawStepTest extends SceneTest {
   step;
 
   create() {
-    this.step = new DrawStep(this._scene, this.createHandler());
-    this.addHiddenWatched(this.step);
+    const finish = this.createHandler();
+    this.step = new DrawStep(this._scene, finish);
+    this.addAssistedHidden(this.step);
   }
 
   start() {
+    this.manager.setPlayerDeck();
+    this.manager.setChallengedDeck();
     this._scene.setPhase(GameConst.DRAW_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
@@ -29,9 +32,9 @@ class DrawPhaseDrawStepTest extends SceneTest {
     this.expectWasTrue('A janela de lixo do desafiante foi apresentada?', this.step.isChallengedTrashWindowVisible);
     this.expectWasTrue('A janela de pontuação do desafiante foi apresentada?', this.step.isChallengedScoreWindowVisible);
     this.expectWasTrue('O campo de batalha do desafiante foi apresentado?', this.step.isChallengedBattlefieldVisible);
-    this.expectTrue('O total de cards no campo do jogar é?', this.manager.player.deck.length === 34);
-    this.expectTrue('O total de cards no campo do desafiante é?', this.manager.challenged.deck.length === 34);
-    this.expectTrue('O total de cards na mão do jogador é?', this.manager.player.hand.length === 6);
-    this.expectTrue('O total de cards na mão do desafiante é?', this.manager.challenged.hand.length === 6);
+    this.expectTrue('O total de cards no campo do jogar é?', this.manager.getPlayerDeckLength() === 34);
+    this.expectTrue('O total de cards no campo do desafiante é?', this.manager.getChallengedDeckLength() === 34);
+    this.expectTrue('O total de cards na mão do jogador é?', this.manager.getPlayerHandLength() === 6);
+    this.expectTrue('O total de cards na mão do desafiante é?', this.manager.getChallengedHandLength() === 6);
   }
 }

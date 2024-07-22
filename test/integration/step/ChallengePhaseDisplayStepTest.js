@@ -3,8 +3,9 @@ class ChallengePhaseDisplayStepTest extends SceneTest {
   step;
 
   create() {
-    this.step = new DisplayStep(this._scene, this.createHandler());
-    this.addHiddenWatched(this.step);
+    const finish = this.createHandler();
+    this.step = new DisplayStep(this._scene, finish);
+    this.addAssistedHidden(this.step);
   }
 
   start() {

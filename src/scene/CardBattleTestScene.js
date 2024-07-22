@@ -243,10 +243,11 @@ class CardBattleTestScene extends Scene_Message {
     for (const test of this._tests) {
       this._next = test;
       const result = await this._next.run();
-      this._next = null;
       testsResults.push(result);
-      await this.clearScene();
+      this._next.restore();
+      this._next = null;
       CardBattleManager.reset();
+      await this.clearScene();
     }
     this.printResults(testsResults);
     this.printTotals(testsResults);

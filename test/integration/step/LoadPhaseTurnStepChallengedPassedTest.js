@@ -3,15 +3,18 @@ class LoadPhaseTurnStepChallengedPassedTest extends SceneTest {
   step;
 
   create() {
-    const finishTest = this.createHandler();
-    this.step = new TurnStep(this._scene, finishTest);
-    this.manager.challengedPassed = () => {
-      this.manager.challenged.passed = true;
-      finishTest();
-    };
+    const finish = this.createHandler();
+    this.step = new TurnStep(this._scene, finish);
   }
 
   start() {
+    this.manager.setPlayerDeck();
+    this.manager.setChallengedDeck();
+    const finish = this.createHandler();
+    this.mockFunction(this.manager, 'challengedPassed', () => {
+      this.manager.challenged.passed = true;
+      finish();
+    });
     this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
