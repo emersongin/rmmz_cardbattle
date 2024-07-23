@@ -11,15 +11,13 @@ class DrawStep extends Step {
 
   drawCardsToGame(manager) {
     const playerNumCardsInDeck = manager.getPlayerDeckLength();
-    const playerCardsDrawed = manager.getPlayerDeck().splice(0, 6);
-    manager.setPlayerHand(playerCardsDrawed);
+    const playerCardsDrawed = manager.drawPlayerCards(6);
     const playerData = {
       cards: playerCardsDrawed,
       cardsInDeck: playerNumCardsInDeck,
     };
     const challengeNumCardsInDeck = manager.getChallengedDeckLength();
-    const challengeCardsDrawed = manager.getChallengedDeck().splice(0, 6);
-    manager.setChallengedHand(challengeCardsDrawed);
+    const challengeCardsDrawed = manager.drawChallengedCards(6);
     const challengeData = {
       cards: challengeCardsDrawed,
       cardsInDeck: challengeNumCardsInDeck,

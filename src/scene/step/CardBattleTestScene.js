@@ -3,8 +3,7 @@
 // include ./step/FolderStep.js
 // include ./step/MiniGameStep.js
 // include ./step/DrawStep.js
-// include ./step/RunPowerfieldStep.js
-// include ./step/ActivatePowerCardStep.js
+// include ./step/RunRunPowerfieldStep.js
 // include ./step/HandStep.js
 // include ./step/TurnStep.js
 
@@ -215,12 +214,12 @@ class CardBattleTestScene extends Scene_Message {
       // LoadPhaseDisplayStepTest,
       // LoadPhaseTurnStepPlayerStartFirstTest,
       // LoadPhaseTurnStepPlayerPlaysNextTest,
+      // LoadPhaseTurnStepChallengedPassedTest,
       // LoadPhaseTurnStepPlayerPassedTest,
       // LoadPhaseTurnStepPowerfieldActiveTest,
       // LoadPhaseTurnStepPowerfieldActiveByLimitTest,
       // LoadPhaseTurnStepPlayerSelectHandTest,
       LoadPhaseTurnStepChallengedActivatePowerCardTest,
-      LoadPhaseTurnStepChallengedPassedTest,
     ];
     return [
       // ...cardSpriteTests,

@@ -88,18 +88,10 @@ class TurnStep extends Step {
       const startPlay = manager.isPlayerStartTurn();
       if ((startPlay || manager.isChallengedPassed()) && manager.isPlayerPassed() === false) {
         const commandYes = () => {
-          this.commandCloseAskWindow();
-          this.leaveAskWindow();
-          this.closeGameBoards();
-          this.leaveGameBoards();
-          this.commandPlayerHand(manager);
+          this.commandPlayerSelectHandPlay(manager);
         };
         const commandNo = () => {
-          this.commandCloseAskWindow();
-          this.leaveAskWindow();
-          this.playerBoardWindowPass();
-          this.addAction(this.commandPlayerPassed, manager);
-          this.addAction(this.commandDropDecision);
+          this.commandPlayerSelectPasse(manager);
         };
         this.createAskWindow('Use a Program Card?', commandYes, commandNo);
         this.openAskWindow();
@@ -107,8 +99,11 @@ class TurnStep extends Step {
         return;
       } 
       if (manager.isChallengedPassed() === false) {
-        this.challengedBoardWindowPass();
-        this.addAction(this.commandChallengedPassed, manager);
+        if (manager.isChallengedHasPowerCardInHand()) {
+          this.commandChallengedActivePowerCard();
+          return;
+        }
+        this.commandChallengedSelectPasse(manager);
         return;
       }
       if (manager.getPowerfieldLength() > 0) {
@@ -120,13 +115,58 @@ class TurnStep extends Step {
   }
 
   commandActivePowerfield() {
-    this.changeStep(PowerfieldStep);
+    this.changeStep(RunPowerfieldStep);
     if (typeof this._finish === 'function') return this._finish();
     this.destroy();
   }
 
+  commandPlayerSelectHandPlay(manager) {
+    this.commandCloseAskWindow();
+    this.leaveAskWindow();
+    this.closeGameBoards();
+    this.leaveGameBoards();
+    this.addAction(this.commandPlayerHand, manager);
+  }
+
+  commandCloseAskWindow() {
+    this._askWindow.close();
+  }
+
+  leaveAskWindow() {
+    this.addAction(this.commandLeaveAskWindow);
+  }
+
+  commandPlayerHand(manager) {
+    this.changeStep(HandStep);
+    if (typeof this._finish === 'function') return this._finish();
+    this.destroy();
+  }
+
+  commandPlayerSelectPasse(manager) {
+    this.commandCloseAskWindow();
+    this.leaveAskWindow();
+    this.playerBoardWindowPass();
+    this.addAction(this.commandPlayerPassed, manager);
+    this.addAction(this.commandDropDecision);
+  }
+
+  commandPlayerPassed(manager) {
+    manager.playerPassed();
+  }
+
   commandDropDecision() {
     this._awaitingDecision = false;
+  }
+
+  commandChallengedActivePowerCard() {
+    this.changeStep(ActivatePowerCardStep);
+    if (typeof this._finish === 'function') return this._finish();
+    this.destroy();
+  }
+
+  commandChallengedSelectPasse(manager) {
+    this.challengedBoardWindowPass();
+    this.addAction(this.commandChallengedPassed, manager);
   }
 
   commandChallengedPassed(manager) {
@@ -155,27 +195,17 @@ class TurnStep extends Step {
     this._askWindow.open();
   }
 
-  commandCloseAskWindow() {
-    this._askWindow.close();
-  }
 
-  leaveAskWindow() {
-    this.addAction(this.commandLeaveAskWindow);
-  }
+
+
 
   commandLeaveAskWindow() {
     this.removeChild(this._askWindow);
   }
 
-  commandPlayerHand(manager) {
-    this.changeStep(HandStep);
-    if (typeof this._finish === 'function') return this._finish();
-    this.destroy();
-  }
 
-  commandPlayerPassed(manager) {
-    manager.playerPassed();
-  }
+
+
 
   finish(phase) {
     if (typeof this._finish === 'function') return this._finish();

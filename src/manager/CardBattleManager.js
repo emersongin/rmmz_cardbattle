@@ -255,4 +255,20 @@ class CardBattleManager {
   static addPowerCardToPowerfield(card) {
     CardBattleManager.powerfield.push(card);
   }
+
+  static isChallengedHasPowerCardInHand() {
+    return CardBattleManager.challenged.hand.some(card => card.type === GameConst.POWER);
+  }
+
+  static drawPlayerCards(cardsNumber) {
+    const cards = CardBattleManager.player.deck.splice(0, cardsNumber);
+    CardBattleManager.player.hand.push(...cards);
+    return cards;
+  }
+
+  static drawChallengedCards(cardsNumber) {
+    const cards = CardBattleManager.challenged.deck.splice(0, cardsNumber);
+    CardBattleManager.challenged.hand.push(...cards);
+    return cards;
+  }
 }

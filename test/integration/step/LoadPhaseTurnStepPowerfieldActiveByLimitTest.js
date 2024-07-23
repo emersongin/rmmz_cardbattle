@@ -24,6 +24,6 @@ class LoadPhaseTurnStepPowerfieldActiveByLimitTest extends SceneTest {
   asserts() {
     this.describe('A fase campo de poder deve ser ativada tendo pelo menos um cartão de poder!');
     this.expectTrue('O campo de poder esta com 3 cartões?', this.manager.getPowerfieldLength() === 3);
-    this.expectTrue('Esta na fase campo de poder?', this._scene.isCurrentStep(PowerfieldStep));
+    this.expectTrue('Esta na fase campo de poder?', this._scene.isCurrentStep(RunPowerfieldStep));
   }
 }
