@@ -12985,7 +12985,7 @@ class DrawStep extends Step {
     }
   }
 }
-class RunRunPowerfieldStep extends Step {
+class RunPowerfieldStep extends Step {
   start(manager) {
     const phase = this.getPhase();
 
@@ -13164,7 +13164,6 @@ class TurnStep extends Step {
         return;
       } 
       if (manager.isChallengedPassed() === false) {
-        console.log(manager.isChallengedHasPowerCardInHand());
         if (manager.isChallengedHasPowerCardInHand()) {
           this.commandChallengedActivePowerCard();
           return;
@@ -13494,19 +13493,19 @@ class CardBattleTestScene extends Scene_Message {
       LoadPhaseTest,
     ];
     const steps = [
-      // ChallengePhaseDisplayStepTest,
-      // ChallengePhaseFolderStepTest,
-      // StartPhaseDisplayStepTest,
-      // StartPhaseMiniGameStepTest,
-      // DrawPhaseDisplayStepTest,
-      // DrawPhaseDrawStepTest,
-      // LoadPhaseDisplayStepTest,
-      // LoadPhaseTurnStepPlayerStartFirstTest,
-      // LoadPhaseTurnStepPlayerPlaysNextTest,
-      // LoadPhaseTurnStepPlayerPassedTest,
-      // LoadPhaseTurnStepPowerfieldActiveTest,
-      // LoadPhaseTurnStepPowerfieldActiveByLimitTest,
-      // LoadPhaseTurnStepPlayerSelectHandTest,
+      ChallengePhaseDisplayStepTest,
+      ChallengePhaseFolderStepTest,
+      StartPhaseDisplayStepTest,
+      StartPhaseMiniGameStepTest,
+      DrawPhaseDisplayStepTest,
+      DrawPhaseDrawStepTest,
+      LoadPhaseDisplayStepTest,
+      LoadPhaseTurnStepPlayerStartFirstTest,
+      LoadPhaseTurnStepPlayerPlaysNextTest,
+      LoadPhaseTurnStepPlayerPassedTest,
+      LoadPhaseTurnStepPowerfieldActiveTest,
+      LoadPhaseTurnStepPowerfieldActiveByLimitTest,
+      LoadPhaseTurnStepPlayerSelectHandTest,
       LoadPhaseTurnStepChallengedActivatePowerCardTest,
       LoadPhaseTurnStepChallengedPassedTest,
     ];

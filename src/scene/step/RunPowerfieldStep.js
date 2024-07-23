@@ -1,4 +1,4 @@
-class RunRunPowerfieldStep extends Step {
+class RunPowerfieldStep extends Step {
   start(manager) {
     const phase = this.getPhase();
 
