@@ -15,7 +15,6 @@ class FolderStep extends Step {
       return folder;
     });
     const folderWindow = this.createFolderWindow('Choose a folder', folders);
-    this.addWait();
     this.openFolderWindow();
   }
 

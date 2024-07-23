@@ -77,7 +77,7 @@ class SceneTest {
           res(this.finishResult());
           clearInterval(intervalId);
         }
-      }, 100);
+      }, 1);
     });
   }
 

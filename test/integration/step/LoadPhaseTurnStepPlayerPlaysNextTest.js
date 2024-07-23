@@ -10,6 +10,11 @@ class LoadPhaseTurnStepPlayerPlaysNextTest extends SceneTest {
   start() {
     this.manager.setPlayerDeck();
     this.manager.setChallengedDeck();
+    const finish = this.createHandler();
+    this.mockFunction(this.manager, 'isPlayerStartTurn', () => {
+      finish();
+      return this.manager.playerStartTurn;
+    });
     this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);

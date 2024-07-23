@@ -7498,7 +7498,7 @@ class SceneTest {
           res(this.finishResult());
           clearInterval(intervalId);
         }
-      }, 100);
+      }, 1);
     });
   }
 
@@ -11338,6 +11338,11 @@ class LoadPhaseTurnStepPlayerPlaysNextTest extends SceneTest {
   start() {
     this.manager.setPlayerDeck();
     this.manager.setChallengedDeck();
+    const finish = this.createHandler();
+    this.mockFunction(this.manager, 'isPlayerStartTurn', () => {
+      finish();
+      return this.manager.playerStartTurn;
+    });
     this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
@@ -11680,6 +11685,7 @@ class CardBattleManager {
       victories: 0,
       passed: false,
     };
+    CardBattleManager.powerfield = [];
   }
 
   static setPlayerDeck(folderIndex = 0) {
@@ -12522,7 +12528,6 @@ class FolderStep extends Step {
       return folder;
     });
     const folderWindow = this.createFolderWindow('Choose a folder', folders);
-    this.addWait();
     this.openFolderWindow();
   }
 
@@ -13391,19 +13396,19 @@ class CardBattleTestScene extends Scene_Message {
       LoadPhaseTest,
     ];
     const steps = [
-      // ChallengePhaseDisplayStepTest,
-      // ChallengePhaseFolderStepTest,
-      // StartPhaseDisplayStepTest,
-      // StartPhaseMiniGameStepTest,
-      // DrawPhaseDisplayStepTest,
-      // DrawPhaseDrawStepTest,
-      // LoadPhaseDisplayStepTest,
-      // LoadPhaseTurnStepPlayerStartFirstTest,
-      // LoadPhaseTurnStepPlayerPlaysNextTest,
-      // LoadPhaseTurnStepChallengedPassedTest,
-      // LoadPhaseTurnStepPlayerPassedTest,
-      // LoadPhaseTurnStepPowerfieldActiveTest,
-      // LoadPhaseTurnStepPowerfieldActiveByLimitTest,
+      ChallengePhaseDisplayStepTest,
+      ChallengePhaseFolderStepTest,
+      StartPhaseDisplayStepTest,
+      StartPhaseMiniGameStepTest,
+      DrawPhaseDisplayStepTest,
+      DrawPhaseDrawStepTest,
+      LoadPhaseDisplayStepTest,
+      LoadPhaseTurnStepPlayerStartFirstTest,
+      LoadPhaseTurnStepPlayerPlaysNextTest,
+      LoadPhaseTurnStepChallengedPassedTest,
+      LoadPhaseTurnStepPlayerPassedTest,
+      LoadPhaseTurnStepPowerfieldActiveTest,
+      LoadPhaseTurnStepPowerfieldActiveByLimitTest,
       LoadPhaseTurnStepPlayerSelectHandTest,
     ];
     return [

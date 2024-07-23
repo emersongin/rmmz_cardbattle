@@ -241,6 +241,7 @@ class CardBattleManager {
       victories: 0,
       passed: false,
     };
+    CardBattleManager.powerfield = [];
   }
 
   static setPlayerDeck(folderIndex = 0) {
