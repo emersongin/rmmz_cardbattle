@@ -3,8 +3,9 @@ class LoadPhaseTurnStepPlayerPlaysNextTest extends SceneTest {
   step;
 
   create() {
+    const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, finish);
+    this.step = new TurnStep(this._scene, phase, finish);
   }
 
   start() {
@@ -15,7 +16,6 @@ class LoadPhaseTurnStepPlayerPlaysNextTest extends SceneTest {
       finish();
       return this.manager.playerStartTurn;
     });
-    this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }

@@ -1,5 +1,4 @@
 class DrawStep extends Step {
-
   start(manager) {
     const phase = this.getPhase();
     this.createPlayerGameBoard(manager);

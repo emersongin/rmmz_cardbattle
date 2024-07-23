@@ -3,13 +3,13 @@ class ChallengePhaseFolderStepTest extends SceneTest {
   step;
 
   create() {
+    const phase = GameConst.CHALLENGE_PHASE;
     const finish = this.createHandler();
-    this.step = new FolderStep(this._scene, finish);
+    this.step = new FolderStep(this._scene, phase, finish);
     this.addAssistedHidden(this.step);
   }
 
   start() {
-    this._scene.setPhase(GameConst.CHALLENGE_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }

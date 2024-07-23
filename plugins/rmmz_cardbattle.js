@@ -11036,13 +11036,13 @@ class ChallengePhaseDisplayStepTest extends SceneTest {
   step;
 
   create() {
+    const phase = GameConst.CHALLENGE_PHASE;
     const finish = this.createHandler();
-    this.step = new DisplayStep(this._scene, finish);
+    this.step = new DisplayStep(this._scene, phase, finish);
     this.addAssistedHidden(this.step);
   }
 
   start() {
-    this._scene.setPhase(GameConst.CHALLENGE_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -11062,13 +11062,13 @@ class ChallengePhaseFolderStepTest extends SceneTest {
   step;
 
   create() {
+    const phase = GameConst.CHALLENGE_PHASE;
     const finish = this.createHandler();
-    this.step = new FolderStep(this._scene, finish);
+    this.step = new FolderStep(this._scene, phase, finish);
     this.addAssistedHidden(this.step);
   }
 
   start() {
-    this._scene.setPhase(GameConst.CHALLENGE_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -11087,13 +11087,13 @@ class StartPhaseDisplayStepTest extends SceneTest {
   step;
 
   create() {
+    const phase = GameConst.START_PHASE;
     const finish = this.createHandler();
-    this.step = new DisplayStep(this._scene, finish);
+    this.step = new DisplayStep(this._scene, phase, finish);
     this.addAssistedHidden(this.step);
   }
 
   start() {
-    this._scene.setPhase(GameConst.START_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -11113,13 +11113,13 @@ class StartPhaseMiniGameStepTest extends SceneTest {
   step;
 
   create() {
+    const phase = GameConst.START_PHASE;
     const finish = this.createHandler();
-    this.step = new MiniGameStep(this._scene, finish);
+    this.step = new MiniGameStep(this._scene, phase, finish);
     this.addAssistedHidden(this.step);
   }
 
   start() {
-    this._scene.setPhase(GameConst.START_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -11140,13 +11140,13 @@ class DrawPhaseDisplayStepTest extends SceneTest {
   step;
 
   create() {
+    const phase = GameConst.DRAW_PHASE;
     const finish = this.createHandler();
-    this.step = new DisplayStep(this._scene, finish);
+    this.step = new DisplayStep(this._scene, phase, finish);
     this.addAssistedHidden(this.step);
   }
 
   start() {
-    this._scene.setPhase(GameConst.DRAW_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -11166,15 +11166,15 @@ class DrawPhaseDrawStepTest extends SceneTest {
   step;
 
   create() {
+    const phase = GameConst.DRAW_PHASE;
     const finish = this.createHandler();
-    this.step = new DrawStep(this._scene, finish);
+    this.step = new DrawStep(this._scene, phase, finish);
     this.addAssistedHidden(this.step);
   }
 
   start() {
     this.manager.setPlayerDeck();
     this.manager.setChallengedDeck();
-    this._scene.setPhase(GameConst.DRAW_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -11206,13 +11206,13 @@ class LoadPhaseDisplayStepTest extends SceneTest {
   step;
 
   create() {
+    const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new DisplayStep(this._scene, finish);
+    this.step = new DisplayStep(this._scene, phase, finish);
     this.addAssistedHidden(this.step);
   }
 
   start() {
-    this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -11232,8 +11232,9 @@ class LoadPhaseTurnStepChallengedPassedTest extends SceneTest {
   step;
 
   create() {
+    const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, finish);
+    this.step = new TurnStep(this._scene, phase, finish);
   }
 
   start() {
@@ -11244,7 +11245,6 @@ class LoadPhaseTurnStepChallengedPassedTest extends SceneTest {
       this.manager.challenged.passed = true;
       finish();
     });
-    this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -11263,8 +11263,9 @@ class LoadPhaseTurnStepPlayerPassedTest extends SceneTest {
   step;
 
   create() {
+    const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, finish);
+    this.step = new TurnStep(this._scene, phase, finish);
   }
 
   start() {
@@ -11275,7 +11276,6 @@ class LoadPhaseTurnStepPlayerPassedTest extends SceneTest {
       this.manager.player.passed = true;
       finish();
     });
-    this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -11295,8 +11295,9 @@ class LoadPhaseTurnStepPlayerStartFirstTest extends SceneTest {
   turns = [];
 
   create() {
+    const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, finish);
+    this.step = new TurnStep(this._scene, phase, finish);
   }
 
   start() {
@@ -11312,7 +11313,6 @@ class LoadPhaseTurnStepPlayerStartFirstTest extends SceneTest {
       return this.manager.playerStartTurn;
     });
     this.manager.playerStart();
-    this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -11331,8 +11331,9 @@ class LoadPhaseTurnStepPlayerPlaysNextTest extends SceneTest {
   step;
 
   create() {
+    const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, finish);
+    this.step = new TurnStep(this._scene, phase, finish);
   }
 
   start() {
@@ -11343,7 +11344,6 @@ class LoadPhaseTurnStepPlayerPlaysNextTest extends SceneTest {
       finish();
       return this.manager.playerStartTurn;
     });
-    this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -11362,8 +11362,9 @@ class LoadPhaseTurnStepPowerfieldActiveTest extends SceneTest {
   step;
 
   create() {
+    const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, finish);
+    this.step = new TurnStep(this._scene, phase, finish);
   }
 
   start() {
@@ -11371,7 +11372,6 @@ class LoadPhaseTurnStepPowerfieldActiveTest extends SceneTest {
     this.manager.challengedPassed();
     const powerCard = { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 };
     this.manager.addPowerCardToPowerfield(powerCard);
-    this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -11390,8 +11390,9 @@ class LoadPhaseTurnStepPowerfieldActiveByLimitTest extends SceneTest {
   step;
 
   create() {
+    const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, finish);
+    this.step = new TurnStep(this._scene, phase, finish);
   }
 
   start() {
@@ -11399,7 +11400,6 @@ class LoadPhaseTurnStepPowerfieldActiveByLimitTest extends SceneTest {
     this.manager.addPowerCardToPowerfield(powerCard);
     this.manager.addPowerCardToPowerfield(powerCard);
     this.manager.addPowerCardToPowerfield(powerCard);
-    this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -11419,15 +11419,15 @@ class LoadPhaseTurnStepPlayerSelectHandTest extends SceneTest {
   step;
 
   create() {
+    const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, finish);
+    this.step = new TurnStep(this._scene, phase, finish);
   }
 
   start() {
     this.manager.setPlayerDeck();
     this.manager.setChallengedDeck();
     this.manager.playerStart();
-    this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -11446,15 +11446,15 @@ class LoadPhaseTurnStepChallengedActivatePowerCardTest extends SceneTest {
   step;
 
   create() {
+    const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, finish);
+    this.step = new TurnStep(this._scene, phase, finish);
   }
 
   start() {
     this.manager.setPlayerDeck();
     this.manager.setChallengedDeck();
     this.manager.drawChallengedCards(6);
-    this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -11745,6 +11745,7 @@ class CardBattleManager {
 }
 class Step {
   _scene;
+  _phase;
   _actionsQueue = [];
   _wait = 0;
   _player = {
@@ -11764,11 +11765,15 @@ class Step {
   _powerfield = {};
   _finish = null;
 
-  constructor(scene, finish) {
+  constructor(scene, phase, finish) {
     if ((scene instanceof Scene_Message) === false) {
       throw new Error('Scene must be an instance of Scene_Message');
     }
+    if (String(phase).length === 0) {
+      throw new Error('Phase must be a string');
+    }
     this._scene = scene;
+    this._phase = phase;
     this._finish = finish;
   }
 
@@ -11912,7 +11917,7 @@ class Step {
   }
 
   getPhase() {
-    return this._scene.getPhase();
+    return this._phase;
   }
 
   createPlayerGameBoard(manager) {
@@ -12811,7 +12816,6 @@ class MiniGameStep extends Step {
   }
 }
 class DrawStep extends Step {
-
   start(manager) {
     const phase = this.getPhase();
     this.createPlayerGameBoard(manager);
@@ -13306,11 +13310,10 @@ class TurnStep extends Step {
 class CardBattleTestScene extends Scene_Message {
   initialize() {
     super.initialize();
-    this._animationSprites = [];
-    this._next = null;
-    this._tests = [];
     this._status = null;
-    this._phase = null;
+    this._tests = [];
+    this._next = null;
+    this._animationSprites = [];
   }
 
   create() {
@@ -13501,12 +13504,12 @@ class CardBattleTestScene extends Scene_Message {
       LoadPhaseTest,
     ];
     const steps = [
-      ChallengePhaseDisplayStepTest,
-      ChallengePhaseFolderStepTest,
-      StartPhaseDisplayStepTest,
-      StartPhaseMiniGameStepTest,
-      DrawPhaseDisplayStepTest,
-      DrawPhaseDrawStepTest,
+      // ChallengePhaseDisplayStepTest,
+      // ChallengePhaseFolderStepTest,
+      // StartPhaseDisplayStepTest,
+      // StartPhaseMiniGameStepTest,
+      // DrawPhaseDisplayStepTest,
+      // DrawPhaseDrawStepTest,
       LoadPhaseDisplayStepTest,
       LoadPhaseTurnStepPlayerStartFirstTest,
       LoadPhaseTurnStepPlayerPlaysNextTest,
@@ -13669,14 +13672,6 @@ class CardBattleTestScene extends Scene_Message {
   removeWindow(window) {
     this._windowLayer.removeChild(window);
   };
-
-  setPhase(phase) {
-    this._phase = phase;
-  }
-
-  getPhase() {
-    return this._phase;
-  }
 
   setStep(step) {
     this._status = step;

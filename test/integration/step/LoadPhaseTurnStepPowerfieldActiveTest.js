@@ -3,8 +3,9 @@ class LoadPhaseTurnStepPowerfieldActiveTest extends SceneTest {
   step;
 
   create() {
+    const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, finish);
+    this.step = new TurnStep(this._scene, phase, finish);
   }
 
   start() {
@@ -12,7 +13,6 @@ class LoadPhaseTurnStepPowerfieldActiveTest extends SceneTest {
     this.manager.challengedPassed();
     const powerCard = { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 };
     this.manager.addPowerCardToPowerfield(powerCard);
-    this._scene.setPhase(GameConst.LOAD_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }

@@ -11,11 +11,10 @@
 class CardBattleTestScene extends Scene_Message {
   initialize() {
     super.initialize();
-    this._animationSprites = [];
-    this._next = null;
-    this._tests = [];
     this._status = null;
-    this._phase = null;
+    this._tests = [];
+    this._next = null;
+    this._animationSprites = [];
   }
 
   create() {
@@ -206,12 +205,12 @@ class CardBattleTestScene extends Scene_Message {
       LoadPhaseTest,
     ];
     const steps = [
-      ChallengePhaseDisplayStepTest,
-      ChallengePhaseFolderStepTest,
-      StartPhaseDisplayStepTest,
-      StartPhaseMiniGameStepTest,
-      DrawPhaseDisplayStepTest,
-      DrawPhaseDrawStepTest,
+      // ChallengePhaseDisplayStepTest,
+      // ChallengePhaseFolderStepTest,
+      // StartPhaseDisplayStepTest,
+      // StartPhaseMiniGameStepTest,
+      // DrawPhaseDisplayStepTest,
+      // DrawPhaseDrawStepTest,
       LoadPhaseDisplayStepTest,
       LoadPhaseTurnStepPlayerStartFirstTest,
       LoadPhaseTurnStepPlayerPlaysNextTest,
@@ -374,14 +373,6 @@ class CardBattleTestScene extends Scene_Message {
   removeWindow(window) {
     this._windowLayer.removeChild(window);
   };
-
-  setPhase(phase) {
-    this._phase = phase;
-  }
-
-  getPhase() {
-    return this._phase;
-  }
 
   setStep(step) {
     this._status = step;

@@ -3,15 +3,15 @@ class DrawPhaseDrawStepTest extends SceneTest {
   step;
 
   create() {
+    const phase = GameConst.DRAW_PHASE;
     const finish = this.createHandler();
-    this.step = new DrawStep(this._scene, finish);
+    this.step = new DrawStep(this._scene, phase, finish);
     this.addAssistedHidden(this.step);
   }
 
   start() {
     this.manager.setPlayerDeck();
     this.manager.setChallengedDeck();
-    this._scene.setPhase(GameConst.DRAW_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }

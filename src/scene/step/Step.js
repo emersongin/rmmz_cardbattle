@@ -1,5 +1,6 @@
 class Step {
   _scene;
+  _phase;
   _actionsQueue = [];
   _wait = 0;
   _player = {
@@ -19,11 +20,15 @@ class Step {
   _powerfield = {};
   _finish = null;
 
-  constructor(scene, finish) {
+  constructor(scene, phase, finish) {
     if ((scene instanceof Scene_Message) === false) {
       throw new Error('Scene must be an instance of Scene_Message');
     }
+    if (String(phase).length === 0) {
+      throw new Error('Phase must be a string');
+    }
     this._scene = scene;
+    this._phase = phase;
     this._finish = finish;
   }
 
@@ -167,7 +172,7 @@ class Step {
   }
 
   getPhase() {
-    return this._scene.getPhase();
+    return this._phase;
   }
 
   createPlayerGameBoard(manager) {

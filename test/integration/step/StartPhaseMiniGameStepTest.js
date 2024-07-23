@@ -3,13 +3,13 @@ class StartPhaseMiniGameStepTest extends SceneTest {
   step;
 
   create() {
+    const phase = GameConst.START_PHASE;
     const finish = this.createHandler();
-    this.step = new MiniGameStep(this._scene, finish);
+    this.step = new MiniGameStep(this._scene, phase, finish);
     this.addAssistedHidden(this.step);
   }
 
   start() {
-    this._scene.setPhase(GameConst.START_PHASE);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
