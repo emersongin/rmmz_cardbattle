@@ -87,25 +87,23 @@ class TurnStep extends Step {
       }
       const startPlay = manager.isPlayerStartTurn();
       if ((startPlay || manager.isChallengedPassed()) && manager.isPlayerPassed() === false) {
-        this._awaitingDecision = true;
-
-        // const commandYes = () => {
-        //   this.commandCloseAskWindow();
-        //   this.leaveAskWindow();
-        //   this.closeGameBoards();
-        //   this.leaveGameBoards();
-        //   this.commandPlayerHand(manager);
-        // };
-        // const commandNo = () => {
-        //   this.commandCloseAskWindow();
-        //   this.leaveAskWindow();
+        const commandYes = () => {
+          this.commandCloseAskWindow();
+          this.leaveAskWindow();
+          this.closeGameBoards();
+          this.leaveGameBoards();
+          this.commandPlayerHand(manager);
+        };
+        const commandNo = () => {
+          this.commandCloseAskWindow();
+          this.leaveAskWindow();
           this.playerBoardWindowPass();
           this.addAction(this.commandPlayerPassed, manager);
           this.addAction(this.commandDropDecision);
-        // };
-        // this.createAskWindow('Use a Program Card?', commandYes, commandNo);
-        // this.openAskWindow();
-
+        };
+        this.createAskWindow('Use a Program Card?', commandYes, commandNo);
+        this.openAskWindow();
+        this._awaitingDecision = true;
         return;
       } 
       if (manager.isChallengedPassed() === false) {
@@ -170,7 +168,9 @@ class TurnStep extends Step {
   }
 
   commandPlayerHand(manager) {
-    console.log('hand');
+    this.changeStep(HandStep);
+    if (typeof this._finish === 'function') return this._finish();
+    this.destroy();
   }
 
   commandPlayerPassed(manager) {

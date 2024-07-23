@@ -4,6 +4,7 @@
 // include ./step/MiniGameStep.js
 // include ./step/DrawStep.js
 // include ./step/PowerfieldStep.js
+// include ./step/HandStep.js
 // include ./step/TurnStep.js
 
 class CardBattleTestScene extends Scene_Message {
@@ -216,7 +217,8 @@ class CardBattleTestScene extends Scene_Message {
       // LoadPhaseTurnStepChallengedPassedTest,
       // LoadPhaseTurnStepPlayerPassedTest,
       // LoadPhaseTurnStepPowerfieldActiveTest,
-      LoadPhaseTurnStepPowerfieldActiveByLimitTest,
+      // LoadPhaseTurnStepPowerfieldActiveByLimitTest,
+      LoadPhaseTurnStepPlayerSelectHandTest,
     ];
     return [
       // ...cardSpriteTests,

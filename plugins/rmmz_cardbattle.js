@@ -11407,7 +11407,33 @@ class LoadPhaseTurnStepPowerfieldActiveByLimitTest extends SceneTest {
     this.describe('A fase campo de poder deve ser ativada tendo pelo menos um cartão de poder!');
     this.expectTrue('O campo de poder esta com 3 cartões?', this.manager.getPowerfieldLength() === 3);
     this.expectTrue('Esta na fase campo de poder?', this._scene.isCurrentStep(PowerfieldStep));
-    
+  }
+}
+class LoadPhaseTurnStepPlayerSelectHandTest extends SceneTest {
+  manager = CardBattleManager;
+  step;
+
+  create() {
+    const finish = this.createHandler();
+    this.step = new TurnStep(this._scene, finish);
+  }
+
+  start() {
+    this.manager.setPlayerDeck();
+    this.manager.setChallengedDeck();
+    this.manager.playerStart();
+    this._scene.setPhase(GameConst.LOAD_PHASE);
+    this._scene.setStep(this.step);
+    this.step.start(this.manager);
+  }
+
+  update() {
+    this.step.update(this.manager);
+  }
+  
+  asserts() {
+    this.describe('O jogador deve selecionar a mão na etapa de jogadas de fase de carregar.');
+    this.expectTrue('Esta na fase mão?', this._scene.isCurrentStep(HandStep));
   }
 }
 
@@ -12939,6 +12965,32 @@ class PowerfieldStep extends Step {
     return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
   }
 }
+class HandStep extends Step {
+  start(manager) {
+    const phase = this.getPhase();
+
+  }
+  
+  update(manager) {
+    if (this.isBusy() || this.hasActions()) return false;
+  }
+
+  finish(phase) {
+    if (typeof this._finish === 'function') return this._finish();
+    switch (phase) {
+      case null:
+        break;
+      default:
+        break;
+    }
+  }
+
+  isBusy() {
+    const children = [
+    ];
+    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+  }
+}
 class TurnStep extends Step {
   _startTurn = false;
   _awaitingDecision = false;
@@ -13028,25 +13080,23 @@ class TurnStep extends Step {
       }
       const startPlay = manager.isPlayerStartTurn();
       if ((startPlay || manager.isChallengedPassed()) && manager.isPlayerPassed() === false) {
-        this._awaitingDecision = true;
-
-        // const commandYes = () => {
-        //   this.commandCloseAskWindow();
-        //   this.leaveAskWindow();
-        //   this.closeGameBoards();
-        //   this.leaveGameBoards();
-        //   this.commandPlayerHand(manager);
-        // };
-        // const commandNo = () => {
-        //   this.commandCloseAskWindow();
-        //   this.leaveAskWindow();
+        const commandYes = () => {
+          this.commandCloseAskWindow();
+          this.leaveAskWindow();
+          this.closeGameBoards();
+          this.leaveGameBoards();
+          this.commandPlayerHand(manager);
+        };
+        const commandNo = () => {
+          this.commandCloseAskWindow();
+          this.leaveAskWindow();
           this.playerBoardWindowPass();
           this.addAction(this.commandPlayerPassed, manager);
           this.addAction(this.commandDropDecision);
-        // };
-        // this.createAskWindow('Use a Program Card?', commandYes, commandNo);
-        // this.openAskWindow();
-
+        };
+        this.createAskWindow('Use a Program Card?', commandYes, commandNo);
+        this.openAskWindow();
+        this._awaitingDecision = true;
         return;
       } 
       if (manager.isChallengedPassed() === false) {
@@ -13111,7 +13161,9 @@ class TurnStep extends Step {
   }
 
   commandPlayerHand(manager) {
-    console.log('hand');
+    this.changeStep(HandStep);
+    if (typeof this._finish === 'function') return this._finish();
+    this.destroy();
   }
 
   commandPlayerPassed(manager) {
@@ -13351,7 +13403,8 @@ class CardBattleTestScene extends Scene_Message {
       // LoadPhaseTurnStepChallengedPassedTest,
       // LoadPhaseTurnStepPlayerPassedTest,
       // LoadPhaseTurnStepPowerfieldActiveTest,
-      LoadPhaseTurnStepPowerfieldActiveByLimitTest,
+      // LoadPhaseTurnStepPowerfieldActiveByLimitTest,
+      LoadPhaseTurnStepPlayerSelectHandTest,
     ];
     return [
       // ...cardSpriteTests,
