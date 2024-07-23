@@ -13145,37 +13145,19 @@ class TurnStep extends Step {
   updateTurn(manager) {
     const phase = this.getPhase();
     if (this.isStarted()) {
-      const isPowerfieldFull = manager.getPowerfieldLength() >= 3;
-      if (isPowerfieldFull) {
-        this.commandActivePowerfield();
-        return;
-      }
-      const startPlay = manager.isPlayerStartTurn();
-      if ((startPlay || manager.isChallengedPassed()) && manager.isPlayerPassed() === false) {
-        const commandYes = () => {
-          this.commandPlayerSelectHandPlay(manager);
-        };
-        const commandNo = () => {
-          this.commandPlayerSelectPasse(manager);
-        };
-        this.createAskWindow('Use a Program Card?', commandYes, commandNo);
-        this.openAskWindow();
-        this._awaitingDecision = true;
-        return;
-      } 
-      if (manager.isChallengedPassed() === false) {
-        if (manager.isChallengedHasPowerCardInHand()) {
-          this.commandChallengedActivePowerCard();
-          return;
-        }
-        this.commandChallengedSelectPasse(manager);
-        return;
-      }
-      if (manager.getPowerfieldLength() > 0) {
-        this.commandActivePowerfield();
-        return;
-      }
+      if (this.updateActivePowerfieldByLimit(manager)) return;
+      if (this.updatePlayerTurn(manager)) return;
+      if (this.updateChallengedTurn(manager)) return;
+      if (this.updateActivePowerfield(manager)) return;
       this.addAction(this.finish, phase);
+    }
+  }
+
+  updateActivePowerfieldByLimit(manager) {
+    const isPowerfieldFull = manager.getPowerfieldLength() >= 3;
+    if (isPowerfieldFull) {
+      this.commandActivePowerfield();
+      return true;
     }
   }
 
@@ -13183,6 +13165,22 @@ class TurnStep extends Step {
     this.changeStep(RunPowerfieldStep);
     if (typeof this._finish === 'function') return this._finish();
     this.destroy();
+  }
+
+  updatePlayerTurn(manager) {
+    const startPlay = manager.isPlayerStartTurn();
+    if ((startPlay || manager.isChallengedPassed()) && manager.isPlayerPassed() === false) {
+      const commandYes = () => {
+        this.commandPlayerSelectHandPlay(manager);
+      };
+      const commandNo = () => {
+        this.commandPlayerSelectPasse(manager);
+      };
+      this.createAskWindow('Use a Program Card?', commandYes, commandNo);
+      this.openAskWindow();
+      this._awaitingDecision = true;
+      return true;
+    } 
   }
 
   commandPlayerSelectHandPlay(manager) {
@@ -13199,6 +13197,10 @@ class TurnStep extends Step {
 
   leaveAskWindow() {
     this.addAction(this.commandLeaveAskWindow);
+  }
+
+  commandLeaveAskWindow() {
+    this.removeChild(this._askWindow);
   }
 
   commandPlayerHand(manager) {
@@ -13223,21 +13225,6 @@ class TurnStep extends Step {
     this._awaitingDecision = false;
   }
 
-  commandChallengedActivePowerCard() {
-    this.changeStep(ActivatePowerCardStep);
-    if (typeof this._finish === 'function') return this._finish();
-    this.destroy();
-  }
-
-  commandChallengedSelectPasse(manager) {
-    this.challengedBoardWindowPass();
-    this.addAction(this.commandChallengedPassed, manager);
-  }
-
-  commandChallengedPassed(manager) {
-    manager.challengedPassed();
-  }
-
   createAskWindow(text, yesHandler, noHanlder) {
     const commandYes = CommandWindow.createCommand('Yes', 'YES', yesHandler);
     const commandNo = CommandWindow.createCommand('No', 'NO', noHanlder);
@@ -13260,17 +13247,38 @@ class TurnStep extends Step {
     this._askWindow.open();
   }
 
-
-
-
-
-  commandLeaveAskWindow() {
-    this.removeChild(this._askWindow);
+  updateChallengedTurn(manager) {
+    if (manager.isChallengedPassed() === false) {
+      if (manager.isChallengedHasPowerCardInHand()) {
+        this.commandChallengedActivePowerCard();
+        return true;
+      }
+      this.commandChallengedSelectPasse(manager);
+      return true;
+    }
   }
 
+  commandChallengedActivePowerCard() {
+    this.changeStep(ActivatePowerCardStep);
+    if (typeof this._finish === 'function') return this._finish();
+    this.destroy();
+  }
 
+  commandChallengedSelectPasse(manager) {
+    this.challengedBoardWindowPass();
+    this.addAction(this.commandChallengedPassed, manager);
+  }
 
+  commandChallengedPassed(manager) {
+    manager.challengedPassed();
+  }
 
+  updateActivePowerfield(manager) {
+    if (manager.getPowerfieldLength() > 0) {
+      this.commandActivePowerfield();
+      return true;
+    }
+  }
 
   finish(phase) {
     if (typeof this._finish === 'function') return this._finish();
