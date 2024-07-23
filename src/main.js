@@ -209,6 +209,7 @@
 // include ../test/integration/step/LoadPhaseTurnStepPlayerStartFirstTest.js
 // include ../test/integration/step/LoadPhaseTurnStepPlayerPlaysNextTest.js
 // include ../test/integration/step/LoadPhaseTurnStepPowerfieldActiveTest.js
+// include ../test/integration/step/LoadPhaseTurnStepPowerfieldActiveByLimitTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js
