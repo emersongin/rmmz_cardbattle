@@ -30,13 +30,6 @@
 // include ./sprite/BackgroundSprite.js
 // include ./sprite/CardBattleSpriteset.js
 
-// SCENE
-// include ./scene/phase/Phase.js
-// include ./scene/phase/ChallengePhase.js
-// include ./scene/phase/StartPhase.js
-// include ./scene/phase/DrawPhase.js
-// include ./scene/phase/LoadPhase.js
-
 // TESTS
 // include ../test/integration/SceneTest.js
 // CARD SPRITE
@@ -189,13 +182,6 @@
 // include ../test/integration/commandwindow/CommandHandlerWithTextCommandWindowTest.js
 // FOLDER WINDOW
 // include ../test/integration/folderwindow/CreateFolderWindowTest.js
-// PHASES
-// include ../test/integration/phase/ChallengePhaseTest.js
-// include ../test/integration/phase/StartPhaseTest.js
-// include ../test/integration/phase/DrawPhaseTest.js
-// include ../test/integration/phase/LoadPhaseTest.js
-
-
 // STEPS
 // include ../test/integration/step/ChallengePhaseDisplayStepTest.js
 // include ../test/integration/step/ChallengePhaseFolderStepTest.js
@@ -212,6 +198,7 @@
 // include ../test/integration/step/LoadPhaseTurnStepPowerfieldActiveByLimitTest.js
 // include ../test/integration/step/LoadPhaseTurnStepPlayerSelectHandTest.js
 // include ../test/integration/step/LoadPhaseTurnStepChallengedActivatePowerCardTest.js
+// include ../test/integration/step/LoadPhaseHandStepTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js

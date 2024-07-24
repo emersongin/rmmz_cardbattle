@@ -21,6 +21,6 @@ class ActivatePowerCardStep extends Step {
   isBusy() {
     const children = [
     ];
-    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+    return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
 }

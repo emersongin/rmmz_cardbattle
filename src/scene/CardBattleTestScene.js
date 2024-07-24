@@ -198,12 +198,6 @@ class CardBattleTestScene extends Scene_Message {
     const folderWindow = [
       CreateFolderWindowTest,
     ];
-    const phase = [
-      // ChallengePhaseTest,
-      // StartPhaseTest,
-      // DrawPhaseTest,
-      LoadPhaseTest,
-    ];
     const steps = [
       // ChallengePhaseDisplayStepTest,
       // ChallengePhaseFolderStepTest,
@@ -220,6 +214,7 @@ class CardBattleTestScene extends Scene_Message {
       // LoadPhaseTurnStepPlayerSelectHandTest,
       // LoadPhaseTurnStepChallengedActivatePowerCardTest,
       // LoadPhaseTurnStepChallengedPassedTest,
+      LoadPhaseHandStepTest,
     ];
     return [
       // ...cardSpriteTests,
@@ -232,7 +227,6 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      // ...phase,
       ...steps,
     ];
   }

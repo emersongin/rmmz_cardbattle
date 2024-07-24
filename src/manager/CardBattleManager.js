@@ -271,4 +271,8 @@ class CardBattleManager {
     CardBattleManager.challenged.hand.push(...cards);
     return cards;
   }
+
+  static getCardPlayerHandByIndex(index) {
+    return CardBattleManager.player.hand[index];
+  }
 }

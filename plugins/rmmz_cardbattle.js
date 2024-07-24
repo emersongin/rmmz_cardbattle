@@ -5296,2128 +5296,6 @@ class CardBattleSpriteset extends Spriteset_Base {
   }
 }
 
-// SCENE
-class RunPowerCardPhaseStatus {
-  _phase;
-  _powerCard;
-
-  constructor(phase, manager, powerCard) {
-    if (phase instanceof LoadPhase === false) {
-      throw new Error("phase is not an instance of LoadPhase");
-    }
-    // if (powerCard instanceof PowerCard === false) {
-    //   throw new Error("powerCard is not an instance of PowerCard");
-    // }
-    this._phase = phase;
-    this._powerCard = powerCard;
-    this.start(manager);
-  }
-
-  start(manager) {
-    console.log('RunPowerCardPhaseStatus start', this._powerCard);
-  }
-
-  isBusy() {
-    return false;
-  }
-
-  update(manager) {
-    const that = this._phase;
-    // that.closeGameBoards();
-    // that.leaveGameBoards();
-    // that.closePowerCard();
-    // that.leavePowerCard();
-    // that.commandPlayerHand(manager);
-    console.log('getPowerfieldLength', manager.getPowerfieldLength());
-    if (manager.getPowerfieldLength() === 0) {
-      manager.resetPlayes();
-      that.setStep(GameConst.TURN_PHASE);
-    }
-    that.waitStatus();
-    that.stepWainting();
-  }
-
-  activePowerCard(cardIndexHand, manager, player) {
-    return false;
-  }
-
-  runPowerCard(manager, powerCard) {
-    return false;
-  }
-
-  waitStatus() {
-    this._phase.changeStatus(WaitingPhaseStatus);
-  }
-}
-class ActivePowerCardPhaseStatus {
-  _phase;
-  _cardIndex;
-  _player;
-
-  constructor(phase, cardIndexHand, manager, player) {
-    if (phase instanceof LoadPhase === false) {
-      throw new Error("phase is not an instance of LoadPhase");
-    }
-    // if (card instanceof PowerCard === false) {
-    //   throw new Error("card is not an instance of PowerCard");
-    // }
-    this._phase = phase;
-    this._cardIndex = cardIndexHand;
-    this._player = player;
-    this.start(cardIndexHand, manager);
-  }
-
-  start(cardIndex, manager) {
-    const card = manager.getCardPlayerHandByIndex(cardIndex);
-    const powerCardParams = manager.getPowerCardParams(card.id);
-    this.setParams(powerCardParams);
-  }
-
-  setParams(params) {
-    const { type } = params;
-    switch (type) {
-      case GameConst.ADD_ENERGIES:
-        console.log('mostra animação de adicionar energias');
-        break;
-      default:
-        break;
-    }
-  }
-
-  isBusy() {
-    return false;
-  }
-
-  update(manager) {
-    const that = this._phase;
-    const cardIndex = this._cardIndex;
-    const player = this._player;
-    if (Input.isTriggered('ok')) {
-      manager.moveCardHandToPowerField(cardIndex, player);
-      const sprite = that.commandGetPowerfieldSprites(cardIndex);
-      const number = manager.getPowerfieldLength();
-      that.moveCardToPowerfield(sprite, number, player);
-      that.waitStatus();
-      that.setStep(GameConst.CHALLENGE_TURN_PHASE);
-      manager.resetPlayes();
-      manager.playerPassed();
-    }
-    if (Input.isTriggered('cancel')) {
-      that.closeGameBoards();
-      that.leaveGameBoards();
-      that.closePowerCard();
-      that.leavePowerCard();
-      that.commandPlayerHand(manager);
-      that.waitStatus();
-      that.stepWainting();
-    }
-  }
-
-  activePowerCard(cardIndexHand, manager, player) {
-    return false;
-  }
-
-  runPowerCard(manager, powerCard) {
-    return false;
-  }
-
-  waitStatus() {
-    this._phase.changeStatus(WaitingPhaseStatus);
-  }
-}
-class WaitingPhaseStatus  {
-  _phase;
-  _textWindow;
-  _askWindow;
-
-  _playerHand;
-  _locationWindow;
-  _cardNameWindow;
-  _cardDescriptionWindow;
-  _cardPropsWindow;
-
-  constructor(phase) {
-    if (phase instanceof LoadPhase === false) {
-      throw new Error("phase is not an instance of LoadPhase");
-    }
-    this._phase = phase;
-    this.start();
-  }
-
-  start() {
-    const that = this._phase;
-    const title = 'Load Phase';
-    const description = 'Select and use a Program Card.';
-    that.createTitleWindow(title);
-    that.createDescriptionWindow(description);
-    that.openTextWindows();
-    that.setStep(GameConst.START_PHASE);
-  }
-
-  isBusy() {
-    const children = [
-      this._textWindow,
-      this._askWindow,
-      this._locationWindow,
-      this._cardNameWindow,
-      this._cardDescriptionWindow,
-      this._cardPropsWindow,
-      this._playerHand
-    ];
-    return children.some(obj => (obj && obj.isBusy ? obj.isBusy() : false));
-  }
-
-  update(manager) {
-    this.updateStepStart(manager);
-    this.updateStepBeginLoadPhase(manager);
-    this.updateStartPlay(manager);
-    this.updateStepChallengedLoadPhase(manager);
-    this.updateStepPlayerLoadPhase(manager);
-    this.updateStepPowerfieldLoadPhase(manager);
-    if (manager.isEndPlays() && manager.getPowerfieldLength()) return; 
-    this.updateStepEnd(manager);
-  }
-
-  updateStepStart(manager) {
-    const that = this._phase;
-    const isStartPhase = that.isCurrentStep(GameConst.START_PHASE);
-    if (isStartPhase && Input.isTriggered('ok')) {
-      that.commandCloseTextWindows();
-      that.leaveTextWindows();
-      this.createPlayerGameBoard(manager);
-      this.createChallengedGameBoard(manager);
-      that.openGameBoards();
-      const text = 'Begin Load Phase';
-      this.createTextWindow(text);
-      this.openBeginLoadPhaseWindow();
-      that.setStep(GameConst.BEGIN_LOAD_PHASE);
-    }
-  }
-
-  createPlayerGameBoard(manager) {
-    const that = this._phase;
-    const energies = Object.values(manager.getPlayerEnergies());
-    const cardsInDeck = manager.getPlayerDeckLength();
-    const cardsInHand = manager.getPlayerHandLength();
-    const cardsInTrash = manager.getPlayerTrashLength();
-    const victories = manager.getPlayerVictories();
-    const passed = manager.isPlayerPassed();
-    const boardWindow = that.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand, passed);
-    const boardWindowHeight = boardWindow.height;
-    const battleWindow = that.createPlayerBattleWindow(boardWindowHeight);
-    const trashWindow = that.createPlayerTrashWindow(cardsInTrash);
-    const scoreWindow = that.createPlayerScoreWindow(victories, boardWindowHeight);
-    const battlefield = that.createPlayerBattlefield();
-  }
-
-  createChallengedGameBoard(manager) {
-    const that = this._phase;
-    const energies = Object.values(manager.getChallengedEnergies());
-    const cardsInDeck = manager.getChallengedDeckLength();
-    const cardsInHand = manager.getChallengedHandLength();
-    const cardsInTrash = manager.getChallengedTrashLength();
-    const victories = manager.getChallengedVictories();
-    const passed = manager.isChallengedPassed();
-    const boardWindow = that.createChallengedBoardWindow(energies, cardsInDeck, cardsInHand, passed);
-    const boardWindowHeight = boardWindow.height;
-    const battleWindow = that.createChallengedBattleWindow(boardWindowHeight);
-    const trashWindow = that.createChallengedTrashWindow(cardsInTrash);
-    const scoreWindow = that.createChallengedScoreWindow(victories, boardWindowHeight);
-    const battlefield = that.createChallengedBattlefield();
-  }
-
-  createTextWindow(text) {
-    const that = this._phase;
-    const textWindow = TextWindow.createWindowFullSize(0, 0, [text]);
-    textWindow.alignCenterMiddle();
-    textWindow.alignTextCenter();
-    that.addAction(this.commandCreateTextWindow.bind(this), textWindow);
-    return textWindow;
-  }
-
-  commandCreateTextWindow(textWindow) {
-    const that = this._phase;
-    this._textWindow = textWindow;
-    that.commandAddChild(textWindow);
-  }
-
-  openBeginLoadPhaseWindow() {
-    const that = this._phase;
-    that.addAction(this.commandOpenTextWindow.bind(this));
-  }
-
-  commandOpenTextWindow() {
-    this._textWindow.open();
-  }
-
-  updateStepBeginLoadPhase(manager) {
-    const that = this._phase;
-    const isBegin = that.isCurrentStep(GameConst.BEGIN_LOAD_PHASE);
-    if (isBegin && Input.isTriggered('ok')) {
-      this.closeBeginLoadPhaseWindow();
-      this.leaveBeginLoadPhaseWindow();
-      that.setStep(GameConst.TURN_PHASE);
-    }
-  }
-
-  closeBeginLoadPhaseWindow() {
-    const that = this._phase;
-    that.addAction(this.commandCloseTextWindow.bind(this));
-  }
-
-  commandCloseTextWindow() {
-    this._textWindow.close();
-  }
-
-  leaveBeginLoadPhaseWindow() {
-    const that = this._phase;
-    that.addAction(this.commandLeaveBeginLoadPhaseWindow.bind(this));
-  }
-
-  commandLeaveBeginLoadPhaseWindow() {
-    const that = this._phase;
-    that.removeChild(this._textWindow);
-  }
-
-  updateStartPlay(manager) {
-    const that = this._phase;
-    const isTurnPhase = that.isCurrentStep(GameConst.TURN_PHASE);
-    if (manager.isStartPlays() && isTurnPhase) {
-      if (manager.startPlay) {
-        that.setStep(GameConst.PLAYER_TURN_PHASE);
-      } else {
-        that.setStep(GameConst.CHALLENGE_TURN_PHASE);
-      }
-    }
-  }
-
-  updateStepChallengedLoadPhase(manager) {
-    const that = this._phase;
-    const isChallengedTurnPhase = that.isCurrentStep(GameConst.CHALLENGE_TURN_PHASE);
-    if (isChallengedTurnPhase) {
-      manager.challengePassed();
-      that.challengePass();
-      that.stepWainting();
-      if (manager.isPlayerPassed() === false) that.setStep(GameConst.PLAYER_TURN_PHASE);
-    }
-  }
-
-  updateStepPlayerLoadPhase(manager) {
-    const that = this._phase;
-    const isPlayerTurnPhase = that.isCurrentStep(GameConst.PLAYER_TURN_PHASE);
-    if (isPlayerTurnPhase) {
-      const commandYes = () => {
-        this.commandCloseAskWindow();
-        this.leaveAskWindow();
-        that.closeGameBoards();
-        that.leaveGameBoards();
-        this.commandPlayerHand(manager);
-      };
-      const commandNo = () => {
-        this.commandCloseAskWindow();
-        this.leaveAskWindow();
-        this.commandPlayerPassed(manager);
-      };
-      this.createAskWindow('Use a Program Card?', commandYes, commandNo);
-      this.openAskWindow();
-      that.stepWainting();
-    }
-  }
-
-  createAskWindow(text, yesHandler, noHanlder) {
-    const that = this._phase;
-    const commandYes = CommandWindow.createCommand('Yes', 'YES', yesHandler);
-    const commandNo = CommandWindow.createCommand('No', 'NO', noHanlder);
-    const askWindow = CommandWindow.create(0, 0, [text], [commandYes, commandNo]);
-    askWindow.alignBottom();
-    that.addAction(this.commandCreateAskWindow.bind(this), askWindow);
-    return askWindow;
-  }
-
-  commandCreateAskWindow(askWindow) {
-    const that = this._phase;
-    this._askWindow = askWindow;
-    that.commandAddChild(askWindow);
-  }
-
-  openAskWindow() {
-    const that = this._phase;
-    that.addAction(this.commandOpenAskWindow.bind(this));
-  }
-
-  commandOpenAskWindow() {
-    this._askWindow.open();
-  }
-
-  commandCloseAskWindow() {
-    this._askWindow.close();
-  }
-
-  leaveAskWindow() {
-    const that = this._phase;
-    that.addAction(this.commandLeaveAskWindow.bind(this));
-  }
-
-  commandLeaveAskWindow() {
-    const that = this._phase;
-    that.removeChild(this._askWindow);
-  }
-
-  commandPlayerHand(manager) {
-    const that = this._phase;
-    const onChangeCursor = index => {
-      const card = manager.getCardPlayerHandByIndex(index);
-      this.commandSetTextCardNameWindow(['card.name' + index]);
-      this.commandSetTextCardDescriptionWindow(['card.description' + index]);
-      this.commandSetTextCardPropsWindow(['card.props' + index]);
-    };
-    const onSelectHandler = cardIndexs => {
-      const sprite = this.commandGetHandSprites(cardIndexs);
-      this.selectPowerCard(sprite);
-      this.closePlayerHand();
-      this.leavePlayerHand();
-      this.createPlayerGameBoard(manager);
-      this.createChallengedGameBoard(manager);
-      that.openGameBoards();
-      const cards = cardIndexs.map(index => manager.getCardPlayerHandByIndex(index));
-      that.createPowerfield(cards);
-      that.openPowerfield();
-      that.activePowerCard(cardIndexs[0], manager, GameConst.PLAYER);
-      that.setStep(GameConst.ACTIVE_POWER_CARD);
-    };
-    const onCancelHandler = () => {
-      this.closePlayerHand();
-      this.leavePlayerHand();
-      this.createPlayerGameBoard(manager);
-      this.createChallengedGameBoard(manager);
-      that.openGameBoards();
-      that.setStep(GameConst.PLAYER_TURN_PHASE);
-    };
-
-    const playerEnergies = Object.values(manager.getPlayerEnergies());
-    const playerCardsInDeck = manager.getPlayerDeckLength();
-    const playerCardsInHand = manager.getPlayerHandLength();
-    const playerPassed = manager.isPlayerPassed();
-    that.createPlayerBoardWindow(playerEnergies, playerCardsInDeck, playerCardsInHand, playerPassed);
-    
-    // manager.getPlayerDisabledIndexesInLoadPhase
-    const cardsInHand = manager.getPlayerHand();
-    const disableCards = cardsInHand.map((card, index) => {
-      return {
-        index,
-        disable: card.type !== GameConst.POWER || card.isActiveInLoadPhase === false,
-      };
-    });
-    const disableIndexes = disableCards.filter(card => card.disable).map(card => card.index);
-
-    this.createPlayerHandset(cardsInHand, disableIndexes);
-    this.openPlayerHand(onSelectHandler, onChangeCursor, onCancelHandler);
-  }
-
-  createPlayerHandset(cards, disableIndexes) {
-    const playerHand = this.createPlayerHand(cards, disableIndexes);
-    const locationWindow = this.createLocationWindow(playerHand);
-    const cardNameWindow = this.createCardNameWindow(playerHand);
-    const cardDescriptionWindow = this.createCardDescriptionWindow(playerHand);
-    const cardPropsWindow = this.createCardPropsWindow(playerHand);
-    return { playerHand, locationWindow, cardNameWindow, cardDescriptionWindow, cardPropsWindow };
-  }
-
-  createPlayerHand(cards, disableIndexes) {
-    const that = this._phase;
-    const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
-    const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
-    const playerHand = CardsetSprite.create(x, y);
-    playerHand.show();
-    const sprites = playerHand.listCards(cards);
-    playerHand.startClosedCards(sprites);
-    const disableSprites = sprites.filter((sprite, index) => disableIndexes.includes(index));
-    playerHand.disableCards(disableSprites);
-    that.addAction(this.commandCreatePlayerHand.bind(this), playerHand);
-    return playerHand;
-  }
-
-  commandCreatePlayerHand(playerHand) {
-    const that = this._phase;
-    this._playerHand = playerHand
-    that.commandAddChild(playerHand);
-  }
-
-  createLocationWindow(playerHand = this._playerHand) {
-    const that = this._phase;
-    const locationWindow = TextWindow.createWindowMiddleSize(0, 0);
-    locationWindow.alignStartTop();
-    locationWindow.alignAboveOf(playerHand);
-    locationWindow.y -= 160;
-    locationWindow.alignTextCenter();
-    that.addAction(this.commandCreateLocationWindow.bind(this), locationWindow);
-    return locationWindow;
-  }
-
-  commandCreateLocationWindow(locationWindow) {
-    const that = this._phase;
-    this._locationWindow = locationWindow;
-    that.commandAddChild(locationWindow);
-  }
-
-  createCardNameWindow(playerHand = this._playerHand) {
-    const that = this._phase;
-    const cardNameWindow = TextWindow.createWindowMiddleSize(0, 0);
-    cardNameWindow.alignEndTop();
-    cardNameWindow.alignAboveOf(playerHand);
-    cardNameWindow.y -= 160;
-    that.addAction(this.commandCreateCardNameWindow.bind(this), cardNameWindow);
-    return cardNameWindow;
-  }
-
-  commandCreateCardNameWindow(cardNameWindow) {
-    const that = this._phase;
-    this._cardNameWindow = cardNameWindow;
-    that.commandAddChild(cardNameWindow);
-  }
-
-  createCardDescriptionWindow(playerHand = this._playerHand) {
-    const that = this._phase;
-    const cardDescriptionWindow = TextWindow.createWindowMiddleSize(0, 0);
-    cardDescriptionWindow.alignStartBottom();
-    cardDescriptionWindow.alignBelowOf(playerHand);
-    cardDescriptionWindow.y += 100;
-    that.addAction(this.commandCreateCardDescriptionWindow.bind(this), cardDescriptionWindow);
-    return cardDescriptionWindow;
-  }
-
-  commandCreateCardDescriptionWindow(cardDescriptionWindow) {
-    const that = this._phase;
-    this._cardDescriptionWindow = cardDescriptionWindow;
-    that.commandAddChild(cardDescriptionWindow);
-  }
-
-  createCardPropsWindow(playerHand = this._playerHand) {
-    const that = this._phase;
-    const cardPropsWindow = TextWindow.createWindowMiddleSize(0, 0);
-    cardPropsWindow.alignEndBottom();
-    cardPropsWindow.alignBelowOf(playerHand);
-    cardPropsWindow.y += 100;
-    that.addAction(this.commandCreateCardPropsWindow.bind(this), cardPropsWindow);
-    return cardPropsWindow;
-  }
-
-  commandCreateCardPropsWindow(cardPropsWindow) {
-    const that = this._phase;
-    this._cardPropsWindow = cardPropsWindow;
-    that.commandAddChild(cardPropsWindow);
-  }
-
-  openPlayerHand(onSelectHandler, onChangeCursor, onCancelHandler) {
-    const that = this._phase;
-    that.addActions([
-      this.commandOpenPlayerHand.bind(this),
-      [this.commandPlayerHandSelectMode.bind(this), onSelectHandler, onChangeCursor, onCancelHandler]
-    ]);
-    that.addActions([
-      this.commandSetTextLocationWindow.bind(this),
-      this.commandOpenLocationWindow.bind(this),
-      this.commandOpenCardNameWindow.bind(this),
-      this.commandOpenCardDescriptionWindow.bind(this),
-      this.commandOpenCardPropsWindow.bind(this),
-      that.commandOpenPlayerBoardWindow,
-    ]);
-  }
-
-  commandSetTextLocationWindow() {
-    this._locationWindow.refreshContent(['Player Hand']);
-  }
-
-  commandOpenLocationWindow() {
-    this._locationWindow.open();
-  }
-
-  commandOpenCardNameWindow() {
-    this._cardNameWindow.open();
-  }
-
-  commandOpenCardDescriptionWindow() {
-    this._cardDescriptionWindow.open();
-  }
-
-  commandOpenCardPropsWindow() {
-    this._cardPropsWindow.open();
-  }
-
-  commandOpenPlayerHand() {
-    this._playerHand.openCards();
-  }
-
-  commandPlayerHandSelectMode(onSelectHandler, onChangeCursor, onCancelHandler) {
-    const selectNumber = 1;
-    this._playerHand.selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
-  }
-  
-  commandSetTextCardNameWindow(text) {
-    this._cardNameWindow.refreshContent(text);
-  }
-
-  commandSetTextCardDescriptionWindow(text) {
-    this._cardDescriptionWindow.refreshContent(text);
-  }
-
-  commandSetTextCardPropsWindow(text) {
-    this._cardPropsWindow.refreshContent(text);
-  }
-
-  commandGetHandSprites(index) {
-    return this._playerHand.getSprites(index);
-  }
-
-  selectPowerCard(sprites) {
-    const that = this._phase;
-    that.addActions([
-      [this.commandSelectMovement.bind(this), sprites],
-    ]);
-  }
-
-  commandSelectMovement(sprites) {
-    const cardset = this._playerHand;
-    cardset.addChildToEnd(sprites);
-    cardset.zoomAllCards(sprites);
-    cardset.zoomOutAllCards(sprites);
-  }
-
-  closePlayerHand() {
-    const that = this._phase;
-    that.addActions([
-      this.commandCloseLocationWindow.bind(this),
-      this.commandCloseCardNameWindow.bind(this),
-      this.commandCloseCardDescriptionWindow.bind(this),
-      this.commandCloseCardPropsWindow.bind(this),
-      that.commandClosePlayerBoardWindow,
-    ]);
-    that.addActions([
-      this.commandClosePlayerHand.bind(this)
-    ]);
-  }
-
-  commandCloseLocationWindow() {
-    this._locationWindow.close();
-  }
-
-  commandCloseCardNameWindow() {
-    this._cardNameWindow.close();
-  }
-
-  commandCloseCardDescriptionWindow() {
-    this._cardDescriptionWindow.close();
-  }
-
-  commandCloseCardPropsWindow() {
-    this._cardPropsWindow.close();
-  }
-
-  commandClosePlayerHand() {
-    this._playerHand.closeCards();
-  }
-
-  leavePlayerHand() {
-    const that = this._phase;
-    that.addAction(this.commandLeavePlayerHand.bind(this));
-  }
-
-  commandLeavePlayerHand() {
-    const that = this._phase;
-    that.removeChildren([
-      this._locationWindow,
-      this._cardNameWindow,
-      this._cardDescriptionWindow,
-      this._cardPropsWindow,
-      this._playerHand,
-      that._player.boardWindow,
-    ]);
-  }
-
-  commandPlayerPassed(manager) {
-    const that = this._phase;
-    manager.playerPassed();
-    that.playerPass();
-    that.stepWainting();
-    if (manager.isChallengedPassed() === false) that.setStep(GameConst.CHALLENGE_TURN_PHASE);
-  }
-
-  updateStepPowerfieldLoadPhase(manager) {
-    const that = this._phase;
-    // console.log(manager, manager.isEndPlays(), manager.getPowerfieldLength());
-    if (manager.isEndPlays() && manager.getPowerfieldLength()) {
-      const { card: powerCard } = manager.getPowerfieldLastCardSlot();
-      const cardIndex = manager.getPowerfieldLength() - 1;
-      const sprite = that.commandGetPowerfieldSprites(cardIndex);
-      that.animateCastPowerCard(sprite, cardIndex);
-      that.runPowerCard(manager, powerCard);
-      that.setStep(GameConst.ACTIVE_POWER_CARD);
-      manager.removePowerfieldLastCardSlot();
-    }
-  }
-
-  updateStepEnd(manager) {
-    const that = this._phase;
-    const isNotFinished = that.isCurrentStep(GameConst.END_PHASE) === false;
-    if (manager.isEndPlays() && isNotFinished) {
-      that.addWait();
-      that.closeGameBoards();
-      that.leaveGameBoards();
-      that.addAction(manager.endPhase.bind(this));
-      that.stepEnd();
-    }
-  }
-
-  activePowerCard(cardIndexHand, manager, player) {
-    this._phase.changeStatus(ActivePowerCardPhaseStatus, cardIndexHand, manager, player);
-  }
-
-  runPowerCard(manager, powerCard) {
-    this._phase.changeStatus(RunPowerCardPhaseStatus, manager, powerCard);
-  }
-
-  waitStatus() {
-    return false;
-  }
-
-  isPlayerHandVisible() {
-    return this._playerHand.visible;
-  }
-
-  isTextWindowVisible() {
-    return this._textWindow.visible;
-  }
-
-  isAskWindowVisible() {
-    return this._askWindow.visible;
-  }
-
-  isLocationWindowVisible() {
-    return this._locationWindow.visible;
-  }
-
-  isCardNameWindowVisible() {
-    return this._cardNameWindow.visible;
-  }
-
-  isCardDescriptionWindowVisible() {
-    return this._cardDescriptionWindow.visible;
-  }
-
-  isCardPropsWindowVisible() {
-    return this._cardPropsWindow.visible;
-  }
-}
-
-class Phase {
-  _scene = {};
-  _status = null;
-  _actionsQueue = [];
-  _step = 'START';
-  _wait = 0;
-  _titleWindow = {};
-  _descriptionWindow = {};
-  _player = {
-    boardWindow: {},
-    battleWindow: {},
-    trashWindow: {},
-    scoreWindow: {},
-    battlefield: {},
-  };
-  _challenge = {
-    boardWindow: {},
-    battleWindow: {},
-    trashWindow: {},
-    scoreWindow: {},
-    battlefield: {},
-  };
-
-  constructor(scene) {
-    if ((scene instanceof Scene_Message) === false) {
-      throw new Error('Scene must be an instance of Scene_Message');
-    }
-    this._scene = scene;
-  }
-
-  changeStatus(status, ...params) {
-    this._status = new status(this, ...params);
-  }
-
-  update() {
-    if (this._wait > 0) return this._wait--;
-    if (this.hasActions() && this.isAvailable()) this.executeAction();
-  }
-
-  hasActions() {
-    return this._actionsQueue.length > 0;
-  }
-
-  isAvailable() {
-    return this.isBusy() === false;
-  }
-
-  isBusy() {
-    const children = [
-      this._titleWindow,
-      this._descriptionWindow,
-      this._player.boardWindow,
-      this._player.battleWindow,
-      this._player.trashWindow,
-      this._player.scoreWindow,
-      this._player.battlefield,
-      this._challenge.boardWindow,
-      this._challenge.battleWindow,
-      this._challenge.trashWindow,
-      this._challenge.scoreWindow,
-      this._challenge.battlefield,
-    ];
-    return this._wait > 0 || children.some(obj => (obj.isBusy ? obj.isBusy() : false)) || this.someChildrenIsBusy();
-  }
-
-  someChildrenIsBusy() {
-    if (!this._scene.children || this._scene.children.length === 0) return false;
-    return this._scene.children.some(sprite => {
-      return (sprite instanceof CardsetSprite) && (sprite.hasCommands() || sprite.isBusy());
-    });
-  }
-
-  executeAction() {
-    const actions = this._actionsQueue[0];
-    if (actions.length > 0) {
-      const completed = this.processActions(actions);
-      if (completed) {
-        this._actionsQueue.shift();
-      }
-    }
-  }
-
-  processActions(actions) {
-    let processed = false;
-    for (const action of actions) {
-      const completed = action.execute();
-      if (completed) {
-        processed = true;
-        continue;
-      }
-      break;
-    }
-    return processed;
-  }
-
-  setStep(step) {
-    this.addAction(this.commandChangeStep, step);
-    this.stepWainting();
-  }
-
-  commandChangeStep(step) {
-    this._step = step;
-  }
-
-  addWait(seconds = 0.6) {
-    this.addAction(this.commandWait, seconds);
-  }
-
-  commandWait(seconds) {
-    this._wait = seconds * GameConst.FPS;
-  }
-
-  stepStart() {
-    this._step = GameConst.START_PHASE;
-    this.commandWait(0.5);
-  }
-
-  stepWainting() {
-    this._step = GameConst.WAITING_PHASE;
-    this.commandWait(0.5);
-  }
-
-  stepEnd() {
-    this._step = GameConst.END_PHASE;
-    this.commandWait(0.5);
-  }
-
-  isCurrentStep(step) {
-    return this._step === step;
-  }
-
-  addAction(fn, ...params) {
-    const action = this.createAction(fn, ...params);
-    const actions = this.toArray(action);
-    this._actionsQueue.push(actions);
-  }
-
-  createAction(fn, ...params) {
-    const action = { 
-      fn: fn.name || 'anonymous',
-      execute: () => {
-        const result = fn.call(this, ...params);
-        return typeof result === 'boolean' ? result : true;
-      }
-    };
-    return action;
-  }
-
-  addActions(actions) {
-    actions = this.toArray(actions);
-    actions = actions.map((fn, ...params) => {
-      if (Array.isArray(fn)) return this.createAction(fn[0], ...fn.slice(1));
-      return this.createAction(fn)
-    });
-    this._actionsQueue.push(actions);
-  }
-
-  toArray(items = []) {
-    return (Array.isArray(items) === false) ? [items] : items;
-  }
-
-  addChildren(children) {
-    children.forEach(child => this.addChild(child));
-  }
-
-  addChild(child) {
-    this.addAction(this.commandAddChild, child);
-  }
-
-  commandAddChild(child) {
-    if (child instanceof Window_Base) {
-      this._scene.addWindow(child);
-    } else {
-      this._scene.addChild(child);
-    }
-  }
-
-  removeChildren(children) {
-    children.forEach(child => this.removeChild(child));
-  }
-
-  removeChild(child) {
-    this.addAction(this.commandRemoveChild, child);
-  }
-
-  commandRemoveChild(child) {
-    if (child instanceof Window_Base) {
-      this._scene.addWindow(child);
-    } else {
-      this._scene.removeChild(child);
-    }
-  }
-
-  createTitleWindow(text) {
-    const title = TextWindow.setTextColor(text, GameColors.ORANGE);
-    const titleWindow = TextWindow.createWindowFullSize(0, 0, [title]);
-    titleWindow.alignBelowOf({ y: 200, height: 0 });
-    titleWindow.alignTextCenter();
-    this.addAction(this.commandCreateTitleWindow, titleWindow);
-    return titleWindow;
-  }
-
-  commandCreateTitleWindow(titleWindow) {
-    this._titleWindow = titleWindow;
-    this.commandAddChild(titleWindow);
-  }
-
-  createDescriptionWindow(...texts) {
-    const maxSize = 3;
-    const heightLines = Array(maxSize).fill('\n');
-    const content = [...texts, ...heightLines];
-    const maxContent = content.slice(0, maxSize);
-    const descriptionWindow = TextWindow.createWindowFullSize(0, 0, maxContent);
-    descriptionWindow.alignCenterBelowMiddle();
-    this.addAction(this.commandCreateDescriptionWindow, descriptionWindow);
-    return descriptionWindow;
-  }
-
-  commandCreateDescriptionWindow(descriptionWindow) {
-    this._descriptionWindow = descriptionWindow;
-    this.commandAddChild(descriptionWindow);
-  }
-
-  openTextWindows() {
-    this.addActions([
-      this.commandOpenTitleWindow,
-      this.commandOpenDescriptionWindow,
-    ]);
-  }
-
-  commandOpenTitleWindow() {
-    this._titleWindow.open();
-  }
-
-  commandOpenDescriptionWindow() {
-    this._descriptionWindow.open();
-  }
-
-  commandCloseTextWindows() {
-    this.commandCloseTitleWindow();
-    this.commandCloseDescriptionWindow();
-  }
-
-  commandCloseTitleWindow() {
-    this._titleWindow.close();
-  } 
-
-  commandCloseDescriptionWindow() {
-    this._descriptionWindow.close();
-  }
-
-  leaveTextWindows() {
-    this.addAction(this.commandLeaveTextWindows);
-  }
-
-  commandLeaveTextWindows() {
-    this.removeChildren([
-      this._titleWindow,
-      this._descriptionWindow,
-    ]);
-  }
-
-  getTitleWindow() {
-    return this._titleWindow;
-  }
-
-  getDescriptionWindow() {
-    return this._descriptionWindow;
-  }
-
-  createPlayerBoardWindow(energies, cardsInDeck, cardsInHand, passed = false) {
-    const boardWindow = BoardWindow.create(0, 0);
-    boardWindow.changeBlueColor();
-    boardWindow.alignStartBottom();
-    const points = [...energies, cardsInDeck, cardsInHand];
-    boardWindow.refreshPoints(...points);
-    if (passed) boardWindow.pass();
-    this.addAction(this.commandCreatePlayerBoardWindow, boardWindow);
-    return boardWindow;
-  }
-
-  commandCreatePlayerBoardWindow(boardWindow) {
-    this._player.boardWindow = boardWindow;
-    this.commandAddChild(boardWindow);
-  }
-
-  createPlayerBattleWindow(height = this._player.boardWindow.height) {
-    const battleWindow = BattlePointsWindow.create(0, 0);
-    battleWindow.changeBlueColor();
-    battleWindow.alignStartBottom();
-    const y = ScreenHelper.getBottomPosition(height);
-    battleWindow.alignAboveOf({ y, height });
-    battleWindow.refresh();
-    this.addAction(this.commandCreatePlayerBattleWindow, battleWindow);
-    return battleWindow;
-  }
-
-  commandCreatePlayerBattleWindow(battleWindow) {
-    this._player.battleWindow = battleWindow;
-    this.commandAddChild(this._player.battleWindow);
-  }
-
-  createPlayerTrashWindow(cardsInTrash) {
-    const trashWindow = TrashWindow.create(0, 0);
-    trashWindow.changeBlueColor();
-    trashWindow.alignEndBelowMiddle();
-    trashWindow.refreshPoints(cardsInTrash);
-    this.addAction(this.commandCreatePlayerTrashWindow, trashWindow);
-    return trashWindow;
-  }
-
-  commandCreatePlayerTrashWindow(trashWindow) {
-    this._player.trashWindow = trashWindow;
-    this.commandAddChild(trashWindow);
-  }
-
-  createPlayerScoreWindow(victories, height = this._player.boardWindow.height) {
-    const scoreWindow = ScoreWindow.create(0, 0);
-    scoreWindow.changeBlueColor();
-    scoreWindow.alignEndBottom();
-    const y = ScreenHelper.getBottomPosition(height);
-
-    scoreWindow.alignAboveOf({ y, height });
-    scoreWindow.refreshScore(victories);
-    this.addAction(this.commandCreatePlayerScoreWindow, scoreWindow);
-    return scoreWindow;
-  }
-
-  commandCreatePlayerScoreWindow(scoreWindow) {
-    this._player.scoreWindow = scoreWindow;
-    this.commandAddChild(scoreWindow);
-  }
-
-  createPlayerBattlefield() {
-    const paddingLeft = this.getPaddingLeftBattleField();
-    const battlefield = CardsetSprite.create(paddingLeft, 0);
-    const height = 120;
-    const y = ScreenHelper.getBottomPosition(height);
-    battlefield.alignAboveOf({ y, height });
-    this.addAction(this.commandCreatePlayerBattlefield, battlefield);
-    return battlefield;
-  }
-
-  commandCreatePlayerBattlefield(battlefield) {
-    this._player.battlefield = battlefield;
-    this.commandAddChild(battlefield);
-  }
-
-  getPaddingLeftBattleField() {
-    const fieldWidth = ScreenHelper.getFieldWidth();
-    const battlefieldWidth = CardsetSprite.contentOriginalWidth();
-    const paddingLeft = (fieldWidth - battlefieldWidth) / 2;
-    return paddingLeft;
-  }
-
-  createChallengeBoardWindow(energies, cardsInDeck, cardsInHand, passed = false) {
-    const boardWindow = BoardWindow.create(0, 0);
-    boardWindow.changeRedColor();
-    boardWindow.alignStartTop();
-    const points = [...energies, cardsInDeck, cardsInHand];
-    boardWindow.refreshPoints(...points);
-    if (passed) boardWindow.pass();
-    this.addAction(this.commandCreateChallengeBoardWindow, boardWindow);
-    return boardWindow;
-  }
-
-  commandCreateChallengeBoardWindow(boardWindow) {
-    this._challenge.boardWindow = boardWindow;
-    this.commandAddChild(boardWindow);
-  }
-
-  createChallengeBattleWindow(height = this._challenge.boardWindow.height) {
-    const battleWindow = BattlePointsWindow.create(0, 0);
-    battleWindow.changeRedColor();
-    battleWindow.alignStartTop();
-    const y = ScreenHelper.getTopPosition();
-    battleWindow.alignBelowOf({ y, height });
-    battleWindow.refresh();
-    this.addAction(this.commandCreateChallengeBattleWindow, battleWindow);
-    return battleWindow;
-  }
-
-  commandCreateChallengeBattleWindow(battleWindow) {
-    this._challenge.battleWindow = battleWindow;
-    this.commandAddChild(battleWindow);
-  }
-
-  createChallengeTrashWindow(cardsInTrash) {
-    const trashWindow = TrashWindow.create(0, 0);
-    trashWindow.changeRedColor();
-    trashWindow.alignEndAboveMiddle();
-    trashWindow.reverseIcons();
-    trashWindow.refreshPoints(cardsInTrash);
-    this.addAction(this.commandCreateChallengeTrashWindow, trashWindow);
-    return trashWindow;
-  }
-
-  commandCreateChallengeTrashWindow(trashWindow) {
-    this._challenge.trashWindow = trashWindow;
-    this.commandAddChild(trashWindow);
-  }
-
-  createChallengeScoreWindow(victories, height = this._challenge.boardWindow.height) {
-    const scoreWindow = ScoreWindow.create(0, 0);
-    scoreWindow.changeRedColor();
-    scoreWindow.alignEndTop();
-    const y = ScreenHelper.getTopPosition();
-    scoreWindow.alignBelowOf({ y, height });
-    scoreWindow.refreshScore(victories);
-    this.addAction(this.commandCreateChallengeScoreWindow, scoreWindow);
-    return scoreWindow;
-  }
-
-  commandCreateChallengeScoreWindow(scoreWindow) {
-    this._challenge.scoreWindow = scoreWindow;
-    this.commandAddChild(scoreWindow);
-  }
-
-  createChallengeBattlefield() {
-    const paddingLeft = this.getPaddingLeftBattleField();
-    const battlefield = CardsetSprite.create(paddingLeft, 0);
-    const height = 128;
-    const y = ScreenHelper.getTopPosition();
-    battlefield.alignBelowOf({ y, height });
-    this.addAction(this.commandCreateChallengeBattlefield, battlefield);
-    return battlefield;
-  }
-
-  commandCreateChallengeBattlefield(battlefield) {
-    this._challenge.battlefield = battlefield;
-    this.commandAddChild(battlefield);
-  }
-
-  openGameBoards() {
-    this.addActions([
-      this.commandOpenPlayerGameBoard,
-      this.commandOpenChallengeGameBoard,
-    ]);
-  }
-
-  commandOpenPlayerGameBoard() {
-    this.commandOpenPlayerBoardWindow();
-    this.commandOpenPlayerBattleWindow();
-    this.commandOpenPlayerTrashWindow();
-    this.commandOpenPlayerScoreWindow();
-    this.commandOpenPlayerBattlefield();
-  }
-
-  commandOpenPlayerBoardWindow() {
-    this._player.boardWindow.open();
-  }
-
-  commandOpenPlayerBattleWindow() {
-    this._player.battleWindow.open();
-  }
-
-  commandOpenPlayerTrashWindow() {
-    this._player.trashWindow.open();
-  }
-
-  commandOpenPlayerScoreWindow() {
-    this._player.scoreWindow.open();
-  }
-
-  commandOpenPlayerBattlefield() {
-    this._player.battlefield.openCards();
-  }
-  
-  commandOpenChallengeGameBoard() {
-    this.commandOpenChallengeBoardWindow();
-    this.commandOpenChallengeBattleWindow();
-    this.commandOpenChallengeTrashWindow();
-    this.commandOpenChallengeScoreWindow();
-    this.commandOpenChallengeBattlefield();
-  }
-
-  commandOpenChallengeBoardWindow() {
-    this._challenge.boardWindow.open();
-  }
-
-  commandOpenChallengeBattleWindow() {
-    this._challenge.battleWindow.open();
-  }
-
-  commandOpenChallengeTrashWindow() {
-    this._challenge.trashWindow.open();
-  }
-
-  commandOpenChallengeScoreWindow() {
-    this._challenge.scoreWindow.open();
-  }
-
-  commandOpenChallengeBattlefield() {
-    this._challenge.battlefield.openCards();
-  }
-
-  closeGameBoards() {
-    this.addActions([
-      this.closePlayerGameBoard,
-      this.closeChallengeGameBoard
-    ]);
-  }
-
-  closePlayerGameBoard() {
-    this.commandClosePlayerBoardWindow();
-    this.commandClosePlayerBattleWindow();
-    this.commandClosePlayerTrashWindow();
-    this.commandClosePlayerScoreWindow();
-    this.commandClosePlayerBattlefield();
-  }
-
-  commandClosePlayerBoardWindow() {
-    this._player.boardWindow.close();
-  }
-
-  commandClosePlayerBattleWindow() {
-    this._player.battleWindow.close();
-  }
-
-  commandClosePlayerTrashWindow() {
-    this._player.trashWindow.close();
-  }
-
-  commandClosePlayerScoreWindow() {
-    this._player.scoreWindow.close();
-  }
-
-  commandClosePlayerBattlefield() {
-    this._player.battlefield.closeCards();
-  }
-
-  closeChallengeGameBoard() {
-    this.commandCloseChallengeBoardWindow();
-    this.commandCloseChallengeBattleWindow();
-    this.commandCloseChallengeTrashWindow();
-    this.commandCloseChallengeScoreWindow();
-    this.commandCloseChallengeBattlefield();
-  }
-
-  commandCloseChallengeBoardWindow() {
-    this._challenge.boardWindow.close();
-  }
-
-  commandCloseChallengeBattleWindow() {
-    this._challenge.battleWindow.close();
-  }
-
-  commandCloseChallengeTrashWindow() {
-    this._challenge.trashWindow.close();
-  }
-
-  commandCloseChallengeScoreWindow() {
-    this._challenge.scoreWindow.close();
-  }
-
-  commandCloseChallengeBattlefield() {
-    this._challenge.battlefield.closeCards();
-  }
-
-  playerPass() {
-    this.addAction(this.commandPlayerPass);
-  }
-
-  commandPlayerPass() {
-    this._player.boardWindow.pass();
-  }
-
-  challengePass() {
-    this.addAction(this.commandChallengePass);
-  }
-
-  commandChallengePass() {
-    this._challenge.boardWindow.pass();
-  }
-
-  leaveGameBoards() {
-    this.addAction(this.commandLeaveGameBoards);
-  }
-
-  commandLeaveGameBoards() {
-    this.removeChildren([
-      this._player.boardWindow,
-      this._player.battleWindow,
-      this._player.trashWindow,
-      this._player.scoreWindow,
-      this._player.battlefield,
-      this._challenge.boardWindow,
-      this._challenge.battleWindow,
-      this._challenge.trashWindow,
-      this._challenge.scoreWindow,
-      this._challenge.battlefield,
-    ]);
-  }
-
-  getPlayerBoardWindow() {
-    return this._player.boardWindow;
-  }
-
-  getPlayerBattleWindow() {
-    return this._player.battleWindow;
-  }
-
-  getPlayerTrashWindow() {
-    return this._player.trashWindow;
-  }
-
-  getPlayerScoreWindow() {
-    return this._player.scoreWindow;
-  }
-
-  getPlayerBattlefield() {
-    return this._player.battlefield;
-  }
-
-  getChallengeBoardWindow() {
-    return this._challenge.boardWindow;
-  }
-
-  getChallengeBattleWindow() {
-    return this._challenge.battleWindow;
-  }
-
-  getChallengeTrashWindow() {
-    return this._challenge.trashWindow;
-  }
-
-  getChallengeScoreWindow() {
-    return this._challenge.scoreWindow;
-  }
-
-  getChallengeBattlefield() {
-    return this._challenge.battlefield;
-  }
-
-  isTitleWindowVisible() {
-    return this._titleWindow.visible;
-  }
-
-  isDescriptionWindowVisible() {
-    return this._descriptionWindow.visible;
-  }
-
-  isPlayerBoardWindowVisible() {
-    return this._player.boardWindow.visible;
-  }
-
-  isChallengeBoardWindowVisible() {
-    return this._challenge.boardWindow.visible;
-  }
-
-  isPlayerBattleWindowVisible() {
-    return this._player.battleWindow.visible;
-  }
-
-  isChallengeBattleWindowVisible() {
-    return this._challenge.battleWindow.visible;
-  }
-
-  isPlayerTrashWindowVisible() {
-    return this._player.trashWindow.visible;
-  }
-
-  isChallengeTrashWindowVisible() {
-    return this._challenge.trashWindow.visible;
-  }
-
-  isPlayerScoreWindowVisible() {
-    return this._player.scoreWindow.visible;
-  }
-
-  isChallengeScoreWindowVisible() {
-    return this._challenge.scoreWindow.visible;
-  }
-
-  isPlayerBattlefieldVisible() {
-    return this._player.battlefield.visible;
-  }
-
-  isChallengeBattlefieldVisible() {
-    return this._challenge.battlefield.visible;
-  }
-}
-class ChallengePhase extends Phase {
-  _folderWindow = {};
-
-  createFolderWindow(text, folders) {
-    const energies = folders.map(folder => FolderWindow.createEnergies(...folder.energies));
-    const commands = folders.map((folder, index) => {
-      return FolderWindow.createCommand(folder.name, `FOLDER_${index}`, folder.handler, energies[index])
-    });
-    const title = CommandWindow.setTextColor(text, GameColors.ORANGE);
-    const folderWindow = FolderWindow.create(0, 0, [title], commands);
-    folderWindow.alignMiddle();
-    folderWindow.alignTextCenter();
-    this.addAction(this.commandCreateFolderWindow, folderWindow);
-    return folderWindow;
-  }
-
-  commandCreateFolderWindow(folderWindow) {
-    this._folderWindow = folderWindow
-    this.commandAddChild(folderWindow);
-  }
-
-  getFolderWindow() {
-    return this._folderWindow;
-  }
-
-  openFolderWindow() {
-    this.addAction(this.commandOpenFolderWindow);
-  }
-
-  commandOpenFolderWindow() {
-    this._folderWindow.open();
-  }
-
-  closeFolderWindow() {
-    this.addAction(this.commandCloseFolderWindow);
-  }
-
-  commandCloseFolderWindow() {
-    this._folderWindow.close();
-  }
-
-  leaveFolderWindow() {
-    this.addAction(this.commandLeaveFolderWindow);
-  }
-
-  commandLeaveFolderWindow() {
-    this.removeChild(this._folderWindow);
-  }
-
-  start(manager) {
-    const title = 'Challenge Phase';
-    const description = manager.getChallengeDescription();
-    this.createTitleWindow(title);
-    this.createDescriptionWindow(description);
-    this.openTextWindows();
-    this.setStep(GameConst.START_PHASE);
-  }
-
-  update(manager) {
-    super.update();
-    if (this.isBusy()) return false;
-    this.updateStepStart(manager);
-    this.updateStepEnd(manager);
-  }
-
-  updateStepStart(manager) {
-    if (this.isCurrentStep(GameConst.START_PHASE) && Input.isTriggered('ok')) {
-      this.commandCloseTextWindows();
-      this.leaveTextWindows();
-      const selectHandler = (folderIndex) => {
-        manager.setPlayerFolderIndex(folderIndex);
-        this.commandCloseFolderWindow();
-        this.leaveFolderWindow();
-        this.setStep(GameConst.END_SELECT_FOLDER);
-      };
-      let folders = manager.getPlayerFolders();
-      folders = folders.map(folder => {
-        folder.handler = selectHandler;
-        return folder;
-      });
-      const folderWindow = this.createFolderWindow('Choose a folder', folders);
-      this.addWait();
-      this.openFolderWindow();
-      this.setStep(GameConst.START_SELECT_FOLDER);
-    }
-  }
-
-  updateStepEnd(manager) {
-    if (this.isCurrentStep(GameConst.END_SELECT_FOLDER)) {
-      this.addAction(manager.endPhase);
-    }
-  }
-
-  isBusy() {
-    const children = [
-      this._folderWindow
-    ];
-    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
-  }
-
-  isFolderWindowVisible() {
-    return this._folderWindow.visible;
-  }
-}
-class StartPhase extends Phase {
-  _resultWindow = {};
-  _cards = [];
-  _drawCardGame = {};
-
-  createDrawCardGame() {
-    const drawCardGame = CardsetSprite.create(0, 0);
-    drawCardGame.centralize();
-    drawCardGame.commandShow();
-    const cards = this.createCardsShuffled();
-    const sprites = drawCardGame.setCards(cards, Graphics.boxWidth, Graphics.boxHeight);
-    const xSprite1 = -(drawCardGame.x + CardSprite.contentOriginalWidth());
-    const ySprite1 = -(drawCardGame.y + CardSprite.contentOriginalHeight());
-    const position1 = CardSprite.createPosition(xSprite1, ySprite1, 0);
-    const xSprite2 = (Graphics.boxWidth - drawCardGame.x);
-    const ySprite2 = (Graphics.boxHeight - drawCardGame.y);
-    const position2 = CardSprite.createPosition(xSprite2, ySprite2, 1);
-    const positions = [position1, position2];
-    drawCardGame.setAllCardsInPositions(sprites, positions);
-    drawCardGame.setTurnToDownCards(sprites);
-    this.addAction(this.commandCreateDrawCardGame, drawCardGame);
-    return drawCardGame;
-  }
-
-  commandCreateDrawCardGame(drawCardGame) {
-    this._drawCardGame = drawCardGame;
-    this.commandAddChild(drawCardGame);
-  }
-
-  createCardsShuffled() {
-    const cards = [
-      {
-        type: 2,
-        color: GameConst.WHITE,
-        figureName: 'default',
-        attack: 0,
-        health: 0
-      },
-      {
-        type: 2,
-        color: GameConst.BLACK,
-        figureName: 'default',
-        attack: 0,
-        health: 0
-      },
-    ];
-    this._cards = ArrayHelper.shuffle(cards);
-    return this._cards;
-  }
-
-  startDrawCardGame(onSelectHandler) {
-    this.addAction(this.commandStartDrawCardGame, onSelectHandler);
-  }
-
-  commandStartDrawCardGame(onSelectHandler) {
-    this.showCards();
-    this.moveAllCardsToCenter();
-    const handlerDecorator = (cards) => {
-      const selectedIndex = cards.shift();
-      const cardColor = this._cards[selectedIndex].color;
-      const win = cardColor === GameConst.WHITE;
-      const resultWindow = this.createResultWindow(win);
-      this.endDrawCardGame(selectedIndex);
-      onSelectHandler(win, resultWindow);
-    }
-    this.selectMode(handlerDecorator);
-  }
-
-  showCards() {
-    this.addAction(this.commandShowCards);
-  }
-  
-  commandShowCards() {
-    this._drawCardGame.showCards();
-  }
-
-  moveAllCardsToCenter() {
-    this.addAction(this.commandMoveAllCardsToCenter);
-  }
-
-  commandMoveAllCardsToCenter() {
-    const center = this._drawCardGame.width / 2;
-    const x = center - CardSprite.contentOriginalWidth();
-    const space = 2;
-    const position1 = CardSprite.createPosition(x - space, 0, 0);
-    const position2 = CardSprite.createPosition(center + space, 0, 1);
-    const positions = [position1, position2];
-    const sprites = this._drawCardGame.getSprites();
-    this._drawCardGame.moveAllCardsToPositions(sprites, positions);
-  }
-
-  createResultWindow(win) {
-    const text = win ? 'You go first!' : 'You go next!';
-    const resultWindow = TextWindow.createWindowOneFourthSize(0, 0, [text]);
-    resultWindow.alignCenterMiddle();
-    resultWindow.alignBelowOf({ y: 100, height: 0 });
-    resultWindow.alignTextCenter();
-    this.addAction(this.commandCreateResultWindow, resultWindow);
-    return resultWindow;
-  }
-
-  commandCreateResultWindow(resultWindow) {
-    this._resultWindow = resultWindow;
-    this.commandAddChild(resultWindow);
-  }
-
-  selectMode(onSelectHandler) {
-    this.addAction(this.commandSelectMode, onSelectHandler);
-  }
-
-  commandSelectMode(onSelectHandler) {
-    const selectNumber = 1;
-    this._drawCardGame.selectMode(selectNumber, onSelectHandler);
-  }
-  
-  isBusy() {
-    const children = [
-      this._drawCardGame,
-      this._resultWindow,
-    ];
-    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
-  }
-
-  endDrawCardGame(selectedIndex) {
-    this.addAction(this.commandEndDrawCardGame, selectedIndex);
-  }
-
-  commandEndDrawCardGame(selectedIndex) {
-    const cardset = this._drawCardGame;
-    const sprites = ArrayHelper.moveToStartByIndex(cardset.getSprites(), selectedIndex);
-    const selectedSprite = sprites[0];
-    const startIndex = 0;
-    cardset.removeChild(sprites[1]);
-    cardset.addChildAt(sprites[1], startIndex);
-    cardset.zoomAllCards(selectedSprite);
-    cardset.zoomOutAllCards(selectedSprite);
-    cardset.addWait();
-    cardset.flipTurnToUpCards(sprites);
-  }
-
-  openResultWindow() {
-    this.addAction(this.commandOpenResultWindow);
-  }
-
-  commandOpenResultWindow() {
-    this._resultWindow.open();
-  }
-
-  closeDrawCardGame() {
-    this.addActions([
-      this.commandCloseResultWindow,
-      this.commandCloseDrawCardGame,
-    ]);
-  }
-  
-  commandCloseResultWindow() {
-    this._resultWindow.close();
-  }
-
-  commandCloseDrawCardGame() {
-    this._drawCardGame.closeAllCards();
-  }
-
-  leaveDrawCardGame() {
-    this.addActions([
-      this.commandLeaveDrawCardGame,
-      this.commandLeaveResultWindow,
-    ]);
-  }
-
-  commandLeaveDrawCardGame() {
-    this.removeChild(this._drawCardGame);
-  }
-
-  commandLeaveResultWindow() {
-    this.removeChild(this._resultWindow);
-  }
-
-  getResultWindow() {
-    return this._resultWindow;
-  }
-
-  getDrawCardGameCardset() {
-    return this._drawCardGame;
-  }
-
-  start(manager) {
-    const title = 'Start Phase';
-    const description = 'Draw Calumon to go first.';
-    this.createTitleWindow(title);
-    this.createDescriptionWindow(description);
-    this.openTextWindows();
-    this.setStep(GameConst.START_PHASE);
-  }
-  
-  update(manager) {
-    super.update();
-    if (this.isBusy()) return false;
-    this.updateStepStart(manager);
-    this.updateStepEnd(manager);
-  }
-
-  updateStepStart(manager) {
-    if (this.isCurrentStep(GameConst.START_PHASE) && Input.isTriggered('ok')) {
-      this.commandCloseTextWindows();
-      this.leaveTextWindows();
-      const resultHandler = (win, resultWindow) => {
-        manager.win = win;
-        this.openResultWindow();
-        this.setStep(GameConst.END_DRAW_CARD_GAME);
-      };
-      const drawCardGame = this.createDrawCardGame();
-      this.startDrawCardGame(resultHandler);
-      this.setStep(GameConst.START_DRAW_CARD_GAME);
-    }
-  }
-
-  updateStepEnd(manager) {
-    if (this.isCurrentStep(GameConst.END_DRAW_CARD_GAME) && Input.isTriggered('ok')) {
-      this.closeDrawCardGame();
-      this.leaveDrawCardGame();
-      this.addWait();
-      this.addAction(manager.endPhase);
-    }
-  }
-
-  isResultWindowVisible() {
-    return this._resultWindow.visible
-  }
-
-  isCardsetVisible() {
-    return this._drawCardGame.visible;
-  }
-
-
-
-
-
-
-  // createConfirmWindow(message) {
-  //   // message = 'confirm the selection?'
-  //   const confirmHandler = () => {
-  //     this._onSelectHandler(this._selectedIndexs);
-  //   };
-  //   const returnHandler = () => {
-  //     this.returnToSelection();
-  //   };
-  //   const commandYes = CommandWindow.createCommand('Yes', 'YES', confirmHandler);
-  //   const commandNo = CommandWindow.createCommand('No', 'NO', returnHandler);
-  //   const text = [message];
-  //   this._confirmWindow = CommandWindow.create(0, 0, text, [commandYes, commandNo]);
-  //   this._confirmWindow.alignMiddle();
-  //   this._cardset.addChild(this._confirmWindow);
-  // }
-
-  // returnToSelection() {
-  //   if (this.selectIsFull()) {
-  //     this._selectedIndexs.pop();
-  //   }
-  //   this.updateSelectSprites();
-  //   this.updateHoverSprites();
-  //   this.closeConfirmWindow();
-  // }
-
-  // openConfirmWindow() {
-  //   this._confirmWindow.open();
-  // }
-
-  // closeConfirmWindow() {
-  //   this._confirmWindow.close();
-  // }
-
-  // isWindowBusy() {
-  //   return this._confirmWindow.isOpen();
-  // }
-}
-class DrawPhase extends Phase {
-  drawCards(player, challenge) {
-    const { 
-      cards: playerCards,
-      cardsInDeck: playerCardsInDeck, 
-    } = player;
-    const { 
-      cards: challengeCards,
-      cardsInDeck: challengeCardsInDeck, 
-    } = challenge;
-    this.addActions([
-      [this.commandDrawPlayerCards, playerCards, playerCardsInDeck],
-      [this.commandDrawChallengeCards, challengeCards, challengeCardsInDeck],
-    ]);
-  }
-  
-  commandDrawPlayerCards(cards, cardsInDeck) {
-    this._player.battlefield.show();
-    const screenWidth = ScreenHelper.getFullWidth();
-    const sprites = this._player.battlefield.setCards(cards, screenWidth);
-    this._player.battlefield.showCards(sprites);
-    this._player.battlefield.setTurnToDownCards(sprites);
-    const fieldUpdates = sprites.map((sprite, index) => {
-      const count = index + 1;
-      const countCardsInDeck = cardsInDeck - count;
-      const updateDeckPoints = BoardWindow.createValueUpdate(GameConst.CARDS_IN_DECK, countCardsInDeck);
-      const updateHandPoints = BoardWindow.createValueUpdate(GameConst.CARDS_IN_HAND, count);
-      const manyUpdates = [
-        updateDeckPoints,
-        updateHandPoints
-      ];
-      const boardWindow = this.getPlayerBoardWindow();
-      boardWindow.updateValues(manyUpdates);
-    });
-    this._player.battlefield.moveCardsInlist(sprites, 6, fieldUpdates);
-    this._player.battlefield.flipTurnToUpCards(sprites);
-  }
-
-  commandDrawChallengeCards(cards, cardsInDeck) {
-    this._challenge.battlefield.show();
-    const screenWidth = ScreenHelper.getFullWidth();
-    const sprites = this._challenge.battlefield.setCards(cards, screenWidth);
-    this._challenge.battlefield.showCards(sprites);
-    this._challenge.battlefield.setTurnToDownCards(sprites);
-    const fieldUpdates = sprites.map((sprite, index) => {
-      const count = index + 1;
-      const countCardsInDeck = cardsInDeck - count;
-      const updateDeckPoints = BoardWindow.createValueUpdate(GameConst.CARDS_IN_DECK, countCardsInDeck);
-      const updateHandPoints = BoardWindow.createValueUpdate(GameConst.CARDS_IN_HAND, count);
-      const manyUpdates = [
-        updateDeckPoints,
-        updateHandPoints
-      ];
-      const boardWindow = this.getChallengeBoardWindow();
-      boardWindow.updateValues(manyUpdates);
-    });
-    this._challenge.battlefield.moveCardsInlist(sprites, 6, fieldUpdates);
-  }
-
-  updateGameBoards(playerUpdates, challengeUpdates) {
-    const updates = playerUpdates.map((playerUpdate, index) => {
-      const challengeUpdate = challengeUpdates[index] || false;
-      return [playerUpdate, challengeUpdate];
-    });
-    updates.forEach(([playerUpdate, challengeUpdate]) => {
-      const { cardIndex: playerCardIndex, updatePoint: playerUpdatePoint } = playerUpdate;
-      const { cardIndex: chanllengeCardIndex, updatePoint: challengeUpdatePoint } = challengeUpdate;
-      this.addActions([
-        [this.commandPlayerLoadEnergy, playerCardIndex, playerUpdatePoint],
-        [this.commandChallengeLoadEnergy, chanllengeCardIndex, challengeUpdatePoint],
-      ]);
-    });
-  }
-
-  commandPlayerLoadEnergy(cardIndex, updatePoint) {
-    const sprites = this._player.battlefield.getSprites();
-    const sprite = sprites[cardIndex];
-    if (updatePoint) {
-      const chainAction = () => {
-        const boardWindow = this.getPlayerBoardWindow();
-        boardWindow.updateValues(updatePoint);
-      };
-      this._player.battlefield.flashCardsAnimate(sprite, 'white', 6, 1, chainAction);
-    }
-  }
-
-  commandChallengeLoadEnergy(cardIndex, updatePoint) {
-    const sprites = this._challenge.battlefield.getSprites();
-    const sprite = sprites[cardIndex];
-    if (updatePoint) {
-      const chainAction = () => {
-        const boardWindow = this.getChallengeBoardWindow();
-        boardWindow.updateValues(updatePoint);
-      };
-      this._challenge.battlefield.flashCardsAnimate(sprite, 'white', 6, 1, chainAction);
-    }
-  }
-
-  start(manager) {
-    const title = 'Draw Phase';
-    const description = '6 cards will be drawn.';
-    this.createTitleWindow(title);
-    this.createDescriptionWindow(description);
-    this.openTextWindows();
-    this.setStep(GameConst.START_PHASE);
-  }
-
-  update(manager) {
-    super.update();
-    if (this.isBusy()) return false;
-    this.updateStepStart(manager);
-    this.updateStepEnd(manager);
-  }
-
-  updateStepStart(manager) {
-    if (this.isCurrentStep(GameConst.START_PHASE) && Input.isTriggered('ok')) {
-      this.commandCloseTextWindows();
-      this.leaveTextWindows();
-      this.createPlayerGameBoard(manager);
-      this.createChallengeGameBoard(manager);
-      this.openGameBoards();
-      this.drawCardsToGame(manager);
-      this.updateGameBoardsToGame(manager);
-      this.setStep(GameConst.START_DRAW_CARDS);
-    }
-  }
-
-  updateStepEnd(manager) {
-    if (this.isCurrentStep(GameConst.START_DRAW_CARDS) && Input.isTriggered('ok')) {
-      this.closeGameBoards();
-      this.leaveGameBoards();
-      this.addAction(manager.endPhase);
-    }
-  }
-
-  createPlayerGameBoard(manager) {
-    const energies = Object.values(manager.getPlayerEnergies());
-    const cardsInDeck = manager.getPlayerDeckLength();
-    const cardsInHand = manager.getPlayerHandLength();
-    const cardsInTrash = manager.getPlayerTrashLength();
-    const victories = manager.getPlayerVictories();
-    const passed = manager.isPlayerPassed();
-    const boardWindow = this.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand, passed);
-    const boardWindowHeight = boardWindow.height;
-    const battleWindow = this.createPlayerBattleWindow(boardWindowHeight);
-    const trashWindow = this.createPlayerTrashWindow(cardsInTrash);
-    const scoreWindow = this.createPlayerScoreWindow(victories, boardWindowHeight);
-    const battlefield = this.createPlayerBattlefield();
-  }
-
-  createChallengeGameBoard(manager) {
-    const energies = Object.values(manager.getChallengeEnergies());
-    const cardsInDeck = manager.getChallengeDeckLength();
-    const cardsInHand = manager.getChallengeHandLength();
-    const cardsInTrash = manager.getChallengeTrashLength();
-    const victories = manager.getChallengeVictories();
-    const passed = manager.isChallengePassed();
-    const boardWindow = this.createChallengeBoardWindow(energies, cardsInDeck, cardsInHand, passed);
-    const boardWindowHeight = boardWindow.height;
-    const battleWindow = this.createChallengeBattleWindow(boardWindowHeight);
-    const trashWindow = this.createChallengeTrashWindow(cardsInTrash);
-    const scoreWindow = this.createChallengeScoreWindow(victories, boardWindowHeight);
-    const battlefield = this.createChallengeBattlefield();
-  }
-
-  drawCardsToGame(manager) {
-    const playerNumCardsInDeck = manager.getPlayerDeckLength();
-    const playerCardsDrawed = manager.getPlayerDeck().splice(0, 6);
-    manager.setPlayerHand(playerCardsDrawed);
-    const playerData = {
-      cards: playerCardsDrawed,
-      cardsInDeck: playerNumCardsInDeck,
-    };
-    const challengeNumCardsInDeck = manager.getChallengeDeckLength();
-    const challengeCardsDrawed = manager.getChallengeDeck().splice(0, 6);
-    manager.setChallengeHand(challengeCardsDrawed);
-    const challengeData = {
-      cards: challengeCardsDrawed,
-      cardsInDeck: challengeNumCardsInDeck,
-    };
-    this.drawCards(playerData, challengeData);
-  }
-
-  updateGameBoardsToGame(manager) {
-    const playerCardsInHand = manager.getPlayerHand();
-    const playerEnergiesClone = Object.assign({}, manager.getPlayerEnergies());
-    const playerUpdates = this.createFieldUpdates(playerCardsInHand, playerEnergiesClone);
-    const playerFieldUpdates = playerUpdates.fieldUpdates;
-    manager.setPlayerEnergies(playerUpdates.energies);
-    const challengeCardsInHand = manager.getChallengeHand();
-    const challengeEnergiesClone = Object.assign({}, manager.getChallengeEnergies());
-    const challengeUpdates = this.createFieldUpdates(challengeCardsInHand, challengeEnergiesClone);
-    const challengeFieldUpdates = challengeUpdates.fieldUpdates;
-    manager.setChallengeEnergies(challengeUpdates.energies);
-    this.updateGameBoards(playerFieldUpdates, challengeFieldUpdates);
-  }
-
-  createFieldUpdates(cards, energies) {
-    const fieldUpdates = cards.map((card, cardIndex) => {
-      const { color } = card;
-      if (color === GameConst.BROWN) return false;
-      energies[color] += 1;
-      const points = energies[color];
-      const updatePoint = BoardWindow.createValueUpdate(color, points);
-      return { cardIndex, updatePoint };
-    });
-    return { fieldUpdates, energies };
-  }
-}
-
-class LoadPhase extends Phase {
-  _powerfield = {};
-
-  start(manager) {
-    this.changeStatus(WaitingPhaseStatus);
-
-    // const title = 'Load Phase';
-    // const description = 'Select and use a Program Card.';
-    // this.createTitleWindow(title);
-    // this.createDescriptionWindow(description);
-    // this.openTextWindows();
-    // this.setStep(GameConst.START_PHASE);
-  }
-
-  update(manager) {
-    super.update();
-    if (this.isBusy()) return false;
-    this._status.update(manager);
-
-    // super.update();
-    // if (this.isBusy()) return false;
-    // this.updateStepStart(manager);
-    // this.updateStepBeginLoadPhase(manager);
-    // this.updateStatus(manager);
-    // this.updateStartPlay(manager);
-    // this.updateStepChallengeLoadPhase(manager);
-    // this.updateStepPlayerLoadPhase(manager);
-    // this.updateStepPowerfieldLoadPhase(manager);
-    // if (manager.isEndPlays() && manager.getPowerfieldLength()) return; 
-    // this.updateStepEnd(manager);
-  }
-
-  createPowerfield(cards) {
-    const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
-    const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
-    const powerfield = CardsetSprite.create(x, y);
-    powerfield.show();
-    const xCard = CardsetSprite.contentOriginalWidth() - CardSprite.contentOriginalWidth();
-    const sprites = powerfield.setCards(cards, xCard);
-    powerfield.startClosedCards(sprites);
-    this.addAction(this.commandCreatePowerfield, powerfield);
-    return powerfield;
-  }
-
-  commandCreatePowerfield(powerfield) {
-    this._powerfield = powerfield;
-    this.commandAddChild(powerfield);
-  }
-
-  openPowerfield() {
-    this.addAction(this.commandOpenPowerfield);
-  }
-
-  commandOpenPowerfield() {
-    this._powerfield.openCards();
-  }
-
-  closePowerCard() {
-    this.addAction(this.commandClosePowerCard);
-  }
-
-  commandClosePowerCard() {
-    this._powerfield.closeCards();
-  }
-
-  leavePowerCard() {
-    this.addAction(this.commandLeavePowerCard);
-  }
-
-  commandLeavePowerCard() {
-    this.removeChild(this._powerfield);
-  }
-
-  moveCardToPowerfield(sprites, number, player) {
-    this.addAction(this.commandMoveCardToPowerfield, sprites, number, player);
-  }
-
-  commandMoveCardToPowerfield(sprites, number, player) {
-    this._powerfield.moveAllCardsInlist(sprites);
-    this._powerfield.flashCardsAnimate(sprites, 'white');
-    this._powerfield.setNumberColor(number, (player === GameConst.PLAYER_1) ? GameColors.BLUE : GameColors.RED);
-    this._powerfield.displayReverseOrdering();
-    this._powerfield.closeCards(sprites);
-    this._powerfield.openCards(sprites);
-  }
-
-  commandGetPowerfieldSprites(index) {
-    return this._powerfield.getSprites(index);
-  }
-
-  animateCastPowerCard(sprite, cardIndex) {
-    // mostrar janela de titulo e descrição do card e espera
-    this._powerfield.zoomAllCards(sprite);
-    this._powerfield.flashCardsAnimate(sprite, 'white');
-    this._powerfield.zoomOutAllCards(sprite);
-    this._powerfield.leaveAllCards(sprite);
-  }
-
-  isBusy() {
-    const children = [
-      this._powerfield
-    ];
-    return super.isBusy() 
-      || children.some(obj => (obj.isBusy ? obj.isBusy() : false)) 
-      || (this._status ? this._status?.isBusy() : false);
-  }
-
-  waitStatus() {
-    this.addAction(this.commandWaitStatus);
-  }
-
-  commandWaitStatus() {
-    this._status.waitStatus();
-  }
-
-  activePowerCard(cardIndexHand, manager, player) {
-    this.addAction(this.commandActivePowerCard, cardIndexHand, manager, player);
-  }
-
-  commandActivePowerCard(cardIndexHand, manager, player) {
-    return this._status.activePowerCard(cardIndexHand, manager, player);
-  }
-
-  runPowerCard(manager, powerCard) {
-    this.addAction(this.commandRunPowerCard, manager, powerCard);
-  }
-
-  commandRunPowerCard(manager, powerCard) {
-    this._status.runPowerCard(manager, powerCard);
-  }
-
-  isPowerFieldVisible() {
-    return this._powerfield.visible;
-  }
-}
-
-
 // TESTS
 class SceneTest {
   _scene = {};
@@ -10564,472 +8442,6 @@ class CreateFolderWindowTest extends SceneTest {
     this.expectTrue('Esta aberta?', this.subject.isOpen());
   }
 }
-// PHASES
-class ChallengePhaseTest extends SceneTest {
-  phase;
-  manager = { 
-    folders: [
-      {
-        name: 'Folder 1',
-        energies: [10, 10, 5, 5, 5, 5]
-      }, {
-        name: 'Folder 2',
-        energies: [10, 10, 10, 10, 10, 10],
-      }, {
-        name: 'Folder 3',
-        energies: [10, 10, 10, 0, 0, 0],
-    }], 
-    index: -1,
-    getChallengeDescription: () => 'lv. 85 - Amaterasu Duel King',
-    getPlayerFolders: () => this.manager.folders,
-    setPlayerFolderIndex: (index) => this.manager.index = index,
-    endPhase: () => {}
-  };
-
-  create() {
-    this.phase = new ChallengePhase(this._scene);
-    this.manager.endPhase = this.createHandler();
-    this.addAssistedHidden(this.phase);
-  }
-
-  start() {
-    this._scene.setPhase(this.phase);
-    this.phase.start(this.manager);
-  }
-
-  update() {
-    this.phase.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapas de fase de desafiado e seleção de pasta.');
-    this.expectWasTrue('A janela de título foi apresentada?', this.phase.isTitleWindowVisible);
-    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', this.phase.isDescriptionWindowVisible);
-    this.expectWasTrue('A Janela de escolha de pastas foi apresentada?', this.phase.isFolderWindowVisible);
-    this.expectTrue('Foi escolhido uma pasta válida?', this.manager.index !== -1);
-  }
-}
-class StartPhaseTest extends SceneTest {
-  phase;
-  endTest;
-  manager = { 
-    win: undefined,
-    endPhase: () => {} 
-  };
-
-  create() {
-    this.phase = new StartPhase(this._scene);
-    this.manager.endPhase = this.createHandler();
-    this.addAssistedHidden(this.phase);
-  }
-
-  start() {
-    this._scene.setPhase(this.phase);
-    this.phase.start(this.manager);
-  }
-
-  update() {
-    this.phase.update(this.manager);
-  }
-
-  asserts() {
-    this.describe('Deve apresentar etapas de fase de início e jogo da sorte.');
-    this.expectWasTrue('O set de cartas estava em modo seleção?', this.phase.isCardsetVisible);
-    this.expectWasTrue('A janela de título foi apresentada?', this.phase.isTitleWindowVisible);
-    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', this.phase.isDescriptionWindowVisible);
-    this.expectWasTrue('A janela de resultado foi apresentada?', this.phase.isResultWindowVisible);
-    this.expectTrue('O resultado do jogo da sorte foi apresentado?', typeof this.manager.win === 'boolean');
-  }
-}
-class DrawPhaseTest extends SceneTest {
-  phase;
-  endTest;
-  manager = {
-    getPlayerDeck: () => this.manager.player.deck,
-    getPlayerHand: () => this.manager.player.hand,
-    getPlayerEnergies: () => this.manager.player.energies,
-    getPlayerDeckLength: () => this.manager.player.deck.length,
-    getPlayerHandLength: () => this.manager.player.hand.length,
-    getPlayerTrashLength: () => this.manager.player.trash.length,
-    getPlayerVictories: () => this.manager.player.victories,
-    isPlayerPassed: () => this.manager.player.passed,
-    setPlayerHand: (hand) => this.manager.player.hand = hand,
-    setPlayerEnergies: (energies) => this.manager.player.energies = energies,
-    getChallengeDeck: () => this.manager.challenge.deck,
-    getChallengeHand: () => this.manager.challenge.hand,
-    getChallengeEnergies: () => this.manager.challenge.energies,
-    getChallengeDeckLength: () => this.manager.challenge.deck.length,
-    getChallengeHandLength: () => this.manager.challenge.hand.length,
-    getChallengeTrashLength: () => this.manager.challenge.trash.length,
-    getChallengeVictories: () => this.manager.challenge.victories,
-    isChallengePassed: () => this.manager.challenge.passed,
-    setChallengeHand: (hand) => this.manager.challenge.hand = hand,
-    setChallengeEnergies: (energies) => this.manager.challenge.energies = energies,
-    player: {
-      deck: [
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-      ],
-      hand: [],
-      trash: [],
-      energies: {
-        [GameConst.RED]: 0,
-        [GameConst.BLUE]: 0,
-        [GameConst.GREEN]: 0,
-        [GameConst.BLACK]: 0,
-        [GameConst.WHITE]: 0,
-      },
-      victories: 0,
-      passed: false,
-    },
-    challenge: {
-      deck: [
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-      ],
-      hand: [],
-      trash: [],
-      energies: {
-        [GameConst.RED]: 0,
-        [GameConst.BLUE]: 0,
-        [GameConst.GREEN]: 0,
-        [GameConst.BLACK]: 0,
-        [GameConst.WHITE]: 0,
-      },
-      victories: 0,
-      passed: false,
-    },
-    endPhase: () => {}
-  };
-
-  create() {
-    this.phase = new DrawPhase(this._scene);
-    this.manager.endPhase = this.createHandler();
-    this.addAssistedHidden(this.phase);
-  }
-
-  start() {
-    this._scene.setPhase(this.phase);
-    this.phase.start(this.manager);
-  }
-
-  update() {
-    this.phase.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapas de fase de sorteio e carregamento de energias.');
-    this.expectWasTrue('A janela de título foi apresentada?', this.phase.isTitleWindowVisible);
-    this.expectWasTrue('A janela de descrição de sorteio foi apresentada?', this.phase.isDescriptionWindowVisible);
-    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.phase.isPlayerBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.phase.isPlayerBattleWindowVisible);
-    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.phase.isPlayerTrashWindowVisible);
-    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.phase.isPlayerScoreWindowVisible);
-    this.expectWasTrue('O campo de batalha do jogador foi apresentado?', this.phase.isPlayerBattlefieldVisible);
-    this.expectWasTrue('A janela de tabuleiro do desafiante foi apresentado?', this.phase.isChallengeBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do desafiante foi apresentada?', this.phase.isChallengeBattleWindowVisible);
-    this.expectWasTrue('A janela de lixo do desafiante foi apresentada?', this.phase.isChallengeTrashWindowVisible);
-    this.expectWasTrue('A janela de pontuação do desafiante foi apresentada?', this.phase.isChallengeScoreWindowVisible);
-    this.expectWasTrue('O campo de batalha do desafiante foi apresentado?', this.phase.isChallengeBattlefieldVisible);
-    this.expectTrue('O total de cards no campo do jogar é?', this.manager.player.deck.length === 34);
-    this.expectTrue('O total de cards no campo do desafiante é?', this.manager.challenge.deck.length === 34);
-    this.expectTrue('O total de cards na mão do jogador é?', this.manager.player.hand.length === 6);
-    this.expectTrue('O total de cards na mão do desafiante é?', this.manager.challenge.hand.length === 6);
-  }
-}
-class LoadPhaseTest extends SceneTest {
-  phase;
-  endTest;
-  manager = {
-    getPlayerDeck: () => this.manager.player.deck,
-    getPlayerHand: () => this.manager.player.hand,
-    getPlayerEnergies: () => this.manager.player.energies,
-    getPlayerDeckLength: () => this.manager.player.deck.length,
-    getPlayerHandLength: () => this.manager.player.hand.length,
-    getPlayerTrashLength: () => this.manager.player.trash.length,
-    getPlayerVictories: () => this.manager.player.victories,
-    isPlayerPassed: () => this.manager.player.passed,
-    playerPassed: () => this.manager.player.passed = true,
-    setPlayerHand: (hand) => this.manager.player.hand = hand,
-    setPlayerEnergies: (energies) => this.manager.player.energies = energies,
-    getCardPlayerHandByIndex: (index) => this.manager.player.hand[index],
-    getChallengeDeck: () => this.manager.challenge.deck,
-    getChallengeHand: () => this.manager.challenge.hand,
-    getChallengeEnergies: () => this.manager.challenge.energies,
-    getChallengeDeckLength: () => this.manager.challenge.deck.length,
-    getChallengeHandLength: () => this.manager.challenge.hand.length,
-    getChallengeTrashLength: () => this.manager.challenge.trash.length,
-    getChallengeVictories: () => this.manager.challenge.victories,
-    isChallengePassed: () => this.manager.challenge.passed,
-    challengePassed: () => this.manager.challenge.passed = true,
-    setChallengeHand: (hand) => this.manager.challenge.hand = hand,
-    setChallengeEnergies: (energies) => this.manager.challenge.energies = energies,
-    getPowerCardParams: (cardId) => {
-      return {
-        type: GameConst.ADD_ENERGIES,
-      };
-    },
-    moveCardHandToPowerField: (index, player) => {
-      const card = this.manager.getCardPlayerHandByIndex(index);
-      this.manager.addCardToPowerField(card, player);
-      this.manager.removeCardFromPlayerHand(index);
-    },
-    addCardToPowerField: (card, player) => {
-      const cardSlot = { card, player };
-      this.manager.powerfield.push(cardSlot);
-    },
-    removeCardFromPlayerHand: (index) => {
-      const newSet = this.manager.player.hand.filter((card, iCard) => iCard !== index);
-      this.manager.setPlayerHand(newSet);
-    },
-    getPowerfieldLength: () => this.manager.powerfield.length,
-    resetPlayes: () => {
-      this.manager.player.passed = false;
-      this.manager.challenge.passed = false;
-    },
-    isStartPlays: () => {
-      return !this.manager.player.passed && !this.manager.challenge.passed;
-    },
-    isEndPlays: () => {
-      return this.manager.player.passed && this.manager.challenge.passed;
-    },
-    getPowerfieldLastCardSlot: () => {
-      return this.manager.powerfield[this.manager.powerfield.length - 1];
-    },
-    removePowerfieldLastCardSlot: () => {
-      return this.manager.powerfield.pop();
-    },
-    startPlay: false,
-    powerfield: [],
-    player: {
-      deck: [
-        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-      ],
-      hand: [
-        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-      ],
-      trash: [],
-      energies: {
-        [GameConst.RED]: 1,
-        [GameConst.BLUE]: 1,
-        [GameConst.GREEN]: 1,
-        [GameConst.BLACK]: 1,
-        [GameConst.WHITE]: 1,
-      },
-      victories: 0,
-      passed: false,
-    },
-    challenge: {
-      deck: [
-        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-      ],
-      hand: [
-        { id: 1, type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { id: 1, type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { id: 1, type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-      ],
-      trash: [],
-      energies: {
-        [GameConst.RED]: 1,
-        [GameConst.BLUE]: 1,
-        [GameConst.GREEN]: 1,
-        [GameConst.BLACK]: 1,
-        [GameConst.WHITE]: 1,
-      },
-      victories: 0,
-      passed: false,
-    },
-  };
-
-  create() {
-    this.phase = new LoadPhase(this._scene);
-    this.manager.endPhase = this.createHandler();
-    this.addAssistedHidden(this.phase);
-  }
-
-  start() {
-    this._scene.setPhase(this.phase);
-    this.phase.start(this.manager);
-  }
-
-  update() {
-    this.phase.update(this.manager);
-  }
-
-  asserts() {
-    this.describe('Deve apresentar etapas de fase de carregamento.');
-    this.expectWasTrue('A janela de título foi apresentada?', this.phase.isTitleWindowVisible);
-    this.expectWasTrue('A janela de descrição de sorteio foi apresentada?', this.phase.isDescriptionWindowVisible);
-    this.expectWasTrue('A janela de texto de inicio de fase foi apresentada?', this.phase.isTextWindowVisible);
-    this.expectWasTrue('A janela de pergunta foi apresentada?', this.phase.isAskWindowVisible);
-    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.phase.isPlayerBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.phase.isPlayerBattleWindowVisible);
-    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.phase.isPlayerTrashWindowVisible);
-    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.phase.isPlayerScoreWindowVisible);
-    this.expectWasTrue('A janela de tabuleiro do desafiante foi apresentado?', this.phase.isChallengeBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do desafiante foi apresentada?', this.phase.isChallengeBattleWindowVisible);
-    this.expectWasTrue('A janela de lixo do desafiante foi apresentada?', this.phase.isChallengeTrashWindowVisible);
-    this.expectWasTrue('A janela de pontuação do desafiante foi apresentada?', this.phase.isChallengeScoreWindowVisible);
-    this.expectWasTrue('A janela de localização foi apresentada?', this.phase.isLocationWindowVisible);
-    this.expectWasTrue('A janela de nome de cartão foi apresentada?', this.phase.isCardNameWindowVisible);
-    this.expectWasTrue('A janela de descrição de cartão foi apresentada?', this.phase.isCardDescriptionWindowVisible);
-    this.expectWasTrue('A janela de propriedades de cartão foi apresentada?', this.phase.isCardPropsWindowVisible);
-    this.expectWasTrue('O campo de mão do jogador foi apresentado?', this.phase.isPlayerHandVisible);
-    this.expectWasTrue('O campo de poder foi apresentado?', this.phase.isPowerFieldVisible);
-  }
-}
-
-
 // STEPS
 class ChallengePhaseDisplayStepTest extends SceneTest {
   manager = CardBattleManager;
@@ -11468,6 +8880,34 @@ class LoadPhaseTurnStepChallengedActivatePowerCardTest extends SceneTest {
     this.expectTrue('Esta na fase de acionar um cartão de poder?', this._scene.isCurrentStep(ActivatePowerCardStep));
   }
 }
+class LoadPhaseHandStepTest extends SceneTest {
+  manager = CardBattleManager;
+  step;
+
+  create() {
+    const phase = GameConst.LOAD_PHASE;
+    const finish = this.createHandler();
+    const player = GameConst.PLAYER;
+    this.step = new HandStep(this._scene, phase, player, finish);
+  }
+
+  start() {
+    this.manager.setPlayerDeck();
+    this.manager.setChallengedDeck();
+    this.manager.drawPlayerCards(6);
+    this._scene.setStep(this.step);
+    this.step.start(this.manager);
+  }
+
+  update() {
+    this.step.update(this.manager);
+  }
+  
+  asserts() {
+    this.describe('A fase campo de poder deve ser ativada tendo pelo menos um cartão de poder!');
+    this.expectTrue('Esta na fase campo de poder?', this._scene.isCurrentStep(RunPowerfieldStep));
+  }
+}
 
 class CardBattleManager {
   static folders = [
@@ -11742,6 +9182,10 @@ class CardBattleManager {
     CardBattleManager.challenged.hand.push(...cards);
     return cards;
   }
+
+  static getCardPlayerHandByIndex(index) {
+    return CardBattleManager.player.hand[index];
+  }
 }
 class Step {
   _scene;
@@ -11777,8 +9221,13 @@ class Step {
     this._finish = finish;
   }
 
-  update() {
+  start(manager) {
+    throw new Error('Method start must be implemented');
+  }
+
+  update(manager) {
     if (this._wait > 0) return this._wait--;
+    console.log(this.hasActions(), this.isAvailable());
     if (this.hasActions() && this.isAvailable()) this.executeAction();
   }
 
@@ -11946,7 +9395,7 @@ class Step {
     return boardWindow;
   }
 
-  commandCreatePlayerBoardWindow(boardWindow) {
+  commandCreatePlayerBoardWindow(boardWindow) { console.log(this);
     this._player.boardWindow = boardWindow;
     this.commandAddChild(boardWindow);
   }
@@ -12547,7 +9996,7 @@ class DisplayStep extends Step {
       this._titleWindow,
       this._descriptionWindow,
     ];
-    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+    return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
 
   isTitleWindowVisible() {
@@ -12631,7 +10080,7 @@ class FolderStep extends Step {
     const children = [
       this._folderWindow
     ];
-    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+    return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
 
   isFolderWindowVisible() {
@@ -12804,7 +10253,7 @@ class MiniGameStep extends Step {
       this._drawCardGame,
       this._resultWindow,
     ];
-    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+    return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
 
   isResultWindowVisible() {
@@ -13012,7 +10461,7 @@ class RunPowerfieldStep extends Step {
   isBusy() {
     const children = [
     ];
-    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+    return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
 }
 class ActivatePowerCardStep extends Step {
@@ -13038,17 +10487,301 @@ class ActivatePowerCardStep extends Step {
   isBusy() {
     const children = [
     ];
-    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+    return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
 }
 class HandStep extends Step {
+  _gamePlayer;
+  _playerHand;
+  _locationWindow;
+  _cardNameWindow;
+  _cardDescriptionWindow;
+  _cardPropsWindow;
+
+  constructor(scene, phase, player, finish) {
+    super(scene, phase, finish);
+    this._gamePlayer = player;
+  }
+
+  getPlayer() {
+    return this._gamePlayer;
+  }
+
   start(manager) {
     const phase = this.getPhase();
+    this.createBoardWindow(manager);
+    this.createPlayerHandset(manager);
+    this.openPlayerHand(manager);
+  }
 
+  createBoardWindow(manager) {
+    const energies = Object.values(manager.getPlayerEnergies());
+    const cardsInDeck = manager.getPlayerDeckLength();
+    const cardsInHand = manager.getPlayerHandLength();
+    const passed = manager.isPlayerPassed();
+    this.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand, passed);
+  }
+
+  createPlayerHandset(manager) {
+    const phase = this.getPhase();
+    const player = this.getPlayer();
+    // manager.getPlayerDisabledIndexesInLoadPhase
+    const cardsInHand = manager.getPlayerHand();
+    const disableCards = cardsInHand.map((card, index) => {
+      return {
+        index,
+        disable: card.type !== GameConst.POWER || card.isActiveInLoadPhase === false,
+      };
+    });
+    const disableIndexes = disableCards.filter(card => card.disable).map(card => card.index);
+    const cardsetSprite = this.createPlayerHandCardset(cardsInHand, disableIndexes);
+    this.createWindows(cardsetSprite);
+  }
+
+  createWindows(cardsetSprite) {
+    const locationWindow = this.createLocationWindow(cardsetSprite);
+    const cardNameWindow = this.createCardNameWindow(cardsetSprite);
+    const cardDescriptionWindow = this.createCardDescriptionWindow(cardsetSprite);
+    const cardPropsWindow = this.createCardPropsWindow(cardsetSprite);
+    return { locationWindow, cardNameWindow, cardDescriptionWindow, cardPropsWindow };
+  }
+
+  createPlayerHandCardset(cards, disableIndexes) {
+    const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
+    const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
+    const cardsetSprite = CardsetSprite.create(x, y);
+    cardsetSprite.show();
+    const sprites = cardsetSprite.listCards(cards);
+    cardsetSprite.startClosedCards(sprites);
+    const disableSprites = sprites.filter((sprite, index) => disableIndexes.includes(index));
+    cardsetSprite.disableCards(disableSprites);
+    this.addAction(this.commandCreatePlayerHandCardset, cardsetSprite);
+    return cardsetSprite;
+  }
+
+  commandCreatePlayerHandCardset(cardsetSprite) {
+    this._playerHand = cardsetSprite
+    this.commandAddChild(cardsetSprite);
+  }
+
+  createLocationWindow(playerHand = this._playerHand) {
+    const locationWindow = TextWindow.createWindowMiddleSize(0, 0);
+    locationWindow.alignStartTop();
+    locationWindow.alignAboveOf(playerHand);
+    locationWindow.y -= 160;
+    locationWindow.alignTextCenter();
+    this.addAction(this.commandCreateLocationWindow, locationWindow);
+    return locationWindow;
+  }
+
+  commandCreateLocationWindow(locationWindow) {
+    this._locationWindow = locationWindow;
+    this.commandAddChild(locationWindow);
+  }
+
+  createCardNameWindow(playerHand = this._playerHand) {
+    const cardNameWindow = TextWindow.createWindowMiddleSize(0, 0);
+    cardNameWindow.alignEndTop();
+    cardNameWindow.alignAboveOf(playerHand);
+    cardNameWindow.y -= 160;
+    this.addAction(this.commandCreateCardNameWindow, cardNameWindow);
+    return cardNameWindow;
   }
   
-  update(manager) {
-    if (this.isBusy() || this.hasActions()) return false;
+  commandCreateCardNameWindow(cardNameWindow) {
+    this._cardNameWindow = cardNameWindow;
+    this.commandAddChild(cardNameWindow);
+  }
+
+  createCardDescriptionWindow(playerHand = this._playerHand) {
+    const cardDescriptionWindow = TextWindow.createWindowMiddleSize(0, 0);
+    cardDescriptionWindow.alignStartBottom();
+    cardDescriptionWindow.alignBelowOf(playerHand);
+    cardDescriptionWindow.y += 100;
+    this.addAction(this.commandCreateCardDescriptionWindow, cardDescriptionWindow);
+    return cardDescriptionWindow;
+  }
+
+  commandCreateCardDescriptionWindow(cardDescriptionWindow) {
+    this._cardDescriptionWindow = cardDescriptionWindow;
+    this.commandAddChild(cardDescriptionWindow);
+  }
+
+  createCardPropsWindow(playerHand = this._playerHand) {
+    const cardPropsWindow = TextWindow.createWindowMiddleSize(0, 0);
+    cardPropsWindow.alignEndBottom();
+    cardPropsWindow.alignBelowOf(playerHand);
+    cardPropsWindow.y += 100;
+    this.addAction(this.commandCreateCardPropsWindow, cardPropsWindow);
+    return cardPropsWindow;
+  }
+
+  commandCreateCardPropsWindow(cardPropsWindow) {
+    this._cardPropsWindow = cardPropsWindow;
+    this.commandAddChild(cardPropsWindow);
+  }
+
+  createOnChangeCursor(manager) {
+    return index => {
+      const card = manager.getCardPlayerHandByIndex(index);
+      this.commandSetTextCardNameWindow(['card.name' + index]);
+      this.commandSetTextCardDescriptionWindow(['card.description' + index]);
+      this.commandSetTextCardPropsWindow(['card.props' + index]);
+    };
+  }
+
+  commandSetTextCardNameWindow(text) {
+    this._cardNameWindow.refreshContent(text);
+  }
+
+  commandSetTextCardDescriptionWindow(text) {
+    this._cardDescriptionWindow.refreshContent(text);
+  }
+
+  commandSetTextCardPropsWindow(text) {
+    this._cardPropsWindow.refreshContent(text);
+  }
+
+  createOnSelectHandler() {
+    return cardIndexs => {
+      const sprite = this.commandGetHandSprites(cardIndexs);
+      this.selectPowerCard(sprite);
+      this.closePlayerHand();
+      this.leavePlayerHand();
+      this.addAction(this.commandSelectPowerCard);
+    };
+  }
+
+  commandSelectPowerCard() {
+    this.changeStep(ActivatePowerCardStep);
+    if (typeof this._finish === 'function') return this._finish();
+    this.destroy();
+  }
+
+  commandGetHandSprites(index) {
+    return this._playerHand.getSprites(index);
+  }
+
+  selectPowerCard(sprites) {
+    this.addActions([
+      [this.commandSelectMovement, sprites],
+    ]);
+  }
+
+  commandSelectMovement(sprites) {
+    const cardset = this._playerHand;
+    cardset.addChildToEnd(sprites);
+    cardset.zoomAllCards(sprites);
+    cardset.zoomOutAllCards(sprites);
+  }
+
+  closePlayerHand() {
+    this.addActions([
+      this.commandCloseLocationWindow,
+      this.commandCloseCardNameWindow,
+      this.commandCloseCardDescriptionWindow,
+      this.commandCloseCardPropsWindow,
+      this.commandClosePlayerBoardWindow,
+    ]);
+    this.addActions([
+      this.commandClosePlayerHand
+    ]);
+  }
+
+  commandCloseLocationWindow() {
+    this._locationWindow.close();
+  }
+
+  commandCloseCardNameWindow() {
+    this._cardNameWindow.close();
+  }
+
+  commandCloseCardDescriptionWindow() {
+    this._cardDescriptionWindow.close();
+  }
+
+  commandCloseCardPropsWindow() {
+    this._cardPropsWindow.close();
+  }
+
+  commandClosePlayerHand() {
+    this._playerHand.closeCards();
+  }
+
+  leavePlayerHand() {
+    this.addAction(this.commandLeavePlayerHand);
+  }
+
+  commandLeavePlayerHand() {
+    this.removeChildren([
+      this._locationWindow,
+      this._cardNameWindow,
+      this._cardDescriptionWindow,
+      this._cardPropsWindow,
+      this._playerHand,
+      this._player.boardWindow,
+    ]);
+  }
+
+  createOnCancelHandler() {
+    return () => {
+      this.closePlayerHand();
+      this.leavePlayerHand();
+      this.addAction(this.commandToGoBack);
+    };
+  }
+
+  commandToGoBack() {
+    this.changeStep(TurnStep);
+    if (typeof this._finish === 'function') return this._finish();
+    this.destroy();
+  }
+
+  openPlayerHand(manager) {
+    const onChangeCursor = this.createOnChangeCursor(manager);
+    const onSelectHandler = this.createOnSelectHandler();
+    const onCancelHandler = this.createOnCancelHandler();
+    this.addActions([
+      this.commandOpenPlayerHand,
+      [this.commandPlayerHandSelectMode, onSelectHandler, onChangeCursor, onCancelHandler]
+    ]);
+    this.addActions([
+      this.commandSetTextLocationWindow,
+      this.commandOpenLocationWindow,
+      this.commandOpenCardNameWindow,
+      this.commandOpenCardDescriptionWindow,
+      this.commandOpenCardPropsWindow,
+      this.commandOpenPlayerBoardWindow,
+    ]);
+  }
+
+  commandOpenPlayerHand() {
+    this._playerHand.openCards();
+  }
+
+  commandPlayerHandSelectMode(onSelectHandler, onChangeCursor, onCancelHandler) {
+    const selectNumber = 1;
+    this._playerHand.selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
+  }
+
+  commandSetTextLocationWindow() {
+    this._locationWindow.refreshContent(['Player Hand']);
+  }
+
+  commandOpenLocationWindow() {
+    this._locationWindow.open();
+  }
+
+  commandOpenCardNameWindow() {
+    this._cardNameWindow.open();
+  }
+
+  commandOpenCardDescriptionWindow() {
+    this._cardDescriptionWindow.open();
+  }
+
+  commandOpenCardPropsWindow() {
+    this._cardPropsWindow.open();
   }
 
   finish(phase) {
@@ -13063,8 +10796,13 @@ class HandStep extends Step {
 
   isBusy() {
     const children = [
+      this._playerHand,
+      this._locationWindow,
+      this._cardNameWindow,
+      this._cardDescriptionWindow,
+      this._cardPropsWindow,
     ];
-    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+    return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
 }
 class TurnStep extends Step {
@@ -13160,7 +10898,7 @@ class TurnStep extends Step {
   updateActivePowerfieldByLimit(manager) {
     const isPowerfieldFull = manager.getPowerfieldLength() >= 3;
     if (isPowerfieldFull) {
-      this.commandActivePowerfield();
+      this.addAction(this.commandActivePowerfield);
       return true;
     }
   }
@@ -13254,7 +10992,7 @@ class TurnStep extends Step {
   updateChallengedTurn(manager) {
     if (manager.isChallengedPassed() === false) {
       if (manager.isChallengedHasPowerCardInHand()) {
-        this.commandChallengedActivePowerCard();
+        this.addAction(this.commandChallengedActivePowerCard);
         return true;
       }
       this.commandChallengedSelectPasse(manager);
@@ -13299,7 +11037,7 @@ class TurnStep extends Step {
       this._textWindow,
       this._askWindow,
     ];
-    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+    return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
 
   isAwaitingDecision() {
@@ -13497,12 +11235,6 @@ class CardBattleTestScene extends Scene_Message {
     const folderWindow = [
       CreateFolderWindowTest,
     ];
-    const phase = [
-      // ChallengePhaseTest,
-      // StartPhaseTest,
-      // DrawPhaseTest,
-      LoadPhaseTest,
-    ];
     const steps = [
       // ChallengePhaseDisplayStepTest,
       // ChallengePhaseFolderStepTest,
@@ -13510,15 +11242,16 @@ class CardBattleTestScene extends Scene_Message {
       // StartPhaseMiniGameStepTest,
       // DrawPhaseDisplayStepTest,
       // DrawPhaseDrawStepTest,
-      LoadPhaseDisplayStepTest,
-      LoadPhaseTurnStepPlayerStartFirstTest,
-      LoadPhaseTurnStepPlayerPlaysNextTest,
-      LoadPhaseTurnStepPlayerPassedTest,
-      LoadPhaseTurnStepPowerfieldActiveTest,
-      LoadPhaseTurnStepPowerfieldActiveByLimitTest,
-      LoadPhaseTurnStepPlayerSelectHandTest,
-      LoadPhaseTurnStepChallengedActivatePowerCardTest,
-      LoadPhaseTurnStepChallengedPassedTest,
+      // LoadPhaseDisplayStepTest,
+      // LoadPhaseTurnStepPlayerStartFirstTest,
+      // LoadPhaseTurnStepPlayerPlaysNextTest,
+      // LoadPhaseTurnStepPlayerPassedTest,
+      // LoadPhaseTurnStepPowerfieldActiveTest,
+      // LoadPhaseTurnStepPowerfieldActiveByLimitTest,
+      // LoadPhaseTurnStepPlayerSelectHandTest,
+      // LoadPhaseTurnStepChallengedActivatePowerCardTest,
+      // LoadPhaseTurnStepChallengedPassedTest,
+      LoadPhaseHandStepTest,
     ];
     return [
       // ...cardSpriteTests,
@@ -13531,7 +11264,6 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindow,
       // ...scoreWindow,
       // ...folderWindow,
-      // ...phase,
       ...steps,
     ];
   }

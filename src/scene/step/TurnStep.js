@@ -91,7 +91,7 @@ class TurnStep extends Step {
   updateActivePowerfieldByLimit(manager) {
     const isPowerfieldFull = manager.getPowerfieldLength() >= 3;
     if (isPowerfieldFull) {
-      this.commandActivePowerfield();
+      this.addAction(this.commandActivePowerfield);
       return true;
     }
   }
@@ -185,7 +185,7 @@ class TurnStep extends Step {
   updateChallengedTurn(manager) {
     if (manager.isChallengedPassed() === false) {
       if (manager.isChallengedHasPowerCardInHand()) {
-        this.commandChallengedActivePowerCard();
+        this.addAction(this.commandChallengedActivePowerCard);
         return true;
       }
       this.commandChallengedSelectPasse(manager);
@@ -230,7 +230,7 @@ class TurnStep extends Step {
       this._textWindow,
       this._askWindow,
     ];
-    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+    return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
 
   isAwaitingDecision() {

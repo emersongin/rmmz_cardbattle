@@ -70,7 +70,7 @@ class FolderStep extends Step {
     const children = [
       this._folderWindow
     ];
-    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+    return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
 
   isFolderWindowVisible() {

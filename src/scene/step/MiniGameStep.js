@@ -164,7 +164,7 @@ class MiniGameStep extends Step {
       this._drawCardGame,
       this._resultWindow,
     ];
-    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+    return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
 
   isResultWindowVisible() {

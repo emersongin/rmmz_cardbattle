@@ -147,7 +147,7 @@ class DisplayStep extends Step {
       this._titleWindow,
       this._descriptionWindow,
     ];
-    return super.isBusy() || children.some(obj => (obj.isBusy ? obj.isBusy() : false));
+    return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
 
   isTitleWindowVisible() {

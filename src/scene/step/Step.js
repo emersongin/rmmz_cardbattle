@@ -32,8 +32,13 @@ class Step {
     this._finish = finish;
   }
 
-  update() {
+  start(manager) {
+    throw new Error('Method start must be implemented');
+  }
+
+  update(manager) {
     if (this._wait > 0) return this._wait--;
+    console.log(this.hasActions(), this.isAvailable());
     if (this.hasActions() && this.isAvailable()) this.executeAction();
   }
 
@@ -201,7 +206,7 @@ class Step {
     return boardWindow;
   }
 
-  commandCreatePlayerBoardWindow(boardWindow) {
+  commandCreatePlayerBoardWindow(boardWindow) { console.log(this);
     this._player.boardWindow = boardWindow;
     this.commandAddChild(boardWindow);
   }
