@@ -275,4 +275,16 @@ class CardBattleManager {
   static getCardPlayerHandByIndex(index) {
     return CardBattleManager.player.hand[index];
   }
+
+  static getDisabledCardsIndexesOfPlayerHandInLoadPhase() {
+    const cardsInHand = CardBattleManager.getPlayerHand();
+    const disableCards = cardsInHand.map((card, index) => {
+      return {
+        index,
+        disable: card.type !== GameConst.POWER || card.isActiveInLoadPhase === false,
+      };
+    });
+    const disableIndexes = disableCards.filter(card => card.disable).map(card => card.index);
+    return disableIndexes;
+  }
 }

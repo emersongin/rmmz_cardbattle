@@ -1,3 +1,9 @@
 Create tests to throw Error
 
 next tests:
+
+deve apresentar os objetos que compoem a tela de m~~ao do jogador da fase de carregamento
+Apresentar cartões habilitado para escolha apenas que possam ser ativados na phase load
+Ao trocar de curso deve atualizar as janelas de descrição dos cartões
+Ao jogador retornar deve ser apresentado o passo de jogadas
+Ao jogador seleciona uma carta ela deve apresentar um movimento e ser apresentado o passo de Activar cartão de poder

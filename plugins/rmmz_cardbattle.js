@@ -9186,6 +9186,18 @@ class CardBattleManager {
   static getCardPlayerHandByIndex(index) {
     return CardBattleManager.player.hand[index];
   }
+
+  static getDisabledCardsIndexesOfPlayerHandInLoadPhase() {
+    const cardsInHand = CardBattleManager.getPlayerHand();
+    const disableCards = cardsInHand.map((card, index) => {
+      return {
+        index,
+        disable: card.type !== GameConst.POWER || card.isActiveInLoadPhase === false,
+      };
+    });
+    const disableIndexes = disableCards.filter(card => card.disable).map(card => card.index);
+    return disableIndexes;
+  }
 }
 class Step {
   _scene;
@@ -9227,7 +9239,6 @@ class Step {
 
   update(manager) {
     if (this._wait > 0) return this._wait--;
-    console.log(this.hasActions(), this.isAvailable());
     if (this.hasActions() && this.isAvailable()) this.executeAction();
   }
 
@@ -9395,7 +9406,7 @@ class Step {
     return boardWindow;
   }
 
-  commandCreatePlayerBoardWindow(boardWindow) { console.log(this);
+  commandCreatePlayerBoardWindow(boardWindow) {
     this._player.boardWindow = boardWindow;
     this.commandAddChild(boardWindow);
   }
@@ -10508,9 +10519,14 @@ class HandStep extends Step {
   }
 
   start(manager) {
-    const phase = this.getPhase();
+    const player = this.getPlayer();
     this.createBoardWindow(manager);
-    this.createPlayerHandset(manager);
+    if (player === GameConst.PLAYER) {
+      this.createPlayerHandset(manager);
+    }
+    if (player === GameConst.CHALLENGED) {
+
+    }
     this.openPlayerHand(manager);
   }
 
@@ -10523,19 +10539,20 @@ class HandStep extends Step {
   }
 
   createPlayerHandset(manager) {
-    const phase = this.getPhase();
-    const player = this.getPlayer();
-    // manager.getPlayerDisabledIndexesInLoadPhase
     const cardsInHand = manager.getPlayerHand();
-    const disableCards = cardsInHand.map((card, index) => {
-      return {
-        index,
-        disable: card.type !== GameConst.POWER || card.isActiveInLoadPhase === false,
-      };
-    });
-    const disableIndexes = disableCards.filter(card => card.disable).map(card => card.index);
+    const disableIndexes = this.getDisabledCardsIndexesOfPlayerHandByPhase(manager);
     const cardsetSprite = this.createPlayerHandCardset(cardsInHand, disableIndexes);
     this.createWindows(cardsetSprite);
+  }
+
+  getDisabledCardsIndexesOfPlayerHandByPhase(manager) {
+    const phase = this.getPhase();
+    switch (phase) {
+      case GameConst.LOAD_PHASE:
+        return manager.getDisabledCardsIndexesOfPlayerHandInLoadPhase();
+      default:
+        return [];
+    }
   }
 
   createWindows(cardsetSprite) {
@@ -10622,12 +10639,26 @@ class HandStep extends Step {
   }
 
   createOnChangeCursor(manager) {
+    const phase = this.getPhase();
+    switch (phase) {
+      case GameConst.LOAD_PHASE:
+        return this.createOnChangeCursorLoadPhase(manager);
+      default:
+        return this.createOnChangeCursorDefault();
+    }
+  }
+
+  createOnChangeCursorLoadPhase(manager) {
     return index => {
       const card = manager.getCardPlayerHandByIndex(index);
       this.commandSetTextCardNameWindow(['card.name' + index]);
       this.commandSetTextCardDescriptionWindow(['card.description' + index]);
       this.commandSetTextCardPropsWindow(['card.props' + index]);
     };
+  }
+
+  createOnChangeCursorDefault() {
+    return () => {};
   }
 
   commandSetTextCardNameWindow(text) {
@@ -10642,7 +10673,21 @@ class HandStep extends Step {
     this._cardPropsWindow.refreshContent(text);
   }
 
-  createOnSelectHandler() {
+  createOnSelectHandler(manager) {
+    const phase = this.getPhase();
+    switch (phase) {
+      case GameConst.LOAD_PHASE:
+        return this.createOnSelectHandlerLoadPhase();
+      default:
+        return this.createOnSelectHandlerDefault();
+    }
+  }
+
+  createOnSelectHandlerDefault() {
+    return () => {};
+  }
+
+  createOnSelectHandlerLoadPhase() {
     return cardIndexs => {
       const sprite = this.commandGetHandSprites(cardIndexs);
       this.selectPowerCard(sprite);
@@ -10723,12 +10768,26 @@ class HandStep extends Step {
     ]);
   }
 
-  createOnCancelHandler() {
+  createOnCancelHandler(manager) {
+    const phase = this.getPhase();
+    switch (phase) {
+      case GameConst.LOAD_PHASE:
+        return this.createOnCancelHandlerLoadPhase();
+      default:
+        return this.createOnCancelHandlerDefault();
+    }
+  }
+
+  createOnCancelHandlerLoadPhase() {
     return () => {
       this.closePlayerHand();
       this.leavePlayerHand();
       this.addAction(this.commandToGoBack);
     };
+  }
+
+  createOnCancelHandlerDefault() {
+    return () => {};
   }
 
   commandToGoBack() {
@@ -10739,8 +10798,8 @@ class HandStep extends Step {
 
   openPlayerHand(manager) {
     const onChangeCursor = this.createOnChangeCursor(manager);
-    const onSelectHandler = this.createOnSelectHandler();
-    const onCancelHandler = this.createOnCancelHandler();
+    const onSelectHandler = this.createOnSelectHandler(manager);
+    const onCancelHandler = this.createOnCancelHandler(manager);
     this.addActions([
       this.commandOpenPlayerHand,
       [this.commandPlayerHandSelectMode, onSelectHandler, onChangeCursor, onCancelHandler]
