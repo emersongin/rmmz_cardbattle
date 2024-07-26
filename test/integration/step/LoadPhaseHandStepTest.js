@@ -5,8 +5,12 @@ class LoadPhaseHandStepTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    const player = GameConst.PLAYER;
-    this.step = new HandStep(this._scene, phase, player, finish);
+    const config = {
+      player: GameConst.PLAYER,
+      blockBattleCards: true,
+      blockPowerCardsInLoadPhase: true
+    };
+    this.step = new HandStep(this._scene, phase, config, finish);
   }
 
   start() {

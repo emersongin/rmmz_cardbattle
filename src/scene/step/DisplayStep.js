@@ -2,6 +2,14 @@ class DisplayStep extends Step {
   _titleWindow = {};
   _descriptionWindow = {};
 
+  constructor(scene, phase, finish) {
+    const phasesEnabled = [GameConst.CHALLENGE_PHASE, GameConst.START_PHASE, GameConst.DRAW_PHASE, GameConst.LOAD_PHASE];
+    if (!phasesEnabled.some(p => p === phase)) {
+      throw new Error('Invalid phase for DisplayStep.');
+    }
+    super(scene, phase, finish);
+  }
+
   start(manager) {
     const phase = this.getPhase();
     const title = this.getPhaseTitle(phase);

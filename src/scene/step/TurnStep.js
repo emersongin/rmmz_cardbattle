@@ -4,6 +4,14 @@ class TurnStep extends Step {
   _textWindow = {};
   _askWindow = {};
 
+  constructor(scene, phase, finish) {
+    const phasesEnabled = [GameConst.LOAD_PHASE];
+    if (!phasesEnabled.some(p => p === phase)) {
+      throw new Error('Invalid phase for DisplayStep.');
+    }
+    super(scene, phase, finish);
+  }
+
   start(manager, text = 'Begin Load Phase') {
     const phase = this.getPhase();
     this.createPlayerGameBoard(manager);
@@ -139,7 +147,12 @@ class TurnStep extends Step {
   }
 
   commandPlayerHand(manager) {
-    this.changeStep(HandStep);
+    const config = {
+      player: GameConst.PLAYER,
+      blockBattleCards: true,
+      blockPowerCardsInLoadPhase: true,
+    };
+    this.changeStep(HandStep, config);
     if (typeof this._finish === 'function') return this._finish();
     this.destroy();
   }

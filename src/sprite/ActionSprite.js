@@ -62,12 +62,8 @@ class ActionSprite extends Sprite {
   }
 
   addCommands(commands) {
-    commands = this.toArray(commands);
+    commands = ArrayHelper.toArray(commands);
     this._commandQueue.push(commands);
-  }
-
-  toArray(items = []) {
-    return (Array.isArray(items) === false) ? [items] : items;
   }
 
   createDelayCommands(fn, delay, set, triggerActions) {

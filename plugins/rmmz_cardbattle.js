@@ -2324,12 +2324,8 @@ class ActionSprite extends Sprite {
   }
 
   addCommands(commands) {
-    commands = this.toArray(commands);
+    commands = ArrayHelper.toArray(commands);
     this._commandQueue.push(commands);
-  }
-
-  toArray(items = []) {
-    return (Array.isArray(items) === false) ? [items] : items;
   }
 
   createDelayCommands(fn, delay, set, triggerActions) {
@@ -3686,7 +3682,7 @@ class CardSprite extends ActionSprite {
   }
 
   toMove(moves) {
-    moves = this.toArray(moves);
+    moves = ArrayHelper.toArray(moves);
     this.addCommand(this.commandMoving, moves);
   }
 
@@ -4149,7 +4145,7 @@ class CardsetSpriteSelectModeState {
   updateHoverSprites() {
     const cardset = this._cardset;
     const sprites = cardset.getSprites();
-    const spriteToAdd = cardset.getSprites(this._cursorIndex);
+    const spriteToAdd = cardset.getSprites(this._cursorIndex).shift();
     cardset.commandAddChildToEnd(spriteToAdd);
     sprites.forEach((sprite, index) => {
       if (spriteToAdd === sprite) {
@@ -4245,7 +4241,7 @@ class CardsetSpriteSelectModeState {
 
   selectSprite() {
     const cursorIndex = this._cursorIndex;
-    const sprite = this._cardset.getSprites(cursorIndex);
+    const sprite = this._cardset.getSprites(cursorIndex).shift();
     if (sprite && sprite.isDisabled()) return;
     if (this._selectedIndexs.includes(cursorIndex)) {
       this.removeSelectedIndex(cursorIndex);
@@ -4366,7 +4362,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   setCards(cards, x, y) {
-    cards = this.toArray(cards);
+    cards = ArrayHelper.toArray(cards);
     const sprites = cards.map(card => this.createCardSprite(card, x, y));
     const orderingSprites = this.createOrderingNumbers(sprites);
     this._sprites = sprites;
@@ -4416,7 +4412,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   setAllCardsInPositions(sprites = this._sprites, positions) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandSetAllCardsPositions, sprites, positions);
   }
 
@@ -4429,7 +4425,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   setAllCardsInPosition(sprites = this._sprites, x = 0, y = 0) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandSetAllCardsPosition, sprites, x, y);
   }
 
@@ -4439,7 +4435,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   showCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandShowCards, sprites);
   }
 
@@ -4470,7 +4466,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   listCards(cards) {
-    cards = this.toArray(cards);
+    cards = ArrayHelper.toArray(cards);
     const numCards = cards.length;
     const positions = CardsetSprite.createPositionsList(numCards);
     const sprites = this.createCardSpritesPositions(positions, cards);
@@ -4487,7 +4483,7 @@ class CardsetSprite extends ActionSprite {
 
   commandStartClosedCards(sprites) {
     if (this.isHidden()) return false;
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     sprites.forEach((sprite, index) => sprite.startClosed());
   }
 
@@ -4496,7 +4492,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   openAllCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandOpenAllCards, sprites);
   }
 
@@ -4506,7 +4502,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   closeAllCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandCloseAllCards, sprites);
   }
 
@@ -4539,7 +4535,7 @@ class CardsetSprite extends ActionSprite {
 
   openCards(sprites = this._sprites, delay = 6, reverse = false) {
     if (this.noSprites()) return;
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     sprites = sprites.map(sprite => [sprite]);
     if (reverse) sprites.reverse();
     const commands = this.createDelayCommands(this.commandOpenCard, delay, sprites);
@@ -4557,7 +4553,7 @@ class CardsetSprite extends ActionSprite {
 
   closeCards(sprites = this._sprites, delay = 6, reverse = false) {
     if (this.noSprites()) return;
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     sprites = sprites.map(sprite => [sprite]);
     if (reverse) sprites.reverse();
     const commands = this.createDelayCommands(this.commandCloseCard, delay, sprites);
@@ -4573,7 +4569,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   moveAllCardsInlist(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     const numCards = sprites.length;
     const positions = CardsetSprite.createPositionsList(numCards);
     const moves = this.moveCardsPositions(positions, sprites);
@@ -4596,7 +4592,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   moveCardsInlist(sprites = this._sprites, delay = 6, triggerActions) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     const numCards = sprites.length;
     const positions = CardsetSprite.createPositionsList(numCards);
     let moves = this.moveCardsPositions(positions, sprites);
@@ -4612,7 +4608,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   moveAllCardsToPosition(sprites = this._sprites, x = 0, y = 0) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     const numCards = sprites.length;
     const noPading = 0;
     const positions = CardsetSprite.createPositions(numCards, noPading, x, y);
@@ -4621,7 +4617,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   moveCardsToPosition(sprites = this._sprites, x = 0, y = 0, delay = 6) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     const numCards = sprites.length;
     const noPading = 0;
     const positions = CardsetSprite.createPositions(numCards, noPading, x, y);
@@ -4632,13 +4628,13 @@ class CardsetSprite extends ActionSprite {
   }
 
   moveAllCardsToPositions(sprites = this._sprites, positions) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     const moves = this.moveCardsPositions(positions, sprites);
     this.addCommand(this.commandMoveAllCards, moves);
   }
 
   disableCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandDisableCards, sprites);
   }
 
@@ -4709,7 +4705,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   flashCardsAnimate(sprites = this._sprites, color = 'white', duration = 10, times = 1, trigger) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommandTrigger(this.commandAnimateCardsFlash, trigger, sprites, color, duration, times);
   }
 
@@ -4725,7 +4721,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   quakeCardsAnimate(sprites = this._sprites, times = 2, distance = 3) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandAnimateCardsQuake, sprites, times, distance);
   }
 
@@ -4742,7 +4738,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   damageCardsAnimate(times = 1, sprites = this._sprites, anchorParent = this.parent, trigger) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommandTrigger(this.commandAnimateCardsDamage, trigger, times, sprites, anchorParent);
   }
 
@@ -4848,9 +4844,9 @@ class CardsetSprite extends ActionSprite {
     return this.getSprites().filter(sprite => sprite.isEnabled()).length;
   }
 
-  getSprites(index) {
-    if (Array.isArray(index)) index = index[0];
-    if (index >= 0) return this._sprites[index];
+  getSprites(indexes) {
+    if (Array.isArray(indexes)) return this._sprites.filter((sprite, index) => indexes.includes(index));
+    if (typeof indexes === 'number') return [this._sprites[indexes]];
     return this._sprites;
   }
 
@@ -4868,7 +4864,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   zoomAllCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandZoomAllCards, sprites);
   }
 
@@ -4882,7 +4878,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   zoomOutAllCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandZoomOutAllCards, sprites);
   }
 
@@ -4900,7 +4896,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   flipTurnToUpAllCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandFlipTurnToUpAllCards, sprites);
   }
 
@@ -4914,7 +4910,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   flipTurnToUpCards(sprites = this._sprites, delay = 6) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     sprites = sprites.map(sprite => [sprite]);
     const commands = this.createDelayCommands(this.commandFlipTurnToUpCard, delay, sprites);
     this.addCommands(commands);
@@ -4931,7 +4927,7 @@ class CardsetSprite extends ActionSprite {
 
   commandAddChildToEnd(spritesToAdd) {
     if (this.isHidden()) return false;
-    spritesToAdd = this.toArray(spritesToAdd);
+    spritesToAdd = ArrayHelper.toArray(spritesToAdd);
     const indexsAmount = this._sprites.length - 1;
     this._sprites.forEach((sprite, index) => {
       if (spritesToAdd.includes(sprite)) {
@@ -4946,7 +4942,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   leaveAllCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandLeaveAllCards, sprites);
   }
 
@@ -8887,8 +8883,12 @@ class LoadPhaseHandStepTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    const player = GameConst.PLAYER;
-    this.step = new HandStep(this._scene, phase, player, finish);
+    const config = {
+      player: GameConst.PLAYER,
+      blockBattleCards: true,
+      blockPowerCardsInLoadPhase: true
+    };
+    this.step = new HandStep(this._scene, phase, config, finish);
   }
 
   start() {
@@ -8915,46 +8915,46 @@ class CardBattleManager {
       name: 'Folder 1',
       energies: [10, 10, 5, 5, 5, 5],
       set: [
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10 },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 },
+        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
       ]
     }, {
       name: 'Folder 2',
@@ -9024,13 +9024,32 @@ class CardBattleManager {
     return CardBattleManager.powerfield.length;
   }
 
-  static getPlayerDeck() {
-    return CardBattleManager.player.deck;
+  static getPlayerDeck(config) {
+    const cards = CardBattleManager.player.deck;
+    return CardBattleManager.configureCards(cards, config);
   }
 
-  static getPlayerHand() {
-    return CardBattleManager.player.hand;
+  static configureCards(cards, config) {
+    return cards.map(card => {
+      card.disabled = false;
+      const type = card.type;
+      const load = card.isActiveInLoadPhase;
+      const conditions = [
+        type === GameConst.BATTLE && config?.blockBattleCards,
+        type === GameConst.POWER && config?.blockPowerCardsInLoadPhase && !load,
+      ];
+      if (conditions.some(disable => disable)) {
+        card.disabled = true;
+      }
+      return card;
+    });
   }
+
+  static getPlayerHand(config) {
+    const cards = CardBattleManager.player.hand;
+    return CardBattleManager.configureCards(cards, config);
+  }
+
 
   static getPlayerEnergies() {
     return CardBattleManager.player.energies;
@@ -9052,12 +9071,14 @@ class CardBattleManager {
     return CardBattleManager.player.victories;
   }
 
-  static getChallengedDeck() {
-    return CardBattleManager.challenged.deck;
+  static getChallengedDeck(config) {
+    const cards = CardBattleManager.challenged.deck;
+    return CardBattleManager.configureCards(cards, config);
   }
 
-  static getChallengedHand() {
-    return CardBattleManager.challenged.hand;
+  static getChallengedHand(config) {
+    const cards = CardBattleManager.challenged.hand;
+    return CardBattleManager.configureCards(cards, config);
   }
 
   static getChallengedEnergies() {
@@ -9186,18 +9207,6 @@ class CardBattleManager {
   static getCardPlayerHandByIndex(index) {
     return CardBattleManager.player.hand[index];
   }
-
-  static getDisabledCardsIndexesOfPlayerHandInLoadPhase() {
-    const cardsInHand = CardBattleManager.getPlayerHand();
-    const disableCards = cardsInHand.map((card, index) => {
-      return {
-        index,
-        disable: card.type !== GameConst.POWER || card.isActiveInLoadPhase === false,
-      };
-    });
-    const disableIndexes = disableCards.filter(card => card.disable).map(card => card.index);
-    return disableIndexes;
-  }
 }
 class Step {
   _scene;
@@ -9222,6 +9231,10 @@ class Step {
   _finish = null;
 
   constructor(scene, phase, finish) {
+    const phasesEnabled = [GameConst.CHALLENGE_PHASE, GameConst.START_PHASE, GameConst.DRAW_PHASE, GameConst.LOAD_PHASE];
+    if (!phasesEnabled.some(p => p === phase)) {
+      throw new Error('Invalid phase for DisplayStep.');
+    }
     if ((scene instanceof Scene_Message) === false) {
       throw new Error('Scene must be an instance of Scene_Message');
     }
@@ -9362,8 +9375,8 @@ class Step {
     this._scene.setPhase(phase);
   }
 
-  changeStep(stepName) {
-    const step = new stepName(this._scene);
+  changeStep(stepName, ...params) {
+    const step = new stepName(this._scene, this._phase, ...params, this._finish);
     this._scene.setStep(step);
   }
 
@@ -9862,6 +9875,14 @@ class DisplayStep extends Step {
   _titleWindow = {};
   _descriptionWindow = {};
 
+  constructor(scene, phase, finish) {
+    const phasesEnabled = [GameConst.CHALLENGE_PHASE, GameConst.START_PHASE, GameConst.DRAW_PHASE, GameConst.LOAD_PHASE];
+    if (!phasesEnabled.some(p => p === phase)) {
+      throw new Error('Invalid phase for DisplayStep.');
+    }
+    super(scene, phase, finish);
+  }
+
   start(manager) {
     const phase = this.getPhase();
     const title = this.getPhaseTitle(phase);
@@ -10022,6 +10043,14 @@ class DisplayStep extends Step {
 class FolderStep extends Step {
   _folderWindow = {};
 
+  constructor(scene, phase, finish) {
+    const phasesEnabled = [GameConst.CHALLENGE_PHASE];
+    if (!phasesEnabled.some(p => p === phase)) {
+      throw new Error('Invalid phase for FolderStep.');
+    }
+    super(scene, phase, finish);
+  }
+
   start(manager) {
     const phase = this.getPhase();
     const selectHandler = (folderIndex) => {
@@ -10102,6 +10131,14 @@ class MiniGameStep extends Step {
   _drawCardGame = {};
   _cards = [];
   _resultWindow = {};
+
+  constructor(scene, phase, finish) {
+    const phasesEnabled = [GameConst.START_PHASE];
+    if (!phasesEnabled.some(p => p === phase)) {
+      throw new Error('Invalid phase for MiniGameStep.');
+    }
+    super(scene, phase, finish);
+  }
 
   start(manager) {
     const phase = this.getPhase();
@@ -10197,6 +10234,7 @@ class MiniGameStep extends Step {
     const position2 = CardSprite.createPosition(center + space, 0, 1);
     const positions = [position1, position2];
     const sprites = this._drawCardGame.getSprites();
+    console.log(this._drawCardGame, sprites);
     this._drawCardGame.moveAllCardsToPositions(sprites, positions);
   }
 
@@ -10221,7 +10259,8 @@ class MiniGameStep extends Step {
 
   commandFinishDrawCardGame(selectedIndex) {
     const cardset = this._drawCardGame;
-    const sprites = ArrayHelper.moveToStartByIndex(cardset.getSprites(), selectedIndex);
+    const spriteSet = cardset.getSprites();
+    const sprites = ArrayHelper.moveToStartByIndex(spriteSet, selectedIndex);
     const selectedSprite = sprites[0];
     const startIndex = 0;
     cardset.removeChild(sprites[1]);
@@ -10276,6 +10315,14 @@ class MiniGameStep extends Step {
   }
 }
 class DrawStep extends Step {
+  constructor(scene, phase, finish) {
+    const phasesEnabled = [GameConst.DRAW_PHASE];
+    if (!phasesEnabled.some(p => p === phase)) {
+      throw new Error('Invalid phase for DrawStep.');
+    }
+    super(scene, phase, finish);
+  }
+
   start(manager) {
     const phase = this.getPhase();
     this.createPlayerGameBoard(manager);
@@ -10450,6 +10497,14 @@ class DrawStep extends Step {
   }
 }
 class RunPowerfieldStep extends Step {
+  constructor(scene, phase, finish) {
+    const phasesEnabled = [GameConst.LOAD_PHASE];
+    if (!phasesEnabled.some(p => p === phase)) {
+      throw new Error('Invalid phase for DisplayStep.');
+    }
+    super(scene, phase, finish);
+  }
+
   start(manager) {
     const phase = this.getPhase();
 
@@ -10476,6 +10531,14 @@ class RunPowerfieldStep extends Step {
   }
 }
 class ActivatePowerCardStep extends Step {
+  constructor(scene, phase, finish) {
+    const phasesEnabled = [GameConst.LOAD_PHASE];
+    if (!phasesEnabled.some(p => p === phase)) {
+      throw new Error('Invalid phase for DisplayStep.');
+    }
+    super(scene, phase, finish);
+  }
+
   start(manager) {
     const phase = this.getPhase();
 
@@ -10502,31 +10565,47 @@ class ActivatePowerCardStep extends Step {
   }
 }
 class HandStep extends Step {
-  _gamePlayer;
+  _config;
   _playerHand;
   _locationWindow;
   _cardNameWindow;
   _cardDescriptionWindow;
   _cardPropsWindow;
 
-  constructor(scene, phase, player, finish) {
+  constructor(scene, phase, config, finish) {
+    const phasesEnabled = [GameConst.LOAD_PHASE];
+    if (!phasesEnabled.some(p => p === phase)) {
+      throw new Error('Invalid phase for HandStep.');
+    }
     super(scene, phase, finish);
-    this._gamePlayer = player;
+    if (typeof config !== 'object') {
+      throw new Error('config must be an object.');
+    }
+    if (config?.player !== GameConst.PLAYER && config?.player !== GameConst.CHALLENGED) {
+      throw new Error('config.player must be GameConst.PLAYER or GameConst.CHALLENGED');
+    }
+    this.setConfig(config);
+  }
+
+  setConfig(config) {
+    this._config = {
+      player: config.player,
+      selectCards: config?.selectCards || 1,
+      checkElementSuficiencia: config?.checkElementSuficiencia || false,
+      blockBattleCards: config?.blockBattleCards || false,
+      blockPowerCards: config?.blockPowerCards || false,
+      blockPowerCardsInLoadPhase: config?.blockPowerCardsInLoadPhase || false,
+      blockPowerCardsInCompilePhase: config?.blockPowerCardsInCompilePhase || false,
+    };
   }
 
   getPlayer() {
-    return this._gamePlayer;
+    return this._config.player;
   }
 
   start(manager) {
-    const player = this.getPlayer();
     this.createBoardWindow(manager);
-    if (player === GameConst.PLAYER) {
-      this.createPlayerHandset(manager);
-    }
-    if (player === GameConst.CHALLENGED) {
-
-    }
+    this.createPlayerHandset(manager);
     this.openPlayerHand(manager);
   }
 
@@ -10539,20 +10618,18 @@ class HandStep extends Step {
   }
 
   createPlayerHandset(manager) {
-    const cardsInHand = manager.getPlayerHand();
-    const disableIndexes = this.getDisabledCardsIndexesOfPlayerHandByPhase(manager);
-    const cardsetSprite = this.createPlayerHandCardset(cardsInHand, disableIndexes);
+    const cardsInHand = this.getPlayerHand(manager);
+    const cardsetSprite = this.createPlayerHandCardset(cardsInHand);
     this.createWindows(cardsetSprite);
   }
 
-  getDisabledCardsIndexesOfPlayerHandByPhase(manager) {
-    const phase = this.getPhase();
-    switch (phase) {
-      case GameConst.LOAD_PHASE:
-        return manager.getDisabledCardsIndexesOfPlayerHandInLoadPhase();
-      default:
-        return [];
+  getPlayerHand(manager) {
+    const player = this.getPlayer();
+    const config = this._config;
+    if (player === GameConst.CHALLENGED) {
+      return manager.getChallengedHand(config);
     }
+    return manager.getPlayerHand(config);
   }
 
   createWindows(cardsetSprite) {
@@ -10563,17 +10640,25 @@ class HandStep extends Step {
     return { locationWindow, cardNameWindow, cardDescriptionWindow, cardPropsWindow };
   }
 
-  createPlayerHandCardset(cards, disableIndexes) {
+  createPlayerHandCardset(cards) {
     const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
     const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
     const cardsetSprite = CardsetSprite.create(x, y);
     cardsetSprite.show();
     const sprites = cardsetSprite.listCards(cards);
     cardsetSprite.startClosedCards(sprites);
-    const disableSprites = sprites.filter((sprite, index) => disableIndexes.includes(index));
+    const indexesDisabled = this.getIndexesDisabled(cards);
+    const disableSprites = cardsetSprite.getSprites(indexesDisabled);
+    console.log(cardsetSprite.getSprites());
     cardsetSprite.disableCards(disableSprites);
     this.addAction(this.commandCreatePlayerHandCardset, cardsetSprite);
     return cardsetSprite;
+  }
+
+  getIndexesDisabled(cards) {
+    return cards.map((card, index) => {
+      if (card.disabled) return index;
+    }).filter(index => index !== undefined);
   }
 
   commandCreatePlayerHandCardset(cardsetSprite) {
@@ -10639,13 +10724,8 @@ class HandStep extends Step {
   }
 
   createOnChangeCursor(manager) {
-    const phase = this.getPhase();
-    switch (phase) {
-      case GameConst.LOAD_PHASE:
-        return this.createOnChangeCursorLoadPhase(manager);
-      default:
-        return this.createOnChangeCursorDefault();
-    }
+    return this.createOnChangeCursorLoadPhase(manager);
+    // deve ser configuravel ao criar a classe
   }
 
   createOnChangeCursorLoadPhase(manager) {
@@ -10655,10 +10735,6 @@ class HandStep extends Step {
       this.commandSetTextCardDescriptionWindow(['card.description' + index]);
       this.commandSetTextCardPropsWindow(['card.props' + index]);
     };
-  }
-
-  createOnChangeCursorDefault() {
-    return () => {};
   }
 
   commandSetTextCardNameWindow(text) {
@@ -10674,22 +10750,13 @@ class HandStep extends Step {
   }
 
   createOnSelectHandler(manager) {
-    const phase = this.getPhase();
-    switch (phase) {
-      case GameConst.LOAD_PHASE:
-        return this.createOnSelectHandlerLoadPhase();
-      default:
-        return this.createOnSelectHandlerDefault();
-    }
-  }
-
-  createOnSelectHandlerDefault() {
-    return () => {};
+    return this.createOnSelectHandlerLoadPhase();
+    // deve ser configuravel ao criar a classe
   }
 
   createOnSelectHandlerLoadPhase() {
     return cardIndexs => {
-      const sprite = this.commandGetHandSprites(cardIndexs);
+      const sprite = this.commandGetHandSprites(cardIndexs).shift();
       this.selectPowerCard(sprite);
       this.closePlayerHand();
       this.leavePlayerHand();
@@ -10704,7 +10771,7 @@ class HandStep extends Step {
   }
 
   commandGetHandSprites(index) {
-    return this._playerHand.getSprites(index);
+    return this._playerHand.getSprites(index)
   }
 
   selectPowerCard(sprites) {
@@ -10769,13 +10836,8 @@ class HandStep extends Step {
   }
 
   createOnCancelHandler(manager) {
-    const phase = this.getPhase();
-    switch (phase) {
-      case GameConst.LOAD_PHASE:
-        return this.createOnCancelHandlerLoadPhase();
-      default:
-        return this.createOnCancelHandlerDefault();
-    }
+    return this.createOnCancelHandlerLoadPhase();
+    // deve ser configuravel ao criar a classe
   }
 
   createOnCancelHandlerLoadPhase() {
@@ -10784,10 +10846,6 @@ class HandStep extends Step {
       this.leavePlayerHand();
       this.addAction(this.commandToGoBack);
     };
-  }
-
-  createOnCancelHandlerDefault() {
-    return () => {};
   }
 
   commandToGoBack() {
@@ -10819,8 +10877,8 @@ class HandStep extends Step {
   }
 
   commandPlayerHandSelectMode(onSelectHandler, onChangeCursor, onCancelHandler) {
-    const selectNumber = 1;
-    this._playerHand.selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
+    const selectCards = this._config.selectCards;
+    this._playerHand.selectMode(selectCards, onSelectHandler, onChangeCursor, onCancelHandler);
   }
 
   commandSetTextLocationWindow() {
@@ -10869,6 +10927,14 @@ class TurnStep extends Step {
   _awaitingDecision = false;
   _textWindow = {};
   _askWindow = {};
+
+  constructor(scene, phase, finish) {
+    const phasesEnabled = [GameConst.LOAD_PHASE];
+    if (!phasesEnabled.some(p => p === phase)) {
+      throw new Error('Invalid phase for DisplayStep.');
+    }
+    super(scene, phase, finish);
+  }
 
   start(manager, text = 'Begin Load Phase') {
     const phase = this.getPhase();
@@ -11005,7 +11071,12 @@ class TurnStep extends Step {
   }
 
   commandPlayerHand(manager) {
-    this.changeStep(HandStep);
+    const config = {
+      player: GameConst.PLAYER,
+      blockBattleCards: true,
+      blockPowerCardsInLoadPhase: true,
+    };
+    this.changeStep(HandStep, config);
     if (typeof this._finish === 'function') return this._finish();
     this.destroy();
   }

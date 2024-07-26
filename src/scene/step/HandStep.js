@@ -1,29 +1,45 @@
 class HandStep extends Step {
-  _gamePlayer;
+  _config;
   _playerHand;
   _locationWindow;
   _cardNameWindow;
   _cardDescriptionWindow;
   _cardPropsWindow;
 
-  constructor(scene, phase, player, finish) {
+  constructor(scene, phase, config, finish) {
+    const phasesEnabled = [GameConst.LOAD_PHASE];
+    if (!phasesEnabled.some(p => p === phase)) {
+      throw new Error('Invalid phase for HandStep.');
+    }
     super(scene, phase, finish);
-    this._gamePlayer = player;
+    if (typeof config !== 'object') {
+      throw new Error('config must be an object.');
+    }
+    if (config?.player !== GameConst.PLAYER && config?.player !== GameConst.CHALLENGED) {
+      throw new Error('config.player must be GameConst.PLAYER or GameConst.CHALLENGED');
+    }
+    this.setConfig(config);
+  }
+
+  setConfig(config) {
+    this._config = {
+      player: config.player,
+      selectCards: config?.selectCards || 1,
+      checkElementSuficiencia: config?.checkElementSuficiencia || false,
+      blockBattleCards: config?.blockBattleCards || false,
+      blockPowerCards: config?.blockPowerCards || false,
+      blockPowerCardsInLoadPhase: config?.blockPowerCardsInLoadPhase || false,
+      blockPowerCardsInCompilePhase: config?.blockPowerCardsInCompilePhase || false,
+    };
   }
 
   getPlayer() {
-    return this._gamePlayer;
+    return this._config.player;
   }
 
   start(manager) {
-    const player = this.getPlayer();
     this.createBoardWindow(manager);
-    if (player === GameConst.PLAYER) {
-      this.createPlayerHandset(manager);
-    }
-    if (player === GameConst.CHALLENGED) {
-
-    }
+    this.createPlayerHandset(manager);
     this.openPlayerHand(manager);
   }
 
@@ -36,20 +52,18 @@ class HandStep extends Step {
   }
 
   createPlayerHandset(manager) {
-    const cardsInHand = manager.getPlayerHand();
-    const disableIndexes = this.getDisabledCardsIndexesOfPlayerHandByPhase(manager);
-    const cardsetSprite = this.createPlayerHandCardset(cardsInHand, disableIndexes);
+    const cardsInHand = this.getPlayerHand(manager);
+    const cardsetSprite = this.createPlayerHandCardset(cardsInHand);
     this.createWindows(cardsetSprite);
   }
 
-  getDisabledCardsIndexesOfPlayerHandByPhase(manager) {
-    const phase = this.getPhase();
-    switch (phase) {
-      case GameConst.LOAD_PHASE:
-        return manager.getDisabledCardsIndexesOfPlayerHandInLoadPhase();
-      default:
-        return [];
+  getPlayerHand(manager) {
+    const player = this.getPlayer();
+    const config = this._config;
+    if (player === GameConst.CHALLENGED) {
+      return manager.getChallengedHand(config);
     }
+    return manager.getPlayerHand(config);
   }
 
   createWindows(cardsetSprite) {
@@ -60,17 +74,25 @@ class HandStep extends Step {
     return { locationWindow, cardNameWindow, cardDescriptionWindow, cardPropsWindow };
   }
 
-  createPlayerHandCardset(cards, disableIndexes) {
+  createPlayerHandCardset(cards) {
     const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
     const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
     const cardsetSprite = CardsetSprite.create(x, y);
     cardsetSprite.show();
     const sprites = cardsetSprite.listCards(cards);
     cardsetSprite.startClosedCards(sprites);
-    const disableSprites = sprites.filter((sprite, index) => disableIndexes.includes(index));
+    const indexesDisabled = this.getIndexesDisabled(cards);
+    const disableSprites = cardsetSprite.getSprites(indexesDisabled);
+    console.log(cardsetSprite.getSprites());
     cardsetSprite.disableCards(disableSprites);
     this.addAction(this.commandCreatePlayerHandCardset, cardsetSprite);
     return cardsetSprite;
+  }
+
+  getIndexesDisabled(cards) {
+    return cards.map((card, index) => {
+      if (card.disabled) return index;
+    }).filter(index => index !== undefined);
   }
 
   commandCreatePlayerHandCardset(cardsetSprite) {
@@ -136,13 +158,8 @@ class HandStep extends Step {
   }
 
   createOnChangeCursor(manager) {
-    const phase = this.getPhase();
-    switch (phase) {
-      case GameConst.LOAD_PHASE:
-        return this.createOnChangeCursorLoadPhase(manager);
-      default:
-        return this.createOnChangeCursorDefault();
-    }
+    return this.createOnChangeCursorLoadPhase(manager);
+    // deve ser configuravel ao criar a classe
   }
 
   createOnChangeCursorLoadPhase(manager) {
@@ -152,10 +169,6 @@ class HandStep extends Step {
       this.commandSetTextCardDescriptionWindow(['card.description' + index]);
       this.commandSetTextCardPropsWindow(['card.props' + index]);
     };
-  }
-
-  createOnChangeCursorDefault() {
-    return () => {};
   }
 
   commandSetTextCardNameWindow(text) {
@@ -171,22 +184,13 @@ class HandStep extends Step {
   }
 
   createOnSelectHandler(manager) {
-    const phase = this.getPhase();
-    switch (phase) {
-      case GameConst.LOAD_PHASE:
-        return this.createOnSelectHandlerLoadPhase();
-      default:
-        return this.createOnSelectHandlerDefault();
-    }
-  }
-
-  createOnSelectHandlerDefault() {
-    return () => {};
+    return this.createOnSelectHandlerLoadPhase();
+    // deve ser configuravel ao criar a classe
   }
 
   createOnSelectHandlerLoadPhase() {
     return cardIndexs => {
-      const sprite = this.commandGetHandSprites(cardIndexs);
+      const sprite = this.commandGetHandSprites(cardIndexs).shift();
       this.selectPowerCard(sprite);
       this.closePlayerHand();
       this.leavePlayerHand();
@@ -201,7 +205,7 @@ class HandStep extends Step {
   }
 
   commandGetHandSprites(index) {
-    return this._playerHand.getSprites(index);
+    return this._playerHand.getSprites(index)
   }
 
   selectPowerCard(sprites) {
@@ -266,13 +270,8 @@ class HandStep extends Step {
   }
 
   createOnCancelHandler(manager) {
-    const phase = this.getPhase();
-    switch (phase) {
-      case GameConst.LOAD_PHASE:
-        return this.createOnCancelHandlerLoadPhase();
-      default:
-        return this.createOnCancelHandlerDefault();
-    }
+    return this.createOnCancelHandlerLoadPhase();
+    // deve ser configuravel ao criar a classe
   }
 
   createOnCancelHandlerLoadPhase() {
@@ -281,10 +280,6 @@ class HandStep extends Step {
       this.leavePlayerHand();
       this.addAction(this.commandToGoBack);
     };
-  }
-
-  createOnCancelHandlerDefault() {
-    return () => {};
   }
 
   commandToGoBack() {
@@ -316,8 +311,8 @@ class HandStep extends Step {
   }
 
   commandPlayerHandSelectMode(onSelectHandler, onChangeCursor, onCancelHandler) {
-    const selectNumber = 1;
-    this._playerHand.selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
+    const selectCards = this._config.selectCards;
+    this._playerHand.selectMode(selectCards, onSelectHandler, onChangeCursor, onCancelHandler);
   }
 
   commandSetTextLocationWindow() {

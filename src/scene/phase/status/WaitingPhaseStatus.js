@@ -245,7 +245,7 @@ class WaitingPhaseStatus  {
       this.commandSetTextCardPropsWindow(['card.props' + index]);
     };
     const onSelectHandler = cardIndexs => {
-      const sprite = this.commandGetHandSprites(cardIndexs);
+      const sprite = this.commandGetHandSprites(cardIndexs).shift();
       this.selectPowerCard(sprite);
       this.closePlayerHand();
       this.leavePlayerHand();
@@ -521,7 +521,7 @@ class WaitingPhaseStatus  {
     if (manager.isEndPlays() && manager.getPowerfieldLength()) {
       const { card: powerCard } = manager.getPowerfieldLastCardSlot();
       const cardIndex = manager.getPowerfieldLength() - 1;
-      const sprite = that.commandGetPowerfieldSprites(cardIndex);
+      const sprite = that.commandGetPowerfieldSprites(cardIndex).shift();
       that.animateCastPowerCard(sprite, cardIndex);
       that.runPowerCard(manager, powerCard);
       that.setStep(GameConst.ACTIVE_POWER_CARD);

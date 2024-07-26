@@ -52,7 +52,7 @@ class CardsetSpriteSelectModeState {
   updateHoverSprites() {
     const cardset = this._cardset;
     const sprites = cardset.getSprites();
-    const spriteToAdd = cardset.getSprites(this._cursorIndex);
+    const spriteToAdd = cardset.getSprites(this._cursorIndex).shift();
     cardset.commandAddChildToEnd(spriteToAdd);
     sprites.forEach((sprite, index) => {
       if (spriteToAdd === sprite) {
@@ -148,7 +148,7 @@ class CardsetSpriteSelectModeState {
 
   selectSprite() {
     const cursorIndex = this._cursorIndex;
-    const sprite = this._cardset.getSprites(cursorIndex);
+    const sprite = this._cardset.getSprites(cursorIndex).shift();
     if (sprite && sprite.isDisabled()) return;
     if (this._selectedIndexs.includes(cursorIndex)) {
       this.removeSelectedIndex(cursorIndex);

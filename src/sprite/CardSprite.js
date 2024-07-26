@@ -441,7 +441,7 @@ class CardSprite extends ActionSprite {
   }
 
   toMove(moves) {
-    moves = this.toArray(moves);
+    moves = ArrayHelper.toArray(moves);
     this.addCommand(this.commandMoving, moves);
   }
 

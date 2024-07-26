@@ -21,6 +21,10 @@ class Step {
   _finish = null;
 
   constructor(scene, phase, finish) {
+    const phasesEnabled = [GameConst.CHALLENGE_PHASE, GameConst.START_PHASE, GameConst.DRAW_PHASE, GameConst.LOAD_PHASE];
+    if (!phasesEnabled.some(p => p === phase)) {
+      throw new Error('Invalid phase for DisplayStep.');
+    }
     if ((scene instanceof Scene_Message) === false) {
       throw new Error('Scene must be an instance of Scene_Message');
     }
@@ -161,8 +165,8 @@ class Step {
     this._scene.setPhase(phase);
   }
 
-  changeStep(stepName) {
-    const step = new stepName(this._scene);
+  changeStep(stepName, ...params) {
+    const step = new stepName(this._scene, this._phase, ...params, this._finish);
     this._scene.setStep(step);
   }
 

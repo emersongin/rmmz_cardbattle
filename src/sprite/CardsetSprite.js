@@ -77,7 +77,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   setCards(cards, x, y) {
-    cards = this.toArray(cards);
+    cards = ArrayHelper.toArray(cards);
     const sprites = cards.map(card => this.createCardSprite(card, x, y));
     const orderingSprites = this.createOrderingNumbers(sprites);
     this._sprites = sprites;
@@ -127,7 +127,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   setAllCardsInPositions(sprites = this._sprites, positions) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandSetAllCardsPositions, sprites, positions);
   }
 
@@ -140,7 +140,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   setAllCardsInPosition(sprites = this._sprites, x = 0, y = 0) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandSetAllCardsPosition, sprites, x, y);
   }
 
@@ -150,7 +150,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   showCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandShowCards, sprites);
   }
 
@@ -181,7 +181,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   listCards(cards) {
-    cards = this.toArray(cards);
+    cards = ArrayHelper.toArray(cards);
     const numCards = cards.length;
     const positions = CardsetSprite.createPositionsList(numCards);
     const sprites = this.createCardSpritesPositions(positions, cards);
@@ -198,7 +198,7 @@ class CardsetSprite extends ActionSprite {
 
   commandStartClosedCards(sprites) {
     if (this.isHidden()) return false;
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     sprites.forEach((sprite, index) => sprite.startClosed());
   }
 
@@ -207,7 +207,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   openAllCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandOpenAllCards, sprites);
   }
 
@@ -217,7 +217,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   closeAllCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandCloseAllCards, sprites);
   }
 
@@ -250,7 +250,7 @@ class CardsetSprite extends ActionSprite {
 
   openCards(sprites = this._sprites, delay = 6, reverse = false) {
     if (this.noSprites()) return;
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     sprites = sprites.map(sprite => [sprite]);
     if (reverse) sprites.reverse();
     const commands = this.createDelayCommands(this.commandOpenCard, delay, sprites);
@@ -268,7 +268,7 @@ class CardsetSprite extends ActionSprite {
 
   closeCards(sprites = this._sprites, delay = 6, reverse = false) {
     if (this.noSprites()) return;
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     sprites = sprites.map(sprite => [sprite]);
     if (reverse) sprites.reverse();
     const commands = this.createDelayCommands(this.commandCloseCard, delay, sprites);
@@ -284,7 +284,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   moveAllCardsInlist(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     const numCards = sprites.length;
     const positions = CardsetSprite.createPositionsList(numCards);
     const moves = this.moveCardsPositions(positions, sprites);
@@ -307,7 +307,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   moveCardsInlist(sprites = this._sprites, delay = 6, triggerActions) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     const numCards = sprites.length;
     const positions = CardsetSprite.createPositionsList(numCards);
     let moves = this.moveCardsPositions(positions, sprites);
@@ -323,7 +323,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   moveAllCardsToPosition(sprites = this._sprites, x = 0, y = 0) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     const numCards = sprites.length;
     const noPading = 0;
     const positions = CardsetSprite.createPositions(numCards, noPading, x, y);
@@ -332,7 +332,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   moveCardsToPosition(sprites = this._sprites, x = 0, y = 0, delay = 6) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     const numCards = sprites.length;
     const noPading = 0;
     const positions = CardsetSprite.createPositions(numCards, noPading, x, y);
@@ -343,13 +343,13 @@ class CardsetSprite extends ActionSprite {
   }
 
   moveAllCardsToPositions(sprites = this._sprites, positions) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     const moves = this.moveCardsPositions(positions, sprites);
     this.addCommand(this.commandMoveAllCards, moves);
   }
 
   disableCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandDisableCards, sprites);
   }
 
@@ -420,7 +420,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   flashCardsAnimate(sprites = this._sprites, color = 'white', duration = 10, times = 1, trigger) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommandTrigger(this.commandAnimateCardsFlash, trigger, sprites, color, duration, times);
   }
 
@@ -436,7 +436,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   quakeCardsAnimate(sprites = this._sprites, times = 2, distance = 3) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandAnimateCardsQuake, sprites, times, distance);
   }
 
@@ -453,7 +453,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   damageCardsAnimate(times = 1, sprites = this._sprites, anchorParent = this.parent, trigger) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommandTrigger(this.commandAnimateCardsDamage, trigger, times, sprites, anchorParent);
   }
 
@@ -559,9 +559,9 @@ class CardsetSprite extends ActionSprite {
     return this.getSprites().filter(sprite => sprite.isEnabled()).length;
   }
 
-  getSprites(index) {
-    if (Array.isArray(index)) index = index[0];
-    if (index >= 0) return this._sprites[index];
+  getSprites(indexes) {
+    if (Array.isArray(indexes)) return this._sprites.filter((sprite, index) => indexes.includes(index));
+    if (typeof indexes === 'number') return [this._sprites[indexes]];
     return this._sprites;
   }
 
@@ -579,7 +579,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   zoomAllCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandZoomAllCards, sprites);
   }
 
@@ -593,7 +593,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   zoomOutAllCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandZoomOutAllCards, sprites);
   }
 
@@ -611,7 +611,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   flipTurnToUpAllCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandFlipTurnToUpAllCards, sprites);
   }
 
@@ -625,7 +625,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   flipTurnToUpCards(sprites = this._sprites, delay = 6) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     sprites = sprites.map(sprite => [sprite]);
     const commands = this.createDelayCommands(this.commandFlipTurnToUpCard, delay, sprites);
     this.addCommands(commands);
@@ -642,7 +642,7 @@ class CardsetSprite extends ActionSprite {
 
   commandAddChildToEnd(spritesToAdd) {
     if (this.isHidden()) return false;
-    spritesToAdd = this.toArray(spritesToAdd);
+    spritesToAdd = ArrayHelper.toArray(spritesToAdd);
     const indexsAmount = this._sprites.length - 1;
     this._sprites.forEach((sprite, index) => {
       if (spritesToAdd.includes(sprite)) {
@@ -657,7 +657,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   leaveAllCards(sprites = this._sprites) {
-    sprites = this.toArray(sprites);
+    sprites = ArrayHelper.toArray(sprites);
     this.addCommand(this.commandLeaveAllCards, sprites);
   }
 

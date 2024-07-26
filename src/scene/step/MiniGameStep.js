@@ -3,6 +3,14 @@ class MiniGameStep extends Step {
   _cards = [];
   _resultWindow = {};
 
+  constructor(scene, phase, finish) {
+    const phasesEnabled = [GameConst.START_PHASE];
+    if (!phasesEnabled.some(p => p === phase)) {
+      throw new Error('Invalid phase for MiniGameStep.');
+    }
+    super(scene, phase, finish);
+  }
+
   start(manager) {
     const phase = this.getPhase();
     const resultHandler = (win, resultWindow) => {
@@ -97,6 +105,7 @@ class MiniGameStep extends Step {
     const position2 = CardSprite.createPosition(center + space, 0, 1);
     const positions = [position1, position2];
     const sprites = this._drawCardGame.getSprites();
+    console.log(this._drawCardGame, sprites);
     this._drawCardGame.moveAllCardsToPositions(sprites, positions);
   }
 
@@ -121,7 +130,8 @@ class MiniGameStep extends Step {
 
   commandFinishDrawCardGame(selectedIndex) {
     const cardset = this._drawCardGame;
-    const sprites = ArrayHelper.moveToStartByIndex(cardset.getSprites(), selectedIndex);
+    const spriteSet = cardset.getSprites();
+    const sprites = ArrayHelper.moveToStartByIndex(spriteSet, selectedIndex);
     const selectedSprite = sprites[0];
     const startIndex = 0;
     cardset.removeChild(sprites[1]);

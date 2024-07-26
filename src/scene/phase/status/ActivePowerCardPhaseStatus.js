@@ -43,7 +43,7 @@ class ActivePowerCardPhaseStatus {
     const player = this._player;
     if (Input.isTriggered('ok')) {
       manager.moveCardHandToPowerField(cardIndex, player);
-      const sprite = that.commandGetPowerfieldSprites(cardIndex);
+      const sprite = that.commandGetPowerfieldSprites(cardIndex).shift();
       const number = manager.getPowerfieldLength();
       that.moveCardToPowerfield(sprite, number, player);
       that.waitStatus();

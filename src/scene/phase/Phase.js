@@ -135,7 +135,7 @@ class Phase {
 
   addAction(fn, ...params) {
     const action = this.createAction(fn, ...params);
-    const actions = this.toArray(action);
+    const actions = ArrayHelper.toArray(action);
     this._actionsQueue.push(actions);
   }
 
@@ -151,16 +151,12 @@ class Phase {
   }
 
   addActions(actions) {
-    actions = this.toArray(actions);
+    actions = ArrayHelper.toArray(actions);
     actions = actions.map((fn, ...params) => {
       if (Array.isArray(fn)) return this.createAction(fn[0], ...fn.slice(1));
       return this.createAction(fn)
     });
     this._actionsQueue.push(actions);
-  }
-
-  toArray(items = []) {
-    return (Array.isArray(items) === false) ? [items] : items;
   }
 
   addChildren(children) {

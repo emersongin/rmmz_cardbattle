@@ -1,6 +1,14 @@
 class FolderStep extends Step {
   _folderWindow = {};
 
+  constructor(scene, phase, finish) {
+    const phasesEnabled = [GameConst.CHALLENGE_PHASE];
+    if (!phasesEnabled.some(p => p === phase)) {
+      throw new Error('Invalid phase for FolderStep.');
+    }
+    super(scene, phase, finish);
+  }
+
   start(manager) {
     const phase = this.getPhase();
     const selectHandler = (folderIndex) => {
