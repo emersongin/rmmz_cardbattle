@@ -11,15 +11,15 @@ class DisplayStep extends Step {
   }
 
   start(manager) {
-    const phase = this.getPhase();
-    const title = this.getPhaseTitle(phase);
-    const description = this.getPhaseDescription(phase, manager);
+    const title = this.getPhaseTitle();
+    const description = this.getPhaseDescription(manager);
     this.createTitleWindow(title);
     this.createDescriptionWindow(description);
     this.openTextWindows();
   }
 
-  getPhaseTitle(phase) {
+  getPhaseTitle() {
+    const phase = this.getPhase();
     switch (phase) {
       case GameConst.CHALLENGE_PHASE:
         return ['Challenge Phase'];
@@ -39,7 +39,8 @@ class DisplayStep extends Step {
     }
   }
 
-  getPhaseDescription(phase, manager) {
+  getPhaseDescription(manager) {
+    const phase = this.getPhase();
     switch (phase) {
       case GameConst.CHALLENGE_PHASE:
         return manager.getChallengeDescription();
@@ -108,11 +109,10 @@ class DisplayStep extends Step {
     super.update();
     if (this.isBusy() || this.hasActions()) return false;
     if (Input.isTriggered('ok')) {
-      const phase = this.getPhase();
       this.commandCloseTextWindows();
       this.leaveTextWindows();
       this.addWait();
-      this.addAction(this.finish, phase);
+      this.addAction(this.finish);
     }
   }
 
@@ -140,7 +140,8 @@ class DisplayStep extends Step {
     ]);
   }
 
-  finish(phase) {
+  finish() {
+    const phase = this.getPhase();
     switch (phase) {
       case GameConst.CHALLENGE_PHASE:
         this.changeStep(FolderStep);

@@ -20,8 +20,8 @@ class FolderStepInChallengePhaseTest extends SceneTest {
   
   asserts() {
     this.describe('Deve apresentar etapa de escolha de pasta na fase de desafio.');
-    this.expectWasTrue('A janela de pastas foi apresentada?', this.step.isFolderWindowVisible);
-    this.expectTrue('A descrição da janela de pastas foi apresentado como?', this.step.isTextFolderWindow('Choose a folder'));
+    this.expectWasTrue('A janela de pastas foi apresentada?', this.step.isFoldersWindowVisible);
+    this.expectTrue('A descrição da janela de pastas foi apresentado como?', this.step.isTextFoldersWindow('Choose a folder'));
     const folderIndex = this.manager.folderIndex;
     this.expectTrue('A pasta foi escolhida?', folderIndex > -1);
     this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));

@@ -177,11 +177,20 @@ class MiniGameStep extends Step {
     return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
 
+  isCardsetVisible() {
+    return this._drawCardGame.visible;
+  }
+
+  isCardsetOnSelectMode() {
+    return this._drawCardGame.isOnSelectMode();
+  }
+
+  isCardsetShuffled() {
+    return this._cards.length > 0;
+  }
+
   isResultWindowVisible() {
     return this._resultWindow.visible
   }
 
-  isCardsetVisible() {
-    return this._drawCardGame.visible;
-  }
 }
