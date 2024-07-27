@@ -8,16 +8,16 @@ class Step {
     battleWindow: {},
     trashWindow: {},
     scoreWindow: {},
-    battlefield: {},
+    cardsetSprite: {},
   };
   _challenged = {
     boardWindow: {},
     battleWindow: {},
     trashWindow: {},
     scoreWindow: {},
-    battlefield: {},
+    cardsetSprite: {},
   };
-  _powerfield = {};
+  _powerFieldCardsetSprite = {};
   _finish = null;
 
   constructor(scene, phase, finish) {
@@ -59,12 +59,12 @@ class Step {
       this._player.battleWindow,
       this._player.trashWindow,
       this._player.scoreWindow,
-      this._player.battlefield,
+      this._player.cardsetSprite,
       this._challenged.boardWindow,
       this._challenged.battleWindow,
       this._challenged.trashWindow,
       this._challenged.scoreWindow,
-      this._challenged.battlefield,
+      this._challenged.cardsetSprite,
     ];
     return this._wait > 0 || children.some(obj => (obj?.isBusy ? obj.isBusy() : false)) || this.someChildrenIsBusy();
   }
@@ -171,7 +171,7 @@ class Step {
     this._wait = 0;
     this._player = {};
     this._challenged = {};
-    this._powerfield = {};
+    this._powerFieldCardsetSprite = {};
     this._finish = null;
   }
 
@@ -195,7 +195,7 @@ class Step {
     const battleWindow = this.createPlayerBattleWindow(boardWindowHeight);
     const trashWindow = this.createPlayerTrashWindow(cardsInTrash);
     const scoreWindow = this.createPlayerScoreWindow(victories, boardWindowHeight);
-    const battlefield = this.createPlayerBattlefield();
+    const cardsetSprite = this.createPlayerCardsetSprite();
   }
 
   createPlayerBoardWindow(energies, cardsInDeck, cardsInHand, passed = false) {
@@ -260,26 +260,26 @@ class Step {
     this.commandAddChild(scoreWindow);
   }
 
-  createPlayerBattlefield() {
-    const paddingLeft = this.getPaddingLeftBattleField();
-    const battlefield = CardsetSprite.create(paddingLeft, 0);
+  createPlayerCardsetSprite() {
+    const paddingLeft = this.getPaddingLeftCardsetSprite();
+    const cardsetSprite = CardsetSprite.create(paddingLeft, 0);
     const height = 120;
     const y = ScreenHelper.getBottomPosition(height);
-    battlefield.alignAboveOf({ y, height });
-    this.addAction(this.commandCreatePlayerBattlefield, battlefield);
-    return battlefield;
+    cardsetSprite.alignAboveOf({ y, height });
+    this.addAction(this.commandCreatePlayerCardsetSprite, cardsetSprite);
+    return cardsetSprite;
   }
 
-  getPaddingLeftBattleField() {
+  getPaddingLeftCardsetSprite() {
     const fieldWidth = ScreenHelper.getFieldWidth();
-    const battlefieldWidth = CardsetSprite.contentOriginalWidth();
-    const paddingLeft = (fieldWidth - battlefieldWidth) / 2;
+    const cardsetSpriteWidth = CardsetSprite.contentOriginalWidth();
+    const paddingLeft = (fieldWidth - cardsetSpriteWidth) / 2;
     return paddingLeft;
   }
 
-  commandCreatePlayerBattlefield(battlefield) {
-    this._player.battlefield = battlefield;
-    this.commandAddChild(battlefield);
+  commandCreatePlayerCardsetSprite(cardsetSprite) {
+    this._player.cardsetSprite = cardsetSprite;
+    this.commandAddChild(cardsetSprite);
   }
 
   createChallengedGameBoard(manager) {
@@ -294,7 +294,7 @@ class Step {
     const battleWindow = this.createChallengedBattleWindow(boardWindowHeight);
     const trashWindow = this.createChallengedTrashWindow(cardsInTrash);
     const scoreWindow = this.createChallengedScoreWindow(victories, boardWindowHeight);
-    const battlefield = this.createChallengedBattlefield();
+    const cardsetSprite = this.createChallengedCardsetSprite();
   }
 
   createChallengedBoardWindow(energies, cardsInDeck, cardsInHand, passed = false) {
@@ -360,40 +360,44 @@ class Step {
     this.commandAddChild(scoreWindow);
   }
 
-  createChallengedBattlefield() {
-    const paddingLeft = this.getPaddingLeftBattleField();
-    const battlefield = CardsetSprite.create(paddingLeft, 0);
+  createChallengedCardsetSprite() {
+    const paddingLeft = this.getPaddingLeftCardsetSprite();
+    const cardsetSprite = CardsetSprite.create(paddingLeft, 0);
     const height = 128;
     const y = ScreenHelper.getTopPosition();
-    battlefield.alignBelowOf({ y, height });
-    this.addAction(this.commandCreateChallengedBattlefield, battlefield);
-    return battlefield;
+    cardsetSprite.alignBelowOf({ y, height });
+    this.addAction(this.commandCreateChallengedCardsetSprite, cardsetSprite);
+    return cardsetSprite;
   }
 
-  commandCreateChallengedBattlefield(battlefield) {
-    this._challenged.battlefield = battlefield;
-    this.commandAddChild(battlefield);
+  commandCreateChallengedCardsetSprite(cardsetSprite) {
+    this._challenged.cardsetSprite = cardsetSprite;
+    this.commandAddChild(cardsetSprite);
   }
 
-  createPowerfield(cards) {
+  createPowerFieldCardsetSprite(cards) {
     const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
     const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
-    const powerfield = CardsetSprite.create(x, y);
-    powerfield.show();
+    const cardsetSprite = CardsetSprite.create(x, y);
+    cardsetSprite.show();
     const xCard = CardsetSprite.contentOriginalWidth() - CardSprite.contentOriginalWidth();
-    const sprites = powerfield.setCards(cards, xCard);
-    powerfield.startClosedCards(sprites);
-    this.addAction(this.commandCreatePowerfield, powerfield);
-    return powerfield;
+    const sprites = cardsetSprite.setCards(cards, xCard);
+    cardsetSprite.startClosedCards(sprites);
+    this.addAction(this.commandCreatePowerfield, cardsetSprite);
+    return cardsetSprite;
   }
 
-  commandCreatePowerfield(powerfield) {
-    this._powerfield = powerfield;
-    this.commandAddChild(powerfield);
+  commandCreatePowerfield(cardsetSprite) {
+    this._powerFieldCardsetSprite = cardsetSprite;
+    this.commandAddChild(cardsetSprite);
   }
 
   getPlayerBoardWindow() {
     return this._player.boardWindow;
+  }
+
+  getPlayerBoardWindowValues() {
+    return this._player.boardWindow.getValues();
   }
 
   getPlayerBattleWindow() {
@@ -408,12 +412,16 @@ class Step {
     return this._player.scoreWindow;
   }
 
-  getPlayerBattlefield() {
-    return this._player.battlefield;
+  getPlayerCardsetSprite() {
+    return this._player.cardsetSprite;
   }
 
   getChallengedBoardWindow() {
     return this._challenged.boardWindow;
+  }
+
+  getChallengedBoardWindowValues() {
+    return this._challenged.boardWindow.getValues();
   }
 
   getChallengedBattleWindow() {
@@ -428,8 +436,8 @@ class Step {
     return this._challenged.scoreWindow;
   }
 
-  getChallengedBattlefield() {
-    return this._challenged.battlefield;
+  getChallengedCardsetSprite() {
+    return this._challenged.cardsetSprite;
   }
 
   openGameBoards() {
@@ -444,7 +452,7 @@ class Step {
     this.commandOpenPlayerBattleWindow();
     this.commandOpenPlayerTrashWindow();
     this.commandOpenPlayerScoreWindow();
-    this.commandOpenPlayerBattlefield();
+    this.commandOpenPlayerCardsetSprite();
   }
 
   commandOpenPlayerBoardWindow() {
@@ -463,8 +471,8 @@ class Step {
     this._player.scoreWindow.open();
   }
 
-  commandOpenPlayerBattlefield() {
-    this._player.battlefield.openCards();
+  commandOpenPlayerCardsetSprite() {
+    this._player.cardsetSprite.openCards();
   }
   
   commandOpenChallengedGameBoard() {
@@ -472,7 +480,7 @@ class Step {
     this.commandOpenChallengedBattleWindow();
     this.commandOpenChallengedTrashWindow();
     this.commandOpenChallengedScoreWindow();
-    this.commandOpenChallengedBattlefield();
+    this.commandOpenChallengedCardsetSprite();
   }
 
   commandOpenChallengedBoardWindow() {
@@ -491,8 +499,8 @@ class Step {
     this._challenged.scoreWindow.open();
   }
 
-  commandOpenChallengedBattlefield() {
-    this._challenged.battlefield.openCards();
+  commandOpenChallengedCardsetSprite() {
+    this._challenged.cardsetSprite.openCards();
   }
 
   closeGameBoards() {
@@ -507,7 +515,7 @@ class Step {
     this.commandClosePlayerBattleWindow();
     this.commandClosePlayerTrashWindow();
     this.commandClosePlayerScoreWindow();
-    this.commandClosePlayerBattlefield();
+    this.commandClosePlayerCardsetSprite();
   }
 
   commandClosePlayerBoardWindow() {
@@ -526,8 +534,8 @@ class Step {
     this._player.scoreWindow.close();
   }
 
-  commandClosePlayerBattlefield() {
-    this._player.battlefield.closeCards();
+  commandClosePlayerCardsetSprite() {
+    this._player.cardsetSprite.closeCards();
   }
 
   closeChallengedGameBoard() {
@@ -535,7 +543,7 @@ class Step {
     this.commandCloseChallengedBattleWindow();
     this.commandCloseChallengedTrashWindow();
     this.commandCloseChallengedScoreWindow();
-    this.commandCloseChallengedBattlefield();
+    this.commandCloseChallengedCardsetSprite();
   }
 
   commandCloseChallengedBoardWindow() {
@@ -554,8 +562,8 @@ class Step {
     this._challenged.scoreWindow.close();
   }
 
-  commandCloseChallengedBattlefield() {
-    this._challenged.battlefield.closeCards();
+  commandCloseChallengedCardsetSprite() {
+    this._challenged.cardsetSprite.closeCards();
   }
 
   leaveGameBoards() {
@@ -568,41 +576,73 @@ class Step {
       this._player.battleWindow,
       this._player.trashWindow,
       this._player.scoreWindow,
-      this._player.battlefield,
+      this._player.cardsetSprite,
       this._challenged.boardWindow,
       this._challenged.battleWindow,
       this._challenged.trashWindow,
       this._challenged.scoreWindow,
-      this._challenged.battlefield,
+      this._challenged.cardsetSprite,
     ]);
   }
 
-  commandShowChallengedBattlefield() {
-    this._challenged.battlefield.show();
+  commandShowPlayerCardsetSprite() {
+    this._player.cardsetSprite.show();
   }
 
-  commandSetCardsChallengedBattlefield(cards, screenWidth) {
-    return this._challenged.battlefield.setCards(cards, screenWidth)
+  commandShowChallengedCardsetSprite() {
+    this._challenged.cardsetSprite.show();
   }
 
-  commandShowCardsChallengedBattlefield(sprites) {
-    this._challenged.battlefield.showCards(sprites);
+  commandSetCardsPlayerCardsetSprite(cards, screenWidth) {
+    return this._player.cardsetSprite.setCards(cards, screenWidth)
   }
 
-  commandSetTurnToDownCardsChallengedBattlefield(sprites) {
-    this._challenged.battlefield.setTurnToDownCards(sprites);
+  commandSetCardsChallengedCardsetSprite(cards, screenWidth) {
+    return this._challenged.cardsetSprite.setCards(cards, screenWidth)
   }
 
-  commandMoveCardsInlistChallengedBattlefield(sprites, delay, fieldUpdates) {
-    this._challenged.battlefield.moveCardsInlist(sprites, delay, fieldUpdates);
+  commandShowCardsPlayerCardsetSprite(sprites) {
+    this._player.cardsetSprite.showCards(sprites);
   }
 
-  commandFlashCardsAnimateChallengedBattlefield(sprites, color, duration, times, trigger) {
-    this._challenged.battlefield.flashCardsAnimate(sprites, color, duration, times, trigger);
+  commandShowCardsChallengedCardsetSprite(sprites) {
+    this._challenged.cardsetSprite.showCards(sprites);
   }
 
-  commandGetSpritesChallengedBattlefield() {
-    return this._challenged.battlefield.getSprites();
+  commandSetTurnToDownCardsPlayerCardsetSprite(sprites) {
+    this._player.cardsetSprite.setTurnToDownCards(sprites);
+  }
+
+  commandSetTurnToDownCardsChallengedCardsetSprite(sprites) {
+    this._challenged.cardsetSprite.setTurnToDownCards(sprites);
+  }
+
+  commandMoveCardsInlistPlayerCardsetSprite(sprites, delay, fieldUpdates) {
+    this._player.cardsetSprite.moveCardsInlist(sprites, delay, fieldUpdates);
+  }
+
+  commandMoveCardsInlistChallengedCardsetSprite(sprites, delay, fieldUpdates) {
+    this._challenged.cardsetSprite.moveCardsInlist(sprites, delay, fieldUpdates);
+  }
+
+  commandFlipTurnToUpCardsPlayerCardsetSprite(sprites) {
+    this._player.cardsetSprite.flipTurnToUpCards(sprites);
+  }
+
+  commandFlashCardsAnimatePlayerCardsetSprite(sprites, color, duration, times, trigger) {
+    this._player.cardsetSprite.flashCardsAnimate(sprites, color, duration, times, trigger);
+  }
+
+  commandFlashCardsAnimateChallengedCardsetSprite(sprites, color, duration, times, trigger) {
+    this._challenged.cardsetSprite.flashCardsAnimate(sprites, color, duration, times, trigger);
+  }
+
+  commandGetSpritesPlayerCardsetSprite() {
+    return this._player.cardsetSprite.getSprites();
+  }
+
+  commandGetSpritesChallengedCardsetSprite() {
+    return this._challenged.cardsetSprite.getSprites();
   }
 
   playerBoardWindowPass() {
@@ -653,12 +693,16 @@ class Step {
     return this._challenged.scoreWindow.visible;
   }
 
-  isPlayerBattlefieldVisible() {
-    return this._player.battlefield.visible;
+  isPlayerCardsetSpriteVisible() {
+    return this._player.cardsetSprite.visible;
   }
 
-  isChallengedBattlefieldVisible() {
-    return this._challenged.battlefield.visible;
+  isChallengedCardsetSpriteVisible() {
+    return this._challenged.cardsetSprite.visible;
+  }
+
+  isPowerFieldCardsetSpriteVisible() {
+    return this._powerFieldCardsetSprite.visible;
   }
 
   end() {

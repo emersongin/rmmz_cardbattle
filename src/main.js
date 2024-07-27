@@ -188,8 +188,8 @@
 // include ../test/integration/step/DisplayStepInStartPhaseTest.js
 // include ../test/integration/step/MiniGameInStartPhaseStepTest.js
 // include ../test/integration/step/DisplayStepInDrawPhaseTest.js
+// include ../test/integration/step/DrawStepInDrawPhaseTest.js
 // include ../test/integration/step/DisplayStepInLoadPhaseTest.js
-// include ../test/integration/step/DrawPhaseDrawStepTest.js
 // include ../test/integration/step/LoadPhaseTurnStepChallengedPassedTest.js
 // include ../test/integration/step/LoadPhaseTurnStepPlayerPassedTest.js
 // include ../test/integration/step/LoadPhaseTurnStepPlayerStartFirstTest.js

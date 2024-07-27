@@ -19,7 +19,7 @@ class DisplayStepInLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve apresentar etapa de apresentação de fase na fase de sacar cartas.');
+    this.describe('Deve apresentar etapa de apresentação de fase na fase de carregar.');
     this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
     this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
     this.expectTrue('O título da fase foi apresentado como?', this.step.isTextTitleWindow('Load Phase'));

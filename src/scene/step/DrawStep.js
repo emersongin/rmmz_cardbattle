@@ -8,7 +8,6 @@ class DrawStep extends Step {
   }
 
   start(manager) {
-    const phase = this.getPhase();
     this.createPlayerGameBoard(manager);
     this.createChallengedGameBoard(manager);
     this.openGameBoards();
@@ -48,11 +47,11 @@ class DrawStep extends Step {
   }
 
   commandDrawPlayerCards(cards, cardsInDeck) {
-    this._player.battlefield.show();
+    this.commandShowPlayerCardsetSprite();
     const screenWidth = ScreenHelper.getFullWidth();
-    const sprites = this._player.battlefield.setCards(cards, screenWidth);
-    this._player.battlefield.showCards(sprites);
-    this._player.battlefield.setTurnToDownCards(sprites);
+    const sprites = this.commandSetCardsPlayerCardsetSprite(cards, screenWidth);
+    this.commandShowCardsPlayerCardsetSprite(sprites);
+    this.commandSetTurnToDownCardsPlayerCardsetSprite(sprites);
     const fieldUpdates = sprites.map((sprite, index) => {
       const count = index + 1;
       const countCardsInDeck = cardsInDeck - count;
@@ -65,16 +64,16 @@ class DrawStep extends Step {
       const boardWindow = this.getPlayerBoardWindow();
       boardWindow.updateValues(manyUpdates);
     });
-    this._player.battlefield.moveCardsInlist(sprites, 6, fieldUpdates);
-    this._player.battlefield.flipTurnToUpCards(sprites);
+    this.commandMoveCardsInlistPlayerCardsetSprite(sprites, 6, fieldUpdates);
+    this.commandFlipTurnToUpCardsPlayerCardsetSprite(sprites);
   }
 
   commandDrawChallengedCards(cards, cardsInDeck) {
-    this.commandShowChallengedBattlefield();
+    this.commandShowChallengedCardsetSprite();
     const screenWidth = ScreenHelper.getFullWidth();
-    const sprites = this.commandSetCardsChallengedBattlefield(cards, screenWidth);
-    this.commandShowCardsChallengedBattlefield(sprites);
-    this.commandSetTurnToDownCardsChallengedBattlefield(sprites);
+    const sprites = this.commandSetCardsChallengedCardsetSprite(cards, screenWidth);
+    this.commandShowCardsChallengedCardsetSprite(sprites);
+    this.commandSetTurnToDownCardsChallengedCardsetSprite(sprites);
     const fieldUpdates = sprites.map((sprite, index) => {
       const count = index + 1;
       const countCardsInDeck = cardsInDeck - count;
@@ -88,7 +87,7 @@ class DrawStep extends Step {
       boardWindow.updateValues(manyUpdates);
     });
     const delay = 6;
-    this.commandMoveCardsInlistChallengedBattlefield(sprites, delay, fieldUpdates);
+    this.commandMoveCardsInlistChallengedCardsetSprite(sprites, delay, fieldUpdates);
   }
 
   loadGameBoardsToGame(manager) {
@@ -133,7 +132,7 @@ class DrawStep extends Step {
   }
 
   commandChallengedLoadEnergy(cardIndex, updatePoint) {
-    const sprites = this.commandGetSpritesChallengedBattlefield();
+    const sprites = this.commandGetSpritesChallengedCardsetSprite();
     const sprite = sprites[cardIndex];
     if (updatePoint) {
       const triggerAction = () => {
@@ -143,19 +142,19 @@ class DrawStep extends Step {
       const color = 'white';
       const duration = 6;
       const times = 1; 
-      this.commandFlashCardsAnimateChallengedBattlefield(sprite, color, duration, times, triggerAction);
+      this.commandFlashCardsAnimateChallengedCardsetSprite(sprite, color, duration, times, triggerAction);
     }
   }
 
   commandPlayerLoadEnergy(cardIndex, updatePoint) {
-    const sprites = this._player.battlefield.getSprites();
+    const sprites = this.commandGetSpritesPlayerCardsetSprite();
     const sprite = sprites[cardIndex];
     if (updatePoint) {
       const chainAction = () => {
         const boardWindow = this.getPlayerBoardWindow();
         boardWindow.updateValues(updatePoint);
       };
-      this._player.battlefield.flashCardsAnimate(sprite, 'white', 6, 1, chainAction);
+      this.commandFlashCardsAnimatePlayerCardsetSprite(sprite, 'white', 6, 1, chainAction);
     }
   }
 
@@ -163,20 +162,22 @@ class DrawStep extends Step {
     super.update();
     if (this.isBusy() || this.hasActions()) return false;
     if (Input.isTriggered('ok')) {
-      const phase = this.getPhase();
       this.closeGameBoards();
       this.leaveGameBoards();
-      this.addAction(this.finish, phase);
+      this.addAction(this.finish);
     }
   }
 
-  finish(phase) {
-    if (typeof this._finish === 'function') return this._finish();
+  finish() {
+    const phase = this.getPhase();
     switch (phase) {
-      case null:
+      case GameConst.DRAW_PHASE:
+        this.changePhase(GameConst.LOAD_PHASE);
+        this.changeStep(DisplayStep);
         break;
       default:
         break;
     }
+    if (typeof this._finish === 'function') return this._finish();
   }
 }

@@ -1887,6 +1887,10 @@ class ValuesWindow extends StateWindow {
     return StringHelper.convertPointsDisplay(points);
   }
 
+  getValues() {
+    return this._values;
+  }
+
   getValue(name) {
     return this._values[name];
   }
@@ -8468,7 +8472,7 @@ class DisplayStepInChallengePhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve apresentar etapa de apresentação de fase na fase do desafio.');
+    this.describe('Deve apresentar etapa de apresentação de fase na fase de desafio.');
     this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
     this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
     this.expectTrue('O título da fase foi apresentado como?', this.step.isTextTitleWindow('Challenge Phase'));
@@ -8488,10 +8492,11 @@ class FolderStepInChallengePhaseTest extends SceneTest {
   create() {
     const phase = GameConst.CHALLENGE_PHASE;
     const finish = this.createHandler();
+    const playerFolders = this.manager.getPlayerFolders();
     const selectMock = (folderIndex) => {
       this.folderIndex = folderIndex;
     };
-    this.step = new FolderStep(this._scene, phase, selectMock, finish);
+    this.step = new FolderStep(this._scene, phase, playerFolders, selectMock, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -8510,7 +8515,7 @@ class FolderStepInChallengePhaseTest extends SceneTest {
     this.expectTrue('A descrição da janela de pastas foi apresentado como?', this.step.isTextFoldersWindow('Choose a folder'));
     this.expectTrue('A pasta foi escolhida?', this.folderIndex !== undefined);
     this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
-    this.expectTrue('A proxima Fase é StartPhase?', this.step.getPhase() === GameConst.START_PHASE);
+    this.expectTrue('A proxima Fase é START_PHASE?', this.step.getPhase() === GameConst.START_PHASE);
   }
 }
 class DisplayStepInStartPhaseTest extends SceneTest {
@@ -8534,7 +8539,7 @@ class DisplayStepInStartPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve apresentar etapa de apresentação de fase na fase de sacar cartas.');
+    this.describe('Deve apresentar etapa de apresentação de fase na fase início.');
     this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
     this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
     this.expectTrue('O título da fase foi apresentado como?', this.step.isTextTitleWindow('Start Phase'));
@@ -8568,16 +8573,16 @@ class MiniGameInStartPhaseStepTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve apresentar etapa de mini game de fase de início de batalha.');
+    this.describe('Deve apresentar etapa de mini game na fase de início.');
     this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetVisible);
     this.expectWasTrue('O set de cartas estava em modo de seleção?', this.step.isCardsetOnSelectMode);
     this.expectWasTrue('O set de cartas foi embaralhado?', this.step.isCardsetShuffled);
     this.expectWasTrue('A janela de resultado foi apresentada?', this.step.isResultWindowVisible);
     this.expectTrue('Tem um resultado?', typeof this.win === 'boolean');
-    const text = this.win ? 'You go first!' : 'You go next!';
-    this.expectTrue('O texto da janela de resultado estava como?', this.step.isTextResultWindow(text));
+    const resultText = this.win ? 'You go first!' : 'You go next!';
+    this.expectTrue('O texto da janela de resultado estava como?', this.step.isTextResultWindow(resultText));
     this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
-    this.expectTrue('A proxima Fase é DrawPhase?', this.step.getPhase() === GameConst.DRAW_PHASE);
+    this.expectTrue('A proxima Fase é DRAW_PHASE?', this.step.getPhase() === GameConst.DRAW_PHASE);
   }
 }
 class DisplayStepInDrawPhaseTest extends SceneTest {
@@ -8601,13 +8606,75 @@ class DisplayStepInDrawPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve apresentar etapa de apresentação de fase na fase de sacar cartas.');
+    this.describe('Deve apresentar etapa de apresentação de fase na fase de saque.');
     this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
     this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
     this.expectTrue('O título da fase foi apresentado como?', this.step.isTextTitleWindow('Draw Phase'));
     const texts = ['6 cards will be drawn.'];
     this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
     this.expectTrue('A proxima Etapa é DrawStep?', this.isStep(DrawStep));
+  }
+}
+class DrawStepInDrawPhaseTest extends SceneTest {
+  manager = CardBattleManager;
+  step;
+
+  create() {
+    const phase = GameConst.DRAW_PHASE;
+    const finish = this.createHandler();
+    this.step = new DrawStep(this._scene, phase, finish);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.manager.setPlayerDeck();
+    this.manager.setChallengedDeck();
+    this._scene.setStep(this.step);
+    this.step.start(this.manager);
+  }
+
+  update() {
+    this.step.update(this.manager);
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar etapa de saque de cartas e carregamento de energias na fase de saque.');
+    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
+    this.expectWasTrue('O set de cartas do jogador foi apresentado?', this.step.isPlayerCardsetSpriteVisible);
+    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
+    this.expectWasTrue('O set de cartas do desafiado foi apresentado?', this.step.isChallengedCardsetSpriteVisible);
+    this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
+    this.expectTrue('A proxima Fase é LOAD_PHASE?', this.step.getPhase() === GameConst.LOAD_PHASE);
+    const playerCardsInHand = this.manager.getPlayerHand();
+    const playerEnergies = this.reduceEnergies(playerCardsInHand);
+    const playerBoardWindowValues = this.step.getPlayerBoardWindowValues();
+    const isPlayerEnergyLoaded = this.compareEnergies(playerEnergies, playerBoardWindowValues);
+    this.expectTrue('As energias do tabuleiro do jogador foram carregadas?', isPlayerEnergyLoaded === true);
+    const challengedCardsInHand = this.manager.getChallengedHand();
+    const challengedEnergies = this.reduceEnergies(challengedCardsInHand);
+    const challengedBoardWindowValues = this.step.getChallengedBoardWindowValues();
+    const isChallengedEnergyLoaded = this.compareEnergies(challengedEnergies, challengedBoardWindowValues);
+    this.expectTrue('As energias do tabuleiro do desafiado foram carregadas?', isChallengedEnergyLoaded === true);
+  }
+
+  reduceEnergies(cards) {
+    return cards.reduce((acc, card) => {
+      acc[card.color] = acc[card.color] + 1 || 1;
+      return acc;
+    }, {});
+  }
+
+  compareEnergies(energies, values) {
+    return Object.keys(energies).every((color, index) => {
+      if (color === GameConst.BROWN) return true;
+      return values[color] === energies[color];
+    });
   }
 }
 class DisplayStepInLoadPhaseTest extends SceneTest {
@@ -8631,53 +8698,13 @@ class DisplayStepInLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve apresentar etapa de apresentação de fase na fase de sacar cartas.');
+    this.describe('Deve apresentar etapa de apresentação de fase na fase de carregar.');
     this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
     this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
     this.expectTrue('O título da fase foi apresentado como?', this.step.isTextTitleWindow('Load Phase'));
     const texts = ['Select and use a Program Card.'];
     this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
     this.expectTrue('A proxima Etapa é TurnStep?', this.isStep(TurnStep));
-  }
-}
-class DrawPhaseDrawStepTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-
-  create() {
-    const phase = GameConst.DRAW_PHASE;
-    const finish = this.createHandler();
-    this.step = new DrawStep(this._scene, phase, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this.manager.setPlayerDeck();
-    this.manager.setChallengedDeck();
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de saque de cartas e carregamento de energias.');
-    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
-    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
-    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
-    this.expectWasTrue('O campo de batalha do jogador foi apresentado?', this.step.isPlayerBattlefieldVisible);
-    this.expectWasTrue('A janela de tabuleiro do desafiante foi apresentado?', this.step.isChallengedBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do desafiante foi apresentada?', this.step.isChallengedBattleWindowVisible);
-    this.expectWasTrue('A janela de lixo do desafiante foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    this.expectWasTrue('A janela de pontuação do desafiante foi apresentada?', this.step.isChallengedScoreWindowVisible);
-    this.expectWasTrue('O campo de batalha do desafiante foi apresentado?', this.step.isChallengedBattlefieldVisible);
-    this.expectTrue('O total de cards no campo do jogar é?', this.manager.getPlayerDeckLength() === 34);
-    this.expectTrue('O total de cards no campo do desafiante é?', this.manager.getChallengedDeckLength() === 34);
-    this.expectTrue('O total de cards na mão do jogador é?', this.manager.getPlayerHandLength() === 6);
-    this.expectTrue('O total de cards na mão do desafiante é?', this.manager.getChallengedHandLength() === 6);
   }
 }
 class LoadPhaseTurnStepChallengedPassedTest extends SceneTest {
@@ -9260,16 +9287,16 @@ class Step {
     battleWindow: {},
     trashWindow: {},
     scoreWindow: {},
-    battlefield: {},
+    cardsetSprite: {},
   };
   _challenged = {
     boardWindow: {},
     battleWindow: {},
     trashWindow: {},
     scoreWindow: {},
-    battlefield: {},
+    cardsetSprite: {},
   };
-  _powerfield = {};
+  _powerFieldCardsetSprite = {};
   _finish = null;
 
   constructor(scene, phase, finish) {
@@ -9311,12 +9338,12 @@ class Step {
       this._player.battleWindow,
       this._player.trashWindow,
       this._player.scoreWindow,
-      this._player.battlefield,
+      this._player.cardsetSprite,
       this._challenged.boardWindow,
       this._challenged.battleWindow,
       this._challenged.trashWindow,
       this._challenged.scoreWindow,
-      this._challenged.battlefield,
+      this._challenged.cardsetSprite,
     ];
     return this._wait > 0 || children.some(obj => (obj?.isBusy ? obj.isBusy() : false)) || this.someChildrenIsBusy();
   }
@@ -9423,7 +9450,7 @@ class Step {
     this._wait = 0;
     this._player = {};
     this._challenged = {};
-    this._powerfield = {};
+    this._powerFieldCardsetSprite = {};
     this._finish = null;
   }
 
@@ -9447,7 +9474,7 @@ class Step {
     const battleWindow = this.createPlayerBattleWindow(boardWindowHeight);
     const trashWindow = this.createPlayerTrashWindow(cardsInTrash);
     const scoreWindow = this.createPlayerScoreWindow(victories, boardWindowHeight);
-    const battlefield = this.createPlayerBattlefield();
+    const cardsetSprite = this.createPlayerCardsetSprite();
   }
 
   createPlayerBoardWindow(energies, cardsInDeck, cardsInHand, passed = false) {
@@ -9512,26 +9539,26 @@ class Step {
     this.commandAddChild(scoreWindow);
   }
 
-  createPlayerBattlefield() {
-    const paddingLeft = this.getPaddingLeftBattleField();
-    const battlefield = CardsetSprite.create(paddingLeft, 0);
+  createPlayerCardsetSprite() {
+    const paddingLeft = this.getPaddingLeftCardsetSprite();
+    const cardsetSprite = CardsetSprite.create(paddingLeft, 0);
     const height = 120;
     const y = ScreenHelper.getBottomPosition(height);
-    battlefield.alignAboveOf({ y, height });
-    this.addAction(this.commandCreatePlayerBattlefield, battlefield);
-    return battlefield;
+    cardsetSprite.alignAboveOf({ y, height });
+    this.addAction(this.commandCreatePlayerCardsetSprite, cardsetSprite);
+    return cardsetSprite;
   }
 
-  getPaddingLeftBattleField() {
+  getPaddingLeftCardsetSprite() {
     const fieldWidth = ScreenHelper.getFieldWidth();
-    const battlefieldWidth = CardsetSprite.contentOriginalWidth();
-    const paddingLeft = (fieldWidth - battlefieldWidth) / 2;
+    const cardsetSpriteWidth = CardsetSprite.contentOriginalWidth();
+    const paddingLeft = (fieldWidth - cardsetSpriteWidth) / 2;
     return paddingLeft;
   }
 
-  commandCreatePlayerBattlefield(battlefield) {
-    this._player.battlefield = battlefield;
-    this.commandAddChild(battlefield);
+  commandCreatePlayerCardsetSprite(cardsetSprite) {
+    this._player.cardsetSprite = cardsetSprite;
+    this.commandAddChild(cardsetSprite);
   }
 
   createChallengedGameBoard(manager) {
@@ -9546,7 +9573,7 @@ class Step {
     const battleWindow = this.createChallengedBattleWindow(boardWindowHeight);
     const trashWindow = this.createChallengedTrashWindow(cardsInTrash);
     const scoreWindow = this.createChallengedScoreWindow(victories, boardWindowHeight);
-    const battlefield = this.createChallengedBattlefield();
+    const cardsetSprite = this.createChallengedCardsetSprite();
   }
 
   createChallengedBoardWindow(energies, cardsInDeck, cardsInHand, passed = false) {
@@ -9612,40 +9639,44 @@ class Step {
     this.commandAddChild(scoreWindow);
   }
 
-  createChallengedBattlefield() {
-    const paddingLeft = this.getPaddingLeftBattleField();
-    const battlefield = CardsetSprite.create(paddingLeft, 0);
+  createChallengedCardsetSprite() {
+    const paddingLeft = this.getPaddingLeftCardsetSprite();
+    const cardsetSprite = CardsetSprite.create(paddingLeft, 0);
     const height = 128;
     const y = ScreenHelper.getTopPosition();
-    battlefield.alignBelowOf({ y, height });
-    this.addAction(this.commandCreateChallengedBattlefield, battlefield);
-    return battlefield;
+    cardsetSprite.alignBelowOf({ y, height });
+    this.addAction(this.commandCreateChallengedCardsetSprite, cardsetSprite);
+    return cardsetSprite;
   }
 
-  commandCreateChallengedBattlefield(battlefield) {
-    this._challenged.battlefield = battlefield;
-    this.commandAddChild(battlefield);
+  commandCreateChallengedCardsetSprite(cardsetSprite) {
+    this._challenged.cardsetSprite = cardsetSprite;
+    this.commandAddChild(cardsetSprite);
   }
 
-  createPowerfield(cards) {
+  createPowerFieldCardsetSprite(cards) {
     const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
     const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
-    const powerfield = CardsetSprite.create(x, y);
-    powerfield.show();
+    const cardsetSprite = CardsetSprite.create(x, y);
+    cardsetSprite.show();
     const xCard = CardsetSprite.contentOriginalWidth() - CardSprite.contentOriginalWidth();
-    const sprites = powerfield.setCards(cards, xCard);
-    powerfield.startClosedCards(sprites);
-    this.addAction(this.commandCreatePowerfield, powerfield);
-    return powerfield;
+    const sprites = cardsetSprite.setCards(cards, xCard);
+    cardsetSprite.startClosedCards(sprites);
+    this.addAction(this.commandCreatePowerfield, cardsetSprite);
+    return cardsetSprite;
   }
 
-  commandCreatePowerfield(powerfield) {
-    this._powerfield = powerfield;
-    this.commandAddChild(powerfield);
+  commandCreatePowerfield(cardsetSprite) {
+    this._powerFieldCardsetSprite = cardsetSprite;
+    this.commandAddChild(cardsetSprite);
   }
 
   getPlayerBoardWindow() {
     return this._player.boardWindow;
+  }
+
+  getPlayerBoardWindowValues() {
+    return this._player.boardWindow.getValues();
   }
 
   getPlayerBattleWindow() {
@@ -9660,12 +9691,16 @@ class Step {
     return this._player.scoreWindow;
   }
 
-  getPlayerBattlefield() {
-    return this._player.battlefield;
+  getPlayerCardsetSprite() {
+    return this._player.cardsetSprite;
   }
 
   getChallengedBoardWindow() {
     return this._challenged.boardWindow;
+  }
+
+  getChallengedBoardWindowValues() {
+    return this._challenged.boardWindow.getValues();
   }
 
   getChallengedBattleWindow() {
@@ -9680,8 +9715,8 @@ class Step {
     return this._challenged.scoreWindow;
   }
 
-  getChallengedBattlefield() {
-    return this._challenged.battlefield;
+  getChallengedCardsetSprite() {
+    return this._challenged.cardsetSprite;
   }
 
   openGameBoards() {
@@ -9696,7 +9731,7 @@ class Step {
     this.commandOpenPlayerBattleWindow();
     this.commandOpenPlayerTrashWindow();
     this.commandOpenPlayerScoreWindow();
-    this.commandOpenPlayerBattlefield();
+    this.commandOpenPlayerCardsetSprite();
   }
 
   commandOpenPlayerBoardWindow() {
@@ -9715,8 +9750,8 @@ class Step {
     this._player.scoreWindow.open();
   }
 
-  commandOpenPlayerBattlefield() {
-    this._player.battlefield.openCards();
+  commandOpenPlayerCardsetSprite() {
+    this._player.cardsetSprite.openCards();
   }
   
   commandOpenChallengedGameBoard() {
@@ -9724,7 +9759,7 @@ class Step {
     this.commandOpenChallengedBattleWindow();
     this.commandOpenChallengedTrashWindow();
     this.commandOpenChallengedScoreWindow();
-    this.commandOpenChallengedBattlefield();
+    this.commandOpenChallengedCardsetSprite();
   }
 
   commandOpenChallengedBoardWindow() {
@@ -9743,8 +9778,8 @@ class Step {
     this._challenged.scoreWindow.open();
   }
 
-  commandOpenChallengedBattlefield() {
-    this._challenged.battlefield.openCards();
+  commandOpenChallengedCardsetSprite() {
+    this._challenged.cardsetSprite.openCards();
   }
 
   closeGameBoards() {
@@ -9759,7 +9794,7 @@ class Step {
     this.commandClosePlayerBattleWindow();
     this.commandClosePlayerTrashWindow();
     this.commandClosePlayerScoreWindow();
-    this.commandClosePlayerBattlefield();
+    this.commandClosePlayerCardsetSprite();
   }
 
   commandClosePlayerBoardWindow() {
@@ -9778,8 +9813,8 @@ class Step {
     this._player.scoreWindow.close();
   }
 
-  commandClosePlayerBattlefield() {
-    this._player.battlefield.closeCards();
+  commandClosePlayerCardsetSprite() {
+    this._player.cardsetSprite.closeCards();
   }
 
   closeChallengedGameBoard() {
@@ -9787,7 +9822,7 @@ class Step {
     this.commandCloseChallengedBattleWindow();
     this.commandCloseChallengedTrashWindow();
     this.commandCloseChallengedScoreWindow();
-    this.commandCloseChallengedBattlefield();
+    this.commandCloseChallengedCardsetSprite();
   }
 
   commandCloseChallengedBoardWindow() {
@@ -9806,8 +9841,8 @@ class Step {
     this._challenged.scoreWindow.close();
   }
 
-  commandCloseChallengedBattlefield() {
-    this._challenged.battlefield.closeCards();
+  commandCloseChallengedCardsetSprite() {
+    this._challenged.cardsetSprite.closeCards();
   }
 
   leaveGameBoards() {
@@ -9820,41 +9855,73 @@ class Step {
       this._player.battleWindow,
       this._player.trashWindow,
       this._player.scoreWindow,
-      this._player.battlefield,
+      this._player.cardsetSprite,
       this._challenged.boardWindow,
       this._challenged.battleWindow,
       this._challenged.trashWindow,
       this._challenged.scoreWindow,
-      this._challenged.battlefield,
+      this._challenged.cardsetSprite,
     ]);
   }
 
-  commandShowChallengedBattlefield() {
-    this._challenged.battlefield.show();
+  commandShowPlayerCardsetSprite() {
+    this._player.cardsetSprite.show();
   }
 
-  commandSetCardsChallengedBattlefield(cards, screenWidth) {
-    return this._challenged.battlefield.setCards(cards, screenWidth)
+  commandShowChallengedCardsetSprite() {
+    this._challenged.cardsetSprite.show();
   }
 
-  commandShowCardsChallengedBattlefield(sprites) {
-    this._challenged.battlefield.showCards(sprites);
+  commandSetCardsPlayerCardsetSprite(cards, screenWidth) {
+    return this._player.cardsetSprite.setCards(cards, screenWidth)
   }
 
-  commandSetTurnToDownCardsChallengedBattlefield(sprites) {
-    this._challenged.battlefield.setTurnToDownCards(sprites);
+  commandSetCardsChallengedCardsetSprite(cards, screenWidth) {
+    return this._challenged.cardsetSprite.setCards(cards, screenWidth)
   }
 
-  commandMoveCardsInlistChallengedBattlefield(sprites, delay, fieldUpdates) {
-    this._challenged.battlefield.moveCardsInlist(sprites, delay, fieldUpdates);
+  commandShowCardsPlayerCardsetSprite(sprites) {
+    this._player.cardsetSprite.showCards(sprites);
   }
 
-  commandFlashCardsAnimateChallengedBattlefield(sprites, color, duration, times, trigger) {
-    this._challenged.battlefield.flashCardsAnimate(sprites, color, duration, times, trigger);
+  commandShowCardsChallengedCardsetSprite(sprites) {
+    this._challenged.cardsetSprite.showCards(sprites);
   }
 
-  commandGetSpritesChallengedBattlefield() {
-    return this._challenged.battlefield.getSprites();
+  commandSetTurnToDownCardsPlayerCardsetSprite(sprites) {
+    this._player.cardsetSprite.setTurnToDownCards(sprites);
+  }
+
+  commandSetTurnToDownCardsChallengedCardsetSprite(sprites) {
+    this._challenged.cardsetSprite.setTurnToDownCards(sprites);
+  }
+
+  commandMoveCardsInlistPlayerCardsetSprite(sprites, delay, fieldUpdates) {
+    this._player.cardsetSprite.moveCardsInlist(sprites, delay, fieldUpdates);
+  }
+
+  commandMoveCardsInlistChallengedCardsetSprite(sprites, delay, fieldUpdates) {
+    this._challenged.cardsetSprite.moveCardsInlist(sprites, delay, fieldUpdates);
+  }
+
+  commandFlipTurnToUpCardsPlayerCardsetSprite(sprites) {
+    this._player.cardsetSprite.flipTurnToUpCards(sprites);
+  }
+
+  commandFlashCardsAnimatePlayerCardsetSprite(sprites, color, duration, times, trigger) {
+    this._player.cardsetSprite.flashCardsAnimate(sprites, color, duration, times, trigger);
+  }
+
+  commandFlashCardsAnimateChallengedCardsetSprite(sprites, color, duration, times, trigger) {
+    this._challenged.cardsetSprite.flashCardsAnimate(sprites, color, duration, times, trigger);
+  }
+
+  commandGetSpritesPlayerCardsetSprite() {
+    return this._player.cardsetSprite.getSprites();
+  }
+
+  commandGetSpritesChallengedCardsetSprite() {
+    return this._challenged.cardsetSprite.getSprites();
   }
 
   playerBoardWindowPass() {
@@ -9905,12 +9972,16 @@ class Step {
     return this._challenged.scoreWindow.visible;
   }
 
-  isPlayerBattlefieldVisible() {
-    return this._player.battlefield.visible;
+  isPlayerCardsetSpriteVisible() {
+    return this._player.cardsetSprite.visible;
   }
 
-  isChallengedBattlefieldVisible() {
-    return this._challenged.battlefield.visible;
+  isChallengedCardsetSpriteVisible() {
+    return this._challenged.cardsetSprite.visible;
+  }
+
+  isPowerFieldCardsetSpriteVisible() {
+    return this._powerFieldCardsetSprite.visible;
   }
 
   end() {
@@ -10060,10 +10131,11 @@ class DisplayStep extends Step {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.CHALLENGE_PHASE:
-        const setPlayerFolderHanlder = folderIndex => {
+        const playerFolders = manager.getPlayerFolders();
+        const setPlayerFolderIndexHandler = folderIndex => {
           manager.setPlayerFolderIndex(folderIndex);
         };
-        this.changeStep(FolderStep, setPlayerFolderHanlder);
+        this.changeStep(FolderStep, playerFolders, setPlayerFolderIndexHandler);
         break;
       case GameConst.START_PHASE:
         const setMiniGameResultHanlder = win => {
@@ -10109,10 +10181,11 @@ class DisplayStep extends Step {
   
 }
 class FolderStep extends Step {
+  _folders = [];
   _foldersWindow = {};
   _selectHandler = null;
 
-  constructor(scene, phase, selectHandler, finish) {
+  constructor(scene, phase, folders, selectHandler, finish) {
     const phasesEnabled = [GameConst.CHALLENGE_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for FolderStep.');
@@ -10121,23 +10194,25 @@ class FolderStep extends Step {
     if (typeof selectHandler !== 'function') {
       throw new Error('Invalid selectHandler for FolderStep.');
     }
+    if (!Array.isArray(folders)) {
+      throw new Error('Invalid folders for FolderStep.');
+    }
     this._selectHandler = selectHandler;
+    this._folders = folders;
   }
 
   start(manager) {
-    const folders = this.createFolders(manager);
-    this.createFolderWindow('Choose a folder', folders);
+    this.createFolders();
+    this.createFolderWindow('Choose a folder', this._folders);
     this.openFolderWindow();
   }
 
-  createFolders(manager) {
+  createFolders() {
     const selectHandler = this.createSelectHandler();
-    let folders = manager.getPlayerFolders();
-    folders = folders.map(folder => {
+    this._folders = this._folders.map(folder => {
       folder.handler = selectHandler;
       return folder;
     });
-    return folders;
   }
 
   createSelectHandler() {
@@ -10510,11 +10585,11 @@ class DrawStep extends Step {
   }
 
   commandDrawPlayerCards(cards, cardsInDeck) {
-    this._player.battlefield.show();
+    this.commandShowPlayerCardsetSprite();
     const screenWidth = ScreenHelper.getFullWidth();
-    const sprites = this._player.battlefield.setCards(cards, screenWidth);
-    this._player.battlefield.showCards(sprites);
-    this._player.battlefield.setTurnToDownCards(sprites);
+    const sprites = this.commandSetCardsPlayerCardsetSprite(cards, screenWidth);
+    this.commandShowCardsPlayerCardsetSprite(sprites);
+    this.commandSetTurnToDownCardsPlayerCardsetSprite(sprites);
     const fieldUpdates = sprites.map((sprite, index) => {
       const count = index + 1;
       const countCardsInDeck = cardsInDeck - count;
@@ -10527,16 +10602,16 @@ class DrawStep extends Step {
       const boardWindow = this.getPlayerBoardWindow();
       boardWindow.updateValues(manyUpdates);
     });
-    this._player.battlefield.moveCardsInlist(sprites, 6, fieldUpdates);
-    this._player.battlefield.flipTurnToUpCards(sprites);
+    this.commandMoveCardsInlistPlayerCardsetSprite(sprites, 6, fieldUpdates);
+    this.commandFlipTurnToUpCardsPlayerCardsetSprite(sprites);
   }
 
   commandDrawChallengedCards(cards, cardsInDeck) {
-    this.commandShowChallengedBattlefield();
+    this.commandShowChallengedCardsetSprite();
     const screenWidth = ScreenHelper.getFullWidth();
-    const sprites = this.commandSetCardsChallengedBattlefield(cards, screenWidth);
-    this.commandShowCardsChallengedBattlefield(sprites);
-    this.commandSetTurnToDownCardsChallengedBattlefield(sprites);
+    const sprites = this.commandSetCardsChallengedCardsetSprite(cards, screenWidth);
+    this.commandShowCardsChallengedCardsetSprite(sprites);
+    this.commandSetTurnToDownCardsChallengedCardsetSprite(sprites);
     const fieldUpdates = sprites.map((sprite, index) => {
       const count = index + 1;
       const countCardsInDeck = cardsInDeck - count;
@@ -10550,7 +10625,7 @@ class DrawStep extends Step {
       boardWindow.updateValues(manyUpdates);
     });
     const delay = 6;
-    this.commandMoveCardsInlistChallengedBattlefield(sprites, delay, fieldUpdates);
+    this.commandMoveCardsInlistChallengedCardsetSprite(sprites, delay, fieldUpdates);
   }
 
   loadGameBoardsToGame(manager) {
@@ -10595,7 +10670,7 @@ class DrawStep extends Step {
   }
 
   commandChallengedLoadEnergy(cardIndex, updatePoint) {
-    const sprites = this.commandGetSpritesChallengedBattlefield();
+    const sprites = this.commandGetSpritesChallengedCardsetSprite();
     const sprite = sprites[cardIndex];
     if (updatePoint) {
       const triggerAction = () => {
@@ -10605,19 +10680,19 @@ class DrawStep extends Step {
       const color = 'white';
       const duration = 6;
       const times = 1; 
-      this.commandFlashCardsAnimateChallengedBattlefield(sprite, color, duration, times, triggerAction);
+      this.commandFlashCardsAnimateChallengedCardsetSprite(sprite, color, duration, times, triggerAction);
     }
   }
 
   commandPlayerLoadEnergy(cardIndex, updatePoint) {
-    const sprites = this._player.battlefield.getSprites();
+    const sprites = this.commandGetSpritesPlayerCardsetSprite();
     const sprite = sprites[cardIndex];
     if (updatePoint) {
       const chainAction = () => {
         const boardWindow = this.getPlayerBoardWindow();
         boardWindow.updateValues(updatePoint);
       };
-      this._player.battlefield.flashCardsAnimate(sprite, 'white', 6, 1, chainAction);
+      this.commandFlashCardsAnimatePlayerCardsetSprite(sprite, 'white', 6, 1, chainAction);
     }
   }
 
@@ -10625,21 +10700,23 @@ class DrawStep extends Step {
     super.update();
     if (this.isBusy() || this.hasActions()) return false;
     if (Input.isTriggered('ok')) {
-      const phase = this.getPhase();
       this.closeGameBoards();
       this.leaveGameBoards();
-      this.addAction(this.finish, phase);
+      this.addAction(this.finish);
     }
   }
 
-  finish(phase) {
-    if (typeof this._finish === 'function') return this._finish();
+  finish() {
+    const phase = this.getPhase();
     switch (phase) {
-      case null:
+      case GameConst.DRAW_PHASE:
+        this.changePhase(GameConst.LOAD_PHASE);
+        this.changeStep(DisplayStep);
         break;
       default:
         break;
     }
+    if (typeof this._finish === 'function') return this._finish();
   }
 }
 class RunPowerfieldStep extends Step {
@@ -11378,44 +11455,44 @@ class CardBattleTestScene extends Scene_Message {
       TiggerAcitonCardSpriteTest,
     ];
     const cardsetSpriteTests = [
-      // StartPositionCardsetSpriteTest,
-      // AlignAboveOfCardsetSpriteTest,
-      // AlignBelowOfCardsetSpriteTest,
-      // AlignCenterMiddleCardsetSpriteTest,
-      // SetCardsCardsetSpriteTest,
-      // SetTurnToDownCardsCardsetSpriteTest,
-      // SetAllCardsInPositionCardsetSpriteTest,
-      // SetAllCardsInPositionsCardsetSpriteTest,
-      // ListCardsCardsetSpriteTest,
-      // StartClosedCardsCardsetSpriteTest,
-      // OpenAllCardsCardsetSpriteTest,
-      // OpenCardsCardsetSpriteTest,
-      // CloseAllCardsCardsetSpriteTest,
-      // CloseCardsCardsetSpriteTest,
-      // MoveAllCardsInListCardsetSpriteTest,
-      // MoveCardsInListCardsetSpriteTest,
-      // MoveAllCardsToPositionCardsetSpriteTest,
-      // MoveCardsToPositionCardsetSpriteTest,
-      // MoveAllCardsToPositionsCardsetSpriteTest,
-      // AddAllCardsToListCardsetSpriteTest,
-      // AddCardsToListCardsetSpriteTest,
-      // DisableCardsCardsetSpriteTest,
-      // StaticModeCardsetSpriteTest,
-      // SelectModeCardsetSpriteTest,
-      // SelectModeNoSelectCardsetSpriteTest,
-      // SelectModeLimitedCardsetSpriteTest,
-      // FlashCardsCardsetSpriteTest,
-      // QuakeCardsCardsetSpriteTest,
-      // AnimationCardsCardsetSpriteTest,
-      // ShowOrderingCardsCardsetSpriteTest,
-      // ShowReverseOrderingCardsCardsetSpriteTest,
-      // ZoomAllCardsCardsetSpriteTest,
-      // ZoomOutAllCardsCardsetSpriteTest,
-      // FlipTurnToUpAllCardsCardsetSpriteTest,
-      // FlipTurnToUpCardsCardsetSpriteTest,
-      // TriggerActionCardsetSpriteTest,
-      // OnChangeCursorSelectModeCardsetSpriteTest,
-      // AddChildToEndCardsetSpriteTest,
+      StartPositionCardsetSpriteTest,
+      AlignAboveOfCardsetSpriteTest,
+      AlignBelowOfCardsetSpriteTest,
+      AlignCenterMiddleCardsetSpriteTest,
+      SetCardsCardsetSpriteTest,
+      SetTurnToDownCardsCardsetSpriteTest,
+      SetAllCardsInPositionCardsetSpriteTest,
+      SetAllCardsInPositionsCardsetSpriteTest,
+      ListCardsCardsetSpriteTest,
+      StartClosedCardsCardsetSpriteTest,
+      OpenAllCardsCardsetSpriteTest,
+      OpenCardsCardsetSpriteTest,
+      CloseAllCardsCardsetSpriteTest,
+      CloseCardsCardsetSpriteTest,
+      MoveAllCardsInListCardsetSpriteTest,
+      MoveCardsInListCardsetSpriteTest,
+      MoveAllCardsToPositionCardsetSpriteTest,
+      MoveCardsToPositionCardsetSpriteTest,
+      MoveAllCardsToPositionsCardsetSpriteTest,
+      AddAllCardsToListCardsetSpriteTest,
+      AddCardsToListCardsetSpriteTest,
+      DisableCardsCardsetSpriteTest,
+      StaticModeCardsetSpriteTest,
+      SelectModeCardsetSpriteTest,
+      SelectModeNoSelectCardsetSpriteTest,
+      SelectModeLimitedCardsetSpriteTest,
+      FlashCardsCardsetSpriteTest,
+      QuakeCardsCardsetSpriteTest,
+      AnimationCardsCardsetSpriteTest,
+      ShowOrderingCardsCardsetSpriteTest,
+      ShowReverseOrderingCardsCardsetSpriteTest,
+      ZoomAllCardsCardsetSpriteTest,
+      ZoomOutAllCardsCardsetSpriteTest,
+      FlipTurnToUpAllCardsCardsetSpriteTest,
+      FlipTurnToUpCardsCardsetSpriteTest,
+      TriggerActionCardsetSpriteTest,
+      OnChangeCursorSelectModeCardsetSpriteTest,
+      AddChildToEndCardsetSpriteTest,
       LeaveAllCardsCardsetSpriteTest,
     ];
     const StateWindowTests = [
@@ -11442,32 +11519,32 @@ class CardBattleTestScene extends Scene_Message {
       AlignBelowOfStateWindowTest,
     ];
     const textWindowTests = [
-      // CreateOneFourthSizeTextWindowTest,
-      // CreateMiddleSizeTextWindowTest,
-      // CreateFullSizeTextWindowTest,
-      // OpenTextWindowTest,
-      // CloseTextWindowTest,
-      // ChangeBlueColorTextWindowTest,
-      // ChangeRedColorTextWindowTest,
-      // ChangeDefaultColorTextWindowTest,
-      // AlignStartTopTextWindowTest,
-      // AlignStartMiddleTextWindowTest,
-      // AlignStartBottomTextWindowTest,
-      // AlignCenterTopTextWindowTest,
-      // AlignCenterAboveMiddleTextWindowTest,
-      // AlignCenterMiddleTextWindowTest,
-      // AlignCenterBelowMiddleTextWindowTest,
-      // AlignCenterBottomTextWindowTest,
-      // AlignEndTopTextWindowTest,
-      // AlignEndMiddleTextWindowTest,
-      // AlignEndBottomTextWindowTest,
-      // AlignTextLeftTextWindowTest,
-      // AlignTextCenterTextWindowTest,
-      // AlignTextRightTextWindowTest,
+      CreateOneFourthSizeTextWindowTest,
+      CreateMiddleSizeTextWindowTest,
+      CreateFullSizeTextWindowTest,
+      OpenTextWindowTest,
+      CloseTextWindowTest,
+      ChangeBlueColorTextWindowTest,
+      ChangeRedColorTextWindowTest,
+      ChangeDefaultColorTextWindowTest,
+      AlignStartTopTextWindowTest,
+      AlignStartMiddleTextWindowTest,
+      AlignStartBottomTextWindowTest,
+      AlignCenterTopTextWindowTest,
+      AlignCenterAboveMiddleTextWindowTest,
+      AlignCenterMiddleTextWindowTest,
+      AlignCenterBelowMiddleTextWindowTest,
+      AlignCenterBottomTextWindowTest,
+      AlignEndTopTextWindowTest,
+      AlignEndMiddleTextWindowTest,
+      AlignEndBottomTextWindowTest,
+      AlignTextLeftTextWindowTest,
+      AlignTextCenterTextWindowTest,
+      AlignTextRightTextWindowTest,
       TextTextWindowTest,
-      // ChangeTextColorTextWindowTest,
-      // AlignAboveOfTextWindowTest,
-      // AlignBelowOfTextWindowTest,
+      ChangeTextColorTextWindowTest,
+      AlignAboveOfTextWindowTest,
+      AlignBelowOfTextWindowTest,
     ];
     const boardWindowTests = [
       PassBoardWindowTest,
@@ -11514,10 +11591,11 @@ class CardBattleTestScene extends Scene_Message {
       // DisplayStepInChallengePhaseTest,
       // FolderStepInChallengePhaseTest,
       // DisplayStepInStartPhaseTest,
-      MiniGameInStartPhaseStepTest,
+      // MiniGameInStartPhaseStepTest,
       // DisplayStepInDrawPhaseTest,
+      DrawStepInDrawPhaseTest,
       // DisplayStepInLoadPhaseTest,
-      // DrawPhaseDrawStepTest,
+      
       // LoadPhaseTurnStepPlayerStartFirstTest,
       // LoadPhaseTurnStepPlayerPlaysNextTest,
       // LoadPhaseTurnStepPlayerPassedTest,

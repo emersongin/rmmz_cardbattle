@@ -39,6 +39,10 @@ class ValuesWindow extends StateWindow {
     return StringHelper.convertPointsDisplay(points);
   }
 
+  getValues() {
+    return this._values;
+  }
+
   getValue(name) {
     return this._values[name];
   }

@@ -141,10 +141,11 @@ class DisplayStep extends Step {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.CHALLENGE_PHASE:
-        const setPlayerFolderHanlder = folderIndex => {
+        const playerFolders = manager.getPlayerFolders();
+        const setPlayerFolderIndexHandler = folderIndex => {
           manager.setPlayerFolderIndex(folderIndex);
         };
-        this.changeStep(FolderStep, setPlayerFolderHanlder);
+        this.changeStep(FolderStep, playerFolders, setPlayerFolderIndexHandler);
         break;
       case GameConst.START_PHASE:
         const setMiniGameResultHanlder = win => {
