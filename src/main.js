@@ -184,10 +184,10 @@
 // include ../test/integration/folderwindow/CreateFolderWindowTest.js
 // STEPS
 // include ../test/integration/step/DisplayStepInChallengePhaseTest.js
+// include ../test/integration/step/FolderStepInChallengePhaseTest.js
 // include ../test/integration/step/DisplayStepInStartPhaseTest.js
 // include ../test/integration/step/DisplayStepInDrawPhaseTest.js
 // include ../test/integration/step/DisplayStepInLoadPhaseTest.js
-// include ../test/integration/step/ChallengePhaseFolderStepTest.js
 // include ../test/integration/step/StartPhaseMiniGameStepTest.js
 // include ../test/integration/step/DrawPhaseDrawStepTest.js
 // include ../test/integration/step/LoadPhaseTurnStepChallengedPassedTest.js

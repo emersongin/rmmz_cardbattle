@@ -161,10 +161,6 @@ class Step {
     }
   }
 
-  changePhase(phase) {
-    this._scene.setPhase(phase);
-  }
-
   changeStep(stepName, ...params) {
     const step = new stepName(this._scene, this._phase, ...params, this._finish);
     this._scene.setStep(step);
@@ -181,6 +177,10 @@ class Step {
 
   getPhase() {
     return this._phase;
+  }
+
+  changePhase(phase) {
+    this._phase = phase;
   }
 
   createPlayerGameBoard(manager) {

@@ -65,13 +65,15 @@ class FolderStep extends Step {
   }
 
   finish(phase) {
-    if (typeof this._finish === 'function') return this._finish();
     switch (phase) {
-      case null:
+      case GameConst.CHALLENGE_PHASE:
+        this.changePhase(GameConst.START_PHASE);
+        this.changeStep(DisplayStep);
         break;
       default:
         break;
     }
+    if (typeof this._finish === 'function') return this._finish();
   }
 
   isBusy() {
@@ -83,5 +85,9 @@ class FolderStep extends Step {
 
   isFolderWindowVisible() {
     return this._folderWindow.visible;
+  }
+
+  isTextFolderWindow(text) {
+    return this._folderWindow.isTextWasDrawing('TEXT_0', text);
   }
 }

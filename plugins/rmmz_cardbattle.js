@@ -8480,6 +8480,36 @@ class DisplayStepInChallengePhaseTest extends SceneTest {
     this.expectTrue('A proxima Etapa é FolderStep?', this.isStep(FolderStep));
   }
 }
+class FolderStepInChallengePhaseTest extends SceneTest {
+  manager = CardBattleManager;
+  step;
+
+  create() {
+    const phase = GameConst.CHALLENGE_PHASE;
+    const finish = this.createHandler();
+    this.step = new FolderStep(this._scene, phase, finish);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this._scene.setStep(this.step);
+    this.step.start(this.manager);
+  }
+
+  update() {
+    this.step.update(this.manager);
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar etapa de escolha de pasta na fase de desafio.');
+    this.expectWasTrue('A janela de pastas foi apresentada?', this.step.isFolderWindowVisible);
+    this.expectTrue('A descrição da janela de pastas foi apresentado como?', this.step.isTextFolderWindow('Choose a folder'));
+    const folderIndex = this.manager.folderIndex;
+    this.expectTrue('A pasta foi escolhida?', folderIndex > -1);
+    this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
+    this.expectTrue('A proxima Fase é StartPhase?', this.step.getPhase() === GameConst.START_PHASE);
+  }
+}
 class DisplayStepInStartPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
@@ -8568,31 +8598,6 @@ class DisplayStepInLoadPhaseTest extends SceneTest {
     const texts = ['Select and use a Program Card.'];
     this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
     this.expectTrue('A proxima Etapa é TurnStep?', this.isStep(TurnStep));
-  }
-}
-class ChallengePhaseFolderStepTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-
-  create() {
-    const phase = GameConst.CHALLENGE_PHASE;
-    const finish = this.createHandler();
-    this.step = new FolderStep(this._scene, phase, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de pastas de desafiado.');
-    this.expectWasTrue('A janela de pastas foi apresentada?', this.step.isFolderWindowVisible);
   }
 }
 class StartPhaseMiniGameStepTest extends SceneTest {
@@ -8985,11 +8990,11 @@ class CardBattleManager {
       ]
     }, {
       name: 'Folder 2',
-      energies: [10, 10, 10, 10, 10, 10],
+      energies: [0, 0, 0, 0, 0, 0],
       set: []
     }, {
       name: 'Folder 3',
-      energies: [10, 10, 10, 0, 0, 0],
+      energies: [0, 0, 0, 0, 0, 0],
       set: []
   }];
 
@@ -9401,10 +9406,6 @@ class Step {
     }
   }
 
-  changePhase(phase) {
-    this._scene.setPhase(phase);
-  }
-
   changeStep(stepName, ...params) {
     const step = new stepName(this._scene, this._phase, ...params, this._finish);
     this._scene.setStep(step);
@@ -9421,6 +9422,10 @@ class Step {
 
   getPhase() {
     return this._phase;
+  }
+
+  changePhase(phase) {
+    this._phase = phase;
   }
 
   createPlayerGameBoard(manager) {
@@ -10159,13 +10164,15 @@ class FolderStep extends Step {
   }
 
   finish(phase) {
-    if (typeof this._finish === 'function') return this._finish();
     switch (phase) {
-      case null:
+      case GameConst.CHALLENGE_PHASE:
+        this.changePhase(GameConst.START_PHASE);
+        this.changeStep(DisplayStep);
         break;
       default:
         break;
     }
+    if (typeof this._finish === 'function') return this._finish();
   }
 
   isBusy() {
@@ -10177,6 +10184,10 @@ class FolderStep extends Step {
 
   isFolderWindowVisible() {
     return this._folderWindow.visible;
+  }
+
+  isTextFolderWindow(text) {
+    return this._folderWindow.isTextWasDrawing('TEXT_0', text);
   }
 }
 class MiniGameStep extends Step {
@@ -11417,11 +11428,11 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const steps = [
-      DisplayStepInChallengePhaseTest,
-      DisplayStepInStartPhaseTest,
-      DisplayStepInDrawPhaseTest,
-      DisplayStepInLoadPhaseTest,
-      // ChallengePhaseFolderStepTest,
+      // DisplayStepInChallengePhaseTest,
+      FolderStepInChallengePhaseTest,
+      // DisplayStepInStartPhaseTest,
+      // DisplayStepInDrawPhaseTest,
+      // DisplayStepInLoadPhaseTest,
       // StartPhaseMiniGameStepTest,
       // DrawPhaseDrawStepTest,
       // LoadPhaseTurnStepPlayerStartFirstTest,

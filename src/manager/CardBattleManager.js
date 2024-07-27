@@ -47,11 +47,11 @@ class CardBattleManager {
       ]
     }, {
       name: 'Folder 2',
-      energies: [10, 10, 10, 10, 10, 10],
+      energies: [0, 0, 0, 0, 0, 0],
       set: []
     }, {
       name: 'Folder 3',
-      energies: [10, 10, 10, 0, 0, 0],
+      energies: [0, 0, 0, 0, 0, 0],
       set: []
   }];
 

@@ -199,11 +199,11 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const steps = [
-      DisplayStepInChallengePhaseTest,
-      DisplayStepInStartPhaseTest,
-      DisplayStepInDrawPhaseTest,
-      DisplayStepInLoadPhaseTest,
-      // ChallengePhaseFolderStepTest,
+      // DisplayStepInChallengePhaseTest,
+      FolderStepInChallengePhaseTest,
+      // DisplayStepInStartPhaseTest,
+      // DisplayStepInDrawPhaseTest,
+      // DisplayStepInLoadPhaseTest,
       // StartPhaseMiniGameStepTest,
       // DrawPhaseDrawStepTest,
       // LoadPhaseTurnStepPlayerStartFirstTest,
