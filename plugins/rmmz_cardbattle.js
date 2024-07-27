@@ -10545,42 +10545,45 @@ class DrawStep extends Step {
   }
 
   start(manager) {
-    const phase = this.getPhase();
     this.createPlayerGameBoard(manager);
     this.createChallengedGameBoard(manager);
     this.openGameBoards();
-    this.drawCardsToGame(manager);
-    this.loadGameBoardsToGame(manager);
+    this.drawPlayersCardsAndMove(manager);
+    this.loadPlayersGameBoards(manager);
   }
 
-  drawCardsToGame(manager) {
-    const playerNumCardsInDeck = manager.getPlayerDeckLength();
-    const playerCardsDrawed = manager.drawPlayerCards(6);
-    const playerData = {
-      cards: playerCardsDrawed,
-      cardsInDeck: playerNumCardsInDeck,
-    };
-    const challengeNumCardsInDeck = manager.getChallengedDeckLength();
-    const challengeCardsDrawed = manager.drawChallengedCards(6);
-    const challengeData = {
-      cards: challengeCardsDrawed,
-      cardsInDeck: challengeNumCardsInDeck,
-    };
-    this.drawCards(playerData, challengeData);
+  drawPlayersCardsAndMove(manager) {
+    const playerCardsDrawed = this.drawPlayerCards(manager);
+    const challengedCardsDrawed = this.drawChallengedCards(manager);
+    this.moveCardsToField(playerCardsDrawed, challengedCardsDrawed);
   }
 
-  drawCards(player, challenge) {
+  drawPlayerCards(manager) {
+    const drawNumber = 6;
+    const totalInDeck = manager.getPlayerDeckLength();
+    const cardsDrawed = manager.drawPlayerCards(drawNumber);
+    return { cardsDrawed, totalInDeck };
+  }
+
+  drawChallengedCards(manager) {
+    const drawNumber = 6;
+    const totalInDeck = manager.getChallengedDeckLength();
+    const cardsDrawed = manager.drawChallengedCards(drawNumber);
+    return { cardsDrawed, totalInDeck };
+  }
+
+  moveCardsToField(player, challenged) {
     const { 
-      cards: playerCards,
-      cardsInDeck: playerCardsInDeck, 
+      cardsDrawed: playerCardsDrawed,
+      totalInDeck: totalInPlayerDeck, 
     } = player;
     const { 
-      cards: challengeCards,
-      cardsInDeck: challengeCardsInDeck, 
-    } = challenge;
+      cardsDrawed: challengedCardsDrawed,
+      totalInDeck: totalInChallengedDeck, 
+    } = challenged;
     this.addActions([
-      [this.commandDrawPlayerCards, playerCards, playerCardsInDeck],
-      [this.commandDrawChallengedCards, challengeCards, challengeCardsInDeck],
+      [this.commandDrawPlayerCards, playerCardsDrawed, totalInPlayerDeck],
+      [this.commandDrawChallengedCards, challengedCardsDrawed, totalInChallengedDeck],
     ]);
   }
 
@@ -10628,18 +10631,28 @@ class DrawStep extends Step {
     this.commandMoveCardsInlistChallengedCardsetSprite(sprites, delay, fieldUpdates);
   }
 
-  loadGameBoardsToGame(manager) {
-    const playerCardsInHand = manager.getPlayerHand();
-    const playerEnergiesClone = Object.assign({}, manager.getPlayerEnergies());
-    const playerUpdates = this.createFieldUpdates(playerCardsInHand, playerEnergiesClone);
-    const playerFieldUpdates = playerUpdates.fieldUpdates;
-    manager.setPlayerEnergies(playerUpdates.energies);
-    const challengeCardsInHand = manager.getChallengedHand();
-    const challengeEnergiesClone = Object.assign({}, manager.getChallengedEnergies());
-    const challengeUpdates = this.createFieldUpdates(challengeCardsInHand, challengeEnergiesClone);
-    const challengeFieldUpdates = challengeUpdates.fieldUpdates;
-    manager.setChallengedEnergies(challengeUpdates.energies);
-    this.loadGameBoards(playerFieldUpdates, challengeFieldUpdates);
+  loadPlayersGameBoards(manager) {
+    const playerUpdates = this.loadPlayerGameBoard(manager);
+    const challengedUpdates = this.loadChallengedGameBoard(manager);
+    this.updateGameBoards(playerUpdates, challengedUpdates);
+  }
+
+  loadPlayerGameBoard(manager) {
+    const cardsInHand = manager.getPlayerHand();
+    const energiesClone = Object.assign({}, manager.getPlayerEnergies());
+    const updates = this.createFieldUpdates(cardsInHand, energiesClone);
+    const { fieldUpdates, energies } = updates;
+    manager.setPlayerEnergies(energies);
+    return fieldUpdates;
+  }
+
+  loadChallengedGameBoard(manager) {
+    const cardsInHand = manager.getChallengedHand();
+    const energiesClone = Object.assign({}, manager.getChallengedEnergies());
+    const updates = this.createFieldUpdates(cardsInHand, energiesClone);
+    const { fieldUpdates, energies } = updates;
+    manager.setChallengedEnergies(energies);
+    return fieldUpdates;
   }
 
   createFieldUpdates(cards, energies) {
@@ -10654,11 +10667,19 @@ class DrawStep extends Step {
     return { fieldUpdates, energies };
   }
 
-  loadGameBoards(playerUpdates, challengeUpdates) {
-    const updates = playerUpdates.map((playerUpdate, index) => {
+  updateGameBoards(playerUpdates, challengeUpdates) {
+    const updates = this.mergeUpdates(playerUpdates, challengeUpdates);
+    this.addUpdateActions(updates);
+  }
+
+  mergeUpdates(playerUpdates, challengeUpdates) {
+    return playerUpdates.map((playerUpdate, index) => {
       const challengeUpdate = challengeUpdates[index] || false;
       return [playerUpdate, challengeUpdate];
     });
+  }
+
+  addUpdateActions(updates) {
     updates.forEach(([playerUpdate, challengeUpdate]) => {
       const { cardIndex: playerCardIndex, updatePoint: playerUpdatePoint } = playerUpdate;
       const { cardIndex: chanllengeCardIndex, updatePoint: challengeUpdatePoint } = challengeUpdate;
@@ -10667,6 +10688,18 @@ class DrawStep extends Step {
         [this.commandChallengedLoadEnergy, chanllengeCardIndex, challengeUpdatePoint],
       ]);
     });
+  }
+
+  commandPlayerLoadEnergy(cardIndex, updatePoint) {
+    const sprites = this.commandGetSpritesPlayerCardsetSprite();
+    const sprite = sprites[cardIndex];
+    if (updatePoint) {
+      const chainAction = () => {
+        const boardWindow = this.getPlayerBoardWindow();
+        boardWindow.updateValues(updatePoint);
+      };
+      this.commandFlashCardsAnimatePlayerCardsetSprite(sprite, 'white', 6, 1, chainAction);
+    }
   }
 
   commandChallengedLoadEnergy(cardIndex, updatePoint) {
@@ -10681,18 +10714,6 @@ class DrawStep extends Step {
       const duration = 6;
       const times = 1; 
       this.commandFlashCardsAnimateChallengedCardsetSprite(sprite, color, duration, times, triggerAction);
-    }
-  }
-
-  commandPlayerLoadEnergy(cardIndex, updatePoint) {
-    const sprites = this.commandGetSpritesPlayerCardsetSprite();
-    const sprite = sprites[cardIndex];
-    if (updatePoint) {
-      const chainAction = () => {
-        const boardWindow = this.getPlayerBoardWindow();
-        boardWindow.updateValues(updatePoint);
-      };
-      this.commandFlashCardsAnimatePlayerCardsetSprite(sprite, 'white', 6, 1, chainAction);
     }
   }
 
