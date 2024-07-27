@@ -66,7 +66,6 @@ class DisplayStep extends Step {
     titleWindow.alignBelowOf({ y: 200, height: 0 });
     titleWindow.alignTextCenter();
     this.addAction(this.commandCreateTitleWindow, titleWindow);
-    return titleWindow;
   }
 
   commandCreateTitleWindow(titleWindow) {
@@ -82,7 +81,6 @@ class DisplayStep extends Step {
     const descriptionWindow = TextWindow.createWindowFullSize(0, 0, maxContent);
     descriptionWindow.alignCenterBelowMiddle();
     this.addAction(this.commandCreateDescriptionWindow, descriptionWindow);
-    return descriptionWindow;
   }
 
   commandCreateDescriptionWindow(descriptionWindow) {
@@ -111,8 +109,7 @@ class DisplayStep extends Step {
     if (Input.isTriggered('ok')) {
       this.commandCloseTextWindows();
       this.leaveTextWindows();
-      this.addWait();
-      this.addAction(this.finish);
+      this.addAction(this.finish, manager);
     }
   }
 
@@ -140,14 +137,20 @@ class DisplayStep extends Step {
     ]);
   }
 
-  finish() {
+  finish(manager) {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.CHALLENGE_PHASE:
-        this.changeStep(FolderStep);
+        const setPlayerFolderHanlder = folderIndex => {
+          manager.setPlayerFolderIndex(folderIndex);
+        };
+        this.changeStep(FolderStep, setPlayerFolderHanlder);
         break;
       case GameConst.START_PHASE:
-        this.changeStep(MiniGameStep);
+        const setMiniGameResultHanlder = win => {
+          if (win) manager.playerStart();
+        };
+        this.changeStep(MiniGameStep, setMiniGameResultHanlder);
         break;
       case GameConst.DRAW_PHASE:
         this.changeStep(DrawStep);

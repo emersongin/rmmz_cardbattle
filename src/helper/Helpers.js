@@ -147,9 +147,9 @@ class ObjectHelper {
       '_openness',
       '_titleWindow',
       '_descriptionWindow',
-      '_folderWindow',
+      '_foldersWindow',
       '_resultWindow',
-      '_drawCardGame',
+      '_cardsetSprite',
       'visible',
     ];
     const newObj = Object.create(Object.getPrototypeOf(obj));

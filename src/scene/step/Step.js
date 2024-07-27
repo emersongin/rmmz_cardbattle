@@ -162,7 +162,7 @@ class Step {
   }
 
   changeStep(stepName, ...params) {
-    const step = new stepName(this._scene, this._phase, ...params, this._finish);
+    const step = new stepName(this._scene, this._phase, ...params);
     this._scene.setStep(step);
   }
 

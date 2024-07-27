@@ -57,8 +57,6 @@ class CardBattleManager {
 
   static folderIndex = -1;
 
-  static miniGameWin = false;
-
   static playerStartTurn = false;
 
   static player = {
@@ -106,10 +104,6 @@ class CardBattleManager {
 
   static getPlayerFolders() {
     return CardBattleManager.folders;
-  }
-
-  static getWin() {
-    return CardBattleManager.miniGameWin;
   }
 
   static getPowerfieldLength() {

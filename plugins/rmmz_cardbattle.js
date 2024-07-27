@@ -312,9 +312,9 @@ class ObjectHelper {
       '_openness',
       '_titleWindow',
       '_descriptionWindow',
-      '_folderWindow',
+      '_foldersWindow',
       '_resultWindow',
-      '_drawCardGame',
+      '_cardsetSprite',
       'visible',
     ];
     const newObj = Object.create(Object.getPrototypeOf(obj));
@@ -8483,11 +8483,15 @@ class DisplayStepInChallengePhaseTest extends SceneTest {
 class FolderStepInChallengePhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
+  folderIndex;
 
   create() {
     const phase = GameConst.CHALLENGE_PHASE;
     const finish = this.createHandler();
-    this.step = new FolderStep(this._scene, phase, finish);
+    const selectMock = (folderIndex) => {
+      this.folderIndex = folderIndex;
+    };
+    this.step = new FolderStep(this._scene, phase, selectMock, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -8504,8 +8508,7 @@ class FolderStepInChallengePhaseTest extends SceneTest {
     this.describe('Deve apresentar etapa de escolha de pasta na fase de desafio.');
     this.expectWasTrue('A janela de pastas foi apresentada?', this.step.isFoldersWindowVisible);
     this.expectTrue('A descrição da janela de pastas foi apresentado como?', this.step.isTextFoldersWindow('Choose a folder'));
-    const folderIndex = this.manager.folderIndex;
-    this.expectTrue('A pasta foi escolhida?', folderIndex > -1);
+    this.expectTrue('A pasta foi escolhida?', this.folderIndex !== undefined);
     this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
     this.expectTrue('A proxima Fase é StartPhase?', this.step.getPhase() === GameConst.START_PHASE);
   }
@@ -8543,11 +8546,15 @@ class DisplayStepInStartPhaseTest extends SceneTest {
 class MiniGameInStartPhaseStepTest extends SceneTest {
   manager = CardBattleManager;
   step;
+  win;
 
   create() {
     const phase = GameConst.START_PHASE;
     const finish = this.createHandler();
-    this.step = new MiniGameStep(this._scene, phase, finish);
+    const resultMock = (win) => {
+      this.win = win;
+    };
+    this.step = new MiniGameStep(this._scene, phase, resultMock, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -8565,8 +8572,8 @@ class MiniGameInStartPhaseStepTest extends SceneTest {
     this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetVisible);
     this.expectWasTrue('O set de cartas estava em modo de seleção?', this.step.isCardsetOnSelectMode);
     this.expectWasTrue('O set de cartas foi embaralhado?', this.step.isCardsetShuffled);
-    // this.expectWasTrue('Tem um resultado?', this.step.isCardsetVisible);
-    // this.expectWasTrue('A janela de resultado foi apresentada?', this.step.isResultWindowVisible);
+    this.expectWasTrue('A janela de resultado foi apresentada?', this.step.isResultWindowVisible);
+    this.expectTrue('Tem um resultado?', typeof this.win === 'boolean');
     // this.expectWasTrue('O texto da janela de resultado estava como?', this.step.isResultWindowVisible);
     // this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
     // this.expectTrue('A proxima Fase é StartPhase?', this.step.getPhase() === GameConst.START_PHASE);
@@ -9005,8 +9012,6 @@ class CardBattleManager {
 
   static folderIndex = -1;
 
-  static miniGameWin = false;
-
   static playerStartTurn = false;
 
   static player = {
@@ -9054,10 +9059,6 @@ class CardBattleManager {
 
   static getPlayerFolders() {
     return CardBattleManager.folders;
-  }
-
-  static getWin() {
-    return CardBattleManager.miniGameWin;
   }
 
   static getPowerfieldLength() {
@@ -9412,7 +9413,7 @@ class Step {
   }
 
   changeStep(stepName, ...params) {
-    const step = new stepName(this._scene, this._phase, ...params, this._finish);
+    const step = new stepName(this._scene, this._phase, ...params);
     this._scene.setStep(step);
   }
 
@@ -9983,7 +9984,6 @@ class DisplayStep extends Step {
     titleWindow.alignBelowOf({ y: 200, height: 0 });
     titleWindow.alignTextCenter();
     this.addAction(this.commandCreateTitleWindow, titleWindow);
-    return titleWindow;
   }
 
   commandCreateTitleWindow(titleWindow) {
@@ -9999,7 +9999,6 @@ class DisplayStep extends Step {
     const descriptionWindow = TextWindow.createWindowFullSize(0, 0, maxContent);
     descriptionWindow.alignCenterBelowMiddle();
     this.addAction(this.commandCreateDescriptionWindow, descriptionWindow);
-    return descriptionWindow;
   }
 
   commandCreateDescriptionWindow(descriptionWindow) {
@@ -10028,8 +10027,7 @@ class DisplayStep extends Step {
     if (Input.isTriggered('ok')) {
       this.commandCloseTextWindows();
       this.leaveTextWindows();
-      this.addWait();
-      this.addAction(this.finish);
+      this.addAction(this.finish, manager);
     }
   }
 
@@ -10057,14 +10055,20 @@ class DisplayStep extends Step {
     ]);
   }
 
-  finish() {
+  finish(manager) {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.CHALLENGE_PHASE:
-        this.changeStep(FolderStep);
+        const setPlayerFolderHanlder = folderIndex => {
+          manager.setPlayerFolderIndex(folderIndex);
+        };
+        this.changeStep(FolderStep, setPlayerFolderHanlder);
         break;
       case GameConst.START_PHASE:
-        this.changeStep(MiniGameStep);
+        const setMiniGameResultHanlder = win => {
+          if (win) manager.playerStart();
+        };
+        this.changeStep(MiniGameStep, setMiniGameResultHanlder);
         break;
       case GameConst.DRAW_PHASE:
         this.changeStep(DrawStep);
@@ -10105,23 +10109,28 @@ class DisplayStep extends Step {
 }
 class FolderStep extends Step {
   _foldersWindow = {};
+  _selectHandler = null;
 
-  constructor(scene, phase, finish) {
+  constructor(scene, phase, selectHandler, finish) {
     const phasesEnabled = [GameConst.CHALLENGE_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for FolderStep.');
     }
     super(scene, phase, finish);
+    if (typeof selectHandler !== 'function') {
+      throw new Error('Invalid selectHandler for FolderStep.');
+    }
+    this._selectHandler = selectHandler;
   }
 
   start(manager) {
     const folders = this.createFolders(manager);
-    const folderWindow = this.createFolderWindow('Choose a folder', folders);
+    this.createFolderWindow('Choose a folder', folders);
     this.openFolderWindow();
   }
 
   createFolders(manager) {
-    const selectHandler = this.createSelectHandler(manager);
+    const selectHandler = this.createSelectHandler();
     let folders = manager.getPlayerFolders();
     folders = folders.map(folder => {
       folder.handler = selectHandler;
@@ -10130,12 +10139,12 @@ class FolderStep extends Step {
     return folders;
   }
 
-  createSelectHandler(manager) {
+  createSelectHandler() {
     return (folderIndex) => {
-      manager.setPlayerFolderIndex(folderIndex);
       this.commandCloseFolderWindow();
       this.leaveFolderWindow();
       this.addAction(this.finish);
+      this._selectHandler(folderIndex);
     };
   }
 
@@ -10161,7 +10170,6 @@ class FolderStep extends Step {
     folderWindow.alignMiddle();
     folderWindow.alignTextCenter();
     this.addAction(this.commandCreateFolderWindow, folderWindow);
-    return folderWindow;
   }
 
   commandCreateFolderWindow(folderWindow) {
@@ -10206,51 +10214,50 @@ class FolderStep extends Step {
   }
 }
 class MiniGameStep extends Step {
-  _drawCardGame = {};
   _cards = [];
+  _cardsetSprite = {};
   _resultWindow = {};
+  _selectHandler = null;
+  _miniGame = false;
 
-  constructor(scene, phase, finish) {
+  constructor(scene, phase, selectHandler, finish) {
     const phasesEnabled = [GameConst.START_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for MiniGameStep.');
     }
     super(scene, phase, finish);
+    if (typeof selectHandler !== 'function') {
+      throw new Error('Invalid selectHandler for MiniGameStep.');
+    }
+    this._selectHandler = selectHandler;
   }
 
   start(manager) {
-    const phase = this.getPhase();
-    const resultHandler = (win, resultWindow) => {
-      manager.win = win;
-      this.openResultWindow();
-      this.addAction(this.finish, phase);
-    };
-    const drawCardGame = this.createDrawCardGame();
-    this.startDrawCardGame(resultHandler);
+    this.createCardsetSprite();
+    this.startMiniGame();
   }
 
-  createDrawCardGame() {
-    const drawCardGame = CardsetSprite.create(0, 0);
-    drawCardGame.centralize();
-    drawCardGame.commandShow();
+  createCardsetSprite() {
+    const cardsetSprite = CardsetSprite.create(0, 0);
+    cardsetSprite.centralize();
+    cardsetSprite.commandShow();
     const cards = this.createCardsShuffled();
-    const sprites = drawCardGame.setCards(cards, Graphics.boxWidth, Graphics.boxHeight);
-    const xSprite1 = -(drawCardGame.x + CardSprite.contentOriginalWidth());
-    const ySprite1 = -(drawCardGame.y + CardSprite.contentOriginalHeight());
+    const sprites = cardsetSprite.setCards(cards, Graphics.boxWidth, Graphics.boxHeight);
+    const xSprite1 = -(cardsetSprite.x + CardSprite.contentOriginalWidth());
+    const ySprite1 = -(cardsetSprite.y + CardSprite.contentOriginalHeight());
     const position1 = CardSprite.createPosition(xSprite1, ySprite1, 0);
-    const xSprite2 = (Graphics.boxWidth - drawCardGame.x);
-    const ySprite2 = (Graphics.boxHeight - drawCardGame.y);
+    const xSprite2 = (Graphics.boxWidth - cardsetSprite.x);
+    const ySprite2 = (Graphics.boxHeight - cardsetSprite.y);
     const position2 = CardSprite.createPosition(xSprite2, ySprite2, 1);
     const positions = [position1, position2];
-    drawCardGame.setAllCardsInPositions(sprites, positions);
-    drawCardGame.setTurnToDownCards(sprites);
-    this.addAction(this.commandCreateDrawCardGame, drawCardGame);
-    return drawCardGame;
+    cardsetSprite.setAllCardsInPositions(sprites, positions);
+    cardsetSprite.setTurnToDownCards(sprites);
+    this.addAction(this.commandCreateCardsetSprite, cardsetSprite);
   }
 
-  commandCreateDrawCardGame(drawCardGame) {
-    this._drawCardGame = drawCardGame;
-    this.commandAddChild(drawCardGame);
+  commandCreateCardsetSprite(cardsetSprite) {
+    this._cardsetSprite = cardsetSprite;
+    this.commandAddChild(cardsetSprite);
   }
 
   createCardsShuffled() {
@@ -10274,20 +10281,22 @@ class MiniGameStep extends Step {
     return this._cards;
   }
 
-  startDrawCardGame(onSelectHandler) {
-    this.addAction(this.commandStartDrawCardGame, onSelectHandler);
+  startMiniGame() {
+    this.addAction(this.commandStartMiniGame);
   }
 
-  commandStartDrawCardGame(onSelectHandler) {
+  commandStartMiniGame() {
     this.showCards();
     this.moveAllCardsToCenter();
     const handlerDecorator = (cards) => {
       const selectedIndex = cards.shift();
       const cardColor = this._cards[selectedIndex].color;
       const win = cardColor === GameConst.WHITE;
-      const resultWindow = this.createResultWindow(win);
-      this.finishDrawCardGame(selectedIndex);
-      onSelectHandler(win, resultWindow);
+      this.finishMiniGame(selectedIndex);
+      this.createResultWindow(win);
+      this.openResultWindow();
+      this.addAction(this.endGame);
+      this._selectHandler(win);
     }
     this.selectMode(handlerDecorator);
   }
@@ -10297,7 +10306,7 @@ class MiniGameStep extends Step {
   }
   
   commandShowCards() {
-    this._drawCardGame.showCards();
+    this._cardsetSprite.showCards();
   }
 
   moveAllCardsToCenter() {
@@ -10305,15 +10314,14 @@ class MiniGameStep extends Step {
   }
 
   commandMoveAllCardsToCenter() {
-    const center = this._drawCardGame.width / 2;
+    const center = this._cardsetSprite.width / 2;
     const x = center - CardSprite.contentOriginalWidth();
     const space = 2;
     const position1 = CardSprite.createPosition(x - space, 0, 0);
     const position2 = CardSprite.createPosition(center + space, 0, 1);
     const positions = [position1, position2];
-    const sprites = this._drawCardGame.getSprites();
-    console.log(this._drawCardGame, sprites);
-    this._drawCardGame.moveAllCardsToPositions(sprites, positions);
+    const sprites = this._cardsetSprite.getSprites();
+    this._cardsetSprite.moveAllCardsToPositions(sprites, positions);
   }
 
   createResultWindow(win) {
@@ -10331,22 +10339,26 @@ class MiniGameStep extends Step {
     this.commandAddChild(resultWindow);
   }
 
-  finishDrawCardGame(selectedIndex) {
+  endGame() {
+    this._miniGame = true;
+  }
+
+  finishMiniGame(selectedIndex) {
     this.addAction(this.commandFinishDrawCardGame, selectedIndex);
   }
 
   commandFinishDrawCardGame(selectedIndex) {
-    const cardset = this._drawCardGame;
-    const spriteSet = cardset.getSprites();
+    const cardsetSprite = this._cardsetSprite;
+    const spriteSet = cardsetSprite.getSprites();
     const sprites = ArrayHelper.moveToStartByIndex(spriteSet, selectedIndex);
     const selectedSprite = sprites[0];
     const startIndex = 0;
-    cardset.removeChild(sprites[1]);
-    cardset.addChildAt(sprites[1], startIndex);
-    cardset.zoomAllCards(selectedSprite);
-    cardset.zoomOutAllCards(selectedSprite);
-    cardset.addWait();
-    cardset.flipTurnToUpCards(sprites);
+    cardsetSprite.removeChild(sprites[1]);
+    cardsetSprite.addChildAt(sprites[1], startIndex);
+    cardsetSprite.zoomAllCards(selectedSprite);
+    cardsetSprite.zoomOutAllCards(selectedSprite);
+    cardsetSprite.addWait();
+    cardsetSprite.flipTurnToUpCards(sprites);
   }
 
   selectMode(onSelectHandler) {
@@ -10355,7 +10367,7 @@ class MiniGameStep extends Step {
 
   commandSelectMode(onSelectHandler) {
     const selectNumber = 1;
-    this._drawCardGame.selectMode(selectNumber, onSelectHandler);
+    this._cardsetSprite.selectMode(selectNumber, onSelectHandler);
   }
 
   openResultWindow() {
@@ -10366,30 +10378,71 @@ class MiniGameStep extends Step {
     this._resultWindow.open();
   }
 
-  finish(phase) {
-    if (typeof this._finish === 'function') return this._finish();
+  update(manager) {
+    super.update();
+    if (this.isBusy() || this.hasActions()) return false;
+    if (this.isEndGame() && Input.isTriggered('ok')) {
+      this.commandCloseCardsetSprite();
+      this.commandCloseResultWindow();
+      this.leaveResultWindow();
+      this.leaveCardsetSprite();
+      this.addAction(this.finish);
+    }
+  }
+
+  commandCloseCardsetSprite() {
+    this._cardsetSprite.closeCards();
+  }
+
+  leaveCardsetSprite() {
+    this.addAction(this.commandLeaveCardsetSprite);
+  }
+
+  commandLeaveCardsetSprite() {
+    this.removeChild(this._cardsetSprite);
+  }
+
+  isEndGame() {
+    return this._miniGame;
+  }
+
+  commandCloseResultWindow() {
+    this._resultWindow.close();
+  }
+
+  leaveResultWindow() {
+    this.addAction(this.commandLeaveResultWindow);
+  }
+
+  commandLeaveResultWindow() {
+    this.removeChild(this._resultWindow);
+  }
+
+  finish() {
+    const phase = this.getPhase();
     switch (phase) {
       case null:
         break;
       default:
         break;
     }
+    if (typeof this._finish === 'function') return this._finish();
   }
 
   isBusy() {
     const children = [
-      this._drawCardGame,
+      this._cardsetSprite,
       this._resultWindow,
     ];
     return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
 
   isCardsetVisible() {
-    return this._drawCardGame.visible;
+    return this._cardsetSprite.visible;
   }
 
   isCardsetOnSelectMode() {
-    return this._drawCardGame.isOnSelectMode();
+    return this._cardsetSprite.isSelectMode();
   }
 
   isCardsetShuffled() {
@@ -10399,7 +10452,6 @@ class MiniGameStep extends Step {
   isResultWindowVisible() {
     return this._resultWindow.visible
   }
-
 }
 class DrawStep extends Step {
   constructor(scene, phase, finish) {
@@ -11453,9 +11505,9 @@ class CardBattleTestScene extends Scene_Message {
     ];
     const steps = [
       // DisplayStepInChallengePhaseTest,
-      FolderStepInChallengePhaseTest,
+      // FolderStepInChallengePhaseTest,
       // DisplayStepInStartPhaseTest,
-      // MiniGameInStartPhaseStepTest,
+      MiniGameInStartPhaseStepTest,
       // DisplayStepInDrawPhaseTest,
       // DisplayStepInLoadPhaseTest,
       // DrawPhaseDrawStepTest,

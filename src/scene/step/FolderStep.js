@@ -1,22 +1,27 @@
 class FolderStep extends Step {
   _foldersWindow = {};
+  _selectHandler = null;
 
-  constructor(scene, phase, finish) {
+  constructor(scene, phase, selectHandler, finish) {
     const phasesEnabled = [GameConst.CHALLENGE_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for FolderStep.');
     }
     super(scene, phase, finish);
+    if (typeof selectHandler !== 'function') {
+      throw new Error('Invalid selectHandler for FolderStep.');
+    }
+    this._selectHandler = selectHandler;
   }
 
   start(manager) {
     const folders = this.createFolders(manager);
-    const folderWindow = this.createFolderWindow('Choose a folder', folders);
+    this.createFolderWindow('Choose a folder', folders);
     this.openFolderWindow();
   }
 
   createFolders(manager) {
-    const selectHandler = this.createSelectHandler(manager);
+    const selectHandler = this.createSelectHandler();
     let folders = manager.getPlayerFolders();
     folders = folders.map(folder => {
       folder.handler = selectHandler;
@@ -25,12 +30,12 @@ class FolderStep extends Step {
     return folders;
   }
 
-  createSelectHandler(manager) {
+  createSelectHandler() {
     return (folderIndex) => {
-      manager.setPlayerFolderIndex(folderIndex);
       this.commandCloseFolderWindow();
       this.leaveFolderWindow();
       this.addAction(this.finish);
+      this._selectHandler(folderIndex);
     };
   }
 
@@ -56,7 +61,6 @@ class FolderStep extends Step {
     folderWindow.alignMiddle();
     folderWindow.alignTextCenter();
     this.addAction(this.commandCreateFolderWindow, folderWindow);
-    return folderWindow;
   }
 
   commandCreateFolderWindow(folderWindow) {
