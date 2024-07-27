@@ -8480,6 +8480,96 @@ class DisplayStepInChallengePhaseTest extends SceneTest {
     this.expectTrue('A proxima Etapa é FolderStep?', this.isStep(FolderStep));
   }
 }
+class DisplayStepInStartPhaseTest extends SceneTest {
+  manager = CardBattleManager;
+  step;
+
+  create() {
+    const phase = GameConst.START_PHASE;
+    const finish = this.createHandler();
+    this.step = new DisplayStep(this._scene, phase, finish);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.setStep(this.step);
+    this.step.start(this.manager);
+  }
+
+  update() {
+    this.step.update(this.manager);
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar etapa de apresentação de fase na fase de sacar cartas.');
+    this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
+    this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
+    this.expectTrue('O título da fase foi apresentado como?', this.step.isTextTitleWindow('Start Phase'));
+    const texts = ['Draw Calumon to go first.'];
+    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
+    this.expectTrue('A proxima Etapa é MiniGameStep?', this.isStep(MiniGameStep));
+  }
+}
+class DisplayStepInDrawPhaseTest extends SceneTest {
+  manager = CardBattleManager;
+  step;
+
+  create() {
+    const phase = GameConst.DRAW_PHASE;
+    const finish = this.createHandler();
+    this.step = new DisplayStep(this._scene, phase, finish);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.setStep(this.step);
+    this.step.start(this.manager);
+  }
+
+  update() {
+    this.step.update(this.manager);
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar etapa de apresentação de fase na fase de sacar cartas.');
+    this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
+    this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
+    this.expectTrue('O título da fase foi apresentado como?', this.step.isTextTitleWindow('Draw Phase'));
+    const texts = ['6 cards will be drawn.'];
+    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
+    this.expectTrue('A proxima Etapa é DrawStep?', this.isStep(DrawStep));
+  }
+}
+class DisplayStepInLoadPhaseTest extends SceneTest {
+  manager = CardBattleManager;
+  step;
+
+  create() {
+    const phase = GameConst.LOAD_PHASE;
+    const finish = this.createHandler();
+    this.step = new DisplayStep(this._scene, phase, finish);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.setStep(this.step);
+    this.step.start(this.manager);
+  }
+
+  update() {
+    this.step.update(this.manager);
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar etapa de apresentação de fase na fase de sacar cartas.');
+    this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
+    this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
+    this.expectTrue('O título da fase foi apresentado como?', this.step.isTextTitleWindow('Load Phase'));
+    const texts = ['Select and use a Program Card.'];
+    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
+    this.expectTrue('A proxima Etapa é TurnStep?', this.isStep(TurnStep));
+  }
+}
 class ChallengePhaseFolderStepTest extends SceneTest {
   manager = CardBattleManager;
   step;
@@ -8503,32 +8593,6 @@ class ChallengePhaseFolderStepTest extends SceneTest {
   asserts() {
     this.describe('Deve apresentar etapa de pastas de desafiado.');
     this.expectWasTrue('A janela de pastas foi apresentada?', this.step.isFolderWindowVisible);
-  }
-}
-class StartPhaseDisplayStepTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-
-  create() {
-    const phase = GameConst.START_PHASE;
-    const finish = this.createHandler();
-    this.step = new DisplayStep(this._scene, phase, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de apresentação de início de batalha.');
-    this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
-    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', this.step.isDescriptionWindowVisible);
   }
 }
 class StartPhaseMiniGameStepTest extends SceneTest {
@@ -8556,32 +8620,6 @@ class StartPhaseMiniGameStepTest extends SceneTest {
     this.expectWasTrue('O set de cartas estava em modo seleção?', this.step.isCardsetVisible);
     this.expectWasTrue('A janela de resultado foi apresentada?', this.step.isResultWindowVisible);
     this.expectTrue('O resultado do jogo da sorte foi apresentado?', typeof this.manager.getWin() === 'boolean');
-  }
-}
-class DrawPhaseDisplayStepTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-
-  create() {
-    const phase = GameConst.DRAW_PHASE;
-    const finish = this.createHandler();
-    this.step = new DisplayStep(this._scene, phase, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de apresentação de sacar cartas.');
-    this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
-    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', this.step.isDescriptionWindowVisible);
   }
 }
 class DrawPhaseDrawStepTest extends SceneTest {
@@ -8622,32 +8660,6 @@ class DrawPhaseDrawStepTest extends SceneTest {
     this.expectTrue('O total de cards no campo do desafiante é?', this.manager.getChallengedDeckLength() === 34);
     this.expectTrue('O total de cards na mão do jogador é?', this.manager.getPlayerHandLength() === 6);
     this.expectTrue('O total de cards na mão do desafiante é?', this.manager.getChallengedHandLength() === 6);
-  }
-}
-class LoadPhaseDisplayStepTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-
-  create() {
-    const phase = GameConst.LOAD_PHASE;
-    const finish = this.createHandler();
-    this.step = new DisplayStep(this._scene, phase, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de apresentação de carregar.');
-    this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
-    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', this.step.isDescriptionWindowVisible);
   }
 }
 class LoadPhaseTurnStepChallengedPassedTest extends SceneTest {
@@ -9888,6 +9900,10 @@ class Step {
   isChallengedBattlefieldVisible() {
     return this._challenged.battlefield.visible;
   }
+
+  end() {
+    if (typeof this._finish === 'function') return this._finish();
+  }
 }
 class DisplayStep extends Step {
   _titleWindow = {};
@@ -9913,19 +9929,19 @@ class DisplayStep extends Step {
   getPhaseTitle(phase) {
     switch (phase) {
       case GameConst.CHALLENGE_PHASE:
-        return 'Challenge Phase';
+        return ['Challenge Phase'];
         break;
       case GameConst.START_PHASE:
-        return 'Start Phase';
+        return ['Start Phase'];
         break;
       case GameConst.DRAW_PHASE:
-        return 'Draw Phase';
+        return ['Draw Phase'];
         break; 
       case GameConst.LOAD_PHASE:
-        return 'Load Phase';
+        return ['Load Phase'];
         break;
       default:
-        return 'Unknown Phase';
+        return ['Unknown Phase'];
         break;
     }
   }
@@ -9936,16 +9952,16 @@ class DisplayStep extends Step {
         return manager.getChallengeDescription();
         break;
       case GameConst.START_PHASE:
-        return 'Draw Calumon to go first.';
+        return ['Draw Calumon to go first.'];
         break;
       case GameConst.DRAW_PHASE:
-        return '6 cards will be drawn.';
+        return ['6 cards will be drawn.'];
         break;
       case GameConst.LOAD_PHASE:
-        return 'Select and use a Program Card.';
+        return ['Select and use a Program Card.'];
         break;
       default:
-        return 'Unknown Phase';
+        return ['Unknown Phase'];
         break;
     }
   }
@@ -10036,10 +10052,19 @@ class DisplayStep extends Step {
       case GameConst.CHALLENGE_PHASE:
         this.changeStep(FolderStep);
         break;
+      case GameConst.START_PHASE:
+        this.changeStep(MiniGameStep);
+        break;
+      case GameConst.DRAW_PHASE:
+        this.changeStep(DrawStep);
+        break;
+      case GameConst.LOAD_PHASE:
+        this.changeStep(TurnStep);
+        break;
       default:
         break;
     }
-    if (typeof this._finish === 'function') return this._finish();
+    this.end();
   }
 
   isBusy() {
@@ -11393,12 +11418,12 @@ class CardBattleTestScene extends Scene_Message {
     ];
     const steps = [
       DisplayStepInChallengePhaseTest,
+      DisplayStepInStartPhaseTest,
+      DisplayStepInDrawPhaseTest,
+      DisplayStepInLoadPhaseTest,
       // ChallengePhaseFolderStepTest,
-      // StartPhaseDisplayStepTest,
       // StartPhaseMiniGameStepTest,
-      // DrawPhaseDisplayStepTest,
       // DrawPhaseDrawStepTest,
-      // LoadPhaseDisplayStepTest,
       // LoadPhaseTurnStepPlayerStartFirstTest,
       // LoadPhaseTurnStepPlayerPlaysNextTest,
       // LoadPhaseTurnStepPlayerPassedTest,
@@ -11566,7 +11591,6 @@ class CardBattleTestScene extends Scene_Message {
   }
 
   isStep(step) {
-    console.log(this._status);
     return this._status instanceof step;
   }
 }

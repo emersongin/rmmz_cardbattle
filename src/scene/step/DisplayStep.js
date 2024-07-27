@@ -22,19 +22,19 @@ class DisplayStep extends Step {
   getPhaseTitle(phase) {
     switch (phase) {
       case GameConst.CHALLENGE_PHASE:
-        return 'Challenge Phase';
+        return ['Challenge Phase'];
         break;
       case GameConst.START_PHASE:
-        return 'Start Phase';
+        return ['Start Phase'];
         break;
       case GameConst.DRAW_PHASE:
-        return 'Draw Phase';
+        return ['Draw Phase'];
         break; 
       case GameConst.LOAD_PHASE:
-        return 'Load Phase';
+        return ['Load Phase'];
         break;
       default:
-        return 'Unknown Phase';
+        return ['Unknown Phase'];
         break;
     }
   }
@@ -45,16 +45,16 @@ class DisplayStep extends Step {
         return manager.getChallengeDescription();
         break;
       case GameConst.START_PHASE:
-        return 'Draw Calumon to go first.';
+        return ['Draw Calumon to go first.'];
         break;
       case GameConst.DRAW_PHASE:
-        return '6 cards will be drawn.';
+        return ['6 cards will be drawn.'];
         break;
       case GameConst.LOAD_PHASE:
-        return 'Select and use a Program Card.';
+        return ['Select and use a Program Card.'];
         break;
       default:
-        return 'Unknown Phase';
+        return ['Unknown Phase'];
         break;
     }
   }
@@ -145,10 +145,19 @@ class DisplayStep extends Step {
       case GameConst.CHALLENGE_PHASE:
         this.changeStep(FolderStep);
         break;
+      case GameConst.START_PHASE:
+        this.changeStep(MiniGameStep);
+        break;
+      case GameConst.DRAW_PHASE:
+        this.changeStep(DrawStep);
+        break;
+      case GameConst.LOAD_PHASE:
+        this.changeStep(TurnStep);
+        break;
       default:
         break;
     }
-    if (typeof this._finish === 'function') return this._finish();
+    this.end();
   }
 
   isBusy() {

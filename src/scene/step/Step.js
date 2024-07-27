@@ -660,4 +660,8 @@ class Step {
   isChallengedBattlefieldVisible() {
     return this._challenged.battlefield.visible;
   }
+
+  end() {
+    if (typeof this._finish === 'function') return this._finish();
+  }
 }
