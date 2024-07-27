@@ -73,10 +73,10 @@ class DisplayStep extends Step {
     this.commandAddChild(titleWindow);
   }
 
-  createDescriptionWindow(...texts) {
+  createDescriptionWindow(texts) {
     const maxSize = 3;
     const heightLines = Array(maxSize).fill('\n');
-    const content = [...texts, ...heightLines];
+    const content = texts.concat(heightLines);
     const maxContent = content.slice(0, maxSize);
     const descriptionWindow = TextWindow.createWindowFullSize(0, 0, maxContent);
     descriptionWindow.alignCenterBelowMiddle();
@@ -141,13 +141,14 @@ class DisplayStep extends Step {
   }
 
   finish(phase) {
-    if (typeof this._finish === 'function') return this._finish();
     switch (phase) {
-      case null:
+      case GameConst.CHALLENGE_PHASE:
+        this.changeStep(FolderStep);
         break;
       default:
         break;
     }
+    if (typeof this._finish === 'function') return this._finish();
   }
 
   isBusy() {
@@ -164,6 +165,14 @@ class DisplayStep extends Step {
 
   isDescriptionWindowVisible() {
     return this._descriptionWindow.visible;
+  }
+
+  isTextTitleWindow(text) {
+    return this._titleWindow.isTextWasDrawing('TEXT_0', text);
+  }
+
+  isTextDescriptionWindow(texts) {
+    return texts.some((text, index) => this._descriptionWindow.isTextWasDrawing(`TEXT_${index}`, text));
   }
   
 }

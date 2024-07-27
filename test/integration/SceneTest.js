@@ -348,4 +348,12 @@ class SceneTest {
       toBe: true
     });
   }
+
+  setStep(step) {
+    this._scene.setStep(step);
+  }
+
+  isStep(step) {
+    return this._scene.isStep(step);
+  }
 }

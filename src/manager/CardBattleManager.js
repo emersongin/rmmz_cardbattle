@@ -93,8 +93,11 @@ class CardBattleManager {
 
   static powerfield = [];
 
-  static getChallengeDescription () {
-    return 'descrição de desafiado, variando de acordo com o desafio.';
+  static getChallengeDescription() {
+    return [
+      ['Descrição de Desafiado'],
+      ['O jogador que é desafiado por você.'],
+    ];
   }
 
   static setPlayerFolderIndex(index) {

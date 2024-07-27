@@ -130,32 +130,32 @@ class CardBattleTestScene extends Scene_Message {
       AlignBelowOfStateWindowTest,
     ];
     const textWindowTests = [
-      CreateOneFourthSizeTextWindowTest,
-      CreateMiddleSizeTextWindowTest,
-      CreateFullSizeTextWindowTest,
-      OpenTextWindowTest,
-      CloseTextWindowTest,
-      ChangeBlueColorTextWindowTest,
-      ChangeRedColorTextWindowTest,
-      ChangeDefaultColorTextWindowTest,
-      AlignStartTopTextWindowTest,
-      AlignStartMiddleTextWindowTest,
-      AlignStartBottomTextWindowTest,
-      AlignCenterTopTextWindowTest,
-      AlignCenterAboveMiddleTextWindowTest,
-      AlignCenterMiddleTextWindowTest,
-      AlignCenterBelowMiddleTextWindowTest,
-      AlignCenterBottomTextWindowTest,
-      AlignEndTopTextWindowTest,
-      AlignEndMiddleTextWindowTest,
-      AlignEndBottomTextWindowTest,
-      AlignTextLeftTextWindowTest,
-      AlignTextCenterTextWindowTest,
-      AlignTextRightTextWindowTest,
+      // CreateOneFourthSizeTextWindowTest,
+      // CreateMiddleSizeTextWindowTest,
+      // CreateFullSizeTextWindowTest,
+      // OpenTextWindowTest,
+      // CloseTextWindowTest,
+      // ChangeBlueColorTextWindowTest,
+      // ChangeRedColorTextWindowTest,
+      // ChangeDefaultColorTextWindowTest,
+      // AlignStartTopTextWindowTest,
+      // AlignStartMiddleTextWindowTest,
+      // AlignStartBottomTextWindowTest,
+      // AlignCenterTopTextWindowTest,
+      // AlignCenterAboveMiddleTextWindowTest,
+      // AlignCenterMiddleTextWindowTest,
+      // AlignCenterBelowMiddleTextWindowTest,
+      // AlignCenterBottomTextWindowTest,
+      // AlignEndTopTextWindowTest,
+      // AlignEndMiddleTextWindowTest,
+      // AlignEndBottomTextWindowTest,
+      // AlignTextLeftTextWindowTest,
+      // AlignTextCenterTextWindowTest,
+      // AlignTextRightTextWindowTest,
       TextTextWindowTest,
-      ChangeTextColorTextWindowTest,
-      AlignAboveOfTextWindowTest,
-      AlignBelowOfTextWindowTest,
+      // ChangeTextColorTextWindowTest,
+      // AlignAboveOfTextWindowTest,
+      // AlignBelowOfTextWindowTest,
     ];
     const boardWindowTests = [
       PassBoardWindowTest,
@@ -199,7 +199,7 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const steps = [
-      // ChallengePhaseDisplayStepTest,
+      DisplayStepInChallengePhaseTest,
       // ChallengePhaseFolderStepTest,
       // StartPhaseDisplayStepTest,
       // StartPhaseMiniGameStepTest,
@@ -214,7 +214,7 @@ class CardBattleTestScene extends Scene_Message {
       // LoadPhaseTurnStepPlayerSelectHandTest,
       // LoadPhaseTurnStepChallengedActivatePowerCardTest,
       // LoadPhaseTurnStepChallengedPassedTest,
-      LoadPhaseHandStepTest,
+      // LoadPhaseHandStepTest,
     ];
     return [
       // ...cardSpriteTests,
@@ -372,7 +372,7 @@ class CardBattleTestScene extends Scene_Message {
     this._status = step;
   }
 
-  isCurrentStep(step) {
+  isStep(step) {
     return this._status instanceof step;
   }
 }

@@ -183,7 +183,7 @@
 // FOLDER WINDOW
 // include ../test/integration/folderwindow/CreateFolderWindowTest.js
 // STEPS
-// include ../test/integration/step/ChallengePhaseDisplayStepTest.js
+// include ../test/integration/step/DisplayStepInChallengePhaseTest.js
 // include ../test/integration/step/ChallengePhaseFolderStepTest.js
 // include ../test/integration/step/StartPhaseDisplayStepTest.js
 // include ../test/integration/step/StartPhaseMiniGameStepTest.js

@@ -5643,6 +5643,14 @@ class SceneTest {
       toBe: true
     });
   }
+
+  setStep(step) {
+    this._scene.setStep(step);
+  }
+
+  isStep(step) {
+    return this._scene.isStep(step);
+  }
 }
 // CARD SPRITE
 class SizeCardSpriteTest extends SceneTest {
@@ -8439,7 +8447,7 @@ class CreateFolderWindowTest extends SceneTest {
   }
 }
 // STEPS
-class ChallengePhaseDisplayStepTest extends SceneTest {
+class DisplayStepInChallengePhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
 
@@ -8451,7 +8459,7 @@ class ChallengePhaseDisplayStepTest extends SceneTest {
   }
 
   start() {
-    this._scene.setStep(this.step);
+    this.setStep(this.step);
     this.step.start(this.manager);
   }
 
@@ -8460,9 +8468,16 @@ class ChallengePhaseDisplayStepTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve apresentar etapa de apresentação de desafiado.');
+    this.describe('Deve apresentar etapa de apresentação de fase na fase do desafio.');
     this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
-    this.expectWasTrue('A janela de descrição de desafiado foi apresentada?', this.step.isDescriptionWindowVisible);
+    this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
+    this.expectTrue('O título da fase foi apresentado como?', this.step.isTextTitleWindow('Challenge Phase'));
+    const texts = [
+      'Descrição de Desafiado',
+      'O jogador que é desafiado por você.',
+    ];
+    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
+    this.expectTrue('A proxima Etapa é FolderStep?', this.isStep(FolderStep));
   }
 }
 class ChallengePhaseFolderStepTest extends SceneTest {
@@ -9004,8 +9019,11 @@ class CardBattleManager {
 
   static powerfield = [];
 
-  static getChallengeDescription () {
-    return 'descrição de desafiado, variando de acordo com o desafio.';
+  static getChallengeDescription() {
+    return [
+      ['Descrição de Desafiado'],
+      ['O jogador que é desafiado por você.'],
+    ];
   }
 
   static setPlayerFolderIndex(index) {
@@ -9946,10 +9964,10 @@ class DisplayStep extends Step {
     this.commandAddChild(titleWindow);
   }
 
-  createDescriptionWindow(...texts) {
+  createDescriptionWindow(texts) {
     const maxSize = 3;
     const heightLines = Array(maxSize).fill('\n');
-    const content = [...texts, ...heightLines];
+    const content = texts.concat(heightLines);
     const maxContent = content.slice(0, maxSize);
     const descriptionWindow = TextWindow.createWindowFullSize(0, 0, maxContent);
     descriptionWindow.alignCenterBelowMiddle();
@@ -10014,13 +10032,14 @@ class DisplayStep extends Step {
   }
 
   finish(phase) {
-    if (typeof this._finish === 'function') return this._finish();
     switch (phase) {
-      case null:
+      case GameConst.CHALLENGE_PHASE:
+        this.changeStep(FolderStep);
         break;
       default:
         break;
     }
+    if (typeof this._finish === 'function') return this._finish();
   }
 
   isBusy() {
@@ -10037,6 +10056,14 @@ class DisplayStep extends Step {
 
   isDescriptionWindowVisible() {
     return this._descriptionWindow.visible;
+  }
+
+  isTextTitleWindow(text) {
+    return this._titleWindow.isTextWasDrawing('TEXT_0', text);
+  }
+
+  isTextDescriptionWindow(texts) {
+    return texts.some((text, index) => this._descriptionWindow.isTextWasDrawing(`TEXT_${index}`, text));
   }
   
 }
@@ -11296,32 +11323,32 @@ class CardBattleTestScene extends Scene_Message {
       AlignBelowOfStateWindowTest,
     ];
     const textWindowTests = [
-      CreateOneFourthSizeTextWindowTest,
-      CreateMiddleSizeTextWindowTest,
-      CreateFullSizeTextWindowTest,
-      OpenTextWindowTest,
-      CloseTextWindowTest,
-      ChangeBlueColorTextWindowTest,
-      ChangeRedColorTextWindowTest,
-      ChangeDefaultColorTextWindowTest,
-      AlignStartTopTextWindowTest,
-      AlignStartMiddleTextWindowTest,
-      AlignStartBottomTextWindowTest,
-      AlignCenterTopTextWindowTest,
-      AlignCenterAboveMiddleTextWindowTest,
-      AlignCenterMiddleTextWindowTest,
-      AlignCenterBelowMiddleTextWindowTest,
-      AlignCenterBottomTextWindowTest,
-      AlignEndTopTextWindowTest,
-      AlignEndMiddleTextWindowTest,
-      AlignEndBottomTextWindowTest,
-      AlignTextLeftTextWindowTest,
-      AlignTextCenterTextWindowTest,
-      AlignTextRightTextWindowTest,
+      // CreateOneFourthSizeTextWindowTest,
+      // CreateMiddleSizeTextWindowTest,
+      // CreateFullSizeTextWindowTest,
+      // OpenTextWindowTest,
+      // CloseTextWindowTest,
+      // ChangeBlueColorTextWindowTest,
+      // ChangeRedColorTextWindowTest,
+      // ChangeDefaultColorTextWindowTest,
+      // AlignStartTopTextWindowTest,
+      // AlignStartMiddleTextWindowTest,
+      // AlignStartBottomTextWindowTest,
+      // AlignCenterTopTextWindowTest,
+      // AlignCenterAboveMiddleTextWindowTest,
+      // AlignCenterMiddleTextWindowTest,
+      // AlignCenterBelowMiddleTextWindowTest,
+      // AlignCenterBottomTextWindowTest,
+      // AlignEndTopTextWindowTest,
+      // AlignEndMiddleTextWindowTest,
+      // AlignEndBottomTextWindowTest,
+      // AlignTextLeftTextWindowTest,
+      // AlignTextCenterTextWindowTest,
+      // AlignTextRightTextWindowTest,
       TextTextWindowTest,
-      ChangeTextColorTextWindowTest,
-      AlignAboveOfTextWindowTest,
-      AlignBelowOfTextWindowTest,
+      // ChangeTextColorTextWindowTest,
+      // AlignAboveOfTextWindowTest,
+      // AlignBelowOfTextWindowTest,
     ];
     const boardWindowTests = [
       PassBoardWindowTest,
@@ -11365,7 +11392,7 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const steps = [
-      // ChallengePhaseDisplayStepTest,
+      DisplayStepInChallengePhaseTest,
       // ChallengePhaseFolderStepTest,
       // StartPhaseDisplayStepTest,
       // StartPhaseMiniGameStepTest,
@@ -11380,7 +11407,7 @@ class CardBattleTestScene extends Scene_Message {
       // LoadPhaseTurnStepPlayerSelectHandTest,
       // LoadPhaseTurnStepChallengedActivatePowerCardTest,
       // LoadPhaseTurnStepChallengedPassedTest,
-      LoadPhaseHandStepTest,
+      // LoadPhaseHandStepTest,
     ];
     return [
       // ...cardSpriteTests,
@@ -11538,7 +11565,8 @@ class CardBattleTestScene extends Scene_Message {
     this._status = step;
   }
 
-  isCurrentStep(step) {
+  isStep(step) {
+    console.log(this._status);
     return this._status instanceof step;
   }
 }
