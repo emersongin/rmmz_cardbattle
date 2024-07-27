@@ -206,7 +206,9 @@ class MiniGameStep extends Step {
   finish() {
     const phase = this.getPhase();
     switch (phase) {
-      case null:
+      case GameConst.START_PHASE:
+        this.changePhase(GameConst.DRAW_PHASE);
+        this.changeStep(DisplayStep);
         break;
       default:
         break;
@@ -236,5 +238,9 @@ class MiniGameStep extends Step {
 
   isResultWindowVisible() {
     return this._resultWindow.visible
+  }
+
+  isTextResultWindow(text) {
+    return this._resultWindow.isTextWasDrawing('TEXT_0', text);
   }
 }
