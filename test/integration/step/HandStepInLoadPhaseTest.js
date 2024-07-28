@@ -11,6 +11,7 @@ class HandStepInLoadPhaseTest extends SceneTest {
       blockPowerCardsInLoadPhase: true
     };
     this.step = new HandStep(this._scene, phase, config, finish);
+    this.addAssistedHidden(this.step);
   }
 
   start() {

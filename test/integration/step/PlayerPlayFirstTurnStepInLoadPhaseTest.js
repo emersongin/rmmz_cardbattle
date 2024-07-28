@@ -7,6 +7,7 @@ class PlayerPlayFirstTurnStepInLoadPhaseTest extends SceneTest {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
     this.step = new TurnStep(this._scene, phase, finish);
+    this.addAssistedHidden(this.step);
   }
 
   start() {

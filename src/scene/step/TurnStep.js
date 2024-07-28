@@ -7,18 +7,17 @@ class TurnStep extends Step {
   constructor(scene, phase, finish) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
-      throw new Error('Invalid phase for DisplayStep.');
+      throw new Error('Invalid phase for TurnStep.');
     }
     super(scene, phase, finish);
   }
 
   start(manager, text = 'Begin Load Phase') {
-    const phase = this.getPhase();
     this.createPlayerGameBoard(manager);
     this.createChallengedGameBoard(manager);
     this.openGameBoards();
     this.createTextWindow(text);
-    this.openBeginLoadPhaseWindow();
+    this.openTextWindow();
   }
 
   createTextWindow(text) {
@@ -34,7 +33,7 @@ class TurnStep extends Step {
     this.commandAddChild(textWindow);
   }
 
-  openBeginLoadPhaseWindow() {
+  openTextWindow() {
     this.addAction(this.commandOpenTextWindow);
   }
 
@@ -42,7 +41,7 @@ class TurnStep extends Step {
     this._textWindow.open();
   }
 
-  closeBeginLoadPhaseWindow() {
+  closeTextWindow() {
     this.addAction(this.commandCloseTextWindow);
   }
 
@@ -50,7 +49,7 @@ class TurnStep extends Step {
     this._textWindow.close();
   }
 
-  leaveBeginLoadPhaseWindow() {
+  leaveTextWindow() {
     this.addAction(this.commandLeaveBeginLoadPhaseWindow);
   }
 
@@ -67,8 +66,8 @@ class TurnStep extends Step {
 
   updateStartTurn() {
     if (this.isReady() && Input.isTriggered('ok')) {
-      this.closeBeginLoadPhaseWindow();
-      this.leaveBeginLoadPhaseWindow();
+      this.closeTextWindow();
+      this.leaveTextWindow();
       this.addAction(this.startTurn);
     }
   }
@@ -86,13 +85,12 @@ class TurnStep extends Step {
   }
 
   updateTurn(manager) {
-    const phase = this.getPhase();
     if (this.isStarted()) {
       if (this.updateActivePowerfieldByLimit(manager)) return;
       if (this.updatePlayerTurn(manager)) return;
       if (this.updateChallengedTurn(manager)) return;
       if (this.updateActivePowerfield(manager)) return;
-      this.addAction(this.finish, phase);
+      this.addAction(this.finish);
     }
   }
 
@@ -228,14 +226,15 @@ class TurnStep extends Step {
     }
   }
 
-  finish(phase) {
-    if (typeof this._finish === 'function') return this._finish();
+  finish() {
+    const phase = this.getPhase();
     switch (phase) {
-      case null:
+      case GameConst.LOAD_PHASE:
         break;
       default:
         break;
     }
+    if (typeof this._finish === 'function') return this._finish();
   }
 
   isBusy() {
