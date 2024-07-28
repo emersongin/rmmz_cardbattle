@@ -1,15 +1,43 @@
 class TurnStep extends Step {
-  _startTurn = false;
-  _awaitingDecision = false;
   _textWindow = {};
   _askWindow = {};
+  _startTurn = false;
+  _awaitingDecision = false;
+  _playerPlayHandler = null; 
+  _playerPassedHandler = null; 
+  _challengedPlayHandler = null; 
+  _challengedPassedHandler = null;
 
-  constructor(scene, phase, finish) {
+  constructor(
+    scene, 
+    phase, 
+    playerPlayHandler, 
+    playerPassedHandler, 
+    challengedPlayHandler, 
+    challengedPassedHandler,
+    finish
+  ) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for TurnStep.');
     }
     super(scene, phase, finish);
+    if (typeof playerPlayHandler !== 'function') {
+      throw new Error('Invalid playerPlayHandler for TurnStep.');
+    }
+    if (typeof playerPassedHandler !== 'function') {
+      throw new Error('Invalid playerPassedHandler for TurnStep.');
+    }
+    if (typeof challengedPlayHandler !== 'function') {
+      throw new Error('Invalid challengedPlayHandler for TurnStep.');
+    }
+    if (typeof challengedPassedHandler !== 'function') {
+      throw new Error('Invalid challengedPassedHandler for TurnStep.');
+    }
+    this._playerPlayHandler = playerPlayHandler;
+    this._playerPassedHandler = playerPassedHandler;
+    this._challengedPlayHandler = challengedPlayHandler;
+    this._challengedPassedHandler = challengedPassedHandler;
   }
 
   start(manager, text = 'Begin Load Phase') {
@@ -41,6 +69,25 @@ class TurnStep extends Step {
     this._textWindow.open();
   }
 
+  update(manager) {
+    super.update();
+    if (this.isBusy() || this.hasActions() || this.isAwaitingDecision()) return false;
+    this.updateStartTurn();
+    this.updateTurn(manager);
+  }
+
+  updateStartTurn() {
+    if (this.isReady() && Input.isTriggered('ok')) {
+      this.closeTextWindow();
+      this.leaveTextWindow();
+      this.addAction(this.startTurn);
+    }
+  }
+
+  isReady() {
+    return this._startTurn === false;
+  }
+
   closeTextWindow() {
     this.addAction(this.commandCloseTextWindow);
   }
@@ -57,33 +104,6 @@ class TurnStep extends Step {
     this.removeChild(this._textWindow);
   }
 
-  update(manager) {
-    super.update();
-    if (this.isBusy() || this.hasActions() || this.isAwaitingDecision()) return false;
-    this.updateStartTurn();
-    this.updateTurn(manager);
-  }
-
-  updateStartTurn() {
-    if (this.isReady() && Input.isTriggered('ok')) {
-      this.closeTextWindow();
-      this.leaveTextWindow();
-      this.addAction(this.startTurn);
-    }
-  }
-
-  startTurn() {
-    this._startTurn = true;
-  }
-
-  isReady() {
-    return this._startTurn === false;
-  }
-
-  isStarted() {
-    return this._startTurn;
-  }
-
   updateTurn(manager) {
     if (this.isStarted()) {
       if (this.updateActivePowerfieldByLimit(manager)) return;
@@ -94,8 +114,13 @@ class TurnStep extends Step {
     }
   }
 
+  isStarted() {
+    return this._startTurn;
+  }
+
   updateActivePowerfieldByLimit(manager) {
-    const isPowerfieldFull = manager.getPowerfieldLength() >= 3;
+    const limit = 3;
+    const isPowerfieldFull = manager.getPowerfieldLength() >= limit;
     if (isPowerfieldFull) {
       this.addAction(this.commandActivePowerfield);
       return true;
@@ -111,25 +136,25 @@ class TurnStep extends Step {
   updatePlayerTurn(manager) {
     const startPlay = manager.isPlayerStartTurn();
     if ((startPlay || manager.isChallengedPassed()) && manager.isPlayerPassed() === false) {
-      const commandYes = () => {
-        this.commandPlayerSelectHandPlay(manager);
-      };
-      const commandNo = () => {
-        this.commandPlayerSelectPasse(manager);
-      };
-      this.createAskWindow('Use a Program Card?', commandYes, commandNo);
+      const commandYes = this.commandPlayerPlay();
+      const yesEnabled = manager.isPlayerHasPowerCardInHand();
+      const commandNo = this.commandPlayerPasse();
+      const text = 'Use a Program Card?';
+      this.createAskWindow(text, commandYes, yesEnabled, commandNo);
       this.openAskWindow();
       this._awaitingDecision = true;
       return true;
     } 
   }
 
-  commandPlayerSelectHandPlay(manager) {
-    this.commandCloseAskWindow();
-    this.leaveAskWindow();
-    this.closeGameBoards();
-    this.leaveGameBoards();
-    this.addAction(this.commandPlayerHand, manager);
+  commandPlayerPlay() {
+    return () => {
+      this.commandCloseAskWindow();
+      this.leaveAskWindow();
+      this.closeGameBoards();
+      this.leaveGameBoards();
+      this.addAction(this._playerPlayHandler);
+    }
   }
 
   commandCloseAskWindow() {
@@ -144,35 +169,26 @@ class TurnStep extends Step {
     this.removeChild(this._askWindow);
   }
 
-  commandPlayerHand(manager) {
-    const config = {
-      player: GameConst.PLAYER,
-      blockBattleCards: true,
-      blockPowerCardsInLoadPhase: true,
+  commandPlayerPasse() {
+    return () => {
+      this.commandCloseAskWindow();
+      this.leaveAskWindow();
+      this.playerBoardWindowPass();
+      this.addAction(this.commandPlayerPassed);
+      this.addAction(this.commandDropDecision);
     };
-    this.changeStep(HandStep, config);
-    if (typeof this._finish === 'function') return this._finish();
-    this.destroy();
   }
 
-  commandPlayerSelectPasse(manager) {
-    this.commandCloseAskWindow();
-    this.leaveAskWindow();
-    this.playerBoardWindowPass();
-    this.addAction(this.commandPlayerPassed, manager);
-    this.addAction(this.commandDropDecision);
-  }
-
-  commandPlayerPassed(manager) {
-    manager.playerPassed();
+  commandPlayerPassed() {
+    this._playerPassedHandler();
   }
 
   commandDropDecision() {
     this._awaitingDecision = false;
   }
 
-  createAskWindow(text, yesHandler, noHanlder) {
-    const commandYes = CommandWindow.createCommand('Yes', 'YES', yesHandler);
+  createAskWindow(text, yesHandler, yesEnabled, noHanlder) {
+    const commandYes = CommandWindow.createCommand('Yes', 'YES', yesHandler, yesEnabled);
     const commandNo = CommandWindow.createCommand('No', 'NO', noHanlder);
     const askWindow = CommandWindow.create(0, 0, [text], [commandYes, commandNo]);
     askWindow.alignBottom();
@@ -196,27 +212,25 @@ class TurnStep extends Step {
   updateChallengedTurn(manager) {
     if (manager.isChallengedPassed() === false) {
       if (manager.isChallengedHasPowerCardInHand()) {
-        this.addAction(this.commandChallengedActivePowerCard);
+        this.addAction(this.commandChallengedPlay);
         return true;
       }
-      this.commandChallengedSelectPasse(manager);
+      this.commandChallengedPasse();
       return true;
     }
   }
 
-  commandChallengedActivePowerCard() {
-    this.changeStep(ActivatePowerCardStep);
-    if (typeof this._finish === 'function') return this._finish();
-    this.destroy();
+  commandChallengedPlay() {
+    this._challengedPlayHandler();
   }
 
-  commandChallengedSelectPasse(manager) {
+  commandChallengedPasse() {
     this.challengedBoardWindowPass();
-    this.addAction(this.commandChallengedPassed, manager);
+    this.addAction(this.commandChallengedPassed);
   }
 
-  commandChallengedPassed(manager) {
-    manager.challengedPassed();
+  commandChallengedPassed() {
+    this._challengedPassedHandler();
   }
 
   updateActivePowerfield(manager) {
@@ -243,6 +257,10 @@ class TurnStep extends Step {
       this._askWindow,
     ];
     return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
+  }
+
+  startTurn() {
+    this._startTurn = true;
   }
 
   isAwaitingDecision() {

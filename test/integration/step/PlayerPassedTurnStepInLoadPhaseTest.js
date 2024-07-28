@@ -6,7 +6,11 @@ class PlayerPassedTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, phase, finish);
+    const dummyFn = () => {};
+    const commandPlayerPassed = () => {
+      this.manager.playerPassed();
+    };
+    this.step = new TurnStep(this._scene, phase, dummyFn, commandPlayerPassed, dummyFn, dummyFn, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -18,6 +22,7 @@ class PlayerPassedTurnStepInLoadPhaseTest extends SceneTest {
       this.passed = true;
       finish();
     });
+    this.manager.playerStart();
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }

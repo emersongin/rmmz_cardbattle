@@ -278,6 +278,10 @@ class CardBattleManager {
     return CardBattleManager.challenged.hand.some(card => card.type === GameConst.POWER);
   }
 
+  static isPlayerHasPowerCardInHand() {
+    return CardBattleManager.player.hand.some(card => card.type === GameConst.POWER);
+  }
+
   static drawPlayerCards(cardsNumber) {
     const cards = CardBattleManager.player.deck.splice(0, cardsNumber);
     CardBattleManager.player.hand.push(...cards);

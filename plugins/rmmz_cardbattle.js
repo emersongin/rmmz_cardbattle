@@ -8714,7 +8714,17 @@ class PlayerPlayedTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, phase, finish);
+    const dummyFn = () => {};
+    const commandPlayerPlay = () => {
+      const config = {
+        player: GameConst.PLAYER,
+        blockBattleCards: true,
+        blockPowerCardsInLoadPhase: true,
+      };
+      this.step.changeStep(HandStep, config);
+      finish();
+    };
+    this.step = new TurnStep(this._scene, phase, commandPlayerPlay, dummyFn, dummyFn, dummyFn, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -8722,6 +8732,7 @@ class PlayerPlayedTurnStepInLoadPhaseTest extends SceneTest {
     this.manager.setPlayerDeck();
     this.manager.setChallengedDeck();
     this.manager.playerStart();
+    this.manager.drawPlayerCards(6);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -8751,7 +8762,11 @@ class PlayerPassedTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, phase, finish);
+    const dummyFn = () => {};
+    const commandPlayerPassed = () => {
+      this.manager.playerPassed();
+    };
+    this.step = new TurnStep(this._scene, phase, dummyFn, commandPlayerPassed, dummyFn, dummyFn, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -8763,6 +8778,7 @@ class PlayerPassedTurnStepInLoadPhaseTest extends SceneTest {
       this.passed = true;
       finish();
     });
+    this.manager.playerStart();
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -8792,7 +8808,8 @@ class PlayerPlayFirstTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, phase, finish);
+    const dummyFn = () => {};
+    this.step = new TurnStep(this._scene, phase, dummyFn, dummyFn, dummyFn, dummyFn, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -8837,7 +8854,8 @@ class PlayerPlayNextTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, phase, finish);
+    const dummyFn = () => {};
+    this.step = new TurnStep(this._scene, phase, dummyFn, dummyFn, dummyFn, dummyFn, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -8880,7 +8898,12 @@ class ChallengedPlayedTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, phase, finish);
+    const dummyFn = () => {};
+    const commandChallengedPlay = () => {
+      this.step.changeStep(ActivatePowerCardStep);
+      finish();
+    };
+    this.step = new TurnStep(this._scene, phase, dummyFn, dummyFn, commandChallengedPlay, dummyFn, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -8916,7 +8939,11 @@ class ChallengedPassedTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, phase, finish);
+    const dummyFn = () => {};
+    const commandChallengedPassed = () => {
+      this.manager.challengedPassed();
+    };
+    this.step = new TurnStep(this._scene, phase, dummyFn, dummyFn, dummyFn, commandChallengedPassed, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -8956,14 +8983,21 @@ class ActivetePowerFieldTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, phase, finish);
+    const dummyFn = () => {};
+    this.step = new TurnStep(this._scene, phase, dummyFn, dummyFn, dummyFn, dummyFn, finish);
     this.addAssistedHidden(this.step);
   }
 
   start() {
     this.manager.playerPassed();
     this.manager.challengedPassed();
-    const powerCard = { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 };
+    const powerCard = { 
+      type: GameConst.POWER, 
+      color: GameConst.BLACK, 
+      figureName: 'default', 
+      attack: 10, 
+      health: 10,
+    };
     this.manager.addPowerCardToPowerfield(powerCard);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
@@ -8974,8 +9008,17 @@ class ActivetePowerFieldTurnStepInLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('A fase campo de poder deve ser ativada tendo pelo menos um cartão de poder!');
-    this.expectTrue('Esta na fase campo de poder?', this._scene.isCurrentStep(RunPowerfieldStep));
+    this.describe('Deve apresentar etapa de turno e ativar o campo de poder na fase de carregar.');
+    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
+    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
+    this.expectTrue('Foi ativado com menos de 3 cartas?', this.manager.getPowerfieldLength() < 3);
+    this.expectTrue('A proxima Etapa é ActivatePowerCardStep?', this.isStep(RunPowerfieldStep));
   }
 }
 class ActivetePowerFieldByLimitTurnStepInLoadPhaseTest extends SceneTest {
@@ -8985,12 +9028,21 @@ class ActivetePowerFieldByLimitTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, phase, finish);
+    const dummyFn = () => {};
+    this.step = new TurnStep(this._scene, phase, dummyFn, dummyFn, dummyFn, dummyFn, finish);
     this.addAssistedHidden(this.step);
   }
 
   start() {
-    const powerCard = { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10 };
+    this.manager.playerPassed();
+    this.manager.challengedPassed();
+    const powerCard = { 
+      type: GameConst.POWER, 
+      color: GameConst.BLACK, 
+      figureName: 'default', 
+      attack: 10, 
+      health: 10,
+    };
     this.manager.addPowerCardToPowerfield(powerCard);
     this.manager.addPowerCardToPowerfield(powerCard);
     this.manager.addPowerCardToPowerfield(powerCard);
@@ -9003,9 +9055,17 @@ class ActivetePowerFieldByLimitTurnStepInLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('A fase campo de poder deve ser ativada tendo pelo menos um cartão de poder!');
-    this.expectTrue('O campo de poder esta com 3 cartões?', this.manager.getPowerfieldLength() === 3);
-    this.expectTrue('Esta na fase campo de poder?', this._scene.isCurrentStep(RunPowerfieldStep));
+    this.describe('Deve apresentar etapa de turno e ativar o campo de poder na fase de carregar.');
+    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
+    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
+    this.expectTrue('Foi ativado com limite de 3?', this.manager.getPowerfieldLength() === 3);
+    this.expectTrue('A proxima Etapa é ActivatePowerCardStep?', this.isStep(RunPowerfieldStep));
   }
 }
 class HandStepInLoadPhaseTest extends SceneTest {
@@ -9320,6 +9380,10 @@ class CardBattleManager {
 
   static isChallengedHasPowerCardInHand() {
     return CardBattleManager.challenged.hand.some(card => card.type === GameConst.POWER);
+  }
+
+  static isPlayerHasPowerCardInHand() {
+    return CardBattleManager.player.hand.some(card => card.type === GameConst.POWER);
   }
 
   static drawPlayerCards(cardsNumber) {
@@ -10208,7 +10272,20 @@ class DisplayStep extends Step {
         this.changeStep(DrawStep);
         break;
       case GameConst.LOAD_PHASE:
-        this.changeStep(TurnStep);
+        const playerPlay = () => {
+          const config = {
+            player: GameConst.PLAYER,
+            blockBattleCards: true,
+            blockPowerCardsInLoadPhase: true,
+          };
+          this.changeStep(HandStep, config);
+        };
+        const playerPassed = () => manager.playerPassed();
+        const challengedPlay = () => {
+          this.changeStep(ActivatePowerCardStep);
+        };
+        const challengedPassed = () => manager.challengedPassed();
+        this.changeStep(TurnStep, playerPlay, playerPassed, challengedPlay, challengedPassed);
         break;
       default:
         break;
@@ -11227,17 +11304,45 @@ class HandStep extends Step {
   }
 }
 class TurnStep extends Step {
-  _startTurn = false;
-  _awaitingDecision = false;
   _textWindow = {};
   _askWindow = {};
+  _startTurn = false;
+  _awaitingDecision = false;
+  _playerPlayHandler = null; 
+  _playerPassedHandler = null; 
+  _challengedPlayHandler = null; 
+  _challengedPassedHandler = null;
 
-  constructor(scene, phase, finish) {
+  constructor(
+    scene, 
+    phase, 
+    playerPlayHandler, 
+    playerPassedHandler, 
+    challengedPlayHandler, 
+    challengedPassedHandler,
+    finish
+  ) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for TurnStep.');
     }
     super(scene, phase, finish);
+    if (typeof playerPlayHandler !== 'function') {
+      throw new Error('Invalid playerPlayHandler for TurnStep.');
+    }
+    if (typeof playerPassedHandler !== 'function') {
+      throw new Error('Invalid playerPassedHandler for TurnStep.');
+    }
+    if (typeof challengedPlayHandler !== 'function') {
+      throw new Error('Invalid challengedPlayHandler for TurnStep.');
+    }
+    if (typeof challengedPassedHandler !== 'function') {
+      throw new Error('Invalid challengedPassedHandler for TurnStep.');
+    }
+    this._playerPlayHandler = playerPlayHandler;
+    this._playerPassedHandler = playerPassedHandler;
+    this._challengedPlayHandler = challengedPlayHandler;
+    this._challengedPassedHandler = challengedPassedHandler;
   }
 
   start(manager, text = 'Begin Load Phase') {
@@ -11269,6 +11374,25 @@ class TurnStep extends Step {
     this._textWindow.open();
   }
 
+  update(manager) {
+    super.update();
+    if (this.isBusy() || this.hasActions() || this.isAwaitingDecision()) return false;
+    this.updateStartTurn();
+    this.updateTurn(manager);
+  }
+
+  updateStartTurn() {
+    if (this.isReady() && Input.isTriggered('ok')) {
+      this.closeTextWindow();
+      this.leaveTextWindow();
+      this.addAction(this.startTurn);
+    }
+  }
+
+  isReady() {
+    return this._startTurn === false;
+  }
+
   closeTextWindow() {
     this.addAction(this.commandCloseTextWindow);
   }
@@ -11285,33 +11409,6 @@ class TurnStep extends Step {
     this.removeChild(this._textWindow);
   }
 
-  update(manager) {
-    super.update();
-    if (this.isBusy() || this.hasActions() || this.isAwaitingDecision()) return false;
-    this.updateStartTurn();
-    this.updateTurn(manager);
-  }
-
-  updateStartTurn() {
-    if (this.isReady() && Input.isTriggered('ok')) {
-      this.closeTextWindow();
-      this.leaveTextWindow();
-      this.addAction(this.startTurn);
-    }
-  }
-
-  startTurn() {
-    this._startTurn = true;
-  }
-
-  isReady() {
-    return this._startTurn === false;
-  }
-
-  isStarted() {
-    return this._startTurn;
-  }
-
   updateTurn(manager) {
     if (this.isStarted()) {
       if (this.updateActivePowerfieldByLimit(manager)) return;
@@ -11322,8 +11419,13 @@ class TurnStep extends Step {
     }
   }
 
+  isStarted() {
+    return this._startTurn;
+  }
+
   updateActivePowerfieldByLimit(manager) {
-    const isPowerfieldFull = manager.getPowerfieldLength() >= 3;
+    const limit = 3;
+    const isPowerfieldFull = manager.getPowerfieldLength() >= limit;
     if (isPowerfieldFull) {
       this.addAction(this.commandActivePowerfield);
       return true;
@@ -11339,25 +11441,25 @@ class TurnStep extends Step {
   updatePlayerTurn(manager) {
     const startPlay = manager.isPlayerStartTurn();
     if ((startPlay || manager.isChallengedPassed()) && manager.isPlayerPassed() === false) {
-      const commandYes = () => {
-        this.commandPlayerSelectHandPlay(manager);
-      };
-      const commandNo = () => {
-        this.commandPlayerSelectPasse(manager);
-      };
-      this.createAskWindow('Use a Program Card?', commandYes, commandNo);
+      const commandYes = this.commandPlayerPlay();
+      const yesEnabled = manager.isPlayerHasPowerCardInHand();
+      const commandNo = this.commandPlayerPasse();
+      const text = 'Use a Program Card?';
+      this.createAskWindow(text, commandYes, yesEnabled, commandNo);
       this.openAskWindow();
       this._awaitingDecision = true;
       return true;
     } 
   }
 
-  commandPlayerSelectHandPlay(manager) {
-    this.commandCloseAskWindow();
-    this.leaveAskWindow();
-    this.closeGameBoards();
-    this.leaveGameBoards();
-    this.addAction(this.commandPlayerHand, manager);
+  commandPlayerPlay() {
+    return () => {
+      this.commandCloseAskWindow();
+      this.leaveAskWindow();
+      this.closeGameBoards();
+      this.leaveGameBoards();
+      this.addAction(this._playerPlayHandler);
+    }
   }
 
   commandCloseAskWindow() {
@@ -11372,35 +11474,26 @@ class TurnStep extends Step {
     this.removeChild(this._askWindow);
   }
 
-  commandPlayerHand(manager) {
-    const config = {
-      player: GameConst.PLAYER,
-      blockBattleCards: true,
-      blockPowerCardsInLoadPhase: true,
+  commandPlayerPasse() {
+    return () => {
+      this.commandCloseAskWindow();
+      this.leaveAskWindow();
+      this.playerBoardWindowPass();
+      this.addAction(this.commandPlayerPassed);
+      this.addAction(this.commandDropDecision);
     };
-    this.changeStep(HandStep, config);
-    if (typeof this._finish === 'function') return this._finish();
-    this.destroy();
   }
 
-  commandPlayerSelectPasse(manager) {
-    this.commandCloseAskWindow();
-    this.leaveAskWindow();
-    this.playerBoardWindowPass();
-    this.addAction(this.commandPlayerPassed, manager);
-    this.addAction(this.commandDropDecision);
-  }
-
-  commandPlayerPassed(manager) {
-    manager.playerPassed();
+  commandPlayerPassed() {
+    this._playerPassedHandler();
   }
 
   commandDropDecision() {
     this._awaitingDecision = false;
   }
 
-  createAskWindow(text, yesHandler, noHanlder) {
-    const commandYes = CommandWindow.createCommand('Yes', 'YES', yesHandler);
+  createAskWindow(text, yesHandler, yesEnabled, noHanlder) {
+    const commandYes = CommandWindow.createCommand('Yes', 'YES', yesHandler, yesEnabled);
     const commandNo = CommandWindow.createCommand('No', 'NO', noHanlder);
     const askWindow = CommandWindow.create(0, 0, [text], [commandYes, commandNo]);
     askWindow.alignBottom();
@@ -11424,27 +11517,25 @@ class TurnStep extends Step {
   updateChallengedTurn(manager) {
     if (manager.isChallengedPassed() === false) {
       if (manager.isChallengedHasPowerCardInHand()) {
-        this.addAction(this.commandChallengedActivePowerCard);
+        this.addAction(this.commandChallengedPlay);
         return true;
       }
-      this.commandChallengedSelectPasse(manager);
+      this.commandChallengedPasse();
       return true;
     }
   }
 
-  commandChallengedActivePowerCard() {
-    this.changeStep(ActivatePowerCardStep);
-    if (typeof this._finish === 'function') return this._finish();
-    this.destroy();
+  commandChallengedPlay() {
+    this._challengedPlayHandler();
   }
 
-  commandChallengedSelectPasse(manager) {
+  commandChallengedPasse() {
     this.challengedBoardWindowPass();
-    this.addAction(this.commandChallengedPassed, manager);
+    this.addAction(this.commandChallengedPassed);
   }
 
-  commandChallengedPassed(manager) {
-    manager.challengedPassed();
+  commandChallengedPassed() {
+    this._challengedPassedHandler();
   }
 
   updateActivePowerfield(manager) {
@@ -11471,6 +11562,10 @@ class TurnStep extends Step {
       this._askWindow,
     ];
     return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
+  }
+
+  startTurn() {
+    this._startTurn = true;
   }
 
   isAwaitingDecision() {
@@ -11669,21 +11764,21 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const steps = [
-      // DisplayStepInChallengePhaseTest,
-      // FolderStepInChallengePhaseTest,
-      // DisplayStepInStartPhaseTest,
-      // MiniGameInStartPhaseStepTest,
-      // DisplayStepInDrawPhaseTest,
-      // DrawStepInDrawPhaseTest,
-      // DisplayStepInLoadPhaseTest,
-      // PlayerPassedTurnStepInLoadPhaseTest,
-      // PlayerPlayedTurnStepInLoadPhaseTest,
-      // PlayerPlayFirstTurnStepInLoadPhaseTest,
-      // PlayerPlayNextTurnStepInLoadPhaseTest,
+      DisplayStepInChallengePhaseTest,
+      FolderStepInChallengePhaseTest,
+      DisplayStepInStartPhaseTest,
+      MiniGameInStartPhaseStepTest,
+      DisplayStepInDrawPhaseTest,
+      DrawStepInDrawPhaseTest,
+      DisplayStepInLoadPhaseTest,
+      PlayerPassedTurnStepInLoadPhaseTest,
+      PlayerPlayedTurnStepInLoadPhaseTest,
+      PlayerPlayFirstTurnStepInLoadPhaseTest,
+      PlayerPlayNextTurnStepInLoadPhaseTest,
       ChallengedPassedTurnStepInLoadPhaseTest,
       ChallengedPlayedTurnStepInLoadPhaseTest,
-      // ActivetePowerFieldTurnStepInLoadPhaseTest,
-      // ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
+      ActivetePowerFieldTurnStepInLoadPhaseTest,
+      ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
       // HandStepInLoadPhaseTest,
     ];
     return [

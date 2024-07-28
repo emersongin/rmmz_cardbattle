@@ -157,7 +157,20 @@ class DisplayStep extends Step {
         this.changeStep(DrawStep);
         break;
       case GameConst.LOAD_PHASE:
-        this.changeStep(TurnStep);
+        const playerPlay = () => {
+          const config = {
+            player: GameConst.PLAYER,
+            blockBattleCards: true,
+            blockPowerCardsInLoadPhase: true,
+          };
+          this.changeStep(HandStep, config);
+        };
+        const playerPassed = () => manager.playerPassed();
+        const challengedPlay = () => {
+          this.changeStep(ActivatePowerCardStep);
+        };
+        const challengedPassed = () => manager.challengedPassed();
+        this.changeStep(TurnStep, playerPlay, playerPassed, challengedPlay, challengedPassed);
         break;
       default:
         break;

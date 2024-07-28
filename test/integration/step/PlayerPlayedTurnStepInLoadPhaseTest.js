@@ -5,7 +5,17 @@ class PlayerPlayedTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, phase, finish);
+    const dummyFn = () => {};
+    const commandPlayerPlay = () => {
+      const config = {
+        player: GameConst.PLAYER,
+        blockBattleCards: true,
+        blockPowerCardsInLoadPhase: true,
+      };
+      this.step.changeStep(HandStep, config);
+      finish();
+    };
+    this.step = new TurnStep(this._scene, phase, commandPlayerPlay, dummyFn, dummyFn, dummyFn, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -13,6 +23,7 @@ class PlayerPlayedTurnStepInLoadPhaseTest extends SceneTest {
     this.manager.setPlayerDeck();
     this.manager.setChallengedDeck();
     this.manager.playerStart();
+    this.manager.drawPlayerCards(6);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
