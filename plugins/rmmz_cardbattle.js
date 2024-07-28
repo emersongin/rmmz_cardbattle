@@ -8707,7 +8707,7 @@ class DisplayStepInLoadPhaseTest extends SceneTest {
     this.expectTrue('A proxima Etapa é TurnStep?', this.isStep(TurnStep));
   }
 }
-class LoadPhaseTurnStepChallengedPassedTest extends SceneTest {
+class PlayerPlayedTurnStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
 
@@ -8720,11 +8720,7 @@ class LoadPhaseTurnStepChallengedPassedTest extends SceneTest {
   start() {
     this.manager.setPlayerDeck();
     this.manager.setChallengedDeck();
-    const finish = this.createHandler();
-    this.mockFunction(this.manager, 'challengedPassed', () => {
-      this.manager.challenged.passed = true;
-      finish();
-    });
+    this.manager.playerStart();
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -8734,8 +8730,8 @@ class LoadPhaseTurnStepChallengedPassedTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('O desafiado deve passar a jogada na etapa de jogadas de fase de carregar.');
-    this.expectTrue('O desafiado passou a jogada?', this.manager.isChallengedPassed());
+    this.describe('O jogador deve selecionar a mão na etapa de jogadas de fase de carregar.');
+    this.expectTrue('Esta na fase mão?', this._scene.isCurrentStep(HandStep));
   }
 }
 class LoadPhaseTurnStepPlayerPassedTest extends SceneTest {
@@ -8769,7 +8765,7 @@ class LoadPhaseTurnStepPlayerPassedTest extends SceneTest {
     this.expectTrue('O jogador passou a jogada?', this.manager.isPlayerPassed());
   }
 }
-class LoadPhaseTurnStepPlayerStartFirstTest extends SceneTest {
+class PlayerPlayFirstTurnStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
   turns = [];
@@ -8806,7 +8802,7 @@ class LoadPhaseTurnStepPlayerStartFirstTest extends SceneTest {
     this.expectTrue('O jogador iniciou a jogada?', this.turns[0] === GameConst.PLAYER);
   }
 }
-class LoadPhaseTurnStepPlayerPlaysNextTest extends SceneTest {
+class PlayerPlayNextTurnStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
 
@@ -8837,7 +8833,65 @@ class LoadPhaseTurnStepPlayerPlaysNextTest extends SceneTest {
     this.expectTrue('O jogador não iniciou a jogada?', this.manager.isPlayerStartTurn() === false);
   }
 }
-class LoadPhaseTurnStepPowerfieldActiveTest extends SceneTest {
+class ChallengedPlayedTurnStepInLoadPhaseTest extends SceneTest {
+  manager = CardBattleManager;
+  step;
+
+  create() {
+    const phase = GameConst.LOAD_PHASE;
+    const finish = this.createHandler();
+    this.step = new TurnStep(this._scene, phase, finish);
+  }
+
+  start() {
+    this.manager.setPlayerDeck();
+    this.manager.setChallengedDeck();
+    this.manager.drawChallengedCards(6);
+    this._scene.setStep(this.step);
+    this.step.start(this.manager);
+  }
+
+  update() {
+    this.step.update(this.manager);
+  }
+  
+  asserts() {
+    this.describe('O desafiado deve acionar um cartão de poder na etapa de jogadas de fase de carregar.');
+    this.expectTrue('Esta na fase de acionar um cartão de poder?', this._scene.isCurrentStep(ActivatePowerCardStep));
+  }
+}
+class ChallengedPassedTurnStepInLoadPhaseTest extends SceneTest {
+  manager = CardBattleManager;
+  step;
+
+  create() {
+    const phase = GameConst.LOAD_PHASE;
+    const finish = this.createHandler();
+    this.step = new TurnStep(this._scene, phase, finish);
+  }
+
+  start() {
+    this.manager.setPlayerDeck();
+    this.manager.setChallengedDeck();
+    const finish = this.createHandler();
+    this.mockFunction(this.manager, 'challengedPassed', () => {
+      this.manager.challenged.passed = true;
+      finish();
+    });
+    this._scene.setStep(this.step);
+    this.step.start(this.manager);
+  }
+
+  update() {
+    this.step.update(this.manager);
+  }
+  
+  asserts() {
+    this.describe('O desafiado deve passar a jogada na etapa de jogadas de fase de carregar.');
+    this.expectTrue('O desafiado passou a jogada?', this.manager.isChallengedPassed());
+  }
+}
+class ActivetePowerFieldTurnStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
 
@@ -8865,7 +8919,7 @@ class LoadPhaseTurnStepPowerfieldActiveTest extends SceneTest {
     this.expectTrue('Esta na fase campo de poder?', this._scene.isCurrentStep(RunPowerfieldStep));
   }
 }
-class LoadPhaseTurnStepPowerfieldActiveByLimitTest extends SceneTest {
+class ActivetePowerFieldByLimitTurnStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
 
@@ -8894,61 +8948,7 @@ class LoadPhaseTurnStepPowerfieldActiveByLimitTest extends SceneTest {
     this.expectTrue('Esta na fase campo de poder?', this._scene.isCurrentStep(RunPowerfieldStep));
   }
 }
-class LoadPhaseTurnStepPlayerSelectHandTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-
-  create() {
-    const phase = GameConst.LOAD_PHASE;
-    const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, phase, finish);
-  }
-
-  start() {
-    this.manager.setPlayerDeck();
-    this.manager.setChallengedDeck();
-    this.manager.playerStart();
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('O jogador deve selecionar a mão na etapa de jogadas de fase de carregar.');
-    this.expectTrue('Esta na fase mão?', this._scene.isCurrentStep(HandStep));
-  }
-}
-class LoadPhaseTurnStepChallengedActivatePowerCardTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-
-  create() {
-    const phase = GameConst.LOAD_PHASE;
-    const finish = this.createHandler();
-    this.step = new TurnStep(this._scene, phase, finish);
-  }
-
-  start() {
-    this.manager.setPlayerDeck();
-    this.manager.setChallengedDeck();
-    this.manager.drawChallengedCards(6);
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('O desafiado deve acionar um cartão de poder na etapa de jogadas de fase de carregar.');
-    this.expectTrue('Esta na fase de acionar um cartão de poder?', this._scene.isCurrentStep(ActivatePowerCardStep));
-  }
-}
-class LoadPhaseHandStepTest extends SceneTest {
+class HandStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
 
@@ -11614,18 +11614,17 @@ class CardBattleTestScene extends Scene_Message {
       // DisplayStepInStartPhaseTest,
       // MiniGameInStartPhaseStepTest,
       // DisplayStepInDrawPhaseTest,
-      DrawStepInDrawPhaseTest,
-      // DisplayStepInLoadPhaseTest,
-      
-      // LoadPhaseTurnStepPlayerStartFirstTest,
-      // LoadPhaseTurnStepPlayerPlaysNextTest,
-      // LoadPhaseTurnStepPlayerPassedTest,
-      // LoadPhaseTurnStepPowerfieldActiveTest,
-      // LoadPhaseTurnStepPowerfieldActiveByLimitTest,
-      // LoadPhaseTurnStepPlayerSelectHandTest,
-      // LoadPhaseTurnStepChallengedActivatePowerCardTest,
-      // LoadPhaseTurnStepChallengedPassedTest,
-      // LoadPhaseHandStepTest,
+      // DrawStepInDrawPhaseTest,
+      DisplayStepInLoadPhaseTest,
+      // PlayerPlayedTurnStepInLoadPhaseTest,
+      // PlayerPassedTurnStepInLoadPhaseTest,
+      // PlayerPlayFirstTurnStepInLoadPhaseTest,
+      // PlayerPlayNextTurnStepInLoadPhaseTest,
+      // ChallengedPlayedTurnStepInLoadPhaseTest,
+      // ChallengedPassedTurnStepInLoadPhaseTest,
+      // ActivetePowerFieldTurnStepInLoadPhaseTest,
+      // ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
+      // HandStepInLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

@@ -1,4 +1,4 @@
-class LoadPhaseTurnStepPlayerStartFirstTest extends SceneTest {
+class PlayerPlayFirstTurnStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
   turns = [];

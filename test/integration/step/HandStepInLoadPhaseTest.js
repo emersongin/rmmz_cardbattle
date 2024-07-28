@@ -1,4 +1,4 @@
-class LoadPhaseHandStepTest extends SceneTest {
+class HandStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
 

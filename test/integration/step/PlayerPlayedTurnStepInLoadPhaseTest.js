@@ -1,4 +1,4 @@
-class LoadPhaseTurnStepChallengedPassedTest extends SceneTest {
+class PlayerPlayedTurnStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
 
@@ -11,11 +11,7 @@ class LoadPhaseTurnStepChallengedPassedTest extends SceneTest {
   start() {
     this.manager.setPlayerDeck();
     this.manager.setChallengedDeck();
-    const finish = this.createHandler();
-    this.mockFunction(this.manager, 'challengedPassed', () => {
-      this.manager.challenged.passed = true;
-      finish();
-    });
+    this.manager.playerStart();
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -25,7 +21,7 @@ class LoadPhaseTurnStepChallengedPassedTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('O desafiado deve passar a jogada na etapa de jogadas de fase de carregar.');
-    this.expectTrue('O desafiado passou a jogada?', this.manager.isChallengedPassed());
+    this.describe('O jogador deve selecionar a mão na etapa de jogadas de fase de carregar.');
+    this.expectTrue('Esta na fase mão?', this._scene.isCurrentStep(HandStep));
   }
 }

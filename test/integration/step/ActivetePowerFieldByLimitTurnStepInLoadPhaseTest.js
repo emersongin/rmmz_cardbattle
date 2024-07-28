@@ -1,4 +1,4 @@
-class LoadPhaseTurnStepPowerfieldActiveByLimitTest extends SceneTest {
+class ActivetePowerFieldByLimitTurnStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
 

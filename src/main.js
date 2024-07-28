@@ -190,15 +190,15 @@
 // include ../test/integration/step/DisplayStepInDrawPhaseTest.js
 // include ../test/integration/step/DrawStepInDrawPhaseTest.js
 // include ../test/integration/step/DisplayStepInLoadPhaseTest.js
-// include ../test/integration/step/LoadPhaseTurnStepChallengedPassedTest.js
-// include ../test/integration/step/LoadPhaseTurnStepPlayerPassedTest.js
-// include ../test/integration/step/LoadPhaseTurnStepPlayerStartFirstTest.js
-// include ../test/integration/step/LoadPhaseTurnStepPlayerPlaysNextTest.js
-// include ../test/integration/step/LoadPhaseTurnStepPowerfieldActiveTest.js
-// include ../test/integration/step/LoadPhaseTurnStepPowerfieldActiveByLimitTest.js
-// include ../test/integration/step/LoadPhaseTurnStepPlayerSelectHandTest.js
-// include ../test/integration/step/LoadPhaseTurnStepChallengedActivatePowerCardTest.js
-// include ../test/integration/step/LoadPhaseHandStepTest.js
+// include ../test/integration/step/PlayerPlayedTurnStepInLoadPhaseTest.js
+// include ../test/integration/step/PlayerPassedTurnStepInLoadPhaseTest.js
+// include ../test/integration/step/PlayerPlayFirstTurnStepInLoadPhaseTest.js
+// include ../test/integration/step/PlayerPlayNextTurnStepInLoadPhaseTest.js
+// include ../test/integration/step/ChallengedPlayedTurnStepInLoadPhaseTest.js
+// include ../test/integration/step/ChallengedPassedTurnStepInLoadPhaseTest.js
+// include ../test/integration/step/ActivetePowerFieldTurnStepInLoadPhaseTest.js
+// include ../test/integration/step/ActivetePowerFieldByLimitTurnStepInLoadPhaseTest.js
+// include ../test/integration/step/HandStepInLoadPhaseTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js

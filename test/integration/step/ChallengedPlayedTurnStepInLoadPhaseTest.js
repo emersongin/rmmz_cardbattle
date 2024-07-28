@@ -1,4 +1,4 @@
-class LoadPhaseTurnStepPlayerSelectHandTest extends SceneTest {
+class ChallengedPlayedTurnStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
 
@@ -11,7 +11,7 @@ class LoadPhaseTurnStepPlayerSelectHandTest extends SceneTest {
   start() {
     this.manager.setPlayerDeck();
     this.manager.setChallengedDeck();
-    this.manager.playerStart();
+    this.manager.drawChallengedCards(6);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -21,7 +21,7 @@ class LoadPhaseTurnStepPlayerSelectHandTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('O jogador deve selecionar a mão na etapa de jogadas de fase de carregar.');
-    this.expectTrue('Esta na fase mão?', this._scene.isCurrentStep(HandStep));
+    this.describe('O desafiado deve acionar um cartão de poder na etapa de jogadas de fase de carregar.');
+    this.expectTrue('Esta na fase de acionar um cartão de poder?', this._scene.isCurrentStep(ActivatePowerCardStep));
   }
 }
