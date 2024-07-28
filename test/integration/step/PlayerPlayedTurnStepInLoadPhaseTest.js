@@ -32,8 +32,5 @@ class PlayerPlayedTurnStepInLoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
     this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
     this.expectTrue('A proxima Etapa é HandStep?', this.isStep(HandStep));
-
-    // deveMudarEtapa
-
   }
 }

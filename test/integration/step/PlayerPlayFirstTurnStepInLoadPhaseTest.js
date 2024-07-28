@@ -16,11 +16,9 @@ class PlayerPlayFirstTurnStepInLoadPhaseTest extends SceneTest {
     const finish = this.createHandler();
     this.mockFunction(this.manager, 'playerStart', () => {
       this.turns.push(GameConst.PLAYER);
-      this.manager.playerStartTurn = true;
     });
     this.mockFunction(this.manager, 'isPlayerStartTurn', () => {
       finish();
-      return this.manager.playerStartTurn;
     });
     this.manager.playerStart();
     this._scene.setStep(this.step);
@@ -32,7 +30,16 @@ class PlayerPlayFirstTurnStepInLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('O jogador deve iniciar a jogada na etapa de jogadas de fase de carregar.');
-    this.expectTrue('O jogador iniciou a jogada?', this.turns[0] === GameConst.PLAYER);
+    this.describe('Deve apresentar etapa de turno e jogador jogar primeiro na fase de carregar.');
+    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
+    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
+    const first = this.turns.shift();
+    this.expectTrue('O jogador foi o primeiro a jogar?', first === GameConst.PLAYER);
   }
 }

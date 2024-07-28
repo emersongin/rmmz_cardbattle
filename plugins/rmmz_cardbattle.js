@@ -8741,9 +8741,6 @@ class PlayerPlayedTurnStepInLoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
     this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
     this.expectTrue('A proxima Etapa é HandStep?', this.isStep(HandStep));
-
-    // deveMudarEtapa
-
   }
 }
 class PlayerPassedTurnStepInLoadPhaseTest extends SceneTest {
@@ -8763,7 +8760,6 @@ class PlayerPassedTurnStepInLoadPhaseTest extends SceneTest {
     this.manager.setChallengedDeck();
     const finish = this.createHandler();
     this.mockFunction(this.manager, 'playerPassed', () => {
-      this.manager.player.passed = true;
       this.passed = true;
       finish();
     });
@@ -8806,11 +8802,9 @@ class PlayerPlayFirstTurnStepInLoadPhaseTest extends SceneTest {
     const finish = this.createHandler();
     this.mockFunction(this.manager, 'playerStart', () => {
       this.turns.push(GameConst.PLAYER);
-      this.manager.playerStartTurn = true;
     });
     this.mockFunction(this.manager, 'isPlayerStartTurn', () => {
       finish();
-      return this.manager.playerStartTurn;
     });
     this.manager.playerStart();
     this._scene.setStep(this.step);
@@ -8822,13 +8816,23 @@ class PlayerPlayFirstTurnStepInLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('O jogador deve iniciar a jogada na etapa de jogadas de fase de carregar.');
-    this.expectTrue('O jogador iniciou a jogada?', this.turns[0] === GameConst.PLAYER);
+    this.describe('Deve apresentar etapa de turno e jogador jogar primeiro na fase de carregar.');
+    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
+    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
+    const first = this.turns.shift();
+    this.expectTrue('O jogador foi o primeiro a jogar?', first === GameConst.PLAYER);
   }
 }
 class PlayerPlayNextTurnStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
+  turns = [];
 
   create() {
     const phase = GameConst.LOAD_PHASE;
@@ -8841,9 +8845,11 @@ class PlayerPlayNextTurnStepInLoadPhaseTest extends SceneTest {
     this.manager.setPlayerDeck();
     this.manager.setChallengedDeck();
     const finish = this.createHandler();
+    this.mockFunction(this.manager, 'playerStart', () => {
+      this.turns.push(GameConst.PLAYER);
+    });
     this.mockFunction(this.manager, 'isPlayerStartTurn', () => {
       finish();
-      return this.manager.playerStartTurn;
     });
     this._scene.setStep(this.step);
     this.step.start(this.manager);
@@ -8854,8 +8860,17 @@ class PlayerPlayNextTurnStepInLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('O jogador não deve iniciar a jogada na etapa de jogadas de fase de carregar.');
-    this.expectTrue('O jogador não iniciou a jogada?', this.manager.isPlayerStartTurn() === false);
+    this.describe('Deve apresentar etapa de turno e jogador jogar primeiro na fase de carregar.');
+    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
+    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
+    const empty = this.turns.length === 0;
+    this.expectTrue('O jogador não fez jogada?', empty === true);
   }
 }
 class ChallengedPlayedTurnStepInLoadPhaseTest extends SceneTest {
@@ -8882,8 +8897,16 @@ class ChallengedPlayedTurnStepInLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('O desafiado deve acionar um cartão de poder na etapa de jogadas de fase de carregar.');
-    this.expectTrue('Esta na fase de acionar um cartão de poder?', this._scene.isCurrentStep(ActivatePowerCardStep));
+    this.describe('Deve apresentar etapa de turno e desafiado faz jogada na fase de carregar.');
+    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
+    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
+    this.expectTrue('A proxima Etapa é ActivatePowerCardStep?', this.isStep(ActivatePowerCardStep));
   }
 }
 class ChallengedPassedTurnStepInLoadPhaseTest extends SceneTest {
@@ -8914,7 +8937,15 @@ class ChallengedPassedTurnStepInLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('O desafiado deve passar a jogada na etapa de jogadas de fase de carregar.');
+    this.describe('Deve apresentar etapa de turno e desafiado passar a jogada na fase de carregar.');
+    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
+    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
     this.expectTrue('O desafiado passou a jogada?', this.manager.isChallengedPassed());
   }
 }
@@ -11645,12 +11676,12 @@ class CardBattleTestScene extends Scene_Message {
       // DisplayStepInDrawPhaseTest,
       // DrawStepInDrawPhaseTest,
       // DisplayStepInLoadPhaseTest,
-      PlayerPassedTurnStepInLoadPhaseTest,
-      PlayerPlayedTurnStepInLoadPhaseTest,
+      // PlayerPassedTurnStepInLoadPhaseTest,
+      // PlayerPlayedTurnStepInLoadPhaseTest,
       // PlayerPlayFirstTurnStepInLoadPhaseTest,
       // PlayerPlayNextTurnStepInLoadPhaseTest,
-      // ChallengedPassedTurnStepInLoadPhaseTest,
-      // ChallengedPlayedTurnStepInLoadPhaseTest,
+      ChallengedPassedTurnStepInLoadPhaseTest,
+      ChallengedPlayedTurnStepInLoadPhaseTest,
       // ActivetePowerFieldTurnStepInLoadPhaseTest,
       // ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
       // HandStepInLoadPhaseTest,

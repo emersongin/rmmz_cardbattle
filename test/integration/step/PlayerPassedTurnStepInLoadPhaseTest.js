@@ -15,7 +15,6 @@ class PlayerPassedTurnStepInLoadPhaseTest extends SceneTest {
     this.manager.setChallengedDeck();
     const finish = this.createHandler();
     this.mockFunction(this.manager, 'playerPassed', () => {
-      this.manager.player.passed = true;
       this.passed = true;
       finish();
     });
