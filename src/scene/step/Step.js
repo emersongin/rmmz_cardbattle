@@ -166,14 +166,14 @@ class Step {
     this._scene.setStep(step);
   }
 
-  destroy() {
-    this._actionsQueue = [];
-    this._wait = 0;
-    this._player = {};
-    this._challenged = {};
-    this._powerFieldCardsetSprite = {};
-    this._finish = null;
-  }
+  // destroy() {
+  //   this._actionsQueue = [];
+  //   this._wait = 0;
+  //   this._player = {};
+  //   this._challenged = {};
+  //   this._powerFieldCardsetSprite = {};
+  //   this._finish = null;
+  // }
 
   getPhase() {
     return this._phase;

@@ -5,12 +5,17 @@ class ChallengedPlayedTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    const dummyFn = () => {};
-    const commandChallengedPlay = () => {
-      this.step.changeStep(ActivatePowerCardStep);
-      finish();
+    const handlers = {
+      playerPlayHandler: () => {},
+      playerPassedHandler: () => {},
+      challengedPlayHandler: () => {
+        this.step.changeStep(ActivatePowerCardStep);
+        finish();
+      },
+      challengedPassedHandler: () => {},
+      activePowerfieldHandler: () => {},
     };
-    this.step = new TurnStep(this._scene, phase, dummyFn, dummyFn, commandChallengedPlay, dummyFn, finish);
+    this.step = new TurnStep(this._scene, phase, handlers, finish);
     this.addAssistedHidden(this.step);
   }
 

@@ -197,7 +197,6 @@ class HandStep extends Step {
   commandSelectPowerCard() {
     this.changeStep(ActivatePowerCardStep);
     if (typeof this._finish === 'function') return this._finish();
-    this.destroy();
   }
 
   commandGetHandSprites(index) {
@@ -281,7 +280,6 @@ class HandStep extends Step {
   commandToGoBack() {
     this.changeStep(TurnStep);
     if (typeof this._finish === 'function') return this._finish();
-    this.destroy();
   }
 
   openCardsetSprite(manager) {

@@ -8714,17 +8714,22 @@ class PlayerPlayedTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    const dummyFn = () => {};
-    const commandPlayerPlay = () => {
-      const config = {
-        player: GameConst.PLAYER,
-        blockBattleCards: true,
-        blockPowerCardsInLoadPhase: true,
-      };
-      this.step.changeStep(HandStep, config);
-      finish();
+    const handlers = {
+      playerPlayHandler: () => {
+        const config = {
+          player: GameConst.PLAYER,
+          blockBattleCards: true,
+          blockPowerCardsInLoadPhase: true,
+        };
+        this.step.changeStep(HandStep, config);
+        finish();
+      },
+      playerPassedHandler: () => {},
+      challengedPlayHandler: () => {},
+      challengedPassedHandler: () => {},
+      activePowerfieldHandler: () => {},
     };
-    this.step = new TurnStep(this._scene, phase, commandPlayerPlay, dummyFn, dummyFn, dummyFn, finish);
+    this.step = new TurnStep(this._scene, phase, handlers, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -8762,22 +8767,24 @@ class PlayerPassedTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    const dummyFn = () => {};
-    const commandPlayerPassed = () => {
-      this.manager.playerPassed();
+    const handlers = {
+      playerPlayHandler: () => {},
+      playerPassedHandler: () => {
+        this.manager.playerPassed();
+        this.passed = true;
+        finish();
+      },
+      challengedPlayHandler: () => {},
+      challengedPassedHandler: () => {},
+      activePowerfieldHandler: () => {},
     };
-    this.step = new TurnStep(this._scene, phase, dummyFn, commandPlayerPassed, dummyFn, dummyFn, finish);
+    this.step = new TurnStep(this._scene, phase, handlers, finish);
     this.addAssistedHidden(this.step);
   }
 
   start() {
     this.manager.setPlayerDeck();
     this.manager.setChallengedDeck();
-    const finish = this.createHandler();
-    this.mockFunction(this.manager, 'playerPassed', () => {
-      this.passed = true;
-      finish();
-    });
     this.manager.playerStart();
     this._scene.setStep(this.step);
     this.step.start(this.manager);
@@ -8808,8 +8815,14 @@ class PlayerPlayFirstTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    const dummyFn = () => {};
-    this.step = new TurnStep(this._scene, phase, dummyFn, dummyFn, dummyFn, dummyFn, finish);
+    const handlers = {
+      playerPlayHandler: () => {},
+      playerPassedHandler: () => {},
+      challengedPlayHandler: () => {},
+      challengedPassedHandler: () => {},
+      activePowerfieldHandler: () => {},
+    };
+    this.step = new TurnStep(this._scene, phase, handlers, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -8854,8 +8867,14 @@ class PlayerPlayNextTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    const dummyFn = () => {};
-    this.step = new TurnStep(this._scene, phase, dummyFn, dummyFn, dummyFn, dummyFn, finish);
+    const handlers = {
+      playerPlayHandler: () => {},
+      playerPassedHandler: () => {},
+      challengedPlayHandler: () => {},
+      challengedPassedHandler: () => {},
+      activePowerfieldHandler: () => {},
+    };
+    this.step = new TurnStep(this._scene, phase, handlers, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -8898,12 +8917,17 @@ class ChallengedPlayedTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    const dummyFn = () => {};
-    const commandChallengedPlay = () => {
-      this.step.changeStep(ActivatePowerCardStep);
-      finish();
+    const handlers = {
+      playerPlayHandler: () => {},
+      playerPassedHandler: () => {},
+      challengedPlayHandler: () => {
+        this.step.changeStep(ActivatePowerCardStep);
+        finish();
+      },
+      challengedPassedHandler: () => {},
+      activePowerfieldHandler: () => {},
     };
-    this.step = new TurnStep(this._scene, phase, dummyFn, dummyFn, commandChallengedPlay, dummyFn, finish);
+    this.step = new TurnStep(this._scene, phase, handlers, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -8935,26 +8959,29 @@ class ChallengedPlayedTurnStepInLoadPhaseTest extends SceneTest {
 class ChallengedPassedTurnStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
+  passed;
 
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    const dummyFn = () => {};
-    const commandChallengedPassed = () => {
-      this.manager.challengedPassed();
+    const handlers = {
+      playerPlayHandler: () => {},
+      playerPassedHandler: () => {},
+      challengedPlayHandler: () => {},
+      challengedPassedHandler: () => {
+        this.manager.challengedPassed();
+        this.passed = true;
+        finish();
+      },
+      activePowerfieldHandler: () => {},
     };
-    this.step = new TurnStep(this._scene, phase, dummyFn, dummyFn, dummyFn, commandChallengedPassed, finish);
+    this.step = new TurnStep(this._scene, phase, handlers, finish);
     this.addAssistedHidden(this.step);
   }
 
   start() {
     this.manager.setPlayerDeck();
     this.manager.setChallengedDeck();
-    const finish = this.createHandler();
-    this.mockFunction(this.manager, 'challengedPassed', () => {
-      this.manager.challenged.passed = true;
-      finish();
-    });
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -8973,7 +9000,7 @@ class ChallengedPassedTurnStepInLoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
     this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
     this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    this.expectTrue('O desafiado passou a jogada?', this.manager.isChallengedPassed());
+    this.expectTrue('O desafiado passou a jogada?', this.passed === true);
   }
 }
 class ActivetePowerFieldTurnStepInLoadPhaseTest extends SceneTest {
@@ -8983,8 +9010,17 @@ class ActivetePowerFieldTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    const dummyFn = () => {};
-    this.step = new TurnStep(this._scene, phase, dummyFn, dummyFn, dummyFn, dummyFn, finish);
+    const handlers = {
+      playerPlayHandler: () => {},
+      playerPassedHandler: () => {},
+      challengedPlayHandler: () => {},
+      challengedPassedHandler: () => {},
+      activePowerfieldHandler: () => {
+        this.step.changeStep(RunPowerfieldStep);
+        finish();
+      },
+    };
+    this.step = new TurnStep(this._scene, phase, handlers, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -9028,8 +9064,17 @@ class ActivetePowerFieldByLimitTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    const dummyFn = () => {};
-    this.step = new TurnStep(this._scene, phase, dummyFn, dummyFn, dummyFn, dummyFn, finish);
+    const handlers = {
+      playerPlayHandler: () => {},
+      playerPassedHandler: () => {},
+      challengedPlayHandler: () => {},
+      challengedPassedHandler: () => {},
+      activePowerfieldHandler: () => {
+        this.step.changeStep(RunPowerfieldStep);
+        finish();
+      },
+    };
+    this.step = new TurnStep(this._scene, phase, handlers, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -10272,20 +10317,29 @@ class DisplayStep extends Step {
         this.changeStep(DrawStep);
         break;
       case GameConst.LOAD_PHASE:
-        const playerPlay = () => {
-          const config = {
-            player: GameConst.PLAYER,
-            blockBattleCards: true,
-            blockPowerCardsInLoadPhase: true,
-          };
-          this.changeStep(HandStep, config);
+        const handlers = {
+          playerPlayHandler: () => {
+            const config = {
+              player: GameConst.PLAYER,
+              blockBattleCards: true,
+              blockPowerCardsInLoadPhase: true,
+            };
+            this.changeStep(HandStep, config);
+          },
+          playerPassedHandler: () => {
+            manager.playerPassed();
+          },
+          challengedPlayHandler: () => {
+            this.changeStep(ActivatePowerCardStep);
+          },
+          challengedPassedHandler: () => {
+            manager.challengedPassed();
+          },
+          activePowerfieldHandler: () => {
+            this.changeStep(RunPowerfieldStep);
+          },
         };
-        const playerPassed = () => manager.playerPassed();
-        const challengedPlay = () => {
-          this.changeStep(ActivatePowerCardStep);
-        };
-        const challengedPassed = () => manager.challengedPassed();
-        this.changeStep(TurnStep, playerPlay, playerPassed, challengedPlay, challengedPassed);
+        this.changeStep(TurnStep, handlers);
         break;
       default:
         break;
@@ -11308,18 +11362,16 @@ class TurnStep extends Step {
   _askWindow = {};
   _startTurn = false;
   _awaitingDecision = false;
-  _playerPlayHandler = null; 
-  _playerPassedHandler = null; 
-  _challengedPlayHandler = null; 
-  _challengedPassedHandler = null;
+  _playerPlayHandler = () => {}; 
+  _playerPassedHandler = () => {}; 
+  _challengedPlayHandler = () => {}; 
+  _challengedPassedHandler = () => {};
+  _activePowerfieldHandler = () => {};
 
   constructor(
     scene, 
     phase, 
-    playerPlayHandler, 
-    playerPassedHandler, 
-    challengedPlayHandler, 
-    challengedPassedHandler,
+    handlers,
     finish
   ) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
@@ -11327,22 +11379,26 @@ class TurnStep extends Step {
       throw new Error('Invalid phase for TurnStep.');
     }
     super(scene, phase, finish);
-    if (typeof playerPlayHandler !== 'function') {
+    if (!handlers.playerPlayHandler || typeof handlers.playerPlayHandler !== 'function') {
       throw new Error('Invalid playerPlayHandler for TurnStep.');
     }
-    if (typeof playerPassedHandler !== 'function') {
+    if (!handlers.playerPassedHandler || typeof handlers.playerPassedHandler !== 'function') {
       throw new Error('Invalid playerPassedHandler for TurnStep.');
     }
-    if (typeof challengedPlayHandler !== 'function') {
+    if (!handlers.challengedPlayHandler || typeof handlers.challengedPlayHandler !== 'function') {
       throw new Error('Invalid challengedPlayHandler for TurnStep.');
     }
-    if (typeof challengedPassedHandler !== 'function') {
+    if (!handlers.challengedPassedHandler || typeof handlers.challengedPassedHandler !== 'function') {
       throw new Error('Invalid challengedPassedHandler for TurnStep.');
     }
-    this._playerPlayHandler = playerPlayHandler;
-    this._playerPassedHandler = playerPassedHandler;
-    this._challengedPlayHandler = challengedPlayHandler;
-    this._challengedPassedHandler = challengedPassedHandler;
+    if (!handlers.activePowerfieldHandler || typeof handlers.activePowerfieldHandler !== 'function') {
+      throw new Error('Invalid activePowerfieldHandler for TurnStep.');
+    }
+    this._playerPlayHandler = handlers?.playerPlayHandler;
+    this._playerPassedHandler = handlers?.playerPassedHandler;
+    this._challengedPlayHandler = handlers?.challengedPlayHandler;
+    this._challengedPassedHandler = handlers?.challengedPassedHandler;
+    this._activePowerfieldHandler = handlers?.activePowerfieldHandler;
   }
 
   start(manager, text = 'Begin Load Phase') {
@@ -11433,9 +11489,7 @@ class TurnStep extends Step {
   }
 
   commandActivePowerfield() {
-    this.changeStep(RunPowerfieldStep);
-    if (typeof this._finish === 'function') return this._finish();
-    this.destroy();
+    this._activePowerfieldHandler();
   }
 
   updatePlayerTurn(manager) {
@@ -11540,7 +11594,7 @@ class TurnStep extends Step {
 
   updateActivePowerfield(manager) {
     if (manager.getPowerfieldLength() > 0) {
-      this.commandActivePowerfield();
+      this.addAction(this.commandActivePowerfield);
       return true;
     }
   }

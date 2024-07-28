@@ -3,18 +3,16 @@ class TurnStep extends Step {
   _askWindow = {};
   _startTurn = false;
   _awaitingDecision = false;
-  _playerPlayHandler = null; 
-  _playerPassedHandler = null; 
-  _challengedPlayHandler = null; 
-  _challengedPassedHandler = null;
+  _playerPlayHandler = () => {}; 
+  _playerPassedHandler = () => {}; 
+  _challengedPlayHandler = () => {}; 
+  _challengedPassedHandler = () => {};
+  _activePowerfieldHandler = () => {};
 
   constructor(
     scene, 
     phase, 
-    playerPlayHandler, 
-    playerPassedHandler, 
-    challengedPlayHandler, 
-    challengedPassedHandler,
+    handlers,
     finish
   ) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
@@ -22,22 +20,26 @@ class TurnStep extends Step {
       throw new Error('Invalid phase for TurnStep.');
     }
     super(scene, phase, finish);
-    if (typeof playerPlayHandler !== 'function') {
+    if (!handlers.playerPlayHandler || typeof handlers.playerPlayHandler !== 'function') {
       throw new Error('Invalid playerPlayHandler for TurnStep.');
     }
-    if (typeof playerPassedHandler !== 'function') {
+    if (!handlers.playerPassedHandler || typeof handlers.playerPassedHandler !== 'function') {
       throw new Error('Invalid playerPassedHandler for TurnStep.');
     }
-    if (typeof challengedPlayHandler !== 'function') {
+    if (!handlers.challengedPlayHandler || typeof handlers.challengedPlayHandler !== 'function') {
       throw new Error('Invalid challengedPlayHandler for TurnStep.');
     }
-    if (typeof challengedPassedHandler !== 'function') {
+    if (!handlers.challengedPassedHandler || typeof handlers.challengedPassedHandler !== 'function') {
       throw new Error('Invalid challengedPassedHandler for TurnStep.');
     }
-    this._playerPlayHandler = playerPlayHandler;
-    this._playerPassedHandler = playerPassedHandler;
-    this._challengedPlayHandler = challengedPlayHandler;
-    this._challengedPassedHandler = challengedPassedHandler;
+    if (!handlers.activePowerfieldHandler || typeof handlers.activePowerfieldHandler !== 'function') {
+      throw new Error('Invalid activePowerfieldHandler for TurnStep.');
+    }
+    this._playerPlayHandler = handlers?.playerPlayHandler;
+    this._playerPassedHandler = handlers?.playerPassedHandler;
+    this._challengedPlayHandler = handlers?.challengedPlayHandler;
+    this._challengedPassedHandler = handlers?.challengedPassedHandler;
+    this._activePowerfieldHandler = handlers?.activePowerfieldHandler;
   }
 
   start(manager, text = 'Begin Load Phase') {
@@ -76,6 +78,10 @@ class TurnStep extends Step {
     this.updateTurn(manager);
   }
 
+  isAwaitingDecision() {
+    return this._awaitingDecision;
+  }
+
   updateStartTurn() {
     if (this.isReady() && Input.isTriggered('ok')) {
       this.closeTextWindow();
@@ -104,6 +110,10 @@ class TurnStep extends Step {
     this.removeChild(this._textWindow);
   }
 
+  startTurn() {
+    this._startTurn = true;
+  }
+
   updateTurn(manager) {
     if (this.isStarted()) {
       if (this.updateActivePowerfieldByLimit(manager)) return;
@@ -128,9 +138,7 @@ class TurnStep extends Step {
   }
 
   commandActivePowerfield() {
-    this.changeStep(RunPowerfieldStep);
-    if (typeof this._finish === 'function') return this._finish();
-    this.destroy();
+    this._activePowerfieldHandler();
   }
 
   updatePlayerTurn(manager) {
@@ -235,7 +243,7 @@ class TurnStep extends Step {
 
   updateActivePowerfield(manager) {
     if (manager.getPowerfieldLength() > 0) {
-      this.commandActivePowerfield();
+      this.addAction(this.commandActivePowerfield);
       return true;
     }
   }
@@ -257,13 +265,5 @@ class TurnStep extends Step {
       this._askWindow,
     ];
     return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
-  }
-
-  startTurn() {
-    this._startTurn = true;
-  }
-
-  isAwaitingDecision() {
-    return this._awaitingDecision;
   }
 }

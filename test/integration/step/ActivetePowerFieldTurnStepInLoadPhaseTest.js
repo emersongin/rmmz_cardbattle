@@ -5,8 +5,17 @@ class ActivetePowerFieldTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    const dummyFn = () => {};
-    this.step = new TurnStep(this._scene, phase, dummyFn, dummyFn, dummyFn, dummyFn, finish);
+    const handlers = {
+      playerPlayHandler: () => {},
+      playerPassedHandler: () => {},
+      challengedPlayHandler: () => {},
+      challengedPassedHandler: () => {},
+      activePowerfieldHandler: () => {
+        this.step.changeStep(RunPowerfieldStep);
+        finish();
+      },
+    };
+    this.step = new TurnStep(this._scene, phase, handlers, finish);
     this.addAssistedHidden(this.step);
   }
 

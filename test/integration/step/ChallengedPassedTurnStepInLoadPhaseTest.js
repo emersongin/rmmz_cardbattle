@@ -1,26 +1,29 @@
 class ChallengedPassedTurnStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
+  passed;
 
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    const dummyFn = () => {};
-    const commandChallengedPassed = () => {
-      this.manager.challengedPassed();
+    const handlers = {
+      playerPlayHandler: () => {},
+      playerPassedHandler: () => {},
+      challengedPlayHandler: () => {},
+      challengedPassedHandler: () => {
+        this.manager.challengedPassed();
+        this.passed = true;
+        finish();
+      },
+      activePowerfieldHandler: () => {},
     };
-    this.step = new TurnStep(this._scene, phase, dummyFn, dummyFn, dummyFn, commandChallengedPassed, finish);
+    this.step = new TurnStep(this._scene, phase, handlers, finish);
     this.addAssistedHidden(this.step);
   }
 
   start() {
     this.manager.setPlayerDeck();
     this.manager.setChallengedDeck();
-    const finish = this.createHandler();
-    this.mockFunction(this.manager, 'challengedPassed', () => {
-      this.manager.challenged.passed = true;
-      finish();
-    });
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -39,6 +42,6 @@ class ChallengedPassedTurnStepInLoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
     this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
     this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    this.expectTrue('O desafiado passou a jogada?', this.manager.isChallengedPassed());
+    this.expectTrue('O desafiado passou a jogada?', this.passed === true);
   }
 }

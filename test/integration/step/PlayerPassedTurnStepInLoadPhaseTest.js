@@ -6,22 +6,24 @@ class PlayerPassedTurnStepInLoadPhaseTest extends SceneTest {
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
-    const dummyFn = () => {};
-    const commandPlayerPassed = () => {
-      this.manager.playerPassed();
+    const handlers = {
+      playerPlayHandler: () => {},
+      playerPassedHandler: () => {
+        this.manager.playerPassed();
+        this.passed = true;
+        finish();
+      },
+      challengedPlayHandler: () => {},
+      challengedPassedHandler: () => {},
+      activePowerfieldHandler: () => {},
     };
-    this.step = new TurnStep(this._scene, phase, dummyFn, commandPlayerPassed, dummyFn, dummyFn, finish);
+    this.step = new TurnStep(this._scene, phase, handlers, finish);
     this.addAssistedHidden(this.step);
   }
 
   start() {
     this.manager.setPlayerDeck();
     this.manager.setChallengedDeck();
-    const finish = this.createHandler();
-    this.mockFunction(this.manager, 'playerPassed', () => {
-      this.passed = true;
-      finish();
-    });
     this.manager.playerStart();
     this._scene.setStep(this.step);
     this.step.start(this.manager);
