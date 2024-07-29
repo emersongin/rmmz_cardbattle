@@ -10,7 +10,12 @@ class HandStepInLoadPhaseTest extends SceneTest {
       blockBattleCards: true,
       blockPowerCardsInLoadPhase: true
     };
-    this.step = new HandStep(this._scene, phase, config, finish);
+    const handlers = {
+      goBackHandler: () => finish(),
+      selectHandler: () => finish(),
+      moveCursorHandler: () => {},
+    };
+    this.step = new HandStep(this._scene, phase, config, handlers, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -27,7 +32,17 @@ class HandStepInLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('A fase campo de poder deve ser ativada tendo pelo menos um cartão de poder!');
-    this.expectTrue('Esta na fase campo de poder?', this._scene.isCurrentStep(RunPowerfieldStep));
+    this.describe('Deve apresentar etapa de mão de jogador na fase de carregar');
+    this.expectWasTrue('A janela de localização foi apresentado?', this.step.isLocationWindowVisible);
+    this.expectWasTrue('A janela de nome de cartão foi apresentado?', this.step.isCardNameWindowVisible);
+    this.expectWasTrue('A janela de descrição de cartão foi apresentado?', this.step.isCardDescriptionWindowVisible);
+    this.expectWasTrue('A janela de propriedades de cartão foi apresentado?', this.step.isCardPropsWindowVisible);
+    this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetSpriteVisible);
+
+
+    // deveRealizarAcaoEscolha
+    // deveRealizarAcaoDeRetorno
+    // deveRealizarAcaoAoMoverCursor
+
   }
 }

@@ -213,7 +213,7 @@ class MiniGameStep extends Step {
       default:
         break;
     }
-    if (typeof this._finish === 'function') return this._finish();
+    this.end();
   }
 
   isBusy() {
@@ -225,7 +225,7 @@ class MiniGameStep extends Step {
   }
 
   isCardsetVisible() {
-    return this._cardsetSprite.visible;
+    return this._cardsetSprite?.visible;
   }
 
   isCardsetOnSelectMode() {
@@ -237,7 +237,7 @@ class MiniGameStep extends Step {
   }
 
   isResultWindowVisible() {
-    return this._resultWindow.visible
+    return this._resultWindow?.visible
   }
 
   isTextResultWindow(text) {

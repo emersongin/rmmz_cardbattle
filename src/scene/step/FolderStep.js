@@ -89,7 +89,7 @@ class FolderStep extends Step {
       default:
         break;
     }
-    if (typeof this._finish === 'function') return this._finish();
+    this.end();
   }
 
   isBusy() {
@@ -100,7 +100,7 @@ class FolderStep extends Step {
   }
 
   isFoldersWindowVisible() {
-    return this._foldersWindow.visible;
+    return this._foldersWindow?.visible;
   }
 
   isTextFoldersWindow(text) {

@@ -200,6 +200,6 @@ class DrawStep extends Step {
       default:
         break;
     }
-    if (typeof this._finish === 'function') return this._finish();
+    this.end();
   }
 }

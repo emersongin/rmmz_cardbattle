@@ -12,7 +12,12 @@ class PlayerPlayedTurnStepInLoadPhaseTest extends SceneTest {
           blockBattleCards: true,
           blockPowerCardsInLoadPhase: true,
         };
-        this.step.changeStep(HandStep, config);
+        const handlers = {
+          goBackHandler: () => {},
+          selectHandler: () => {},
+          moveCursorHandler: () => {},
+        };
+        this.step.changeStep(HandStep, config, handlers);
         finish();
       },
       playerPassedHandler: () => {},

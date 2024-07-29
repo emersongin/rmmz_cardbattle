@@ -5,8 +5,11 @@ class HandStep extends Step {
   _cardNameWindow;
   _cardDescriptionWindow;
   _cardPropsWindow;
+  _goBackHandler;
+  _selectHandler;
+  _moveCursorHandler;
 
-  constructor(scene, phase, config, finish) {
+  constructor(scene, phase, config, handlers, finish) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for HandStep.');
@@ -18,7 +21,19 @@ class HandStep extends Step {
     if (config?.player !== GameConst.PLAYER && config?.player !== GameConst.CHALLENGED) {
       throw new Error('config.player must be GameConst.PLAYER or GameConst.CHALLENGED');
     }
+    if (typeof handlers?.goBackHandler !== 'function') {
+      throw new Error('handlers.goBackHandler must be a function.');
+    }
+    if (typeof handlers?.selectHandler !== 'function') {
+      throw new Error('handlers.selectHandler must be a function.');
+    }
+    if (typeof handlers?.moveCursorHandler !== 'function') {
+      throw new Error('handlers.onMoveCursorHandler must be a function.');
+    }
     this.setConfig(config);
+    this._goBackHandler = handlers?.goBackHandler;
+    this._selectHandler = handlers?.selectHandler;
+    this._moveCursorHandler = handlers?.moveCursorHandler;
   }
 
   setConfig(config) {
@@ -33,13 +48,9 @@ class HandStep extends Step {
     };
   }
 
-  getPlayer() {
-    return this._config.player;
-  }
-
   start(manager) {
     this.createBoardWindow(manager);
-    const cards = this.getPlayerHand(manager);
+    const cards = this.getHand(manager);
     const cardsetSprite = this.createCardsetSprite(cards);
     this.createAllWindows(cardsetSprite);
     this.openCardsetSprite(manager);
@@ -47,28 +58,45 @@ class HandStep extends Step {
   }
 
   createBoardWindow(manager) {
+    const { energies, cardsInDeck, cardsInHand, passed } = this.getBoardData(manager);
+    this.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand, passed);
+  }
+
+  getBoardData(manager) {
+    const player = this.getPlayer();
+    if (player === GameConst.CHALLENGED) {
+      return this.getChallengedBoardData(manager);
+    }
+    return this.getPlayerBoardData(manager);
+  }
+
+  getPlayer() {
+    return this._config.player;
+  }
+
+  getPlayerBoardData(manager) {
     const energies = Object.values(manager.getPlayerEnergies());
     const cardsInDeck = manager.getPlayerDeckLength();
     const cardsInHand = manager.getPlayerHandLength();
     const passed = manager.isPlayerPassed();
-    this.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand, passed);
+    return { energies, cardsInDeck, cardsInHand, passed };
   }
 
-  getPlayerHand(manager) {
+  getChallengedBoardData(manager) {
+    const energies = Object.values(manager.getChallengedEnergies());
+    const cardsInDeck = manager.getChallengedDeckLength();
+    const cardsInHand = manager.getChallengedHandLength();
+    const passed = manager.isChallengedPassed();
+    return { energies, cardsInDeck, cardsInHand, passed };
+  }
+
+  getHand(manager) {
     const player = this.getPlayer();
     const config = this._config;
     if (player === GameConst.CHALLENGED) {
       return manager.getChallengedHand(config);
     }
     return manager.getPlayerHand(config);
-  }
-
-  createAllWindows(cardsetSprite) {
-    const locationWindow = this.createLocationWindow(cardsetSprite);
-    const cardNameWindow = this.createCardNameWindow(cardsetSprite);
-    const cardDescriptionWindow = this.createCardDescriptionWindow(cardsetSprite);
-    const cardPropsWindow = this.createCardPropsWindow(cardsetSprite);
-    return { locationWindow, cardNameWindow, cardDescriptionWindow, cardPropsWindow };
   }
 
   createCardsetSprite(cards) {
@@ -92,8 +120,15 @@ class HandStep extends Step {
   }
 
   commandCreateCardsetSprite(cardsetSprite) {
-    this._cardsetSprite = cardsetSprite
+    this._cardsetSprite = cardsetSprite;
     this.commandAddChild(cardsetSprite);
+  }
+
+  createAllWindows(cardsetSprite) {
+    this.createLocationWindow(cardsetSprite);
+    this.createCardNameWindow(cardsetSprite);
+    this.createCardDescriptionWindow(cardsetSprite);
+    this.createCardPropsWindow(cardsetSprite);
   }
 
   createLocationWindow(playerHand = this._cardsetSprite) {
@@ -103,7 +138,6 @@ class HandStep extends Step {
     locationWindow.y -= 160;
     locationWindow.alignTextCenter();
     this.addAction(this.commandCreateLocationWindow, locationWindow);
-    return locationWindow;
   }
 
   commandCreateLocationWindow(locationWindow) {
@@ -117,7 +151,6 @@ class HandStep extends Step {
     cardNameWindow.alignAboveOf(playerHand);
     cardNameWindow.y -= 160;
     this.addAction(this.commandCreateCardNameWindow, cardNameWindow);
-    return cardNameWindow;
   }
   
   commandCreateCardNameWindow(cardNameWindow) {
@@ -131,7 +164,6 @@ class HandStep extends Step {
     cardDescriptionWindow.alignBelowOf(playerHand);
     cardDescriptionWindow.y += 100;
     this.addAction(this.commandCreateCardDescriptionWindow, cardDescriptionWindow);
-    return cardDescriptionWindow;
   }
 
   commandCreateCardDescriptionWindow(cardDescriptionWindow) {
@@ -145,25 +177,32 @@ class HandStep extends Step {
     cardPropsWindow.alignBelowOf(playerHand);
     cardPropsWindow.y += 100;
     this.addAction(this.commandCreateCardPropsWindow, cardPropsWindow);
-    return cardPropsWindow;
   }
 
   commandCreateCardPropsWindow(cardPropsWindow) {
     this._cardPropsWindow = cardPropsWindow;
     this.commandAddChild(cardPropsWindow);
   }
-
-  createOnChangeCursor(manager) {
-    return this.createOnChangeCursorLoadPhase(manager);
-    // deve ser configuravel ao criar a classe
+  
+  openCardsetSprite(manager) {
+    const onChangeCursor = this.createOnMoveCursor(manager);
+    const onSelectHandler = this.createOnSelectHandler(manager);
+    const onCancelHandler = this.createGoBackHandler(manager);
+    this.addActions([
+      this.commandOpenPlayerHand,
+      [this.commandPlayerHandSelectMode, onSelectHandler, onChangeCursor, onCancelHandler]
+    ]);
   }
 
-  createOnChangeCursorLoadPhase(manager) {
+  createOnMoveCursor(manager) {
+    // verificar uma forma de como fazer essa ação ter efeitos diferentes vindo de fora.
+    // porém deve poder interagir com a classe atual e comportamentos internos.
     return index => {
       const card = manager.getCardPlayerHandByIndex(index);
       this.commandSetTextCardNameWindow(['card.name' + index]);
       this.commandSetTextCardDescriptionWindow(['card.description' + index]);
       this.commandSetTextCardPropsWindow(['card.props' + index]);
+      this.addAction(this.commandMoveCursor);
     };
   }
 
@@ -179,28 +218,22 @@ class HandStep extends Step {
     this._cardPropsWindow.refreshContent(text);
   }
 
-  createOnSelectHandler(manager) {
-    return this.createOnSelectHandlerLoadPhase();
-    // deve ser configuravel ao criar a classe
+  commandMoveCursor() {
+    this._moveCursorHandler();
   }
 
-  createOnSelectHandlerLoadPhase() {
+  createOnSelectHandler() {
     return cardIndexs => {
       const sprite = this.commandGetHandSprites(cardIndexs).shift();
       this.selectPowerCard(sprite);
       this.closePlayerHand();
       this.leavePlayerHand();
-      this.addAction(this.commandSelectPowerCard);
+      this.addAction(this.commandSelectHandler);
     };
   }
 
-  commandSelectPowerCard() {
-    this.changeStep(ActivatePowerCardStep);
-    if (typeof this._finish === 'function') return this._finish();
-  }
-
   commandGetHandSprites(index) {
-    return this._cardsetSprite.getSprites(index)
+    return this._cardsetSprite.getSprites(index);
   }
 
   selectPowerCard(sprites) {
@@ -260,36 +293,24 @@ class HandStep extends Step {
       this._cardDescriptionWindow,
       this._cardPropsWindow,
       this._cardsetSprite,
-      this._player.boardWindow,
+      this.getPlayerBoardWindow(),
     ]);
   }
 
-  createOnCancelHandler(manager) {
-    return this.createOnCancelHandlerLoadPhase();
-    // deve ser configuravel ao criar a classe
+  commandSelectHandler() {
+    this._selectHandler();
   }
 
-  createOnCancelHandlerLoadPhase() {
+  createGoBackHandler() {
     return () => {
       this.closePlayerHand();
       this.leavePlayerHand();
-      this.addAction(this.commandToGoBack);
+      this.addAction(this.commandGoBack);
     };
   }
 
-  commandToGoBack() {
-    this.changeStep(TurnStep);
-    if (typeof this._finish === 'function') return this._finish();
-  }
-
-  openCardsetSprite(manager) {
-    const onChangeCursor = this.createOnChangeCursor(manager);
-    const onSelectHandler = this.createOnSelectHandler(manager);
-    const onCancelHandler = this.createOnCancelHandler(manager);
-    this.addActions([
-      this.commandOpenPlayerHand,
-      [this.commandPlayerHandSelectMode, onSelectHandler, onChangeCursor, onCancelHandler]
-    ]);
+  commandGoBack() {
+    this._goBackHandler();
   }
 
   commandOpenPlayerHand() {
@@ -332,14 +353,15 @@ class HandStep extends Step {
     this._cardPropsWindow.open();
   }
 
-  finish(phase) {
-    if (typeof this._finish === 'function') return this._finish();
+  finish() {
+    const phase = this.getPhase();
     switch (phase) {
-      case null:
+      case GameConst.LOAD_PHASE:
         break;
       default:
         break;
     }
+    this.end();
   }
 
   isBusy() {
@@ -351,5 +373,25 @@ class HandStep extends Step {
       this._cardPropsWindow,
     ];
     return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
+  }
+
+  isLocationWindowVisible() {
+    return this._locationWindow?.visible;
+  }
+
+  isCardNameWindowVisible() {
+    return this._cardNameWindow?.visible;
+  }
+
+  isCardDescriptionWindowVisible() {
+    return this._cardDescriptionWindow?.visible;
+  }
+
+  isCardPropsWindowVisible() {
+    return this._cardPropsWindow?.visible;
+  }
+
+  isCardsetSpriteVisible() {
+    return this._cardsetSprite?.visible;
   }
 }

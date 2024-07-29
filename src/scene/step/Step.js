@@ -662,47 +662,47 @@ class Step {
   }
 
   isPlayerBoardWindowVisible() {
-    return this._player.boardWindow.visible;
+    return this._player.boardWindow?.visible;
   }
 
   isChallengedBoardWindowVisible() {
-    return this._challenged.boardWindow.visible;
+    return this._challenged.boardWindow?.visible;
   }
 
   isPlayerBattleWindowVisible() {
-    return this._player.battleWindow.visible;
+    return this._player.battleWindow?.visible;
   }
 
   isChallengedBattleWindowVisible() {
-    return this._challenged.battleWindow.visible;
+    return this._challenged.battleWindow?.visible;
   }
 
   isPlayerTrashWindowVisible() {
-    return this._player.trashWindow.visible;
+    return this._player.trashWindow?.visible;
   }
 
   isChallengedTrashWindowVisible() {
-    return this._challenged.trashWindow.visible;
+    return this._challenged.trashWindow?.visible;
   }
 
   isPlayerScoreWindowVisible() {
-    return this._player.scoreWindow.visible;
+    return this._player.scoreWindow?.visible;
   }
 
   isChallengedScoreWindowVisible() {
-    return this._challenged.scoreWindow.visible;
+    return this._challenged.scoreWindow?.visible;
   }
 
   isPlayerCardsetSpriteVisible() {
-    return this._player.cardsetSprite.visible;
+    return this._player.cardsetSprite?.visible;
   }
 
   isChallengedCardsetSpriteVisible() {
-    return this._challenged.cardsetSprite.visible;
+    return this._challenged.cardsetSprite?.visible;
   }
 
   isPowerFieldCardsetSpriteVisible() {
-    return this._powerFieldCardsetSprite.visible;
+    return this._powerFieldCardsetSprite?.visible;
   }
 
   end() {

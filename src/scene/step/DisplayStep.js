@@ -159,12 +159,17 @@ class DisplayStep extends Step {
       case GameConst.LOAD_PHASE:
         const handlers = {
           playerPlayHandler: () => {
+            const handlers = {
+              goBackHandler: () => {},
+              selectHandler: () => {},
+              moveCursorHandler: () => {},
+            };
             const config = {
               player: GameConst.PLAYER,
               blockBattleCards: true,
               blockPowerCardsInLoadPhase: true,
             };
-            this.changeStep(HandStep, config);
+            this.changeStep(HandStep, config, handlers);
           },
           playerPassedHandler: () => {
             manager.playerPassed();
@@ -196,11 +201,11 @@ class DisplayStep extends Step {
   }
 
   isTitleWindowVisible() {
-    return this._titleWindow.visible;
+    return this._titleWindow?.visible;
   }
 
   isDescriptionWindowVisible() {
-    return this._descriptionWindow.visible;
+    return this._descriptionWindow?.visible;
   }
 
   isTextTitleWindow(text) {
@@ -210,5 +215,4 @@ class DisplayStep extends Step {
   isTextDescriptionWindow(texts) {
     return texts.some((text, index) => this._descriptionWindow.isTextWasDrawing(`TEXT_${index}`, text));
   }
-  
 }

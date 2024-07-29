@@ -301,13 +301,13 @@ class SceneTest {
     });
   }
 
-  addWatched(_watched) {
-    this._toWatched.push(_watched);
-    this.attachChild(_watched);
+  addWatched(watched) {
+    this._toWatched.push(watched);
+    this.attachChild(watched);
   }
 
-  addAssistedHidden(_watched) {
-    this._toWatched.push(_watched);
+  addAssistedHidden(watched) {
+    this._toWatched.push(watched);
   }
 
   attachChild(child) {
