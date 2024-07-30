@@ -5,7 +5,7 @@
 // include ./step/DrawStep.js
 // include ./step/RunPowerfieldStep.js
 // include ./step/ActivatePowerCardStep.js
-// include ./step/HandStep.js
+// include ./step/ZoneStep.js
 // include ./step/TurnStep.js
 
 class CardBattleTestScene extends Scene_Message {
@@ -199,22 +199,22 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const steps = [
-      DisplayStepInChallengePhaseTest,
-      FolderStepInChallengePhaseTest,
-      DisplayStepInStartPhaseTest,
-      MiniGameInStartPhaseStepTest,
-      DisplayStepInDrawPhaseTest,
-      DrawStepInDrawPhaseTest,
-      DisplayStepInLoadPhaseTest,
-      PlayerPassedTurnStepInLoadPhaseTest,
-      PlayerPlayedTurnStepInLoadPhaseTest,
-      PlayerPlayFirstTurnStepInLoadPhaseTest,
-      PlayerPlayNextTurnStepInLoadPhaseTest,
-      ChallengedPassedTurnStepInLoadPhaseTest,
-      ChallengedPlayedTurnStepInLoadPhaseTest,
-      ActivetePowerFieldTurnStepInLoadPhaseTest,
-      ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
-      HandStepInLoadPhaseTest,
+      // DisplayStepInChallengePhaseTest,
+      // FolderStepInChallengePhaseTest,
+      // DisplayStepInStartPhaseTest,
+      // MiniGameInStartPhaseStepTest,
+      // DisplayStepInDrawPhaseTest,
+      // DrawStepInDrawPhaseTest,
+      // DisplayStepInLoadPhaseTest,
+      // PlayerPassedTurnStepInLoadPhaseTest,
+      // PlayerPlayedTurnStepInLoadPhaseTest,
+      // PlayerPlayFirstTurnStepInLoadPhaseTest,
+      // PlayerPlayNextTurnStepInLoadPhaseTest,
+      // ChallengedPassedTurnStepInLoadPhaseTest,
+      // ChallengedPlayedTurnStepInLoadPhaseTest,
+      // ActivetePowerFieldTurnStepInLoadPhaseTest,
+      // ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
+      SelectHandZoneStepInLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

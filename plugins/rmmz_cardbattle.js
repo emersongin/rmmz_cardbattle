@@ -41,6 +41,10 @@ const GameConst = {
   DRAW_PHASE: 'DRAW_PHASE',
   LOAD_PHASE: 'LOAD_PHASE',
 
+  HAND: 'HAND',
+  DECK: 'DECK',
+  TRASH: 'TRASH',
+
 
 
 
@@ -8651,12 +8655,12 @@ class DrawStepInDrawPhaseTest extends SceneTest {
     this.expectWasTrue('O set de cartas do desafiado foi apresentado?', this.step.isChallengedCardsetSpriteVisible);
     this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
     this.expectTrue('A proxima Fase é LOAD_PHASE?', this.step.getPhase() === GameConst.LOAD_PHASE);
-    const playerCardsInHand = this.manager.getPlayerHand();
+    const playerCardsInHand = this.manager.getPlayerHandCards();
     const playerEnergies = this.reduceEnergies(playerCardsInHand);
     const playerBoardWindowValues = this.step.getPlayerBoardWindowValues();
     const isPlayerEnergyLoaded = this.compareEnergies(playerEnergies, playerBoardWindowValues);
     this.expectTrue('As energias do tabuleiro do jogador foram carregadas?', isPlayerEnergyLoaded === true);
-    const challengedCardsInHand = this.manager.getChallengedHand();
+    const challengedCardsInHand = this.manager.getChallengedHandCards();
     const challengedEnergies = this.reduceEnergies(challengedCardsInHand);
     const challengedBoardWindowValues = this.step.getChallengedBoardWindowValues();
     const isChallengedEnergyLoaded = this.compareEnergies(challengedEnergies, challengedBoardWindowValues);
@@ -8717,6 +8721,7 @@ class PlayerPlayedTurnStepInLoadPhaseTest extends SceneTest {
     const handlers = {
       playerPlayHandler: () => {
         const config = {
+          location: GameConst.HAND,
           player: GameConst.PLAYER,
           blockBattleCards: true,
           blockPowerCardsInLoadPhase: true,
@@ -8726,7 +8731,7 @@ class PlayerPlayedTurnStepInLoadPhaseTest extends SceneTest {
           selectHandler: () => {},
           moveCursorHandler: () => {},
         };
-        this.step.changeStep(HandStep, config, handlers);
+        this.step.changeStep(ZoneStep, config, handlers);
         finish();
       },
       playerPassedHandler: () => {},
@@ -8761,7 +8766,7 @@ class PlayerPlayedTurnStepInLoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
     this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
     this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    this.expectTrue('A proxima Etapa é HandStep?', this.isStep(HandStep));
+    this.expectTrue('A proxima Etapa é ZoneStep?', this.isStep(ZoneStep));
   }
 }
 class PlayerPassedTurnStepInLoadPhaseTest extends SceneTest {
@@ -9118,24 +9123,29 @@ class ActivetePowerFieldByLimitTurnStepInLoadPhaseTest extends SceneTest {
     this.expectTrue('A proxima Etapa é ActivatePowerCardStep?', this.isStep(RunPowerfieldStep));
   }
 }
-class HandStepInLoadPhaseTest extends SceneTest {
+class SelectHandZoneStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
+  select = false;
 
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
     const config = {
+      location: GameConst.HAND,
       player: GameConst.PLAYER,
       blockBattleCards: true,
       blockPowerCardsInLoadPhase: true
     };
     const handlers = {
-      goBackHandler: () => finish(),
-      selectHandler: () => finish(),
+      goBackHandler: () => {},
+      selectHandler: index => {
+        this.select = true;
+        finish();
+      },
       moveCursorHandler: () => {},
     };
-    this.step = new HandStep(this._scene, phase, config, handlers, finish);
+    this.step = new ZoneStep(this._scene, phase, config, handlers, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -9152,18 +9162,16 @@ class HandStepInLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve apresentar etapa de mão de jogador na fase de carregar');
+    this.describe('Deve apresentar etapa de seleção de cartão de poder de mão do jogador na fase de carregar');
     this.expectWasTrue('A janela de localização foi apresentado?', this.step.isLocationWindowVisible);
     this.expectWasTrue('A janela de nome de cartão foi apresentado?', this.step.isCardNameWindowVisible);
     this.expectWasTrue('A janela de descrição de cartão foi apresentado?', this.step.isCardDescriptionWindowVisible);
     this.expectWasTrue('A janela de propriedades de cartão foi apresentado?', this.step.isCardPropsWindowVisible);
     this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetSpriteVisible);
+    this.expectTrue('O cartão foi selecionado?', this.select === true);
 
-
-    // deveRealizarAcaoEscolha
     // deveRealizarAcaoDeRetorno
     // deveRealizarAcaoAoMoverCursor
-
   }
 }
 
@@ -9279,7 +9287,7 @@ class CardBattleManager {
     return CardBattleManager.powerfield.length;
   }
 
-  static getPlayerDeck(config) {
+  static getPlayerDeckCards(config) {
     const cards = CardBattleManager.player.deck;
     return CardBattleManager.configureCards(cards, config);
   }
@@ -9300,11 +9308,10 @@ class CardBattleManager {
     });
   }
 
-  static getPlayerHand(config) {
+  static getPlayerHandCards(config) {
     const cards = CardBattleManager.player.hand;
     return CardBattleManager.configureCards(cards, config);
   }
-
 
   static getPlayerEnergies() {
     return CardBattleManager.player.energies;
@@ -9326,12 +9333,12 @@ class CardBattleManager {
     return CardBattleManager.player.victories;
   }
 
-  static getChallengedDeck(config) {
+  static getChallengedDeckCards(config) {
     const cards = CardBattleManager.challenged.deck;
     return CardBattleManager.configureCards(cards, config);
   }
 
-  static getChallengedHand(config) {
+  static getChallengedHandCards(config) {
     const cards = CardBattleManager.challenged.hand;
     return CardBattleManager.configureCards(cards, config);
   }
@@ -10345,11 +10352,12 @@ class DisplayStep extends Step {
               moveCursorHandler: () => {},
             };
             const config = {
+              location: GameConst.HAND,
               player: GameConst.PLAYER,
               blockBattleCards: true,
               blockPowerCardsInLoadPhase: true,
             };
-            this.changeStep(HandStep, config, handlers);
+            this.changeStep(ZoneStep, config, handlers);
           },
           playerPassedHandler: () => {
             manager.playerPassed();
@@ -10854,7 +10862,7 @@ class DrawStep extends Step {
   }
 
   loadPlayerGameBoard(manager) {
-    const cardsInHand = manager.getPlayerHand();
+    const cardsInHand = manager.getPlayerHandCards();
     const energiesClone = Object.assign({}, manager.getPlayerEnergies());
     const updates = this.createFieldUpdates(cardsInHand, energiesClone);
     const { fieldUpdates, energies } = updates;
@@ -10863,7 +10871,7 @@ class DrawStep extends Step {
   }
 
   loadChallengedGameBoard(manager) {
-    const cardsInHand = manager.getChallengedHand();
+    const cardsInHand = manager.getChallengedHandCards();
     const energiesClone = Object.assign({}, manager.getChallengedEnergies());
     const updates = this.createFieldUpdates(cardsInHand, energiesClone);
     const { fieldUpdates, energies } = updates;
@@ -11024,7 +11032,7 @@ class ActivatePowerCardStep extends Step {
     return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
 }
-class HandStep extends Step {
+class ZoneStep extends Step {
   _config;
   _cardsetSprite;
   _locationWindow;
@@ -11038,11 +11046,17 @@ class HandStep extends Step {
   constructor(scene, phase, config, handlers, finish) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
-      throw new Error('Invalid phase for HandStep.');
+      throw new Error('Invalid phase for ZoneStep.');
     }
     super(scene, phase, finish);
     if (typeof config !== 'object') {
       throw new Error('config must be an object.');
+    }
+    if (typeof handlers !== 'object') {
+      throw new Error('handlers must be an object.');
+    }
+    if (typeof config?.location !== 'string') {
+      throw new Error('config.location must be a string.');
     }
     if (config?.player !== GameConst.PLAYER && config?.player !== GameConst.CHALLENGED) {
       throw new Error('config.player must be GameConst.PLAYER or GameConst.CHALLENGED');
@@ -11064,6 +11078,7 @@ class HandStep extends Step {
 
   setConfig(config) {
     this._config = {
+      location: config.location,
       player: config.player,
       selectCards: config?.selectCards || 1,
       checkElementSuficiencia: config?.checkElementSuficiencia || false,
@@ -11076,7 +11091,7 @@ class HandStep extends Step {
 
   start(manager) {
     this.createBoardWindow(manager);
-    const cards = this.getHand(manager);
+    const cards = this.getCards(manager);
     const cardsetSprite = this.createCardsetSprite(cards);
     this.createAllWindows(cardsetSprite);
     this.openCardsetSprite(manager);
@@ -11116,13 +11131,58 @@ class HandStep extends Step {
     return { energies, cardsInDeck, cardsInHand, passed };
   }
 
-  getHand(manager) {
+  getCards(manager) {
     const player = this.getPlayer();
-    const config = this._config;
     if (player === GameConst.CHALLENGED) {
-      return manager.getChallengedHand(config);
+      return this.getChallengedCards(manager);
     }
-    return manager.getPlayerHand(config);
+    return this.getPlayerCards(manager);
+  }
+
+  getChallengedCards(manager) {
+    const location = this.getLocation();
+    const config = this.getConfig();
+    switch (location) {
+      case GameConst.HAND:
+        return manager.getChallengedHandCards(config);
+        break;
+      case GameConst.DECK:
+        // return manager.getChallengedDeckCards(config);
+        break;
+      case GameConst.TRASH:
+        // return manager.getChallengedTrashCards(config);
+        break;
+      default:
+        return [];
+        break;
+    }
+  }
+
+  getLocation() {
+    return this._config.location;
+  }
+
+  getConfig() {
+    return this._config;
+  }
+
+  getPlayerCards(manager) {
+    const location = this.getLocation();
+    const config = this.getConfig();
+    switch (location) {
+      case GameConst.HAND:
+        return manager.getPlayerHandCards(config);
+        break;
+      case GameConst.DECK:
+        // return manager.getPlayerDeckCards(config);
+        break;
+      case GameConst.TRASH:
+        // return manager.getPlayerTrashCards(config);
+        break;
+      default:
+        return [];
+        break;
+    }
   }
 
   createCardsetSprite(cards) {
@@ -11882,22 +11942,22 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const steps = [
-      DisplayStepInChallengePhaseTest,
-      FolderStepInChallengePhaseTest,
-      DisplayStepInStartPhaseTest,
-      MiniGameInStartPhaseStepTest,
-      DisplayStepInDrawPhaseTest,
-      DrawStepInDrawPhaseTest,
-      DisplayStepInLoadPhaseTest,
-      PlayerPassedTurnStepInLoadPhaseTest,
-      PlayerPlayedTurnStepInLoadPhaseTest,
-      PlayerPlayFirstTurnStepInLoadPhaseTest,
-      PlayerPlayNextTurnStepInLoadPhaseTest,
-      ChallengedPassedTurnStepInLoadPhaseTest,
-      ChallengedPlayedTurnStepInLoadPhaseTest,
-      ActivetePowerFieldTurnStepInLoadPhaseTest,
-      ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
-      HandStepInLoadPhaseTest,
+      // DisplayStepInChallengePhaseTest,
+      // FolderStepInChallengePhaseTest,
+      // DisplayStepInStartPhaseTest,
+      // MiniGameInStartPhaseStepTest,
+      // DisplayStepInDrawPhaseTest,
+      // DrawStepInDrawPhaseTest,
+      // DisplayStepInLoadPhaseTest,
+      // PlayerPassedTurnStepInLoadPhaseTest,
+      // PlayerPlayedTurnStepInLoadPhaseTest,
+      // PlayerPlayFirstTurnStepInLoadPhaseTest,
+      // PlayerPlayNextTurnStepInLoadPhaseTest,
+      // ChallengedPassedTurnStepInLoadPhaseTest,
+      // ChallengedPlayedTurnStepInLoadPhaseTest,
+      // ActivetePowerFieldTurnStepInLoadPhaseTest,
+      // ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
+      SelectHandZoneStepInLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

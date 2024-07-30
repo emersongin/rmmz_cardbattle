@@ -165,11 +165,12 @@ class DisplayStep extends Step {
               moveCursorHandler: () => {},
             };
             const config = {
+              location: GameConst.HAND,
               player: GameConst.PLAYER,
               blockBattleCards: true,
               blockPowerCardsInLoadPhase: true,
             };
-            this.changeStep(HandStep, config, handlers);
+            this.changeStep(ZoneStep, config, handlers);
           },
           playerPassedHandler: () => {
             manager.playerPassed();

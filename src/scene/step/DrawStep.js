@@ -101,7 +101,7 @@ class DrawStep extends Step {
   }
 
   loadPlayerGameBoard(manager) {
-    const cardsInHand = manager.getPlayerHand();
+    const cardsInHand = manager.getPlayerHandCards();
     const energiesClone = Object.assign({}, manager.getPlayerEnergies());
     const updates = this.createFieldUpdates(cardsInHand, energiesClone);
     const { fieldUpdates, energies } = updates;
@@ -110,7 +110,7 @@ class DrawStep extends Step {
   }
 
   loadChallengedGameBoard(manager) {
-    const cardsInHand = manager.getChallengedHand();
+    const cardsInHand = manager.getChallengedHandCards();
     const energiesClone = Object.assign({}, manager.getChallengedEnergies());
     const updates = this.createFieldUpdates(cardsInHand, energiesClone);
     const { fieldUpdates, energies } = updates;

@@ -21,6 +21,10 @@ const GameConst = {
   DRAW_PHASE: 'DRAW_PHASE',
   LOAD_PHASE: 'LOAD_PHASE',
 
+  HAND: 'HAND',
+  DECK: 'DECK',
+  TRASH: 'TRASH',
+
 
 
 

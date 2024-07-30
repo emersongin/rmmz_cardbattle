@@ -8,6 +8,7 @@ class PlayerPlayedTurnStepInLoadPhaseTest extends SceneTest {
     const handlers = {
       playerPlayHandler: () => {
         const config = {
+          location: GameConst.HAND,
           player: GameConst.PLAYER,
           blockBattleCards: true,
           blockPowerCardsInLoadPhase: true,
@@ -17,7 +18,7 @@ class PlayerPlayedTurnStepInLoadPhaseTest extends SceneTest {
           selectHandler: () => {},
           moveCursorHandler: () => {},
         };
-        this.step.changeStep(HandStep, config, handlers);
+        this.step.changeStep(ZoneStep, config, handlers);
         finish();
       },
       playerPassedHandler: () => {},
@@ -52,6 +53,6 @@ class PlayerPlayedTurnStepInLoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
     this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
     this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    this.expectTrue('A proxima Etapa é HandStep?', this.isStep(HandStep));
+    this.expectTrue('A proxima Etapa é ZoneStep?', this.isStep(ZoneStep));
   }
 }

@@ -110,7 +110,7 @@ class CardBattleManager {
     return CardBattleManager.powerfield.length;
   }
 
-  static getPlayerDeck(config) {
+  static getPlayerDeckCards(config) {
     const cards = CardBattleManager.player.deck;
     return CardBattleManager.configureCards(cards, config);
   }
@@ -131,11 +131,10 @@ class CardBattleManager {
     });
   }
 
-  static getPlayerHand(config) {
+  static getPlayerHandCards(config) {
     const cards = CardBattleManager.player.hand;
     return CardBattleManager.configureCards(cards, config);
   }
-
 
   static getPlayerEnergies() {
     return CardBattleManager.player.energies;
@@ -157,12 +156,12 @@ class CardBattleManager {
     return CardBattleManager.player.victories;
   }
 
-  static getChallengedDeck(config) {
+  static getChallengedDeckCards(config) {
     const cards = CardBattleManager.challenged.deck;
     return CardBattleManager.configureCards(cards, config);
   }
 
-  static getChallengedHand(config) {
+  static getChallengedHandCards(config) {
     const cards = CardBattleManager.challenged.hand;
     return CardBattleManager.configureCards(cards, config);
   }

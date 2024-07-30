@@ -198,7 +198,7 @@
 // include ../test/integration/step/ChallengedPassedTurnStepInLoadPhaseTest.js
 // include ../test/integration/step/ActivetePowerFieldTurnStepInLoadPhaseTest.js
 // include ../test/integration/step/ActivetePowerFieldByLimitTurnStepInLoadPhaseTest.js
-// include ../test/integration/step/HandStepInLoadPhaseTest.js
+// include ../test/integration/step/SelectHandZoneStepInLoadPhaseTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js

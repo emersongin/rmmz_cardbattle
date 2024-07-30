@@ -1,4 +1,4 @@
-class HandStep extends Step {
+class ZoneStep extends Step {
   _config;
   _cardsetSprite;
   _locationWindow;
@@ -12,11 +12,17 @@ class HandStep extends Step {
   constructor(scene, phase, config, handlers, finish) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
-      throw new Error('Invalid phase for HandStep.');
+      throw new Error('Invalid phase for ZoneStep.');
     }
     super(scene, phase, finish);
     if (typeof config !== 'object') {
       throw new Error('config must be an object.');
+    }
+    if (typeof handlers !== 'object') {
+      throw new Error('handlers must be an object.');
+    }
+    if (typeof config?.location !== 'string') {
+      throw new Error('config.location must be a string.');
     }
     if (config?.player !== GameConst.PLAYER && config?.player !== GameConst.CHALLENGED) {
       throw new Error('config.player must be GameConst.PLAYER or GameConst.CHALLENGED');
@@ -38,6 +44,7 @@ class HandStep extends Step {
 
   setConfig(config) {
     this._config = {
+      location: config.location,
       player: config.player,
       selectCards: config?.selectCards || 1,
       checkElementSuficiencia: config?.checkElementSuficiencia || false,
@@ -50,7 +57,7 @@ class HandStep extends Step {
 
   start(manager) {
     this.createBoardWindow(manager);
-    const cards = this.getHand(manager);
+    const cards = this.getCards(manager);
     const cardsetSprite = this.createCardsetSprite(cards);
     this.createAllWindows(cardsetSprite);
     this.openCardsetSprite(manager);
@@ -90,13 +97,58 @@ class HandStep extends Step {
     return { energies, cardsInDeck, cardsInHand, passed };
   }
 
-  getHand(manager) {
+  getCards(manager) {
     const player = this.getPlayer();
-    const config = this._config;
     if (player === GameConst.CHALLENGED) {
-      return manager.getChallengedHand(config);
+      return this.getChallengedCards(manager);
     }
-    return manager.getPlayerHand(config);
+    return this.getPlayerCards(manager);
+  }
+
+  getChallengedCards(manager) {
+    const location = this.getLocation();
+    const config = this.getConfig();
+    switch (location) {
+      case GameConst.HAND:
+        return manager.getChallengedHandCards(config);
+        break;
+      case GameConst.DECK:
+        // return manager.getChallengedDeckCards(config);
+        break;
+      case GameConst.TRASH:
+        // return manager.getChallengedTrashCards(config);
+        break;
+      default:
+        return [];
+        break;
+    }
+  }
+
+  getLocation() {
+    return this._config.location;
+  }
+
+  getConfig() {
+    return this._config;
+  }
+
+  getPlayerCards(manager) {
+    const location = this.getLocation();
+    const config = this.getConfig();
+    switch (location) {
+      case GameConst.HAND:
+        return manager.getPlayerHandCards(config);
+        break;
+      case GameConst.DECK:
+        // return manager.getPlayerDeckCards(config);
+        break;
+      case GameConst.TRASH:
+        // return manager.getPlayerTrashCards(config);
+        break;
+      default:
+        return [];
+        break;
+    }
   }
 
   createCardsetSprite(cards) {

@@ -1,21 +1,26 @@
-class HandStepInLoadPhaseTest extends SceneTest {
+class SelectHandZoneStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
+  select = false;
 
   create() {
     const phase = GameConst.LOAD_PHASE;
     const finish = this.createHandler();
     const config = {
+      location: GameConst.HAND,
       player: GameConst.PLAYER,
       blockBattleCards: true,
       blockPowerCardsInLoadPhase: true
     };
     const handlers = {
-      goBackHandler: () => finish(),
-      selectHandler: () => finish(),
+      goBackHandler: () => {},
+      selectHandler: index => {
+        this.select = true;
+        finish();
+      },
       moveCursorHandler: () => {},
     };
-    this.step = new HandStep(this._scene, phase, config, handlers, finish);
+    this.step = new ZoneStep(this._scene, phase, config, handlers, finish);
     this.addAssistedHidden(this.step);
   }
 
@@ -32,17 +37,15 @@ class HandStepInLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve apresentar etapa de mão de jogador na fase de carregar');
+    this.describe('Deve apresentar etapa de seleção de cartão de poder de mão do jogador na fase de carregar');
     this.expectWasTrue('A janela de localização foi apresentado?', this.step.isLocationWindowVisible);
     this.expectWasTrue('A janela de nome de cartão foi apresentado?', this.step.isCardNameWindowVisible);
     this.expectWasTrue('A janela de descrição de cartão foi apresentado?', this.step.isCardDescriptionWindowVisible);
     this.expectWasTrue('A janela de propriedades de cartão foi apresentado?', this.step.isCardPropsWindowVisible);
     this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetSpriteVisible);
+    this.expectTrue('O cartão foi selecionado?', this.select === true);
 
-
-    // deveRealizarAcaoEscolha
     // deveRealizarAcaoDeRetorno
     // deveRealizarAcaoAoMoverCursor
-
   }
 }
