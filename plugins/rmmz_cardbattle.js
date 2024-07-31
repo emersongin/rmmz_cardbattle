@@ -9123,10 +9123,9 @@ class ActivetePowerFieldByLimitTurnStepInLoadPhaseTest extends SceneTest {
     this.expectTrue('A proxima Etapa é ActivatePowerCardStep?', this.isStep(RunPowerfieldStep));
   }
 }
-class SelectHandZoneStepInLoadPhaseTest extends SceneTest {
+class SelectPowerCardInHandZoneStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
-  select = false;
 
   create() {
     const phase = GameConst.LOAD_PHASE;
@@ -9140,7 +9139,7 @@ class SelectHandZoneStepInLoadPhaseTest extends SceneTest {
     const handlers = {
       goBackHandler: () => {},
       selectHandler: index => {
-        this.select = true;
+        this.step.changeStep(ActivatePowerCardStep);
         finish();
       },
       moveCursorHandler: () => {},
@@ -9168,12 +9167,63 @@ class SelectHandZoneStepInLoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de descrição de cartão foi apresentado?', this.step.isCardDescriptionWindowVisible);
     this.expectWasTrue('A janela de propriedades de cartão foi apresentado?', this.step.isCardPropsWindowVisible);
     this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetSpriteVisible);
-    this.expectTrue('O cartão foi selecionado?', this.select === true);
-
-    // deveRealizarAcaoDeRetorno
-    // deveRealizarAcaoAoMoverCursor
+    this.expectTrue('A proxima Etapa é ActivatePowerCardStep?', this.isStep(ActivatePowerCardStep));
   }
 }
+class GoBackInHandZoneStepInLoadPhaseTest extends SceneTest {
+  manager = CardBattleManager;
+  step;
+
+  create() {
+    const phase = GameConst.LOAD_PHASE;
+    const finish = this.createHandler();
+    const config = {
+      location: GameConst.HAND,
+      player: GameConst.PLAYER,
+      blockBattleCards: true,
+      blockPowerCardsInLoadPhase: true
+    };
+    const handlers = {
+      goBackHandler: () => {
+        const handlers = {
+          playerPlayHandler: () => {},
+          playerPassedHandler: () => {},
+          challengedPlayHandler: () => {},
+          challengedPassedHandler: () => {},
+          activePowerfieldHandler: () => {},
+        };
+        this.step.changeStep(TurnStep, handlers);
+        finish();
+      },
+      selectHandler: () => {},
+      moveCursorHandler: () => {},
+    };
+    this.step = new ZoneStep(this._scene, phase, config, handlers, finish);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.manager.setPlayerDeck();
+    this.manager.setChallengedDeck();
+    this.manager.drawPlayerCards(6);
+    this._scene.setStep(this.step);
+    this.step.start(this.manager);
+  }
+
+  update() {
+    this.step.update(this.manager);
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar etapa de seleção de cartão de poder de mão do jogador na fase de carregar');
+    this.expectWasTrue('A janela de localização foi apresentado?', this.step.isLocationWindowVisible);
+    this.expectWasTrue('A janela de nome de cartão foi apresentado?', this.step.isCardNameWindowVisible);
+    this.expectWasTrue('A janela de descrição de cartão foi apresentado?', this.step.isCardDescriptionWindowVisible);
+    this.expectWasTrue('A janela de propriedades de cartão foi apresentado?', this.step.isCardPropsWindowVisible);
+    this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetSpriteVisible);
+    this.expectTrue('A proxima Etapa é TurnStep?', this.isStep(TurnStep));
+  }
+}  
 
 class CardBattleManager {
   static folders = [
@@ -11071,9 +11121,9 @@ class ZoneStep extends Step {
       throw new Error('handlers.onMoveCursorHandler must be a function.');
     }
     this.setConfig(config);
-    this._goBackHandler = handlers?.goBackHandler;
-    this._selectHandler = handlers?.selectHandler;
-    this._moveCursorHandler = handlers?.moveCursorHandler;
+    this._goBackHandler = handlers.goBackHandler;
+    this._selectHandler = handlers.selectHandler;
+    this._moveCursorHandler = handlers.moveCursorHandler;
   }
 
   setConfig(config) {
@@ -11090,12 +11140,15 @@ class ZoneStep extends Step {
   }
 
   start(manager) {
+    this.createZone(manager);
+    this.openZone(manager);
+  }
+
+  createZone(manager) {
     this.createBoardWindow(manager);
     const cards = this.getCards(manager);
     const cardsetSprite = this.createCardsetSprite(cards);
     this.createAllWindows(cardsetSprite);
-    this.openCardsetSprite(manager);
-    this.openAllWindows();
   }
 
   createBoardWindow(manager) {
@@ -11217,10 +11270,10 @@ class ZoneStep extends Step {
     this.createCardPropsWindow(cardsetSprite);
   }
 
-  createLocationWindow(playerHand = this._cardsetSprite) {
+  createLocationWindow(cardsetSprite = this._cardsetSprite) {
     const locationWindow = TextWindow.createWindowMiddleSize(0, 0);
     locationWindow.alignStartTop();
-    locationWindow.alignAboveOf(playerHand);
+    locationWindow.alignAboveOf(cardsetSprite);
     locationWindow.y -= 160;
     locationWindow.alignTextCenter();
     this.addAction(this.commandCreateLocationWindow, locationWindow);
@@ -11231,10 +11284,10 @@ class ZoneStep extends Step {
     this.commandAddChild(locationWindow);
   }
 
-  createCardNameWindow(playerHand = this._cardsetSprite) {
+  createCardNameWindow(cardsetSprite = this._cardsetSprite) {
     const cardNameWindow = TextWindow.createWindowMiddleSize(0, 0);
     cardNameWindow.alignEndTop();
-    cardNameWindow.alignAboveOf(playerHand);
+    cardNameWindow.alignAboveOf(cardsetSprite);
     cardNameWindow.y -= 160;
     this.addAction(this.commandCreateCardNameWindow, cardNameWindow);
   }
@@ -11244,10 +11297,10 @@ class ZoneStep extends Step {
     this.commandAddChild(cardNameWindow);
   }
 
-  createCardDescriptionWindow(playerHand = this._cardsetSprite) {
+  createCardDescriptionWindow(cardsetSprite = this._cardsetSprite) {
     const cardDescriptionWindow = TextWindow.createWindowMiddleSize(0, 0);
     cardDescriptionWindow.alignStartBottom();
-    cardDescriptionWindow.alignBelowOf(playerHand);
+    cardDescriptionWindow.alignBelowOf(cardsetSprite);
     cardDescriptionWindow.y += 100;
     this.addAction(this.commandCreateCardDescriptionWindow, cardDescriptionWindow);
   }
@@ -11257,10 +11310,10 @@ class ZoneStep extends Step {
     this.commandAddChild(cardDescriptionWindow);
   }
 
-  createCardPropsWindow(playerHand = this._cardsetSprite) {
+  createCardPropsWindow(cardsetSprite = this._cardsetSprite) {
     const cardPropsWindow = TextWindow.createWindowMiddleSize(0, 0);
     cardPropsWindow.alignEndBottom();
-    cardPropsWindow.alignBelowOf(playerHand);
+    cardPropsWindow.alignBelowOf(cardsetSprite);
     cardPropsWindow.y += 100;
     this.addAction(this.commandCreateCardPropsWindow, cardPropsWindow);
   }
@@ -11269,14 +11322,19 @@ class ZoneStep extends Step {
     this._cardPropsWindow = cardPropsWindow;
     this.commandAddChild(cardPropsWindow);
   }
+
+  openZone(manager) {
+    this.openCardsetSprite(manager);
+    this.openAllWindows();
+  }
   
   openCardsetSprite(manager) {
     const onChangeCursor = this.createOnMoveCursor(manager);
     const onSelectHandler = this.createOnSelectHandler(manager);
     const onCancelHandler = this.createGoBackHandler(manager);
     this.addActions([
-      this.commandOpenPlayerHand,
-      [this.commandPlayerHandSelectMode, onSelectHandler, onChangeCursor, onCancelHandler]
+      this.commandOpenCardsetSprite,
+      [this.commandCardsetSpriteSelectMode, onSelectHandler, onChangeCursor, onCancelHandler]
     ]);
   }
 
@@ -11312,9 +11370,9 @@ class ZoneStep extends Step {
     return cardIndexs => {
       const sprite = this.commandGetHandSprites(cardIndexs).shift();
       this.selectPowerCard(sprite);
-      this.closePlayerHand();
-      this.leavePlayerHand();
-      this.addAction(this.commandSelectHandler);
+      this.closeZone();
+      this.leaveZone();
+      this.addAction(this.commandSelectHandler, cardIndexs);
     };
   }
 
@@ -11323,9 +11381,7 @@ class ZoneStep extends Step {
   }
 
   selectPowerCard(sprites) {
-    this.addActions([
-      [this.commandSelectMovement, sprites],
-    ]);
+    this.addAction(this.commandSelectMovement, sprites);
   }
 
   commandSelectMovement(sprites) {
@@ -11335,16 +11391,18 @@ class ZoneStep extends Step {
     cardset.zoomOutAllCards(sprites);
   }
 
-  closePlayerHand() {
+  closeZone() {
+    this.closeWindows();
+    this.closeCardsetSprite();
+  }
+
+  closeWindows() {
     this.addActions([
       this.commandCloseLocationWindow,
       this.commandCloseCardNameWindow,
       this.commandCloseCardDescriptionWindow,
       this.commandCloseCardPropsWindow,
       this.commandClosePlayerBoardWindow,
-    ]);
-    this.addActions([
-      this.commandClosePlayerHand
     ]);
   }
 
@@ -11364,33 +11422,52 @@ class ZoneStep extends Step {
     this._cardPropsWindow.close();
   }
 
-  commandClosePlayerHand() {
+  closeCardsetSprite() {
+    this.addAction(this.commandCloseCardsetSprite);
+  }
+
+  commandCloseCardsetSprite() {
     this._cardsetSprite.closeCards();
   }
 
-  leavePlayerHand() {
+  leaveZone() {
+    this.leaveCardsetSprite();
+    this.leaveWindows();
+  }
+
+  leaveCardsetSprite() {
     this.addAction(this.commandLeavePlayerHand);
   }
 
   commandLeavePlayerHand() {
     this.removeChildren([
+      this._cardsetSprite
+    ]);
+  }
+
+  leaveWindows() {
+    this.addAction(this.commandLeaveWindows);
+  }
+
+  commandLeaveWindows() {
+    this.removeChildren([
       this._locationWindow,
       this._cardNameWindow,
       this._cardDescriptionWindow,
       this._cardPropsWindow,
-      this._cardsetSprite,
       this.getPlayerBoardWindow(),
     ]);
   }
 
-  commandSelectHandler() {
-    this._selectHandler();
+  commandSelectHandler(cardIndexs) {
+    this._selectHandler(cardIndexs);
   }
 
   createGoBackHandler() {
     return () => {
-      this.closePlayerHand();
-      this.leavePlayerHand();
+      this.closeWindows();
+      this.closeCardsetSprite();
+      this.leaveCardsetSprite();
       this.addAction(this.commandGoBack);
     };
   }
@@ -11399,11 +11476,11 @@ class ZoneStep extends Step {
     this._goBackHandler();
   }
 
-  commandOpenPlayerHand() {
+  commandOpenCardsetSprite() {
     this._cardsetSprite.openCards();
   }
 
-  commandPlayerHandSelectMode(onSelectHandler, onChangeCursor, onCancelHandler) {
+  commandCardsetSpriteSelectMode(onSelectHandler, onChangeCursor, onCancelHandler) {
     const selectCards = this._config.selectCards;
     this._cardsetSprite.selectMode(selectCards, onSelectHandler, onChangeCursor, onCancelHandler);
   }
@@ -11957,7 +12034,8 @@ class CardBattleTestScene extends Scene_Message {
       // ChallengedPlayedTurnStepInLoadPhaseTest,
       // ActivetePowerFieldTurnStepInLoadPhaseTest,
       // ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
-      SelectHandZoneStepInLoadPhaseTest,
+      // SelectPowerCardInHandZoneStepInLoadPhaseTest,
+      GoBackInHandZoneStepInLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

@@ -1,4 +1,4 @@
-class SelectPowerCardInHandZoneStepInLoadPhaseTest extends SceneTest {
+class GoBackInHandZoneStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
 
@@ -12,11 +12,18 @@ class SelectPowerCardInHandZoneStepInLoadPhaseTest extends SceneTest {
       blockPowerCardsInLoadPhase: true
     };
     const handlers = {
-      goBackHandler: () => {},
-      selectHandler: index => {
-        this.step.changeStep(ActivatePowerCardStep);
+      goBackHandler: () => {
+        const handlers = {
+          playerPlayHandler: () => {},
+          playerPassedHandler: () => {},
+          challengedPlayHandler: () => {},
+          challengedPassedHandler: () => {},
+          activePowerfieldHandler: () => {},
+        };
+        this.step.changeStep(TurnStep, handlers);
         finish();
       },
+      selectHandler: () => {},
       moveCursorHandler: () => {},
     };
     this.step = new ZoneStep(this._scene, phase, config, handlers, finish);
@@ -42,6 +49,6 @@ class SelectPowerCardInHandZoneStepInLoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de descrição de cartão foi apresentado?', this.step.isCardDescriptionWindowVisible);
     this.expectWasTrue('A janela de propriedades de cartão foi apresentado?', this.step.isCardPropsWindowVisible);
     this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetSpriteVisible);
-    this.expectTrue('A proxima Etapa é ActivatePowerCardStep?', this.isStep(ActivatePowerCardStep));
+    this.expectTrue('A proxima Etapa é TurnStep?', this.isStep(TurnStep));
   }
 }
