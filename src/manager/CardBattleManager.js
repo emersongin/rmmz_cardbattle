@@ -110,9 +110,9 @@ class CardBattleManager {
     return CardBattleManager.powerfield.length;
   }
 
-  static getPlayerDeckCards(config) {
+  static getPlayerDeckCards(config, indexes) {
     const cards = CardBattleManager.player.deck;
-    return CardBattleManager.configureCards(cards, config);
+    return CardBattleManager.getCardsByIndexes(cards, config, indexes);
   }
 
   static configureCards(cards, config) {
@@ -131,9 +131,9 @@ class CardBattleManager {
     });
   }
 
-  static getPlayerHandCards(config) {
+  static getPlayerHandCards(config, indexes) {
     const cards = CardBattleManager.player.hand;
-    return CardBattleManager.configureCards(cards, config);
+    return CardBattleManager.getCardsByIndexes(cards, config, indexes);
   }
 
   static getPlayerEnergies() {
@@ -156,13 +156,30 @@ class CardBattleManager {
     return CardBattleManager.player.victories;
   }
 
-  static getChallengedDeckCards(config) {
+  static getChallengedDeckCards(config, indexes) {
     const cards = CardBattleManager.challenged.deck;
-    return CardBattleManager.configureCards(cards, config);
+    return CardBattleManager.getCardsByIndexes(cards, config, indexes);
   }
 
-  static getChallengedHandCards(config) {
+  static getChallengedHandCards(config, indexes) {
     const cards = CardBattleManager.challenged.hand;
+    return CardBattleManager.getCardsByIndexes(cards, config, indexes);
+  }
+
+  static getCardsByIndexes(cards, config, indexes) {
+    const conditions = [
+      (typeof indexes !== 'integer' && !Array.isArray(indexes)),
+      (typeof indexes === 'integer' && (indexes < 0 || indexes >= cards.length)),
+      (Array.isArray(indexes) && indexes.length === 0),
+    ];
+    if (conditions.some(x => x === true)) {
+      return CardBattleManager.configureCards(cards, config);
+    }
+    if (Array.isArray(indexes) && indexes.length > 0) {
+      cards = indexes.map(i => cards.filter((card, index) => index === i));
+      return cards.map(cards => CardBattleManager.configureCards(cards, config));
+    }
+    cards = cards.filter((card, index) => index === indexes);
     return CardBattleManager.configureCards(cards, config);
   }
 

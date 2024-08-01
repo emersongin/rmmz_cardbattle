@@ -9224,6 +9224,57 @@ class GoBackInHandZoneStepInLoadPhaseTest extends SceneTest {
     this.expectTrue('A proxima Etapa é TurnStep?', this.isStep(TurnStep));
   }
 }  
+class MoveCursorInHandZoneStepInLoadPhaseTest extends SceneTest {
+  manager = CardBattleManager;
+  step;
+  cardIndex;
+
+  create() {
+    const phase = GameConst.LOAD_PHASE;
+    const finish = this.createHandler();
+    const config = {
+      location: GameConst.HAND,
+      player: GameConst.PLAYER,
+      blockBattleCards: true,
+      blockPowerCardsInLoadPhase: true
+    };
+    const handlers = {
+      goBackHandler: () => {},
+      selectHandler: index => {},
+      moveCursorHandler: () => {
+        finish();
+      },
+    };
+    this.step = new ZoneStep(this._scene, phase, config, handlers, finish);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.manager.setPlayerDeck();
+    this.manager.setChallengedDeck();
+    this.manager.drawPlayerCards(6);
+    this.mockFunction(this.manager, 'getCards', index => {
+      this.cardIndex = index;
+      return [{ type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true }];
+    });
+    this._scene.setStep(this.step);
+    this.step.start(this.manager);
+  }
+
+  update() {
+    this.step.update(this.manager);
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar etapa de seleção de cartão de poder de mão do jogador na fase de carregar');
+    this.expectWasTrue('A janela de localização foi apresentado?', this.step.isLocationWindowVisible);
+    this.expectWasTrue('A janela de nome de cartão foi apresentado?', this.step.isCardNameWindowVisible);
+    this.expectWasTrue('A janela de descrição de cartão foi apresentado?', this.step.isCardDescriptionWindowVisible);
+    this.expectWasTrue('A janela de propriedades de cartão foi apresentado?', this.step.isCardPropsWindowVisible);
+    this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetSpriteVisible);
+    this.expectTrue('O cursor foi movido?', this.cardIndex >= 0);
+  }
+}
 
 class CardBattleManager {
   static folders = [
@@ -9337,9 +9388,9 @@ class CardBattleManager {
     return CardBattleManager.powerfield.length;
   }
 
-  static getPlayerDeckCards(config) {
+  static getPlayerDeckCards(config, indexes) {
     const cards = CardBattleManager.player.deck;
-    return CardBattleManager.configureCards(cards, config);
+    return CardBattleManager.getCardsByIndexes(cards, config, indexes);
   }
 
   static configureCards(cards, config) {
@@ -9358,9 +9409,9 @@ class CardBattleManager {
     });
   }
 
-  static getPlayerHandCards(config) {
+  static getPlayerHandCards(config, indexes) {
     const cards = CardBattleManager.player.hand;
-    return CardBattleManager.configureCards(cards, config);
+    return CardBattleManager.getCardsByIndexes(cards, config, indexes);
   }
 
   static getPlayerEnergies() {
@@ -9383,13 +9434,30 @@ class CardBattleManager {
     return CardBattleManager.player.victories;
   }
 
-  static getChallengedDeckCards(config) {
+  static getChallengedDeckCards(config, indexes) {
     const cards = CardBattleManager.challenged.deck;
-    return CardBattleManager.configureCards(cards, config);
+    return CardBattleManager.getCardsByIndexes(cards, config, indexes);
   }
 
-  static getChallengedHandCards(config) {
+  static getChallengedHandCards(config, indexes) {
     const cards = CardBattleManager.challenged.hand;
+    return CardBattleManager.getCardsByIndexes(cards, config, indexes);
+  }
+
+  static getCardsByIndexes(cards, config, indexes) {
+    const conditions = [
+      (typeof indexes !== 'integer' && !Array.isArray(indexes)),
+      (typeof indexes === 'integer' && (indexes < 0 || indexes >= cards.length)),
+      (Array.isArray(indexes) && indexes.length === 0),
+    ];
+    if (conditions.some(x => x === true)) {
+      return CardBattleManager.configureCards(cards, config);
+    }
+    if (Array.isArray(indexes) && indexes.length > 0) {
+      cards = indexes.map(i => cards.filter((card, index) => index === i));
+      return cards.map(cards => CardBattleManager.configureCards(cards, config));
+    }
+    cards = cards.filter((card, index) => index === indexes);
     return CardBattleManager.configureCards(cards, config);
   }
 
@@ -11184,20 +11252,20 @@ class ZoneStep extends Step {
     return { energies, cardsInDeck, cardsInHand, passed };
   }
 
-  getCards(manager) {
+  getCards(manager, indexes) {
     const player = this.getPlayer();
     if (player === GameConst.CHALLENGED) {
-      return this.getChallengedCards(manager);
+      return this.getChallengedCards(manager, indexes);
     }
-    return this.getPlayerCards(manager);
+    return this.getPlayerCards(manager, indexes);
   }
 
-  getChallengedCards(manager) {
+  getChallengedCards(manager, indexes) {
     const location = this.getLocation();
     const config = this.getConfig();
     switch (location) {
       case GameConst.HAND:
-        return manager.getChallengedHandCards(config);
+        return manager.getChallengedHandCards(config, indexes);
         break;
       case GameConst.DECK:
         // return manager.getChallengedDeckCards(config);
@@ -11219,12 +11287,12 @@ class ZoneStep extends Step {
     return this._config;
   }
 
-  getPlayerCards(manager) {
+  getPlayerCards(manager, indexes) {
     const location = this.getLocation();
     const config = this.getConfig();
     switch (location) {
       case GameConst.HAND:
-        return manager.getPlayerHandCards(config);
+        return manager.getPlayerHandCards(config, indexes);
         break;
       case GameConst.DECK:
         // return manager.getPlayerDeckCards(config);
@@ -11342,7 +11410,7 @@ class ZoneStep extends Step {
     // verificar uma forma de como fazer essa ação ter efeitos diferentes vindo de fora.
     // porém deve poder interagir com a classe atual e comportamentos internos.
     return index => {
-      const card = manager.getCardPlayerHandByIndex(index);
+      const cards = manager.getCards(index);
       this.commandSetTextCardNameWindow(['card.name' + index]);
       this.commandSetTextCardDescriptionWindow(['card.description' + index]);
       this.commandSetTextCardPropsWindow(['card.props' + index]);
@@ -12035,7 +12103,8 @@ class CardBattleTestScene extends Scene_Message {
       // ActivetePowerFieldTurnStepInLoadPhaseTest,
       // ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
       // SelectPowerCardInHandZoneStepInLoadPhaseTest,
-      GoBackInHandZoneStepInLoadPhaseTest,
+      // GoBackInHandZoneStepInLoadPhaseTest,
+      MoveCursorInHandZoneStepInLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

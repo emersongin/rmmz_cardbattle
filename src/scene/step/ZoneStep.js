@@ -100,20 +100,20 @@ class ZoneStep extends Step {
     return { energies, cardsInDeck, cardsInHand, passed };
   }
 
-  getCards(manager) {
+  getCards(manager, indexes) {
     const player = this.getPlayer();
     if (player === GameConst.CHALLENGED) {
-      return this.getChallengedCards(manager);
+      return this.getChallengedCards(manager, indexes);
     }
-    return this.getPlayerCards(manager);
+    return this.getPlayerCards(manager, indexes);
   }
 
-  getChallengedCards(manager) {
+  getChallengedCards(manager, indexes) {
     const location = this.getLocation();
     const config = this.getConfig();
     switch (location) {
       case GameConst.HAND:
-        return manager.getChallengedHandCards(config);
+        return manager.getChallengedHandCards(config, indexes);
         break;
       case GameConst.DECK:
         // return manager.getChallengedDeckCards(config);
@@ -135,12 +135,12 @@ class ZoneStep extends Step {
     return this._config;
   }
 
-  getPlayerCards(manager) {
+  getPlayerCards(manager, indexes) {
     const location = this.getLocation();
     const config = this.getConfig();
     switch (location) {
       case GameConst.HAND:
-        return manager.getPlayerHandCards(config);
+        return manager.getPlayerHandCards(config, indexes);
         break;
       case GameConst.DECK:
         // return manager.getPlayerDeckCards(config);
@@ -258,7 +258,7 @@ class ZoneStep extends Step {
     // verificar uma forma de como fazer essa ação ter efeitos diferentes vindo de fora.
     // porém deve poder interagir com a classe atual e comportamentos internos.
     return index => {
-      const card = manager.getCardPlayerHandByIndex(index);
+      const cards = manager.getCards(index);
       this.commandSetTextCardNameWindow(['card.name' + index]);
       this.commandSetTextCardDescriptionWindow(['card.description' + index]);
       this.commandSetTextCardPropsWindow(['card.props' + index]);

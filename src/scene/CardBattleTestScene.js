@@ -215,7 +215,8 @@ class CardBattleTestScene extends Scene_Message {
       // ActivetePowerFieldTurnStepInLoadPhaseTest,
       // ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
       // SelectPowerCardInHandZoneStepInLoadPhaseTest,
-      GoBackInHandZoneStepInLoadPhaseTest,
+      // GoBackInHandZoneStepInLoadPhaseTest,
+      MoveCursorInHandZoneStepInLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

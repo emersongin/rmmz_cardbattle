@@ -200,6 +200,7 @@
 // include ../test/integration/step/ActivetePowerFieldByLimitTurnStepInLoadPhaseTest.js
 // include ../test/integration/step/SelectPowerCardInHandZoneStepInLoadPhaseTest.js
 // include ../test/integration/step/GoBackInHandZoneStepInLoadPhaseTest.js  
+// include ../test/integration/step/MoveCursorInHandZoneStepInLoadPhaseTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js
