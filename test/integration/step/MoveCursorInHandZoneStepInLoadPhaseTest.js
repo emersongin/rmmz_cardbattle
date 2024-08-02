@@ -14,8 +14,9 @@ class MoveCursorInHandZoneStepInLoadPhaseTest extends SceneTest {
     };
     const handlers = {
       goBackHandler: () => {},
-      selectHandler: index => {},
-      moveCursorHandler: () => {
+      selectHandler: () => {},
+      moveCursorHandler: index => {
+        this.cardIndex = index;
         finish();
       },
     };
@@ -27,10 +28,6 @@ class MoveCursorInHandZoneStepInLoadPhaseTest extends SceneTest {
     this.manager.setPlayerDeck();
     this.manager.setChallengedDeck();
     this.manager.drawPlayerCards(6);
-    this.mockFunction(this.manager, 'getCards', index => {
-      this.cardIndex = index;
-      return [{ type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true }];
-    });
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }

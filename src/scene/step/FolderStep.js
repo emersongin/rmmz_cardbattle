@@ -21,8 +21,9 @@ class FolderStep extends Step {
 
   start(manager) {
     this.createFolders();
-    this.createFolderWindow('Choose a folder', this._folders);
+    const folderWindow = this.createFolderWindow('Choose a folder', this._folders);
     this.openFolderWindow();
+    return folderWindow;
   }
 
   createFolders() {
@@ -64,6 +65,7 @@ class FolderStep extends Step {
     folderWindow.alignMiddle();
     folderWindow.alignTextCenter();
     this.addAction(this.commandCreateFolderWindow, folderWindow);
+    return folderWindow;
   }
 
   commandCreateFolderWindow(folderWindow) {
@@ -105,5 +107,10 @@ class FolderStep extends Step {
 
   isTextFoldersWindow(text) {
     return this._foldersWindow.isTextWasDrawing('TEXT_0', text);
+  }
+
+  selectFolderWindowOption(index, foldersWindow = this._foldersWindow) {
+    foldersWindow.select(index);
+    foldersWindow.callOkHandler();
   }
 }

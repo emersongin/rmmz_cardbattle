@@ -258,11 +258,11 @@ class ZoneStep extends Step {
     // verificar uma forma de como fazer essa ação ter efeitos diferentes vindo de fora.
     // porém deve poder interagir com a classe atual e comportamentos internos.
     return index => {
-      const cards = manager.getCards(index);
+      const cards = this.getCards(manager, index);
       this.commandSetTextCardNameWindow(['card.name' + index]);
       this.commandSetTextCardDescriptionWindow(['card.description' + index]);
       this.commandSetTextCardPropsWindow(['card.props' + index]);
-      this.addAction(this.commandMoveCursor);
+      this.addAction(this.commandMoveCursor, index);
     };
   }
 
@@ -278,8 +278,8 @@ class ZoneStep extends Step {
     this._cardPropsWindow.refreshContent(text);
   }
 
-  commandMoveCursor() {
-    this._moveCursorHandler();
+  commandMoveCursor(index) {
+    this._moveCursorHandler(index);
   }
 
   createOnSelectHandler() {
@@ -472,5 +472,22 @@ class ZoneStep extends Step {
 
   isCardsetSpriteVisible() {
     return this._cardsetSprite?.visible;
+  }
+
+  selectCard(indexes) {
+    indexes = ArrayHelper.toArray(indexes);
+    this.addAction(this.commandSelectCard, indexes);
+  }
+
+  commandSelectCard(indexes) {
+    this._cardsetSprite.select(indexes);
+  }
+
+  cancel() {
+    this.addAction(this.commandCancel);
+  }
+
+  commandCancel() {
+    this._cardsetSprite.cancel();
   }
 }

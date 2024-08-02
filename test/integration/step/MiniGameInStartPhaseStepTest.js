@@ -16,6 +16,12 @@ class MiniGameInStartPhaseStepTest extends SceneTest {
   start() {
     this._scene.setStep(this.step);
     this.step.start(this.manager);
+    this.mockFunction(Input, 'isTriggered', () => true);
+    const includeOriginal = true;
+    this.mockFunction(this.step, 'startMiniGame', () => {
+      const index = 0;
+      this.step.selectCardMiniGame(index);
+    }, includeOriginal);
   }
 
   update() {

@@ -28,6 +28,11 @@ class SelectPowerCardInHandZoneStepInLoadPhaseTest extends SceneTest {
     this.manager.setChallengedDeck();
     this.manager.drawPlayerCards(6);
     this._scene.setStep(this.step);
+    const includeOriginal = true;
+    this.mockFunction(this.step, 'openZone', () => {
+      const index = 1;
+      this.step.selectCard(index);
+    }, includeOriginal, this.manager);
     this.step.start(this.manager);
   }
 

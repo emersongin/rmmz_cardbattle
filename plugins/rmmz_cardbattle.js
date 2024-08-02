@@ -4064,6 +4064,18 @@ class CardsetSpriteStaticModeState {
     return false;
   }
 
+  select() {
+    return null;
+  }
+
+  cancel() {
+    return null;
+  }
+
+  change() {
+    return null;
+  }
+
   selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
     this._cardset.changeStatus(CardsetSpriteSelectModeState, selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
   }
@@ -4105,10 +4117,10 @@ class CardsetSpriteSelectModeState {
   _selectedIndexs;
   _selectNumber;
   _onSelectHandler;
-  _onChangeCursor;
+  _onMoveCursor;
   _onCancelHandler;
 
-  constructor(sprite, selectNumber = -1, onSelectHandler, onChangeCursor, onCancelHandler) {
+  constructor(sprite, selectNumber = -1, onSelectHandler, onMoveCursorHandler, onCancelHandler) {
     if (!(sprite instanceof CardsetSprite)) {
       throw new Error('sprite is not a CardsetSprite instance!');
     }
@@ -4118,8 +4130,8 @@ class CardsetSpriteSelectModeState {
     if (onSelectHandler && typeof onSelectHandler !== 'function') {
       throw new Error('onSelectHandler is not a function!');
     }
-    if (onChangeCursor && typeof onChangeCursor !== 'function') {
-      throw new Error('onChangeCursor is not a function!');
+    if (onMoveCursorHandler && typeof onMoveCursorHandler !== 'function') {
+      throw new Error('onMoveCursorHandler is not a function!');
     }
     if (onCancelHandler && typeof onCancelHandler !== 'function') {
       throw new Error('onCancelHandler is not a function!');
@@ -4129,9 +4141,9 @@ class CardsetSpriteSelectModeState {
     this._selectedIndexs = [];
     this._selectNumber = selectNumber;
     this._onSelectHandler = onSelectHandler;
-    this._onChangeCursor = onChangeCursor;
+    this._onMoveCursor = onMoveCursorHandler;
     this._onCancelHandler = onCancelHandler;
-    this.updateOnChangeCursor();
+    this.updateMoveCursor();
     this.updateHoverSprites();
   }
 
@@ -4143,10 +4155,10 @@ class CardsetSpriteSelectModeState {
     return false;
   }
 
-  updateOnChangeCursor() {
-    if (this._onChangeCursor) {
+  updateMoveCursor() {
+    if (this._onMoveCursor) {
       const cardset = this._cardset;
-      cardset.addCommand(this._onChangeCursor, this._cursorIndex);
+      cardset.addCommand(this._onMoveCursor, this._cursorIndex);
     }
   }
 
@@ -4207,7 +4219,7 @@ class CardsetSpriteSelectModeState {
       this.moveCursorLeft();
     }
     if (this.isRepeatedOrLongPressedRight() || this.isRepeatedOrLongPressedLeft()) {
-      this.updateOnChangeCursor();
+      this.updateMoveCursor();
       this.updateHoverSprites();
     }
   }
@@ -4291,6 +4303,14 @@ class CardsetSpriteSelectModeState {
       full = selectedAmount === allowedAmount;
     }
     return limit || full;
+  }
+
+  getSelectHandler() {
+    return this._onSelectHandler;
+  }
+
+  getCancelHandler() {
+    return this._onCancelHandler;
   }
 }
 
@@ -4962,6 +4982,26 @@ class CardsetSprite extends ActionSprite {
   isCardsHidden(sprites = this._sprites) {
     return sprites.every(sprite => sprite.isHidden());
   }
+
+  select(indexes) {
+    const commandSelectHandler = this.getSelectHandler();
+    this.addCommand(commandSelectHandler, indexes);
+    this.commandStaticMode();
+  }
+
+  getSelectHandler() {
+    return this._status.getSelectHandler();
+  }
+
+  cancel() {
+    const commandCancelHandler = this.getCancelHandler();
+    this.addCommand(commandCancelHandler);
+    this.commandStaticMode();
+  }
+
+  getCancelHandler() {
+    return this._status.getCancelHandler();
+  }
 }
 class BackgroundSprite extends Sprite {
   initialize() {
@@ -5343,9 +5383,12 @@ class SceneTest {
     }
   }
 
-  mockFunction(obj, fnName, fn) {
-    const originalFn = obj[fnName];
-    obj[fnName] = fn;
+  mockFunction(obj, fnName, fn, includeOriginal = false, ...params) {
+    const originalFn = obj[fnName].bind(obj);
+    obj[fnName] = () => {
+      if (includeOriginal) originalFn(...params);
+      return fn()
+    };
     this._functionsMocked.push({ obj, fnName, originalFn });
   }
 
@@ -8469,6 +8512,7 @@ class DisplayStepInChallengePhaseTest extends SceneTest {
   start() {
     this.setStep(this.step);
     this.step.start(this.manager);
+    this.mockFunction(Input, 'isTriggered', () => true);
   }
 
   update() {
@@ -8507,6 +8551,10 @@ class FolderStepInChallengePhaseTest extends SceneTest {
   start() {
     this._scene.setStep(this.step);
     this.step.start(this.manager);
+    this.step.addAction(() => {
+      const index = 0;
+      this.step.selectFolderWindowOption(index);
+    });
   }
 
   update() {
@@ -8536,6 +8584,7 @@ class DisplayStepInStartPhaseTest extends SceneTest {
   start() {
     this.setStep(this.step);
     this.step.start(this.manager);
+    this.mockFunction(Input, 'isTriggered', () => true);
   }
 
   update() {
@@ -8570,6 +8619,12 @@ class MiniGameInStartPhaseStepTest extends SceneTest {
   start() {
     this._scene.setStep(this.step);
     this.step.start(this.manager);
+    this.mockFunction(Input, 'isTriggered', () => true);
+    const includeOriginal = true;
+    this.mockFunction(this.step, 'startMiniGame', () => {
+      const index = 0;
+      this.step.selectCardMiniGame(index);
+    }, includeOriginal);
   }
 
   update() {
@@ -8603,6 +8658,7 @@ class DisplayStepInDrawPhaseTest extends SceneTest {
   start() {
     this.setStep(this.step);
     this.step.start(this.manager);
+    this.mockFunction(Input, 'isTriggered', () => true);
   }
 
   update() {
@@ -8635,6 +8691,7 @@ class DrawStepInDrawPhaseTest extends SceneTest {
     this.manager.setChallengedDeck();
     this._scene.setStep(this.step);
     this.step.start(this.manager);
+    this.mockFunction(Input, 'isTriggered', () => true);
   }
 
   update() {
@@ -8695,6 +8752,7 @@ class DisplayStepInLoadPhaseTest extends SceneTest {
   start() {
     this.setStep(this.step);
     this.step.start(this.manager);
+    this.mockFunction(Input, 'isTriggered', () => true);
   }
 
   update() {
@@ -8750,6 +8808,12 @@ class PlayerPlayedTurnStepInLoadPhaseTest extends SceneTest {
     this.manager.drawPlayerCards(6);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
+    this.mockFunction(Input, 'isTriggered', () => true);
+    const includeOriginal = true;
+    this.mockFunction(this.step, 'commandOpenAskWindow', () => {
+      const index = 0;
+      this.step.selectAskWindowOption(index);
+    }, includeOriginal);
   }
 
   update() {
@@ -8798,6 +8862,12 @@ class PlayerPassedTurnStepInLoadPhaseTest extends SceneTest {
     this.manager.playerStart();
     this._scene.setStep(this.step);
     this.step.start(this.manager);
+    this.mockFunction(Input, 'isTriggered', () => true);
+    const includeOriginal = true;
+    this.mockFunction(this.step, 'commandOpenAskWindow', () => {
+      const index = 1;
+      this.step.selectAskWindowOption(index);
+    }, includeOriginal);
   }
 
   update() {
@@ -8849,6 +8919,7 @@ class PlayerPlayFirstTurnStepInLoadPhaseTest extends SceneTest {
     this.manager.playerStart();
     this._scene.setStep(this.step);
     this.step.start(this.manager);
+    this.mockFunction(Input, 'isTriggered', () => true);
   }
 
   update() {
@@ -8900,6 +8971,7 @@ class PlayerPlayNextTurnStepInLoadPhaseTest extends SceneTest {
     });
     this._scene.setStep(this.step);
     this.step.start(this.manager);
+    this.mockFunction(Input, 'isTriggered', () => true);
   }
 
   update() {
@@ -8947,6 +9019,7 @@ class ChallengedPlayedTurnStepInLoadPhaseTest extends SceneTest {
     this.manager.drawChallengedCards(6);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
+    this.mockFunction(Input, 'isTriggered', () => true);
   }
 
   update() {
@@ -8994,6 +9067,7 @@ class ChallengedPassedTurnStepInLoadPhaseTest extends SceneTest {
     this.manager.setChallengedDeck();
     this._scene.setStep(this.step);
     this.step.start(this.manager);
+    this.mockFunction(Input, 'isTriggered', () => true);
   }
 
   update() {
@@ -9047,6 +9121,7 @@ class ActivetePowerFieldTurnStepInLoadPhaseTest extends SceneTest {
     this.manager.addPowerCardToPowerfield(powerCard);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
+    this.mockFunction(Input, 'isTriggered', () => true);
   }
 
   update() {
@@ -9103,6 +9178,7 @@ class ActivetePowerFieldByLimitTurnStepInLoadPhaseTest extends SceneTest {
     this.manager.addPowerCardToPowerfield(powerCard);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
+    this.mockFunction(Input, 'isTriggered', () => true);
   }
 
   update() {
@@ -9153,6 +9229,11 @@ class SelectPowerCardInHandZoneStepInLoadPhaseTest extends SceneTest {
     this.manager.setChallengedDeck();
     this.manager.drawPlayerCards(6);
     this._scene.setStep(this.step);
+    const includeOriginal = true;
+    this.mockFunction(this.step, 'openZone', () => {
+      const index = 1;
+      this.step.selectCard(index);
+    }, includeOriginal, this.manager);
     this.step.start(this.manager);
   }
 
@@ -9207,6 +9288,10 @@ class GoBackInHandZoneStepInLoadPhaseTest extends SceneTest {
     this.manager.setChallengedDeck();
     this.manager.drawPlayerCards(6);
     this._scene.setStep(this.step);
+    const includeOriginal = true;
+    this.mockFunction(this.step, 'openZone', () => {
+      this.step.cancel();
+    }, includeOriginal, this.manager);
     this.step.start(this.manager);
   }
 
@@ -9240,8 +9325,9 @@ class MoveCursorInHandZoneStepInLoadPhaseTest extends SceneTest {
     };
     const handlers = {
       goBackHandler: () => {},
-      selectHandler: index => {},
-      moveCursorHandler: () => {
+      selectHandler: () => {},
+      moveCursorHandler: index => {
+        this.cardIndex = index;
         finish();
       },
     };
@@ -9253,10 +9339,6 @@ class MoveCursorInHandZoneStepInLoadPhaseTest extends SceneTest {
     this.manager.setPlayerDeck();
     this.manager.setChallengedDeck();
     this.manager.drawPlayerCards(6);
-    this.mockFunction(this.manager, 'getCards', index => {
-      this.cardIndex = index;
-      return [{ type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true }];
-    });
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -10545,8 +10627,9 @@ class FolderStep extends Step {
 
   start(manager) {
     this.createFolders();
-    this.createFolderWindow('Choose a folder', this._folders);
+    const folderWindow = this.createFolderWindow('Choose a folder', this._folders);
     this.openFolderWindow();
+    return folderWindow;
   }
 
   createFolders() {
@@ -10588,6 +10671,7 @@ class FolderStep extends Step {
     folderWindow.alignMiddle();
     folderWindow.alignTextCenter();
     this.addAction(this.commandCreateFolderWindow, folderWindow);
+    return folderWindow;
   }
 
   commandCreateFolderWindow(folderWindow) {
@@ -10629,6 +10713,11 @@ class FolderStep extends Step {
 
   isTextFoldersWindow(text) {
     return this._foldersWindow.isTextWasDrawing('TEXT_0', text);
+  }
+
+  selectFolderWindowOption(index, foldersWindow = this._foldersWindow) {
+    foldersWindow.select(index);
+    foldersWindow.callOkHandler();
   }
 }
 class MiniGameStep extends Step {
@@ -10875,6 +10964,15 @@ class MiniGameStep extends Step {
 
   isTextResultWindow(text) {
     return this._resultWindow.isTextWasDrawing('TEXT_0', text);
+  }
+
+  selectCardMiniGame(indexes) {
+    indexes = ArrayHelper.toArray(indexes);
+    this.addAction(this.commandSelectCardMiniGame, indexes);
+  }
+
+  commandSelectCardMiniGame(indexes) {
+    this._cardsetSprite.select(indexes);
   }
 }
 class DrawStep extends Step {
@@ -11410,11 +11508,11 @@ class ZoneStep extends Step {
     // verificar uma forma de como fazer essa ação ter efeitos diferentes vindo de fora.
     // porém deve poder interagir com a classe atual e comportamentos internos.
     return index => {
-      const cards = manager.getCards(index);
+      const cards = this.getCards(manager, index);
       this.commandSetTextCardNameWindow(['card.name' + index]);
       this.commandSetTextCardDescriptionWindow(['card.description' + index]);
       this.commandSetTextCardPropsWindow(['card.props' + index]);
-      this.addAction(this.commandMoveCursor);
+      this.addAction(this.commandMoveCursor, index);
     };
   }
 
@@ -11430,8 +11528,8 @@ class ZoneStep extends Step {
     this._cardPropsWindow.refreshContent(text);
   }
 
-  commandMoveCursor() {
-    this._moveCursorHandler();
+  commandMoveCursor(index) {
+    this._moveCursorHandler(index);
   }
 
   createOnSelectHandler() {
@@ -11624,6 +11722,23 @@ class ZoneStep extends Step {
 
   isCardsetSpriteVisible() {
     return this._cardsetSprite?.visible;
+  }
+
+  selectCard(indexes) {
+    indexes = ArrayHelper.toArray(indexes);
+    this.addAction(this.commandSelectCard, indexes);
+  }
+
+  commandSelectCard(indexes) {
+    this._cardsetSprite.select(indexes);
+  }
+
+  cancel() {
+    this.addAction(this.commandCancel);
+  }
+
+  commandCancel() {
+    this._cardsetSprite.cancel();
   }
 }
 class TurnStep extends Step {
@@ -11894,6 +12009,11 @@ class TurnStep extends Step {
     ];
     return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
+
+  selectAskWindowOption(index, askWindow = this._askWindow) {
+    askWindow.select(index);
+    askWindow.callOkHandler();
+  }
 }
 
 class CardBattleTestScene extends Scene_Message {
@@ -12087,23 +12207,23 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const steps = [
-      // DisplayStepInChallengePhaseTest,
-      // FolderStepInChallengePhaseTest,
-      // DisplayStepInStartPhaseTest,
-      // MiniGameInStartPhaseStepTest,
-      // DisplayStepInDrawPhaseTest,
-      // DrawStepInDrawPhaseTest,
-      // DisplayStepInLoadPhaseTest,
-      // PlayerPassedTurnStepInLoadPhaseTest,
-      // PlayerPlayedTurnStepInLoadPhaseTest,
-      // PlayerPlayFirstTurnStepInLoadPhaseTest,
-      // PlayerPlayNextTurnStepInLoadPhaseTest,
-      // ChallengedPassedTurnStepInLoadPhaseTest,
-      // ChallengedPlayedTurnStepInLoadPhaseTest,
-      // ActivetePowerFieldTurnStepInLoadPhaseTest,
-      // ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
-      // SelectPowerCardInHandZoneStepInLoadPhaseTest,
-      // GoBackInHandZoneStepInLoadPhaseTest,
+      DisplayStepInChallengePhaseTest,
+      FolderStepInChallengePhaseTest,
+      DisplayStepInStartPhaseTest,
+      MiniGameInStartPhaseStepTest,
+      DisplayStepInDrawPhaseTest,
+      DrawStepInDrawPhaseTest,
+      DisplayStepInLoadPhaseTest,
+      PlayerPassedTurnStepInLoadPhaseTest,
+      PlayerPlayedTurnStepInLoadPhaseTest,
+      PlayerPlayFirstTurnStepInLoadPhaseTest,
+      PlayerPlayNextTurnStepInLoadPhaseTest,
+      ChallengedPassedTurnStepInLoadPhaseTest,
+      ChallengedPlayedTurnStepInLoadPhaseTest,
+      ActivetePowerFieldTurnStepInLoadPhaseTest,
+      ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
+      SelectPowerCardInHandZoneStepInLoadPhaseTest,
+      GoBackInHandZoneStepInLoadPhaseTest,
       MoveCursorInHandZoneStepInLoadPhaseTest,
     ];
     return [

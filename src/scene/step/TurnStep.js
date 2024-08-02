@@ -266,4 +266,9 @@ class TurnStep extends Step {
     ];
     return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
+
+  selectAskWindowOption(index, askWindow = this._askWindow) {
+    askWindow.select(index);
+    askWindow.callOkHandler();
+  }
 }

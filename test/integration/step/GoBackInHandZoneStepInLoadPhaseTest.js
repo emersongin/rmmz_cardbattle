@@ -35,6 +35,10 @@ class GoBackInHandZoneStepInLoadPhaseTest extends SceneTest {
     this.manager.setChallengedDeck();
     this.manager.drawPlayerCards(6);
     this._scene.setStep(this.step);
+    const includeOriginal = true;
+    this.mockFunction(this.step, 'openZone', () => {
+      this.step.cancel();
+    }, includeOriginal, this.manager);
     this.step.start(this.manager);
   }
 

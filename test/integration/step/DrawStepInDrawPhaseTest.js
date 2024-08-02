@@ -14,6 +14,7 @@ class DrawStepInDrawPhaseTest extends SceneTest {
     this.manager.setChallengedDeck();
     this._scene.setStep(this.step);
     this.step.start(this.manager);
+    this.mockFunction(Input, 'isTriggered', () => true);
   }
 
   update() {

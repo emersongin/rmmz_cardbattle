@@ -13,6 +13,18 @@ class CardsetSpriteStaticModeState {
     return false;
   }
 
+  select() {
+    return null;
+  }
+
+  cancel() {
+    return null;
+  }
+
+  change() {
+    return null;
+  }
+
   selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
     this._cardset.changeStatus(CardsetSpriteSelectModeState, selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
   }

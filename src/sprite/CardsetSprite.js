@@ -669,4 +669,24 @@ class CardsetSprite extends ActionSprite {
   isCardsHidden(sprites = this._sprites) {
     return sprites.every(sprite => sprite.isHidden());
   }
+
+  select(indexes) {
+    const commandSelectHandler = this.getSelectHandler();
+    this.addCommand(commandSelectHandler, indexes);
+    this.commandStaticMode();
+  }
+
+  getSelectHandler() {
+    return this._status.getSelectHandler();
+  }
+
+  cancel() {
+    const commandCancelHandler = this.getCancelHandler();
+    this.addCommand(commandCancelHandler);
+    this.commandStaticMode();
+  }
+
+  getCancelHandler() {
+    return this._status.getCancelHandler();
+  }
 }

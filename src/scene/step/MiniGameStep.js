@@ -243,4 +243,13 @@ class MiniGameStep extends Step {
   isTextResultWindow(text) {
     return this._resultWindow.isTextWasDrawing('TEXT_0', text);
   }
+
+  selectCardMiniGame(indexes) {
+    indexes = ArrayHelper.toArray(indexes);
+    this.addAction(this.commandSelectCardMiniGame, indexes);
+  }
+
+  commandSelectCardMiniGame(indexes) {
+    this._cardsetSprite.select(indexes);
+  }
 }

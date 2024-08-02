@@ -37,6 +37,12 @@ class PlayerPlayedTurnStepInLoadPhaseTest extends SceneTest {
     this.manager.drawPlayerCards(6);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
+    this.mockFunction(Input, 'isTriggered', () => true);
+    const includeOriginal = true;
+    this.mockFunction(this.step, 'commandOpenAskWindow', () => {
+      const index = 0;
+      this.step.selectAskWindowOption(index);
+    }, includeOriginal);
   }
 
   update() {

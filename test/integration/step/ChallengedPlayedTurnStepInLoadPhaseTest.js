@@ -25,6 +25,7 @@ class ChallengedPlayedTurnStepInLoadPhaseTest extends SceneTest {
     this.manager.drawChallengedCards(6);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
+    this.mockFunction(Input, 'isTriggered', () => true);
   }
 
   update() {

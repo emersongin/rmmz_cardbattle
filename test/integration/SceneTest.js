@@ -40,9 +40,12 @@ class SceneTest {
     }
   }
 
-  mockFunction(obj, fnName, fn) {
-    const originalFn = obj[fnName];
-    obj[fnName] = fn;
+  mockFunction(obj, fnName, fn, includeOriginal = false, ...params) {
+    const originalFn = obj[fnName].bind(obj);
+    obj[fnName] = () => {
+      if (includeOriginal) originalFn(...params);
+      return fn()
+    };
     this._functionsMocked.push({ obj, fnName, originalFn });
   }
 

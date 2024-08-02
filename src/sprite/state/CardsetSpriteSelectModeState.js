@@ -4,10 +4,10 @@ class CardsetSpriteSelectModeState {
   _selectedIndexs;
   _selectNumber;
   _onSelectHandler;
-  _onChangeCursor;
+  _onMoveCursor;
   _onCancelHandler;
 
-  constructor(sprite, selectNumber = -1, onSelectHandler, onChangeCursor, onCancelHandler) {
+  constructor(sprite, selectNumber = -1, onSelectHandler, onMoveCursorHandler, onCancelHandler) {
     if (!(sprite instanceof CardsetSprite)) {
       throw new Error('sprite is not a CardsetSprite instance!');
     }
@@ -17,8 +17,8 @@ class CardsetSpriteSelectModeState {
     if (onSelectHandler && typeof onSelectHandler !== 'function') {
       throw new Error('onSelectHandler is not a function!');
     }
-    if (onChangeCursor && typeof onChangeCursor !== 'function') {
-      throw new Error('onChangeCursor is not a function!');
+    if (onMoveCursorHandler && typeof onMoveCursorHandler !== 'function') {
+      throw new Error('onMoveCursorHandler is not a function!');
     }
     if (onCancelHandler && typeof onCancelHandler !== 'function') {
       throw new Error('onCancelHandler is not a function!');
@@ -28,9 +28,9 @@ class CardsetSpriteSelectModeState {
     this._selectedIndexs = [];
     this._selectNumber = selectNumber;
     this._onSelectHandler = onSelectHandler;
-    this._onChangeCursor = onChangeCursor;
+    this._onMoveCursor = onMoveCursorHandler;
     this._onCancelHandler = onCancelHandler;
-    this.updateOnChangeCursor();
+    this.updateMoveCursor();
     this.updateHoverSprites();
   }
 
@@ -42,10 +42,10 @@ class CardsetSpriteSelectModeState {
     return false;
   }
 
-  updateOnChangeCursor() {
-    if (this._onChangeCursor) {
+  updateMoveCursor() {
+    if (this._onMoveCursor) {
       const cardset = this._cardset;
-      cardset.addCommand(this._onChangeCursor, this._cursorIndex);
+      cardset.addCommand(this._onMoveCursor, this._cursorIndex);
     }
   }
 
@@ -106,7 +106,7 @@ class CardsetSpriteSelectModeState {
       this.moveCursorLeft();
     }
     if (this.isRepeatedOrLongPressedRight() || this.isRepeatedOrLongPressedLeft()) {
-      this.updateOnChangeCursor();
+      this.updateMoveCursor();
       this.updateHoverSprites();
     }
   }
@@ -190,5 +190,13 @@ class CardsetSpriteSelectModeState {
       full = selectedAmount === allowedAmount;
     }
     return limit || full;
+  }
+
+  getSelectHandler() {
+    return this._onSelectHandler;
+  }
+
+  getCancelHandler() {
+    return this._onCancelHandler;
   }
 }

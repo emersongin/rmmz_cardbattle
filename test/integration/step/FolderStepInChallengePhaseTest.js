@@ -17,6 +17,10 @@ class FolderStepInChallengePhaseTest extends SceneTest {
   start() {
     this._scene.setStep(this.step);
     this.step.start(this.manager);
+    this.step.addAction(() => {
+      const index = 0;
+      this.step.selectFolderWindowOption(index);
+    });
   }
 
   update() {
