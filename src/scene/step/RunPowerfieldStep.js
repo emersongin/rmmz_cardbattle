@@ -16,7 +16,7 @@ class RunPowerfieldStep extends Step {
     if (this.isBusy() || this.hasActions()) return false;
   }
 
-  finish(phase) {
+  commandFinish(phase) {
     switch (phase) {
       case null:
         break;

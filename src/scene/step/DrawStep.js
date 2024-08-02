@@ -101,7 +101,8 @@ class DrawStep extends Step {
   }
 
   loadPlayerGameBoard(manager) {
-    const cardsInHand = manager.getPlayerHandCards();
+    const config = { player: GameConst.PLAYER };
+    const cardsInHand = manager.getCards(config);
     const energiesClone = Object.assign({}, manager.getPlayerEnergies());
     const updates = this.createFieldUpdates(cardsInHand, energiesClone);
     const { fieldUpdates, energies } = updates;
@@ -110,7 +111,8 @@ class DrawStep extends Step {
   }
 
   loadChallengedGameBoard(manager) {
-    const cardsInHand = manager.getChallengedHandCards();
+    const config = { player: GameConst.CHALLENGED };
+    const cardsInHand = manager.getCards(config);
     const energiesClone = Object.assign({}, manager.getChallengedEnergies());
     const updates = this.createFieldUpdates(cardsInHand, energiesClone);
     const { fieldUpdates, energies } = updates;
@@ -186,11 +188,11 @@ class DrawStep extends Step {
     if (Input.isTriggered('ok')) {
       this.closeGameBoards();
       this.leaveGameBoards();
-      this.addAction(this.finish);
+      this.addAction(this.commandFinish);
     }
   }
 
-  finish() {
+  commandFinish() {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.DRAW_PHASE:

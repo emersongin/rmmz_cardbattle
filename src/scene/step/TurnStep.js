@@ -1,6 +1,6 @@
 class TurnStep extends Step {
-  _textWindow = {};
-  _askWindow = {};
+  _textWindow = undefined;
+  _askWindow = undefined;
   _startTurn = false;
   _awaitingDecision = false;
   _playerPlayHandler = () => {}; 
@@ -120,7 +120,7 @@ class TurnStep extends Step {
       if (this.updatePlayerTurn(manager)) return;
       if (this.updateChallengedTurn(manager)) return;
       if (this.updateActivePowerfield(manager)) return;
-      this.addAction(this.finish);
+      this.endTurn();
     }
   }
 
@@ -248,15 +248,23 @@ class TurnStep extends Step {
     }
   }
 
-  finish() {
+  endTurn() { 
+    this.closeGameBoards();
+    this.leaveGameBoards();
+    this.addAction(this.commandFinish);
+  }
+
+  commandFinish() {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.LOAD_PHASE:
+        this.changePhase(GameConst.SUMMON_PHASE);
+        this.changeStep(DisplayStep);
         break;
       default:
         break;
     }
-    if (typeof this._finish === 'function') return this._finish();
+    this.end();
   }
 
   isBusy() {

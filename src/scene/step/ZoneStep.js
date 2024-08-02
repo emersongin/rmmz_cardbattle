@@ -1,13 +1,13 @@
 class ZoneStep extends Step {
-  _config;
-  _cardsetSprite;
-  _locationWindow;
-  _cardNameWindow;
-  _cardDescriptionWindow;
-  _cardPropsWindow;
-  _goBackHandler;
-  _selectHandler;
-  _moveCursorHandler;
+  _config = undefined;
+  _cardsetSprite = undefined;
+  _locationWindow = undefined;
+  _cardNameWindow = undefined;
+  _cardDescriptionWindow = undefined;
+  _cardPropsWindow = undefined;
+  _goBackHandler = () => {};
+  _selectHandler = () => {};
+  _moveCursorHandler = () => {};
 
   constructor(scene, phase, config, handlers, finish) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
@@ -101,57 +101,25 @@ class ZoneStep extends Step {
   }
 
   getCards(manager, indexes) {
-    const player = this.getPlayer();
-    if (player === GameConst.CHALLENGED) {
-      return this.getChallengedCards(manager, indexes);
-    }
-    return this.getPlayerCards(manager, indexes);
-  }
-
-  getChallengedCards(manager, indexes) {
-    const location = this.getLocation();
-    const config = this.getConfig();
-    switch (location) {
-      case GameConst.HAND:
-        return manager.getChallengedHandCards(config, indexes);
-        break;
-      case GameConst.DECK:
-        // return manager.getChallengedDeckCards(config);
-        break;
-      case GameConst.TRASH:
-        // return manager.getChallengedTrashCards(config);
-        break;
-      default:
-        return [];
-        break;
-    }
-  }
-
-  getLocation() {
-    return this._config.location;
+    const { 
+      location, 
+      player, 
+      blockBattleCards, 
+      blockPowerCards, 
+      blockPowerCardsInLoadPhase, 
+      blockPowerCardsInCompilePhase 
+    } = this.getConfig();
+    const config = {
+      location, 
+      player, 
+      blockBattleCards,
+      blockPowerCardsInLoadPhase 
+    };
+    return manager.getCards(config, indexes);
   }
 
   getConfig() {
     return this._config;
-  }
-
-  getPlayerCards(manager, indexes) {
-    const location = this.getLocation();
-    const config = this.getConfig();
-    switch (location) {
-      case GameConst.HAND:
-        return manager.getPlayerHandCards(config, indexes);
-        break;
-      case GameConst.DECK:
-        // return manager.getPlayerDeckCards(config);
-        break;
-      case GameConst.TRASH:
-        // return manager.getPlayerTrashCards(config);
-        break;
-      default:
-        return [];
-        break;
-    }
   }
 
   createCardsetSprite(cards) {
@@ -432,7 +400,7 @@ class ZoneStep extends Step {
     this._cardPropsWindow.open();
   }
 
-  finish() {
+  commandFinish() {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.LOAD_PHASE:

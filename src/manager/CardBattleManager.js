@@ -110,11 +110,6 @@ class CardBattleManager {
     return CardBattleManager.powerfield.length;
   }
 
-  static getPlayerDeckCards(config, indexes) {
-    const cards = CardBattleManager.player.deck;
-    return CardBattleManager.getCardsByIndexes(cards, config, indexes);
-  }
-
   static configureCards(cards, config) {
     return cards.map(card => {
       card.disabled = false;
@@ -129,11 +124,6 @@ class CardBattleManager {
       }
       return card;
     });
-  }
-
-  static getPlayerHandCards(config, indexes) {
-    const cards = CardBattleManager.player.hand;
-    return CardBattleManager.getCardsByIndexes(cards, config, indexes);
   }
 
   static getPlayerEnergies() {
@@ -156,20 +146,56 @@ class CardBattleManager {
     return CardBattleManager.player.victories;
   }
 
-  static getChallengedDeckCards(config, indexes) {
-    const cards = CardBattleManager.challenged.deck;
+  static getCards(config, indexes) {
+    const { player, location } = config;
+    if (player === GameConst.CHALLENGED) {
+      return CardBattleManager.getChallengedCardsByLocation(location, config, indexes);
+    }
+    return CardBattleManager.getPlayerCardsByLocation(location, config, indexes);
+  }
+
+  static getChallengedCardsByLocation(location, config, indexes) {
+    let cards = [];
+    switch (location) {
+      case GameConst.HAND:
+        cards = CardBattleManager.challenged.hand;
+        break;
+      case GameConst.DECK:
+        cards = CardBattleManager.challenged.deck;
+        break;
+      case GameConst.TRASH:
+        cards = CardBattleManager.challenged.trash;
+        break;
+      default:
+        cards = [];
+        break;
+    }
     return CardBattleManager.getCardsByIndexes(cards, config, indexes);
   }
 
-  static getChallengedHandCards(config, indexes) {
-    const cards = CardBattleManager.challenged.hand;
+  static getPlayerCardsByLocation(location, config, indexes) {
+    let cards = [];
+    switch (location) {
+      case GameConst.HAND:
+        cards = CardBattleManager.player.hand;
+        break;
+      case GameConst.DECK:
+        cards = CardBattleManager.player.deck;
+        break;
+      case GameConst.TRASH:
+        cards = CardBattleManager.player.trash;
+        break;
+      default:
+        cards = [];
+        break;
+    }
     return CardBattleManager.getCardsByIndexes(cards, config, indexes);
   }
 
   static getCardsByIndexes(cards, config, indexes) {
     const conditions = [
-      (typeof indexes !== 'integer' && !Array.isArray(indexes)),
-      (typeof indexes === 'integer' && (indexes < 0 || indexes >= cards.length)),
+      (typeof indexes !== 'number' && !Array.isArray(indexes)),
+      (typeof indexes === 'number' && (indexes < 0 || indexes >= cards.length)),
       (Array.isArray(indexes) && indexes.length === 0),
     ];
     if (conditions.some(x => x === true)) {
@@ -312,5 +338,11 @@ class CardBattleManager {
 
   static getCardPlayerHandByIndex(index) {
     return CardBattleManager.player.hand[index];
+  }
+
+  static getPowerEffect(cardNumber) {
+    return {
+      type: GameConst.INCRESASE_ENERGY,
+    };
   }
 }

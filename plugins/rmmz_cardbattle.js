@@ -40,6 +40,7 @@ const GameConst = {
   START_PHASE: 'START_PHASE',
   DRAW_PHASE: 'DRAW_PHASE',
   LOAD_PHASE: 'LOAD_PHASE',
+  SUMMON_PHASE: 'SUMMON_PHASE',
 
   HAND: 'HAND',
   DECK: 'DECK',
@@ -8712,12 +8713,14 @@ class DrawStepInDrawPhaseTest extends SceneTest {
     this.expectWasTrue('O set de cartas do desafiado foi apresentado?', this.step.isChallengedCardsetSpriteVisible);
     this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
     this.expectTrue('A proxima Fase é LOAD_PHASE?', this.step.getPhase() === GameConst.LOAD_PHASE);
-    const playerCardsInHand = this.manager.getPlayerHandCards();
+    const playerConfig = { player: GameConst.PLAYER };
+    const playerCardsInHand = this.manager.getCards(playerConfig);
     const playerEnergies = this.reduceEnergies(playerCardsInHand);
     const playerBoardWindowValues = this.step.getPlayerBoardWindowValues();
     const isPlayerEnergyLoaded = this.compareEnergies(playerEnergies, playerBoardWindowValues);
     this.expectTrue('As energias do tabuleiro do jogador foram carregadas?', isPlayerEnergyLoaded === true);
-    const challengedCardsInHand = this.manager.getChallengedHandCards();
+    const challengedConfig = { player: GameConst.CHALLENGED };
+    const challengedCardsInHand = this.manager.getCards(challengedConfig);
     const challengedEnergies = this.reduceEnergies(challengedCardsInHand);
     const challengedBoardWindowValues = this.step.getChallengedBoardWindowValues();
     const isChallengedEnergyLoaded = this.compareEnergies(challengedEnergies, challengedBoardWindowValues);
@@ -8995,6 +8998,7 @@ class PlayerPlayNextTurnStepInLoadPhaseTest extends SceneTest {
 class ChallengedPlayedTurnStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
+  nextStep;
 
   create() {
     const phase = GameConst.LOAD_PHASE;
@@ -9003,7 +9007,8 @@ class ChallengedPlayedTurnStepInLoadPhaseTest extends SceneTest {
       playerPlayHandler: () => {},
       playerPassedHandler: () => {},
       challengedPlayHandler: () => {
-        this.step.changeStep(ActivatePowerCardStep);
+        const powerConfig = { cardIndex: 0, player: GameConst.CHALLENGED };
+        this.nextStep = this.step.changeStep(ActivationStep, powerConfig);
         finish();
       },
       challengedPassedHandler: () => {},
@@ -9036,7 +9041,8 @@ class ChallengedPlayedTurnStepInLoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
     this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
     this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    this.expectTrue('A proxima Etapa é ActivatePowerCardStep?', this.isStep(ActivatePowerCardStep));
+    this.expectTrue('A proxima Etapa é ActivationStep?', this.isStep(ActivationStep));
+    this.expectTrue('Eh ActivationStep de desafiado?', this.nextStep.getPlayer() === GameConst.CHALLENGED);
   }
 }
 class ChallengedPassedTurnStepInLoadPhaseTest extends SceneTest {
@@ -9139,7 +9145,7 @@ class ActivetePowerFieldTurnStepInLoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
     this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
     this.expectTrue('Foi ativado com menos de 3 cartas?', this.manager.getPowerfieldLength() < 3);
-    this.expectTrue('A proxima Etapa é ActivatePowerCardStep?', this.isStep(RunPowerfieldStep));
+    this.expectTrue('A proxima Etapa é RunPowerfieldStep?', this.isStep(RunPowerfieldStep));
   }
 }
 class ActivetePowerFieldByLimitTurnStepInLoadPhaseTest extends SceneTest {
@@ -9196,7 +9202,7 @@ class ActivetePowerFieldByLimitTurnStepInLoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
     this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
     this.expectTrue('Foi ativado com limite de 3?', this.manager.getPowerfieldLength() === 3);
-    this.expectTrue('A proxima Etapa é ActivatePowerCardStep?', this.isStep(RunPowerfieldStep));
+    this.expectTrue('A proxima Etapa é RunPowerfieldStep?', this.isStep(RunPowerfieldStep));
   }
 }
 class SelectPowerCardInHandZoneStepInLoadPhaseTest extends SceneTest {
@@ -9215,7 +9221,8 @@ class SelectPowerCardInHandZoneStepInLoadPhaseTest extends SceneTest {
     const handlers = {
       goBackHandler: () => {},
       selectHandler: index => {
-        this.step.changeStep(ActivatePowerCardStep);
+        const powerConfig = { cardIndex: 0, player: GameConst.PLAYER };
+        this.step.changeStep(ActivationStep, powerConfig);
         finish();
       },
       moveCursorHandler: () => {},
@@ -9248,7 +9255,8 @@ class SelectPowerCardInHandZoneStepInLoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de descrição de cartão foi apresentado?', this.step.isCardDescriptionWindowVisible);
     this.expectWasTrue('A janela de propriedades de cartão foi apresentado?', this.step.isCardPropsWindowVisible);
     this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetSpriteVisible);
-    this.expectTrue('A proxima Etapa é ActivatePowerCardStep?', this.isStep(ActivatePowerCardStep));
+    this.expectTrue('A proxima Etapa é ActivationStep?', this.isStep(ActivationStep));
+    this.expectTrue('Eh ActivationStep de desafiado?', this.step.getPlayer() === GameConst.PLAYER);
   }
 }
 class GoBackInHandZoneStepInLoadPhaseTest extends SceneTest {
@@ -9355,6 +9363,93 @@ class MoveCursorInHandZoneStepInLoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de propriedades de cartão foi apresentado?', this.step.isCardPropsWindowVisible);
     this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetSpriteVisible);
     this.expectTrue('O cursor foi movido?', this.cardIndex >= 0);
+  }
+}
+class EndTurnStepInLoadPhaseTest extends SceneTest {
+  manager = CardBattleManager;
+  step;
+  passed = false;
+
+  create() {
+    const phase = GameConst.LOAD_PHASE;
+    const finish = this.createHandler();
+    const handlers = {
+      playerPlayHandler: () => {},
+      playerPassedHandler: () => {},
+      challengedPlayHandler: () => {},
+      challengedPassedHandler: () => {},
+      activePowerfieldHandler: () => {},
+    };
+    this.step = new TurnStep(this._scene, phase, handlers, finish);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.manager.setPlayerDeck();
+    this.manager.setChallengedDeck();
+    this.manager.playerPassed();
+    this.manager.challengedPassed();
+    this._scene.setStep(this.step);
+    this.step.start(this.manager);
+    this.mockFunction(Input, 'isTriggered', () => true);
+  }
+
+  update() {
+    this.step.update(this.manager);
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar etapa de turno e deve encerrar a fase após jogadas na fase de carregar.');
+    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
+    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
+    this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
+  }
+}
+class SetConfigActivationStepInLoadPhaseTest extends SceneTest {
+  manager = CardBattleManager;
+  step;
+
+  create() {
+    const phase = GameConst.LOAD_PHASE;
+    const finish = this.createHandler();
+    const powerConfig = {
+      cardIndex: 1,
+      player: GameConst.PLAYER
+    };
+    this.step = new ActivationStep(this._scene, phase, powerConfig, finish);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.manager.setPlayerDeck();
+    this.manager.setChallengedDeck();
+    this.manager.drawPlayerCards(6);
+    this.manager.drawChallengedCards(6);
+    this._scene.setStep(this.step);
+    this.step.start(this.manager);
+  }
+
+  update() {
+    this.step.update(this.manager);
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar etapa de ativação e definir estrategia para cartão de poder na fase de carregar.');
+    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
+    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
+    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
+    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
+    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
+    this.expectWasTrue('O set de cartas de poder foi apresentado?', this.step.isPowerCardsetSpriteVisible);
   }
 }
 
@@ -9470,11 +9565,6 @@ class CardBattleManager {
     return CardBattleManager.powerfield.length;
   }
 
-  static getPlayerDeckCards(config, indexes) {
-    const cards = CardBattleManager.player.deck;
-    return CardBattleManager.getCardsByIndexes(cards, config, indexes);
-  }
-
   static configureCards(cards, config) {
     return cards.map(card => {
       card.disabled = false;
@@ -9489,11 +9579,6 @@ class CardBattleManager {
       }
       return card;
     });
-  }
-
-  static getPlayerHandCards(config, indexes) {
-    const cards = CardBattleManager.player.hand;
-    return CardBattleManager.getCardsByIndexes(cards, config, indexes);
   }
 
   static getPlayerEnergies() {
@@ -9516,20 +9601,56 @@ class CardBattleManager {
     return CardBattleManager.player.victories;
   }
 
-  static getChallengedDeckCards(config, indexes) {
-    const cards = CardBattleManager.challenged.deck;
+  static getCards(config, indexes) {
+    const { player, location } = config;
+    if (player === GameConst.CHALLENGED) {
+      return CardBattleManager.getChallengedCardsByLocation(location, config, indexes);
+    }
+    return CardBattleManager.getPlayerCardsByLocation(location, config, indexes);
+  }
+
+  static getChallengedCardsByLocation(location, config, indexes) {
+    let cards = [];
+    switch (location) {
+      case GameConst.HAND:
+        cards = CardBattleManager.challenged.hand;
+        break;
+      case GameConst.DECK:
+        cards = CardBattleManager.challenged.deck;
+        break;
+      case GameConst.TRASH:
+        cards = CardBattleManager.challenged.trash;
+        break;
+      default:
+        cards = [];
+        break;
+    }
     return CardBattleManager.getCardsByIndexes(cards, config, indexes);
   }
 
-  static getChallengedHandCards(config, indexes) {
-    const cards = CardBattleManager.challenged.hand;
+  static getPlayerCardsByLocation(location, config, indexes) {
+    let cards = [];
+    switch (location) {
+      case GameConst.HAND:
+        cards = CardBattleManager.player.hand;
+        break;
+      case GameConst.DECK:
+        cards = CardBattleManager.player.deck;
+        break;
+      case GameConst.TRASH:
+        cards = CardBattleManager.player.trash;
+        break;
+      default:
+        cards = [];
+        break;
+    }
     return CardBattleManager.getCardsByIndexes(cards, config, indexes);
   }
 
   static getCardsByIndexes(cards, config, indexes) {
     const conditions = [
-      (typeof indexes !== 'integer' && !Array.isArray(indexes)),
-      (typeof indexes === 'integer' && (indexes < 0 || indexes >= cards.length)),
+      (typeof indexes !== 'number' && !Array.isArray(indexes)),
+      (typeof indexes === 'number' && (indexes < 0 || indexes >= cards.length)),
       (Array.isArray(indexes) && indexes.length === 0),
     ];
     if (conditions.some(x => x === true)) {
@@ -9673,6 +9794,12 @@ class CardBattleManager {
   static getCardPlayerHandByIndex(index) {
     return CardBattleManager.player.hand[index];
   }
+
+  static getPowerEffect(cardNumber) {
+    return {
+      type: GameConst.INCRESASE_ENERGY,
+    };
+  }
 }
 class Step {
   _scene;
@@ -9680,24 +9807,30 @@ class Step {
   _actionsQueue = [];
   _wait = 0;
   _player = {
-    boardWindow: {},
-    battleWindow: {},
-    trashWindow: {},
-    scoreWindow: {},
-    cardsetSprite: {},
+    boardWindow: undefined,
+    battleWindow: undefined,
+    trashWindow: undefined,
+    scoreWindow: undefined,
+    cardsetSprite: undefined,
   };
   _challenged = {
-    boardWindow: {},
-    battleWindow: {},
-    trashWindow: {},
-    scoreWindow: {},
-    cardsetSprite: {},
+    boardWindow: undefined,
+    battleWindow: undefined,
+    trashWindow: undefined,
+    scoreWindow: undefined,
+    cardsetSprite: undefined,
   };
-  _powerFieldCardsetSprite = {};
-  _finish = null;
+  _powerFieldCardsetSprite = undefined;
+  _finish = () => {};
 
   constructor(scene, phase, finish) {
-    const phasesEnabled = [GameConst.CHALLENGE_PHASE, GameConst.START_PHASE, GameConst.DRAW_PHASE, GameConst.LOAD_PHASE];
+    const phasesEnabled = [
+      GameConst.CHALLENGE_PHASE, 
+      GameConst.START_PHASE, 
+      GameConst.DRAW_PHASE, 
+      GameConst.LOAD_PHASE,
+      GameConst.SUMMON_PHASE,
+    ];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for DisplayStep.');
     }
@@ -9840,6 +9973,7 @@ class Step {
   changeStep(stepName, ...params) {
     const step = new stepName(this._scene, this._phase, ...params);
     this._scene.setStep(step);
+    return step;
   }
 
   // destroy() {
@@ -10386,11 +10520,17 @@ class Step {
   }
 }
 class DisplayStep extends Step {
-  _titleWindow = {};
-  _descriptionWindow = {};
+  _titleWindow = undefined;
+  _descriptionWindow = undefined;
 
   constructor(scene, phase, finish) {
-    const phasesEnabled = [GameConst.CHALLENGE_PHASE, GameConst.START_PHASE, GameConst.DRAW_PHASE, GameConst.LOAD_PHASE];
+    const phasesEnabled = [
+      GameConst.CHALLENGE_PHASE, 
+      GameConst.START_PHASE, 
+      GameConst.DRAW_PHASE, 
+      GameConst.LOAD_PHASE,
+      GameConst.SUMMON_PHASE,
+    ];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for DisplayStep.');
     }
@@ -10496,7 +10636,7 @@ class DisplayStep extends Step {
     if (Input.isTriggered('ok')) {
       this.commandCloseTextWindows();
       this.leaveTextWindows();
-      this.addAction(this.finish, manager);
+      this.addAction(this.commandFinish, manager);
     }
   }
 
@@ -10524,7 +10664,7 @@ class DisplayStep extends Step {
     ]);
   }
 
-  finish(manager) {
+  commandFinish(manager) {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.CHALLENGE_PHASE:
@@ -10563,7 +10703,7 @@ class DisplayStep extends Step {
             manager.playerPassed();
           },
           challengedPlayHandler: () => {
-            this.changeStep(ActivatePowerCardStep);
+            this.changeStep(ActivationStep);
           },
           challengedPassedHandler: () => {
             manager.challengedPassed();
@@ -10606,8 +10746,8 @@ class DisplayStep extends Step {
 }
 class FolderStep extends Step {
   _folders = [];
-  _foldersWindow = {};
-  _selectHandler = null;
+  _foldersWindow = undefined;
+  _selectHandler = undefined;
 
   constructor(scene, phase, folders, selectHandler, finish) {
     const phasesEnabled = [GameConst.CHALLENGE_PHASE];
@@ -10644,7 +10784,7 @@ class FolderStep extends Step {
     return (folderIndex) => {
       this.commandCloseFolderWindow();
       this.leaveFolderWindow();
-      this.addAction(this.finish);
+      this.addAction(this.commandFinish);
       this._selectHandler(folderIndex);
     };
   }
@@ -10687,7 +10827,7 @@ class FolderStep extends Step {
     this._foldersWindow.open();
   }
 
-  finish() {
+  commandFinish() {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.CHALLENGE_PHASE:
@@ -10722,9 +10862,9 @@ class FolderStep extends Step {
 }
 class MiniGameStep extends Step {
   _cards = [];
-  _cardsetSprite = {};
-  _resultWindow = {};
-  _selectHandler = null;
+  _cardsetSprite = undefined;
+  _resultWindow = undefined;
+  _selectHandler = undefined;
   _miniGame = false;
 
   constructor(scene, phase, selectHandler, finish) {
@@ -10893,7 +11033,7 @@ class MiniGameStep extends Step {
       this.commandCloseResultWindow();
       this.leaveResultWindow();
       this.leaveCardsetSprite();
-      this.addAction(this.finish);
+      this.addAction(this.commandFinish);
     }
   }
 
@@ -10925,7 +11065,7 @@ class MiniGameStep extends Step {
     this.removeChild(this._resultWindow);
   }
 
-  finish() {
+  commandFinish() {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.START_PHASE:
@@ -11078,7 +11218,8 @@ class DrawStep extends Step {
   }
 
   loadPlayerGameBoard(manager) {
-    const cardsInHand = manager.getPlayerHandCards();
+    const config = { player: GameConst.PLAYER };
+    const cardsInHand = manager.getCards(config);
     const energiesClone = Object.assign({}, manager.getPlayerEnergies());
     const updates = this.createFieldUpdates(cardsInHand, energiesClone);
     const { fieldUpdates, energies } = updates;
@@ -11087,7 +11228,8 @@ class DrawStep extends Step {
   }
 
   loadChallengedGameBoard(manager) {
-    const cardsInHand = manager.getChallengedHandCards();
+    const config = { player: GameConst.CHALLENGED };
+    const cardsInHand = manager.getCards(config);
     const energiesClone = Object.assign({}, manager.getChallengedEnergies());
     const updates = this.createFieldUpdates(cardsInHand, energiesClone);
     const { fieldUpdates, energies } = updates;
@@ -11163,11 +11305,11 @@ class DrawStep extends Step {
     if (Input.isTriggered('ok')) {
       this.closeGameBoards();
       this.leaveGameBoards();
-      this.addAction(this.finish);
+      this.addAction(this.commandFinish);
     }
   }
 
-  finish() {
+  commandFinish() {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.DRAW_PHASE:
@@ -11198,7 +11340,7 @@ class RunPowerfieldStep extends Step {
     if (this.isBusy() || this.hasActions()) return false;
   }
 
-  finish(phase) {
+  commandFinish(phase) {
     switch (phase) {
       case null:
         break;
@@ -11214,50 +11356,126 @@ class RunPowerfieldStep extends Step {
     return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
 }
-class ActivatePowerCardStep extends Step {
-  constructor(scene, phase, finish) {
+class IncreaseEnergyStrategy {
+  _scene = null;
+  _player = null;
+  
+  constructor(scene, player) {
+    this._scene = scene;
+    this._player = player;
+  }
+
+  update() {
+    console.log('IncreaseEnergyStrategy#update');
+  }
+}
+
+class ActivationStep extends Step {
+  _powerConfig = undefined;
+  _powerActivation = undefined;
+  _powerStrategy = undefined;
+  _cardsetSprite = undefined;;
+
+  constructor(scene, phase, powerConfig, powerActivation, finish) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
-      throw new Error('Invalid phase for DisplayStep.');
+      throw new Error('Invalid phase for ActivationStep.');
     }
     super(scene, phase, finish);
+    if (!powerConfig || !(powerConfig.cardIndex >= 0) || !powerConfig.player) {
+      throw new Error('Invalid powerConfig for ActivationStep.');
+    }
+    this._powerConfig = powerConfig;
+    this._powerActivation = powerActivation
   }
 
   start(manager) {
-    const phase = this.getPhase();
-
+    this.createPlayerGameBoard(manager);
+    this.createChallengedGameBoard(manager);
+    this.openGameBoards();
   }
   
   update(manager) {
+    super.update();
     if (this.isBusy() || this.hasActions()) return false;
+    if (this.updateStrategy(manager)) return;
+    this.updateActivation(manager);
+    this.updateConfig(manager);
   }
 
-  finish(phase) {
-    if (typeof this._finish === 'function') return this._finish();
+  updateStrategy(manager) {
+    if (typeof this._powerStrategy === 'object') {
+      this._powerStrategy?.update(manager);
+      return true;
+    }
+    return false;
+  }
+
+  updateActivation(manager) {
+    if (typeof this._powerActivation === 'object') {
+      this.addAction(this.commandFinish);
+    }
+  }
+
+  updateConfig(manager) {
+    const config = this._powerConfig;
+    const { cardIndex: index } = config;
+    const { cardNumber } = this.getCard(manager, index);
+    const powerEffect = manager.getPowerEffect(cardNumber);
+    this.setPowerStrategy(powerEffect);
+  }
+
+  getCard(manager, index) {
+    const player = this.getPlayer();
+    const location = GameConst.HAND;
+    const config = { player, location };
+    const [card] = manager.getCards(config, index);
+    return card;
+  }
+
+  getPlayer() {
+    return this._powerConfig.player;
+  }
+
+  setPowerStrategy(powerEffect) {
+    const { type } = powerEffect;
+    switch (type) {
+      case GameConst.INCRESASE_ENERGY:
+        this._powerStrategy = new IncreaseEnergyStrategy(this.scene, this.getPlayer());
+        break;
+      default:
+        this._powerStrategy = null;
+        break;
+    }
+  }
+
+  commandFinish(phase) {
     switch (phase) {
       case null:
         break;
       default:
         break;
     }
+    this.end();
   }
 
   isBusy() {
     const children = [
+      this._cardsetSprite,
     ];
     return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
 }
 class ZoneStep extends Step {
-  _config;
-  _cardsetSprite;
-  _locationWindow;
-  _cardNameWindow;
-  _cardDescriptionWindow;
-  _cardPropsWindow;
-  _goBackHandler;
-  _selectHandler;
-  _moveCursorHandler;
+  _config = undefined;
+  _cardsetSprite = undefined;
+  _locationWindow = undefined;
+  _cardNameWindow = undefined;
+  _cardDescriptionWindow = undefined;
+  _cardPropsWindow = undefined;
+  _goBackHandler = () => {};
+  _selectHandler = () => {};
+  _moveCursorHandler = () => {};
 
   constructor(scene, phase, config, handlers, finish) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
@@ -11351,57 +11569,25 @@ class ZoneStep extends Step {
   }
 
   getCards(manager, indexes) {
-    const player = this.getPlayer();
-    if (player === GameConst.CHALLENGED) {
-      return this.getChallengedCards(manager, indexes);
-    }
-    return this.getPlayerCards(manager, indexes);
-  }
-
-  getChallengedCards(manager, indexes) {
-    const location = this.getLocation();
-    const config = this.getConfig();
-    switch (location) {
-      case GameConst.HAND:
-        return manager.getChallengedHandCards(config, indexes);
-        break;
-      case GameConst.DECK:
-        // return manager.getChallengedDeckCards(config);
-        break;
-      case GameConst.TRASH:
-        // return manager.getChallengedTrashCards(config);
-        break;
-      default:
-        return [];
-        break;
-    }
-  }
-
-  getLocation() {
-    return this._config.location;
+    const { 
+      location, 
+      player, 
+      blockBattleCards, 
+      blockPowerCards, 
+      blockPowerCardsInLoadPhase, 
+      blockPowerCardsInCompilePhase 
+    } = this.getConfig();
+    const config = {
+      location, 
+      player, 
+      blockBattleCards,
+      blockPowerCardsInLoadPhase 
+    };
+    return manager.getCards(config, indexes);
   }
 
   getConfig() {
     return this._config;
-  }
-
-  getPlayerCards(manager, indexes) {
-    const location = this.getLocation();
-    const config = this.getConfig();
-    switch (location) {
-      case GameConst.HAND:
-        return manager.getPlayerHandCards(config, indexes);
-        break;
-      case GameConst.DECK:
-        // return manager.getPlayerDeckCards(config);
-        break;
-      case GameConst.TRASH:
-        // return manager.getPlayerTrashCards(config);
-        break;
-      default:
-        return [];
-        break;
-    }
   }
 
   createCardsetSprite(cards) {
@@ -11682,7 +11868,7 @@ class ZoneStep extends Step {
     this._cardPropsWindow.open();
   }
 
-  finish() {
+  commandFinish() {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.LOAD_PHASE:
@@ -11742,8 +11928,8 @@ class ZoneStep extends Step {
   }
 }
 class TurnStep extends Step {
-  _textWindow = {};
-  _askWindow = {};
+  _textWindow = undefined;
+  _askWindow = undefined;
   _startTurn = false;
   _awaitingDecision = false;
   _playerPlayHandler = () => {}; 
@@ -11863,7 +12049,7 @@ class TurnStep extends Step {
       if (this.updatePlayerTurn(manager)) return;
       if (this.updateChallengedTurn(manager)) return;
       if (this.updateActivePowerfield(manager)) return;
-      this.addAction(this.finish);
+      this.endTurn();
     }
   }
 
@@ -11991,15 +12177,23 @@ class TurnStep extends Step {
     }
   }
 
-  finish() {
+  endTurn() { 
+    this.closeGameBoards();
+    this.leaveGameBoards();
+    this.addAction(this.commandFinish);
+  }
+
+  commandFinish() {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.LOAD_PHASE:
+        this.changePhase(GameConst.SUMMON_PHASE);
+        this.changeStep(DisplayStep);
         break;
       default:
         break;
     }
-    if (typeof this._finish === 'function') return this._finish();
+    this.end();
   }
 
   isBusy() {
@@ -12207,24 +12401,26 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const steps = [
-      DisplayStepInChallengePhaseTest,
-      FolderStepInChallengePhaseTest,
-      DisplayStepInStartPhaseTest,
-      MiniGameInStartPhaseStepTest,
-      DisplayStepInDrawPhaseTest,
-      DrawStepInDrawPhaseTest,
-      DisplayStepInLoadPhaseTest,
-      PlayerPassedTurnStepInLoadPhaseTest,
-      PlayerPlayedTurnStepInLoadPhaseTest,
-      PlayerPlayFirstTurnStepInLoadPhaseTest,
-      PlayerPlayNextTurnStepInLoadPhaseTest,
-      ChallengedPassedTurnStepInLoadPhaseTest,
-      ChallengedPlayedTurnStepInLoadPhaseTest,
-      ActivetePowerFieldTurnStepInLoadPhaseTest,
-      ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
-      SelectPowerCardInHandZoneStepInLoadPhaseTest,
-      GoBackInHandZoneStepInLoadPhaseTest,
-      MoveCursorInHandZoneStepInLoadPhaseTest,
+      // DisplayStepInChallengePhaseTest,
+      // FolderStepInChallengePhaseTest,
+      // DisplayStepInStartPhaseTest,
+      // MiniGameInStartPhaseStepTest,
+      // DisplayStepInDrawPhaseTest,
+      // DrawStepInDrawPhaseTest,
+      // DisplayStepInLoadPhaseTest,
+      // PlayerPassedTurnStepInLoadPhaseTest,
+      // PlayerPlayedTurnStepInLoadPhaseTest,
+      // PlayerPlayFirstTurnStepInLoadPhaseTest,
+      // PlayerPlayNextTurnStepInLoadPhaseTest,
+      // ChallengedPassedTurnStepInLoadPhaseTest,
+      // ChallengedPlayedTurnStepInLoadPhaseTest,
+      // ActivetePowerFieldTurnStepInLoadPhaseTest,
+      // ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
+      // EndTurnStepInLoadPhaseTest,
+      // SelectPowerCardInHandZoneStepInLoadPhaseTest,
+      // GoBackInHandZoneStepInLoadPhaseTest,
+      // MoveCursorInHandZoneStepInLoadPhaseTest,
+      SetConfigActivationStepInLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

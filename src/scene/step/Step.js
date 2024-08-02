@@ -4,24 +4,30 @@ class Step {
   _actionsQueue = [];
   _wait = 0;
   _player = {
-    boardWindow: {},
-    battleWindow: {},
-    trashWindow: {},
-    scoreWindow: {},
-    cardsetSprite: {},
+    boardWindow: undefined,
+    battleWindow: undefined,
+    trashWindow: undefined,
+    scoreWindow: undefined,
+    cardsetSprite: undefined,
   };
   _challenged = {
-    boardWindow: {},
-    battleWindow: {},
-    trashWindow: {},
-    scoreWindow: {},
-    cardsetSprite: {},
+    boardWindow: undefined,
+    battleWindow: undefined,
+    trashWindow: undefined,
+    scoreWindow: undefined,
+    cardsetSprite: undefined,
   };
-  _powerFieldCardsetSprite = {};
-  _finish = null;
+  _powerFieldCardsetSprite = undefined;
+  _finish = () => {};
 
   constructor(scene, phase, finish) {
-    const phasesEnabled = [GameConst.CHALLENGE_PHASE, GameConst.START_PHASE, GameConst.DRAW_PHASE, GameConst.LOAD_PHASE];
+    const phasesEnabled = [
+      GameConst.CHALLENGE_PHASE, 
+      GameConst.START_PHASE, 
+      GameConst.DRAW_PHASE, 
+      GameConst.LOAD_PHASE,
+      GameConst.SUMMON_PHASE,
+    ];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for DisplayStep.');
     }
@@ -164,6 +170,7 @@ class Step {
   changeStep(stepName, ...params) {
     const step = new stepName(this._scene, this._phase, ...params);
     this._scene.setStep(step);
+    return step;
   }
 
   // destroy() {

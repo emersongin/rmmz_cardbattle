@@ -1,9 +1,15 @@
 class DisplayStep extends Step {
-  _titleWindow = {};
-  _descriptionWindow = {};
+  _titleWindow = undefined;
+  _descriptionWindow = undefined;
 
   constructor(scene, phase, finish) {
-    const phasesEnabled = [GameConst.CHALLENGE_PHASE, GameConst.START_PHASE, GameConst.DRAW_PHASE, GameConst.LOAD_PHASE];
+    const phasesEnabled = [
+      GameConst.CHALLENGE_PHASE, 
+      GameConst.START_PHASE, 
+      GameConst.DRAW_PHASE, 
+      GameConst.LOAD_PHASE,
+      GameConst.SUMMON_PHASE,
+    ];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for DisplayStep.');
     }
@@ -109,7 +115,7 @@ class DisplayStep extends Step {
     if (Input.isTriggered('ok')) {
       this.commandCloseTextWindows();
       this.leaveTextWindows();
-      this.addAction(this.finish, manager);
+      this.addAction(this.commandFinish, manager);
     }
   }
 
@@ -137,7 +143,7 @@ class DisplayStep extends Step {
     ]);
   }
 
-  finish(manager) {
+  commandFinish(manager) {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.CHALLENGE_PHASE:
@@ -176,7 +182,7 @@ class DisplayStep extends Step {
             manager.playerPassed();
           },
           challengedPlayHandler: () => {
-            this.changeStep(ActivatePowerCardStep);
+            this.changeStep(ActivationStep);
           },
           challengedPassedHandler: () => {
             manager.challengedPassed();

@@ -1,7 +1,7 @@
 class FolderStep extends Step {
   _folders = [];
-  _foldersWindow = {};
-  _selectHandler = null;
+  _foldersWindow = undefined;
+  _selectHandler = undefined;
 
   constructor(scene, phase, folders, selectHandler, finish) {
     const phasesEnabled = [GameConst.CHALLENGE_PHASE];
@@ -38,7 +38,7 @@ class FolderStep extends Step {
     return (folderIndex) => {
       this.commandCloseFolderWindow();
       this.leaveFolderWindow();
-      this.addAction(this.finish);
+      this.addAction(this.commandFinish);
       this._selectHandler(folderIndex);
     };
   }
@@ -81,7 +81,7 @@ class FolderStep extends Step {
     this._foldersWindow.open();
   }
 
-  finish() {
+  commandFinish() {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.CHALLENGE_PHASE:

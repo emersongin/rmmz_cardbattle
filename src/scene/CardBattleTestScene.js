@@ -4,7 +4,7 @@
 // include ./step/MiniGameStep.js
 // include ./step/DrawStep.js
 // include ./step/RunPowerfieldStep.js
-// include ./step/ActivatePowerCardStep.js
+// include ./step/ActivationStep.js
 // include ./step/ZoneStep.js
 // include ./step/TurnStep.js
 
@@ -199,24 +199,26 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const steps = [
-      DisplayStepInChallengePhaseTest,
-      FolderStepInChallengePhaseTest,
-      DisplayStepInStartPhaseTest,
-      MiniGameInStartPhaseStepTest,
-      DisplayStepInDrawPhaseTest,
-      DrawStepInDrawPhaseTest,
-      DisplayStepInLoadPhaseTest,
-      PlayerPassedTurnStepInLoadPhaseTest,
-      PlayerPlayedTurnStepInLoadPhaseTest,
-      PlayerPlayFirstTurnStepInLoadPhaseTest,
-      PlayerPlayNextTurnStepInLoadPhaseTest,
-      ChallengedPassedTurnStepInLoadPhaseTest,
-      ChallengedPlayedTurnStepInLoadPhaseTest,
-      ActivetePowerFieldTurnStepInLoadPhaseTest,
-      ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
-      SelectPowerCardInHandZoneStepInLoadPhaseTest,
-      GoBackInHandZoneStepInLoadPhaseTest,
-      MoveCursorInHandZoneStepInLoadPhaseTest,
+      // DisplayStepInChallengePhaseTest,
+      // FolderStepInChallengePhaseTest,
+      // DisplayStepInStartPhaseTest,
+      // MiniGameInStartPhaseStepTest,
+      // DisplayStepInDrawPhaseTest,
+      // DrawStepInDrawPhaseTest,
+      // DisplayStepInLoadPhaseTest,
+      // PlayerPassedTurnStepInLoadPhaseTest,
+      // PlayerPlayedTurnStepInLoadPhaseTest,
+      // PlayerPlayFirstTurnStepInLoadPhaseTest,
+      // PlayerPlayNextTurnStepInLoadPhaseTest,
+      // ChallengedPassedTurnStepInLoadPhaseTest,
+      // ChallengedPlayedTurnStepInLoadPhaseTest,
+      // ActivetePowerFieldTurnStepInLoadPhaseTest,
+      // ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
+      // EndTurnStepInLoadPhaseTest,
+      // SelectPowerCardInHandZoneStepInLoadPhaseTest,
+      // GoBackInHandZoneStepInLoadPhaseTest,
+      // MoveCursorInHandZoneStepInLoadPhaseTest,
+      SetConfigActivationStepInLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

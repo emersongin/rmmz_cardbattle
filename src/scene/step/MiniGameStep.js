@@ -1,8 +1,8 @@
 class MiniGameStep extends Step {
   _cards = [];
-  _cardsetSprite = {};
-  _resultWindow = {};
-  _selectHandler = null;
+  _cardsetSprite = undefined;
+  _resultWindow = undefined;
+  _selectHandler = undefined;
   _miniGame = false;
 
   constructor(scene, phase, selectHandler, finish) {
@@ -171,7 +171,7 @@ class MiniGameStep extends Step {
       this.commandCloseResultWindow();
       this.leaveResultWindow();
       this.leaveCardsetSprite();
-      this.addAction(this.finish);
+      this.addAction(this.commandFinish);
     }
   }
 
@@ -203,7 +203,7 @@ class MiniGameStep extends Step {
     this.removeChild(this._resultWindow);
   }
 
-  finish() {
+  commandFinish() {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.START_PHASE:
