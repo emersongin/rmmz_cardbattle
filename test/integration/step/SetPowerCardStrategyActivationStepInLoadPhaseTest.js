@@ -1,4 +1,4 @@
-class SetConfigActivationStepInLoadPhaseTest extends SceneTest {
+class SetPowerCardStrategyActivationStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
 

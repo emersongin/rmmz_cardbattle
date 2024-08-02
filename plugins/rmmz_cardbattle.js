@@ -9411,7 +9411,7 @@ class EndTurnStepInLoadPhaseTest extends SceneTest {
     this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
   }
 }
-class SetConfigActivationStepInLoadPhaseTest extends SceneTest {
+class SetPowerCardStrategyActivationStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
 
@@ -12401,38 +12401,38 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const steps = [
-      // DisplayStepInChallengePhaseTest,
-      // FolderStepInChallengePhaseTest,
-      // DisplayStepInStartPhaseTest,
-      // MiniGameInStartPhaseStepTest,
-      // DisplayStepInDrawPhaseTest,
-      // DrawStepInDrawPhaseTest,
-      // DisplayStepInLoadPhaseTest,
-      // PlayerPassedTurnStepInLoadPhaseTest,
-      // PlayerPlayedTurnStepInLoadPhaseTest,
-      // PlayerPlayFirstTurnStepInLoadPhaseTest,
-      // PlayerPlayNextTurnStepInLoadPhaseTest,
-      // ChallengedPassedTurnStepInLoadPhaseTest,
-      // ChallengedPlayedTurnStepInLoadPhaseTest,
-      // ActivetePowerFieldTurnStepInLoadPhaseTest,
-      // ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
-      // EndTurnStepInLoadPhaseTest,
-      // SelectPowerCardInHandZoneStepInLoadPhaseTest,
-      // GoBackInHandZoneStepInLoadPhaseTest,
-      // MoveCursorInHandZoneStepInLoadPhaseTest,
-      SetConfigActivationStepInLoadPhaseTest,
+      DisplayStepInChallengePhaseTest,
+      FolderStepInChallengePhaseTest,
+      DisplayStepInStartPhaseTest,
+      MiniGameInStartPhaseStepTest,
+      DisplayStepInDrawPhaseTest,
+      DrawStepInDrawPhaseTest,
+      DisplayStepInLoadPhaseTest,
+      PlayerPassedTurnStepInLoadPhaseTest,
+      PlayerPlayedTurnStepInLoadPhaseTest,
+      PlayerPlayFirstTurnStepInLoadPhaseTest,
+      PlayerPlayNextTurnStepInLoadPhaseTest,
+      ChallengedPassedTurnStepInLoadPhaseTest,
+      ChallengedPlayedTurnStepInLoadPhaseTest,
+      ActivetePowerFieldTurnStepInLoadPhaseTest,
+      ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
+      EndTurnStepInLoadPhaseTest,
+      SelectPowerCardInHandZoneStepInLoadPhaseTest,
+      GoBackInHandZoneStepInLoadPhaseTest,
+      MoveCursorInHandZoneStepInLoadPhaseTest,
+      // SetPowerCardStrategyActivationStepInLoadPhaseTest,
     ];
     return [
-      // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      // ...commandWindow,
-      // ...StateWindowTests,
-      // ...textWindowTests,
-      // ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow,
-      // ...scoreWindow,
-      // ...folderWindow,
+      ...cardSpriteTests,
+      ...cardsetSpriteTests,
+      ...commandWindow,
+      ...StateWindowTests,
+      ...textWindowTests,
+      ...boardWindowTests,
+      ...battlePointsWindow,
+      ...trashWindow,
+      ...scoreWindow,
+      ...folderWindow,
       ...steps,
     ];
   }

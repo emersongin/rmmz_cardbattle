@@ -34,7 +34,6 @@
 // include ../test/integration/SceneTest.js
 // CARD SPRITE
 // include ../test/integration/card/SizeCardSpriteTest.js
-// include ../test/integration/card/ErroOnCreateCardSpriteTest.js
 // include ../test/integration/card/StartOpenCardSpriteTest.js
 // include ../test/integration/card/StartClosedCardSpriteTest.js
 // include ../test/integration/card/OpenCardSpriteTest.js
@@ -202,7 +201,7 @@
 // include ../test/integration/step/GoBackInHandZoneStepInLoadPhaseTest.js  
 // include ../test/integration/step/MoveCursorInHandZoneStepInLoadPhaseTest.js
 // include ../test/integration/step/EndTurnStepInLoadPhaseTest.js
-// include ../test/integration/step/SetConfigActivationStepInLoadPhaseTest.js
+// include ../test/integration/step/SetPowerCardStrategyActivationStepInLoadPhaseTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js
