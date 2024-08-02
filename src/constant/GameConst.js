@@ -25,6 +25,7 @@ const GameConst = {
   HAND: 'HAND',
   DECK: 'DECK',
   TRASH: 'TRASH',
+  POWERFIELD: 'POWERFIELD',
 
 
 

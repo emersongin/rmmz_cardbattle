@@ -387,9 +387,19 @@ class Step {
     const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
     const cardsetSprite = CardsetSprite.create(x, y);
     cardsetSprite.show();
-    const xCard = CardsetSprite.contentOriginalWidth() - CardSprite.contentOriginalWidth();
-    const sprites = cardsetSprite.setCards(cards, xCard);
-    cardsetSprite.startClosedCards(sprites);
+    const numCards = cards.length;
+    const lastIndex = numCards - 1;
+    const numInfield = numCards - 1;
+    if (numCards) {
+      const cardX = CardsetSprite.contentOriginalWidth() - CardSprite.contentOriginalWidth();
+      const cardy = 0;
+      const lastPosition = CardsetSprite.createPosition(cardX, cardy, lastIndex);
+      const positionsCreated = CardsetSprite.createPositionsList(numInfield);
+      const positionsMerged = [...positionsCreated, lastPosition];
+      const sprites = cardsetSprite.setCards(cards, 0, 0);
+      cardsetSprite.setAllCardsInPositions(sprites, positionsMerged);
+      cardsetSprite.startClosedCards(sprites);
+    }
     this.addAction(this.commandCreatePowerfield, cardsetSprite);
     return cardsetSprite;
   }
@@ -666,6 +676,14 @@ class Step {
 
   commandChallengedBoardWindowPass() {
     this._challenged.boardWindow.pass();
+  }
+
+  openPowerfield() {
+    this.addAction(this.commandOpenPowerfield);
+  }
+
+  commandOpenPowerfield() {
+    this._powerFieldCardsetSprite.openAllCards();
   }
 
   isPlayerBoardWindowVisible() {

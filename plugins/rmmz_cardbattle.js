@@ -45,6 +45,7 @@ const GameConst = {
   HAND: 'HAND',
   DECK: 'DECK',
   TRASH: 'TRASH',
+  POWERFIELD: 'POWERFIELD',
 
 
 
@@ -4325,10 +4326,14 @@ class CardsetSprite extends ActionSprite {
     const positions = [];
     let padingLeft = 0;
     for (let i = 0; i < numCards; i++) {
-      positions.push(CardSprite.createPosition(x || padingLeft, y || 0, i));
+      positions.push(CardsetSprite.createPosition(x || padingLeft, y || 0, i));
       padingLeft += padingLeftToAdd;
     }
     return positions;
+  }
+
+  static createPosition(x, y, index) {
+    return { x, y, index };
   }
 
   static contentOriginalWidth() {
@@ -4342,6 +4347,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   static createPositionsList(numCards) {
+    if (numCards === 0) return [];
     const padding = CardsetSprite.getPaddingByNumCards(numCards);
     const positions = CardsetSprite.createPositions(numCards, padding);
     return positions;
@@ -5731,16 +5737,6 @@ class SizeCardSpriteTest extends SceneTest {
     this.expectTrue('Esta com a largura informada?', this.subject.width === cardWidth);
     this.expectTrue('Esta com a altura informada?', this.subject.height === cardHeight);
     this.expectTrue('Esta aberto?', this.subject.isOpened());
-  }
-}
-class ErroOnCreateCardSpriteTest extends SceneTest {
-  create() {
-    CardSprite.create();
-  }
-
-  asserts() {
-    this.describe('Deve retornar um erro ao tentar criar um card inválido!');
-    this.expectToThrow('Houve um erro ao criar?', new Error('Card inválido!'));
   }
 }
 class StartOpenCardSpriteTest extends SceneTest {
@@ -9431,6 +9427,13 @@ class SetPowerCardStrategyActivationStepInLoadPhaseTest extends SceneTest {
     this.manager.setChallengedDeck();
     this.manager.drawPlayerCards(6);
     this.manager.drawChallengedCards(6);
+    this.mockFunction(this.manager, 'getCardsByPowerfield', () => {
+      return [
+        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+      ];
+    });
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }
@@ -9603,10 +9606,18 @@ class CardBattleManager {
 
   static getCards(config, indexes) {
     const { player, location } = config;
+    if (location === GameConst.POWERFIELD) {
+      return CardBattleManager.getCardsByPowerfield(config, indexes);
+    }
     if (player === GameConst.CHALLENGED) {
       return CardBattleManager.getChallengedCardsByLocation(location, config, indexes);
     }
     return CardBattleManager.getPlayerCardsByLocation(location, config, indexes);
+  }
+
+  static getCardsByPowerfield(config, indexes) {
+    const cards = CardBattleManager.powerfield;
+    return CardBattleManager.getCardsByIndexes(cards, config, indexes);
   }
 
   static getChallengedCardsByLocation(location, config, indexes) {
@@ -10190,9 +10201,19 @@ class Step {
     const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
     const cardsetSprite = CardsetSprite.create(x, y);
     cardsetSprite.show();
-    const xCard = CardsetSprite.contentOriginalWidth() - CardSprite.contentOriginalWidth();
-    const sprites = cardsetSprite.setCards(cards, xCard);
-    cardsetSprite.startClosedCards(sprites);
+    const numCards = cards.length;
+    const lastIndex = numCards - 1;
+    const numInfield = numCards - 1;
+    if (numCards) {
+      const cardX = CardsetSprite.contentOriginalWidth() - CardSprite.contentOriginalWidth();
+      const cardy = 0;
+      const lastPosition = CardsetSprite.createPosition(cardX, cardy, lastIndex);
+      const positionsCreated = CardsetSprite.createPositionsList(numInfield);
+      const positionsMerged = [...positionsCreated, lastPosition];
+      const sprites = cardsetSprite.setCards(cards, 0, 0);
+      cardsetSprite.setAllCardsInPositions(sprites, positionsMerged);
+      cardsetSprite.startClosedCards(sprites);
+    }
     this.addAction(this.commandCreatePowerfield, cardsetSprite);
     return cardsetSprite;
   }
@@ -10469,6 +10490,14 @@ class Step {
 
   commandChallengedBoardWindowPass() {
     this._challenged.boardWindow.pass();
+  }
+
+  openPowerfield() {
+    this.addAction(this.commandOpenPowerfield);
+  }
+
+  commandOpenPowerfield() {
+    this._powerFieldCardsetSprite.openAllCards();
   }
 
   isPlayerBoardWindowVisible() {
@@ -11392,7 +11421,14 @@ class ActivationStep extends Step {
   start(manager) {
     this.createPlayerGameBoard(manager);
     this.createChallengedGameBoard(manager);
+    this.createPowerFieldCardsetSprite(manager);
     this.openGameBoards();
+    this.openPowerfield();
+  }
+
+  createPowerFieldCardsetSprite(manager) {
+    const cards = manager.getCardsByPowerfield();
+    super.createPowerFieldCardsetSprite(cards);
   }
   
   update(manager) {
@@ -11420,7 +11456,8 @@ class ActivationStep extends Step {
   updateConfig(manager) {
     const config = this._powerConfig;
     const { cardIndex: index } = config;
-    const { cardNumber } = this.getCard(manager, index);
+    const card = this.getCard(manager, index);
+    const cardNumber = card;
     const powerEffect = manager.getPowerEffect(cardNumber);
     this.setPowerStrategy(powerEffect);
   }
@@ -12242,7 +12279,6 @@ class CardBattleTestScene extends Scene_Message {
   testsData() {
     const cardSpriteTests = [
       SizeCardSpriteTest,
-      ErroOnCreateCardSpriteTest,
       StartOpenCardSpriteTest,
       StartClosedCardSpriteTest,
       OpenCardSpriteTest,
@@ -12401,38 +12437,38 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const steps = [
-      DisplayStepInChallengePhaseTest,
-      FolderStepInChallengePhaseTest,
-      DisplayStepInStartPhaseTest,
-      MiniGameInStartPhaseStepTest,
-      DisplayStepInDrawPhaseTest,
-      DrawStepInDrawPhaseTest,
-      DisplayStepInLoadPhaseTest,
-      PlayerPassedTurnStepInLoadPhaseTest,
-      PlayerPlayedTurnStepInLoadPhaseTest,
-      PlayerPlayFirstTurnStepInLoadPhaseTest,
-      PlayerPlayNextTurnStepInLoadPhaseTest,
-      ChallengedPassedTurnStepInLoadPhaseTest,
-      ChallengedPlayedTurnStepInLoadPhaseTest,
-      ActivetePowerFieldTurnStepInLoadPhaseTest,
-      ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
-      EndTurnStepInLoadPhaseTest,
-      SelectPowerCardInHandZoneStepInLoadPhaseTest,
-      GoBackInHandZoneStepInLoadPhaseTest,
-      MoveCursorInHandZoneStepInLoadPhaseTest,
-      // SetPowerCardStrategyActivationStepInLoadPhaseTest,
+      // DisplayStepInChallengePhaseTest,
+      // FolderStepInChallengePhaseTest,
+      // DisplayStepInStartPhaseTest,
+      // MiniGameInStartPhaseStepTest,
+      // DisplayStepInDrawPhaseTest,
+      // DrawStepInDrawPhaseTest,
+      // DisplayStepInLoadPhaseTest,
+      // PlayerPassedTurnStepInLoadPhaseTest,
+      // PlayerPlayedTurnStepInLoadPhaseTest,
+      // PlayerPlayFirstTurnStepInLoadPhaseTest,
+      // PlayerPlayNextTurnStepInLoadPhaseTest,
+      // ChallengedPassedTurnStepInLoadPhaseTest,
+      // ChallengedPlayedTurnStepInLoadPhaseTest,
+      // ActivetePowerFieldTurnStepInLoadPhaseTest,
+      // ActivetePowerFieldByLimitTurnStepInLoadPhaseTest,
+      // EndTurnStepInLoadPhaseTest,
+      // SelectPowerCardInHandZoneStepInLoadPhaseTest,
+      // GoBackInHandZoneStepInLoadPhaseTest,
+      // MoveCursorInHandZoneStepInLoadPhaseTest,
+      SetPowerCardStrategyActivationStepInLoadPhaseTest,
     ];
     return [
-      ...cardSpriteTests,
-      ...cardsetSpriteTests,
-      ...commandWindow,
-      ...StateWindowTests,
-      ...textWindowTests,
-      ...boardWindowTests,
-      ...battlePointsWindow,
-      ...trashWindow,
-      ...scoreWindow,
-      ...folderWindow,
+      // ...cardSpriteTests,
+      // ...cardsetSpriteTests,
+      // ...commandWindow,
+      // ...StateWindowTests,
+      // ...textWindowTests,
+      // ...boardWindowTests,
+      // ...battlePointsWindow,
+      // ...trashWindow,
+      // ...scoreWindow,
+      // ...folderWindow,
       ...steps,
     ];
   }

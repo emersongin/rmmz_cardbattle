@@ -22,7 +22,14 @@ class ActivationStep extends Step {
   start(manager) {
     this.createPlayerGameBoard(manager);
     this.createChallengedGameBoard(manager);
+    this.createPowerFieldCardsetSprite(manager);
     this.openGameBoards();
+    this.openPowerfield();
+  }
+
+  createPowerFieldCardsetSprite(manager) {
+    const cards = manager.getCardsByPowerfield();
+    super.createPowerFieldCardsetSprite(cards);
   }
   
   update(manager) {
@@ -50,7 +57,8 @@ class ActivationStep extends Step {
   updateConfig(manager) {
     const config = this._powerConfig;
     const { cardIndex: index } = config;
-    const { cardNumber } = this.getCard(manager, index);
+    const card = this.getCard(manager, index);
+    const cardNumber = card;
     const powerEffect = manager.getPowerEffect(cardNumber);
     this.setPowerStrategy(powerEffect);
   }

@@ -18,6 +18,13 @@ class SetPowerCardStrategyActivationStepInLoadPhaseTest extends SceneTest {
     this.manager.setChallengedDeck();
     this.manager.drawPlayerCards(6);
     this.manager.drawChallengedCards(6);
+    this.mockFunction(this.manager, 'getCardsByPowerfield', () => {
+      return [
+        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+      ];
+    });
     this._scene.setStep(this.step);
     this.step.start(this.manager);
   }

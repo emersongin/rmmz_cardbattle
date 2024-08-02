@@ -11,10 +11,14 @@ class CardsetSprite extends ActionSprite {
     const positions = [];
     let padingLeft = 0;
     for (let i = 0; i < numCards; i++) {
-      positions.push(CardSprite.createPosition(x || padingLeft, y || 0, i));
+      positions.push(CardsetSprite.createPosition(x || padingLeft, y || 0, i));
       padingLeft += padingLeftToAdd;
     }
     return positions;
+  }
+
+  static createPosition(x, y, index) {
+    return { x, y, index };
   }
 
   static contentOriginalWidth() {
@@ -28,6 +32,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   static createPositionsList(numCards) {
+    if (numCards === 0) return [];
     const padding = CardsetSprite.getPaddingByNumCards(numCards);
     const positions = CardsetSprite.createPositions(numCards, padding);
     return positions;

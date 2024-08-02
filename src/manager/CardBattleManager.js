@@ -148,10 +148,18 @@ class CardBattleManager {
 
   static getCards(config, indexes) {
     const { player, location } = config;
+    if (location === GameConst.POWERFIELD) {
+      return CardBattleManager.getCardsByPowerfield(config, indexes);
+    }
     if (player === GameConst.CHALLENGED) {
       return CardBattleManager.getChallengedCardsByLocation(location, config, indexes);
     }
     return CardBattleManager.getPlayerCardsByLocation(location, config, indexes);
+  }
+
+  static getCardsByPowerfield(config, indexes) {
+    const cards = CardBattleManager.powerfield;
+    return CardBattleManager.getCardsByIndexes(cards, config, indexes);
   }
 
   static getChallengedCardsByLocation(location, config, indexes) {
