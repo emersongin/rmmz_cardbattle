@@ -35,12 +35,14 @@ class DrawStepInDrawPhaseTest extends SceneTest {
     this.expectWasTrue('O set de cartas do desafiado foi apresentado?', this.step.isChallengedCardsetSpriteVisible);
     this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
     this.expectTrue('A proxima Fase é LOAD_PHASE?', this.step.getPhase() === GameConst.LOAD_PHASE);
-    const playerCardsInHand = this.manager.getPlayerHandCards();
+    const playerConfig = { player: GameConst.PLAYER };
+    const playerCardsInHand = this.manager.getCards(playerConfig);
     const playerEnergies = this.reduceEnergies(playerCardsInHand);
     const playerBoardWindowValues = this.step.getPlayerBoardWindowValues();
     const isPlayerEnergyLoaded = this.compareEnergies(playerEnergies, playerBoardWindowValues);
     this.expectTrue('As energias do tabuleiro do jogador foram carregadas?', isPlayerEnergyLoaded === true);
-    const challengedCardsInHand = this.manager.getChallengedHandCards();
+    const challengedConfig = { player: GameConst.CHALLENGED };
+    const challengedCardsInHand = this.manager.getCards(challengedConfig);
     const challengedEnergies = this.reduceEnergies(challengedCardsInHand);
     const challengedBoardWindowValues = this.step.getChallengedBoardWindowValues();
     const isChallengedEnergyLoaded = this.compareEnergies(challengedEnergies, challengedBoardWindowValues);

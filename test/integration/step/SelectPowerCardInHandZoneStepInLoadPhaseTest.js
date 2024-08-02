@@ -14,7 +14,8 @@ class SelectPowerCardInHandZoneStepInLoadPhaseTest extends SceneTest {
     const handlers = {
       goBackHandler: () => {},
       selectHandler: index => {
-        this.step.changeStep(ActivatePowerCardStep);
+        const powerConfig = { cardIndex: 0, player: GameConst.PLAYER };
+        this.step.changeStep(ActivationStep, powerConfig);
         finish();
       },
       moveCursorHandler: () => {},
@@ -47,6 +48,7 @@ class SelectPowerCardInHandZoneStepInLoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de descrição de cartão foi apresentado?', this.step.isCardDescriptionWindowVisible);
     this.expectWasTrue('A janela de propriedades de cartão foi apresentado?', this.step.isCardPropsWindowVisible);
     this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetSpriteVisible);
-    this.expectTrue('A proxima Etapa é ActivatePowerCardStep?', this.isStep(ActivatePowerCardStep));
+    this.expectTrue('A proxima Etapa é ActivationStep?', this.isStep(ActivationStep));
+    this.expectTrue('Eh ActivationStep de desafiado?', this.step.getPlayer() === GameConst.PLAYER);
   }
 }

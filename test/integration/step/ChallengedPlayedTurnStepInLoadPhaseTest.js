@@ -1,6 +1,7 @@
 class ChallengedPlayedTurnStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
+  nextStep;
 
   create() {
     const phase = GameConst.LOAD_PHASE;
@@ -9,7 +10,8 @@ class ChallengedPlayedTurnStepInLoadPhaseTest extends SceneTest {
       playerPlayHandler: () => {},
       playerPassedHandler: () => {},
       challengedPlayHandler: () => {
-        this.step.changeStep(ActivatePowerCardStep);
+        const powerConfig = { cardIndex: 0, player: GameConst.CHALLENGED };
+        this.nextStep = this.step.changeStep(ActivationStep, powerConfig);
         finish();
       },
       challengedPassedHandler: () => {},
@@ -42,6 +44,7 @@ class ChallengedPlayedTurnStepInLoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
     this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
     this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    this.expectTrue('A proxima Etapa é ActivatePowerCardStep?', this.isStep(ActivatePowerCardStep));
+    this.expectTrue('A proxima Etapa é ActivationStep?', this.isStep(ActivationStep));
+    this.expectTrue('Eh ActivationStep de desafiado?', this.nextStep.getPlayer() === GameConst.CHALLENGED);
   }
 }
