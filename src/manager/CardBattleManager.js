@@ -353,4 +353,11 @@ class CardBattleManager {
       type: GameConst.INCRESASE_ENERGY,
     };
   }
+
+  static moveCardToPowerField(cardIndex, player) {
+    const p = player === GameConst.PLAYER ? CardBattleManager.player : CardBattleManager.challenged;
+    const card = p.hand.splice(cardIndex, 1);
+    CardBattleManager.powerfield.push(card);
+    return card;
+  }
 }

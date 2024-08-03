@@ -71,6 +71,7 @@ class Step {
       this._challenged.trashWindow,
       this._challenged.scoreWindow,
       this._challenged.cardsetSprite,
+      this._powerFieldCardsetSprite,
     ];
     return this._wait > 0 || children.some(obj => (obj?.isBusy ? obj.isBusy() : false)) || this.someChildrenIsBusy();
   }
@@ -728,6 +729,10 @@ class Step {
 
   isPowerFieldCardsetSpriteVisible() {
     return this._powerFieldCardsetSprite?.visible;
+  }
+
+  getPowerfieldCardsetSprite() {
+    return this._powerFieldCardsetSprite;
   }
 
   end() {
