@@ -8,11 +8,11 @@ class IncreaseEnergyStrategy {
   }
 
   start() {
-    this._step.setActivation({ player: this._player });
-    this._step.endStrategy();
+
   }
 
   update() {
-    // console.log('IncreaseEnergyStrategy#update');
+    this._step.setActivation({ player: this._player });
+    this._step.endStrategy();
   }
 }

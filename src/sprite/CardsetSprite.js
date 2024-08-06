@@ -542,18 +542,21 @@ class CardsetSprite extends ActionSprite {
     return this._orderingSprites.every((sprite, index) => sprite.number === index + 1);
   }
 
-  displayReverseOrdering() {
-    this.addCommand(this.commandDisplayReverseOrdering);
+  displayReverseOrdering(indexes) {
+    this.addCommand(this.commandDisplayReverseOrdering, indexes);
   }
 
-  commandDisplayReverseOrdering() {
+  commandDisplayReverseOrdering(indexes = []) {
     if (this.isHidden() || this.hasOrderingNumbers() === false) return false;
     this._orderingSprites.forEach(sprite => {
       const number = this._orderingSprites.length - (sprite.number - 1);
       const cardSprite = this._sprites[number - 1];
       this.redrawOrderingNumber(sprite, number, cardSprite);
     });
-    this._orderingSprites.forEach(sprite => sprite.show());
+    indexes.forEach(index => {
+      const orderingSprite = this._orderingSprites[index];
+      orderingSprite.show();
+    });
   }
 
   isReverseOrdering() {

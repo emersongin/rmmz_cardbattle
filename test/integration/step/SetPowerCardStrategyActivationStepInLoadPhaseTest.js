@@ -10,7 +10,7 @@ class SetPowerCardStrategyActivationStepInLoadPhaseTest extends SceneTest {
       player: GameConst.PLAYER
     };
     const powerActivation = undefined;
-    this.step = new ActivationStep(this._scene, phase, powerConfig, powerActivation, finish);
+    this.step = new ActivationStep(this._scene, phase, powerConfig, powerActivation);
     this.addAssistedHidden(this.step);
   }
 
@@ -21,10 +21,11 @@ class SetPowerCardStrategyActivationStepInLoadPhaseTest extends SceneTest {
     this.manager.drawChallengedCards(6);
     this.mockFunction(this.manager, 'getCardsByPowerfield', () => {
       return [
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.POWER, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
         { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
       ];
+    });
+    this.mockFunction(this.manager, 'getPowerfieldLength', () => {
+      return 2;
     });
     this._scene.setStep(this.step);
     this.step.start(this.manager);

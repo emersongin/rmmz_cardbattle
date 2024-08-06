@@ -1,4 +1,4 @@
-class ActivetePowerFieldByLimitTurnStepInLoadPhaseTest extends SceneTest {
+class ActivatePowerFieldTurnStepInLoadPhaseTest extends SceneTest {
   manager = CardBattleManager;
   step;
 
@@ -30,8 +30,6 @@ class ActivetePowerFieldByLimitTurnStepInLoadPhaseTest extends SceneTest {
       health: 10,
     };
     this.manager.addPowerCardToPowerfield(powerCard);
-    this.manager.addPowerCardToPowerfield(powerCard);
-    this.manager.addPowerCardToPowerfield(powerCard);
     this._scene.setStep(this.step);
     this.step.start(this.manager);
     this.mockFunction(Input, 'isTriggered', () => true);
@@ -51,7 +49,7 @@ class ActivetePowerFieldByLimitTurnStepInLoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
     this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
     this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    this.expectTrue('Foi ativado com limite de 3?', this.manager.getPowerfieldLength() === 3);
+    this.expectTrue('Foi ativado com menos de 3 cartas?', this.manager.getPowerfieldLength() < 3);
     this.expectTrue('A proxima Etapa é RunPowerfieldStep?', this.isStep(RunPowerfieldStep));
   }
 }

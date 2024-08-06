@@ -1,10 +1,10 @@
 // include ./strategy/IncreaseEnergyStrategy.js
 
 class ActivationStep extends Step {
-  _powerConfig = undefined;
   _powerActivation = undefined;
-  _powerStrategy = undefined;
-  _cardsetSprite = undefined;;
+  _powerActivationConfig = undefined;
+  _powerActivationStrategy = undefined;
+  _end = false;
 
   constructor(scene, phase, powerConfig, powerActivation = undefined, finish) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
@@ -15,8 +15,9 @@ class ActivationStep extends Step {
     if (!powerConfig || !(powerConfig.cardIndex >= 0) || !powerConfig.player) {
       throw new Error('Invalid powerConfig for ActivationStep.');
     }
-    this._powerConfig = powerConfig;
+    this._powerActivationConfig = powerConfig;
     this._powerActivation = powerActivation
+    this._end = false;
   }
 
   start(manager) {
@@ -25,11 +26,38 @@ class ActivationStep extends Step {
     this.createPowerFieldCardsetSprite(manager);
     this.openGameBoards();
     this.openPowerfield();
+    this.addAction(this.showDisplayOrdering);
+  }
+
+  showDisplayOrdering() {
+    const powerfield = this.getPowerfieldCardsetSprite();
+    powerfield.displayReverseOrdering([0]);
   }
 
   createPowerFieldCardsetSprite(manager) {
-    const cards = manager.getCardsByPowerfield();
+    const cardsInPowerfield = manager.getCardsByPowerfield();
+    const powerCard = this.getPowerCard(manager);
+    const cards = [...cardsInPowerfield, powerCard];
+    console.log(cards);
     super.createPowerFieldCardsetSprite(cards);
+  }
+
+  getPowerCard(manager) {
+    const cardIndex = this.getPowerCardIndex();
+    const card = this.getCard(manager, cardIndex);
+    return card;
+  }
+
+  getPowerCardIndex() {
+    return this._powerActivationConfig.cardIndex;
+  }
+
+  getCard(manager, index) {
+    const player = this.getPlayer();
+    const location = GameConst.HAND;
+    const config = { player, location };
+    const [card] = manager.getCards(config, index);
+    return card;
   }
   
   update(manager) {
@@ -41,31 +69,42 @@ class ActivationStep extends Step {
   }
 
   updateStrategy(manager) {
-    if ((typeof this._powerStrategy === 'object') && !this._powerActivation) {
-      this._powerStrategy?.update(manager);
+    if (this.isActive() && this.hasStrategy() && !this.hasActivation()) {
+      this._powerActivationStrategy?.update(manager);
       return true;
     }
     return false;
   }
 
+  hasStrategy() {
+    return (typeof this._powerActivationStrategy === 'object');
+  }
+
   updateActivation(manager) {
-    console.log(this._powerActivation);
-    if ((typeof this._powerActivation === 'object') && !this._powerStrategy) {
-      const cardIndex = this.getCardIndex();
+    if (this.isActive() && this.hasActivation() && !this.hasStrategy()) {
+      const cardIndex = this.getPowerCardIndex();
       const player = this.getPlayer();
       manager.moveCardToPowerField(cardIndex, player);
-      const sprite = this.getSpriteByIndex(cardIndex);
       const number = manager.getPowerfieldLength();
-      console.log(number);
+      const lastIndex = number - 1;
+      const sprite = this.getSpriteByIndex(lastIndex);
       this.moveCardToPowerfield(sprite, number, player);
       this.addAction(this.commandFinish, manager);
-      this.endActivation();
-      console.log(this._powerActivation);
+      this.ending();
     }
   }
 
+  hasActivation() {
+    return (typeof this._powerActivation === 'object');
+  }
+
+  ending() {
+    this._end = true;
+  }
+
   getSpriteByIndex(index) {
-    return this.getPowerfieldCardsetSprite().getSpriteByIndex(index);
+    const powerfield = this.getPowerfieldCardsetSprite();
+    return powerfield.getSpriteByIndex(index);
   }
 
   moveCardToPowerfield(sprite, number, player) {
@@ -74,52 +113,42 @@ class ActivationStep extends Step {
 
   commandMoveCardToPowerfield(sprite, number, player) {
     const powerfield = this.getPowerfieldCardsetSprite();
-    powerfield.moveAllCardsInlist(sprite);
+    powerfield.moveAllCardsInlist();
     powerfield.flashCardsAnimate(sprite, 'white');
-    powerfield.setNumberColor(number, (player === GameConst.PLAYER) ? GameColors.BLUE : GameColors.RED);
-    powerfield.displayReverseOrdering();
+    // powerfield.setNumberColor(number, (player === GameConst.PLAYER) ? GameColors.BLUE : GameColors.RED);
+    // powerfield.displayReverseOrdering();
     powerfield.closeCards(sprite);
     powerfield.openCards(sprite);
   }
 
   updateConfig(manager) {
-    if (!this._powerActivation && !this._powerStrategy) {
-      const config = this._powerConfig;
-      const { cardIndex: index } = config;
-      const card = this.getCard(manager, index);
-      const cardNumber = card;
+    if (this.isActive() && !this.hasActivation() && !this.hasStrategy()) {
+      const card = this.getPowerCard(manager);
+      const cardNumber = card.number;
       const powerEffect = manager.getPowerEffect(cardNumber);
       this.setPowerStrategy(powerEffect);
     }
   }
 
-  getCard(manager, index) {
-    const player = this.getPlayer();
-    const location = GameConst.HAND;
-    const config = { player, location };
-    const [card] = manager.getCards(config, index);
-    return card;
+  isActive() {
+    return !this._end;
   }
 
   getPlayer() {
-    return this._powerConfig.player;
-  }
-
-  getCardIndex() {
-    return this._powerConfig.cardIndex;
+    return this._powerActivationConfig.player;
   }
 
   setPowerStrategy(powerEffect) {
     const { type } = powerEffect;
     switch (type) {
       case GameConst.INCRESASE_ENERGY:
-        this._powerStrategy = new IncreaseEnergyStrategy(this, this.getPlayer());
-        this._powerStrategy.start();
+        this._powerActivationStrategy = new IncreaseEnergyStrategy(this, this.getPlayer());
         break;
       default:
-        this._powerStrategy = undefined;
+        this._powerActivationStrategy = undefined;
         break;
     }
+    if (this._powerActivationStrategy) this._powerActivationStrategy.start();
   }
 
   commandFinish(manager) {
@@ -176,6 +205,6 @@ class ActivationStep extends Step {
   }
 
   endStrategy() {
-    this._powerStrategy = undefined;
+    this._powerActivationStrategy = undefined;
   }
 }

@@ -195,8 +195,8 @@
 // include ../test/integration/step/PlayerPlayNextTurnStepInLoadPhaseTest.js
 // include ../test/integration/step/ChallengedPlayedTurnStepInLoadPhaseTest.js
 // include ../test/integration/step/ChallengedPassedTurnStepInLoadPhaseTest.js
-// include ../test/integration/step/ActivetePowerFieldTurnStepInLoadPhaseTest.js
-// include ../test/integration/step/ActivetePowerFieldByLimitTurnStepInLoadPhaseTest.js
+// include ../test/integration/step/ActivatePowerFieldTurnStepInLoadPhaseTest.js
+// include ../test/integration/step/ActivatePowerFieldByLimitTurnStepInLoadPhaseTest.js
 // include ../test/integration/step/SelectPowerCardInHandZoneStepInLoadPhaseTest.js
 // include ../test/integration/step/GoBackInHandZoneStepInLoadPhaseTest.js  
 // include ../test/integration/step/MoveCursorInHandZoneStepInLoadPhaseTest.js
