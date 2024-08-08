@@ -553,12 +553,17 @@ class CardsetSprite extends ActionSprite {
 
   commandDisplayReverseOrdering(indexes = this._orderingSprites.map((sprite, index) => index)) {
     if (this.isHidden() || this.hasOrderingNumbers() === false) return false;
-    this._orderingSprites.forEach(sprite => {
-      const number = this._orderingSprites.length - (sprite.number - 1);
+    const ordering = this._orderingSprites.filter((sprite, index) => indexes.includes(index));
+    ordering.forEach(sprite => {
+      const number = ordering.length - (sprite.number - 1);
       const cardSprite = this._sprites[sprite.number - 1];
       this.redrawOrderingNumber(sprite, number, cardSprite);
     });
     indexes.forEach(index => this._orderingSprites[index].show());
+  }
+
+  isOrderingSpriteDrawedByIndex(index, number) {
+    return this._orderingSprites[index].number === number;
   }
 
   isReverseOrdering() {

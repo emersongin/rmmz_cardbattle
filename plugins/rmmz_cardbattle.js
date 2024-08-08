@@ -4868,12 +4868,17 @@ class CardsetSprite extends ActionSprite {
 
   commandDisplayReverseOrdering(indexes = this._orderingSprites.map((sprite, index) => index)) {
     if (this.isHidden() || this.hasOrderingNumbers() === false) return false;
-    this._orderingSprites.forEach(sprite => {
-      const number = this._orderingSprites.length - (sprite.number - 1);
+    const ordering = this._orderingSprites.filter((sprite, index) => indexes.includes(index));
+    ordering.forEach(sprite => {
+      const number = ordering.length - (sprite.number - 1);
       const cardSprite = this._sprites[sprite.number - 1];
       this.redrawOrderingNumber(sprite, number, cardSprite);
     });
     indexes.forEach(index => this._orderingSprites[index].show());
+  }
+
+  isOrderingSpriteDrawedByIndex(index, number) {
+    return this._orderingSprites[index].number === number;
   }
 
   isReverseOrdering() {
@@ -7043,7 +7048,9 @@ class ShowReverseOrderingByIndexesCardsCardsetSpriteTest extends SceneTest {
     this.expectTrue('Esta mostrando o número de ordenação para o indice 0?', this.subject.isOrderingSpriteDisplayed(0));
     this.expectTrue('Esta mostrando o número de ordenação para o indice 1?', this.subject.isOrderingSpriteDisplayed(1));
     this.expectTrue('Esta oculto o número de ordenação para o indice 2?', this.subject.isOrderingSpriteDisplayed(2) === false);
-    this.expectTrue('Esta em ordem reversa?', this.subject.isReverseOrdering());
+    const invertedNumbers = [2, 1];
+    this.expectTrue('O número desenhado no indice 0 é 2?', this.subject.isOrderingSpriteDrawedByIndex(0, invertedNumbers[0]));
+    this.expectTrue('O número desenhado no indice 1 é 1?', this.subject.isOrderingSpriteDrawedByIndex(1, invertedNumbers[1]));
   }
 }
 class ZoomAllCardsCardsetSpriteTest extends SceneTest {
@@ -11513,7 +11520,7 @@ class ActivationStep extends Step {
   showDisplayOrdering() {
     const powerfield = this.getPowerfieldCardsetSprite();
     const indexes = powerfield.getIndexes();
-    indexes.shift();
+    indexes.pop();
     powerfield.displayReverseOrdering(indexes);
   }
 
@@ -12522,9 +12529,9 @@ class CardBattleTestScene extends Scene_Message {
       // FlashCardsCardsetSpriteTest,
       // QuakeCardsCardsetSpriteTest,
       // AnimationCardsCardsetSpriteTest,
-      ShowOrderingCardsCardsetSpriteTest,
+      // ShowOrderingCardsCardsetSpriteTest,
+      // ShowOrderingCardsByIndexesCardsetSpriteTest,
       ShowReverseOrderingCardsCardsetSpriteTest,
-      ShowOrderingCardsByIndexesCardsetSpriteTest,
       ShowReverseOrderingByIndexesCardsCardsetSpriteTest,
       // ZoomAllCardsCardsetSpriteTest,
       // ZoomOutAllCardsCardsetSpriteTest,

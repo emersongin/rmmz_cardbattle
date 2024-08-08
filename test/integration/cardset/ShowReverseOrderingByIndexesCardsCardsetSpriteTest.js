@@ -19,6 +19,8 @@ class ShowReverseOrderingByIndexesCardsCardsetSpriteTest extends SceneTest {
     this.expectTrue('Esta mostrando o número de ordenação para o indice 0?', this.subject.isOrderingSpriteDisplayed(0));
     this.expectTrue('Esta mostrando o número de ordenação para o indice 1?', this.subject.isOrderingSpriteDisplayed(1));
     this.expectTrue('Esta oculto o número de ordenação para o indice 2?', this.subject.isOrderingSpriteDisplayed(2) === false);
-    this.expectTrue('Esta em ordem reversa?', this.subject.isReverseOrdering());
+    const invertedNumbers = [2, 1];
+    this.expectTrue('O número desenhado no indice 0 é 2?', this.subject.isOrderingSpriteDrawedByIndex(0, invertedNumbers[0]));
+    this.expectTrue('O número desenhado no indice 1 é 1?', this.subject.isOrderingSpriteDrawedByIndex(1, invertedNumbers[1]));
   }
 }
