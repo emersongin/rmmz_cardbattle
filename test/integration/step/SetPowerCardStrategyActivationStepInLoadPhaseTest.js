@@ -22,6 +22,7 @@ class SetPowerCardStrategyActivationStepInLoadPhaseTest extends SceneTest {
     this.mockFunction(this.manager, 'getCardsByPowerfield', () => {
       return [
         { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
       ];
     });
     this.mockFunction(this.manager, 'getPowerfieldLength', () => {

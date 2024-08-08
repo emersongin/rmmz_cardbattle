@@ -17,7 +17,7 @@ class ActivationStep extends Step {
     }
     this._powerActivationConfig = powerConfig;
     this._powerActivation = powerActivation
-    this._end = false;
+    // this._end = false;
   }
 
   start(manager) {
@@ -26,19 +26,24 @@ class ActivationStep extends Step {
     this.createPowerFieldCardsetSprite(manager);
     this.openGameBoards();
     this.openPowerfield();
+    this.showPowerfieldDisplayOrdering();
+  }
+
+  showPowerfieldDisplayOrdering() {
     this.addAction(this.showDisplayOrdering);
   }
 
   showDisplayOrdering() {
     const powerfield = this.getPowerfieldCardsetSprite();
-    powerfield.displayReverseOrdering([0]);
+    const indexes = powerfield.getIndexes();
+    indexes.shift();
+    powerfield.displayReverseOrdering(indexes);
   }
 
   createPowerFieldCardsetSprite(manager) {
     const cardsInPowerfield = manager.getCardsByPowerfield();
     const powerCard = this.getPowerCard(manager);
     const cards = [...cardsInPowerfield, powerCard];
-    console.log(cards);
     super.createPowerFieldCardsetSprite(cards);
   }
 
@@ -59,13 +64,17 @@ class ActivationStep extends Step {
     const [card] = manager.getCards(config, index);
     return card;
   }
+
+  getPlayer() {
+    return this._powerActivationConfig.player;
+  }
   
   update(manager) {
     super.update();
     if (this.isBusy() || this.hasActions()) return false;
-    if (this.updateStrategy(manager)) return;
-    this.updateActivation(manager);
-    this.updateConfig(manager);
+    // if (this.updateStrategy(manager)) return;
+    // this.updateActivation(manager);
+    // this.updateConfig(manager);
   }
 
   updateStrategy(manager) {
@@ -134,9 +143,7 @@ class ActivationStep extends Step {
     return !this._end;
   }
 
-  getPlayer() {
-    return this._powerActivationConfig.player;
-  }
+
 
   setPowerStrategy(powerEffect) {
     const { type } = powerEffect;

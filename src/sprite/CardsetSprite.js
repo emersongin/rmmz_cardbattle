@@ -500,13 +500,13 @@ class CardsetSprite extends ActionSprite {
     this.y = centerYPosition;
   }
 
-  displayOrdering() {
-    this.addCommand(this.commandDisplayOrdering);
+  displayOrdering(indexes) {
+    this.addCommand(this.commandDisplayOrdering, indexes);
   }
 
-  commandDisplayOrdering() {
+  commandDisplayOrdering(indexes = this._orderingSprites.map((sprite, index) => index)) {
     if (this.isHidden() || this.hasOrderingNumbers() === false) return false;
-    this._orderingSprites.forEach(sprite => sprite.show());
+    indexes.forEach(index => this._orderingSprites[index].show());
   }
 
   hasOrderingNumbers() {
@@ -538,29 +538,32 @@ class CardsetSprite extends ActionSprite {
     return this._orderingSprites.every(sprite => sprite.visible);
   }
 
+  isOrderingSpriteDisplayed(index) {
+    return this._orderingSprites[index].visible;
+  }
+
   isOrdering() {
-    return this._orderingSprites.every((sprite, index) => sprite.number === index + 1);
+    const ordering = this._orderingSprites.map(sprite => sprite.number);
+    return ordering.every((number, index) => number === index + 1);
   }
 
   displayReverseOrdering(indexes) {
     this.addCommand(this.commandDisplayReverseOrdering, indexes);
   }
 
-  commandDisplayReverseOrdering(indexes = []) {
+  commandDisplayReverseOrdering(indexes = this._orderingSprites.map((sprite, index) => index)) {
     if (this.isHidden() || this.hasOrderingNumbers() === false) return false;
     this._orderingSprites.forEach(sprite => {
       const number = this._orderingSprites.length - (sprite.number - 1);
-      const cardSprite = this._sprites[number - 1];
+      const cardSprite = this._sprites[sprite.number - 1];
       this.redrawOrderingNumber(sprite, number, cardSprite);
     });
-    indexes.forEach(index => {
-      const orderingSprite = this._orderingSprites[index];
-      orderingSprite.show();
-    });
+    indexes.forEach(index => this._orderingSprites[index].show());
   }
 
   isReverseOrdering() {
-    return this._orderingSprites.every((sprite, index) => sprite.number === this._orderingSprites.length - index);
+    const ordering = this._orderingSprites.map(sprite => sprite.number);
+    return ordering.every((number, index) => number === this._orderingSprites.length - index);
   }
 
   getEnabledSpritesAmount() {
@@ -696,5 +699,9 @@ class CardsetSprite extends ActionSprite {
 
   getCancelHandler() {
     return this._status.getCancelHandler();
+  }
+
+  getIndexes() {
+    return this._sprites.map((sprite, index) => index);
   }
 }

@@ -86,6 +86,8 @@
 // include ../test/integration/cardset/AnimationCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/ShowOrderingCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/ShowReverseOrderingCardsCardsetSpriteTest.js
+// include ../test/integration/cardset/ShowOrderingCardsByIndexesCardsetSpriteTest.js
+// include ../test/integration/cardset/ShowReverseOrderingByIndexesCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/ZoomAllCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/ZoomOutAllCardsCardsetSpriteTest.js
 // include ../test/integration/cardset/FlipTurnToUpAllCardsCardsetSpriteTest.js

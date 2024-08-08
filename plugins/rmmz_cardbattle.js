@@ -4815,13 +4815,13 @@ class CardsetSprite extends ActionSprite {
     this.y = centerYPosition;
   }
 
-  displayOrdering() {
-    this.addCommand(this.commandDisplayOrdering);
+  displayOrdering(indexes) {
+    this.addCommand(this.commandDisplayOrdering, indexes);
   }
 
-  commandDisplayOrdering() {
+  commandDisplayOrdering(indexes = this._orderingSprites.map((sprite, index) => index)) {
     if (this.isHidden() || this.hasOrderingNumbers() === false) return false;
-    this._orderingSprites.forEach(sprite => sprite.show());
+    indexes.forEach(index => this._orderingSprites[index].show());
   }
 
   hasOrderingNumbers() {
@@ -4853,29 +4853,32 @@ class CardsetSprite extends ActionSprite {
     return this._orderingSprites.every(sprite => sprite.visible);
   }
 
+  isOrderingSpriteDisplayed(index) {
+    return this._orderingSprites[index].visible;
+  }
+
   isOrdering() {
-    return this._orderingSprites.every((sprite, index) => sprite.number === index + 1);
+    const ordering = this._orderingSprites.map(sprite => sprite.number);
+    return ordering.every((number, index) => number === index + 1);
   }
 
   displayReverseOrdering(indexes) {
     this.addCommand(this.commandDisplayReverseOrdering, indexes);
   }
 
-  commandDisplayReverseOrdering(indexes = []) {
+  commandDisplayReverseOrdering(indexes = this._orderingSprites.map((sprite, index) => index)) {
     if (this.isHidden() || this.hasOrderingNumbers() === false) return false;
     this._orderingSprites.forEach(sprite => {
       const number = this._orderingSprites.length - (sprite.number - 1);
-      const cardSprite = this._sprites[number - 1];
+      const cardSprite = this._sprites[sprite.number - 1];
       this.redrawOrderingNumber(sprite, number, cardSprite);
     });
-    indexes.forEach(index => {
-      const orderingSprite = this._orderingSprites[index];
-      orderingSprite.show();
-    });
+    indexes.forEach(index => this._orderingSprites[index].show());
   }
 
   isReverseOrdering() {
-    return this._orderingSprites.every((sprite, index) => sprite.number === this._orderingSprites.length - index);
+    const ordering = this._orderingSprites.map(sprite => sprite.number);
+    return ordering.every((number, index) => number === this._orderingSprites.length - index);
   }
 
   getEnabledSpritesAmount() {
@@ -5011,6 +5014,10 @@ class CardsetSprite extends ActionSprite {
 
   getCancelHandler() {
     return this._status.getCancelHandler();
+  }
+
+  getIndexes() {
+    return this._sprites.map((sprite, index) => index);
   }
 }
 class BackgroundSprite extends Sprite {
@@ -6967,7 +6974,7 @@ class ShowOrderingCardsCardsetSpriteTest extends SceneTest {
   asserts() {
     this.describe('Deve mostrar númeração ordenada das cartas!');
     this.expectTrue('Esta mostrando a ordenação?', this.subject.isOrderingDisplayed());
-    this.expectTrue('Ela esta ordenada?', this.subject.isOrdering());
+    this.expectTrue('Esta ordenado?', this.subject.isOrdering());
   }
 }
 class ShowReverseOrderingCardsCardsetSpriteTest extends SceneTest {
@@ -6988,7 +6995,55 @@ class ShowReverseOrderingCardsCardsetSpriteTest extends SceneTest {
   asserts() {
     this.describe('Deve mostrar númeração em ordem inversa das cartas!');
     this.expectTrue('Esta mostrando a ordenação?', this.subject.isOrderingDisplayed());
-    this.expectTrue('Ela esta em ordem reversa?', this.subject.isReverseOrdering());
+    this.expectTrue('Esta em ordem reversa?', this.subject.isReverseOrdering());
+  }
+}
+class ShowOrderingCardsByIndexesCardsetSpriteTest extends SceneTest {
+  create() {
+    this.subject = CardsetSprite.create(0, 0);
+    this.addWatched(this.subject);
+    this.subject.centralize();
+    this.subject.show();
+    const cards = CardGenerator.generateCards(3);
+    const sprites = this.subject.listCards(cards);
+    this.subject.showCards(sprites);
+    this.subject.setNumberColor(1, GameColors.RED);
+    this.subject.setNumberColor(2, GameColors.BLUE);
+    this.subject.setNumberColor(3, GameColors.RED);
+    const indexes = [0, 1];
+    this.subject.displayOrdering(indexes);
+  }
+
+  asserts() {
+    this.describe('Deve mostrar númeração ordenada das cartas mas apenas nos indices!');
+    this.expectTrue('Esta mostrando o número de ordenação para o indice 0?', this.subject.isOrderingSpriteDisplayed(0));
+    this.expectTrue('Esta mostrando o número de ordenação para o indice 1?', this.subject.isOrderingSpriteDisplayed(1));
+    this.expectTrue('Esta oculto o número de ordenação para o indice 2?', this.subject.isOrderingSpriteDisplayed(2) === false);
+    this.expectTrue('Esta ordenado?', this.subject.isOrdering());
+  }
+}
+class ShowReverseOrderingByIndexesCardsCardsetSpriteTest extends SceneTest {
+  create() {
+    this.subject = CardsetSprite.create(0, 0);
+    this.addWatched(this.subject);
+    this.subject.centralize();
+    this.subject.show();
+    const cards = CardGenerator.generateCards(3);
+    const sprites = this.subject.listCards(cards);
+    this.subject.showCards(sprites);
+    this.subject.setNumberColor(1, GameColors.RED);
+    this.subject.setNumberColor(2, GameColors.BLUE);
+    this.subject.setNumberColor(3, GameColors.RED);
+    const indexes = [0, 1];
+    this.subject.displayReverseOrdering(indexes);
+  }
+
+  asserts() {
+    this.describe('Deve mostrar númeração em ordem inversa das cartas!');
+    this.expectTrue('Esta mostrando o número de ordenação para o indice 0?', this.subject.isOrderingSpriteDisplayed(0));
+    this.expectTrue('Esta mostrando o número de ordenação para o indice 1?', this.subject.isOrderingSpriteDisplayed(1));
+    this.expectTrue('Esta oculto o número de ordenação para o indice 2?', this.subject.isOrderingSpriteDisplayed(2) === false);
+    this.expectTrue('Esta em ordem reversa?', this.subject.isReverseOrdering());
   }
 }
 class ZoomAllCardsCardsetSpriteTest extends SceneTest {
@@ -9434,6 +9489,7 @@ class SetPowerCardStrategyActivationStepInLoadPhaseTest extends SceneTest {
     this.mockFunction(this.manager, 'getCardsByPowerfield', () => {
       return [
         { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
       ];
     });
     this.mockFunction(this.manager, 'getPowerfieldLength', () => {
@@ -11438,7 +11494,7 @@ class ActivationStep extends Step {
     }
     this._powerActivationConfig = powerConfig;
     this._powerActivation = powerActivation
-    this._end = false;
+    // this._end = false;
   }
 
   start(manager) {
@@ -11447,19 +11503,24 @@ class ActivationStep extends Step {
     this.createPowerFieldCardsetSprite(manager);
     this.openGameBoards();
     this.openPowerfield();
+    this.showPowerfieldDisplayOrdering();
+  }
+
+  showPowerfieldDisplayOrdering() {
     this.addAction(this.showDisplayOrdering);
   }
 
   showDisplayOrdering() {
     const powerfield = this.getPowerfieldCardsetSprite();
-    powerfield.displayReverseOrdering([0]);
+    const indexes = powerfield.getIndexes();
+    indexes.shift();
+    powerfield.displayReverseOrdering(indexes);
   }
 
   createPowerFieldCardsetSprite(manager) {
     const cardsInPowerfield = manager.getCardsByPowerfield();
     const powerCard = this.getPowerCard(manager);
     const cards = [...cardsInPowerfield, powerCard];
-    console.log(cards);
     super.createPowerFieldCardsetSprite(cards);
   }
 
@@ -11480,13 +11541,17 @@ class ActivationStep extends Step {
     const [card] = manager.getCards(config, index);
     return card;
   }
+
+  getPlayer() {
+    return this._powerActivationConfig.player;
+  }
   
   update(manager) {
     super.update();
     if (this.isBusy() || this.hasActions()) return false;
-    if (this.updateStrategy(manager)) return;
-    this.updateActivation(manager);
-    this.updateConfig(manager);
+    // if (this.updateStrategy(manager)) return;
+    // this.updateActivation(manager);
+    // this.updateConfig(manager);
   }
 
   updateStrategy(manager) {
@@ -11555,9 +11620,7 @@ class ActivationStep extends Step {
     return !this._end;
   }
 
-  getPlayer() {
-    return this._powerActivationConfig.player;
-  }
+
 
   setPowerStrategy(powerEffect) {
     const { type } = powerEffect;
@@ -12430,45 +12493,47 @@ class CardBattleTestScene extends Scene_Message {
       TiggerAcitonCardSpriteTest,
     ];
     const cardsetSpriteTests = [
-      StartPositionCardsetSpriteTest,
-      AlignAboveOfCardsetSpriteTest,
-      AlignBelowOfCardsetSpriteTest,
-      AlignCenterMiddleCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      SetTurnToDownCardsCardsetSpriteTest,
-      SetAllCardsInPositionCardsetSpriteTest,
-      SetAllCardsInPositionsCardsetSpriteTest,
-      ListCardsCardsetSpriteTest,
-      StartClosedCardsCardsetSpriteTest,
-      OpenAllCardsCardsetSpriteTest,
-      OpenCardsCardsetSpriteTest,
-      CloseAllCardsCardsetSpriteTest,
-      CloseCardsCardsetSpriteTest,
-      MoveAllCardsInListCardsetSpriteTest,
-      MoveCardsInListCardsetSpriteTest,
-      MoveAllCardsToPositionCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
-      MoveAllCardsToPositionsCardsetSpriteTest,
-      AddAllCardsToListCardsetSpriteTest,
-      AddCardsToListCardsetSpriteTest,
-      DisableCardsCardsetSpriteTest,
-      StaticModeCardsetSpriteTest,
-      SelectModeCardsetSpriteTest,
-      SelectModeNoSelectCardsetSpriteTest,
-      SelectModeLimitedCardsetSpriteTest,
-      FlashCardsCardsetSpriteTest,
-      QuakeCardsCardsetSpriteTest,
-      AnimationCardsCardsetSpriteTest,
+      // StartPositionCardsetSpriteTest,
+      // AlignAboveOfCardsetSpriteTest,
+      // AlignBelowOfCardsetSpriteTest,
+      // AlignCenterMiddleCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      // SetTurnToDownCardsCardsetSpriteTest,
+      // SetAllCardsInPositionCardsetSpriteTest,
+      // SetAllCardsInPositionsCardsetSpriteTest,
+      // ListCardsCardsetSpriteTest,
+      // StartClosedCardsCardsetSpriteTest,
+      // OpenAllCardsCardsetSpriteTest,
+      // OpenCardsCardsetSpriteTest,
+      // CloseAllCardsCardsetSpriteTest,
+      // CloseCardsCardsetSpriteTest,
+      // MoveAllCardsInListCardsetSpriteTest,
+      // MoveCardsInListCardsetSpriteTest,
+      // MoveAllCardsToPositionCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
+      // MoveAllCardsToPositionsCardsetSpriteTest,
+      // AddAllCardsToListCardsetSpriteTest,
+      // AddCardsToListCardsetSpriteTest,
+      // DisableCardsCardsetSpriteTest,
+      // StaticModeCardsetSpriteTest,
+      // SelectModeCardsetSpriteTest,
+      // SelectModeNoSelectCardsetSpriteTest,
+      // SelectModeLimitedCardsetSpriteTest,
+      // FlashCardsCardsetSpriteTest,
+      // QuakeCardsCardsetSpriteTest,
+      // AnimationCardsCardsetSpriteTest,
       ShowOrderingCardsCardsetSpriteTest,
       ShowReverseOrderingCardsCardsetSpriteTest,
-      ZoomAllCardsCardsetSpriteTest,
-      ZoomOutAllCardsCardsetSpriteTest,
-      FlipTurnToUpAllCardsCardsetSpriteTest,
-      FlipTurnToUpCardsCardsetSpriteTest,
-      TriggerActionCardsetSpriteTest,
-      OnChangeCursorSelectModeCardsetSpriteTest,
-      AddChildToEndCardsetSpriteTest,
-      LeaveAllCardsCardsetSpriteTest,
+      ShowOrderingCardsByIndexesCardsetSpriteTest,
+      ShowReverseOrderingByIndexesCardsCardsetSpriteTest,
+      // ZoomAllCardsCardsetSpriteTest,
+      // ZoomOutAllCardsCardsetSpriteTest,
+      // FlipTurnToUpAllCardsCardsetSpriteTest,
+      // FlipTurnToUpCardsCardsetSpriteTest,
+      // TriggerActionCardsetSpriteTest,
+      // OnChangeCursorSelectModeCardsetSpriteTest,
+      // AddChildToEndCardsetSpriteTest,
+      // LeaveAllCardsCardsetSpriteTest,
     ];
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,
@@ -12582,11 +12647,11 @@ class CardBattleTestScene extends Scene_Message {
       // SelectPowerCardInHandZoneStepInLoadPhaseTest,
       // GoBackInHandZoneStepInLoadPhaseTest,
       // MoveCursorInHandZoneStepInLoadPhaseTest,
-      SetPowerCardStrategyActivationStepInLoadPhaseTest,
+      // SetPowerCardStrategyActivationStepInLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
+      ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,

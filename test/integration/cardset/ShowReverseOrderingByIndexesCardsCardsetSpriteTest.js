@@ -1,4 +1,4 @@
-class ShowReverseOrderingCardsCardsetSpriteTest extends SceneTest {
+class ShowReverseOrderingByIndexesCardsCardsetSpriteTest extends SceneTest {
   create() {
     this.subject = CardsetSprite.create(0, 0);
     this.addWatched(this.subject);
@@ -10,12 +10,15 @@ class ShowReverseOrderingCardsCardsetSpriteTest extends SceneTest {
     this.subject.setNumberColor(1, GameColors.RED);
     this.subject.setNumberColor(2, GameColors.BLUE);
     this.subject.setNumberColor(3, GameColors.RED);
-    this.subject.displayReverseOrdering();
+    const indexes = [0, 1];
+    this.subject.displayReverseOrdering(indexes);
   }
 
   asserts() {
     this.describe('Deve mostrar númeração em ordem inversa das cartas!');
-    this.expectTrue('Esta mostrando a ordenação?', this.subject.isOrderingDisplayed());
+    this.expectTrue('Esta mostrando o número de ordenação para o indice 0?', this.subject.isOrderingSpriteDisplayed(0));
+    this.expectTrue('Esta mostrando o número de ordenação para o indice 1?', this.subject.isOrderingSpriteDisplayed(1));
+    this.expectTrue('Esta oculto o número de ordenação para o indice 2?', this.subject.isOrderingSpriteDisplayed(2) === false);
     this.expectTrue('Esta em ordem reversa?', this.subject.isReverseOrdering());
   }
 }
