@@ -2,9 +2,8 @@ class ShouldShowTitleWindowInChallengePhaseTest extends SceneTest {
   step;
 
   create() {
-    const phase = GameConst.CHALLENGE_PHASE;
     this.createHandler();
-    this.step = new DisplayStep(this._scene, phase);
+    this.step = new DisplayStep(this._scene, GameConst.CHALLENGE_PHASE);
     this.addAssistedHidden(this.step);
   }
 
@@ -12,7 +11,7 @@ class ShouldShowTitleWindowInChallengePhaseTest extends SceneTest {
     this.setStep(this.step);
     this.step.start();
     const finish = this.getHandler();
-    this.mockFunction(Input, 'isTriggered', () => finish());
+    this.mockFunction(Input, 'isTriggered', finish);
   }
 
   update() {
