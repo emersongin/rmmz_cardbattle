@@ -5414,6 +5414,11 @@ class SceneTest {
     this._functionsMocked.push({ obj, fnName, originalFn });
   }
 
+  spyFunction(obj, fnName, fn, ...params) {
+    const includeOriginal = true;
+    this.mockFunction(obj, fnName, fn, includeOriginal, ...params);
+  }
+
   run() {
     return new Promise(async res => {
       if (this._errors.length) {
@@ -8568,9 +8573,8 @@ class ShouldShowTitleWindowInChallengePhaseTest extends SceneTest {
   step;
 
   create() {
-    const phase = GameConst.CHALLENGE_PHASE;
     this.createHandler();
-    this.step = new DisplayStep(this._scene, phase);
+    this.step = new DisplayStep(this._scene, GameConst.CHALLENGE_PHASE);
     this.addAssistedHidden(this.step);
   }
 
@@ -8578,7 +8582,7 @@ class ShouldShowTitleWindowInChallengePhaseTest extends SceneTest {
     this.setStep(this.step);
     this.step.start();
     const finish = this.getHandler();
-    this.mockFunction(Input, 'isTriggered', () => finish());
+    this.mockFunction(Input, 'isTriggered', finish);
   }
 
   update() {
@@ -8589,6 +8593,67 @@ class ShouldShowTitleWindowInChallengePhaseTest extends SceneTest {
     this.describe('Deve apresentar janela de título em etapa de apresentação de fase de desafio.');
     this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
     this.expectTrue('O título da fase foi apresentado como: Challenge Phase?', this.step.isTextTitleWindow('Challenge Phase'));
+  }
+}
+class ShouldShowDescriptionWindowInChallengePhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DisplayStep(this._scene, GameConst.CHALLENGE_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', finish);
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de descrição em etapa de apresentação de fase de desafio.');
+    this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
+    const texts = [
+      'Descrição de Desafiado',
+      'O jogador que é desafiado por você.',
+    ];
+    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
+  }
+}
+class ShouldCloseWindowsWhenPressActionInChallengePhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DisplayStep(this._scene, GameConst.CHALLENGE_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', () => true);
+    const commandFinish = this.step.commandFinish;
+    this.spyFunction(this.step, 'commandFinish', () => {
+      finish();
+    });
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve fecha janelas ao realizar ação e definir a proxima etap como FolderStep.');
+    this.expectTrue('A janela de título foi fechada?', this.step.isTitleWindowClosed());
+    this.expectTrue('A janela de descrição foi fechada?', this.step.isDescriptionWindowClosed());
+    this.expectTrue('A proxima Etapa é FolderStep?', this.isStep(FolderStep));
   }
 }
 
@@ -9912,6 +9977,14 @@ class DisplayStep extends Step {
 
   isTextDescriptionWindow(texts) {
     return texts.some((text, index) => this._descriptionWindow.isTextWasDrawing(`TEXT_${index}`, text));
+  }
+
+  isTitleWindowClosed() {
+    return this._titleWindow?.isClosed();
+  }
+
+  isDescriptionWindowClosed() {
+    return this._descriptionWindow?.isClosed();
   }
 }
 class FolderStep extends Step {
@@ -11696,7 +11769,9 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const steps = [
-      ShouldShowTitleWindowInChallengePhaseTest
+      ShouldShowTitleWindowInChallengePhaseTest,
+      ShouldShowDescriptionWindowInChallengePhaseTest,
+      ShouldCloseWindowsWhenPressActionInChallengePhaseTest,
     ];
     return [
       // ...cardSpriteTests,

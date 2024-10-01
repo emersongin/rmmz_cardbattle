@@ -221,4 +221,12 @@ class DisplayStep extends Step {
   isTextDescriptionWindow(texts) {
     return texts.some((text, index) => this._descriptionWindow.isTextWasDrawing(`TEXT_${index}`, text));
   }
+
+  isTitleWindowClosed() {
+    return this._titleWindow?.isClosed();
+  }
+
+  isDescriptionWindowClosed() {
+    return this._descriptionWindow?.isClosed();
+  }
 }

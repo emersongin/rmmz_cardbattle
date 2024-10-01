@@ -49,6 +49,11 @@ class SceneTest {
     this._functionsMocked.push({ obj, fnName, originalFn });
   }
 
+  spyFunction(obj, fnName, fn, ...params) {
+    const includeOriginal = true;
+    this.mockFunction(obj, fnName, fn, includeOriginal, ...params);
+  }
+
   run() {
     return new Promise(async res => {
       if (this._errors.length) {

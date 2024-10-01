@@ -185,6 +185,8 @@
 // include ../test/integration/folderwindow/CreateFolderWindowTest.js
 // STEPS
 // include ../test/components/DisplayStep/ShouldShowTitleWindowInChallengePhaseTest.js
+// include ../test/components/DisplayStep/ShouldShowDescriptionWindowInChallengePhaseTest.js
+// include ../test/components/DisplayStep/ShouldCloseWindowsWhenPressActionInChallengePhaseTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js
