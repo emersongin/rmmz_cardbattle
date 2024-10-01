@@ -333,6 +333,10 @@ class SceneTest {
     this._pressToAsserts = true;
   }
 
+  getHandler() {
+    return this.createHandler();
+  }
+
   createHandler() {
     this._handler = true;
     this._seconds = 0;

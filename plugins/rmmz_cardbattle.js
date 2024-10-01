@@ -5698,6 +5698,10 @@ class SceneTest {
     this._pressToAsserts = true;
   }
 
+  getHandler() {
+    return this.createHandler();
+  }
+
   createHandler() {
     this._handler = true;
     this._seconds = 0;
@@ -8560,967 +8564,31 @@ class CreateFolderWindowTest extends SceneTest {
   }
 }
 // STEPS
-class DisplayStepInChallengePhaseTest extends SceneTest {
-  manager = CardBattleManager;
+class ShouldShowTitleWindowInChallengePhaseTest extends SceneTest {
   step;
 
   create() {
     const phase = GameConst.CHALLENGE_PHASE;
-    const finish = this.createHandler();
-    this.step = new DisplayStep(this._scene, phase, finish);
+    this.createHandler();
+    this.step = new DisplayStep(this._scene, phase);
     this.addAssistedHidden(this.step);
   }
 
   start() {
     this.setStep(this.step);
-    this.step.start(this.manager);
-    this.mockFunction(Input, 'isTriggered', () => true);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', () => finish());
   }
 
   update() {
-    this.step.update(this.manager);
+    this.step.update();
   }
   
   asserts() {
-    this.describe('Deve apresentar etapa de apresentação de fase na fase de desafio.');
+    this.describe('Deve apresentar janela de título em etapa de apresentação de fase de desafio.');
     this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
-    this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
-    this.expectTrue('O título da fase foi apresentado como?', this.step.isTextTitleWindow('Challenge Phase'));
-    const texts = [
-      'Descrição de Desafiado',
-      'O jogador que é desafiado por você.',
-    ];
-    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
-    this.expectTrue('A proxima Etapa é FolderStep?', this.isStep(FolderStep));
-  }
-}
-class FolderStepInChallengePhaseTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-  folderIndex;
-
-  create() {
-    const phase = GameConst.CHALLENGE_PHASE;
-    const finish = this.createHandler();
-    const playerFolders = this.manager.getPlayerFolders();
-    const selectMock = (folderIndex) => {
-      this.folderIndex = folderIndex;
-    };
-    this.step = new FolderStep(this._scene, phase, playerFolders, selectMock, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-    this.step.addAction(() => {
-      const index = 0;
-      this.step.selectFolderWindowOption(index);
-    });
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de escolha de pasta na fase de desafio.');
-    this.expectWasTrue('A janela de pastas foi apresentada?', this.step.isFoldersWindowVisible);
-    this.expectTrue('A descrição da janela de pastas foi apresentado como?', this.step.isTextFoldersWindow('Choose a folder'));
-    this.expectTrue('A pasta foi escolhida?', this.folderIndex !== undefined);
-    this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
-    this.expectTrue('A proxima Fase é START_PHASE?', this.step.getPhase() === GameConst.START_PHASE);
-  }
-}
-class DisplayStepInStartPhaseTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-
-  create() {
-    const phase = GameConst.START_PHASE;
-    const finish = this.createHandler();
-    this.step = new DisplayStep(this._scene, phase, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this.setStep(this.step);
-    this.step.start(this.manager);
-    this.mockFunction(Input, 'isTriggered', () => true);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de apresentação de fase na fase início.');
-    this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
-    this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
-    this.expectTrue('O título da fase foi apresentado como?', this.step.isTextTitleWindow('Start Phase'));
-    const texts = ['Draw Calumon to go first.'];
-    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
-    this.expectTrue('A proxima Etapa é MiniGameStep?', this.isStep(MiniGameStep));
-  }
-}
-class MiniGameInStartPhaseStepTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-  win;
-
-  create() {
-    const phase = GameConst.START_PHASE;
-    const finish = this.createHandler();
-    const resultMock = (win) => {
-      this.win = win;
-    };
-    this.step = new MiniGameStep(this._scene, phase, resultMock, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-    this.mockFunction(Input, 'isTriggered', () => true);
-    const includeOriginal = true;
-    this.mockFunction(this.step, 'startMiniGame', () => {
-      const index = 0;
-      this.step.selectCardMiniGame(index);
-    }, includeOriginal);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de mini game na fase de início.');
-    this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetVisible);
-    this.expectWasTrue('O set de cartas estava em modo de seleção?', this.step.isCardsetOnSelectMode);
-    this.expectWasTrue('O set de cartas foi embaralhado?', this.step.isCardsetShuffled);
-    this.expectWasTrue('A janela de resultado foi apresentada?', this.step.isResultWindowVisible);
-    this.expectTrue('Tem um resultado?', typeof this.win === 'boolean');
-    const resultText = this.win ? 'You go first!' : 'You go next!';
-    this.expectTrue('O texto da janela de resultado estava como?', this.step.isTextResultWindow(resultText));
-    this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
-    this.expectTrue('A proxima Fase é DRAW_PHASE?', this.step.getPhase() === GameConst.DRAW_PHASE);
-  }
-}
-class DisplayStepInDrawPhaseTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-
-  create() {
-    const phase = GameConst.DRAW_PHASE;
-    const finish = this.createHandler();
-    this.step = new DisplayStep(this._scene, phase, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this.setStep(this.step);
-    this.step.start(this.manager);
-    this.mockFunction(Input, 'isTriggered', () => true);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de apresentação de fase na fase de saque.');
-    this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
-    this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
-    this.expectTrue('O título da fase foi apresentado como?', this.step.isTextTitleWindow('Draw Phase'));
-    const texts = ['6 cards will be drawn.'];
-    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
-    this.expectTrue('A proxima Etapa é DrawStep?', this.isStep(DrawStep));
-  }
-}
-class DrawStepInDrawPhaseTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-
-  create() {
-    const phase = GameConst.DRAW_PHASE;
-    const finish = this.createHandler();
-    this.step = new DrawStep(this._scene, phase, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this.manager.setPlayerDeck();
-    this.manager.setChallengedDeck();
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-    this.mockFunction(Input, 'isTriggered', () => true);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de saque de cartas e carregamento de energias na fase de saque.');
-    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
-    this.expectWasTrue('O set de cartas do jogador foi apresentado?', this.step.isPlayerCardsetSpriteVisible);
-    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    this.expectWasTrue('O set de cartas do desafiado foi apresentado?', this.step.isChallengedCardsetSpriteVisible);
-    this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
-    this.expectTrue('A proxima Fase é LOAD_PHASE?', this.step.getPhase() === GameConst.LOAD_PHASE);
-    const playerConfig = { player: GameConst.PLAYER };
-    const playerCardsInHand = this.manager.getCards(playerConfig);
-    const playerEnergies = this.reduceEnergies(playerCardsInHand);
-    const playerBoardWindowValues = this.step.getPlayerBoardWindowValues();
-    const isPlayerEnergyLoaded = this.compareEnergies(playerEnergies, playerBoardWindowValues);
-    this.expectTrue('As energias do tabuleiro do jogador foram carregadas?', isPlayerEnergyLoaded === true);
-    const challengedConfig = { player: GameConst.CHALLENGED };
-    const challengedCardsInHand = this.manager.getCards(challengedConfig);
-    const challengedEnergies = this.reduceEnergies(challengedCardsInHand);
-    const challengedBoardWindowValues = this.step.getChallengedBoardWindowValues();
-    const isChallengedEnergyLoaded = this.compareEnergies(challengedEnergies, challengedBoardWindowValues);
-    this.expectTrue('As energias do tabuleiro do desafiado foram carregadas?', isChallengedEnergyLoaded === true);
-  }
-
-  reduceEnergies(cards) {
-    return cards.reduce((acc, card) => {
-      acc[card.color] = acc[card.color] + 1 || 1;
-      return acc;
-    }, {});
-  }
-
-  compareEnergies(energies, values) {
-    return Object.keys(energies).every((color, index) => {
-      if (color === GameConst.BROWN) return true;
-      return values[color] === energies[color];
-    });
-  }
-}
-class DisplayStepInLoadPhaseTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-
-  create() {
-    const phase = GameConst.LOAD_PHASE;
-    const finish = this.createHandler();
-    this.step = new DisplayStep(this._scene, phase, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this.setStep(this.step);
-    this.step.start(this.manager);
-    this.mockFunction(Input, 'isTriggered', () => true);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de apresentação de fase na fase de carregar.');
-    this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
-    this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
-    this.expectTrue('O título da fase foi apresentado como?', this.step.isTextTitleWindow('Load Phase'));
-    const texts = ['Select and use a Program Card.'];
-    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
-    this.expectTrue('A proxima Etapa é TurnStep?', this.isStep(TurnStep));
-  }
-}
-class PlayerPlayedTurnStepInLoadPhaseTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-
-  create() {
-    const phase = GameConst.LOAD_PHASE;
-    const finish = this.createHandler();
-    const handlers = {
-      playerPlayHandler: () => {
-        const config = {
-          location: GameConst.HAND,
-          player: GameConst.PLAYER,
-          blockBattleCards: true,
-          blockPowerCardsInLoadPhase: true,
-        };
-        const handlers = {
-          goBackHandler: () => {},
-          selectHandler: () => {},
-          moveCursorHandler: () => {},
-        };
-        this.step.changeStep(ZoneStep, config, handlers);
-        finish();
-      },
-      playerPassedHandler: () => {},
-      challengedPlayHandler: () => {},
-      challengedPassedHandler: () => {},
-      activePowerfieldHandler: () => {},
-    };
-    this.step = new TurnStep(this._scene, phase, handlers, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this.manager.setPlayerDeck();
-    this.manager.setChallengedDeck();
-    this.manager.playerStart();
-    this.manager.drawPlayerCards(6);
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-    this.mockFunction(Input, 'isTriggered', () => true);
-    const includeOriginal = true;
-    this.mockFunction(this.step, 'commandOpenAskWindow', () => {
-      const index = 0;
-      this.step.selectAskWindowOption(index);
-    }, includeOriginal);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de turno e jogador ver mão na fase de carregar.');
-    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
-    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    this.expectTrue('A proxima Etapa é ZoneStep?', this.isStep(ZoneStep));
-  }
-}
-class PlayerPassedTurnStepInLoadPhaseTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-  passed = false;
-
-  create() {
-    const phase = GameConst.LOAD_PHASE;
-    const finish = this.createHandler();
-    const handlers = {
-      playerPlayHandler: () => {},
-      playerPassedHandler: () => {
-        this.manager.playerPassed();
-        this.passed = true;
-        finish();
-      },
-      challengedPlayHandler: () => {},
-      challengedPassedHandler: () => {},
-      activePowerfieldHandler: () => {},
-    };
-    this.step = new TurnStep(this._scene, phase, handlers, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this.manager.setPlayerDeck();
-    this.manager.setChallengedDeck();
-    this.manager.playerStart();
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-    this.mockFunction(Input, 'isTriggered', () => true);
-    const includeOriginal = true;
-    this.mockFunction(this.step, 'commandOpenAskWindow', () => {
-      const index = 1;
-      this.step.selectAskWindowOption(index);
-    }, includeOriginal);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de turno e jogador passar a jogada na fase de carregar.');
-    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
-    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    this.expectTrue('O jogador passou a jogada?', this.passed === true);
-  }
-}
-class PlayerPlayFirstTurnStepInLoadPhaseTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-  turns = [];
-
-  create() {
-    const phase = GameConst.LOAD_PHASE;
-    const finish = this.createHandler();
-    const handlers = {
-      playerPlayHandler: () => {},
-      playerPassedHandler: () => {},
-      challengedPlayHandler: () => {},
-      challengedPassedHandler: () => {},
-      activePowerfieldHandler: () => {},
-    };
-    this.step = new TurnStep(this._scene, phase, handlers, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this.manager.setPlayerDeck();
-    this.manager.setChallengedDeck();
-    const finish = this.createHandler();
-    this.mockFunction(this.manager, 'playerStart', () => {
-      this.turns.push(GameConst.PLAYER);
-    });
-    this.mockFunction(this.manager, 'isPlayerStartTurn', () => {
-      finish();
-    });
-    this.manager.playerStart();
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-    this.mockFunction(Input, 'isTriggered', () => true);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de turno e jogador jogar primeiro na fase de carregar.');
-    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
-    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    const first = this.turns.shift();
-    this.expectTrue('O jogador foi o primeiro a jogar?', first === GameConst.PLAYER);
-  }
-}
-class PlayerPlayNextTurnStepInLoadPhaseTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-  turns = [];
-
-  create() {
-    const phase = GameConst.LOAD_PHASE;
-    const finish = this.createHandler();
-    const handlers = {
-      playerPlayHandler: () => {},
-      playerPassedHandler: () => {},
-      challengedPlayHandler: () => {},
-      challengedPassedHandler: () => {},
-      activePowerfieldHandler: () => {},
-    };
-    this.step = new TurnStep(this._scene, phase, handlers, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this.manager.setPlayerDeck();
-    this.manager.setChallengedDeck();
-    const finish = this.createHandler();
-    this.mockFunction(this.manager, 'playerStart', () => {
-      this.turns.push(GameConst.PLAYER);
-    });
-    this.mockFunction(this.manager, 'isPlayerStartTurn', () => {
-      finish();
-    });
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-    this.mockFunction(Input, 'isTriggered', () => true);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de turno e jogador jogar primeiro na fase de carregar.');
-    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
-    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    const empty = this.turns.length === 0;
-    this.expectTrue('O jogador não fez jogada?', empty === true);
-  }
-}
-class ChallengedPlayedTurnStepInLoadPhaseTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-  nextStep;
-
-  create() {
-    const phase = GameConst.LOAD_PHASE;
-    const finish = this.createHandler();
-    const handlers = {
-      playerPlayHandler: () => {},
-      playerPassedHandler: () => {},
-      challengedPlayHandler: () => {
-        const powerConfig = { cardIndex: 0, player: GameConst.CHALLENGED };
-        this.nextStep = this.step.changeStep(ActivationStep, powerConfig);
-        finish();
-      },
-      challengedPassedHandler: () => {},
-      activePowerfieldHandler: () => {},
-    };
-    this.step = new TurnStep(this._scene, phase, handlers, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this.manager.setPlayerDeck();
-    this.manager.setChallengedDeck();
-    this.manager.drawChallengedCards(6);
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-    this.mockFunction(Input, 'isTriggered', () => true);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de turno e desafiado faz jogada na fase de carregar.');
-    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
-    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    this.expectTrue('A proxima Etapa é ActivationStep?', this.isStep(ActivationStep));
-    this.expectTrue('Eh ActivationStep de desafiado?', this.nextStep.getPlayer() === GameConst.CHALLENGED);
-  }
-}
-class ChallengedPassedTurnStepInLoadPhaseTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-  passed;
-
-  create() {
-    const phase = GameConst.LOAD_PHASE;
-    const finish = this.createHandler();
-    const handlers = {
-      playerPlayHandler: () => {},
-      playerPassedHandler: () => {},
-      challengedPlayHandler: () => {},
-      challengedPassedHandler: () => {
-        this.manager.challengedPassed();
-        this.passed = true;
-        finish();
-      },
-      activePowerfieldHandler: () => {},
-    };
-    this.step = new TurnStep(this._scene, phase, handlers, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this.manager.setPlayerDeck();
-    this.manager.setChallengedDeck();
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-    this.mockFunction(Input, 'isTriggered', () => true);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de turno e desafiado passar a jogada na fase de carregar.');
-    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
-    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    this.expectTrue('O desafiado passou a jogada?', this.passed === true);
-  }
-}
-class ActivatePowerFieldTurnStepInLoadPhaseTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-
-  create() {
-    const phase = GameConst.LOAD_PHASE;
-    const finish = this.createHandler();
-    const handlers = {
-      playerPlayHandler: () => {},
-      playerPassedHandler: () => {},
-      challengedPlayHandler: () => {},
-      challengedPassedHandler: () => {},
-      activePowerfieldHandler: () => {
-        this.step.changeStep(RunPowerfieldStep);
-        finish();
-      },
-    };
-    this.step = new TurnStep(this._scene, phase, handlers, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this.manager.playerPassed();
-    this.manager.challengedPassed();
-    const powerCard = { 
-      type: GameConst.POWER, 
-      color: GameConst.BLACK, 
-      figureName: 'default', 
-      attack: 10, 
-      health: 10,
-    };
-    this.manager.addPowerCardToPowerfield(powerCard);
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-    this.mockFunction(Input, 'isTriggered', () => true);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de turno e ativar o campo de poder na fase de carregar.');
-    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
-    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    this.expectTrue('Foi ativado com menos de 3 cartas?', this.manager.getPowerfieldLength() < 3);
-    this.expectTrue('A proxima Etapa é RunPowerfieldStep?', this.isStep(RunPowerfieldStep));
-  }
-}
-class ActivatePowerFieldByLimitTurnStepInLoadPhaseTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-
-  create() {
-    const phase = GameConst.LOAD_PHASE;
-    const finish = this.createHandler();
-    const handlers = {
-      playerPlayHandler: () => {},
-      playerPassedHandler: () => {},
-      challengedPlayHandler: () => {},
-      challengedPassedHandler: () => {},
-      activePowerfieldHandler: () => {
-        this.step.changeStep(RunPowerfieldStep);
-        finish();
-      },
-    };
-    this.step = new TurnStep(this._scene, phase, handlers, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this.manager.playerPassed();
-    this.manager.challengedPassed();
-    const powerCard = { 
-      type: GameConst.POWER, 
-      color: GameConst.BLACK, 
-      figureName: 'default', 
-      attack: 10, 
-      health: 10,
-    };
-    this.manager.addPowerCardToPowerfield(powerCard);
-    this.manager.addPowerCardToPowerfield(powerCard);
-    this.manager.addPowerCardToPowerfield(powerCard);
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-    this.mockFunction(Input, 'isTriggered', () => true);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de turno e ativar o campo de poder na fase de carregar.');
-    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
-    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    this.expectTrue('Foi ativado com limite de 3?', this.manager.getPowerfieldLength() === 3);
-    this.expectTrue('A proxima Etapa é RunPowerfieldStep?', this.isStep(RunPowerfieldStep));
-  }
-}
-class SelectPowerCardInHandZoneStepInLoadPhaseTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-
-  create() {
-    const phase = GameConst.LOAD_PHASE;
-    const finish = this.createHandler();
-    const config = {
-      location: GameConst.HAND,
-      player: GameConst.PLAYER,
-      blockBattleCards: true,
-      blockPowerCardsInLoadPhase: true
-    };
-    const handlers = {
-      goBackHandler: () => {},
-      selectHandler: index => {
-        const powerConfig = { cardIndex: 0, player: GameConst.PLAYER };
-        this.step.changeStep(ActivationStep, powerConfig);
-        finish();
-      },
-      moveCursorHandler: () => {},
-    };
-    this.step = new ZoneStep(this._scene, phase, config, handlers, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this.manager.setPlayerDeck();
-    this.manager.setChallengedDeck();
-    this.manager.drawPlayerCards(6);
-    this._scene.setStep(this.step);
-    const includeOriginal = true;
-    this.mockFunction(this.step, 'openZone', () => {
-      const index = 1;
-      this.step.selectCard(index);
-    }, includeOriginal, this.manager);
-    this.step.start(this.manager);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de seleção de cartão de poder de mão do jogador na fase de carregar');
-    this.expectWasTrue('A janela de localização foi apresentado?', this.step.isLocationWindowVisible);
-    this.expectWasTrue('A janela de nome de cartão foi apresentado?', this.step.isCardNameWindowVisible);
-    this.expectWasTrue('A janela de descrição de cartão foi apresentado?', this.step.isCardDescriptionWindowVisible);
-    this.expectWasTrue('A janela de propriedades de cartão foi apresentado?', this.step.isCardPropsWindowVisible);
-    this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetSpriteVisible);
-    this.expectTrue('A proxima Etapa é ActivationStep?', this.isStep(ActivationStep));
-    this.expectTrue('Eh ActivationStep de desafiado?', this.step.getPlayer() === GameConst.PLAYER);
-  }
-}
-class GoBackInHandZoneStepInLoadPhaseTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-
-  create() {
-    const phase = GameConst.LOAD_PHASE;
-    const finish = this.createHandler();
-    const config = {
-      location: GameConst.HAND,
-      player: GameConst.PLAYER,
-      blockBattleCards: true,
-      blockPowerCardsInLoadPhase: true
-    };
-    const handlers = {
-      goBackHandler: () => {
-        const handlers = {
-          playerPlayHandler: () => {},
-          playerPassedHandler: () => {},
-          challengedPlayHandler: () => {},
-          challengedPassedHandler: () => {},
-          activePowerfieldHandler: () => {},
-        };
-        this.step.changeStep(TurnStep, handlers);
-        finish();
-      },
-      selectHandler: () => {},
-      moveCursorHandler: () => {},
-    };
-    this.step = new ZoneStep(this._scene, phase, config, handlers, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this.manager.setPlayerDeck();
-    this.manager.setChallengedDeck();
-    this.manager.drawPlayerCards(6);
-    this._scene.setStep(this.step);
-    const includeOriginal = true;
-    this.mockFunction(this.step, 'openZone', () => {
-      this.step.cancel();
-    }, includeOriginal, this.manager);
-    this.step.start(this.manager);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de seleção de cartão de poder de mão do jogador na fase de carregar');
-    this.expectWasTrue('A janela de localização foi apresentado?', this.step.isLocationWindowVisible);
-    this.expectWasTrue('A janela de nome de cartão foi apresentado?', this.step.isCardNameWindowVisible);
-    this.expectWasTrue('A janela de descrição de cartão foi apresentado?', this.step.isCardDescriptionWindowVisible);
-    this.expectWasTrue('A janela de propriedades de cartão foi apresentado?', this.step.isCardPropsWindowVisible);
-    this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetSpriteVisible);
-    this.expectTrue('A proxima Etapa é TurnStep?', this.isStep(TurnStep));
-  }
-}  
-class MoveCursorInHandZoneStepInLoadPhaseTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-  cardIndex;
-
-  create() {
-    const phase = GameConst.LOAD_PHASE;
-    const finish = this.createHandler();
-    const config = {
-      location: GameConst.HAND,
-      player: GameConst.PLAYER,
-      blockBattleCards: true,
-      blockPowerCardsInLoadPhase: true
-    };
-    const handlers = {
-      goBackHandler: () => {},
-      selectHandler: () => {},
-      moveCursorHandler: index => {
-        this.cardIndex = index;
-        finish();
-      },
-    };
-    this.step = new ZoneStep(this._scene, phase, config, handlers, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this.manager.setPlayerDeck();
-    this.manager.setChallengedDeck();
-    this.manager.drawPlayerCards(6);
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de seleção de cartão de poder de mão do jogador na fase de carregar');
-    this.expectWasTrue('A janela de localização foi apresentado?', this.step.isLocationWindowVisible);
-    this.expectWasTrue('A janela de nome de cartão foi apresentado?', this.step.isCardNameWindowVisible);
-    this.expectWasTrue('A janela de descrição de cartão foi apresentado?', this.step.isCardDescriptionWindowVisible);
-    this.expectWasTrue('A janela de propriedades de cartão foi apresentado?', this.step.isCardPropsWindowVisible);
-    this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetSpriteVisible);
-    this.expectTrue('O cursor foi movido?', this.cardIndex >= 0);
-  }
-}
-class EndTurnStepInLoadPhaseTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-  passed = false;
-
-  create() {
-    const phase = GameConst.LOAD_PHASE;
-    const finish = this.createHandler();
-    const handlers = {
-      playerPlayHandler: () => {},
-      playerPassedHandler: () => {},
-      challengedPlayHandler: () => {},
-      challengedPassedHandler: () => {},
-      activePowerfieldHandler: () => {},
-    };
-    this.step = new TurnStep(this._scene, phase, handlers, finish);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this.manager.setPlayerDeck();
-    this.manager.setChallengedDeck();
-    this.manager.playerPassed();
-    this.manager.challengedPassed();
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-    this.mockFunction(Input, 'isTriggered', () => true);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de turno e deve encerrar a fase após jogadas na fase de carregar.');
-    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
-    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
-  }
-}
-class SetPowerCardStrategyActivationStepInLoadPhaseTest extends SceneTest {
-  manager = CardBattleManager;
-  step;
-
-  create() {
-    const phase = GameConst.LOAD_PHASE;
-    const finish = this.createHandler();
-    const powerConfig = {
-      cardIndex: 1,
-      player: GameConst.PLAYER
-    };
-    const powerActivation = undefined;
-    this.step = new ActivationStep(this._scene, phase, powerConfig, powerActivation);
-    this.addAssistedHidden(this.step);
-  }
-
-  start() {
-    this.manager.setPlayerDeck();
-    this.manager.setChallengedDeck();
-    this.manager.drawPlayerCards(6);
-    this.manager.drawChallengedCards(6);
-    this.mockFunction(this.manager, 'getCardsByPowerfield', () => {
-      return [
-        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-      ];
-    });
-    this.mockFunction(this.manager, 'getPowerfieldLength', () => {
-      return 2;
-    });
-    this._scene.setStep(this.step);
-    this.step.start(this.manager);
-  }
-
-  update() {
-    this.step.update(this.manager);
-  }
-  
-  asserts() {
-    this.describe('Deve apresentar etapa de ativação e definir estrategia para cartão de poder na fase de carregar.');
-    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
-    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
-    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
-    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
-    // this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
-    // this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
-    // this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
-    // this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    // this.expectWasTrue('O set de cartas de poder foi apresentado?', this.step.isPowerCardsetSpriteVisible);
+    this.expectTrue('O título da fase foi apresentado como: Challenge Phase?', this.step.isTextTitleWindow('Challenge Phase'));
   }
 }
 
@@ -9909,7 +8977,7 @@ class Step {
   _powerFieldCardsetSprite = undefined;
   _finish = () => {};
 
-  constructor(scene, phase, finish) {
+  constructor(scene, phase) {
     const phasesEnabled = [
       GameConst.CHALLENGE_PHASE, 
       GameConst.START_PHASE, 
@@ -9928,7 +8996,6 @@ class Step {
     }
     this._scene = scene;
     this._phase = phase;
-    this._finish = finish;
   }
 
   start(manager) {
@@ -10069,7 +9136,6 @@ class Step {
   //   this._player = {};
   //   this._challenged = {};
   //   this._powerFieldCardsetSprite = {};
-  //   this._finish = null;
   // }
 
   getPhase() {
@@ -10623,16 +9689,12 @@ class Step {
   getPowerfieldCardsetSprite() {
     return this._powerFieldCardsetSprite;
   }
-
-  end() {
-    if (typeof this._finish === 'function') return this._finish();
-  }
 }
 class DisplayStep extends Step {
   _titleWindow = undefined;
   _descriptionWindow = undefined;
 
-  constructor(scene, phase, finish) {
+  constructor(scene, phase) {
     const phasesEnabled = [
       GameConst.CHALLENGE_PHASE, 
       GameConst.START_PHASE, 
@@ -10643,12 +9705,12 @@ class DisplayStep extends Step {
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for DisplayStep.');
     }
-    super(scene, phase, finish);
+    super(scene, phase);
   }
 
-  start(manager) {
+  start() {
     const title = this.getPhaseTitle();
-    const description = this.getPhaseDescription(manager);
+    const description = this.getPhaseDescription();
     this.createTitleWindow(title);
     this.createDescriptionWindow(description);
     this.openTextWindows();
@@ -10675,11 +9737,11 @@ class DisplayStep extends Step {
     }
   }
 
-  getPhaseDescription(manager) {
+  getPhaseDescription() {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.CHALLENGE_PHASE:
-        return manager.getChallengeDescription();
+        return CardBattleManager.getChallengeDescription();
         break;
       case GameConst.START_PHASE:
         return ['Draw Calumon to go first.'];
@@ -10739,13 +9801,13 @@ class DisplayStep extends Step {
     this._descriptionWindow.open();
   }
 
-  update(manager) {
+  update() {
     super.update();
     if (this.isBusy() || this.hasActions()) return false;
     if (Input.isTriggered('ok')) {
       this.commandCloseTextWindows();
       this.leaveTextWindows();
-      this.addAction(this.commandFinish, manager);
+      this.addAction(this.commandFinish);
     }
   }
 
@@ -10773,19 +9835,19 @@ class DisplayStep extends Step {
     ]);
   }
 
-  commandFinish(manager) {
+  commandFinish() {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.CHALLENGE_PHASE:
-        const playerFolders = manager.getPlayerFolders();
+        const playerFolders = CardBattleManager.getPlayerFolders();
         const setPlayerFolderIndexHandler = folderIndex => {
-          manager.setPlayerFolderIndex(folderIndex);
+          CardBattleManager.setPlayerFolderIndex(folderIndex);
         };
         this.changeStep(FolderStep, playerFolders, setPlayerFolderIndexHandler);
         break;
       case GameConst.START_PHASE:
         const setMiniGameResultHanlder = win => {
-          if (win) manager.playerStart();
+          if (win) CardBattleManager.playerStart();
         };
         this.changeStep(MiniGameStep, setMiniGameResultHanlder);
         break;
@@ -10809,13 +9871,13 @@ class DisplayStep extends Step {
             this.changeStep(ZoneStep, config, handlers);
           },
           playerPassedHandler: () => {
-            manager.playerPassed();
+            CardBattleManager.playerPassed();
           },
           challengedPlayHandler: () => {
             this.changeStep(ActivationStep);
           },
           challengedPassedHandler: () => {
-            manager.challengedPassed();
+            CardBattleManager.challengedPassed();
           },
           activePowerfieldHandler: () => {
             this.changeStep(RunPowerfieldStep);
@@ -10826,7 +9888,6 @@ class DisplayStep extends Step {
       default:
         break;
     }
-    this.end();
   }
 
   isBusy() {
@@ -11520,7 +10581,7 @@ class ActivationStep extends Step {
   showDisplayOrdering() {
     const powerfield = this.getPowerfieldCardsetSprite();
     const indexes = powerfield.getIndexes();
-    indexes.pop();
+    const removeLast = indexes.pop();
     powerfield.displayReverseOrdering(indexes);
   }
 
@@ -12500,47 +11561,47 @@ class CardBattleTestScene extends Scene_Message {
       TiggerAcitonCardSpriteTest,
     ];
     const cardsetSpriteTests = [
-      // StartPositionCardsetSpriteTest,
-      // AlignAboveOfCardsetSpriteTest,
-      // AlignBelowOfCardsetSpriteTest,
-      // AlignCenterMiddleCardsetSpriteTest,
-      // SetCardsCardsetSpriteTest,
-      // SetTurnToDownCardsCardsetSpriteTest,
-      // SetAllCardsInPositionCardsetSpriteTest,
-      // SetAllCardsInPositionsCardsetSpriteTest,
-      // ListCardsCardsetSpriteTest,
-      // StartClosedCardsCardsetSpriteTest,
-      // OpenAllCardsCardsetSpriteTest,
-      // OpenCardsCardsetSpriteTest,
-      // CloseAllCardsCardsetSpriteTest,
-      // CloseCardsCardsetSpriteTest,
-      // MoveAllCardsInListCardsetSpriteTest,
-      // MoveCardsInListCardsetSpriteTest,
-      // MoveAllCardsToPositionCardsetSpriteTest,
-      // MoveCardsToPositionCardsetSpriteTest,
-      // MoveAllCardsToPositionsCardsetSpriteTest,
-      // AddAllCardsToListCardsetSpriteTest,
-      // AddCardsToListCardsetSpriteTest,
-      // DisableCardsCardsetSpriteTest,
-      // StaticModeCardsetSpriteTest,
-      // SelectModeCardsetSpriteTest,
-      // SelectModeNoSelectCardsetSpriteTest,
-      // SelectModeLimitedCardsetSpriteTest,
-      // FlashCardsCardsetSpriteTest,
-      // QuakeCardsCardsetSpriteTest,
-      // AnimationCardsCardsetSpriteTest,
-      // ShowOrderingCardsCardsetSpriteTest,
-      // ShowOrderingCardsByIndexesCardsetSpriteTest,
+      StartPositionCardsetSpriteTest,
+      AlignAboveOfCardsetSpriteTest,
+      AlignBelowOfCardsetSpriteTest,
+      AlignCenterMiddleCardsetSpriteTest,
+      SetCardsCardsetSpriteTest,
+      SetTurnToDownCardsCardsetSpriteTest,
+      SetAllCardsInPositionCardsetSpriteTest,
+      SetAllCardsInPositionsCardsetSpriteTest,
+      ListCardsCardsetSpriteTest,
+      StartClosedCardsCardsetSpriteTest,
+      OpenAllCardsCardsetSpriteTest,
+      OpenCardsCardsetSpriteTest,
+      CloseAllCardsCardsetSpriteTest,
+      CloseCardsCardsetSpriteTest,
+      MoveAllCardsInListCardsetSpriteTest,
+      MoveCardsInListCardsetSpriteTest,
+      MoveAllCardsToPositionCardsetSpriteTest,
+      MoveCardsToPositionCardsetSpriteTest,
+      MoveAllCardsToPositionsCardsetSpriteTest,
+      AddAllCardsToListCardsetSpriteTest,
+      AddCardsToListCardsetSpriteTest,
+      DisableCardsCardsetSpriteTest,
+      StaticModeCardsetSpriteTest,
+      SelectModeCardsetSpriteTest,
+      SelectModeNoSelectCardsetSpriteTest,
+      SelectModeLimitedCardsetSpriteTest,
+      FlashCardsCardsetSpriteTest,
+      QuakeCardsCardsetSpriteTest,
+      AnimationCardsCardsetSpriteTest,
+      ShowOrderingCardsCardsetSpriteTest,
+      ShowOrderingCardsByIndexesCardsetSpriteTest,
       ShowReverseOrderingCardsCardsetSpriteTest,
       ShowReverseOrderingByIndexesCardsCardsetSpriteTest,
-      // ZoomAllCardsCardsetSpriteTest,
-      // ZoomOutAllCardsCardsetSpriteTest,
-      // FlipTurnToUpAllCardsCardsetSpriteTest,
-      // FlipTurnToUpCardsCardsetSpriteTest,
-      // TriggerActionCardsetSpriteTest,
-      // OnChangeCursorSelectModeCardsetSpriteTest,
-      // AddChildToEndCardsetSpriteTest,
-      // LeaveAllCardsCardsetSpriteTest,
+      ZoomAllCardsCardsetSpriteTest,
+      ZoomOutAllCardsCardsetSpriteTest,
+      FlipTurnToUpAllCardsCardsetSpriteTest,
+      FlipTurnToUpCardsCardsetSpriteTest,
+      TriggerActionCardsetSpriteTest,
+      OnChangeCursorSelectModeCardsetSpriteTest,
+      AddChildToEndCardsetSpriteTest,
+      LeaveAllCardsCardsetSpriteTest,
     ];
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,
@@ -12635,30 +11696,11 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const steps = [
-      // DisplayStepInChallengePhaseTest,
-      // FolderStepInChallengePhaseTest,
-      // DisplayStepInStartPhaseTest,
-      // MiniGameInStartPhaseStepTest,
-      // DisplayStepInDrawPhaseTest,
-      // DrawStepInDrawPhaseTest,
-      // DisplayStepInLoadPhaseTest,
-      // PlayerPassedTurnStepInLoadPhaseTest,
-      // PlayerPlayedTurnStepInLoadPhaseTest,
-      // PlayerPlayFirstTurnStepInLoadPhaseTest,
-      // PlayerPlayNextTurnStepInLoadPhaseTest,
-      // ChallengedPassedTurnStepInLoadPhaseTest,
-      // ChallengedPlayedTurnStepInLoadPhaseTest,
-      // ActivatePowerFieldTurnStepInLoadPhaseTest,
-      // ActivatePowerFieldByLimitTurnStepInLoadPhaseTest,
-      // EndTurnStepInLoadPhaseTest,
-      // SelectPowerCardInHandZoneStepInLoadPhaseTest,
-      // GoBackInHandZoneStepInLoadPhaseTest,
-      // MoveCursorInHandZoneStepInLoadPhaseTest,
-      // SetPowerCardStrategyActivationStepInLoadPhaseTest,
+      ShouldShowTitleWindowInChallengePhaseTest
     ];
     return [
       // ...cardSpriteTests,
-      ...cardsetSpriteTests,
+      // ...cardsetSpriteTests,
       // ...commandWindow,
       // ...StateWindowTests,
       // ...textWindowTests,

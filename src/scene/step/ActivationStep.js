@@ -36,7 +36,7 @@ class ActivationStep extends Step {
   showDisplayOrdering() {
     const powerfield = this.getPowerfieldCardsetSprite();
     const indexes = powerfield.getIndexes();
-    indexes.pop();
+    const removeLast = indexes.pop();
     powerfield.displayReverseOrdering(indexes);
   }
 

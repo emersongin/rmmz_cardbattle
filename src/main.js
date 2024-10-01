@@ -184,26 +184,7 @@
 // FOLDER WINDOW
 // include ../test/integration/folderwindow/CreateFolderWindowTest.js
 // STEPS
-// include ../test/integration/step/DisplayStepInChallengePhaseTest.js
-// include ../test/integration/step/FolderStepInChallengePhaseTest.js
-// include ../test/integration/step/DisplayStepInStartPhaseTest.js
-// include ../test/integration/step/MiniGameInStartPhaseStepTest.js
-// include ../test/integration/step/DisplayStepInDrawPhaseTest.js
-// include ../test/integration/step/DrawStepInDrawPhaseTest.js
-// include ../test/integration/step/DisplayStepInLoadPhaseTest.js
-// include ../test/integration/step/PlayerPlayedTurnStepInLoadPhaseTest.js
-// include ../test/integration/step/PlayerPassedTurnStepInLoadPhaseTest.js
-// include ../test/integration/step/PlayerPlayFirstTurnStepInLoadPhaseTest.js
-// include ../test/integration/step/PlayerPlayNextTurnStepInLoadPhaseTest.js
-// include ../test/integration/step/ChallengedPlayedTurnStepInLoadPhaseTest.js
-// include ../test/integration/step/ChallengedPassedTurnStepInLoadPhaseTest.js
-// include ../test/integration/step/ActivatePowerFieldTurnStepInLoadPhaseTest.js
-// include ../test/integration/step/ActivatePowerFieldByLimitTurnStepInLoadPhaseTest.js
-// include ../test/integration/step/SelectPowerCardInHandZoneStepInLoadPhaseTest.js
-// include ../test/integration/step/GoBackInHandZoneStepInLoadPhaseTest.js  
-// include ../test/integration/step/MoveCursorInHandZoneStepInLoadPhaseTest.js
-// include ../test/integration/step/EndTurnStepInLoadPhaseTest.js
-// include ../test/integration/step/SetPowerCardStrategyActivationStepInLoadPhaseTest.js
+// include ../test/components/DisplayStep/ShouldShowTitleWindowInChallengePhaseTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js

@@ -20,7 +20,7 @@ class Step {
   _powerFieldCardsetSprite = undefined;
   _finish = () => {};
 
-  constructor(scene, phase, finish) {
+  constructor(scene, phase) {
     const phasesEnabled = [
       GameConst.CHALLENGE_PHASE, 
       GameConst.START_PHASE, 
@@ -39,7 +39,6 @@ class Step {
     }
     this._scene = scene;
     this._phase = phase;
-    this._finish = finish;
   }
 
   start(manager) {
@@ -180,7 +179,6 @@ class Step {
   //   this._player = {};
   //   this._challenged = {};
   //   this._powerFieldCardsetSprite = {};
-  //   this._finish = null;
   // }
 
   getPhase() {
@@ -733,9 +731,5 @@ class Step {
 
   getPowerfieldCardsetSprite() {
     return this._powerFieldCardsetSprite;
-  }
-
-  end() {
-    if (typeof this._finish === 'function') return this._finish();
   }
 }

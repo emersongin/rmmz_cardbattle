@@ -2,7 +2,7 @@ class DisplayStep extends Step {
   _titleWindow = undefined;
   _descriptionWindow = undefined;
 
-  constructor(scene, phase, finish) {
+  constructor(scene, phase) {
     const phasesEnabled = [
       GameConst.CHALLENGE_PHASE, 
       GameConst.START_PHASE, 
@@ -13,12 +13,12 @@ class DisplayStep extends Step {
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for DisplayStep.');
     }
-    super(scene, phase, finish);
+    super(scene, phase);
   }
 
-  start(manager) {
+  start() {
     const title = this.getPhaseTitle();
-    const description = this.getPhaseDescription(manager);
+    const description = this.getPhaseDescription();
     this.createTitleWindow(title);
     this.createDescriptionWindow(description);
     this.openTextWindows();
@@ -45,11 +45,11 @@ class DisplayStep extends Step {
     }
   }
 
-  getPhaseDescription(manager) {
+  getPhaseDescription() {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.CHALLENGE_PHASE:
-        return manager.getChallengeDescription();
+        return CardBattleManager.getChallengeDescription();
         break;
       case GameConst.START_PHASE:
         return ['Draw Calumon to go first.'];
@@ -109,13 +109,13 @@ class DisplayStep extends Step {
     this._descriptionWindow.open();
   }
 
-  update(manager) {
+  update() {
     super.update();
     if (this.isBusy() || this.hasActions()) return false;
     if (Input.isTriggered('ok')) {
       this.commandCloseTextWindows();
       this.leaveTextWindows();
-      this.addAction(this.commandFinish, manager);
+      this.addAction(this.commandFinish);
     }
   }
 
@@ -143,19 +143,19 @@ class DisplayStep extends Step {
     ]);
   }
 
-  commandFinish(manager) {
+  commandFinish() {
     const phase = this.getPhase();
     switch (phase) {
       case GameConst.CHALLENGE_PHASE:
-        const playerFolders = manager.getPlayerFolders();
+        const playerFolders = CardBattleManager.getPlayerFolders();
         const setPlayerFolderIndexHandler = folderIndex => {
-          manager.setPlayerFolderIndex(folderIndex);
+          CardBattleManager.setPlayerFolderIndex(folderIndex);
         };
         this.changeStep(FolderStep, playerFolders, setPlayerFolderIndexHandler);
         break;
       case GameConst.START_PHASE:
         const setMiniGameResultHanlder = win => {
-          if (win) manager.playerStart();
+          if (win) CardBattleManager.playerStart();
         };
         this.changeStep(MiniGameStep, setMiniGameResultHanlder);
         break;
@@ -179,13 +179,13 @@ class DisplayStep extends Step {
             this.changeStep(ZoneStep, config, handlers);
           },
           playerPassedHandler: () => {
-            manager.playerPassed();
+            CardBattleManager.playerPassed();
           },
           challengedPlayHandler: () => {
             this.changeStep(ActivationStep);
           },
           challengedPassedHandler: () => {
-            manager.challengedPassed();
+            CardBattleManager.challengedPassed();
           },
           activePowerfieldHandler: () => {
             this.changeStep(RunPowerfieldStep);
@@ -196,7 +196,6 @@ class DisplayStep extends Step {
       default:
         break;
     }
-    this.end();
   }
 
   isBusy() {
