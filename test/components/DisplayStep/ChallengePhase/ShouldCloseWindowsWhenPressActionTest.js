@@ -1,4 +1,4 @@
-class ShouldCloseWindowsWhenPressActionInChallengePhaseTest extends SceneTest {
+class ShouldCloseWindowsWhenPressActionChallengePhaseTest extends SceneTest {
   step;
 
   create() {
@@ -23,7 +23,7 @@ class ShouldCloseWindowsWhenPressActionInChallengePhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve fecha janelas ao realizar ação e definir a proxima etap como FolderStep.');
+    this.describe('Deve fecha as janelas ao realizar ação e definir a proxima etap como FolderStep.');
     this.expectTrue('A janela de título foi fechada?', this.step.isTitleWindowClosed());
     this.expectTrue('A janela de descrição foi fechada?', this.step.isDescriptionWindowClosed());
     this.expectTrue('A proxima Etapa é FolderStep?', this.isStep(FolderStep));

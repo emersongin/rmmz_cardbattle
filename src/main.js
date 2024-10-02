@@ -184,9 +184,15 @@
 // FOLDER WINDOW
 // include ../test/integration/folderwindow/CreateFolderWindowTest.js
 // STEPS
-// include ../test/components/DisplayStep/ShouldShowTitleWindowInChallengePhaseTest.js
-// include ../test/components/DisplayStep/ShouldShowDescriptionWindowInChallengePhaseTest.js
-// include ../test/components/DisplayStep/ShouldCloseWindowsWhenPressActionInChallengePhaseTest.js
+// include ../test/components/DisplayStep/ChallengePhase/ShouldShowTitleWindowTest.js
+// include ../test/components/DisplayStep/ChallengePhase/ShouldShowDescriptionWindowTest.js
+// include ../test/components/DisplayStep/ChallengePhase/ShouldCloseWindowsWhenPressActionTest.js
+// include ../test/components/DisplayStep/DrawPhase/ShouldShowTitleWindowTest.js
+// include ../test/components/DisplayStep/DrawPhase/ShouldShowDescriptionWindowTest.js
+// include ../test/components/DisplayStep/DrawPhase/ShouldCloseWindowsWhenPressActionTest.js
+// include ../test/components/DisplayStep/LoadPhase/ShouldShowTitleWindowTest.js
+// include ../test/components/DisplayStep/LoadPhase/ShouldShowDescriptionWindowTest.js
+// include ../test/components/DisplayStep/LoadPhase/ShouldCloseWindowsWhenPressActionTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js

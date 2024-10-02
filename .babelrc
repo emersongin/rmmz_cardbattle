@@ -1,0 +1,7 @@
+{
+  "presets": [
+    ["@babel/preset-env", {
+      "modules": "commonjs" // Configura para transpilar módulos ES6 para CommonJS
+    }]
+  ]
+}

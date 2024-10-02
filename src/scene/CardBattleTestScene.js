@@ -200,9 +200,15 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const steps = [
-      ShouldShowTitleWindowInChallengePhaseTest,
-      ShouldShowDescriptionWindowInChallengePhaseTest,
-      ShouldCloseWindowsWhenPressActionInChallengePhaseTest,
+      // ShouldShowTitleWindowChallengePhaseTest,
+      // ShouldShowDescriptionWindowChallengePhaseTest,
+      // ShouldCloseWindowsWhenPressActionChallengePhaseTest,
+      // ShouldShowTitleWindowDrawPhaseTest,
+      // ShouldShowDescriptionWindowDrawPhaseTest,
+      // ShouldCloseWindowsWhenPressActionDrawPhaseTest,
+      ShouldShowTitleWindowLoadPhaseTest,
+      ShouldShowDescriptionWindowLoadPhaseTest,
+      ShouldCloseWindowsWhenPressActionLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

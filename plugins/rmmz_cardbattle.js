@@ -8569,7 +8569,7 @@ class CreateFolderWindowTest extends SceneTest {
   }
 }
 // STEPS
-class ShouldShowTitleWindowInChallengePhaseTest extends SceneTest {
+class ShouldShowTitleWindowChallengePhaseTest extends SceneTest {
   step;
 
   create() {
@@ -8595,7 +8595,7 @@ class ShouldShowTitleWindowInChallengePhaseTest extends SceneTest {
     this.expectTrue('O título da fase foi apresentado como: Challenge Phase?', this.step.isTextTitleWindow('Challenge Phase'));
   }
 }
-class ShouldShowDescriptionWindowInChallengePhaseTest extends SceneTest {
+class ShouldShowDescriptionWindowChallengePhaseTest extends SceneTest {
   step;
 
   create() {
@@ -8625,7 +8625,7 @@ class ShouldShowDescriptionWindowInChallengePhaseTest extends SceneTest {
     this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
   }
 }
-class ShouldCloseWindowsWhenPressActionInChallengePhaseTest extends SceneTest {
+class ShouldCloseWindowsWhenPressActionChallengePhaseTest extends SceneTest {
   step;
 
   create() {
@@ -8650,10 +8650,178 @@ class ShouldCloseWindowsWhenPressActionInChallengePhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve fecha janelas ao realizar ação e definir a proxima etap como FolderStep.');
+    this.describe('Deve fecha as janelas ao realizar ação e definir a proxima etap como FolderStep.');
     this.expectTrue('A janela de título foi fechada?', this.step.isTitleWindowClosed());
     this.expectTrue('A janela de descrição foi fechada?', this.step.isDescriptionWindowClosed());
     this.expectTrue('A proxima Etapa é FolderStep?', this.isStep(FolderStep));
+  }
+}
+class ShouldShowTitleWindowDrawPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DisplayStep(this._scene, GameConst.DRAW_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', finish);
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de título em etapa de apresentação de fase de saque.');
+    this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
+    this.expectTrue('O título da fase foi apresentado como: Draw Phase?', this.step.isTextTitleWindow('Draw Phase'));
+  }
+}
+class ShouldShowDescriptionWindowDrawPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DisplayStep(this._scene, GameConst.DRAW_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', finish);
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de descrição em etapa de apresentação de fase de saque.');
+    this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
+    const texts = ['6 cards will be drawn.'];
+    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
+  }
+}
+class ShouldCloseWindowsWhenPressActionDrawPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DisplayStep(this._scene, GameConst.DRAW_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', () => true);
+    const commandFinish = this.step.commandFinish;
+    this.spyFunction(this.step, 'commandFinish', () => {
+      finish();
+    });
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve fecha as janelas ao realizar ação e definir a proxima etap como DrawStep.');
+    this.expectTrue('A janela de título foi fechada?', this.step.isTitleWindowClosed());
+    this.expectTrue('A janela de descrição foi fechada?', this.step.isDescriptionWindowClosed());
+    this.expectTrue('A proxima Etapa é DrawStep?', this.isStep(DrawStep));
+  }
+}
+class ShouldShowTitleWindowLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DisplayStep(this._scene, GameConst.LOAD_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', finish);
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de título em etapa de apresentação de fase de carregamento.');
+    this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
+    this.expectTrue('O título da fase foi apresentado como: Load Phase?', this.step.isTextTitleWindow('Load Phase'));
+  }
+}
+class ShouldShowDescriptionWindowLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DisplayStep(this._scene, GameConst.LOAD_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', finish);
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de descrição em etapa de apresentação de fase de carregamento.');
+    this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
+    const texts = ['Select and use a Program Card.'];
+    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
+  }
+}
+class ShouldCloseWindowsWhenPressActionLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DisplayStep(this._scene, GameConst.LOAD_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', () => true);
+    const commandFinish = this.step.commandFinish;
+    this.spyFunction(this.step, 'commandFinish', () => {
+      finish();
+    });
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve fecha as janelas ao realizar ação e definir a proxima etap como TurnStep.');
+    this.expectTrue('A janela de título foi fechada?', this.step.isTitleWindowClosed());
+    this.expectTrue('A janela de descrição foi fechada?', this.step.isDescriptionWindowClosed());
+    this.expectTrue('A proxima Etapa é TurnStep?', this.isStep(TurnStep));
   }
 }
 
@@ -11769,9 +11937,15 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const steps = [
-      ShouldShowTitleWindowInChallengePhaseTest,
-      ShouldShowDescriptionWindowInChallengePhaseTest,
-      ShouldCloseWindowsWhenPressActionInChallengePhaseTest,
+      // ShouldShowTitleWindowChallengePhaseTest,
+      // ShouldShowDescriptionWindowChallengePhaseTest,
+      // ShouldCloseWindowsWhenPressActionChallengePhaseTest,
+      // ShouldShowTitleWindowDrawPhaseTest,
+      // ShouldShowDescriptionWindowDrawPhaseTest,
+      // ShouldCloseWindowsWhenPressActionDrawPhaseTest,
+      ShouldShowTitleWindowLoadPhaseTest,
+      ShouldShowDescriptionWindowLoadPhaseTest,
+      ShouldCloseWindowsWhenPressActionLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

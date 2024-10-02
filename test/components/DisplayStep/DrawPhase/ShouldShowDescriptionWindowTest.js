@@ -1,9 +1,9 @@
-class ShouldShowDescriptionWindowInChallengePhaseTest extends SceneTest {
+class ShouldShowDescriptionWindowDrawPhaseTest extends SceneTest {
   step;
 
   create() {
     this.createHandler();
-    this.step = new DisplayStep(this._scene, GameConst.CHALLENGE_PHASE);
+    this.step = new DisplayStep(this._scene, GameConst.DRAW_PHASE);
     this.addAssistedHidden(this.step);
   }
 
@@ -19,12 +19,9 @@ class ShouldShowDescriptionWindowInChallengePhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve apresentar janela de descrição em etapa de apresentação de fase de desafio.');
+    this.describe('Deve apresentar janela de descrição em etapa de apresentação de fase de saque.');
     this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
-    const texts = [
-      'Descrição de Desafiado',
-      'O jogador que é desafiado por você.',
-    ];
+    const texts = ['6 cards will be drawn.'];
     this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
   }
 }

@@ -1,9 +1,9 @@
-class ShouldShowTitleWindowInChallengePhaseTest extends SceneTest {
+class ShouldShowTitleWindowDrawPhaseTest extends SceneTest {
   step;
 
   create() {
     this.createHandler();
-    this.step = new DisplayStep(this._scene, GameConst.CHALLENGE_PHASE);
+    this.step = new DisplayStep(this._scene, GameConst.DRAW_PHASE);
     this.addAssistedHidden(this.step);
   }
 
@@ -19,8 +19,8 @@ class ShouldShowTitleWindowInChallengePhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve apresentar janela de título em etapa de apresentação de fase de desafio.');
+    this.describe('Deve apresentar janela de título em etapa de apresentação de fase de saque.');
     this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
-    this.expectTrue('O título da fase foi apresentado como: Challenge Phase?', this.step.isTextTitleWindow('Challenge Phase'));
+    this.expectTrue('O título da fase foi apresentado como: Draw Phase?', this.step.isTextTitleWindow('Draw Phase'));
   }
 }
