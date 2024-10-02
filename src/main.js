@@ -187,6 +187,9 @@
 // include ../test/components/DisplayStep/ChallengePhase/ShouldShowTitleWindowTest.js
 // include ../test/components/DisplayStep/ChallengePhase/ShouldShowDescriptionWindowTest.js
 // include ../test/components/DisplayStep/ChallengePhase/ShouldCloseWindowsWhenPressActionTest.js
+// include ../test/components/DisplayStep/StartPhase/ShouldShowTitleWindowTest.js
+// include ../test/components/DisplayStep/StartPhase/ShouldShowDescriptionWindowTest.js
+// include ../test/components/DisplayStep/StartPhase/ShouldCloseWindowsWhenPressActionTest.js
 // include ../test/components/DisplayStep/DrawPhase/ShouldShowTitleWindowTest.js
 // include ../test/components/DisplayStep/DrawPhase/ShouldShowDescriptionWindowTest.js
 // include ../test/components/DisplayStep/DrawPhase/ShouldCloseWindowsWhenPressActionTest.js

@@ -203,12 +203,15 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldShowTitleWindowChallengePhaseTest,
       // ShouldShowDescriptionWindowChallengePhaseTest,
       // ShouldCloseWindowsWhenPressActionChallengePhaseTest,
+      ShouldShowTitleWindowStartPhaseTest,
+      ShouldShowDescriptionWindowStartPhaseTest,
+      ShouldCloseWindowsWhenPressActionStartPhaseTest,
       // ShouldShowTitleWindowDrawPhaseTest,
       // ShouldShowDescriptionWindowDrawPhaseTest,
       // ShouldCloseWindowsWhenPressActionDrawPhaseTest,
-      ShouldShowTitleWindowLoadPhaseTest,
-      ShouldShowDescriptionWindowLoadPhaseTest,
-      ShouldCloseWindowsWhenPressActionLoadPhaseTest,
+      // ShouldShowTitleWindowLoadPhaseTest,
+      // ShouldShowDescriptionWindowLoadPhaseTest,
+      // ShouldCloseWindowsWhenPressActionLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,
