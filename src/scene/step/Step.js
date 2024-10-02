@@ -41,11 +41,11 @@ class Step {
     this._phase = phase;
   }
 
-  start(manager) {
+  start() {
     throw new Error('Method start must be implemented');
   }
 
-  update(manager) {
+  update() {
     if (this._wait > 0) return this._wait--;
     if (this.hasActions() && this.isAvailable()) this.executeAction();
   }
@@ -189,13 +189,13 @@ class Step {
     this._phase = phase;
   }
 
-  createPlayerGameBoard(manager) {
-    const energies = Object.values(manager.getPlayerEnergies());
-    const cardsInDeck = manager.getPlayerDeckLength();
-    const cardsInHand = manager.getPlayerHandLength();
-    const cardsInTrash = manager.getPlayerTrashLength();
-    const victories = manager.getPlayerVictories();
-    const passed = manager.isPlayerPassed();
+  createPlayerGameBoard() {
+    const energies = Object.values(CardBattleManager.getPlayerEnergies());
+    const cardsInDeck = CardBattleManager.getPlayerDeckLength();
+    const cardsInHand = CardBattleManager.getPlayerHandLength();
+    const cardsInTrash = CardBattleManager.getPlayerTrashLength();
+    const victories = CardBattleManager.getPlayerVictories();
+    const passed = CardBattleManager.isPlayerPassed();
     const boardWindow = this.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand, passed);
     const boardWindowHeight = boardWindow.height;
     const battleWindow = this.createPlayerBattleWindow(boardWindowHeight);
@@ -288,13 +288,13 @@ class Step {
     this.commandAddChild(cardsetSprite);
   }
 
-  createChallengedGameBoard(manager) {
-    const energies = Object.values(manager.getChallengedEnergies());
-    const cardsInDeck = manager.getChallengedDeckLength();
-    const cardsInHand = manager.getChallengedHandLength();
-    const cardsInTrash = manager.getChallengedTrashLength();
-    const victories = manager.getChallengedVictories();
-    const passed = manager.isChallengedPassed();
+  createChallengedGameBoard() {
+    const energies = Object.values(CardBattleManager.getChallengedEnergies());
+    const cardsInDeck = CardBattleManager.getChallengedDeckLength();
+    const cardsInHand = CardBattleManager.getChallengedHandLength();
+    const cardsInTrash = CardBattleManager.getChallengedTrashLength();
+    const victories = CardBattleManager.getChallengedVictories();
+    const passed = CardBattleManager.isChallengedPassed();
     const boardWindow = this.createChallengedBoardWindow(energies, cardsInDeck, cardsInHand, passed);
     const boardWindowHeight = boardWindow.height;
     const battleWindow = this.createChallengedBattleWindow(boardWindowHeight);
@@ -731,5 +731,45 @@ class Step {
 
   getPowerfieldCardsetSprite() {
     return this._powerFieldCardsetSprite;
+  }
+
+  isPlayerBoardWindowClosed() {
+    return this._player.boardWindow?.isClosed();
+  }
+
+  isPlayerBattleWindowClosed() {
+    return this._player.battleWindow?.isClosed();
+  }
+
+  isPlayerTrashWindowClosed() {
+    return this._player.trashWindow?.isClosed();
+  }
+
+  isPlayerScoreWindowClosed() {
+    return this._player.scoreWindow?.isClosed();
+  }
+
+  isPlayerCardsetClosed() {
+    return this._player.cardsetSprite?.allCardsIsClosed();
+  }
+
+  isChallengedBoardWindowClosed() {
+    return this._challenged.boardWindow?.isClosed();
+  }
+
+  isChallengedBattleWindowClosed() {
+    return this._challenged.battleWindow?.isClosed();
+  }
+
+  isChallengedTrashWindowClosed() {
+    return this._challenged.trashWindow?.isClosed();
+  }
+
+  isChallengedScoreWindowClosed() {
+    return this._challenged.scoreWindow?.isClosed();
+  }
+
+  isChallengedCardsetClosed() {
+    return this._challenged.cardsetSprite?.allCardsIsClosed();
   }
 }

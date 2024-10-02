@@ -23,7 +23,7 @@ class ShouldCloseWindowsWhenPressActionStartPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve fecha as janelas ao realizar ação e definir a proxima etap como MiniGameStep.');
+    this.describe('Deve fecha as janelas ao realizar ação e definir a proxima etap de mini jogo.');
     this.expectTrue('A janela de título foi fechada?', this.step.isTitleWindowClosed());
     this.expectTrue('A janela de descrição foi fechada?', this.step.isDescriptionWindowClosed());
     this.expectTrue('A proxima Etapa é MiniGameStep?', this.isStep(MiniGameStep));

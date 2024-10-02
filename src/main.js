@@ -197,6 +197,19 @@
 // include ../test/components/DisplayStep/LoadPhase/ShouldShowDescriptionWindowTest.js
 // include ../test/components/DisplayStep/LoadPhase/ShouldCloseWindowsWhenPressActionTest.js
 
+// include ../test/components/DrawStep/DrawPhase/ShouldShowPlayerBoardWindowTest.js
+// include ../test/components/DrawStep/DrawPhase/ShouldShowPlayerBattleWindowTest.js
+// include ../test/components/DrawStep/DrawPhase/ShouldShowPlayerScoreWindowTest.js
+// include ../test/components/DrawStep/DrawPhase/ShouldShowPlayerTrashWindowTest.js
+// include ../test/components/DrawStep/DrawPhase/ShouldShowPlayerCardsetTest.js
+// include ../test/components/DrawStep/DrawPhase/ShouldShowChallengedBoardWindowTest.js
+// include ../test/components/DrawStep/DrawPhase/ShouldShowChallengedBattleWindowTest.js
+// include ../test/components/DrawStep/DrawPhase/ShouldShowChallengedScoreWindowTest.js
+// include ../test/components/DrawStep/DrawPhase/ShouldShowChallengedTrashWindowTest.js
+// include ../test/components/DrawStep/DrawPhase/ShouldShowChallengedCardsetTest.js
+// include ../test/components/DrawStep/DrawPhase/ShouldCloseBattlefieldsWhenPressActionTest.js
+// include ../test/components/DrawStep/DrawPhase/ShouldLoadBattlefieldsTest.js
+
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js
 // include ./scene/CardBattleScene.js

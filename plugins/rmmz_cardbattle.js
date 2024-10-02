@@ -8650,7 +8650,7 @@ class ShouldCloseWindowsWhenPressActionChallengePhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve fecha as janelas ao realizar ação e definir a proxima etap como FolderStep.');
+    this.describe('Deve fecha as janelas ao realizar ação e definir a proxima etap de pasta.');
     this.expectTrue('A janela de título foi fechada?', this.step.isTitleWindowClosed());
     this.expectTrue('A janela de descrição foi fechada?', this.step.isDescriptionWindowClosed());
     this.expectTrue('A proxima Etapa é FolderStep?', this.isStep(FolderStep));
@@ -8734,7 +8734,7 @@ class ShouldCloseWindowsWhenPressActionStartPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve fecha as janelas ao realizar ação e definir a proxima etap como MiniGameStep.');
+    this.describe('Deve fecha as janelas ao realizar ação e definir a proxima etap de mini jogo.');
     this.expectTrue('A janela de título foi fechada?', this.step.isTitleWindowClosed());
     this.expectTrue('A janela de descrição foi fechada?', this.step.isDescriptionWindowClosed());
     this.expectTrue('A proxima Etapa é MiniGameStep?', this.isStep(MiniGameStep));
@@ -8818,7 +8818,7 @@ class ShouldCloseWindowsWhenPressActionDrawPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve fecha as janelas ao realizar ação e definir a proxima etap como DrawStep.');
+    this.describe('Deve fecha as janelas ao realizar ação e definir a proxima etap de saque.');
     this.expectTrue('A janela de título foi fechada?', this.step.isTitleWindowClosed());
     this.expectTrue('A janela de descrição foi fechada?', this.step.isDescriptionWindowClosed());
     this.expectTrue('A proxima Etapa é DrawStep?', this.isStep(DrawStep));
@@ -8902,10 +8902,379 @@ class ShouldCloseWindowsWhenPressActionLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve fecha as janelas ao realizar ação e definir a proxima etap como TurnStep.');
+    this.describe('Deve fecha as janelas ao realizar ação e definir a proxima etap de turno.');
     this.expectTrue('A janela de título foi fechada?', this.step.isTitleWindowClosed());
     this.expectTrue('A janela de descrição foi fechada?', this.step.isDescriptionWindowClosed());
     this.expectTrue('A proxima Etapa é TurnStep?', this.isStep(TurnStep));
+  }
+}
+
+class ShouldShowPlayerBoardWindowDrawPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DrawStep(this._scene, GameConst.DRAW_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    this._scene.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', finish);
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de tabuleiro do jogador.');
+    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
+  }
+}
+class ShouldShowPlayerBattleWindowDrawPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DrawStep(this._scene, GameConst.DRAW_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    this._scene.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', finish);
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de batalha do jogador.');
+    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
+  }
+}
+class ShouldShowPlayerScoreWindowDrawPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DrawStep(this._scene, GameConst.DRAW_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    this._scene.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', finish);
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de pontuação do jogador.');
+    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
+  }
+}
+class ShouldShowPlayerTrashWindowDrawPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DrawStep(this._scene, GameConst.DRAW_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    this._scene.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', finish);
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de lixo do jogador.');
+    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
+  }
+}
+class ShouldShowPlayerCardsetDrawPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DrawStep(this._scene, GameConst.DRAW_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    this._scene.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', finish);
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar conjunto de cartões do jogador.');
+    this.expectWasTrue('O conjunto de cartões do jogador foi apresentado?', this.step.isPlayerCardsetSpriteVisible);
+  }
+}
+class ShouldShowChallengedBoardWindowDrawPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DrawStep(this._scene, GameConst.DRAW_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    this._scene.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', finish);
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de tabuleiro do desafiado.');
+    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
+  }
+}
+class ShouldShowChallengedBattleWindowDrawPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DrawStep(this._scene, GameConst.DRAW_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    this._scene.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', finish);
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de batalha do desafiado.');
+    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
+  }
+}
+class ShouldShowChallengedScoreWindowDrawPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DrawStep(this._scene, GameConst.DRAW_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    this._scene.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', finish);
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de pontuação do desafiado.');
+    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
+  }
+}
+class ShouldShowChallengedTrashWindowDrawPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DrawStep(this._scene, GameConst.DRAW_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    this._scene.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', finish);
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de lixo do desafiado.');
+    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
+  }
+}
+class ShouldShowChallengedCardsetDrawPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DrawStep(this._scene, GameConst.DRAW_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    this._scene.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', finish);
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar conjunto de cartões do desafiado.');
+    this.expectWasTrue('O conjunto de cartões do desafiado foi apresentado?', this.step.isChallengedCardsetSpriteVisible);
+  }
+}
+class ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DrawStep(this._scene, GameConst.DRAW_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    this._scene.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', () => true);
+    const commandFinish = this.step.commandFinish;
+    this.spyFunction(this.step, 'commandFinish', () => {
+      finish();
+    });
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve fecha os campos de batalha ao realizar ação e definir a proxima etap de apresentação na fase de carregamento.');
+    this.expectTrue('A janela de tabuleiro do jogador foi fechada?', this.step.isPlayerBoardWindowClosed());
+    this.expectTrue('A janela de batalha do jogador foi fechada?', this.step.isPlayerBattleWindowClosed());
+    this.expectTrue('A janela de pontuação do jogador foi fechada?', this.step.isPlayerScoreWindowClosed());
+    this.expectTrue('A janela de lixo do jogador foi fechada?', this.step.isPlayerTrashWindowClosed());
+    this.expectTrue('O conjunto de cartões do jogador foi retirado?', this.step.isPlayerCardsetClosed());
+    this.expectTrue('A janela de tabuleiro do desafiado foi fechada?', this.step.isChallengedBoardWindowClosed());
+    this.expectTrue('A janela de batalha do desafiado foi fechada?', this.step.isChallengedBattleWindowClosed());
+    this.expectTrue('A janela de pontuação do desafiado foi fechada?', this.step.isChallengedScoreWindowClosed());
+    this.expectTrue('A janela de lixo do desafiado foi fechada?', this.step.isChallengedTrashWindowClosed());
+    this.expectTrue('O conjunto de cartões do desafiado foi retirado?', this.step.isChallengedCardsetClosed());
+    this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
+    this.expectTrue('A proxima Fase é LOAD_PHASE?', this.step.getPhase() === GameConst.LOAD_PHASE);
+  }
+}
+class ShouldLoadBattlefieldsDrawPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new DrawStep(this._scene, GameConst.DRAW_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    this._scene.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.mockFunction(Input, 'isTriggered', () => true);
+    const commandFinish = this.step.commandFinish;
+    this.spyFunction(this.step, 'commandFinish', () => {
+      finish();
+    });
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve realizar carregamento de energias nas janelas de tabuleiros na fase de saque.');
+    const playerConfig = { player: GameConst.PLAYER };
+    const playerCardsInHand = CardBattleManager.getCards(playerConfig);
+    const playerEnergies = this.reduceEnergies(playerCardsInHand);
+    const playerBoardWindowValues = this.step.getPlayerBoardWindowValues();
+    const isPlayerEnergyLoaded = this.compareEnergies(playerEnergies, playerBoardWindowValues);
+    this.expectTrue('As energias do tabuleiro do jogador foram carregadas?', isPlayerEnergyLoaded === true);
+    const challengedConfig = { player: GameConst.CHALLENGED };
+    const challengedCardsInHand = CardBattleManager.getCards(challengedConfig);
+    const challengedEnergies = this.reduceEnergies(challengedCardsInHand);
+    const challengedBoardWindowValues = this.step.getChallengedBoardWindowValues();
+    const isChallengedEnergyLoaded = this.compareEnergies(challengedEnergies, challengedBoardWindowValues);
+    this.expectTrue('As energias do tabuleiro do desafiado foram carregadas?', isChallengedEnergyLoaded === true);
+  }
+
+  reduceEnergies(cards) {
+    return cards.reduce((acc, card) => {
+      acc[card.color] = acc[card.color] + 1 || 1;
+      return acc;
+    }, {});
+  }
+
+  compareEnergies(energies, values) {
+    return Object.keys(energies).every((color, index) => {
+      if (color === GameConst.BROWN) return true;
+      return values[color] === energies[color];
+    });
   }
 }
 
@@ -9315,11 +9684,11 @@ class Step {
     this._phase = phase;
   }
 
-  start(manager) {
+  start() {
     throw new Error('Method start must be implemented');
   }
 
-  update(manager) {
+  update() {
     if (this._wait > 0) return this._wait--;
     if (this.hasActions() && this.isAvailable()) this.executeAction();
   }
@@ -9463,13 +9832,13 @@ class Step {
     this._phase = phase;
   }
 
-  createPlayerGameBoard(manager) {
-    const energies = Object.values(manager.getPlayerEnergies());
-    const cardsInDeck = manager.getPlayerDeckLength();
-    const cardsInHand = manager.getPlayerHandLength();
-    const cardsInTrash = manager.getPlayerTrashLength();
-    const victories = manager.getPlayerVictories();
-    const passed = manager.isPlayerPassed();
+  createPlayerGameBoard() {
+    const energies = Object.values(CardBattleManager.getPlayerEnergies());
+    const cardsInDeck = CardBattleManager.getPlayerDeckLength();
+    const cardsInHand = CardBattleManager.getPlayerHandLength();
+    const cardsInTrash = CardBattleManager.getPlayerTrashLength();
+    const victories = CardBattleManager.getPlayerVictories();
+    const passed = CardBattleManager.isPlayerPassed();
     const boardWindow = this.createPlayerBoardWindow(energies, cardsInDeck, cardsInHand, passed);
     const boardWindowHeight = boardWindow.height;
     const battleWindow = this.createPlayerBattleWindow(boardWindowHeight);
@@ -9562,13 +9931,13 @@ class Step {
     this.commandAddChild(cardsetSprite);
   }
 
-  createChallengedGameBoard(manager) {
-    const energies = Object.values(manager.getChallengedEnergies());
-    const cardsInDeck = manager.getChallengedDeckLength();
-    const cardsInHand = manager.getChallengedHandLength();
-    const cardsInTrash = manager.getChallengedTrashLength();
-    const victories = manager.getChallengedVictories();
-    const passed = manager.isChallengedPassed();
+  createChallengedGameBoard() {
+    const energies = Object.values(CardBattleManager.getChallengedEnergies());
+    const cardsInDeck = CardBattleManager.getChallengedDeckLength();
+    const cardsInHand = CardBattleManager.getChallengedHandLength();
+    const cardsInTrash = CardBattleManager.getChallengedTrashLength();
+    const victories = CardBattleManager.getChallengedVictories();
+    const passed = CardBattleManager.isChallengedPassed();
     const boardWindow = this.createChallengedBoardWindow(energies, cardsInDeck, cardsInHand, passed);
     const boardWindowHeight = boardWindow.height;
     const battleWindow = this.createChallengedBattleWindow(boardWindowHeight);
@@ -10005,6 +10374,46 @@ class Step {
 
   getPowerfieldCardsetSprite() {
     return this._powerFieldCardsetSprite;
+  }
+
+  isPlayerBoardWindowClosed() {
+    return this._player.boardWindow?.isClosed();
+  }
+
+  isPlayerBattleWindowClosed() {
+    return this._player.battleWindow?.isClosed();
+  }
+
+  isPlayerTrashWindowClosed() {
+    return this._player.trashWindow?.isClosed();
+  }
+
+  isPlayerScoreWindowClosed() {
+    return this._player.scoreWindow?.isClosed();
+  }
+
+  isPlayerCardsetClosed() {
+    return this._player.cardsetSprite?.allCardsIsClosed();
+  }
+
+  isChallengedBoardWindowClosed() {
+    return this._challenged.boardWindow?.isClosed();
+  }
+
+  isChallengedBattleWindowClosed() {
+    return this._challenged.battleWindow?.isClosed();
+  }
+
+  isChallengedTrashWindowClosed() {
+    return this._challenged.trashWindow?.isClosed();
+  }
+
+  isChallengedScoreWindowClosed() {
+    return this._challenged.scoreWindow?.isClosed();
+  }
+
+  isChallengedCardsetClosed() {
+    return this._challenged.cardsetSprite?.allCardsIsClosed();
   }
 }
 class DisplayStep extends Step {
@@ -10619,31 +11028,31 @@ class DrawStep extends Step {
     super(scene, phase, finish);
   }
 
-  start(manager) {
-    this.createPlayerGameBoard(manager);
-    this.createChallengedGameBoard(manager);
+  start() {
+    this.createPlayerGameBoard();
+    this.createChallengedGameBoard();
     this.openGameBoards();
-    this.drawPlayersCardsAndMove(manager);
-    this.loadPlayersGameBoards(manager);
+    this.drawPlayersCardsAndMove();
+    this.loadPlayersGameBoards();
   }
 
-  drawPlayersCardsAndMove(manager) {
-    const playerCardsDrawed = this.drawPlayerCards(manager);
-    const challengedCardsDrawed = this.drawChallengedCards(manager);
+  drawPlayersCardsAndMove() {
+    const playerCardsDrawed = this.drawPlayerCards();
+    const challengedCardsDrawed = this.drawChallengedCards();
     this.moveCardsToField(playerCardsDrawed, challengedCardsDrawed);
   }
 
-  drawPlayerCards(manager) {
+  drawPlayerCards() {
     const drawNumber = 6;
-    const totalInDeck = manager.getPlayerDeckLength();
-    const cardsDrawed = manager.drawPlayerCards(drawNumber);
+    const totalInDeck = CardBattleManager.getPlayerDeckLength();
+    const cardsDrawed = CardBattleManager.drawPlayerCards(drawNumber);
     return { cardsDrawed, totalInDeck };
   }
 
-  drawChallengedCards(manager) {
+  drawChallengedCards() {
     const drawNumber = 6;
-    const totalInDeck = manager.getChallengedDeckLength();
-    const cardsDrawed = manager.drawChallengedCards(drawNumber);
+    const totalInDeck = CardBattleManager.getChallengedDeckLength();
+    const cardsDrawed = CardBattleManager.drawChallengedCards(drawNumber);
     return { cardsDrawed, totalInDeck };
   }
 
@@ -10706,29 +11115,29 @@ class DrawStep extends Step {
     this.commandMoveCardsInlistChallengedCardsetSprite(sprites, delay, fieldUpdates);
   }
 
-  loadPlayersGameBoards(manager) {
-    const playerUpdates = this.loadPlayerGameBoard(manager);
-    const challengedUpdates = this.loadChallengedGameBoard(manager);
+  loadPlayersGameBoards() {
+    const playerUpdates = this.loadPlayerGameBoard();
+    const challengedUpdates = this.loadChallengedGameBoard();
     this.updateGameBoards(playerUpdates, challengedUpdates);
   }
 
-  loadPlayerGameBoard(manager) {
-    const config = { player: GameConst.PLAYER };
-    const cardsInHand = manager.getCards(config);
-    const energiesClone = Object.assign({}, manager.getPlayerEnergies());
+  loadPlayerGameBoard() {
+    const config = { player: GameConst.PLAYER, location: GameConst.HAND };
+    const cardsInHand = CardBattleManager.getCards(config);
+    const energiesClone = Object.assign({}, CardBattleManager.getPlayerEnergies());
     const updates = this.createFieldUpdates(cardsInHand, energiesClone);
     const { fieldUpdates, energies } = updates;
-    manager.setPlayerEnergies(energies);
+    CardBattleManager.setPlayerEnergies(energies);
     return fieldUpdates;
   }
 
-  loadChallengedGameBoard(manager) {
-    const config = { player: GameConst.CHALLENGED };
-    const cardsInHand = manager.getCards(config);
-    const energiesClone = Object.assign({}, manager.getChallengedEnergies());
+  loadChallengedGameBoard() {
+    const config = { player: GameConst.CHALLENGED, location: GameConst.HAND };
+    const cardsInHand = CardBattleManager.getCards(config);
+    const energiesClone = Object.assign({}, CardBattleManager.getChallengedEnergies());
     const updates = this.createFieldUpdates(cardsInHand, energiesClone);
     const { fieldUpdates, energies } = updates;
-    manager.setChallengedEnergies(energies);
+    CardBattleManager.setChallengedEnergies(energies);
     return fieldUpdates;
   }
 
@@ -10794,7 +11203,7 @@ class DrawStep extends Step {
     }
   }
 
-  update(manager) {
+  update() {
     super.update();
     if (this.isBusy() || this.hasActions()) return false;
     if (Input.isTriggered('ok')) {
@@ -10814,7 +11223,6 @@ class DrawStep extends Step {
       default:
         break;
     }
-    this.end();
   }
 }
 class RunPowerfieldStep extends Step {
@@ -12024,15 +12432,27 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldShowTitleWindowChallengePhaseTest,
       // ShouldShowDescriptionWindowChallengePhaseTest,
       // ShouldCloseWindowsWhenPressActionChallengePhaseTest,
-      ShouldShowTitleWindowStartPhaseTest,
-      ShouldShowDescriptionWindowStartPhaseTest,
-      ShouldCloseWindowsWhenPressActionStartPhaseTest,
+      // ShouldShowTitleWindowStartPhaseTest,
+      // ShouldShowDescriptionWindowStartPhaseTest,
+      // ShouldCloseWindowsWhenPressActionStartPhaseTest,
       // ShouldShowTitleWindowDrawPhaseTest,
       // ShouldShowDescriptionWindowDrawPhaseTest,
       // ShouldCloseWindowsWhenPressActionDrawPhaseTest,
       // ShouldShowTitleWindowLoadPhaseTest,
       // ShouldShowDescriptionWindowLoadPhaseTest,
       // ShouldCloseWindowsWhenPressActionLoadPhaseTest,
+      // ShouldShowPlayerBoardWindowDrawPhaseTest,
+      // ShouldShowPlayerBattleWindowDrawPhaseTest,
+      // ShouldShowPlayerTrashWindowDrawPhaseTest,
+      // ShouldShowPlayerScoreWindowDrawPhaseTest,
+      // ShouldShowPlayerCardsetDrawPhaseTest,
+      // ShouldShowChallengedBoardWindowDrawPhaseTest,
+      // ShouldShowChallengedBattleWindowDrawPhaseTest,
+      // ShouldShowChallengedTrashWindowDrawPhaseTest,
+      // ShouldShowChallengedScoreWindowDrawPhaseTest,
+      // ShouldShowChallengedCardsetDrawPhaseTest,
+      // ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
+      ShouldLoadBattlefieldsDrawPhaseTest,
     ];
     return [
       // ...cardSpriteTests,
