@@ -222,7 +222,7 @@ class CommandWindow extends Window_Command {
   }
 
   hasActions() {
-    return this._actionQueue.length > 0;
+    return this._actionQueue?.length > 0;
   }
 
   isAvailable() {

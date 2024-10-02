@@ -1,10 +1,10 @@
 class DrawStep extends Step {
-  constructor(scene, phase, finish) {
+  constructor(scene, phase) {
     const phasesEnabled = [GameConst.DRAW_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for DrawStep.');
     }
-    super(scene, phase, finish);
+    super(scene, phase);
   }
 
   start() {

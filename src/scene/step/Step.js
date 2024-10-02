@@ -18,7 +18,6 @@ class Step {
     cardsetSprite: undefined,
   };
   _powerFieldCardsetSprite = undefined;
-  _finish = () => {};
 
   constructor(scene, phase) {
     const phasesEnabled = [

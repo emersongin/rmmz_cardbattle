@@ -3,12 +3,12 @@ class FolderStep extends Step {
   _foldersWindow = undefined;
   _selectHandler = undefined;
 
-  constructor(scene, phase, folders, selectHandler, finish) {
+  constructor(scene, phase, folders, selectHandler) {
     const phasesEnabled = [GameConst.CHALLENGE_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for FolderStep.');
     }
-    super(scene, phase, finish);
+    super(scene, phase);
     if (typeof selectHandler !== 'function') {
       throw new Error('Invalid selectHandler for FolderStep.');
     }
@@ -91,14 +91,14 @@ class FolderStep extends Step {
       default:
         break;
     }
-    this.end();
   }
 
   isBusy() {
     const children = [
       this._foldersWindow
     ];
-    return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
+    return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false) ||
+      (obj?.hasActions ? obj.hasActions() : false));
   }
 
   isFoldersWindowVisible() {
@@ -112,5 +112,9 @@ class FolderStep extends Step {
   selectFolderWindowOption(index, foldersWindow = this._foldersWindow) {
     foldersWindow.select(index);
     foldersWindow.callOkHandler();
+  }
+
+  isFolderWindowClosed() {
+    return this._foldersWindow?.isClosed();
   }
 }

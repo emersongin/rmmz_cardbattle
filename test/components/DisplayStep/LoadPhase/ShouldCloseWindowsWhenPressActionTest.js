@@ -12,7 +12,6 @@ class ShouldCloseWindowsWhenPressActionLoadPhaseTest extends SceneTest {
     this.step.start();
     const finish = this.getHandler();
     this.mockFunction(Input, 'isTriggered', () => true);
-    const commandFinish = this.step.commandFinish;
     this.spyFunction(this.step, 'commandFinish', () => {
       finish();
     });

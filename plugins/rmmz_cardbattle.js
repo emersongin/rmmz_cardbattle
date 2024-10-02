@@ -1105,7 +1105,7 @@ class CommandWindow extends Window_Command {
   }
 
   hasActions() {
-    return this._actionQueue.length > 0;
+    return this._actionQueue?.length > 0;
   }
 
   isAvailable() {
@@ -8639,7 +8639,6 @@ class ShouldCloseWindowsWhenPressActionChallengePhaseTest extends SceneTest {
     this.step.start();
     const finish = this.getHandler();
     this.mockFunction(Input, 'isTriggered', () => true);
-    const commandFinish = this.step.commandFinish;
     this.spyFunction(this.step, 'commandFinish', () => {
       finish();
     });
@@ -8723,7 +8722,6 @@ class ShouldCloseWindowsWhenPressActionStartPhaseTest extends SceneTest {
     this.step.start();
     const finish = this.getHandler();
     this.mockFunction(Input, 'isTriggered', () => true);
-    const commandFinish = this.step.commandFinish;
     this.spyFunction(this.step, 'commandFinish', () => {
       finish();
     });
@@ -8807,7 +8805,6 @@ class ShouldCloseWindowsWhenPressActionDrawPhaseTest extends SceneTest {
     this.step.start();
     const finish = this.getHandler();
     this.mockFunction(Input, 'isTriggered', () => true);
-    const commandFinish = this.step.commandFinish;
     this.spyFunction(this.step, 'commandFinish', () => {
       finish();
     });
@@ -8891,7 +8888,6 @@ class ShouldCloseWindowsWhenPressActionLoadPhaseTest extends SceneTest {
     this.step.start();
     const finish = this.getHandler();
     this.mockFunction(Input, 'isTriggered', () => true);
-    const commandFinish = this.step.commandFinish;
     this.spyFunction(this.step, 'commandFinish', () => {
       finish();
     });
@@ -8908,7 +8904,6 @@ class ShouldCloseWindowsWhenPressActionLoadPhaseTest extends SceneTest {
     this.expectTrue('A proxima Etapa é TurnStep?', this.isStep(TurnStep));
   }
 }
-
 class ShouldShowPlayerBoardWindowDrawPhaseTest extends SceneTest {
   step;
 
@@ -9195,7 +9190,6 @@ class ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest extends SceneTest {
     this.step.start();
     const finish = this.getHandler();
     this.mockFunction(Input, 'isTriggered', () => true);
-    const commandFinish = this.step.commandFinish;
     this.spyFunction(this.step, 'commandFinish', () => {
       finish();
     });
@@ -9237,7 +9231,6 @@ class ShouldLoadBattlefieldsDrawPhaseTest extends SceneTest {
     this.step.start();
     const finish = this.getHandler();
     this.mockFunction(Input, 'isTriggered', () => true);
-    const commandFinish = this.step.commandFinish;
     this.spyFunction(this.step, 'commandFinish', () => {
       finish();
     });
@@ -9275,6 +9268,73 @@ class ShouldLoadBattlefieldsDrawPhaseTest extends SceneTest {
       if (color === GameConst.BROWN) return true;
       return values[color] === energies[color];
     });
+  }
+}
+class ShouldShowPlayerFolderWindowTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const playerFolders = CardBattleManager.getPlayerFolders();
+    const selectDummy = () => {};
+    this.step = new FolderStep(this._scene, GameConst.CHALLENGE_PHASE, playerFolders, selectDummy);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this._scene.setStep(this.step);
+    this.step.start();
+    const finish = this.getHandler();
+    this.step.addAction(finish);
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de escolha de pasta e sua descrição.');
+    this.expectWasTrue('A janela de pastas foi apresentada?', this.step.isFoldersWindowVisible);
+    this.expectTrue('A descrição da janela de pastas foi apresentado como?', this.step.isTextFoldersWindow('Choose a folder'));
+  }
+}
+class ShouldCloseFolderWindowWhenSelectedFolderTest extends SceneTest {
+  step;
+  folderIndex;
+
+  create() {
+    this.createHandler();
+    const playerFolders = CardBattleManager.getPlayerFolders();
+    const selectMock = (folderIndex) => {
+      this.folderIndex = folderIndex;
+    };
+    this.step = new FolderStep(this._scene, GameConst.CHALLENGE_PHASE, playerFolders, selectMock);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this._scene.setStep(this.step);
+    this.step.start();
+    this.step.addAction(() => {
+      const index = 0;
+      this.step.selectFolderWindowOption(index);
+    });
+    const finish = this.getHandler();
+    this.spyFunction(this.step, 'commandFinish', () => {
+      finish();
+    });
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve escola uma pasta e mudar para próxima etapa de apresentação da fase de início.');
+    this.expectTrue('A janela de pastas do jogador foi fechada?', this.step.isFolderWindowClosed());
+    this.expectTrue('A pasta foi escolhida?', this.folderIndex !== undefined);
+    this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
+    this.expectTrue('A proxima Fase é START_PHASE?', this.step.getPhase() === GameConst.START_PHASE);
   }
 }
 
@@ -9661,7 +9721,6 @@ class Step {
     cardsetSprite: undefined,
   };
   _powerFieldCardsetSprite = undefined;
-  _finish = () => {};
 
   constructor(scene, phase) {
     const phasesEnabled = [
@@ -10653,12 +10712,12 @@ class FolderStep extends Step {
   _foldersWindow = undefined;
   _selectHandler = undefined;
 
-  constructor(scene, phase, folders, selectHandler, finish) {
+  constructor(scene, phase, folders, selectHandler) {
     const phasesEnabled = [GameConst.CHALLENGE_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for FolderStep.');
     }
-    super(scene, phase, finish);
+    super(scene, phase);
     if (typeof selectHandler !== 'function') {
       throw new Error('Invalid selectHandler for FolderStep.');
     }
@@ -10741,14 +10800,14 @@ class FolderStep extends Step {
       default:
         break;
     }
-    this.end();
   }
 
   isBusy() {
     const children = [
       this._foldersWindow
     ];
-    return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
+    return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false) ||
+      (obj?.hasActions ? obj.hasActions() : false));
   }
 
   isFoldersWindowVisible() {
@@ -10762,6 +10821,10 @@ class FolderStep extends Step {
   selectFolderWindowOption(index, foldersWindow = this._foldersWindow) {
     foldersWindow.select(index);
     foldersWindow.callOkHandler();
+  }
+
+  isFolderWindowClosed() {
+    return this._foldersWindow?.isClosed();
   }
 }
 class MiniGameStep extends Step {
@@ -11020,12 +11083,12 @@ class MiniGameStep extends Step {
   }
 }
 class DrawStep extends Step {
-  constructor(scene, phase, finish) {
+  constructor(scene, phase) {
     const phasesEnabled = [GameConst.DRAW_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for DrawStep.');
     }
-    super(scene, phase, finish);
+    super(scene, phase);
   }
 
   start() {
@@ -12429,6 +12492,7 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const steps = [
+      // DisplayStep
       // ShouldShowTitleWindowChallengePhaseTest,
       // ShouldShowDescriptionWindowChallengePhaseTest,
       // ShouldCloseWindowsWhenPressActionChallengePhaseTest,
@@ -12441,6 +12505,8 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldShowTitleWindowLoadPhaseTest,
       // ShouldShowDescriptionWindowLoadPhaseTest,
       // ShouldCloseWindowsWhenPressActionLoadPhaseTest,
+
+      // DrawStep
       // ShouldShowPlayerBoardWindowDrawPhaseTest,
       // ShouldShowPlayerBattleWindowDrawPhaseTest,
       // ShouldShowPlayerTrashWindowDrawPhaseTest,
@@ -12452,7 +12518,11 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldShowChallengedScoreWindowDrawPhaseTest,
       // ShouldShowChallengedCardsetDrawPhaseTest,
       // ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
-      ShouldLoadBattlefieldsDrawPhaseTest,
+      // ShouldLoadBattlefieldsDrawPhaseTest,
+
+      // FolderStep
+      // ShouldShowPlayerFolderWindowTest,
+      ShouldCloseFolderWindowWhenSelectedFolderTest,
     ];
     return [
       // ...cardSpriteTests,

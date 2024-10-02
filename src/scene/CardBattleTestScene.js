@@ -200,6 +200,7 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const steps = [
+      // DisplayStep
       // ShouldShowTitleWindowChallengePhaseTest,
       // ShouldShowDescriptionWindowChallengePhaseTest,
       // ShouldCloseWindowsWhenPressActionChallengePhaseTest,
@@ -212,6 +213,8 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldShowTitleWindowLoadPhaseTest,
       // ShouldShowDescriptionWindowLoadPhaseTest,
       // ShouldCloseWindowsWhenPressActionLoadPhaseTest,
+
+      // DrawStep
       // ShouldShowPlayerBoardWindowDrawPhaseTest,
       // ShouldShowPlayerBattleWindowDrawPhaseTest,
       // ShouldShowPlayerTrashWindowDrawPhaseTest,
@@ -223,7 +226,11 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldShowChallengedScoreWindowDrawPhaseTest,
       // ShouldShowChallengedCardsetDrawPhaseTest,
       // ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
-      ShouldLoadBattlefieldsDrawPhaseTest,
+      // ShouldLoadBattlefieldsDrawPhaseTest,
+
+      // FolderStep
+      // ShouldShowPlayerFolderWindowTest,
+      ShouldCloseFolderWindowWhenSelectedFolderTest,
     ];
     return [
       // ...cardSpriteTests,
