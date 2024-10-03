@@ -230,7 +230,12 @@ class CardBattleTestScene extends Scene_Message {
 
       // FolderStep
       // ShouldShowPlayerFolderWindowTest,
-      ShouldCloseFolderWindowWhenSelectedFolderTest,
+      // ShouldCloseFolderWindowWhenSelectedFolderTest,
+      // MiniGameStep
+      // ShouldShowMiniGameCardsetTest,
+      // ShouldShufflerCardsTest,
+      // ShouldShowGameResultWindowCardsTest,
+      // ShouldCloseMiniGameOnSelectedCardTest,
     ];
     return [
       // ...cardSpriteTests,

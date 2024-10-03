@@ -8,13 +8,13 @@ class ShouldCloseWindowsWhenPressActionChallengePhaseTest extends SceneTest {
   }
 
   start() {
-    this.setStep(this.step);
-    this.step.start();
     const finish = this.getHandler();
     this.mockFunction(Input, 'isTriggered', () => true);
     this.spyFunction(this.step, 'commandFinish', () => {
       finish();
     });
+    this.setStep(this.step);
+    this.step.start();
   }
 
   update() {

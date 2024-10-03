@@ -288,7 +288,7 @@ class ArrayHelper {
   }
 
   static toArray(array = []) {
-    return (Array.isArray(array) === false) ? [array] : array;
+    return Array.isArray(array) ? array : [array];
   }
 }
 
@@ -5409,7 +5409,7 @@ class SceneTest {
     const originalFn = obj[fnName].bind(obj);
     obj[fnName] = () => {
       if (includeOriginal) originalFn(...params);
-      return fn()
+      return fn();
     };
     this._functionsMocked.push({ obj, fnName, originalFn });
   }
@@ -8579,10 +8579,10 @@ class ShouldShowTitleWindowChallengePhaseTest extends SceneTest {
   }
 
   start() {
-    this.setStep(this.step);
-    this.step.start();
     const finish = this.getHandler();
     this.mockFunction(Input, 'isTriggered', finish);
+    this.setStep(this.step);
+    this.step.start();
   }
 
   update() {
@@ -8605,10 +8605,10 @@ class ShouldShowDescriptionWindowChallengePhaseTest extends SceneTest {
   }
 
   start() {
-    this.setStep(this.step);
-    this.step.start();
     const finish = this.getHandler();
     this.mockFunction(Input, 'isTriggered', finish);
+    this.setStep(this.step);
+    this.step.start();
   }
 
   update() {
@@ -8635,13 +8635,13 @@ class ShouldCloseWindowsWhenPressActionChallengePhaseTest extends SceneTest {
   }
 
   start() {
-    this.setStep(this.step);
-    this.step.start();
     const finish = this.getHandler();
     this.mockFunction(Input, 'isTriggered', () => true);
     this.spyFunction(this.step, 'commandFinish', () => {
       finish();
     });
+    this.setStep(this.step);
+    this.step.start();
   }
 
   update() {
@@ -9329,11 +9329,140 @@ class ShouldCloseFolderWindowWhenSelectedFolderTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve escola uma pasta e mudar para próxima etapa de apresentação da fase de início.');
+    this.describe('Deve escolher uma pasta e mudar para próxima etapa de apresentação da fase de início.');
     this.expectTrue('A janela de pastas do jogador foi fechada?', this.step.isFolderWindowClosed());
     this.expectTrue('A pasta foi escolhida?', CardBattleManager.folderIndex !== -1);
     this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
     this.expectTrue('A proxima Fase é START_PHASE?', this.step.getPhase() === GameConst.START_PHASE);
+  }
+}
+class ShouldShowMiniGameCardsetTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const gameResult = (win) => {
+      if (win) CardBattleManager.playerStart();
+    };
+    this.step = new MiniGameStep(this._scene, GameConst.START_PHASE, gameResult);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this._scene.setStep(this.step);
+    this.step.start();
+    this.mockFunction(Input, 'isTriggered', () => true);
+    const finish = this.getHandler();
+    this.spyFunction(this.step, 'commandFinish', () => {
+      finish();
+    });
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar conjunto de cartões da etapa de mini game na fase de início.');
+    this.expectWasTrue('O conjunto de cartões foi apresentado?', this.step.isCardsetVisible);
+    this.expectWasTrue('O conjunto de cartões estava em modo de seleção?', this.step.isCardsetOnSelectMode);
+  }
+}
+class ShouldShufflerCardsTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const gameResult = (win) => {
+      if (win) CardBattleManager.playerStart();
+    };
+    this.step = new MiniGameStep(this._scene, GameConst.START_PHASE, gameResult);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.mockFunction(Input, 'isTriggered', () => true);
+    const finish = this.getHandler();
+    this.mockFunction(this.step, 'startMiniGame', () => {
+      finish();
+    });
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar conjunto de cartões da etapa de mini game na fase de início.');
+    this.expectWasTrue('O conjunto de cartões foi embaralhado?', this.step.isCardsetShuffled);
+  }
+}
+class ShouldShowGameResultWindowCardsTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const gameResult = (win) => {
+      if (win) CardBattleManager.playerStart();
+    };
+    this.step = new MiniGameStep(this._scene, GameConst.START_PHASE, gameResult);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this._scene.setStep(this.step);
+    this.step.start();
+    this.mockFunction(Input, 'isTriggered', () => true);
+    const finish = this.getHandler();
+    this.spyFunction(this.step, 'commandFinish', () => {
+      finish();
+    });
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de resultado de jogo na etapa de mini game na fase de início.');
+    this.expectWasTrue('A janela de resultado de jogo foi apresentada?', this.step.isResultWindowVisible);
+    const resultText = CardBattleManager.isPlayerStartTurn() ? 'You go first!' : 'You go next!';
+    this.expectTrue('O texto da janela estava como?', this.step.isTextResultWindow(resultText));
+  }
+}
+class ShouldCloseMiniGameOnSelectedCardTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const gameResult = (win) => {
+      if (win) CardBattleManager.playerStart();
+    };
+    this.step = new MiniGameStep(this._scene, GameConst.START_PHASE, gameResult);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this._scene.setStep(this.step);
+    this.step.start();
+    this.mockFunction(Input, 'isTriggered', () => true);
+    const finish = this.getHandler();
+    this.spyFunction(this.step, 'commandFinish', () => {
+      finish();
+    });
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve escolher um cartão e mudar para próxima etapa de apresentação da fase de saque.');
+    this.expectTrue('Tem um resultado?', typeof CardBattleManager.isPlayerStartTurn() === 'boolean');
+    this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
+    this.expectTrue('A proxima Fase é DRAW_PHASE?', this.step.getPhase() === GameConst.DRAW_PHASE);
   }
 }
 
@@ -10833,19 +10962,19 @@ class MiniGameStep extends Step {
   _selectHandler = undefined;
   _miniGame = false;
 
-  constructor(scene, phase, selectHandler, finish) {
+  constructor(scene, phase, selectHandler) {
     const phasesEnabled = [GameConst.START_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for MiniGameStep.');
     }
-    super(scene, phase, finish);
+    super(scene, phase);
     if (typeof selectHandler !== 'function') {
       throw new Error('Invalid selectHandler for MiniGameStep.');
     }
     this._selectHandler = selectHandler;
   }
 
-  start(manager) {
+  start() {
     this.createCardsetSprite();
     this.startMiniGame();
   }
@@ -10991,7 +11120,7 @@ class MiniGameStep extends Step {
     this._resultWindow.open();
   }
 
-  update(manager) {
+  update() {
     super.update();
     if (this.isBusy() || this.hasActions()) return false;
     if (this.isEndGame() && Input.isTriggered('ok')) {
@@ -11041,7 +11170,6 @@ class MiniGameStep extends Step {
       default:
         break;
     }
-    this.end();
   }
 
   isBusy() {
@@ -12521,7 +12649,12 @@ class CardBattleTestScene extends Scene_Message {
 
       // FolderStep
       // ShouldShowPlayerFolderWindowTest,
-      ShouldCloseFolderWindowWhenSelectedFolderTest,
+      // ShouldCloseFolderWindowWhenSelectedFolderTest,
+      // MiniGameStep
+      ShouldShowMiniGameCardsetTest,
+      ShouldShufflerCardsTest,
+      ShouldShowGameResultWindowCardsTest,
+      ShouldCloseMiniGameOnSelectedCardTest,
     ];
     return [
       // ...cardSpriteTests,

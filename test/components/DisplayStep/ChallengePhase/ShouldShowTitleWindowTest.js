@@ -8,10 +8,10 @@ class ShouldShowTitleWindowChallengePhaseTest extends SceneTest {
   }
 
   start() {
-    this.setStep(this.step);
-    this.step.start();
     const finish = this.getHandler();
     this.mockFunction(Input, 'isTriggered', finish);
+    this.setStep(this.step);
+    this.step.start();
   }
 
   update() {

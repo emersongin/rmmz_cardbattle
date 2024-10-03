@@ -5,19 +5,19 @@ class MiniGameStep extends Step {
   _selectHandler = undefined;
   _miniGame = false;
 
-  constructor(scene, phase, selectHandler, finish) {
+  constructor(scene, phase, selectHandler) {
     const phasesEnabled = [GameConst.START_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for MiniGameStep.');
     }
-    super(scene, phase, finish);
+    super(scene, phase);
     if (typeof selectHandler !== 'function') {
       throw new Error('Invalid selectHandler for MiniGameStep.');
     }
     this._selectHandler = selectHandler;
   }
 
-  start(manager) {
+  start() {
     this.createCardsetSprite();
     this.startMiniGame();
   }
@@ -163,7 +163,7 @@ class MiniGameStep extends Step {
     this._resultWindow.open();
   }
 
-  update(manager) {
+  update() {
     super.update();
     if (this.isBusy() || this.hasActions()) return false;
     if (this.isEndGame() && Input.isTriggered('ok')) {
@@ -213,7 +213,6 @@ class MiniGameStep extends Step {
       default:
         break;
     }
-    this.end();
   }
 
   isBusy() {

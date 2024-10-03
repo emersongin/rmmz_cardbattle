@@ -44,7 +44,7 @@ class SceneTest {
     const originalFn = obj[fnName].bind(obj);
     obj[fnName] = () => {
       if (includeOriginal) originalFn(...params);
-      return fn()
+      return fn();
     };
     this._functionsMocked.push({ obj, fnName, originalFn });
   }

@@ -117,7 +117,7 @@ class ArrayHelper {
   }
 
   static toArray(array = []) {
-    return (Array.isArray(array) === false) ? [array] : array;
+    return Array.isArray(array) ? array : [array];
   }
 }
 

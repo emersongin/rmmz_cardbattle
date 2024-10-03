@@ -210,6 +210,10 @@
 // include ../test/components/DrawStep/DrawPhase/ShouldLoadBattlefieldsTest.js
 // include ../test/components/FolderStep/ChallengePhase/ShouldShowPlayerFolderWindowTest.js
 // include ../test/components/FolderStep/ChallengePhase/ShouldCloseFolderWindowWhenSelectedFolderTest.js
+// include ../test/components/MiniGameStep/StartPhase/ShouldShowMiniGameCardsetTest.js
+// include ../test/components/MiniGameStep/StartPhase/ShouldShufflerCardsTest.js
+// include ../test/components/MiniGameStep/StartPhase/ShouldShowGameResultWindowCardsTest.js
+// include ../test/components/MiniGameStep/StartPhase/ShouldCloseMiniGameOnSelectedCardTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js
