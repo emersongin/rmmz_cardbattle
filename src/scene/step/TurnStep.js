@@ -9,17 +9,12 @@ class TurnStep extends Step {
   _challengedPassedHandler = () => {};
   _activePowerfieldHandler = () => {};
 
-  constructor(
-    scene, 
-    phase, 
-    handlers,
-    finish
-  ) {
+  constructor(scene, phase, handlers) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for TurnStep.');
     }
-    super(scene, phase, finish);
+    super(scene, phase);
     if (!handlers.playerPlayHandler || typeof handlers.playerPlayHandler !== 'function') {
       throw new Error('Invalid playerPlayHandler for TurnStep.');
     }
@@ -42,12 +37,28 @@ class TurnStep extends Step {
     this._activePowerfieldHandler = handlers?.activePowerfieldHandler;
   }
 
-  start(manager, text = 'Begin Load Phase') {
-    this.createPlayerGameBoard(manager);
-    this.createChallengedGameBoard(manager);
+  start(text = 'Begin Load Phase') {
+    this.createPlayerGameBoard();
+    this.createChallengedGameBoard();
+    this.setCardsetsGameBoard();
     this.openGameBoards();
     this.createTextWindow(text);
     this.openTextWindow();
+  }
+
+  setCardsetsGameBoard() {
+    this.addAction(this.commandSetPlayerCardsetGameBoard);
+    this.addAction(this.commandSetChallengedCardsetGameBoard);
+  }
+
+  commandSetPlayerCardsetGameBoard() {
+    const cards = CardBattleManager.getPlayerHandCards();
+    this.commandSetPlayerSetCardsClosed(cards);
+  }
+
+  commandSetChallengedCardsetGameBoard() {
+    const cards = CardBattleManager.getChallengedHandCards();
+    this.commandSetChallengedSetCardsClosed(cards);
   }
 
   createTextWindow(text) {
@@ -71,11 +82,11 @@ class TurnStep extends Step {
     this._textWindow.open();
   }
 
-  update(manager) {
+  update() {
     super.update();
     if (this.isBusy() || this.hasActions() || this.isAwaitingDecision()) return false;
     this.updateStartTurn();
-    this.updateTurn(manager);
+    this.updateTurn();
   }
 
   isAwaitingDecision() {
@@ -114,12 +125,12 @@ class TurnStep extends Step {
     this._startTurn = true;
   }
 
-  updateTurn(manager) {
+  updateTurn() {
     if (this.isStarted()) {
-      if (this.updateActivePowerfieldByLimit(manager)) return;
-      if (this.updatePlayerTurn(manager)) return;
-      if (this.updateChallengedTurn(manager)) return;
-      if (this.updateActivePowerfield(manager)) return;
+      if (this.updateActivePowerfieldByLimit()) return;
+      if (this.updatePlayerTurn()) return;
+      if (this.updateChallengedTurn()) return;
+      if (this.updateActivePowerfield()) return;
       this.endTurn();
     }
   }
@@ -128,9 +139,9 @@ class TurnStep extends Step {
     return this._startTurn;
   }
 
-  updateActivePowerfieldByLimit(manager) {
+  updateActivePowerfieldByLimit() {
     const limit = 3;
-    const isPowerfieldFull = manager.getPowerfieldLength() >= limit;
+    const isPowerfieldFull = CardBattleManager.getPowerfieldLength() >= limit;
     if (isPowerfieldFull) {
       this.addAction(this.commandActivePowerfield);
       return true;
@@ -141,11 +152,11 @@ class TurnStep extends Step {
     this._activePowerfieldHandler();
   }
 
-  updatePlayerTurn(manager) {
-    const startPlay = manager.isPlayerStartTurn();
-    if ((startPlay || manager.isChallengedPassed()) && manager.isPlayerPassed() === false) {
+  updatePlayerTurn() {
+    const startPlay = CardBattleManager.isPlayerStartTurn();
+    if ((startPlay || CardBattleManager.isChallengedPassed()) && CardBattleManager.isPlayerPassed() === false) {
       const commandYes = this.commandPlayerPlay();
-      const yesEnabled = manager.isPlayerHasPowerCardInHand();
+      const yesEnabled = CardBattleManager.isPlayerHasPowerCardInHand();
       const commandNo = this.commandPlayerPasse();
       const text = 'Use a Program Card?';
       this.createAskWindow(text, commandYes, yesEnabled, commandNo);
@@ -217,9 +228,9 @@ class TurnStep extends Step {
     this._askWindow.open();
   }
 
-  updateChallengedTurn(manager) {
-    if (manager.isChallengedPassed() === false) {
-      if (manager.isChallengedHasPowerCardInHand()) {
+  updateChallengedTurn() {
+    if (CardBattleManager.isChallengedPassed() === false) {
+      if (CardBattleManager.isChallengedHasPowerCardInHand()) {
         this.addAction(this.commandChallengedPlay);
         return true;
       }
@@ -241,8 +252,8 @@ class TurnStep extends Step {
     this._challengedPassedHandler();
   }
 
-  updateActivePowerfield(manager) {
-    if (manager.getPowerfieldLength() > 0) {
+  updateActivePowerfield() {
+    if (CardBattleManager.getPowerfieldLength() > 0) {
       this.addAction(this.commandActivePowerfield);
       return true;
     }
@@ -264,7 +275,6 @@ class TurnStep extends Step {
       default:
         break;
     }
-    this.end();
   }
 
   isBusy() {

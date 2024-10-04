@@ -360,4 +360,12 @@ class CardBattleManager {
     CardBattleManager.powerfield.push(card);
     return card;
   }
+
+  static getChallengedHandCards() {
+    return CardBattleManager.challenged.hand;
+  }
+
+  static getPlayerHandCards() {
+    return CardBattleManager.player.hand;
+  }
 }

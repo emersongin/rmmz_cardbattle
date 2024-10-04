@@ -214,6 +214,16 @@
 // include ../test/components/MiniGameStep/StartPhase/ShouldShufflerCardsTest.js
 // include ../test/components/MiniGameStep/StartPhase/ShouldShowGameResultWindowCardsTest.js
 // include ../test/components/MiniGameStep/StartPhase/ShouldCloseMiniGameOnSelectedCardTest.js
+// include ../test/components/TurnStep/LoadPhase/ShouldShowChallengedBattleWindowTest.js
+// include ../test/components/TurnStep/LoadPhase/ShouldShowChallengedBoardWindowTest.js
+// include ../test/components/TurnStep/LoadPhase/ShouldShowChallengedScoreWindowTest.js
+// include ../test/components/TurnStep/LoadPhase/ShouldShowChallengedTrashWindowTest.js
+// include ../test/components/TurnStep/LoadPhase/ShouldShowChallengedCardsetTest.js
+// include ../test/components/TurnStep/LoadPhase/ShouldShowPlayerBattleWindowTest.js
+// include ../test/components/TurnStep/LoadPhase/ShouldShowPlayerBoardWindowTest.js
+// include ../test/components/TurnStep/LoadPhase/ShouldShowPlayerScoreWindowTest.js
+// include ../test/components/TurnStep/LoadPhase/ShouldShowPlayerTrashWindowTest.js
+// include ../test/components/TurnStep/LoadPhase/ShouldShowPlayerCardsetTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js

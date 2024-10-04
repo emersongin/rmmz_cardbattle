@@ -236,6 +236,18 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldShufflerCardsTest,
       // ShouldShowGameResultWindowCardsTest,
       // ShouldCloseMiniGameOnSelectedCardTest,
+
+      //TurnStep
+      // ShouldShowChallengedBoardWindowLoadPhaseTest,
+      // ShouldShowChallengedBattleWindowLoadPhaseTest,
+      // ShouldShowChallengedScoreWindowLoadPhaseTest,
+      // ShouldShowChallengedTrashWindowLoadPhaseTest,
+      // ShouldShowPlayerBoardWindowLoadPhaseTest,
+      // ShouldShowPlayerBattleWindowLoadPhaseTest,
+      // ShouldShowPlayerTrashWindowLoadPhaseTest,
+      // ShouldShowPlayerScoreWindowLoadPhaseTest,
+      ShouldShowChallengedCardsetLoadPhaseTest,
+      ShouldShowPlayerCardsetLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

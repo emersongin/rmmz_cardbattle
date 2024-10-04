@@ -71,6 +71,20 @@ class Step {
       this._challenged.cardsetSprite,
       this._powerFieldCardsetSprite,
     ];
+    // console.log(
+    //   '_player.boardWindow: ' + this._player.boardWindow?.isBusy(),
+    //   '_player.battleWindow: ' + this._player.battleWindow?.isBusy(),
+    //   '_player.trashWindow: ' + this._player.trashWindow?.isBusy(),
+    //   '_player.scoreWindow: ' + this._player.scoreWindow?.isBusy(),
+    //   '_player.cardsetSprite: ' + this._player.cardsetSprite?.isBusy(),
+    //   '_challenged.boardWindow: ' + this._challenged.boardWindow?.isBusy(),
+    //   '_challenged.battleWindow: ' + this._challenged.battleWindow?.isBusy(),
+    //   '_challenged.trashWindow: ' + this._challenged.trashWindow?.isBusy(),
+    //   '_challenged.scoreWindow: ' + this._challenged.scoreWindow?.isBusy(),
+    //   '_challenged.cardsetSprite: ' + this._challenged.cardsetSprite?.isBusy(),
+    //   '_powerFieldCardsetSprite: ' + this._powerFieldCardsetSprite?.isBusy(),
+    //   'this.someChildrenIsBusy(): ' + this.someChildrenIsBusy(),
+    // );
     return this._wait > 0 || children.some(obj => (obj?.isBusy ? obj.isBusy() : false)) || this.someChildrenIsBusy();
   }
 
@@ -770,5 +784,17 @@ class Step {
 
   isChallengedCardsetClosed() {
     return this._challenged.cardsetSprite?.allCardsIsClosed();
+  }
+
+  commandSetPlayerSetCardsClosed(cards) {
+    this._player.cardsetSprite?.show();
+    const sprites = this._player.cardsetSprite?.listCards(cards);
+    this._player.cardsetSprite?.startClosedCards(sprites);
+  }
+
+  commandSetChallengedSetCardsClosed(cards) {
+    this._challenged.cardsetSprite?.show();
+    const sprites = this._challenged.cardsetSprite?.listCards(cards);
+    this._challenged.cardsetSprite?.startClosedCards(sprites);
   }
 }
