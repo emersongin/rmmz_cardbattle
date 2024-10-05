@@ -1,6 +1,6 @@
 // include ./strategy/IncreaseEnergyStrategy.js
 
-class ActivationStep extends Step {
+class ActivationSlotStep extends Step {
   _powerActivation = undefined;
   _powerActivationConfig = undefined;
   _powerActivationStrategy = undefined;
@@ -9,11 +9,11 @@ class ActivationStep extends Step {
   constructor(scene, phase, powerConfig, powerActivation = undefined, finish) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
-      throw new Error('Invalid phase for ActivationStep.');
+      throw new Error('Invalid phase for ActivationSlotStep.');
     }
     super(scene, phase, finish);
     if (!powerConfig || !(powerConfig.cardIndex >= 0) || !powerConfig.player) {
-      throw new Error('Invalid powerConfig for ActivationStep.');
+      throw new Error('Invalid powerConfig for ActivationSlotStep.');
     }
     this._powerActivationConfig = powerConfig;
     this._powerActivation = powerActivation
@@ -181,7 +181,7 @@ class ActivationStep extends Step {
             manager.playerPassed();
           },
           challengedPlayHandler: () => {
-            this.changeStep(ActivationStep);
+            this.changeStep(ActivationSlotStep);
           },
           challengedPassedHandler: () => {
             manager.challengedPassed();

@@ -137,7 +137,7 @@ class TurnStep extends Step {
 
   updatePlayerTurn() {
     const startPlay = CardBattleManager.isPlayerStartTurn();
-    if ((startPlay || CardBattleManager.isChallengedPassed()) && CardBattleManager.isPlayerPassed() === false) {
+    if ((startPlay || CardBattleManager.isChallengedPassed()) && CardBattleManager.isPlayerWaiting()) {
       const commandYes = this.commandPlayerPlay();
       const yesEnabled = CardBattleManager.isPlayerHasPowerCardInHand();
       const commandNo = this.commandPlayerPasse();
@@ -146,7 +146,7 @@ class TurnStep extends Step {
       this.openAskWindow();
       this._awaitingDecision = true;
       return true;
-    } 
+    }
   }
 
   commandPlayerPlay() {
@@ -279,5 +279,9 @@ class TurnStep extends Step {
 
   isTextWindowText(text) {
     return this._textWindow.isTextWasDrawn('TEXT_0', text);
+  }
+
+  isAskWindowVisible() {
+    return this._askWindow?.visible;
   }
 }

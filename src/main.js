@@ -225,6 +225,11 @@
 // include ../test/components/TurnStep/LoadPhase/ShouldShowPlayerTrashWindowTest.js
 // include ../test/components/TurnStep/LoadPhase/ShouldShowPlayerCardsetTest.js
 // include ../test/components/TurnStep/LoadPhase/ShouldShowTextWindowTest.js
+// include ../test/components/TurnStep/LoadPhase/PlayerMustPlayedFirstWhenWinningMiniGameTest.js
+// include ../test/components/TurnStep/LoadPhase/PlayerMustPlayedNextWhenLosingMiniGameTest.js
+// include ../test/components/TurnStep/LoadPhase/PlayerMustMakePlayWhenYourTurnTest.js
+
+// include ../test/components/TurnStep/LoadPhase/ChallengedMustMakePlayWhenYourTurnTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js

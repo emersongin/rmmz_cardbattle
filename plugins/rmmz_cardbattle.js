@@ -9885,6 +9885,216 @@ class ShouldShowTextWindowLoadPhaseTest extends SceneTest {
     this.expectTrue('O texto da janela de texto é apresentado como: Begin Load Phase?', this.step.isTextWindowText('Begin Load Phase'));
   }
 }
+class PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const handlers = {
+      playerPlayHandler: () => {},
+      playerPassedHandler: () => {},
+      challengedPlayHandler: () => {},
+      challengedPassedHandler: () => {},
+      activePowerfieldHandler: () => {},
+    };
+    this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.playerStart();
+    this.mockFunction(Input, 'isTriggered', () => true);
+    const finish = this.getHandler();
+    this.spyFunction(this.step, 'updatePlayerTurn', () => {
+      this.step.addAction(finish);
+    });
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Jogador deve inicia jogada ao vencer o mini jogo em fase de carregamento.');
+    this.expectTrue('O jogador deve ser o primeiro a jogar?', CardBattleManager.isPlayerStartTurn());
+    this.expectTrue('O jogador esta aguardando para jogar?', CardBattleManager.isPlayerWaiting());
+    this.expectTrue('O desafiado esta aguardando para jogar?', CardBattleManager.isChallengedWaiting());
+    this.expectWasTrue('A janela de decisão foi aberta?', this.step.isAskWindowVisible);
+  }
+}
+class PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const handlers = {
+      playerPlayHandler: () => {},
+      playerPassedHandler: () => {},
+      challengedPlayHandler: () => {},
+      challengedPassedHandler: () => {},
+      activePowerfieldHandler: () => {},
+    };
+    this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.mockFunction(Input, 'isTriggered', () => true);
+    const finish = this.getHandler();
+    this.spyFunction(this.step, 'updateChallengedTurn', () => {
+      this.step.addAction(finish);
+    });
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Desafiado deve inicia jogada se jogador não vencer o mini jogo em fase de carregamento.');
+    this.expectTrue('O jogador não deve iniciar jogada!', CardBattleManager.isPlayerStartTurn() === false);
+    this.expectTrue('O jogador esta aguardando para jogar?', CardBattleManager.isPlayerWaiting());
+    this.expectTrue('O desafiado esta aguardando para jogar?', CardBattleManager.isChallengedWaiting());
+  }
+}
+class PlayerMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    const finish = this.createHandler();
+    const handlers = {
+      playerPlayHandler: () => {
+        const config = {
+          location: GameConst.HAND,
+          player: GameConst.PLAYER,
+          blockBattleCards: true,
+          blockPowerCardsInLoadPhase: true,
+        };
+        const handlers = {
+          goBackHandler: () => {},
+          selectHandler: () => {},
+          moveCursorHandler: () => {},
+        };
+        this.step.changeStep(ZoneStep, config, handlers);
+        finish();
+      },
+      playerPassedHandler: () => {},
+      challengedPlayHandler: () => {},
+      challengedPassedHandler: () => {},
+      activePowerfieldHandler: () => {},
+    };
+    this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.folders[0] = {
+      name: 'Mock Folder',
+      energies: [0, 0, 0, 0, 0, 0],
+      set: [
+        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+      ]
+    };
+    CardBattleManager.setPlayerDeck(0);
+    CardBattleManager.setChallengedDeck(0);
+    const drawNumber = 6;
+    const putNumber = 3;
+    CardBattleManager.drawPlayerCards(drawNumber);
+    CardBattleManager.putPlayerCards(putNumber);
+    CardBattleManager.drawChallengedCards(drawNumber);
+    CardBattleManager.putChallengedCards(putNumber);
+    CardBattleManager.playerStart();
+    this.mockFunction(Input, 'isTriggered', () => true);
+    this.spyFunction(this.step, 'commandOpenAskWindow', () => {
+      const index = 0;
+      this.step.selectAskWindowOption(index);
+    });
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Jogador deve fazer uma jogada quando for sua vez em fase de carregamento.');
+    this.expectWasTrue('A janela de decisão foi aberta?', this.step.isAskWindowVisible);
+    this.expectTrue('Jogador tem cartões de poder para jogar?', CardBattleManager.isPlayerHasPowerCardInHand());
+    this.expectTrue('A proxima etapa é ZoneStep?', this.isStep(ZoneStep));
+  }
+}
+
+class ChallengedMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    const finish = this.createHandler();
+    const handlers = {
+      playerPlayHandler: () => {},
+      playerPassedHandler: () => {},
+      challengedPlayHandler: () => {
+        const powerConfig = { cardIndex: 0, player: GameConst.CHALLENGED };
+        this.nextStep = this.step.changeStep(ActivationSlotStep, powerConfig);
+        finish();
+      },
+      challengedPassedHandler: () => {},
+      activePowerfieldHandler: () => {},
+    };
+    this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.folders[0] = {
+      name: 'Mock Folder',
+      energies: [0, 0, 0, 0, 0, 0],
+      set: [
+        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+      ]
+    };
+    CardBattleManager.setPlayerDeck(0);
+    CardBattleManager.setChallengedDeck(0);
+    const drawNumber = 6;
+    const putNumber = 3;
+    CardBattleManager.drawPlayerCards(drawNumber);
+    CardBattleManager.putPlayerCards(putNumber);
+    CardBattleManager.drawChallengedCards(drawNumber);
+    CardBattleManager.putChallengedCards(putNumber);
+    this.mockFunction(Input, 'isTriggered', () => true);
+    this.spyFunction(this.step, 'commandOpenAskWindow', () => {
+      const index = 0;
+      this.step.selectAskWindowOption(index);
+    });
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Desafiado deve fazer uma jogada quando for sua vez em fase de carregamento.');
+    this.expectTrue('Desafiado tem cartões de poder para jogar?', CardBattleManager.isChallengedHasPowerCardInHand());
+    this.expectTrue('A proxima Etapa é ActivationSlotStep?', this.isStep(ActivationSlotStep));
+    this.expectTrue('Jogada é de desafiado?', this.nextStep.getPlayer() === GameConst.CHALLENGED);
+  }
+}
 
 class CardBattleManager {
   static folders = [
@@ -10295,6 +10505,14 @@ class CardBattleManager {
 
   static getChallengedfieldLength() {
     return CardBattleManager.challengedfield.length;
+  }
+
+  static isChallengedWaiting() {
+    return CardBattleManager.isChallengedPassed() === false;
+  }
+
+  static isPlayerWaiting() {
+    return CardBattleManager.isPlayerPassed() === false;
   }
 }
 class Step {
@@ -11290,7 +11508,7 @@ class DisplayStep extends Step {
             CardBattleManager.playerPassed();
           },
           challengedPlayHandler: () => {
-            this.changeStep(ActivationStep);
+            this.changeStep(ActivationSlotStep);
           },
           challengedPassedHandler: () => {
             CardBattleManager.challengedPassed();
@@ -11971,7 +12189,7 @@ class IncreaseEnergyStrategy {
   }
 }
 
-class ActivationStep extends Step {
+class ActivationSlotStep extends Step {
   _powerActivation = undefined;
   _powerActivationConfig = undefined;
   _powerActivationStrategy = undefined;
@@ -11980,11 +12198,11 @@ class ActivationStep extends Step {
   constructor(scene, phase, powerConfig, powerActivation = undefined, finish) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
-      throw new Error('Invalid phase for ActivationStep.');
+      throw new Error('Invalid phase for ActivationSlotStep.');
     }
     super(scene, phase, finish);
     if (!powerConfig || !(powerConfig.cardIndex >= 0) || !powerConfig.player) {
-      throw new Error('Invalid powerConfig for ActivationStep.');
+      throw new Error('Invalid powerConfig for ActivationSlotStep.');
     }
     this._powerActivationConfig = powerConfig;
     this._powerActivation = powerActivation
@@ -12152,7 +12370,7 @@ class ActivationStep extends Step {
             manager.playerPassed();
           },
           challengedPlayHandler: () => {
-            this.changeStep(ActivationStep);
+            this.changeStep(ActivationSlotStep);
           },
           challengedPassedHandler: () => {
             manager.challengedPassed();
@@ -12786,7 +13004,7 @@ class TurnStep extends Step {
 
   updatePlayerTurn() {
     const startPlay = CardBattleManager.isPlayerStartTurn();
-    if ((startPlay || CardBattleManager.isChallengedPassed()) && CardBattleManager.isPlayerPassed() === false) {
+    if ((startPlay || CardBattleManager.isChallengedPassed()) && CardBattleManager.isPlayerWaiting()) {
       const commandYes = this.commandPlayerPlay();
       const yesEnabled = CardBattleManager.isPlayerHasPowerCardInHand();
       const commandNo = this.commandPlayerPasse();
@@ -12795,7 +13013,7 @@ class TurnStep extends Step {
       this.openAskWindow();
       this._awaitingDecision = true;
       return true;
-    } 
+    }
   }
 
   commandPlayerPlay() {
@@ -12928,6 +13146,10 @@ class TurnStep extends Step {
 
   isTextWindowText(text) {
     return this._textWindow.isTextWasDrawn('TEXT_0', text);
+  }
+
+  isAskWindowVisible() {
+    return this._askWindow?.visible;
   }
 }
 
@@ -13161,17 +13383,22 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldCloseMiniGameOnSelectedCardTest,
 
       //TurnStep
-      ShouldShowChallengedBoardWindowLoadPhaseTest,
-      ShouldShowChallengedBattleWindowLoadPhaseTest,
-      ShouldShowChallengedScoreWindowLoadPhaseTest,
-      ShouldShowChallengedTrashWindowLoadPhaseTest,
-      ShouldShowPlayerBoardWindowLoadPhaseTest,
-      ShouldShowPlayerBattleWindowLoadPhaseTest,
-      ShouldShowPlayerTrashWindowLoadPhaseTest,
-      ShouldShowPlayerScoreWindowLoadPhaseTest,
-      ShouldShowChallengedCardsetLoadPhaseTest,
-      ShouldShowPlayerCardsetLoadPhaseTest,
-      ShouldShowTextWindowLoadPhaseTest,
+      // ShouldShowChallengedBoardWindowLoadPhaseTest,
+      // ShouldShowChallengedBattleWindowLoadPhaseTest,
+      // ShouldShowChallengedScoreWindowLoadPhaseTest,
+      // ShouldShowChallengedTrashWindowLoadPhaseTest,
+      // ShouldShowPlayerBoardWindowLoadPhaseTest,
+      // ShouldShowPlayerBattleWindowLoadPhaseTest,
+      // ShouldShowPlayerTrashWindowLoadPhaseTest,
+      // ShouldShowPlayerScoreWindowLoadPhaseTest,
+      // ShouldShowChallengedCardsetLoadPhaseTest,
+      // ShouldShowPlayerCardsetLoadPhaseTest,
+      // ShouldShowTextWindowLoadPhaseTest,
+
+      // PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
+      // PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
+      // PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
+      ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

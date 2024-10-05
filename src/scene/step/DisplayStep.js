@@ -182,7 +182,7 @@ class DisplayStep extends Step {
             CardBattleManager.playerPassed();
           },
           challengedPlayHandler: () => {
-            this.changeStep(ActivationStep);
+            this.changeStep(ActivationSlotStep);
           },
           challengedPassedHandler: () => {
             CardBattleManager.challengedPassed();
