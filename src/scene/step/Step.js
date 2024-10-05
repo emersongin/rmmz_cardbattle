@@ -773,7 +773,7 @@ class Step {
     return this._player.cardsetSprite?.allCardsAreOpen();
   }
 
-  allPlayerCardsClosed() {
+  allPlayerCardsAreClosed() {
     return this._player.cardsetSprite?.allCardsAreClosed();
   }
 

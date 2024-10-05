@@ -19,14 +19,11 @@ class SelectModeCardsetSpriteTest extends SceneTest {
       endTest();
     };
     this.subject.selectMode(unlimited, onSelectHandler);
-  }
-
-  update() {
-    if (this.subject.isSelectMode()) {
+    this.subject.addCommand(() => {
       this.subject._status.selectSprite(0);
       this.subject._status.selectSprite(1);
       this.subject._status.selectSprite(2);
-    }
+    });
   }
 
   asserts() {

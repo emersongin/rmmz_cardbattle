@@ -29,7 +29,7 @@ class ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest extends SceneTest {
     this.expectTrue('A janela de batalha do jogador foi fechada?', this.step.isPlayerBattleWindowClosed());
     this.expectTrue('A janela de pontuação do jogador foi fechada?', this.step.isPlayerScoreWindowClosed());
     this.expectTrue('A janela de lixo do jogador foi fechada?', this.step.isPlayerTrashWindowClosed());
-    this.expectTrue('O conjunto de cartões do jogador foi retirado?', this.step.isPlayerCardsetClosed());
+    this.expectTrue('O conjunto de cartões do jogador foi retirado?', this.step.allPlayerCardsAreClosed());
     this.expectTrue('A janela de tabuleiro do desafiado foi fechada?', this.step.isChallengedBoardWindowClosed());
     this.expectTrue('A janela de batalha do desafiado foi fechada?', this.step.isChallengedBattleWindowClosed());
     this.expectTrue('A janela de pontuação do desafiado foi fechada?', this.step.isChallengedScoreWindowClosed());

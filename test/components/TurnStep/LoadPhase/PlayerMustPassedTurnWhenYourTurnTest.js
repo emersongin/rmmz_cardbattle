@@ -7,7 +7,7 @@ class PlayerMustPassedTurnYourTurnLoadPhaseTest extends SceneTest {
       playerPlayHandler: () => {},
       playerPassedHandler: () => {
         CardBattleManager.playerPassed();
-        // finish();
+        finish();
       },
       challengedPlayHandler: () => {},
       challengedPassedHandler: () => {},
@@ -41,8 +41,8 @@ class PlayerMustPassedTurnYourTurnLoadPhaseTest extends SceneTest {
     CardBattleManager.playerStart();
     this.mockFunction(Input, 'isTriggered', () => true);
     this.spyFunction(this.step, 'commandOpenAskWindow', () => {
-      // const index = 1;
-      // this.step.selectAskWindowOption(index);
+      const index = 1;
+      this.step.selectAskWindowOption(index);
     });
     this._scene.setStep(this.step);
     this.step.start();

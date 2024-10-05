@@ -6853,15 +6853,11 @@ class SelectModeCardsetSpriteTest extends SceneTest {
       endTest();
     };
     this.subject.selectMode(unlimited, onSelectHandler);
-  }
-
-  update() {
-    if (this.subject.isSelectMode()) {
+    this.subject.addCommand(() => {
       this.subject._status.selectSprite(0);
       this.subject._status.selectSprite(1);
       this.subject._status.selectSprite(2);
-      this.subject._status.updateStatus();
-    }
+    });
   }
 
   asserts() {
@@ -6918,14 +6914,9 @@ class SelectModeLimitedCardsetSpriteTest extends SceneTest {
       endTest();
     };
     this.subject.selectMode(selectNumber, onSelectHandler);
-  }
-
-  update() {
-    if (this.subject.isSelectMode()) {
+    this.subject.addCommand(() => {
       this.subject._status.selectSprite(0);
-      this.subject._status.selectSprite(1);
-      this.subject._status.selectSprite(2);
-    }
+    });
   }
 
   asserts() {
@@ -9224,7 +9215,7 @@ class ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest extends SceneTest {
     this.expectTrue('A janela de batalha do jogador foi fechada?', this.step.isPlayerBattleWindowClosed());
     this.expectTrue('A janela de pontuação do jogador foi fechada?', this.step.isPlayerScoreWindowClosed());
     this.expectTrue('A janela de lixo do jogador foi fechada?', this.step.isPlayerTrashWindowClosed());
-    this.expectTrue('O conjunto de cartões do jogador foi retirado?', this.step.isPlayerCardsetClosed());
+    this.expectTrue('O conjunto de cartões do jogador foi retirado?', this.step.allPlayerCardsAreClosed());
     this.expectTrue('A janela de tabuleiro do desafiado foi fechada?', this.step.isChallengedBoardWindowClosed());
     this.expectTrue('A janela de batalha do desafiado foi fechada?', this.step.isChallengedBattleWindowClosed());
     this.expectTrue('A janela de pontuação do desafiado foi fechada?', this.step.isChallengedScoreWindowClosed());
@@ -10058,7 +10049,7 @@ class PlayerMustPassedTurnYourTurnLoadPhaseTest extends SceneTest {
       playerPlayHandler: () => {},
       playerPassedHandler: () => {
         CardBattleManager.playerPassed();
-        // finish();
+        finish();
       },
       challengedPlayHandler: () => {},
       challengedPassedHandler: () => {},
@@ -10092,8 +10083,8 @@ class PlayerMustPassedTurnYourTurnLoadPhaseTest extends SceneTest {
     CardBattleManager.playerStart();
     this.mockFunction(Input, 'isTriggered', () => true);
     this.spyFunction(this.step, 'commandOpenAskWindow', () => {
-      // const index = 1;
-      // this.step.selectAskWindowOption(index);
+      const index = 1;
+      this.step.selectAskWindowOption(index);
     });
     this._scene.setStep(this.step);
     this.step.start();
@@ -11365,7 +11356,7 @@ class Step {
     return this._player.cardsetSprite?.allCardsAreOpen();
   }
 
-  allPlayerCardsClosed() {
+  allPlayerCardsAreClosed() {
     return this._player.cardsetSprite?.allCardsAreClosed();
   }
 
@@ -13229,12 +13220,28 @@ class CardBattleTestScene extends Scene_Message {
     this._tests = [];
     this._next = null;
     this._animationSprites = [];
+    this._finishWindow = null;
   }
 
   create() {
     super.create();
     this.createWindowLayer();
+    this.createFinishWindow();
     this.createTests();
+  }
+
+  createFinishWindow() {
+    const objHeight = 72;
+    const rect = new Rectangle(0, 0, Graphics.boxWidth, objHeight);
+    this._finishWindow = new Window_Base(rect);
+    const y = ScreenHelper.getAboveMiddlePosition(objHeight / 2);
+    console.log(y);
+    this._finishWindow.y = y;
+    this._finishWindow.contents.fontSize = 24;
+    this._finishWindow.contents.textColor = '#FFFFFF';
+    this._finishWindow.contents.drawText('Testes finalizados!', 0, 0, Graphics.boxWidth, 48, 'center');
+    this._finishWindow.hide();
+    this._finishWindow.close();
   }
 
   async createTests() {
@@ -13279,47 +13286,47 @@ class CardBattleTestScene extends Scene_Message {
       TiggerAcitonCardSpriteTest,
     ];
     const cardsetSpriteTests = [
-      // StartPositionCardsetSpriteTest,
-      // AlignAboveOfCardsetSpriteTest,
-      // AlignBelowOfCardsetSpriteTest,
-      // AlignCenterMiddleCardsetSpriteTest,
-      // SetCardsCardsetSpriteTest,
-      // SetTurnToDownCardsCardsetSpriteTest,
-      // SetAllCardsInPositionCardsetSpriteTest,
-      // SetAllCardsInPositionsCardsetSpriteTest,
-      // ListCardsCardsetSpriteTest,
-      // StartClosedCardsCardsetSpriteTest,
-      // OpenAllCardsCardsetSpriteTest,
-      // OpenCardsCardsetSpriteTest,
-      // CloseAllCardsCardsetSpriteTest,
-      // CloseCardsCardsetSpriteTest,
-      // MoveAllCardsInListCardsetSpriteTest,
-      // MoveCardsInListCardsetSpriteTest,
-      // MoveAllCardsToPositionCardsetSpriteTest,
-      // MoveCardsToPositionCardsetSpriteTest,
-      // MoveAllCardsToPositionsCardsetSpriteTest,
-      // AddAllCardsToListCardsetSpriteTest,
-      // AddCardsToListCardsetSpriteTest,
-      // DisableCardsCardsetSpriteTest,
-      // StaticModeCardsetSpriteTest,
+      StartPositionCardsetSpriteTest,
+      AlignAboveOfCardsetSpriteTest,
+      AlignBelowOfCardsetSpriteTest,
+      AlignCenterMiddleCardsetSpriteTest,
+      SetCardsCardsetSpriteTest,
+      SetTurnToDownCardsCardsetSpriteTest,
+      SetAllCardsInPositionCardsetSpriteTest,
+      SetAllCardsInPositionsCardsetSpriteTest,
+      ListCardsCardsetSpriteTest,
+      StartClosedCardsCardsetSpriteTest,
+      OpenAllCardsCardsetSpriteTest,
+      OpenCardsCardsetSpriteTest,
+      CloseAllCardsCardsetSpriteTest,
+      CloseCardsCardsetSpriteTest,
+      MoveAllCardsInListCardsetSpriteTest,
+      MoveCardsInListCardsetSpriteTest,
+      MoveAllCardsToPositionCardsetSpriteTest,
+      MoveCardsToPositionCardsetSpriteTest,
+      MoveAllCardsToPositionsCardsetSpriteTest,
+      AddAllCardsToListCardsetSpriteTest,
+      AddCardsToListCardsetSpriteTest,
+      DisableCardsCardsetSpriteTest,
+      StaticModeCardsetSpriteTest,
       SelectModeCardsetSpriteTest,
-      // SelectModeNoSelectCardsetSpriteTest,
+      SelectModeNoSelectCardsetSpriteTest,
       SelectModeLimitedCardsetSpriteTest,
-      // FlashCardsCardsetSpriteTest,
-      // QuakeCardsCardsetSpriteTest,
-      // AnimationCardsCardsetSpriteTest,
-      // ShowOrderingCardsCardsetSpriteTest,
-      // ShowOrderingCardsByIndexesCardsetSpriteTest,
-      // ShowReverseOrderingCardsCardsetSpriteTest,
-      // ShowReverseOrderingByIndexesCardsCardsetSpriteTest,
-      // ZoomAllCardsCardsetSpriteTest,
-      // ZoomOutAllCardsCardsetSpriteTest,
-      // FlipTurnToUpAllCardsCardsetSpriteTest,
-      // FlipTurnToUpCardsCardsetSpriteTest,
-      // TriggerActionCardsetSpriteTest,
-      // OnChangeCursorSelectModeCardsetSpriteTest,
-      // AddChildToEndCardsetSpriteTest,
-      // LeaveAllCardsCardsetSpriteTest,
+      FlashCardsCardsetSpriteTest,
+      QuakeCardsCardsetSpriteTest,
+      AnimationCardsCardsetSpriteTest,
+      ShowOrderingCardsCardsetSpriteTest,
+      ShowOrderingCardsByIndexesCardsetSpriteTest,
+      ShowReverseOrderingCardsCardsetSpriteTest,
+      ShowReverseOrderingByIndexesCardsCardsetSpriteTest,
+      ZoomAllCardsCardsetSpriteTest,
+      ZoomOutAllCardsCardsetSpriteTest,
+      FlipTurnToUpAllCardsCardsetSpriteTest,
+      FlipTurnToUpCardsCardsetSpriteTest,
+      TriggerActionCardsetSpriteTest,
+      OnChangeCursorSelectModeCardsetSpriteTest,
+      AddChildToEndCardsetSpriteTest,
+      LeaveAllCardsCardsetSpriteTest,
     ];
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,
@@ -13414,7 +13421,7 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const stepsTests = [
-      // DisplayStep
+      // // DisplayStep
       // ShouldShowTitleWindowChallengePhaseTest,
       // ShouldShowDescriptionWindowChallengePhaseTest,
       // ShouldCloseWindowsWhenPressActionChallengePhaseTest,
@@ -13428,7 +13435,7 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldShowDescriptionWindowLoadPhaseTest,
       // ShouldCloseWindowsWhenPressActionLoadPhaseTest,
 
-      // DrawStep
+      // // DrawStep
       // ShouldShowPlayerBoardWindowDrawPhaseTest,
       // ShouldShowPlayerBattleWindowDrawPhaseTest,
       // ShouldShowPlayerTrashWindowDrawPhaseTest,
@@ -13442,16 +13449,17 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
       // ShouldLoadBattlefieldsDrawPhaseTest,
 
-      // FolderStep
+      // // FolderStep
       // ShouldShowPlayerFolderWindowTest,
       // ShouldCloseFolderWindowWhenSelectedFolderTest,
-      // MiniGameStep
+
+      // // MiniGameStep
       // ShouldShowMiniGameCardsetTest,
       // ShouldShufflerCardsTest,
       // ShouldShowGameResultWindowCardsTest,
       // ShouldCloseMiniGameOnSelectedCardTest,
 
-      //TurnStep
+      // //TurnStep
       // ShouldShowChallengedBoardWindowLoadPhaseTest,
       // ShouldShowChallengedBattleWindowLoadPhaseTest,
       // ShouldShowChallengedScoreWindowLoadPhaseTest,
@@ -13472,7 +13480,7 @@ class CardBattleTestScene extends Scene_Message {
     ];
     return [
       // ...cardSpriteTests,
-      ...cardsetSpriteTests,
+      // ...cardsetSpriteTests,
       // ...commandWindowTests,
       // ...StateWindowTests,
       // ...textWindowTests,
@@ -13481,7 +13489,7 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindowTests,
       // ...scoreWindowTests,
       // ...folderWindowTests,
-      // ...stepsTests,
+      ...stepsTests,
     ];
   }
 
@@ -13500,6 +13508,7 @@ class CardBattleTestScene extends Scene_Message {
       this._next = null;
       CardBattleManager.reset();
       await this.clearScene();
+      this.openFinishWindow();
     }
     this.printResults(testsResults);
     this.printTotals(testsResults);
@@ -13538,6 +13547,12 @@ class CardBattleTestScene extends Scene_Message {
       }
       resolve(true);
     });
+  }
+
+  openFinishWindow() {
+    this.addWindow(this._finishWindow);
+    this._finishWindow.show();
+    this._finishWindow.open();
   }
 
   printResults(results) {
