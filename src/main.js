@@ -224,6 +224,7 @@
 // include ../test/components/TurnStep/LoadPhase/ShouldShowPlayerScoreWindowTest.js
 // include ../test/components/TurnStep/LoadPhase/ShouldShowPlayerTrashWindowTest.js
 // include ../test/components/TurnStep/LoadPhase/ShouldShowPlayerCardsetTest.js
+// include ../test/components/TurnStep/LoadPhase/ShouldShowTextWindowTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js

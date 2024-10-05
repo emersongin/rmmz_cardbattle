@@ -40,25 +40,9 @@ class TurnStep extends Step {
   start(text = 'Begin Load Phase') {
     this.createPlayerGameBoard();
     this.createChallengedGameBoard();
-    this.setCardsetsGameBoard();
     this.openGameBoards();
     this.createTextWindow(text);
     this.openTextWindow();
-  }
-
-  setCardsetsGameBoard() {
-    this.addAction(this.commandSetPlayerCardsetGameBoard);
-    this.addAction(this.commandSetChallengedCardsetGameBoard);
-  }
-
-  commandSetPlayerCardsetGameBoard() {
-    const cards = CardBattleManager.getPlayerHandCards();
-    this.commandSetPlayerSetCardsClosed(cards);
-  }
-
-  commandSetChallengedCardsetGameBoard() {
-    const cards = CardBattleManager.getChallengedHandCards();
-    this.commandSetChallengedSetCardsClosed(cards);
   }
 
   createTextWindow(text) {
@@ -288,5 +272,13 @@ class TurnStep extends Step {
   selectAskWindowOption(index, askWindow = this._askWindow) {
     askWindow.select(index);
     askWindow.callOkHandler();
+  }
+
+  isTextWindowVisible() {
+    return this._textWindow?.visible;
+  }
+
+  isTextWindowText(text) {
+    return this._textWindow.isTextWasDrawn('TEXT_0', text);
   }
 }

@@ -18,6 +18,7 @@ class ShouldShowChallengedCardsetLoadPhaseTest extends SceneTest {
     CardBattleManager.setChallengedDeck();
     const drawNumber = 2;
     CardBattleManager.drawChallengedCards(drawNumber);
+    CardBattleManager.putChallengedCards(drawNumber);
     this.mockFunction(Input, 'isTriggered', () => true);
     const finish = this.getHandler();
     this.mockFunction(this.step, 'startTurn', () => {
@@ -30,9 +31,15 @@ class ShouldShowChallengedCardsetLoadPhaseTest extends SceneTest {
   update() {
     this.step.update();
   }
+
+  restore() {
+    CardBattleManager.reset();
+    super.restore();
+  }
   
   asserts() {
     this.describe('Deve apresentar conjunto de cartões do desafiado na etapa de turno na fase de carregamento.');
     this.expectWasTrue('O conjunto de cartões do desafiado foi apresentado?', this.step.isChallengedCardsetSpriteVisible);
+    this.expectTrue('O conjunto de cartões do desafiado tem cartões?', CardBattleManager.hasCardsInChallengedfield());
   }
 }

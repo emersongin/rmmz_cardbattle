@@ -21,6 +21,6 @@ class ShouldShowTitleWindowStartPhaseTest extends SceneTest {
   asserts() {
     this.describe('Deve apresentar janela de título em etapa de apresentação de fase de início.');
     this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
-    this.expectTrue('O título da fase foi apresentado como: Start Phase?', this.step.isTextTitleWindow('Start Phase'));
+    this.expectTrue('O título da fase foi apresentado como: Start Phase?', this.step.isTitleWindowText('Start Phase'));
   }
 }

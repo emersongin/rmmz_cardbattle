@@ -240,7 +240,7 @@ class MiniGameStep extends Step {
   }
 
   isTextResultWindow(text) {
-    return this._resultWindow.isTextWasDrawing('TEXT_0', text);
+    return this._resultWindow.isTextWasDrawn('TEXT_0', text);
   }
 
   selectCardMiniGame(indexes) {

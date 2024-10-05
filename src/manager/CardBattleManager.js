@@ -89,6 +89,8 @@ class CardBattleManager {
     passed: false,
   };
 
+  static playerfield = [];
+  static challengedfield = [];
   static powerfield = [];
 
   static getChallengeDescription() {
@@ -132,6 +134,10 @@ class CardBattleManager {
 
   static getPlayerDeckLength() {
     return CardBattleManager.player.deck.length;
+  }
+
+  static getPlayerHandCards() {
+    return CardBattleManager.player.hand;
   }
 
   static getPlayerHandLength() {
@@ -225,6 +231,10 @@ class CardBattleManager {
     return CardBattleManager.challenged.deck.length;
   }
 
+  static getChallengedHandCards() {
+    return CardBattleManager.challenged.hand;
+  }
+
   static getChallengedHandLength() {
     return CardBattleManager.challenged.hand.length;
   }
@@ -310,6 +320,8 @@ class CardBattleManager {
       passed: false,
     };
     CardBattleManager.powerfield = [];
+    CardBattleManager.playerfield = [];
+    CardBattleManager.challengedfield = [];
   }
 
   static setPlayerDeck(folderIndex = 0) {
@@ -338,9 +350,21 @@ class CardBattleManager {
     return cards;
   }
 
+  static putPlayerCards(cardsNumber) {
+    const cards = CardBattleManager.player.hand.splice(0, cardsNumber);
+    CardBattleManager.playerfield.push(...cards);
+    return cards;
+  }
+
   static drawChallengedCards(cardsNumber) {
     const cards = CardBattleManager.challenged.deck.splice(0, cardsNumber);
     CardBattleManager.challenged.hand.push(...cards);
+    return cards;
+  }
+
+  static putChallengedCards(cardsNumber) {
+    const cards = CardBattleManager.challenged.hand.splice(0, cardsNumber);
+    CardBattleManager.challengedfield.push(...cards);
     return cards;
   }
 
@@ -361,11 +385,27 @@ class CardBattleManager {
     return card;
   }
 
-  static getChallengedHandCards() {
-    return CardBattleManager.challenged.hand;
+  static getPlayerfieldCards() {
+    return CardBattleManager.playerfield;
   }
 
-  static getPlayerHandCards() {
-    return CardBattleManager.player.hand;
+  static hasCardsInPlayerfield() {
+    return CardBattleManager.getPlayerfieldLength() > 0;
+  }
+
+  static getPlayerfieldLength() {
+    return CardBattleManager.playerfield.length;
+  }
+
+  static getChallengedfieldCards() {
+    return CardBattleManager.challengedfield;
+  }
+
+  static hasCardsInChallengedfield() {
+    return CardBattleManager.getChallengedfieldLength() > 0;
+  }
+
+  static getChallengedfieldLength() {
+    return CardBattleManager.challengedfield.length;
   }
 }

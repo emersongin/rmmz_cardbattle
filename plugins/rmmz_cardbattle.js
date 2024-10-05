@@ -813,7 +813,7 @@ class TextWindow extends Window_Base {
     this.refresh();
   }
 
-  isTextWasDrawing(symbol, content) {
+  isTextWasDrawn(symbol, content) {
     return this.isHistory(symbol, content);
   }
 
@@ -1240,7 +1240,7 @@ class CommandWindow extends Window_Command {
     return this._windowColor === GameConst.DEFAULT;
   }
 
-  isTextWasDrawing(symbol, content) {
+  isTextWasDrawn(symbol, content) {
     return this.isHistory(symbol, content);
   }
   
@@ -8592,7 +8592,7 @@ class ShouldShowTitleWindowChallengePhaseTest extends SceneTest {
   asserts() {
     this.describe('Deve apresentar janela de título em etapa de apresentação de fase de desafio.');
     this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
-    this.expectTrue('O título da fase foi apresentado como: Challenge Phase?', this.step.isTextTitleWindow('Challenge Phase'));
+    this.expectTrue('O título da fase foi apresentado como: Challenge Phase?', this.step.isTitleWindowText('Challenge Phase'));
   }
 }
 class ShouldShowDescriptionWindowChallengePhaseTest extends SceneTest {
@@ -8622,7 +8622,7 @@ class ShouldShowDescriptionWindowChallengePhaseTest extends SceneTest {
       'Descrição de Desafiado',
       'O jogador que é desafiado por você.',
     ];
-    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
+    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isDescriptionWindowText(texts));
   }
 }
 class ShouldCloseWindowsWhenPressActionChallengePhaseTest extends SceneTest {
@@ -8678,7 +8678,7 @@ class ShouldShowTitleWindowStartPhaseTest extends SceneTest {
   asserts() {
     this.describe('Deve apresentar janela de título em etapa de apresentação de fase de início.');
     this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
-    this.expectTrue('O título da fase foi apresentado como: Start Phase?', this.step.isTextTitleWindow('Start Phase'));
+    this.expectTrue('O título da fase foi apresentado como: Start Phase?', this.step.isTitleWindowText('Start Phase'));
   }
 }
 class ShouldShowDescriptionWindowStartPhaseTest extends SceneTest {
@@ -8705,7 +8705,7 @@ class ShouldShowDescriptionWindowStartPhaseTest extends SceneTest {
     this.describe('Deve apresentar janela de descrição em etapa de apresentação de fase de início.');
     this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
     const texts = ['Draw Calumon to go first.'];
-    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
+    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isDescriptionWindowText(texts));
   }
 }
 class ShouldCloseWindowsWhenPressActionStartPhaseTest extends SceneTest {
@@ -8761,7 +8761,7 @@ class ShouldShowTitleWindowDrawPhaseTest extends SceneTest {
   asserts() {
     this.describe('Deve apresentar janela de título em etapa de apresentação de fase de saque.');
     this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
-    this.expectTrue('O título da fase foi apresentado como: Draw Phase?', this.step.isTextTitleWindow('Draw Phase'));
+    this.expectTrue('O título da fase foi apresentado como: Draw Phase?', this.step.isTitleWindowText('Draw Phase'));
   }
 }
 class ShouldShowDescriptionWindowDrawPhaseTest extends SceneTest {
@@ -8788,7 +8788,7 @@ class ShouldShowDescriptionWindowDrawPhaseTest extends SceneTest {
     this.describe('Deve apresentar janela de descrição em etapa de apresentação de fase de saque.');
     this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
     const texts = ['6 cards will be drawn.'];
-    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
+    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isDescriptionWindowText(texts));
   }
 }
 class ShouldCloseWindowsWhenPressActionDrawPhaseTest extends SceneTest {
@@ -8844,7 +8844,7 @@ class ShouldShowTitleWindowLoadPhaseTest extends SceneTest {
   asserts() {
     this.describe('Deve apresentar janela de título em etapa de apresentação de fase de carregamento.');
     this.expectWasTrue('A janela de título foi apresentada?', this.step.isTitleWindowVisible);
-    this.expectTrue('O título da fase foi apresentado como: Load Phase?', this.step.isTextTitleWindow('Load Phase'));
+    this.expectTrue('O título da fase foi apresentado como: Load Phase?', this.step.isTitleWindowText('Load Phase'));
   }
 }
 class ShouldShowDescriptionWindowLoadPhaseTest extends SceneTest {
@@ -8871,7 +8871,7 @@ class ShouldShowDescriptionWindowLoadPhaseTest extends SceneTest {
     this.describe('Deve apresentar janela de descrição em etapa de apresentação de fase de carregamento.');
     this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
     const texts = ['Select and use a Program Card.'];
-    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
+    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isDescriptionWindowText(texts));
   }
 }
 class ShouldCloseWindowsWhenPressActionLoadPhaseTest extends SceneTest {
@@ -9634,6 +9634,7 @@ class ShouldShowChallengedCardsetLoadPhaseTest extends SceneTest {
     CardBattleManager.setChallengedDeck();
     const drawNumber = 2;
     CardBattleManager.drawChallengedCards(drawNumber);
+    CardBattleManager.putChallengedCards(drawNumber);
     this.mockFunction(Input, 'isTriggered', () => true);
     const finish = this.getHandler();
     this.mockFunction(this.step, 'startTurn', () => {
@@ -9646,10 +9647,16 @@ class ShouldShowChallengedCardsetLoadPhaseTest extends SceneTest {
   update() {
     this.step.update();
   }
+
+  restore() {
+    CardBattleManager.reset();
+    super.restore();
+  }
   
   asserts() {
     this.describe('Deve apresentar conjunto de cartões do desafiado na etapa de turno na fase de carregamento.');
     this.expectWasTrue('O conjunto de cartões do desafiado foi apresentado?', this.step.isChallengedCardsetSpriteVisible);
+    this.expectTrue('O conjunto de cartões do desafiado tem cartões?', CardBattleManager.hasCardsInChallengedfield());
   }
 }
 class ShouldShowPlayerBattleWindowLoadPhaseTest extends SceneTest {
@@ -9810,10 +9817,9 @@ class ShouldShowPlayerCardsetLoadPhaseTest extends SceneTest {
 
   start() {
     CardBattleManager.setPlayerDeck();
-    CardBattleManager.setChallengedDeck();
     const drawNumber = 2;
     CardBattleManager.drawPlayerCards(drawNumber);
-    CardBattleManager.drawChallengedCards(drawNumber);
+    CardBattleManager.putPlayerCards(drawNumber);
     this.mockFunction(Input, 'isTriggered', () => true);
     const finish = this.getHandler();
     this.mockFunction(this.step, 'startTurn', () => {
@@ -9826,10 +9832,52 @@ class ShouldShowPlayerCardsetLoadPhaseTest extends SceneTest {
   update() {
     this.step.update();
   }
+
+  restore() {
+    CardBattleManager.reset();
+    super.restore();
+  }
   
   asserts() {
     this.describe('Deve apresentar conjunto de cartões do jogador na etapa de turno na fase de carregamento.');
     this.expectWasTrue('O conjunto de cartões do jogador foi apresentado?', this.step.isPlayerCardsetSpriteVisible);
+    this.expectTrue('O conjunto de cartões do jogador tem cartões?', CardBattleManager.hasCardsInPlayerfield());
+  }
+}
+class ShouldShowTextWindowLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const handlers = {
+      playerPlayHandler: () => {},
+      playerPassedHandler: () => {},
+      challengedPlayHandler: () => {},
+      challengedPassedHandler: () => {},
+      activePowerfieldHandler: () => {},
+    };
+    this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.mockFunction(Input, 'isTriggered', () => true);
+    const finish = this.getHandler();
+    this.mockFunction(this.step, 'updateStartTurn', () => {
+      finish();
+    });
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de texto na etapa de turno na fase de carregamento.');
+    this.expectWasTrue('A janela de texto foi apresentada?', this.step.isTextWindowVisible);
+    this.expectTrue('O texto da janela de texto é apresentado como: Begin Load Phase?', this.step.isTextWindowText('Begin Load Phase'));
   }
 }
 
@@ -9924,6 +9972,8 @@ class CardBattleManager {
     passed: false,
   };
 
+  static playerfield = [];
+  static challengedfield = [];
   static powerfield = [];
 
   static getChallengeDescription() {
@@ -9967,6 +10017,10 @@ class CardBattleManager {
 
   static getPlayerDeckLength() {
     return CardBattleManager.player.deck.length;
+  }
+
+  static getPlayerHandCards() {
+    return CardBattleManager.player.hand;
   }
 
   static getPlayerHandLength() {
@@ -10060,6 +10114,10 @@ class CardBattleManager {
     return CardBattleManager.challenged.deck.length;
   }
 
+  static getChallengedHandCards() {
+    return CardBattleManager.challenged.hand;
+  }
+
   static getChallengedHandLength() {
     return CardBattleManager.challenged.hand.length;
   }
@@ -10145,6 +10203,8 @@ class CardBattleManager {
       passed: false,
     };
     CardBattleManager.powerfield = [];
+    CardBattleManager.playerfield = [];
+    CardBattleManager.challengedfield = [];
   }
 
   static setPlayerDeck(folderIndex = 0) {
@@ -10173,9 +10233,21 @@ class CardBattleManager {
     return cards;
   }
 
+  static putPlayerCards(cardsNumber) {
+    const cards = CardBattleManager.player.hand.splice(0, cardsNumber);
+    CardBattleManager.playerfield.push(...cards);
+    return cards;
+  }
+
   static drawChallengedCards(cardsNumber) {
     const cards = CardBattleManager.challenged.deck.splice(0, cardsNumber);
     CardBattleManager.challenged.hand.push(...cards);
+    return cards;
+  }
+
+  static putChallengedCards(cardsNumber) {
+    const cards = CardBattleManager.challenged.hand.splice(0, cardsNumber);
+    CardBattleManager.challengedfield.push(...cards);
     return cards;
   }
 
@@ -10196,12 +10268,28 @@ class CardBattleManager {
     return card;
   }
 
-  static getChallengedHandCards() {
-    return CardBattleManager.challenged.hand;
+  static getPlayerfieldCards() {
+    return CardBattleManager.playerfield;
   }
 
-  static getPlayerHandCards() {
-    return CardBattleManager.player.hand;
+  static hasCardsInPlayerfield() {
+    return CardBattleManager.getPlayerfieldLength() > 0;
+  }
+
+  static getPlayerfieldLength() {
+    return CardBattleManager.playerfield.length;
+  }
+
+  static getChallengedfieldCards() {
+    return CardBattleManager.challengedfield;
+  }
+
+  static hasCardsInChallengedfield() {
+    return CardBattleManager.getChallengedfieldLength() > 0;
+  }
+
+  static getChallengedfieldLength() {
+    return CardBattleManager.challengedfield.length;
   }
 }
 class Step {
@@ -10679,7 +10767,23 @@ class Step {
     this.addActions([
       this.commandOpenPlayerGameBoard,
       this.commandOpenChallengedGameBoard,
+      this.commandSetPlayerCardsetGameBoard,
+      this.commandSetChallengedCardsetGameBoard,
     ]);
+  }
+
+  commandSetPlayerCardsetGameBoard() {
+    const cards = CardBattleManager.getPlayerfieldCards();
+    this._player.cardsetSprite.show();
+    const sprites = this._player.cardsetSprite.listCards(cards);
+    this._player.cardsetSprite.startClosedCards(sprites);
+  }
+
+  commandSetChallengedCardsetGameBoard() {
+    const cards = CardBattleManager.getChallengedfieldCards();
+    this._challenged.cardsetSprite.show();
+    const sprites = this._challenged.cardsetSprite.listCards(cards);
+    this._challenged.cardsetSprite.startClosedCards(sprites);
   }
 
   commandOpenPlayerGameBoard() {
@@ -10991,18 +11095,6 @@ class Step {
   isChallengedCardsetClosed() {
     return this._challenged.cardsetSprite?.allCardsIsClosed();
   }
-
-  commandSetPlayerSetCardsClosed(cards) {
-    this._player.cardsetSprite?.show();
-    const sprites = this._player.cardsetSprite?.listCards(cards);
-    this._player.cardsetSprite?.startClosedCards(sprites);
-  }
-
-  commandSetChallengedSetCardsClosed(cards) {
-    this._challenged.cardsetSprite?.show();
-    const sprites = this._challenged.cardsetSprite?.listCards(cards);
-    this._challenged.cardsetSprite?.startClosedCards(sprites);
-  }
 }
 class DisplayStep extends Step {
   _titleWindow = undefined;
@@ -11220,12 +11312,12 @@ class DisplayStep extends Step {
     return this._descriptionWindow?.visible;
   }
 
-  isTextTitleWindow(text) {
-    return this._titleWindow.isTextWasDrawing('TEXT_0', text);
+  isTitleWindowText(text) {
+    return this._titleWindow.isTextWasDrawn('TEXT_0', text);
   }
 
-  isTextDescriptionWindow(texts) {
-    return texts.some((text, index) => this._descriptionWindow.isTextWasDrawing(`TEXT_${index}`, text));
+  isDescriptionWindowText(texts) {
+    return texts.some((text, index) => this._descriptionWindow.isTextWasDrawn(`TEXT_${index}`, text));
   }
 
   isTitleWindowClosed() {
@@ -11344,7 +11436,7 @@ class FolderStep extends Step {
   }
 
   isTextFoldersWindow(text) {
-    return this._foldersWindow.isTextWasDrawing('TEXT_0', text);
+    return this._foldersWindow.isTextWasDrawn('TEXT_0', text);
   }
 
   selectFolderWindowOption(index, foldersWindow = this._foldersWindow) {
@@ -11598,7 +11690,7 @@ class MiniGameStep extends Step {
   }
 
   isTextResultWindow(text) {
-    return this._resultWindow.isTextWasDrawing('TEXT_0', text);
+    return this._resultWindow.isTextWasDrawn('TEXT_0', text);
   }
 
   selectCardMiniGame(indexes) {
@@ -12587,25 +12679,9 @@ class TurnStep extends Step {
   start(text = 'Begin Load Phase') {
     this.createPlayerGameBoard();
     this.createChallengedGameBoard();
-    this.setCardsetsGameBoard();
     this.openGameBoards();
     this.createTextWindow(text);
     this.openTextWindow();
-  }
-
-  setCardsetsGameBoard() {
-    this.addAction(this.commandSetPlayerCardsetGameBoard);
-    this.addAction(this.commandSetChallengedCardsetGameBoard);
-  }
-
-  commandSetPlayerCardsetGameBoard() {
-    const cards = CardBattleManager.getPlayerHandCards();
-    this.commandSetPlayerSetCardsClosed(cards);
-  }
-
-  commandSetChallengedCardsetGameBoard() {
-    const cards = CardBattleManager.getChallengedHandCards();
-    this.commandSetChallengedSetCardsClosed(cards);
   }
 
   createTextWindow(text) {
@@ -12835,6 +12911,14 @@ class TurnStep extends Step {
   selectAskWindowOption(index, askWindow = this._askWindow) {
     askWindow.select(index);
     askWindow.callOkHandler();
+  }
+
+  isTextWindowVisible() {
+    return this._textWindow?.visible;
+  }
+
+  isTextWindowText(text) {
+    return this._textWindow.isTextWasDrawn('TEXT_0', text);
   }
 }
 
@@ -13076,8 +13160,9 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldShowPlayerBattleWindowLoadPhaseTest,
       // ShouldShowPlayerTrashWindowLoadPhaseTest,
       // ShouldShowPlayerScoreWindowLoadPhaseTest,
-      ShouldShowChallengedCardsetLoadPhaseTest,
-      ShouldShowPlayerCardsetLoadPhaseTest,
+      // ShouldShowChallengedCardsetLoadPhaseTest,
+      // ShouldShowPlayerCardsetLoadPhaseTest,
+      ShouldShowTextWindowLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

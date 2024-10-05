@@ -284,7 +284,7 @@ class TextWindow extends Window_Base {
     this.refresh();
   }
 
-  isTextWasDrawing(symbol, content) {
+  isTextWasDrawn(symbol, content) {
     return this.isHistory(symbol, content);
   }
 

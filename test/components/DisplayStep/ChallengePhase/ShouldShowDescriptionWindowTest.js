@@ -25,6 +25,6 @@ class ShouldShowDescriptionWindowChallengePhaseTest extends SceneTest {
       'Descrição de Desafiado',
       'O jogador que é desafiado por você.',
     ];
-    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
+    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isDescriptionWindowText(texts));
   }
 }

@@ -22,6 +22,6 @@ class ShouldShowDescriptionWindowStartPhaseTest extends SceneTest {
     this.describe('Deve apresentar janela de descrição em etapa de apresentação de fase de início.');
     this.expectWasTrue('A janela de descrição foi apresentada?', this.step.isDescriptionWindowVisible);
     const texts = ['Draw Calumon to go first.'];
-    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isTextDescriptionWindow(texts));
+    this.expectTrue('A descrição da fase foi apresentada como?', this.step.isDescriptionWindowText(texts));
   }
 }

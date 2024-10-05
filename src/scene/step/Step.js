@@ -473,7 +473,23 @@ class Step {
     this.addActions([
       this.commandOpenPlayerGameBoard,
       this.commandOpenChallengedGameBoard,
+      this.commandSetPlayerCardsetGameBoard,
+      this.commandSetChallengedCardsetGameBoard,
     ]);
+  }
+
+  commandSetPlayerCardsetGameBoard() {
+    const cards = CardBattleManager.getPlayerfieldCards();
+    this._player.cardsetSprite.show();
+    const sprites = this._player.cardsetSprite.listCards(cards);
+    this._player.cardsetSprite.startClosedCards(sprites);
+  }
+
+  commandSetChallengedCardsetGameBoard() {
+    const cards = CardBattleManager.getChallengedfieldCards();
+    this._challenged.cardsetSprite.show();
+    const sprites = this._challenged.cardsetSprite.listCards(cards);
+    this._challenged.cardsetSprite.startClosedCards(sprites);
   }
 
   commandOpenPlayerGameBoard() {
@@ -784,17 +800,5 @@ class Step {
 
   isChallengedCardsetClosed() {
     return this._challenged.cardsetSprite?.allCardsIsClosed();
-  }
-
-  commandSetPlayerSetCardsClosed(cards) {
-    this._player.cardsetSprite?.show();
-    const sprites = this._player.cardsetSprite?.listCards(cards);
-    this._player.cardsetSprite?.startClosedCards(sprites);
-  }
-
-  commandSetChallengedSetCardsClosed(cards) {
-    this._challenged.cardsetSprite?.show();
-    const sprites = this._challenged.cardsetSprite?.listCards(cards);
-    this._challenged.cardsetSprite?.startClosedCards(sprites);
   }
 }

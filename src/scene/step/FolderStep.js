@@ -106,7 +106,7 @@ class FolderStep extends Step {
   }
 
   isTextFoldersWindow(text) {
-    return this._foldersWindow.isTextWasDrawing('TEXT_0', text);
+    return this._foldersWindow.isTextWasDrawn('TEXT_0', text);
   }
 
   selectFolderWindowOption(index, foldersWindow = this._foldersWindow) {

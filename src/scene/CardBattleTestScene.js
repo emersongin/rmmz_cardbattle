@@ -246,8 +246,9 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldShowPlayerBattleWindowLoadPhaseTest,
       // ShouldShowPlayerTrashWindowLoadPhaseTest,
       // ShouldShowPlayerScoreWindowLoadPhaseTest,
-      ShouldShowChallengedCardsetLoadPhaseTest,
-      ShouldShowPlayerCardsetLoadPhaseTest,
+      // ShouldShowChallengedCardsetLoadPhaseTest,
+      // ShouldShowPlayerCardsetLoadPhaseTest,
+      ShouldShowTextWindowLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

@@ -357,7 +357,7 @@ class CommandWindow extends Window_Command {
     return this._windowColor === GameConst.DEFAULT;
   }
 
-  isTextWasDrawing(symbol, content) {
+  isTextWasDrawn(symbol, content) {
     return this.isHistory(symbol, content);
   }
   
