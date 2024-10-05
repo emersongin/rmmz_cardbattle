@@ -13221,6 +13221,8 @@ class CardBattleTestScene extends Scene_Message {
     this._next = null;
     this._animationSprites = [];
     this._finishWindow = null;
+    this._startTestDate = new Date();
+    this._endTestDate = null;
   }
 
   create() {
@@ -13235,11 +13237,8 @@ class CardBattleTestScene extends Scene_Message {
     const rect = new Rectangle(0, 0, Graphics.boxWidth, objHeight);
     this._finishWindow = new Window_Base(rect);
     const y = ScreenHelper.getAboveMiddlePosition(objHeight / 2);
-    console.log(y);
     this._finishWindow.y = y;
     this._finishWindow.contents.fontSize = 24;
-    this._finishWindow.contents.textColor = '#FFFFFF';
-    this._finishWindow.contents.drawText('Testes finalizados!', 0, 0, Graphics.boxWidth, 48, 'center');
     this._finishWindow.hide();
     this._finishWindow.close();
   }
@@ -13421,74 +13420,74 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const stepsTests = [
-      // // DisplayStep
-      // ShouldShowTitleWindowChallengePhaseTest,
-      // ShouldShowDescriptionWindowChallengePhaseTest,
-      // ShouldCloseWindowsWhenPressActionChallengePhaseTest,
-      // ShouldShowTitleWindowStartPhaseTest,
-      // ShouldShowDescriptionWindowStartPhaseTest,
-      // ShouldCloseWindowsWhenPressActionStartPhaseTest,
-      // ShouldShowTitleWindowDrawPhaseTest,
-      // ShouldShowDescriptionWindowDrawPhaseTest,
-      // ShouldCloseWindowsWhenPressActionDrawPhaseTest,
-      // ShouldShowTitleWindowLoadPhaseTest,
-      // ShouldShowDescriptionWindowLoadPhaseTest,
-      // ShouldCloseWindowsWhenPressActionLoadPhaseTest,
+      // DisplayStep
+      ShouldShowTitleWindowChallengePhaseTest,
+      ShouldShowDescriptionWindowChallengePhaseTest,
+      ShouldCloseWindowsWhenPressActionChallengePhaseTest,
+      ShouldShowTitleWindowStartPhaseTest,
+      ShouldShowDescriptionWindowStartPhaseTest,
+      ShouldCloseWindowsWhenPressActionStartPhaseTest,
+      ShouldShowTitleWindowDrawPhaseTest,
+      ShouldShowDescriptionWindowDrawPhaseTest,
+      ShouldCloseWindowsWhenPressActionDrawPhaseTest,
+      ShouldShowTitleWindowLoadPhaseTest,
+      ShouldShowDescriptionWindowLoadPhaseTest,
+      ShouldCloseWindowsWhenPressActionLoadPhaseTest,
 
-      // // DrawStep
-      // ShouldShowPlayerBoardWindowDrawPhaseTest,
-      // ShouldShowPlayerBattleWindowDrawPhaseTest,
-      // ShouldShowPlayerTrashWindowDrawPhaseTest,
-      // ShouldShowPlayerScoreWindowDrawPhaseTest,
-      // ShouldShowPlayerCardsetDrawPhaseTest,
-      // ShouldShowChallengedBoardWindowDrawPhaseTest,
-      // ShouldShowChallengedBattleWindowDrawPhaseTest,
-      // ShouldShowChallengedTrashWindowDrawPhaseTest,
-      // ShouldShowChallengedScoreWindowDrawPhaseTest,
-      // ShouldShowChallengedCardsetDrawPhaseTest,
-      // ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
-      // ShouldLoadBattlefieldsDrawPhaseTest,
+      // DrawStep
+      ShouldShowPlayerBoardWindowDrawPhaseTest,
+      ShouldShowPlayerBattleWindowDrawPhaseTest,
+      ShouldShowPlayerTrashWindowDrawPhaseTest,
+      ShouldShowPlayerScoreWindowDrawPhaseTest,
+      ShouldShowPlayerCardsetDrawPhaseTest,
+      ShouldShowChallengedBoardWindowDrawPhaseTest,
+      ShouldShowChallengedBattleWindowDrawPhaseTest,
+      ShouldShowChallengedTrashWindowDrawPhaseTest,
+      ShouldShowChallengedScoreWindowDrawPhaseTest,
+      ShouldShowChallengedCardsetDrawPhaseTest,
+      ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
+      ShouldLoadBattlefieldsDrawPhaseTest,
 
-      // // FolderStep
-      // ShouldShowPlayerFolderWindowTest,
-      // ShouldCloseFolderWindowWhenSelectedFolderTest,
+      // FolderStep
+      ShouldShowPlayerFolderWindowTest,
+      ShouldCloseFolderWindowWhenSelectedFolderTest,
 
-      // // MiniGameStep
-      // ShouldShowMiniGameCardsetTest,
-      // ShouldShufflerCardsTest,
-      // ShouldShowGameResultWindowCardsTest,
-      // ShouldCloseMiniGameOnSelectedCardTest,
+      // MiniGameStep
+      ShouldShowMiniGameCardsetTest,
+      ShouldShufflerCardsTest,
+      ShouldShowGameResultWindowCardsTest,
+      ShouldCloseMiniGameOnSelectedCardTest,
 
-      // //TurnStep
-      // ShouldShowChallengedBoardWindowLoadPhaseTest,
-      // ShouldShowChallengedBattleWindowLoadPhaseTest,
-      // ShouldShowChallengedScoreWindowLoadPhaseTest,
-      // ShouldShowChallengedTrashWindowLoadPhaseTest,
-      // ShouldShowPlayerBoardWindowLoadPhaseTest,
-      // ShouldShowPlayerBattleWindowLoadPhaseTest,
-      // ShouldShowPlayerTrashWindowLoadPhaseTest,
-      // ShouldShowPlayerScoreWindowLoadPhaseTest,
-      // ShouldShowChallengedCardsetLoadPhaseTest,
-      // ShouldShowPlayerCardsetLoadPhaseTest,
-      // ShouldShowTextWindowLoadPhaseTest,
+      //TurnStep
+      ShouldShowChallengedBoardWindowLoadPhaseTest,
+      ShouldShowChallengedBattleWindowLoadPhaseTest,
+      ShouldShowChallengedScoreWindowLoadPhaseTest,
+      ShouldShowChallengedTrashWindowLoadPhaseTest,
+      ShouldShowPlayerBoardWindowLoadPhaseTest,
+      ShouldShowPlayerBattleWindowLoadPhaseTest,
+      ShouldShowPlayerTrashWindowLoadPhaseTest,
+      ShouldShowPlayerScoreWindowLoadPhaseTest,
+      ShouldShowChallengedCardsetLoadPhaseTest,
+      ShouldShowPlayerCardsetLoadPhaseTest,
+      ShouldShowTextWindowLoadPhaseTest,
 
-      // PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
-      // PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
-      // PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
-      // ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
+      PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
+      PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
+      PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
+      ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
       PlayerMustPassedTurnYourTurnLoadPhaseTest,
     ];
     return [
-      // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      // ...commandWindowTests,
-      // ...StateWindowTests,
-      // ...textWindowTests,
-      // ...boardWindowTests,
-      // ...battlePointsWindowTests,
-      // ...trashWindowTests,
-      // ...scoreWindowTests,
-      // ...folderWindowTests,
+      ...cardSpriteTests,
+      ...cardsetSpriteTests,
+      ...commandWindowTests,
+      ...StateWindowTests,
+      ...textWindowTests,
+      ...boardWindowTests,
+      ...battlePointsWindowTests,
+      ...trashWindowTests,
+      ...scoreWindowTests,
+      ...folderWindowTests,
       ...stepsTests,
     ];
   }
@@ -13508,10 +13507,11 @@ class CardBattleTestScene extends Scene_Message {
       this._next = null;
       CardBattleManager.reset();
       await this.clearScene();
-      this.openFinishWindow();
     }
+    this._endTestDate = new Date();
     this.printResults(testsResults);
     this.printTotals(testsResults);
+    this.openFinishWindow();
   }
 
   clearScene() {
@@ -13550,10 +13550,26 @@ class CardBattleTestScene extends Scene_Message {
   }
 
   openFinishWindow() {
+    const time = this.calculateDifferenceInMinutesAndSeconds(this._startTestDate, this._endTestDate);
+    this._finishWindow.contents.clear();
+    this._finishWindow.contents.fontSize = 24;
+    this._finishWindow.contents.drawText(`Testes finalizados em: ${time} segundos!`, 0, 0, Graphics.boxWidth, 48, 'center');
     this.addWindow(this._finishWindow);
     this._finishWindow.show();
     this._finishWindow.open();
   }
+
+  calculateDifferenceInMinutesAndSeconds(startDate, endData) {
+    const timestamp1 = new Date(startDate).getTime();
+    const timestamp2 = new Date(endData).getTime();
+    let difference = Math.abs(timestamp2 - timestamp1);
+    difference = Math.floor(difference / 1000);
+    const minutes = Math.floor(difference / 60);
+    const seconds = difference % 60;
+    const formattedMinutes = String(minutes).padStart(2, '0');
+    const formattedSeconds = String(seconds).padStart(2, '0');
+    return `${formattedMinutes}:${formattedSeconds}`;
+}
 
   printResults(results) {
     results.forEach(test => {
