@@ -408,4 +408,12 @@ class CardBattleManager {
   static getChallengedfieldLength() {
     return CardBattleManager.challengedfield.length;
   }
+
+  static isChallengedWaiting() {
+    return CardBattleManager.isChallengedPassed() === false;
+  }
+
+  static isPlayerWaiting() {
+    return CardBattleManager.isPlayerPassed() === false;
+  }
 }

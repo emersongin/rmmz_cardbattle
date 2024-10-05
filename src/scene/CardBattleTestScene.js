@@ -4,7 +4,7 @@
 // include ./step/MiniGameStep.js
 // include ./step/DrawStep.js
 // include ./step/RunPowerfieldStep.js
-// include ./step/ActivationStep.js
+// include ./step/ActivationSlotStep.js
 // include ./step/ZoneStep.js
 // include ./step/TurnStep.js
 
@@ -238,17 +238,22 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldCloseMiniGameOnSelectedCardTest,
 
       //TurnStep
-      ShouldShowChallengedBoardWindowLoadPhaseTest,
-      ShouldShowChallengedBattleWindowLoadPhaseTest,
-      ShouldShowChallengedScoreWindowLoadPhaseTest,
-      ShouldShowChallengedTrashWindowLoadPhaseTest,
-      ShouldShowPlayerBoardWindowLoadPhaseTest,
-      ShouldShowPlayerBattleWindowLoadPhaseTest,
-      ShouldShowPlayerTrashWindowLoadPhaseTest,
-      ShouldShowPlayerScoreWindowLoadPhaseTest,
-      ShouldShowChallengedCardsetLoadPhaseTest,
-      ShouldShowPlayerCardsetLoadPhaseTest,
-      ShouldShowTextWindowLoadPhaseTest,
+      // ShouldShowChallengedBoardWindowLoadPhaseTest,
+      // ShouldShowChallengedBattleWindowLoadPhaseTest,
+      // ShouldShowChallengedScoreWindowLoadPhaseTest,
+      // ShouldShowChallengedTrashWindowLoadPhaseTest,
+      // ShouldShowPlayerBoardWindowLoadPhaseTest,
+      // ShouldShowPlayerBattleWindowLoadPhaseTest,
+      // ShouldShowPlayerTrashWindowLoadPhaseTest,
+      // ShouldShowPlayerScoreWindowLoadPhaseTest,
+      // ShouldShowChallengedCardsetLoadPhaseTest,
+      // ShouldShowPlayerCardsetLoadPhaseTest,
+      // ShouldShowTextWindowLoadPhaseTest,
+
+      // PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
+      // PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
+      // PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
+      ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,
