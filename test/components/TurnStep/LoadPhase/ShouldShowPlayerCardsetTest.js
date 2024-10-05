@@ -40,6 +40,7 @@ class ShouldShowPlayerCardsetLoadPhaseTest extends SceneTest {
   asserts() {
     this.describe('Deve apresentar conjunto de cartões do jogador na etapa de turno na fase de carregamento.');
     this.expectWasTrue('O conjunto de cartões do jogador foi apresentado?', this.step.isPlayerCardsetSpriteVisible);
+    this.expectTrue('Todos os cartões estão abertos?', this.step.allPlayerCardsAreOpen());
     this.expectTrue('O conjunto de cartões do jogador tem cartões?', CardBattleManager.hasCardsInPlayerfield());
   }
 }

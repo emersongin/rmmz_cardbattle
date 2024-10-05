@@ -238,16 +238,16 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldCloseMiniGameOnSelectedCardTest,
 
       //TurnStep
-      // ShouldShowChallengedBoardWindowLoadPhaseTest,
-      // ShouldShowChallengedBattleWindowLoadPhaseTest,
-      // ShouldShowChallengedScoreWindowLoadPhaseTest,
-      // ShouldShowChallengedTrashWindowLoadPhaseTest,
-      // ShouldShowPlayerBoardWindowLoadPhaseTest,
-      // ShouldShowPlayerBattleWindowLoadPhaseTest,
-      // ShouldShowPlayerTrashWindowLoadPhaseTest,
-      // ShouldShowPlayerScoreWindowLoadPhaseTest,
-      // ShouldShowChallengedCardsetLoadPhaseTest,
-      // ShouldShowPlayerCardsetLoadPhaseTest,
+      ShouldShowChallengedBoardWindowLoadPhaseTest,
+      ShouldShowChallengedBattleWindowLoadPhaseTest,
+      ShouldShowChallengedScoreWindowLoadPhaseTest,
+      ShouldShowChallengedTrashWindowLoadPhaseTest,
+      ShouldShowPlayerBoardWindowLoadPhaseTest,
+      ShouldShowPlayerBattleWindowLoadPhaseTest,
+      ShouldShowPlayerTrashWindowLoadPhaseTest,
+      ShouldShowPlayerScoreWindowLoadPhaseTest,
+      ShouldShowChallengedCardsetLoadPhaseTest,
+      ShouldShowPlayerCardsetLoadPhaseTest,
       ShouldShowTextWindowLoadPhaseTest,
     ];
     return [

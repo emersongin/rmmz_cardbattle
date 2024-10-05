@@ -245,6 +245,8 @@ class SceneTest {
     if (this.isFunction(fnOrValue)) {
       const fnName = fnOrValue.name;
       watching = ObjectHelper.mergeObjects(reference, watching);
+      //debbuger;
+      // console.log(fnName, watching[fnName](...params));
       return watching[fnName](...params) === true;
     }
     return watching[fnOrValue] === true;

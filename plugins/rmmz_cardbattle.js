@@ -322,6 +322,7 @@ class ObjectHelper {
       '_resultWindow',
       '_cardsetSprite',
       'visible',
+      'width',
     ];
     const newObj = Object.create(Object.getPrototypeOf(obj));
     for (const key in obj) {
@@ -4480,12 +4481,12 @@ class CardsetSprite extends ActionSprite {
     return true;
   }
 
-  allCardsAreVisible() {
-    return this._sprites.every(sprite => sprite.isVisible());
+  allCardsAreVisible(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isVisible());
   }
 
   isSpritesPositions(positions, sprites = this._sprites) {
-    return sprites.every((sprite, index) => {
+    return sprites.length && sprites.every((sprite, index) => {
       const position = positions.find(position => position.index === index);
       if (!position) return true;
       const { x, y } = position;
@@ -4522,8 +4523,12 @@ class CardsetSprite extends ActionSprite {
     sprites.forEach((sprite, index) => sprite.startClosed());
   }
 
-  allCardsIsClosed(sprites = this._sprites) {
-    return sprites.every(sprite => sprite.isClosed());
+  allCardsAreOpen(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isOpened());
+  }
+
+  allCardsAreClosed(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isClosed());
   }
 
   openAllCards(sprites = this._sprites) {
@@ -4698,10 +4703,6 @@ class CardsetSprite extends ActionSprite {
 
   commandSelectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
     return this._status.selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
-  }
-
-  allCardsAreOpened(sprites = this._sprites) {
-    return sprites.every(sprite => sprite.isOpened());
   }
 
   isSelectMode() {
@@ -4905,8 +4906,8 @@ class CardsetSprite extends ActionSprite {
     sprite.forEach(sprite => sprite.setTurnToDown());
   }
 
-  allCardsTurnedToDown() {
-    return this._sprites.every(sprite => sprite.isTurnedToDown());
+  allCardsTurnedToDown(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isTurnedToDown());
   }
 
   zoomAllCards(sprites = this._sprites) {
@@ -4919,8 +4920,8 @@ class CardsetSprite extends ActionSprite {
     sprites.forEach(sprite => sprite.zoom());
   }
 
-  isCardsZoom() {
-    return this._sprites.every(sprite => sprite.isZoom());
+  isCardsZoom(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isZoom());
   }
 
   zoomOutAllCards(sprites = this._sprites) {
@@ -4933,8 +4934,8 @@ class CardsetSprite extends ActionSprite {
     sprites.forEach(sprite => sprite.zoomOut());
   }
 
-  isCardsOriginalScale() {
-    return this._sprites.every(sprite => sprite.isOriginalScale());
+  isCardsOriginalScale(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isOriginalScale());
   }
 
   getSpriteByIndex(index) {
@@ -4951,8 +4952,8 @@ class CardsetSprite extends ActionSprite {
     sprites.forEach(sprite => sprite.flipTurnToUp());
   }
 
-  allCardsAreTurnToUp() {
-    return this._sprites.every(sprite => sprite.isTurnedToUp());
+  allCardsAreTurnToUp(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isTurnedToUp());
   }
 
   flipTurnToUpCards(sprites = this._sprites, delay = 6) {
@@ -4998,7 +4999,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   isCardsHidden(sprites = this._sprites) {
-    return sprites.every(sprite => sprite.isHidden());
+    return sprites.length && sprites.every(sprite => sprite.isHidden());
   }
 
   select(indexes) {
@@ -5610,6 +5611,8 @@ class SceneTest {
     if (this.isFunction(fnOrValue)) {
       const fnName = fnOrValue.name;
       watching = ObjectHelper.mergeObjects(reference, watching);
+      //debbuger;
+      // console.log(fnName, watching[fnName](...params));
       return watching[fnName](...params) === true;
     }
     return watching[fnOrValue] === true;
@@ -6556,7 +6559,7 @@ class OpenAllCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve abrir todas as cartas!');
-    this.expectTrue('Estão aberto?', this.subject.allCardsAreOpened(this.sprites));
+    this.expectTrue('Estão aberto?', this.subject.allCardsAreOpen(this.sprites));
   }
 }
 class OpenCardsCardsetSpriteTest extends SceneTest {
@@ -6576,7 +6579,7 @@ class OpenCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve abrir as cartas!');
-    this.expectTrue('Estão aberto?', this.subject.allCardsAreOpened(this.sprites));
+    this.expectTrue('Estão aberto?', this.subject.allCardsAreOpen(this.sprites));
   }
 }
 class CloseAllCardsCardsetSpriteTest extends SceneTest {
@@ -7116,7 +7119,7 @@ class FlipTurnToUpAllCardsCardsetSpriteTest extends SceneTest {
   asserts() {
     this.describe('Deve virar o card para cima!');
     this.expectTrue('Estão virados para cima?', this.subject.allCardsAreTurnToUp());
-    this.expectTrue('EStão abertos?', this.subject.allCardsAreOpened());
+    this.expectTrue('EStão abertos?', this.subject.allCardsAreOpen());
   }
 }
 class FlipTurnToUpCardsCardsetSpriteTest extends SceneTest {
@@ -7136,7 +7139,7 @@ class FlipTurnToUpCardsCardsetSpriteTest extends SceneTest {
   asserts() {
     this.describe('Deve virar o card para cima!');
     this.expectTrue('Estão virados para cima?', this.subject.allCardsAreTurnToUp());
-    this.expectTrue('EStão abertos?', this.subject.allCardsAreOpened());
+    this.expectTrue('EStão abertos?', this.subject.allCardsAreOpen());
   }
 }
 class AlignAboveOfCardsetSpriteTest extends SceneTest {
@@ -9210,7 +9213,7 @@ class ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest extends SceneTest {
     this.expectTrue('A janela de batalha do desafiado foi fechada?', this.step.isChallengedBattleWindowClosed());
     this.expectTrue('A janela de pontuação do desafiado foi fechada?', this.step.isChallengedScoreWindowClosed());
     this.expectTrue('A janela de lixo do desafiado foi fechada?', this.step.isChallengedTrashWindowClosed());
-    this.expectTrue('O conjunto de cartões do desafiado foi retirado?', this.step.isChallengedCardsetClosed());
+    this.expectTrue('O conjunto de cartões do desafiado foi retirado?', this.step.allChallengedCardsAreClosed());
     this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
     this.expectTrue('A proxima Fase é LOAD_PHASE?', this.step.getPhase() === GameConst.LOAD_PHASE);
   }
@@ -9656,6 +9659,7 @@ class ShouldShowChallengedCardsetLoadPhaseTest extends SceneTest {
   asserts() {
     this.describe('Deve apresentar conjunto de cartões do desafiado na etapa de turno na fase de carregamento.');
     this.expectWasTrue('O conjunto de cartões do desafiado foi apresentado?', this.step.isChallengedCardsetSpriteVisible);
+    this.expectTrue('Todos os cartões estão abertos?', this.step.allChallengedCardsAreOpen());
     this.expectTrue('O conjunto de cartões do desafiado tem cartões?', CardBattleManager.hasCardsInChallengedfield());
   }
 }
@@ -9841,6 +9845,7 @@ class ShouldShowPlayerCardsetLoadPhaseTest extends SceneTest {
   asserts() {
     this.describe('Deve apresentar conjunto de cartões do jogador na etapa de turno na fase de carregamento.');
     this.expectWasTrue('O conjunto de cartões do jogador foi apresentado?', this.step.isPlayerCardsetSpriteVisible);
+    this.expectTrue('Todos os cartões estão abertos?', this.step.allPlayerCardsAreOpen());
     this.expectTrue('O conjunto de cartões do jogador tem cartões?', CardBattleManager.hasCardsInPlayerfield());
   }
 }
@@ -10496,6 +10501,11 @@ class Step {
     this._phase = phase;
   }
 
+  createGameBoards() {
+    this.createPlayerGameBoard();
+    this.createChallengedGameBoard();
+  }
+
   createPlayerGameBoard() {
     const energies = Object.values(CardBattleManager.getPlayerEnergies());
     const cardsInDeck = CardBattleManager.getPlayerDeckLength();
@@ -10510,7 +10520,7 @@ class Step {
     const scoreWindow = this.createPlayerScoreWindow(victories, boardWindowHeight);
     const cardsetSprite = this.createPlayerCardsetSprite();
   }
-
+  
   createPlayerBoardWindow(energies, cardsInDeck, cardsInHand, passed = false) {
     const boardWindow = BoardWindow.create(0, 0);
     boardWindow.changeBlueColor();
@@ -10579,6 +10589,10 @@ class Step {
     const height = 120;
     const y = ScreenHelper.getBottomPosition(height);
     cardsetSprite.alignAboveOf({ y, height });
+    cardsetSprite.show();
+    const cards = CardBattleManager.getPlayerfieldCards();
+    const sprites = cardsetSprite.listCards(cards);
+    cardsetSprite.startClosedCards(sprites);
     this.addAction(this.commandCreatePlayerCardsetSprite, cardsetSprite);
     return cardsetSprite;
   }
@@ -10679,6 +10693,10 @@ class Step {
     const height = 128;
     const y = ScreenHelper.getTopPosition();
     cardsetSprite.alignBelowOf({ y, height });
+    cardsetSprite.show();
+    const cards = CardBattleManager.getChallengedfieldCards();
+    const sprites = cardsetSprite.listCards(cards);
+    cardsetSprite.startClosedCards(sprites);
     this.addAction(this.commandCreateChallengedCardsetSprite, cardsetSprite);
     return cardsetSprite;
   }
@@ -10767,23 +10785,7 @@ class Step {
     this.addActions([
       this.commandOpenPlayerGameBoard,
       this.commandOpenChallengedGameBoard,
-      this.commandSetPlayerCardsetGameBoard,
-      this.commandSetChallengedCardsetGameBoard,
     ]);
-  }
-
-  commandSetPlayerCardsetGameBoard() {
-    const cards = CardBattleManager.getPlayerfieldCards();
-    this._player.cardsetSprite.show();
-    const sprites = this._player.cardsetSprite.listCards(cards);
-    this._player.cardsetSprite.startClosedCards(sprites);
-  }
-
-  commandSetChallengedCardsetGameBoard() {
-    const cards = CardBattleManager.getChallengedfieldCards();
-    this._challenged.cardsetSprite.show();
-    const sprites = this._challenged.cardsetSprite.listCards(cards);
-    this._challenged.cardsetSprite.startClosedCards(sprites);
   }
 
   commandOpenPlayerGameBoard() {
@@ -11072,8 +11074,12 @@ class Step {
     return this._player.scoreWindow?.isClosed();
   }
 
-  isPlayerCardsetClosed() {
-    return this._player.cardsetSprite?.allCardsIsClosed();
+  allPlayerCardsAreOpen() {
+    return this._player.cardsetSprite?.allCardsAreOpen();
+  }
+
+  allPlayerCardsClosed() {
+    return this._player.cardsetSprite?.allCardsAreClosed();
   }
 
   isChallengedBoardWindowClosed() {
@@ -11092,8 +11098,12 @@ class Step {
     return this._challenged.scoreWindow?.isClosed();
   }
 
-  isChallengedCardsetClosed() {
-    return this._challenged.cardsetSprite?.allCardsIsClosed();
+  allChallengedCardsAreOpen() {
+    return this._challenged.cardsetSprite?.allCardsAreOpen();
+  }
+
+  allChallengedCardsAreClosed() {
+    return this._challenged.cardsetSprite?.allCardsAreClosed();
   }
 }
 class DisplayStep extends Step {
@@ -12677,10 +12687,9 @@ class TurnStep extends Step {
   }
 
   start(text = 'Begin Load Phase') {
-    this.createPlayerGameBoard();
-    this.createChallengedGameBoard();
-    this.openGameBoards();
+    this.createGameBoards();
     this.createTextWindow(text);
+    this.openGameBoards();
     this.openTextWindow();
   }
 
@@ -13152,16 +13161,16 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldCloseMiniGameOnSelectedCardTest,
 
       //TurnStep
-      // ShouldShowChallengedBoardWindowLoadPhaseTest,
-      // ShouldShowChallengedBattleWindowLoadPhaseTest,
-      // ShouldShowChallengedScoreWindowLoadPhaseTest,
-      // ShouldShowChallengedTrashWindowLoadPhaseTest,
-      // ShouldShowPlayerBoardWindowLoadPhaseTest,
-      // ShouldShowPlayerBattleWindowLoadPhaseTest,
-      // ShouldShowPlayerTrashWindowLoadPhaseTest,
-      // ShouldShowPlayerScoreWindowLoadPhaseTest,
-      // ShouldShowChallengedCardsetLoadPhaseTest,
-      // ShouldShowPlayerCardsetLoadPhaseTest,
+      ShouldShowChallengedBoardWindowLoadPhaseTest,
+      ShouldShowChallengedBattleWindowLoadPhaseTest,
+      ShouldShowChallengedScoreWindowLoadPhaseTest,
+      ShouldShowChallengedTrashWindowLoadPhaseTest,
+      ShouldShowPlayerBoardWindowLoadPhaseTest,
+      ShouldShowPlayerBattleWindowLoadPhaseTest,
+      ShouldShowPlayerTrashWindowLoadPhaseTest,
+      ShouldShowPlayerScoreWindowLoadPhaseTest,
+      ShouldShowChallengedCardsetLoadPhaseTest,
+      ShouldShowPlayerCardsetLoadPhaseTest,
       ShouldShowTextWindowLoadPhaseTest,
     ];
     return [

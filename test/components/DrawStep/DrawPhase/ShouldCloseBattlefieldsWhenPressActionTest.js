@@ -34,7 +34,7 @@ class ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest extends SceneTest {
     this.expectTrue('A janela de batalha do desafiado foi fechada?', this.step.isChallengedBattleWindowClosed());
     this.expectTrue('A janela de pontuação do desafiado foi fechada?', this.step.isChallengedScoreWindowClosed());
     this.expectTrue('A janela de lixo do desafiado foi fechada?', this.step.isChallengedTrashWindowClosed());
-    this.expectTrue('O conjunto de cartões do desafiado foi retirado?', this.step.isChallengedCardsetClosed());
+    this.expectTrue('O conjunto de cartões do desafiado foi retirado?', this.step.allChallengedCardsAreClosed());
     this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
     this.expectTrue('A proxima Fase é LOAD_PHASE?', this.step.getPhase() === GameConst.LOAD_PHASE);
   }

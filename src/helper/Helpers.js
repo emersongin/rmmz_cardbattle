@@ -151,6 +151,7 @@ class ObjectHelper {
       '_resultWindow',
       '_cardsetSprite',
       'visible',
+      'width',
     ];
     const newObj = Object.create(Object.getPrototypeOf(obj));
     for (const key in obj) {

@@ -202,6 +202,11 @@ class Step {
     this._phase = phase;
   }
 
+  createGameBoards() {
+    this.createPlayerGameBoard();
+    this.createChallengedGameBoard();
+  }
+
   createPlayerGameBoard() {
     const energies = Object.values(CardBattleManager.getPlayerEnergies());
     const cardsInDeck = CardBattleManager.getPlayerDeckLength();
@@ -216,7 +221,7 @@ class Step {
     const scoreWindow = this.createPlayerScoreWindow(victories, boardWindowHeight);
     const cardsetSprite = this.createPlayerCardsetSprite();
   }
-
+  
   createPlayerBoardWindow(energies, cardsInDeck, cardsInHand, passed = false) {
     const boardWindow = BoardWindow.create(0, 0);
     boardWindow.changeBlueColor();
@@ -285,6 +290,10 @@ class Step {
     const height = 120;
     const y = ScreenHelper.getBottomPosition(height);
     cardsetSprite.alignAboveOf({ y, height });
+    cardsetSprite.show();
+    const cards = CardBattleManager.getPlayerfieldCards();
+    const sprites = cardsetSprite.listCards(cards);
+    cardsetSprite.startClosedCards(sprites);
     this.addAction(this.commandCreatePlayerCardsetSprite, cardsetSprite);
     return cardsetSprite;
   }
@@ -385,6 +394,10 @@ class Step {
     const height = 128;
     const y = ScreenHelper.getTopPosition();
     cardsetSprite.alignBelowOf({ y, height });
+    cardsetSprite.show();
+    const cards = CardBattleManager.getChallengedfieldCards();
+    const sprites = cardsetSprite.listCards(cards);
+    cardsetSprite.startClosedCards(sprites);
     this.addAction(this.commandCreateChallengedCardsetSprite, cardsetSprite);
     return cardsetSprite;
   }
@@ -473,23 +486,7 @@ class Step {
     this.addActions([
       this.commandOpenPlayerGameBoard,
       this.commandOpenChallengedGameBoard,
-      this.commandSetPlayerCardsetGameBoard,
-      this.commandSetChallengedCardsetGameBoard,
     ]);
-  }
-
-  commandSetPlayerCardsetGameBoard() {
-    const cards = CardBattleManager.getPlayerfieldCards();
-    this._player.cardsetSprite.show();
-    const sprites = this._player.cardsetSprite.listCards(cards);
-    this._player.cardsetSprite.startClosedCards(sprites);
-  }
-
-  commandSetChallengedCardsetGameBoard() {
-    const cards = CardBattleManager.getChallengedfieldCards();
-    this._challenged.cardsetSprite.show();
-    const sprites = this._challenged.cardsetSprite.listCards(cards);
-    this._challenged.cardsetSprite.startClosedCards(sprites);
   }
 
   commandOpenPlayerGameBoard() {
@@ -778,8 +775,12 @@ class Step {
     return this._player.scoreWindow?.isClosed();
   }
 
-  isPlayerCardsetClosed() {
-    return this._player.cardsetSprite?.allCardsIsClosed();
+  allPlayerCardsAreOpen() {
+    return this._player.cardsetSprite?.allCardsAreOpen();
+  }
+
+  allPlayerCardsClosed() {
+    return this._player.cardsetSprite?.allCardsAreClosed();
   }
 
   isChallengedBoardWindowClosed() {
@@ -798,7 +799,11 @@ class Step {
     return this._challenged.scoreWindow?.isClosed();
   }
 
-  isChallengedCardsetClosed() {
-    return this._challenged.cardsetSprite?.allCardsIsClosed();
+  allChallengedCardsAreOpen() {
+    return this._challenged.cardsetSprite?.allCardsAreOpen();
+  }
+
+  allChallengedCardsAreClosed() {
+    return this._challenged.cardsetSprite?.allCardsAreClosed();
   }
 }

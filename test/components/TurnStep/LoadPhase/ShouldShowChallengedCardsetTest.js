@@ -40,6 +40,7 @@ class ShouldShowChallengedCardsetLoadPhaseTest extends SceneTest {
   asserts() {
     this.describe('Deve apresentar conjunto de cartões do desafiado na etapa de turno na fase de carregamento.');
     this.expectWasTrue('O conjunto de cartões do desafiado foi apresentado?', this.step.isChallengedCardsetSpriteVisible);
+    this.expectTrue('Todos os cartões estão abertos?', this.step.allChallengedCardsAreOpen());
     this.expectTrue('O conjunto de cartões do desafiado tem cartões?', CardBattleManager.hasCardsInChallengedfield());
   }
 }

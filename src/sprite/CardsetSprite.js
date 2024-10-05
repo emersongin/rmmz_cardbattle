@@ -165,12 +165,12 @@ class CardsetSprite extends ActionSprite {
     return true;
   }
 
-  allCardsAreVisible() {
-    return this._sprites.every(sprite => sprite.isVisible());
+  allCardsAreVisible(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isVisible());
   }
 
   isSpritesPositions(positions, sprites = this._sprites) {
-    return sprites.every((sprite, index) => {
+    return sprites.length && sprites.every((sprite, index) => {
       const position = positions.find(position => position.index === index);
       if (!position) return true;
       const { x, y } = position;
@@ -207,8 +207,12 @@ class CardsetSprite extends ActionSprite {
     sprites.forEach((sprite, index) => sprite.startClosed());
   }
 
-  allCardsIsClosed(sprites = this._sprites) {
-    return sprites.every(sprite => sprite.isClosed());
+  allCardsAreOpen(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isOpened());
+  }
+
+  allCardsAreClosed(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isClosed());
   }
 
   openAllCards(sprites = this._sprites) {
@@ -383,10 +387,6 @@ class CardsetSprite extends ActionSprite {
 
   commandSelectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
     return this._status.selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
-  }
-
-  allCardsAreOpened(sprites = this._sprites) {
-    return sprites.every(sprite => sprite.isOpened());
   }
 
   isSelectMode() {
@@ -590,8 +590,8 @@ class CardsetSprite extends ActionSprite {
     sprite.forEach(sprite => sprite.setTurnToDown());
   }
 
-  allCardsTurnedToDown() {
-    return this._sprites.every(sprite => sprite.isTurnedToDown());
+  allCardsTurnedToDown(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isTurnedToDown());
   }
 
   zoomAllCards(sprites = this._sprites) {
@@ -604,8 +604,8 @@ class CardsetSprite extends ActionSprite {
     sprites.forEach(sprite => sprite.zoom());
   }
 
-  isCardsZoom() {
-    return this._sprites.every(sprite => sprite.isZoom());
+  isCardsZoom(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isZoom());
   }
 
   zoomOutAllCards(sprites = this._sprites) {
@@ -618,8 +618,8 @@ class CardsetSprite extends ActionSprite {
     sprites.forEach(sprite => sprite.zoomOut());
   }
 
-  isCardsOriginalScale() {
-    return this._sprites.every(sprite => sprite.isOriginalScale());
+  isCardsOriginalScale(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isOriginalScale());
   }
 
   getSpriteByIndex(index) {
@@ -636,8 +636,8 @@ class CardsetSprite extends ActionSprite {
     sprites.forEach(sprite => sprite.flipTurnToUp());
   }
 
-  allCardsAreTurnToUp() {
-    return this._sprites.every(sprite => sprite.isTurnedToUp());
+  allCardsAreTurnToUp(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isTurnedToUp());
   }
 
   flipTurnToUpCards(sprites = this._sprites, delay = 6) {
@@ -683,7 +683,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   isCardsHidden(sprites = this._sprites) {
-    return sprites.every(sprite => sprite.isHidden());
+    return sprites.length && sprites.every(sprite => sprite.isHidden());
   }
 
   select(indexes) {

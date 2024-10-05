@@ -38,10 +38,9 @@ class TurnStep extends Step {
   }
 
   start(text = 'Begin Load Phase') {
-    this.createPlayerGameBoard();
-    this.createChallengedGameBoard();
-    this.openGameBoards();
+    this.createGameBoards();
     this.createTextWindow(text);
+    this.openGameBoards();
     this.openTextWindow();
   }
 
