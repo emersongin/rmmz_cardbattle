@@ -71,20 +71,6 @@ class Step {
       this._challenged.cardsetSprite,
       this._powerFieldCardsetSprite,
     ];
-    // console.log(
-    //   '_player.boardWindow: ' + this._player.boardWindow?.isBusy(),
-    //   '_player.battleWindow: ' + this._player.battleWindow?.isBusy(),
-    //   '_player.trashWindow: ' + this._player.trashWindow?.isBusy(),
-    //   '_player.scoreWindow: ' + this._player.scoreWindow?.isBusy(),
-    //   '_player.cardsetSprite: ' + this._player.cardsetSprite?.isBusy(),
-    //   '_challenged.boardWindow: ' + this._challenged.boardWindow?.isBusy(),
-    //   '_challenged.battleWindow: ' + this._challenged.battleWindow?.isBusy(),
-    //   '_challenged.trashWindow: ' + this._challenged.trashWindow?.isBusy(),
-    //   '_challenged.scoreWindow: ' + this._challenged.scoreWindow?.isBusy(),
-    //   '_challenged.cardsetSprite: ' + this._challenged.cardsetSprite?.isBusy(),
-    //   '_powerFieldCardsetSprite: ' + this._powerFieldCardsetSprite?.isBusy(),
-    //   'this.someChildrenIsBusy(): ' + this.someChildrenIsBusy(),
-    // );
     return this._wait > 0 || children.some(obj => (obj?.isBusy ? obj.isBusy() : false)) || this.someChildrenIsBusy();
   }
 
@@ -160,8 +146,16 @@ class Step {
     if (child instanceof Window_Base) {
       this._scene.addWindow(child);
     } else {
-      this._scene.addChild(child);
+      this._scene.addChildAt(child, 0);
     }
+  }
+
+  addChildToFront(child) {
+    this.addAction(this.commandAddChildToFront, child);
+  }
+
+  commandAddChildToFront(child) {
+    this._scene.addChild(child);
   }
 
   removeChildren(children) {
