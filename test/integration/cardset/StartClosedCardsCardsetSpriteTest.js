@@ -13,6 +13,6 @@ class StartClosedCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve iniciar as cartas fechadas!');
-    this.expectTrue('Estão nas posições?', this.subject.allCardsIsClosed(this.sprites));
+    this.expectTrue('Estão nas posições?', this.subject.allCardsAreClosed(this.sprites));
   }
 }

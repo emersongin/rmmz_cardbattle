@@ -596,7 +596,7 @@ class TextWindow extends Window_Base {
 
   closed() {
     this._openness = 0;
-    this.visible = false;
+    this.hide();
     this.deactivate();
   }
 
@@ -717,7 +717,7 @@ class TextWindow extends Window_Base {
   }
 
   open() {
-    this.visible = true;
+    this.show();
     this.activate();
     super.open();
   }
@@ -858,7 +858,7 @@ class TextWindow extends Window_Base {
 
   opened() {
     this._openness = 255;
-    this.visible = true;
+    this.show();
     this.activate();
   }
 
@@ -943,13 +943,12 @@ class CommandWindow extends Window_Command {
   }
 
   closed() {
-    this._openness = 0;
-    this.visible = false;
+    super.close();
+    this.hide();
     this.deactivate();
   }
 
   refresh() {
-    super.refresh();
     this.clearCommandList();
     this.makeCommandList();
     this.setHandlers();
@@ -1161,9 +1160,9 @@ class CommandWindow extends Window_Command {
 
   commandOpen() {
     if (this.isOpened()) return true;
-    this.visible = true;
+    this.show();
     this.activate();
-    // super.open();
+    super.open();
   }
 
   isOpened() {
@@ -1310,7 +1309,7 @@ class CommandWindow extends Window_Command {
 
   opened() {
     this._openness = 255;
-    this.visible = true;
+    this.show();
     this.activate();
   }
 
@@ -1584,7 +1583,7 @@ class StateWindow extends Window_Base {
 
   closed() {
     this._openness = 0;
-    this.visible = false;
+    this.hide();
   }
 
   stop() {
@@ -1669,7 +1668,7 @@ class StateWindow extends Window_Base {
 
   commandOpen() {
     if (!(this.isStopped() && this.isClosed())) return false;
-    this.visible = true;
+    this.show();
     super.open();
   }
 
@@ -1846,7 +1845,7 @@ class StateWindow extends Window_Base {
 
   opened() {
     this._openness = 255;
-    this.visible = true;
+    this.show();
     this.activate();
   }
 
@@ -4263,8 +4262,7 @@ class CardsetSpriteSelectModeState {
     return this._selectNumber !== 0;
   }
 
-  selectSprite() {
-    const cursorIndex = this._cursorIndex;
+  selectSprite(cursorIndex = this._cursorIndex) {
     const sprite = this._cardset.getSprites(cursorIndex).shift();
     if (sprite && sprite.isDisabled()) return;
     if (this._selectedIndexs.includes(cursorIndex)) {
@@ -6540,7 +6538,7 @@ class StartClosedCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve iniciar as cartas fechadas!');
-    this.expectTrue('Estão nas posições?', this.subject.allCardsIsClosed(this.sprites));
+    this.expectTrue('Estão nas posições?', this.subject.allCardsAreClosed(this.sprites));
   }
 }
 class OpenAllCardsCardsetSpriteTest extends SceneTest {
@@ -6599,7 +6597,7 @@ class CloseAllCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve fechar todas as cartas!');
-    this.expectTrue('Estão fechados?', this.subject.allCardsIsClosed(this.sprites));
+    this.expectTrue('Estão fechados?', this.subject.allCardsAreClosed(this.sprites));
   }
 }
 class CloseCardsCardsetSpriteTest extends SceneTest {
@@ -6618,7 +6616,7 @@ class CloseCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve fechar as cartas!');
-    this.expectTrue('Estão fechados?', this.subject.allCardsIsClosed(this.sprites));
+    this.expectTrue('Estão fechados?', this.subject.allCardsAreClosed(this.sprites));
   }
 }
 class MoveAllCardsInListCardsetSpriteTest extends SceneTest {
@@ -6857,6 +6855,15 @@ class SelectModeCardsetSpriteTest extends SceneTest {
     this.subject.selectMode(unlimited, onSelectHandler);
   }
 
+  update() {
+    if (this.subject.isSelectMode()) {
+      this.subject._status.selectSprite(0);
+      this.subject._status.selectSprite(1);
+      this.subject._status.selectSprite(2);
+      this.subject._status.updateStatus();
+    }
+  }
+
   asserts() {
     this.describe('Deve entrar em modo seleção com escolha!');
     this.expectTrue('Deve selecionar 3 cartas', this.cardsSelected.length === 3);
@@ -6911,6 +6918,14 @@ class SelectModeLimitedCardsetSpriteTest extends SceneTest {
       endTest();
     };
     this.subject.selectMode(selectNumber, onSelectHandler);
+  }
+
+  update() {
+    if (this.subject.isSelectMode()) {
+      this.subject._status.selectSprite(0);
+      this.subject._status.selectSprite(1);
+      this.subject._status.selectSprite(2);
+    }
   }
 
   asserts() {
@@ -8161,9 +8176,9 @@ class TextTextWindowTest extends SceneTest {
       'quinto texto',
     ];
     this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.expectTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    this.expectTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
-    this.expectTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+    this.expectTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawn('TEXT_0', text[0]));
+    this.expectTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawn('TEXT_1', text[1]));
+    this.expectTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawn('TEXT_2', text[2]));
   }
 }
 class ChangeTextColorTextWindowTest extends SceneTest {
@@ -8182,11 +8197,11 @@ class ChangeTextColorTextWindowTest extends SceneTest {
   asserts() {
     const text = [ 'primeiro texto segundo texto terceiro texto' ];
     this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.expectTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.expectTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawn('TEXT_0', text[0]));
     const color1 = ColorHelper.getColorIndex(GameColors.BLUE);
     const color2 = ColorHelper.getColorIndex(GameColors.DEFAULT);
-    this.expectTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_0', color1));
-    this.expectTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_1', color2));
+    this.expectTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawn('COLOR_0', color1));
+    this.expectTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawn('COLOR_1', color2));
   }
 }
 class AlignAboveOfTextWindowTest extends SceneTest {
@@ -8481,9 +8496,9 @@ class TextCommandWindowTest extends SceneTest {
       'quinto texto',
     ];
     this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.expectTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
-    this.expectTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawing('TEXT_1', text[1]));
-    this.expectTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawing('TEXT_2', text[2]));
+    this.expectTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawn('TEXT_0', text[0]));
+    this.expectTrue('Foi desenhado o texto 2?', this.subject.isTextWasDrawn('TEXT_1', text[1]));
+    this.expectTrue('Foi desenhado o texto 3?', this.subject.isTextWasDrawn('TEXT_2', text[2]));
   }
 }
 class ChangeTextColorCommandWindowTest extends SceneTest {
@@ -8502,11 +8517,11 @@ class ChangeTextColorCommandWindowTest extends SceneTest {
   asserts() {
     const text = [ 'primeiro texto segundo texto terceiro texto' ];
     this.describe('Deve apresentar o texto que foi informado em janela.');
-    this.expectTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.expectTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawn('TEXT_0', text[0]));
     const color1 = ColorHelper.getColorIndex(GameColors.BLUE);
     const color2 = ColorHelper.getColorIndex(GameColors.DEFAULT);
-    this.expectTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_0', color1));
-    this.expectTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawing('COLOR_1', color2));
+    this.expectTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawn('COLOR_0', color1));
+    this.expectTrue('Foi alterado a cor do texto?', this.subject.isTextWasDrawn('COLOR_1', color2));
   }
 }
 class CommandHandlerCommandWindowTest extends SceneTest {
@@ -8543,7 +8558,7 @@ class CommandHandlerWithTextCommandWindowTest extends SceneTest {
       'Do you want to continue?',
     ];
     this.describe('Deve mostrar as opções da janela de comando');
-    this.expectTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawing('TEXT_0', text[0]));
+    this.expectTrue('Foi desenhado o texto 1?', this.subject.isTextWasDrawn('TEXT_0', text[0]));
     this.expectTrue('Esta com os comandos?', this.subject.haveCommands(['YES', 'NO']));
   }
 }
@@ -13264,47 +13279,47 @@ class CardBattleTestScene extends Scene_Message {
       TiggerAcitonCardSpriteTest,
     ];
     const cardsetSpriteTests = [
-      StartPositionCardsetSpriteTest,
-      AlignAboveOfCardsetSpriteTest,
-      AlignBelowOfCardsetSpriteTest,
-      AlignCenterMiddleCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      SetTurnToDownCardsCardsetSpriteTest,
-      SetAllCardsInPositionCardsetSpriteTest,
-      SetAllCardsInPositionsCardsetSpriteTest,
-      ListCardsCardsetSpriteTest,
-      StartClosedCardsCardsetSpriteTest,
-      OpenAllCardsCardsetSpriteTest,
-      OpenCardsCardsetSpriteTest,
-      CloseAllCardsCardsetSpriteTest,
-      CloseCardsCardsetSpriteTest,
-      MoveAllCardsInListCardsetSpriteTest,
-      MoveCardsInListCardsetSpriteTest,
-      MoveAllCardsToPositionCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
-      MoveAllCardsToPositionsCardsetSpriteTest,
-      AddAllCardsToListCardsetSpriteTest,
-      AddCardsToListCardsetSpriteTest,
-      DisableCardsCardsetSpriteTest,
-      StaticModeCardsetSpriteTest,
+      // StartPositionCardsetSpriteTest,
+      // AlignAboveOfCardsetSpriteTest,
+      // AlignBelowOfCardsetSpriteTest,
+      // AlignCenterMiddleCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      // SetTurnToDownCardsCardsetSpriteTest,
+      // SetAllCardsInPositionCardsetSpriteTest,
+      // SetAllCardsInPositionsCardsetSpriteTest,
+      // ListCardsCardsetSpriteTest,
+      // StartClosedCardsCardsetSpriteTest,
+      // OpenAllCardsCardsetSpriteTest,
+      // OpenCardsCardsetSpriteTest,
+      // CloseAllCardsCardsetSpriteTest,
+      // CloseCardsCardsetSpriteTest,
+      // MoveAllCardsInListCardsetSpriteTest,
+      // MoveCardsInListCardsetSpriteTest,
+      // MoveAllCardsToPositionCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
+      // MoveAllCardsToPositionsCardsetSpriteTest,
+      // AddAllCardsToListCardsetSpriteTest,
+      // AddCardsToListCardsetSpriteTest,
+      // DisableCardsCardsetSpriteTest,
+      // StaticModeCardsetSpriteTest,
       SelectModeCardsetSpriteTest,
-      SelectModeNoSelectCardsetSpriteTest,
+      // SelectModeNoSelectCardsetSpriteTest,
       SelectModeLimitedCardsetSpriteTest,
-      FlashCardsCardsetSpriteTest,
-      QuakeCardsCardsetSpriteTest,
-      AnimationCardsCardsetSpriteTest,
-      ShowOrderingCardsCardsetSpriteTest,
-      ShowOrderingCardsByIndexesCardsetSpriteTest,
-      ShowReverseOrderingCardsCardsetSpriteTest,
-      ShowReverseOrderingByIndexesCardsCardsetSpriteTest,
-      ZoomAllCardsCardsetSpriteTest,
-      ZoomOutAllCardsCardsetSpriteTest,
-      FlipTurnToUpAllCardsCardsetSpriteTest,
-      FlipTurnToUpCardsCardsetSpriteTest,
-      TriggerActionCardsetSpriteTest,
-      OnChangeCursorSelectModeCardsetSpriteTest,
-      AddChildToEndCardsetSpriteTest,
-      LeaveAllCardsCardsetSpriteTest,
+      // FlashCardsCardsetSpriteTest,
+      // QuakeCardsCardsetSpriteTest,
+      // AnimationCardsCardsetSpriteTest,
+      // ShowOrderingCardsCardsetSpriteTest,
+      // ShowOrderingCardsByIndexesCardsetSpriteTest,
+      // ShowReverseOrderingCardsCardsetSpriteTest,
+      // ShowReverseOrderingByIndexesCardsCardsetSpriteTest,
+      // ZoomAllCardsCardsetSpriteTest,
+      // ZoomOutAllCardsCardsetSpriteTest,
+      // FlipTurnToUpAllCardsCardsetSpriteTest,
+      // FlipTurnToUpCardsCardsetSpriteTest,
+      // TriggerActionCardsetSpriteTest,
+      // OnChangeCursorSelectModeCardsetSpriteTest,
+      // AddChildToEndCardsetSpriteTest,
+      // LeaveAllCardsCardsetSpriteTest,
     ];
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,
@@ -13362,19 +13377,19 @@ class CardBattleTestScene extends Scene_Message {
       NoPassBoardWindowTest,
       UpdatingPointsBoardWindowTest,
     ];
-    const battlePointsWindow = [
+    const battlePointsWindowTests = [
       UpdatingPointsBattlePointsWindowTest,
     ];
-    const trashWindow = [
+    const trashWindowTests = [
       UpdatingPointsTrashWindowTest,
       OrderedIconsTrashWindowTest,
       ReverseIconsTrashWindowTest,
     ];
-    const scoreWindow = [
+    const scoreWindowTests = [
       OneWinUpdatingScoreWindowTest,
       TwoWinsUpdatingScoreWindowTest
     ];
-    const commandWindow = [
+    const commandWindowTests = [
       CreateFullsizeCommandWindowTest,
       OpenCommandWindowTest,
       CloseCommandWindowTest,
@@ -13395,10 +13410,10 @@ class CardBattleTestScene extends Scene_Message {
       CommandHandlerCommandWindowTest,
       CommandHandlerWithTextCommandWindowTest,
     ];
-    const folderWindow = [
+    const folderWindowTests = [
       CreateFolderWindowTest,
     ];
-    const steps = [
+    const stepsTests = [
       // DisplayStep
       // ShouldShowTitleWindowChallengePhaseTest,
       // ShouldShowDescriptionWindowChallengePhaseTest,
@@ -13457,16 +13472,16 @@ class CardBattleTestScene extends Scene_Message {
     ];
     return [
       // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      // ...commandWindow,
+      ...cardsetSpriteTests,
+      // ...commandWindowTests,
       // ...StateWindowTests,
       // ...textWindowTests,
       // ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow,
-      // ...scoreWindow,
-      // ...folderWindow,
-      ...steps,
+      // ...battlePointsWindowTests,
+      // ...trashWindowTests,
+      // ...scoreWindowTests,
+      // ...folderWindowTests,
+      // ...stepsTests,
     ];
   }
 

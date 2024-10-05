@@ -59,8 +59,8 @@ class CommandWindow extends Window_Command {
   }
 
   closed() {
-    this._openness = 0;
-    this.visible = false;
+    super.close();
+    this.hide();
     this.deactivate();
   }
 
@@ -276,7 +276,7 @@ class CommandWindow extends Window_Command {
 
   commandOpen() {
     if (this.isOpened()) return true;
-    this.visible = true;
+    this.show();
     this.activate();
     super.open();
   }
@@ -425,7 +425,7 @@ class CommandWindow extends Window_Command {
 
   opened() {
     this._openness = 255;
-    this.visible = true;
+    this.show();
     this.activate();
   }
 

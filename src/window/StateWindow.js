@@ -52,7 +52,7 @@ class StateWindow extends Window_Base {
 
   closed() {
     this._openness = 0;
-    this.visible = false;
+    this.hide();
   }
 
   stop() {
@@ -137,7 +137,7 @@ class StateWindow extends Window_Base {
 
   commandOpen() {
     if (!(this.isStopped() && this.isClosed())) return false;
-    this.visible = true;
+    this.show();
     super.open();
   }
 
@@ -314,7 +314,7 @@ class StateWindow extends Window_Base {
 
   opened() {
     this._openness = 255;
-    this.visible = true;
+    this.show();
     this.activate();
   }
 

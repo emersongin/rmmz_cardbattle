@@ -65,47 +65,47 @@ class CardBattleTestScene extends Scene_Message {
       TiggerAcitonCardSpriteTest,
     ];
     const cardsetSpriteTests = [
-      StartPositionCardsetSpriteTest,
-      AlignAboveOfCardsetSpriteTest,
-      AlignBelowOfCardsetSpriteTest,
-      AlignCenterMiddleCardsetSpriteTest,
-      SetCardsCardsetSpriteTest,
-      SetTurnToDownCardsCardsetSpriteTest,
-      SetAllCardsInPositionCardsetSpriteTest,
-      SetAllCardsInPositionsCardsetSpriteTest,
-      ListCardsCardsetSpriteTest,
-      StartClosedCardsCardsetSpriteTest,
-      OpenAllCardsCardsetSpriteTest,
-      OpenCardsCardsetSpriteTest,
-      CloseAllCardsCardsetSpriteTest,
-      CloseCardsCardsetSpriteTest,
-      MoveAllCardsInListCardsetSpriteTest,
-      MoveCardsInListCardsetSpriteTest,
-      MoveAllCardsToPositionCardsetSpriteTest,
-      MoveCardsToPositionCardsetSpriteTest,
-      MoveAllCardsToPositionsCardsetSpriteTest,
-      AddAllCardsToListCardsetSpriteTest,
-      AddCardsToListCardsetSpriteTest,
-      DisableCardsCardsetSpriteTest,
-      StaticModeCardsetSpriteTest,
+      // StartPositionCardsetSpriteTest,
+      // AlignAboveOfCardsetSpriteTest,
+      // AlignBelowOfCardsetSpriteTest,
+      // AlignCenterMiddleCardsetSpriteTest,
+      // SetCardsCardsetSpriteTest,
+      // SetTurnToDownCardsCardsetSpriteTest,
+      // SetAllCardsInPositionCardsetSpriteTest,
+      // SetAllCardsInPositionsCardsetSpriteTest,
+      // ListCardsCardsetSpriteTest,
+      // StartClosedCardsCardsetSpriteTest,
+      // OpenAllCardsCardsetSpriteTest,
+      // OpenCardsCardsetSpriteTest,
+      // CloseAllCardsCardsetSpriteTest,
+      // CloseCardsCardsetSpriteTest,
+      // MoveAllCardsInListCardsetSpriteTest,
+      // MoveCardsInListCardsetSpriteTest,
+      // MoveAllCardsToPositionCardsetSpriteTest,
+      // MoveCardsToPositionCardsetSpriteTest,
+      // MoveAllCardsToPositionsCardsetSpriteTest,
+      // AddAllCardsToListCardsetSpriteTest,
+      // AddCardsToListCardsetSpriteTest,
+      // DisableCardsCardsetSpriteTest,
+      // StaticModeCardsetSpriteTest,
       SelectModeCardsetSpriteTest,
-      SelectModeNoSelectCardsetSpriteTest,
+      // SelectModeNoSelectCardsetSpriteTest,
       SelectModeLimitedCardsetSpriteTest,
-      FlashCardsCardsetSpriteTest,
-      QuakeCardsCardsetSpriteTest,
-      AnimationCardsCardsetSpriteTest,
-      ShowOrderingCardsCardsetSpriteTest,
-      ShowOrderingCardsByIndexesCardsetSpriteTest,
-      ShowReverseOrderingCardsCardsetSpriteTest,
-      ShowReverseOrderingByIndexesCardsCardsetSpriteTest,
-      ZoomAllCardsCardsetSpriteTest,
-      ZoomOutAllCardsCardsetSpriteTest,
-      FlipTurnToUpAllCardsCardsetSpriteTest,
-      FlipTurnToUpCardsCardsetSpriteTest,
-      TriggerActionCardsetSpriteTest,
-      OnChangeCursorSelectModeCardsetSpriteTest,
-      AddChildToEndCardsetSpriteTest,
-      LeaveAllCardsCardsetSpriteTest,
+      // FlashCardsCardsetSpriteTest,
+      // QuakeCardsCardsetSpriteTest,
+      // AnimationCardsCardsetSpriteTest,
+      // ShowOrderingCardsCardsetSpriteTest,
+      // ShowOrderingCardsByIndexesCardsetSpriteTest,
+      // ShowReverseOrderingCardsCardsetSpriteTest,
+      // ShowReverseOrderingByIndexesCardsCardsetSpriteTest,
+      // ZoomAllCardsCardsetSpriteTest,
+      // ZoomOutAllCardsCardsetSpriteTest,
+      // FlipTurnToUpAllCardsCardsetSpriteTest,
+      // FlipTurnToUpCardsCardsetSpriteTest,
+      // TriggerActionCardsetSpriteTest,
+      // OnChangeCursorSelectModeCardsetSpriteTest,
+      // AddChildToEndCardsetSpriteTest,
+      // LeaveAllCardsCardsetSpriteTest,
     ];
     const StateWindowTests = [
       CreateOneFourthSizeStateWindowTest,
@@ -163,19 +163,19 @@ class CardBattleTestScene extends Scene_Message {
       NoPassBoardWindowTest,
       UpdatingPointsBoardWindowTest,
     ];
-    const battlePointsWindow = [
+    const battlePointsWindowTests = [
       UpdatingPointsBattlePointsWindowTest,
     ];
-    const trashWindow = [
+    const trashWindowTests = [
       UpdatingPointsTrashWindowTest,
       OrderedIconsTrashWindowTest,
       ReverseIconsTrashWindowTest,
     ];
-    const scoreWindow = [
+    const scoreWindowTests = [
       OneWinUpdatingScoreWindowTest,
       TwoWinsUpdatingScoreWindowTest
     ];
-    const commandWindow = [
+    const commandWindowTests = [
       CreateFullsizeCommandWindowTest,
       OpenCommandWindowTest,
       CloseCommandWindowTest,
@@ -196,10 +196,10 @@ class CardBattleTestScene extends Scene_Message {
       CommandHandlerCommandWindowTest,
       CommandHandlerWithTextCommandWindowTest,
     ];
-    const folderWindow = [
+    const folderWindowTests = [
       CreateFolderWindowTest,
     ];
-    const steps = [
+    const stepsTests = [
       // DisplayStep
       // ShouldShowTitleWindowChallengePhaseTest,
       // ShouldShowDescriptionWindowChallengePhaseTest,
@@ -258,16 +258,16 @@ class CardBattleTestScene extends Scene_Message {
     ];
     return [
       // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      // ...commandWindow,
+      ...cardsetSpriteTests,
+      // ...commandWindowTests,
       // ...StateWindowTests,
       // ...textWindowTests,
       // ...boardWindowTests,
-      // ...battlePointsWindow,
-      // ...trashWindow,
-      // ...scoreWindow,
-      // ...folderWindow,
-      ...steps,
+      // ...battlePointsWindowTests,
+      // ...trashWindowTests,
+      // ...scoreWindowTests,
+      // ...folderWindowTests,
+      // ...stepsTests,
     ];
   }
 

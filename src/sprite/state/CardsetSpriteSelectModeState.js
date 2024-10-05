@@ -146,8 +146,7 @@ class CardsetSpriteSelectModeState {
     return this._selectNumber !== 0;
   }
 
-  selectSprite() {
-    const cursorIndex = this._cursorIndex;
+  selectSprite(cursorIndex = this._cursorIndex) {
     const sprite = this._cardset.getSprites(cursorIndex).shift();
     if (sprite && sprite.isDisabled()) return;
     if (this._selectedIndexs.includes(cursorIndex)) {

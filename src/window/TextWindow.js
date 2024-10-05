@@ -66,7 +66,7 @@ class TextWindow extends Window_Base {
 
   closed() {
     this._openness = 0;
-    this.visible = false;
+    this.hide();
     this.deactivate();
   }
 
@@ -187,7 +187,7 @@ class TextWindow extends Window_Base {
   }
 
   open() {
-    this.visible = true;
+    this.show();
     this.activate();
     super.open();
   }
@@ -328,7 +328,7 @@ class TextWindow extends Window_Base {
 
   opened() {
     this._openness = 255;
-    this.visible = true;
+    this.show();
     this.activate();
   }
 

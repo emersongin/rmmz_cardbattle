@@ -14,6 +14,6 @@ class CloseAllCardsCardsetSpriteTest extends SceneTest {
 
   asserts() {
     this.describe('Deve fechar todas as cartas!');
-    this.expectTrue('Estão fechados?', this.subject.allCardsIsClosed(this.sprites));
+    this.expectTrue('Estão fechados?', this.subject.allCardsAreClosed(this.sprites));
   }
 }
