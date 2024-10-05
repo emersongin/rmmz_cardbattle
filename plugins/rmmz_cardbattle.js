@@ -949,6 +949,7 @@ class CommandWindow extends Window_Command {
   }
 
   refresh() {
+    super.refresh();
     this.clearCommandList();
     this.makeCommandList();
     this.setHandlers();
@@ -1162,7 +1163,7 @@ class CommandWindow extends Window_Command {
     if (this.isOpened()) return true;
     this.visible = true;
     this.activate();
-    super.open();
+    // super.open();
   }
 
   isOpened() {
@@ -10033,7 +10034,66 @@ class PlayerMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
     this.expectTrue('A proxima etapa é ZoneStep?', this.isStep(ZoneStep));
   }
 }
+class PlayerMustPassedTurnYourTurnLoadPhaseTest extends SceneTest {
+  step;
 
+  create() {
+    const finish = this.createHandler();
+    const handlers = {
+      playerPlayHandler: () => {},
+      playerPassedHandler: () => {
+        CardBattleManager.playerPassed();
+        // finish();
+      },
+      challengedPlayHandler: () => {},
+      challengedPassedHandler: () => {},
+      activePowerfieldHandler: () => {},
+    };
+    this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.folders[0] = {
+      name: 'Mock Folder',
+      energies: [0, 0, 0, 0, 0, 0],
+      set: [
+        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+      ]
+    };
+    CardBattleManager.setPlayerDeck(0);
+    CardBattleManager.setChallengedDeck(0);
+    const drawNumber = 6;
+    const putNumber = 3;
+    CardBattleManager.drawPlayerCards(drawNumber);
+    CardBattleManager.putPlayerCards(putNumber);
+    CardBattleManager.drawChallengedCards(drawNumber);
+    CardBattleManager.putChallengedCards(putNumber);
+    CardBattleManager.playerStart();
+    this.mockFunction(Input, 'isTriggered', () => true);
+    this.spyFunction(this.step, 'commandOpenAskWindow', () => {
+      // const index = 1;
+      // this.step.selectAskWindowOption(index);
+    });
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Jogador deve passar a jogada quando for sua vez em fase de carregamento.');
+    this.expectWasTrue('A janela de decisão foi aberta?', this.step.isAskWindowVisible);
+    this.expectTrue('O jogador passou a jogada?', CardBattleManager.isPlayerPassed());
+  }
+}
 class ChallengedMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
   step;
 
@@ -10588,20 +10648,6 @@ class Step {
       this._challenged.cardsetSprite,
       this._powerFieldCardsetSprite,
     ];
-    // console.log(
-    //   '_player.boardWindow: ' + this._player.boardWindow?.isBusy(),
-    //   '_player.battleWindow: ' + this._player.battleWindow?.isBusy(),
-    //   '_player.trashWindow: ' + this._player.trashWindow?.isBusy(),
-    //   '_player.scoreWindow: ' + this._player.scoreWindow?.isBusy(),
-    //   '_player.cardsetSprite: ' + this._player.cardsetSprite?.isBusy(),
-    //   '_challenged.boardWindow: ' + this._challenged.boardWindow?.isBusy(),
-    //   '_challenged.battleWindow: ' + this._challenged.battleWindow?.isBusy(),
-    //   '_challenged.trashWindow: ' + this._challenged.trashWindow?.isBusy(),
-    //   '_challenged.scoreWindow: ' + this._challenged.scoreWindow?.isBusy(),
-    //   '_challenged.cardsetSprite: ' + this._challenged.cardsetSprite?.isBusy(),
-    //   '_powerFieldCardsetSprite: ' + this._powerFieldCardsetSprite?.isBusy(),
-    //   'this.someChildrenIsBusy(): ' + this.someChildrenIsBusy(),
-    // );
     return this._wait > 0 || children.some(obj => (obj?.isBusy ? obj.isBusy() : false)) || this.someChildrenIsBusy();
   }
 
@@ -10677,8 +10723,16 @@ class Step {
     if (child instanceof Window_Base) {
       this._scene.addWindow(child);
     } else {
-      this._scene.addChild(child);
+      this._scene.addChildAt(child, 0);
     }
+  }
+
+  addChildToFront(child) {
+    this.addAction(this.commandAddChildToFront, child);
+  }
+
+  commandAddChildToFront(child) {
+    this._scene.addChild(child);
   }
 
   removeChildren(children) {
@@ -13067,7 +13121,7 @@ class TurnStep extends Step {
 
   commandCreateAskWindow(askWindow) {
     this._askWindow = askWindow;
-    this.commandAddChild(askWindow);
+    this.commandAddChildToFront(askWindow);
   }
 
   openAskWindow() {
@@ -13398,7 +13452,8 @@ class CardBattleTestScene extends Scene_Message {
       // PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
       // PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
       // PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
-      ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
+      // ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
+      PlayerMustPassedTurnYourTurnLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

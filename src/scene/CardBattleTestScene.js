@@ -253,7 +253,8 @@ class CardBattleTestScene extends Scene_Message {
       // PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
       // PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
       // PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
-      ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
+      // ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
+      PlayerMustPassedTurnYourTurnLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

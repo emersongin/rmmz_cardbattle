@@ -200,7 +200,7 @@ class TurnStep extends Step {
 
   commandCreateAskWindow(askWindow) {
     this._askWindow = askWindow;
-    this.commandAddChild(askWindow);
+    this.commandAddChildToFront(askWindow);
   }
 
   openAskWindow() {

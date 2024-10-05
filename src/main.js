@@ -228,7 +228,7 @@
 // include ../test/components/TurnStep/LoadPhase/PlayerMustPlayedFirstWhenWinningMiniGameTest.js
 // include ../test/components/TurnStep/LoadPhase/PlayerMustPlayedNextWhenLosingMiniGameTest.js
 // include ../test/components/TurnStep/LoadPhase/PlayerMustMakePlayWhenYourTurnTest.js
-
+// include ../test/components/TurnStep/LoadPhase/PlayerMustPassedTurnWhenYourTurnTest.js
 // include ../test/components/TurnStep/LoadPhase/ChallengedMustMakePlayWhenYourTurnTest.js
 
 // include ./manager/CardBattleManager.js
