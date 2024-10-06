@@ -4,7 +4,6 @@ class ShouldShowPlayerBattleWindowLoadPhaseTest extends SceneTest {
   create() {
     this.createHandler();
     const handlers = {
-      challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
     this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);

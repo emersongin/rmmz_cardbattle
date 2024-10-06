@@ -4,8 +4,6 @@ class ChallengedMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
   create() {
     this.createHandler();
     const handlers = {
-      playerPassedHandler: () => {},
-      challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
     this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
