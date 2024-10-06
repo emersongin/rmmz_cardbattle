@@ -25,13 +25,8 @@ class ShouldShowLocationWindowInHandZoneStepLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve mostrar a janela de localização de estapa de zona de mão em fase de carregamento.');
+    this.describe('Deve mostrar a janela de localização de etapa de zona de mão em fase de carregamento.');
     this.expectWasTrue('A janela de localização foi apresentado?', this.step.isLocationWindowVisible);
-    this.expectTrue('O título da fase foi apresentado como: Player Hand?', this.step.isLocationWindowText('Player Hand'));
-    // this.expectWasTrue('A janela de nome de cartão foi apresentado?', this.step.isCardNameWindowVisible);
-    // this.expectWasTrue('A janela de descrição de cartão foi apresentado?', this.step.isCardDescriptionWindowVisible);
-    // this.expectWasTrue('A janela de propriedades de cartão foi apresentado?', this.step.isCardPropsWindowVisible);
-    // this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetSpriteVisible);
-    // this.expectTrue('O cursor foi movido?', this.cardIndex >= 0);
+    this.expectTrue('A descrição da janela é: Player Hand?', this.step.isLocationWindowText('Player Hand'));
   }
 }

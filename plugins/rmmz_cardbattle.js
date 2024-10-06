@@ -10456,12 +10456,148 @@ class ShouldShowLocationWindowInHandZoneStepLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve mostrar a janela de localização de estapa de zona de mão em fase de carregamento.');
+    this.describe('Deve mostrar a janela de localização de etapa de zona de mão em fase de carregamento.');
     this.expectWasTrue('A janela de localização foi apresentado?', this.step.isLocationWindowVisible);
-    this.expectTrue('O título da fase foi apresentado como: Player Hand?', this.step.isLocationWindowText('Hand'));
-    // this.expectWasTrue('A janela de nome de cartão foi apresentado?', this.step.isCardNameWindowVisible);
-    // this.expectWasTrue('A janela de descrição de cartão foi apresentado?', this.step.isCardDescriptionWindowVisible);
-    // this.expectWasTrue('A janela de propriedades de cartão foi apresentado?', this.step.isCardPropsWindowVisible);
+    this.expectTrue('A descrição da janela é: Player Hand?', this.step.isLocationWindowText('Player Hand'));
+  }
+}
+class ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const config = { location: GameConst.HAND, player: GameConst.PLAYER};
+    this.step = new ZoneStep(this._scene, GameConst.LOAD_PHASE, config);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    const finish = this.getHandler();
+    this.spyFunction(this.step, 'openAllWindows', () => {
+      this.step.addAction(finish);
+    });
+    this.mockFolders();
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    CardBattleManager.drawPlayerCards(3);
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  mockFolders() {
+    CardBattleManager.folders[0] = {
+      name: 'Mock Folder',
+      energies: [0, 0, 0, 0, 0, 0],
+      set: [
+        { name: 'card 1', type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { name: 'card 2', type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { name: 'card 3', type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+      ]
+    };
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve mostrar a janela de nome de cartão de etapa de zona de mão em fase de carregamento.');
+    this.expectWasTrue('A janela de nome de cartão foi apresentado?', this.step.isCardNameWindowVisible);
+    const cardName = this.step.getCardNameByCardIndex(0);
+    this.expectTrue(`A descrição da janela é: ${cardName}?`, this.step.isCardNameWindowText(cardName));
+  }
+}
+class ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const config = { location: GameConst.HAND, player: GameConst.PLAYER};
+    this.step = new ZoneStep(this._scene, GameConst.LOAD_PHASE, config);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    const finish = this.getHandler();
+    this.spyFunction(this.step, 'openAllWindows', () => {
+      this.step.addAction(finish);
+    });
+    this.mockFolders();
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    CardBattleManager.drawPlayerCards(3);
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  mockFolders() {
+    CardBattleManager.folders[0] = {
+      name: 'Mock Folder',
+      energies: [0, 0, 0, 0, 0, 0],
+      set: [
+        { name: 'card 1', description: 'description 1', type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { name: 'card 2', description: 'description 2', type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { name: 'card 3', description: 'description 3', type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+      ]
+    };
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve mostrar a janela de descrição de cartão de etapa de zona de mão em fase de carregamento.');
+    this.expectWasTrue('A janela de descrição de cartão foi apresentado?', this.step.isCardDescriptionWindowVisible);
+    const cardDescription = this.step.getCardDescriptionByCardIndex(0);
+    this.expectTrue(`A descrição da janela é: ${cardDescription}?`, this.step.isCardDescriptionWindowText(cardDescription));
+  }
+}
+class ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const config = { location: GameConst.HAND, player: GameConst.PLAYER};
+    this.step = new ZoneStep(this._scene, GameConst.LOAD_PHASE, config);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    const finish = this.getHandler();
+    this.spyFunction(this.step, 'openAllWindows', () => {
+      this.step.addAction(finish);
+    });
+    this.mockFolders();
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    CardBattleManager.drawPlayerCards(3);
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  mockFolders() {
+    CardBattleManager.folders[0] = {
+      name: 'Mock Folder',
+      energies: [0, 0, 0, 0, 0, 0],
+      set: [
+        { name: 'card 1', description: 'description 1', type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { name: 'card 2', description: 'description 2', type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { name: 'card 3', description: 'description 3', type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+      ]
+    };
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve mostrar a janela de propriedades de cartão de etapa de zona de mão em fase de carregamento.');
+    this.expectWasTrue('A janela de propriedades de cartão foi apresentado?', this.step.isCardPropsWindowVisible);
+    const cardProps = this.step.getCardPropsByCardIndex(0);
+    this.expectTrue(`A descrição da janela é: ${cardProps}?`, this.step.isCardPropsWindowText(cardProps));
+
     // this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetSpriteVisible);
     // this.expectTrue('O cursor foi movido?', this.cardIndex >= 0);
   }
@@ -12985,26 +13121,48 @@ class ZoneStep extends Step {
   }
 
   createOnMoveCursor() {
-    // verificar uma forma de como fazer essa ação ter efeitos diferentes vindo de fora.
-    // porém deve poder interagir com a classe atual e comportamentos internos.
     return index => {
-      const cards = this.getCards(index);
-      this.commandSetTextCardNameWindow(['card.name' + index]);
-      this.commandSetTextCardDescriptionWindow(['card.description' + index]);
-      this.commandSetTextCardPropsWindow(['card.props' + index]);
+      this.commandSetTextCardNameWindow(this.getCardNameByCardIndex(index));
+      this.commandSetTextCardDescriptionWindow(this.getCardDescriptionByCardIndex(index));
+      this.commandSetTextCardPropsWindow(this.getCardPropsByCardIndex(index));
       this.addAction(this.commandMoveCursor, index);
     };
   }
 
+  getCardNameByCardIndex(index) {
+    const cards = this.getCards(index);
+    if (cards.length === 0) return '';
+    return cards[0].name;
+  }
+
+  getCardDescriptionByCardIndex(index) {
+    const cards = this.getCards(index);
+    if (cards.length === 0) return '';
+    return cards[0].description;
+  }
+
+  getCardPropsByCardIndex(index) {
+    const cards = this.getCards(index);
+    if (cards.length === 0) return '';
+    const { type, attack, health } = cards[0];
+    if (type === GameConst.POWER) {
+      return `${attack}/${health}`;
+    }
+    return 'power card';
+  }
+
   commandSetTextCardNameWindow(text) {
+    text = ArrayHelper.toArray(text);
     this._cardNameWindow.refreshContent(text);
   }
 
   commandSetTextCardDescriptionWindow(text) {
+    text = ArrayHelper.toArray(text);
     this._cardDescriptionWindow.refreshContent(text);
   }
 
   commandSetTextCardPropsWindow(text) {
+    text = ArrayHelper.toArray(text);
     this._cardPropsWindow.refreshContent(text);
   }
 
@@ -13254,6 +13412,18 @@ class ZoneStep extends Step {
 
   isLocationWindowText(text) {
     return this._locationWindow.isTextWasDrawn('TEXT_0', text);
+  }
+
+  isCardNameWindowText(text) {
+    return this._cardNameWindow.isTextWasDrawn('TEXT_0', text);
+  }
+
+  isCardDescriptionWindowText(text) {
+    return this._cardDescriptionWindow.isTextWasDrawn('TEXT_0', text);
+  }
+
+  isCardPropsWindowText(text) {
+    return this._cardPropsWindow.isTextWasDrawn('TEXT_0', text);
   }
 }
 class TurnStep extends Step {
@@ -13809,7 +13979,10 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldEndWhenThereAreMovesLoadPhaseTest,
 
       // // ZoneStep
-      ShouldShowLocationWindowInHandZoneStepLoadPhaseTest,
+      // ShouldShowLocationWindowInHandZoneStepLoadPhaseTest,
+      // ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest,
+      // ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest,
+      ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

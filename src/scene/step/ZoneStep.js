@@ -215,26 +215,48 @@ class ZoneStep extends Step {
   }
 
   createOnMoveCursor() {
-    // verificar uma forma de como fazer essa ação ter efeitos diferentes vindo de fora.
-    // porém deve poder interagir com a classe atual e comportamentos internos.
     return index => {
-      const cards = this.getCards(index);
-      this.commandSetTextCardNameWindow(['card.name' + index]);
-      this.commandSetTextCardDescriptionWindow(['card.description' + index]);
-      this.commandSetTextCardPropsWindow(['card.props' + index]);
+      this.commandSetTextCardNameWindow(this.getCardNameByCardIndex(index));
+      this.commandSetTextCardDescriptionWindow(this.getCardDescriptionByCardIndex(index));
+      this.commandSetTextCardPropsWindow(this.getCardPropsByCardIndex(index));
       this.addAction(this.commandMoveCursor, index);
     };
   }
 
+  getCardNameByCardIndex(index) {
+    const cards = this.getCards(index);
+    if (cards.length === 0) return '';
+    return cards[0].name;
+  }
+
+  getCardDescriptionByCardIndex(index) {
+    const cards = this.getCards(index);
+    if (cards.length === 0) return '';
+    return cards[0].description;
+  }
+
+  getCardPropsByCardIndex(index) {
+    const cards = this.getCards(index);
+    if (cards.length === 0) return '';
+    const { type, attack, health } = cards[0];
+    if (type === GameConst.POWER) {
+      return `${attack}/${health}`;
+    }
+    return 'power card';
+  }
+
   commandSetTextCardNameWindow(text) {
+    text = ArrayHelper.toArray(text);
     this._cardNameWindow.refreshContent(text);
   }
 
   commandSetTextCardDescriptionWindow(text) {
+    text = ArrayHelper.toArray(text);
     this._cardDescriptionWindow.refreshContent(text);
   }
 
   commandSetTextCardPropsWindow(text) {
+    text = ArrayHelper.toArray(text);
     this._cardPropsWindow.refreshContent(text);
   }
 
@@ -484,5 +506,17 @@ class ZoneStep extends Step {
 
   isLocationWindowText(text) {
     return this._locationWindow.isTextWasDrawn('TEXT_0', text);
+  }
+
+  isCardNameWindowText(text) {
+    return this._cardNameWindow.isTextWasDrawn('TEXT_0', text);
+  }
+
+  isCardDescriptionWindowText(text) {
+    return this._cardDescriptionWindow.isTextWasDrawn('TEXT_0', text);
+  }
+
+  isCardPropsWindowText(text) {
+    return this._cardPropsWindow.isTextWasDrawn('TEXT_0', text);
   }
 }
