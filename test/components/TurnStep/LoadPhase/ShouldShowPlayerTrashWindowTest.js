@@ -4,9 +4,6 @@ class ShouldShowPlayerTrashWindowLoadPhaseTest extends SceneTest {
   create() {
     this.createHandler();
     const handlers = {
-      playerPlayHandler: () => {},
-      playerPassedHandler: () => {},
-      challengedPlayHandler: () => {},
       challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };

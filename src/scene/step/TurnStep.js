@@ -3,10 +3,6 @@ class TurnStep extends Step {
   _askWindow = undefined;
   _startTurn = false;
   _awaitingDecision = false;
-  _playerPlayHandler = () => {}; 
-  _playerPassedHandler = () => {}; 
-  _challengedPlayHandler = () => {}; 
-  _challengedPassedHandler = () => {};
   _activePowerfieldHandler = () => {};
 
   constructor(scene, phase, handlers) {
@@ -15,25 +11,9 @@ class TurnStep extends Step {
       throw new Error('Invalid phase for TurnStep.');
     }
     super(scene, phase);
-    if (!handlers.playerPlayHandler || typeof handlers.playerPlayHandler !== 'function') {
-      throw new Error('Invalid playerPlayHandler for TurnStep.');
-    }
-    if (!handlers.playerPassedHandler || typeof handlers.playerPassedHandler !== 'function') {
-      throw new Error('Invalid playerPassedHandler for TurnStep.');
-    }
-    if (!handlers.challengedPlayHandler || typeof handlers.challengedPlayHandler !== 'function') {
-      throw new Error('Invalid challengedPlayHandler for TurnStep.');
-    }
-    if (!handlers.challengedPassedHandler || typeof handlers.challengedPassedHandler !== 'function') {
-      throw new Error('Invalid challengedPassedHandler for TurnStep.');
-    }
     if (!handlers.activePowerfieldHandler || typeof handlers.activePowerfieldHandler !== 'function') {
       throw new Error('Invalid activePowerfieldHandler for TurnStep.');
     }
-    this._playerPlayHandler = handlers?.playerPlayHandler;
-    this._playerPassedHandler = handlers?.playerPassedHandler;
-    this._challengedPlayHandler = handlers?.challengedPlayHandler;
-    this._challengedPassedHandler = handlers?.challengedPassedHandler;
     this._activePowerfieldHandler = handlers?.activePowerfieldHandler;
   }
 
@@ -138,25 +118,40 @@ class TurnStep extends Step {
   updatePlayerTurn() {
     const startPlay = CardBattleManager.isPlayerStartTurn();
     if ((startPlay || CardBattleManager.isChallengedPassed()) && CardBattleManager.isPlayerWaiting()) {
-      const commandYes = this.commandPlayerPlay();
+      const yesCommand = this.getPlayerPlayCommand();
       const yesEnabled = CardBattleManager.isPlayerHasPowerCardInHand();
-      const commandNo = this.commandPlayerPasse();
+      const noCommand = this.getPlayerPasseCommand();
       const text = 'Use a Program Card?';
-      this.createAskWindow(text, commandYes, yesEnabled, commandNo);
+      this.createAskWindow(text, yesCommand, yesEnabled, noCommand);
       this.openAskWindow();
       this._awaitingDecision = true;
       return true;
     }
   }
 
-  commandPlayerPlay() {
+  getPlayerPlayCommand() {
     return () => {
       this.commandCloseAskWindow();
       this.leaveAskWindow();
       this.closeGameBoards();
       this.leaveGameBoards();
-      this.addAction(this._playerPlayHandler);
+      this.addAction(this.commandPlayerPlay);
     }
+  }
+
+  commandPlayerPlay() {
+    const config = {
+      location: GameConst.HAND,
+      player: GameConst.PLAYER,
+      blockBattleCards: true,
+      blockPowerCardsInLoadPhase: true,
+    };
+    const handlers = {
+      goBackHandler: () => {},
+      selectHandler: () => {},
+      moveCursorHandler: () => {},
+    };
+    this.changeStep(ZoneStep, config, handlers);
   }
 
   commandCloseAskWindow() {
@@ -171,7 +166,7 @@ class TurnStep extends Step {
     this.removeChild(this._askWindow);
   }
 
-  commandPlayerPasse() {
+  getPlayerPasseCommand() {
     return () => {
       this.commandCloseAskWindow();
       this.leaveAskWindow();
@@ -182,7 +177,7 @@ class TurnStep extends Step {
   }
 
   commandPlayerPassed() {
-    this._playerPassedHandler();
+    CardBattleManager.playerPassed();
   }
 
   commandDropDecision() {
@@ -212,7 +207,7 @@ class TurnStep extends Step {
   }
 
   updateChallengedTurn() {
-    if (CardBattleManager.isChallengedPassed() === false) {
+    if (CardBattleManager.isChallengedWaiting()) {
       if (CardBattleManager.isChallengedHasPowerCardInHand()) {
         this.addAction(this.commandChallengedPlay);
         return true;
@@ -223,7 +218,10 @@ class TurnStep extends Step {
   }
 
   commandChallengedPlay() {
-    this._challengedPlayHandler();
+    // aqui provavelmente será a mudança de estado para jogada do 
+    // desafiado e o final dela será a etapa de ativação de slot
+    const powerConfig = { cardIndex: 0, player: GameConst.CHALLENGED };
+    this.changeStep(ActivationSlotStep, powerConfig);
   }
 
   commandChallengedPasse() {
@@ -232,7 +230,7 @@ class TurnStep extends Step {
   }
 
   commandChallengedPassed() {
-    this._challengedPassedHandler();
+    CardBattleManager.challengedPassed();
   }
 
   updateActivePowerfield() {
@@ -283,5 +281,9 @@ class TurnStep extends Step {
 
   isAskWindowVisible() {
     return this._askWindow?.visible;
+  }
+
+  getPlayerInActivationSlotStep() {
+    return this._scene.getStep()?.getPlayer();
   }
 }

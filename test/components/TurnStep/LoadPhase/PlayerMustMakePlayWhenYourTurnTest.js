@@ -2,25 +2,9 @@ class PlayerMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
   step;
 
   create() {
-    const finish = this.createHandler();
+    this.createHandler();
     const handlers = {
-      playerPlayHandler: () => {
-        const config = {
-          location: GameConst.HAND,
-          player: GameConst.PLAYER,
-          blockBattleCards: true,
-          blockPowerCardsInLoadPhase: true,
-        };
-        const handlers = {
-          goBackHandler: () => {},
-          selectHandler: () => {},
-          moveCursorHandler: () => {},
-        };
-        this.step.changeStep(ZoneStep, config, handlers);
-        finish();
-      },
       playerPassedHandler: () => {},
-      challengedPlayHandler: () => {},
       challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
@@ -29,6 +13,10 @@ class PlayerMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
   }
 
   start() {
+    const finish = this.getHandler();
+    this.spyFunction(this.step, 'commandPlayerPlay', () => {
+      finish();
+    });
     CardBattleManager.folders[0] = {
       name: 'Mock Folder',
       energies: [0, 0, 0, 0, 0, 0],

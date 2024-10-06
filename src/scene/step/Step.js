@@ -800,4 +800,12 @@ class Step {
   allChallengedCardsAreClosed() {
     return this._challenged.cardsetSprite?.allCardsAreClosed();
   }
+
+  getPlayerBoardWindowHasPassed() {
+    return this._player.boardWindow?.isPass();
+  }
+  
+  getChallengeBoardWindowHasPassed() {
+    return this._challenged.boardWindow?.isPass();
+  }
 }

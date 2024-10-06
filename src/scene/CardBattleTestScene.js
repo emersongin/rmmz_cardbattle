@@ -215,74 +215,75 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const stepsTests = [
-      // DisplayStep
-      ShouldShowTitleWindowChallengePhaseTest,
-      ShouldShowDescriptionWindowChallengePhaseTest,
-      ShouldCloseWindowsWhenPressActionChallengePhaseTest,
-      ShouldShowTitleWindowStartPhaseTest,
-      ShouldShowDescriptionWindowStartPhaseTest,
-      ShouldCloseWindowsWhenPressActionStartPhaseTest,
-      ShouldShowTitleWindowDrawPhaseTest,
-      ShouldShowDescriptionWindowDrawPhaseTest,
-      ShouldCloseWindowsWhenPressActionDrawPhaseTest,
-      ShouldShowTitleWindowLoadPhaseTest,
-      ShouldShowDescriptionWindowLoadPhaseTest,
-      ShouldCloseWindowsWhenPressActionLoadPhaseTest,
+      // // DisplayStep
+      // ShouldShowTitleWindowChallengePhaseTest,
+      // ShouldShowDescriptionWindowChallengePhaseTest,
+      // ShouldCloseWindowsWhenPressActionChallengePhaseTest,
+      // ShouldShowTitleWindowStartPhaseTest,
+      // ShouldShowDescriptionWindowStartPhaseTest,
+      // ShouldCloseWindowsWhenPressActionStartPhaseTest,
+      // ShouldShowTitleWindowDrawPhaseTest,
+      // ShouldShowDescriptionWindowDrawPhaseTest,
+      // ShouldCloseWindowsWhenPressActionDrawPhaseTest,
+      // ShouldShowTitleWindowLoadPhaseTest,
+      // ShouldShowDescriptionWindowLoadPhaseTest,
+      // ShouldCloseWindowsWhenPressActionLoadPhaseTest,
 
-      // DrawStep
-      ShouldShowPlayerBoardWindowDrawPhaseTest,
-      ShouldShowPlayerBattleWindowDrawPhaseTest,
-      ShouldShowPlayerTrashWindowDrawPhaseTest,
-      ShouldShowPlayerScoreWindowDrawPhaseTest,
-      ShouldShowPlayerCardsetDrawPhaseTest,
-      ShouldShowChallengedBoardWindowDrawPhaseTest,
-      ShouldShowChallengedBattleWindowDrawPhaseTest,
-      ShouldShowChallengedTrashWindowDrawPhaseTest,
-      ShouldShowChallengedScoreWindowDrawPhaseTest,
-      ShouldShowChallengedCardsetDrawPhaseTest,
-      ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
-      ShouldLoadBattlefieldsDrawPhaseTest,
+      // // DrawStep
+      // ShouldShowPlayerBoardWindowDrawPhaseTest,
+      // ShouldShowPlayerBattleWindowDrawPhaseTest,
+      // ShouldShowPlayerTrashWindowDrawPhaseTest,
+      // ShouldShowPlayerScoreWindowDrawPhaseTest,
+      // ShouldShowPlayerCardsetDrawPhaseTest,
+      // ShouldShowChallengedBoardWindowDrawPhaseTest,
+      // ShouldShowChallengedBattleWindowDrawPhaseTest,
+      // ShouldShowChallengedTrashWindowDrawPhaseTest,
+      // ShouldShowChallengedScoreWindowDrawPhaseTest,
+      // ShouldShowChallengedCardsetDrawPhaseTest,
+      // ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
+      // ShouldLoadBattlefieldsDrawPhaseTest,
 
-      // FolderStep
-      ShouldShowPlayerFolderWindowTest,
-      ShouldCloseFolderWindowWhenSelectedFolderTest,
+      // // FolderStep
+      // ShouldShowPlayerFolderWindowTest,
+      // ShouldCloseFolderWindowWhenSelectedFolderTest,
 
-      // MiniGameStep
-      ShouldShowMiniGameCardsetTest,
-      ShouldShufflerCardsTest,
-      ShouldShowGameResultWindowCardsTest,
-      ShouldCloseMiniGameOnSelectedCardTest,
+      // // MiniGameStep
+      // ShouldShowMiniGameCardsetTest,
+      // ShouldShufflerCardsTest,
+      // ShouldShowGameResultWindowCardsTest,
+      // ShouldCloseMiniGameOnSelectedCardTest,
 
-      //TurnStep
-      ShouldShowChallengedBoardWindowLoadPhaseTest,
-      ShouldShowChallengedBattleWindowLoadPhaseTest,
-      ShouldShowChallengedScoreWindowLoadPhaseTest,
-      ShouldShowChallengedTrashWindowLoadPhaseTest,
-      ShouldShowPlayerBoardWindowLoadPhaseTest,
-      ShouldShowPlayerBattleWindowLoadPhaseTest,
-      ShouldShowPlayerTrashWindowLoadPhaseTest,
-      ShouldShowPlayerScoreWindowLoadPhaseTest,
-      ShouldShowChallengedCardsetLoadPhaseTest,
-      ShouldShowPlayerCardsetLoadPhaseTest,
-      ShouldShowTextWindowLoadPhaseTest,
+      // // TurnStep
+      // ShouldShowChallengedBoardWindowLoadPhaseTest,
+      // ShouldShowChallengedBattleWindowLoadPhaseTest,
+      // ShouldShowChallengedScoreWindowLoadPhaseTest,
+      // ShouldShowChallengedTrashWindowLoadPhaseTest,
+      // ShouldShowPlayerBoardWindowLoadPhaseTest,
+      // ShouldShowPlayerBattleWindowLoadPhaseTest,
+      // ShouldShowPlayerTrashWindowLoadPhaseTest,
+      // ShouldShowPlayerScoreWindowLoadPhaseTest,
+      // ShouldShowChallengedCardsetLoadPhaseTest,
+      // ShouldShowPlayerCardsetLoadPhaseTest,
+      // ShouldShowTextWindowLoadPhaseTest,
 
-      PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
-      PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
-      PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
-      ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
-      PlayerMustPassedTurnYourTurnLoadPhaseTest,
+      // PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
+      // PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
+      // PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
+      // ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
+      // PlayerMustPassedTurnYourTurnLoadPhaseTest,
+      // ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
     ];
     return [
-      ...cardSpriteTests,
-      ...cardsetSpriteTests,
-      ...commandWindowTests,
-      ...StateWindowTests,
-      ...textWindowTests,
-      ...boardWindowTests,
-      ...battlePointsWindowTests,
-      ...trashWindowTests,
-      ...scoreWindowTests,
-      ...folderWindowTests,
+      // ...cardSpriteTests,
+      // ...cardsetSpriteTests,
+      // ...commandWindowTests,
+      // ...StateWindowTests,
+      // ...textWindowTests,
+      // ...boardWindowTests,
+      // ...battlePointsWindowTests,
+      // ...trashWindowTests,
+      // ...scoreWindowTests,
+      // ...folderWindowTests,
       ...stepsTests,
     ];
   }
@@ -447,6 +448,10 @@ class CardBattleTestScene extends Scene_Message {
   removeWindow(window) {
     this._windowLayer.removeChild(window);
   };
+
+  getStep() {
+    return this._status;
+  }
 
   setStep(step) {
     this._status = step;

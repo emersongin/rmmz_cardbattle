@@ -2,14 +2,8 @@ class PlayerMustPassedTurnYourTurnLoadPhaseTest extends SceneTest {
   step;
 
   create() {
-    const finish = this.createHandler();
+    this.createHandler();
     const handlers = {
-      playerPlayHandler: () => {},
-      playerPassedHandler: () => {
-        CardBattleManager.playerPassed();
-        finish();
-      },
-      challengedPlayHandler: () => {},
       challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
@@ -18,6 +12,10 @@ class PlayerMustPassedTurnYourTurnLoadPhaseTest extends SceneTest {
   }
 
   start() {
+    const finish = this.getHandler();
+    this.spyFunction(this.step, 'commandPlayerPassed', () => {
+      finish();
+    });
     CardBattleManager.folders[0] = {
       name: 'Mock Folder',
       energies: [0, 0, 0, 0, 0, 0],
@@ -56,5 +54,6 @@ class PlayerMustPassedTurnYourTurnLoadPhaseTest extends SceneTest {
     this.describe('Jogador deve passar a jogada quando for sua vez em fase de carregamento.');
     this.expectWasTrue('A janela de decisão foi aberta?', this.step.isAskWindowVisible);
     this.expectTrue('O jogador passou a jogada?', CardBattleManager.isPlayerPassed());
+    this.expectTrue('A janela de tabuleiro do jogador passou?', this.step.getPlayerBoardWindowHasPassed());
   }
 }

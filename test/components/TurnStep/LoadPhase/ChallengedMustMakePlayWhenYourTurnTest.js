@@ -2,15 +2,9 @@ class ChallengedMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
   step;
 
   create() {
-    const finish = this.createHandler();
+    this.createHandler();
     const handlers = {
-      playerPlayHandler: () => {},
       playerPassedHandler: () => {},
-      challengedPlayHandler: () => {
-        const powerConfig = { cardIndex: 0, player: GameConst.CHALLENGED };
-        this.nextStep = this.step.changeStep(ActivationSlotStep, powerConfig);
-        finish();
-      },
       challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
@@ -19,6 +13,10 @@ class ChallengedMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
   }
 
   start() {
+    const finish = this.getHandler();
+    this.spyFunction(this.step, 'commandChallengedPlay', () => {
+      finish();
+    });
     CardBattleManager.folders[0] = {
       name: 'Mock Folder',
       energies: [0, 0, 0, 0, 0, 0],
@@ -56,6 +54,6 @@ class ChallengedMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
     this.describe('Desafiado deve fazer uma jogada quando for sua vez em fase de carregamento.');
     this.expectTrue('Desafiado tem cartões de poder para jogar?', CardBattleManager.isChallengedHasPowerCardInHand());
     this.expectTrue('A proxima Etapa é ActivationSlotStep?', this.isStep(ActivationSlotStep));
-    this.expectTrue('Jogada é de desafiado?', this.nextStep.getPlayer() === GameConst.CHALLENGED);
+    this.expectTrue('Jogada é de desafiado?', this.step.getPlayerInActivationSlotStep() === GameConst.CHALLENGED);
   }
 }
