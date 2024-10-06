@@ -248,10 +248,10 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldCloseFolderWindowWhenSelectedFolderTest,
 
       // // MiniGameStep
-      ShouldShowMiniGameCardsetTest,
-      ShouldShufflerCardsTest,
-      ShouldShowGameResultWindowCardsTest,
-      ShouldCloseMiniGameOnSelectedCardTest,
+      // ShouldShowMiniGameCardsetTest,
+      // ShouldShufflerCardsTest,
+      // ShouldShowGameResultWindowCardsTest,
+      // ShouldCloseMiniGameOnSelectedCardTest,
 
       // // TurnStep
       // ShouldShowChallengedBoardWindowLoadPhaseTest,
@@ -276,6 +276,7 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldEndWhenThereAreMovesLoadPhaseTest,
 
       // // ZoneStep
+      ShouldShowLocationWindowInHandZoneStepLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

@@ -234,6 +234,7 @@
 // include ../test/components/TurnStep/LoadPhase/ShouldActivatePowerZoneWhenItHasCardTest.js
 // include ../test/components/TurnStep/LoadPhase/ShouldActivatePowerZoneWhenReachLimiteTest.js
 // include ../test/components/TurnStep/LoadPhase/ShouldEndWhenThereAreMovesTest.js
+// include ../test/components/ZoneStep/LoadPhase/ShouldShowLocationWindowInHandZoneStepTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js

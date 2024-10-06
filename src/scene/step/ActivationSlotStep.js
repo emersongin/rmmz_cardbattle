@@ -12,7 +12,7 @@ class ActivationSlotStep extends Step {
       throw new Error('Invalid phase for ActivationSlotStep.');
     }
     super(scene, phase);
-    if (!powerConfig || !(powerConfig.cardIndex >= 0) || !powerConfig.player) {
+    if (!powerConfig || !(powerConfig.cardIndexes.length > 0) || !powerConfig.player) {
       throw new Error('Invalid powerConfig for ActivationSlotStep.');
     }
     this._powerActivationConfig = powerConfig;
@@ -54,7 +54,7 @@ class ActivationSlotStep extends Step {
   }
 
   getPowerCardIndex() {
-    return this._powerActivationConfig.cardIndex;
+    return this._powerActivationConfig.cardIndexes[0];
   }
 
   getCard(manager, index) {
