@@ -1,4 +1,4 @@
-class ActivatePowerZoneWhenItHasCardLoadPhaseTest extends SceneTest {
+class ShouldEndWhenThereAreMovesLoadPhaseTest extends SceneTest {
   step;
 
   create() {
@@ -11,9 +11,8 @@ class ActivatePowerZoneWhenItHasCardLoadPhaseTest extends SceneTest {
     this.spyCommandActivePowerZone();
     this.mockFolders();
     this.setDecks();
-    this.drawCards(1);
-    this.putCards(1);
-    this.setPowerCardsInPowerZone();
+    this.drawCards(3);
+    this.putCards(3);
     this.mockIsTriggered();
     this.spyCommandOpenAskWindow();
     this._scene.setStep(this.step);
@@ -22,7 +21,7 @@ class ActivatePowerZoneWhenItHasCardLoadPhaseTest extends SceneTest {
 
   spyCommandActivePowerZone() {
     const finish = this.getHandler();
-    this.spyFunction(this.step, 'commandActivePowerZone', () => {
+    this.spyFunction(this.step, 'commandFinish', () => {
       finish();
     });
   }
@@ -33,6 +32,8 @@ class ActivatePowerZoneWhenItHasCardLoadPhaseTest extends SceneTest {
       energies: [0, 0, 0, 0, 0, 0],
       set: [
         { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
       ]
     };
   }
@@ -50,17 +51,6 @@ class ActivatePowerZoneWhenItHasCardLoadPhaseTest extends SceneTest {
   putCards(putNumber) {
     CardBattleManager.putPlayerCards(putNumber);
     CardBattleManager.putChallengedCards(putNumber);
-  }
-  
-  setPowerCardsInPowerZone() {
-    const powerCardMock = { 
-      type: GameConst.POWER, 
-      color: GameConst.BLACK, 
-      figureName: 'default', 
-      attack: 10, 
-      health: 10,
-    };
-    CardBattleManager.addPowerCardToPowerfield(powerCardMock);
   }
 
   mockIsTriggered() {
@@ -80,6 +70,6 @@ class ActivatePowerZoneWhenItHasCardLoadPhaseTest extends SceneTest {
   
   asserts() {
     this.describe('Deve entrar em etapa de zona de poder quando não existirem jogadas e sim pelo menos um cartão de poder em fase de carregamento.');
-    this.expectTrue('A proxima etapa é PowerZoneStep?', this.isStep(PowerZoneStep));
+    this.expectTrue('A proxima etapa é DisplayStep?', this.isStep(DisplayStep));
   }
 }

@@ -272,8 +272,9 @@ class CardBattleTestScene extends Scene_Message {
       // ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
       // PlayerMustPassedTurnYourTurnLoadPhaseTest,
       // ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
-      // ActivatePowerZoneWhenItHasCardLoadPhaseTest,
-      ActivatePowerZoneWhenReachLimiteLoadPhaseTest,
+      // ShouldActivatePowerZoneWhenItHasCardLoadPhaseTest,
+      // ShouldActivatePowerZoneWhenReachLimiteLoadPhaseTest,
+      ShouldEndWhenThereAreMovesLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

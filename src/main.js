@@ -231,8 +231,9 @@
 // include ../test/components/TurnStep/LoadPhase/PlayerMustPassedTurnWhenYourTurnTest.js
 // include ../test/components/TurnStep/LoadPhase/ChallengedMustMakePlayWhenYourTurnTest.js
 // include ../test/components/TurnStep/LoadPhase/ChallengeMustPassedTurnWhenYourTurnTest.js
-// include ../test/components/TurnStep/LoadPhase/ActivatePowerZoneWhenItHasCardTest.js
-// include ../test/components/TurnStep/LoadPhase/ActivatePowerZoneWhenReachLimiteTest.js
+// include ../test/components/TurnStep/LoadPhase/ShouldActivatePowerZoneWhenItHasCardTest.js
+// include ../test/components/TurnStep/LoadPhase/ShouldActivatePowerZoneWhenReachLimiteTest.js
+// include ../test/components/TurnStep/LoadPhase/ShouldEndWhenThereAreMovesTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js

@@ -1,4 +1,4 @@
-class ActivatePowerZoneWhenReachLimiteLoadPhaseTest extends SceneTest {
+class ShouldActivatePowerZoneWhenReachLimiteLoadPhaseTest extends SceneTest {
   step;
 
   create() {
@@ -79,6 +79,7 @@ class ActivatePowerZoneWhenReachLimiteLoadPhaseTest extends SceneTest {
   
   asserts() {
     this.describe('Deve entrar em etapa de zona de poder quando não existirem jogadas e sim pelo menos um cartão de poder em fase de carregamento.');
+    this.expectTrue('Foi ativado com tamanho/limite de 3?', CardBattleManager.getPowerfieldLength() === 3);
     this.expectTrue('A proxima etapa é PowerZoneStep?', this.isStep(PowerZoneStep));
   }
 }
