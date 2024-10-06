@@ -1,22 +1,19 @@
 class FolderStep extends Step {
   _folders = [];
   _foldersWindow = undefined;
-  _selectHandler = undefined;
 
-  constructor(scene, phase, folders, selectHandler) {
+  constructor(scene, phase) {
     const phasesEnabled = [GameConst.CHALLENGE_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for FolderStep.');
     }
     super(scene, phase);
-    if (typeof selectHandler !== 'function') {
-      throw new Error('Invalid selectHandler for FolderStep.');
-    }
-    if (!Array.isArray(folders)) {
-      throw new Error('Invalid folders for FolderStep.');
-    }
-    this._selectHandler = selectHandler;
-    this._folders = folders;
+    this.setFolder();
+  }
+
+  setFolder() {
+    const playerFolders = CardBattleManager.getPlayerFolders();
+    this._folders = playerFolders;
   }
 
   start(manager) {
@@ -38,8 +35,8 @@ class FolderStep extends Step {
     return (folderIndex) => {
       this.commandCloseFolderWindow();
       this.leaveFolderWindow();
+      CardBattleManager.setPlayerFolderIndex(folderIndex);
       this.addAction(this.commandFinish);
-      this._selectHandler(folderIndex);
     };
   }
 

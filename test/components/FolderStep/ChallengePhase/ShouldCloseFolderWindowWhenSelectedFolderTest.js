@@ -3,11 +3,7 @@ class ShouldCloseFolderWindowWhenSelectedFolderTest extends SceneTest {
 
   create() {
     this.createHandler();
-    const playerFolders = CardBattleManager.getPlayerFolders();
-    const setPlayerFolderIndexHandler = folderIndex => {
-      CardBattleManager.setPlayerFolderIndex(folderIndex);
-    };
-    this.step = new FolderStep(this._scene, GameConst.CHALLENGE_PHASE, playerFolders, setPlayerFolderIndexHandler);
+    this.step = new FolderStep(this._scene, GameConst.CHALLENGE_PHASE);
     this.addAssistedHidden(this.step);
   }
 

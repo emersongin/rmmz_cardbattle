@@ -9,12 +9,12 @@ class ZoneStep extends Step {
   _selectHandler = () => {};
   _moveCursorHandler = () => {};
 
-  constructor(scene, phase, config, handlers, finish) {
+  constructor(scene, phase, config, handlers) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for ZoneStep.');
     }
-    super(scene, phase, finish);
+    super(scene, phase);
     if (typeof config !== 'object') {
       throw new Error('config must be an object.');
     }

@@ -6,12 +6,12 @@ class ActivationSlotStep extends Step {
   _powerActivationStrategy = undefined;
   _end = false;
 
-  constructor(scene, phase, powerConfig, powerActivation = undefined, finish) {
+  constructor(scene, phase, powerConfig, powerActivation = undefined) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for ActivationSlotStep.');
     }
-    super(scene, phase, finish);
+    super(scene, phase);
     if (!powerConfig || !(powerConfig.cardIndex >= 0) || !powerConfig.player) {
       throw new Error('Invalid powerConfig for ActivationSlotStep.');
     }
@@ -195,7 +195,6 @@ class ActivationSlotStep extends Step {
       default:
         break;
     }
-    this.end();
   }
 
   isBusy() {

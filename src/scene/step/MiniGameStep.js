@@ -2,19 +2,14 @@ class MiniGameStep extends Step {
   _cards = [];
   _cardsetSprite = undefined;
   _resultWindow = undefined;
-  _selectHandler = undefined;
   _miniGame = false;
 
-  constructor(scene, phase, selectHandler) {
+  constructor(scene, phase) {
     const phasesEnabled = [GameConst.START_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for MiniGameStep.');
     }
     super(scene, phase);
-    if (typeof selectHandler !== 'function') {
-      throw new Error('Invalid selectHandler for MiniGameStep.');
-    }
-    this._selectHandler = selectHandler;
   }
 
   start() {
@@ -80,8 +75,8 @@ class MiniGameStep extends Step {
       this.finishMiniGame(selectedIndex);
       this.createResultWindow(win);
       this.openResultWindow();
+      if (win) CardBattleManager.playerStart();
       this.addAction(this.endGame);
-      this._selectHandler(win);
     }
     this.selectMode(handlerDecorator);
   }

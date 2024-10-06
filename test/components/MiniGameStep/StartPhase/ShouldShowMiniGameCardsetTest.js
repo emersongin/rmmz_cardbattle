@@ -3,10 +3,7 @@ class ShouldShowMiniGameCardsetTest extends SceneTest {
 
   create() {
     this.createHandler();
-    const gameResult = (win) => {
-      if (win) CardBattleManager.playerStart();
-    };
-    this.step = new MiniGameStep(this._scene, GameConst.START_PHASE, gameResult);
+    this.step = new MiniGameStep(this._scene, GameConst.START_PHASE);
     this.addAssistedHidden(this.step);
   }
 

@@ -3,9 +3,7 @@ class ShouldShowPlayerFolderWindowTest extends SceneTest {
 
   create() {
     this.createHandler();
-    const playerFolders = CardBattleManager.getPlayerFolders();
-    const selectDummy = () => {};
-    this.step = new FolderStep(this._scene, GameConst.CHALLENGE_PHASE, playerFolders, selectDummy);
+    this.step = new FolderStep(this._scene, GameConst.CHALLENGE_PHASE);
     this.addAssistedHidden(this.step);
   }
 

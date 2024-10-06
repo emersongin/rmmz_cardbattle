@@ -9285,9 +9285,7 @@ class ShouldShowPlayerFolderWindowTest extends SceneTest {
 
   create() {
     this.createHandler();
-    const playerFolders = CardBattleManager.getPlayerFolders();
-    const selectDummy = () => {};
-    this.step = new FolderStep(this._scene, GameConst.CHALLENGE_PHASE, playerFolders, selectDummy);
+    this.step = new FolderStep(this._scene, GameConst.CHALLENGE_PHASE);
     this.addAssistedHidden(this.step);
   }
 
@@ -9313,11 +9311,7 @@ class ShouldCloseFolderWindowWhenSelectedFolderTest extends SceneTest {
 
   create() {
     this.createHandler();
-    const playerFolders = CardBattleManager.getPlayerFolders();
-    const setPlayerFolderIndexHandler = folderIndex => {
-      CardBattleManager.setPlayerFolderIndex(folderIndex);
-    };
-    this.step = new FolderStep(this._scene, GameConst.CHALLENGE_PHASE, playerFolders, setPlayerFolderIndexHandler);
+    this.step = new FolderStep(this._scene, GameConst.CHALLENGE_PHASE);
     this.addAssistedHidden(this.step);
   }
 
@@ -9351,10 +9345,7 @@ class ShouldShowMiniGameCardsetTest extends SceneTest {
 
   create() {
     this.createHandler();
-    const gameResult = (win) => {
-      if (win) CardBattleManager.playerStart();
-    };
-    this.step = new MiniGameStep(this._scene, GameConst.START_PHASE, gameResult);
+    this.step = new MiniGameStep(this._scene, GameConst.START_PHASE);
     this.addAssistedHidden(this.step);
   }
 
@@ -9383,10 +9374,7 @@ class ShouldShufflerCardsTest extends SceneTest {
 
   create() {
     this.createHandler();
-    const gameResult = (win) => {
-      if (win) CardBattleManager.playerStart();
-    };
-    this.step = new MiniGameStep(this._scene, GameConst.START_PHASE, gameResult);
+    this.step = new MiniGameStep(this._scene, GameConst.START_PHASE);
     this.addAssistedHidden(this.step);
   }
 
@@ -9414,10 +9402,7 @@ class ShouldShowGameResultWindowCardsTest extends SceneTest {
 
   create() {
     this.createHandler();
-    const gameResult = (win) => {
-      if (win) CardBattleManager.playerStart();
-    };
-    this.step = new MiniGameStep(this._scene, GameConst.START_PHASE, gameResult);
+    this.step = new MiniGameStep(this._scene, GameConst.START_PHASE);
     this.addAssistedHidden(this.step);
   }
 
@@ -9447,10 +9432,7 @@ class ShouldCloseMiniGameOnSelectedCardTest extends SceneTest {
 
   create() {
     this.createHandler();
-    const gameResult = (win) => {
-      if (win) CardBattleManager.playerStart();
-    };
-    this.step = new MiniGameStep(this._scene, GameConst.START_PHASE, gameResult);
+    this.step = new MiniGameStep(this._scene, GameConst.START_PHASE);
     this.addAssistedHidden(this.step);
   }
 
@@ -11913,22 +11895,19 @@ class DisplayStep extends Step {
 class FolderStep extends Step {
   _folders = [];
   _foldersWindow = undefined;
-  _selectHandler = undefined;
 
-  constructor(scene, phase, folders, selectHandler) {
+  constructor(scene, phase) {
     const phasesEnabled = [GameConst.CHALLENGE_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for FolderStep.');
     }
     super(scene, phase);
-    if (typeof selectHandler !== 'function') {
-      throw new Error('Invalid selectHandler for FolderStep.');
-    }
-    if (!Array.isArray(folders)) {
-      throw new Error('Invalid folders for FolderStep.');
-    }
-    this._selectHandler = selectHandler;
-    this._folders = folders;
+    this.setFolder();
+  }
+
+  setFolder() {
+    const playerFolders = CardBattleManager.getPlayerFolders();
+    this._folders = playerFolders;
   }
 
   start(manager) {
@@ -11950,8 +11929,8 @@ class FolderStep extends Step {
     return (folderIndex) => {
       this.commandCloseFolderWindow();
       this.leaveFolderWindow();
+      CardBattleManager.setPlayerFolderIndex(folderIndex);
       this.addAction(this.commandFinish);
-      this._selectHandler(folderIndex);
     };
   }
 
@@ -12034,19 +12013,14 @@ class MiniGameStep extends Step {
   _cards = [];
   _cardsetSprite = undefined;
   _resultWindow = undefined;
-  _selectHandler = undefined;
   _miniGame = false;
 
-  constructor(scene, phase, selectHandler) {
+  constructor(scene, phase) {
     const phasesEnabled = [GameConst.START_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for MiniGameStep.');
     }
     super(scene, phase);
-    if (typeof selectHandler !== 'function') {
-      throw new Error('Invalid selectHandler for MiniGameStep.');
-    }
-    this._selectHandler = selectHandler;
   }
 
   start() {
@@ -12112,8 +12086,8 @@ class MiniGameStep extends Step {
       this.finishMiniGame(selectedIndex);
       this.createResultWindow(win);
       this.openResultWindow();
+      if (win) CardBattleManager.playerStart();
       this.addAction(this.endGame);
-      this._selectHandler(win);
     }
     this.selectMode(handlerDecorator);
   }
@@ -12549,12 +12523,12 @@ class ActivationSlotStep extends Step {
   _powerActivationStrategy = undefined;
   _end = false;
 
-  constructor(scene, phase, powerConfig, powerActivation = undefined, finish) {
+  constructor(scene, phase, powerConfig, powerActivation = undefined) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for ActivationSlotStep.');
     }
-    super(scene, phase, finish);
+    super(scene, phase);
     if (!powerConfig || !(powerConfig.cardIndex >= 0) || !powerConfig.player) {
       throw new Error('Invalid powerConfig for ActivationSlotStep.');
     }
@@ -12738,7 +12712,6 @@ class ActivationSlotStep extends Step {
       default:
         break;
     }
-    this.end();
   }
 
   isBusy() {
@@ -13744,10 +13717,10 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldCloseFolderWindowWhenSelectedFolderTest,
 
       // // MiniGameStep
-      // ShouldShowMiniGameCardsetTest,
-      // ShouldShufflerCardsTest,
-      // ShouldShowGameResultWindowCardsTest,
-      // ShouldCloseMiniGameOnSelectedCardTest,
+      ShouldShowMiniGameCardsetTest,
+      ShouldShufflerCardsTest,
+      ShouldShowGameResultWindowCardsTest,
+      ShouldCloseMiniGameOnSelectedCardTest,
 
       // // TurnStep
       // ShouldShowChallengedBoardWindowLoadPhaseTest,
@@ -13761,7 +13734,6 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldShowChallengedCardsetLoadPhaseTest,
       // ShouldShowPlayerCardsetLoadPhaseTest,
       // ShouldShowTextWindowLoadPhaseTest,
-
       // PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
       // PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
       // PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
@@ -13770,7 +13742,9 @@ class CardBattleTestScene extends Scene_Message {
       // ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
       // ShouldActivatePowerZoneWhenItHasCardLoadPhaseTest,
       // ShouldActivatePowerZoneWhenReachLimiteLoadPhaseTest,
-      ShouldEndWhenThereAreMovesLoadPhaseTest,
+      // ShouldEndWhenThereAreMovesLoadPhaseTest,
+
+      // // ZoneStep
     ];
     return [
       // ...cardSpriteTests,

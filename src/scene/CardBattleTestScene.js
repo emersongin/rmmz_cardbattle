@@ -248,10 +248,10 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldCloseFolderWindowWhenSelectedFolderTest,
 
       // // MiniGameStep
-      // ShouldShowMiniGameCardsetTest,
-      // ShouldShufflerCardsTest,
-      // ShouldShowGameResultWindowCardsTest,
-      // ShouldCloseMiniGameOnSelectedCardTest,
+      ShouldShowMiniGameCardsetTest,
+      ShouldShufflerCardsTest,
+      ShouldShowGameResultWindowCardsTest,
+      ShouldCloseMiniGameOnSelectedCardTest,
 
       // // TurnStep
       // ShouldShowChallengedBoardWindowLoadPhaseTest,
@@ -265,7 +265,6 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldShowChallengedCardsetLoadPhaseTest,
       // ShouldShowPlayerCardsetLoadPhaseTest,
       // ShouldShowTextWindowLoadPhaseTest,
-
       // PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
       // PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
       // PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
@@ -274,7 +273,9 @@ class CardBattleTestScene extends Scene_Message {
       // ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
       // ShouldActivatePowerZoneWhenItHasCardLoadPhaseTest,
       // ShouldActivatePowerZoneWhenReachLimiteLoadPhaseTest,
-      ShouldEndWhenThereAreMovesLoadPhaseTest,
+      // ShouldEndWhenThereAreMovesLoadPhaseTest,
+
+      // // ZoneStep
     ];
     return [
       // ...cardSpriteTests,
