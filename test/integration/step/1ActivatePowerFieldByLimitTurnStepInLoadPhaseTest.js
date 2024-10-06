@@ -11,7 +11,7 @@ class ActivatePowerFieldByLimitTurnStepInLoadPhaseTest extends SceneTest {
       challengedPlayHandler: () => {},
       challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {
-        this.step.changeStep(RunPowerfieldStep);
+        this.step.changeStep(PowerZoneStep);
         finish();
       },
     };
@@ -52,6 +52,6 @@ class ActivatePowerFieldByLimitTurnStepInLoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
     this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
     this.expectTrue('Foi ativado com limite de 3?', this.manager.getPowerfieldLength() === 3);
-    this.expectTrue('A proxima Etapa é RunPowerfieldStep?', this.isStep(RunPowerfieldStep));
+    this.expectTrue('A proxima Etapa é PowerZoneStep?', this.isStep(PowerZoneStep));
   }
 }

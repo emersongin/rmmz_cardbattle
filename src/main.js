@@ -231,6 +231,7 @@
 // include ../test/components/TurnStep/LoadPhase/PlayerMustPassedTurnWhenYourTurnTest.js
 // include ../test/components/TurnStep/LoadPhase/ChallengedMustMakePlayWhenYourTurnTest.js
 // include ../test/components/TurnStep/LoadPhase/ChallengeMustPassedTurnWhenYourTurnTest.js
+// include ../test/components/TurnStep/LoadPhase/ActivatePowerZoneWhenItHasCardTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js

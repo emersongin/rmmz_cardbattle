@@ -188,7 +188,7 @@ class DisplayStep extends Step {
             CardBattleManager.challengedPassed();
           },
           activePowerfieldHandler: () => {
-            this.changeStep(RunPowerfieldStep);
+            this.changeStep(PowerZoneStep);
           },
         };
         this.changeStep(TurnStep, handlers);

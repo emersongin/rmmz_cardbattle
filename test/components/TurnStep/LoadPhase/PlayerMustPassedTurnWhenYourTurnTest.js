@@ -11,10 +11,26 @@ class PlayerMustPassedTurnYourTurnLoadPhaseTest extends SceneTest {
   }
 
   start() {
+    this.spyCommandPlayerPassed();
+    this.mockFolders();
+    this.setDecks();
+    this.drawCards(6);
+    this.putCards(3);
+    CardBattleManager.playerStart();
+    this.mockIsTriggered();
+    this.spyCommandOpenAskWindow();
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  spyCommandPlayerPassed() {
     const finish = this.getHandler();
     this.spyFunction(this.step, 'commandPlayerPassed', () => {
       finish();
     });
+  }
+
+  mockFolders() {
     CardBattleManager.folders[0] = {
       name: 'Mock Folder',
       energies: [0, 0, 0, 0, 0, 0],
@@ -27,22 +43,32 @@ class PlayerMustPassedTurnYourTurnLoadPhaseTest extends SceneTest {
         { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
       ]
     };
+  }
+
+  setDecks() {
     CardBattleManager.setPlayerDeck(0);
     CardBattleManager.setChallengedDeck(0);
-    const drawNumber = 6;
-    const putNumber = 3;
+  }
+
+  drawCards(drawNumber) {
     CardBattleManager.drawPlayerCards(drawNumber);
-    CardBattleManager.putPlayerCards(putNumber);
     CardBattleManager.drawChallengedCards(drawNumber);
+  }
+
+  putCards(putNumber) {
+    CardBattleManager.putPlayerCards(putNumber);
     CardBattleManager.putChallengedCards(putNumber);
-    CardBattleManager.playerStart();
+  }
+
+  mockIsTriggered() {
     this.mockFunction(Input, 'isTriggered', () => true);
+  }
+
+  spyCommandOpenAskWindow() {
     this.spyFunction(this.step, 'commandOpenAskWindow', () => {
       const index = 1;
       this.step.selectAskWindowOption(index);
     });
-    this._scene.setStep(this.step);
-    this.step.start();
   }
 
   update() {

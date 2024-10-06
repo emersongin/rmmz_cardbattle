@@ -187,7 +187,7 @@ class ActivationSlotStep extends Step {
             manager.challengedPassed();
           },
           activePowerfieldHandler: () => {
-            this.changeStep(RunPowerfieldStep);
+            this.changeStep(PowerZoneStep);
           },
         };
         this.changeStep(TurnStep, handlers);

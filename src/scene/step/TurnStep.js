@@ -3,18 +3,13 @@ class TurnStep extends Step {
   _askWindow = undefined;
   _startTurn = false;
   _awaitingDecision = false;
-  _activePowerfieldHandler = () => {};
 
-  constructor(scene, phase, handlers) {
+  constructor(scene, phase) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for TurnStep.');
     }
     super(scene, phase);
-    if (!handlers.activePowerfieldHandler || typeof handlers.activePowerfieldHandler !== 'function') {
-      throw new Error('Invalid activePowerfieldHandler for TurnStep.');
-    }
-    this._activePowerfieldHandler = handlers?.activePowerfieldHandler;
   }
 
   start(text = 'Begin Load Phase') {
@@ -106,13 +101,13 @@ class TurnStep extends Step {
     const limit = 3;
     const isPowerfieldFull = CardBattleManager.getPowerfieldLength() >= limit;
     if (isPowerfieldFull) {
-      this.addAction(this.commandActivePowerfield);
+      this.addAction(this.commandActivePowerZone);
       return true;
     }
   }
 
-  commandActivePowerfield() {
-    this._activePowerfieldHandler();
+  commandActivePowerZone() {
+    this.changeStep(PowerZoneStep);
   }
 
   updatePlayerTurn() {
@@ -235,7 +230,7 @@ class TurnStep extends Step {
 
   updateActivePowerfield() {
     if (CardBattleManager.getPowerfieldLength() > 0) {
-      this.addAction(this.commandActivePowerfield);
+      this.addAction(this.commandActivePowerZone);
       return true;
     }
   }

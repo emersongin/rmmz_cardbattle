@@ -24,7 +24,7 @@ class ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest extends SceneTest {
     };
     CardBattleManager.setPlayerDeck(0);
     CardBattleManager.setChallengedDeck(0);
-    const drawNumber = 3;
+    const drawNumber = 1;
     CardBattleManager.drawPlayerCards(drawNumber);
     CardBattleManager.drawChallengedCards(drawNumber);
     this.mockFunction(Input, 'isTriggered', () => true);

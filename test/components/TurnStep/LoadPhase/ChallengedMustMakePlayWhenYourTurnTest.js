@@ -11,10 +11,25 @@ class ChallengedMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
   }
 
   start() {
+    this.spyCommandChallengedPlay();
+    this.mockFolders();
+    this.setDecks();
+    this.drawCards(6);
+    this.putCards(3);
+    this.mockIsTriggered();
+    this.spyCommandOpenAskWindow();
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  spyCommandChallengedPlay() {
     const finish = this.getHandler();
     this.spyFunction(this.step, 'commandChallengedPlay', () => {
       finish();
     });
+  }
+
+  mockFolders() {
     CardBattleManager.folders[0] = {
       name: 'Mock Folder',
       energies: [0, 0, 0, 0, 0, 0],
@@ -27,21 +42,32 @@ class ChallengedMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
         { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
       ]
     };
+  }
+
+  setDecks() {
     CardBattleManager.setPlayerDeck(0);
     CardBattleManager.setChallengedDeck(0);
-    const drawNumber = 6;
-    const putNumber = 3;
+  }
+
+  drawCards(drawNumber) {
     CardBattleManager.drawPlayerCards(drawNumber);
-    CardBattleManager.putPlayerCards(putNumber);
     CardBattleManager.drawChallengedCards(drawNumber);
+  }
+
+  putCards(putNumber) {
+    CardBattleManager.putPlayerCards(putNumber);
     CardBattleManager.putChallengedCards(putNumber);
+  }
+
+  mockIsTriggered() {
     this.mockFunction(Input, 'isTriggered', () => true);
+  }
+
+  spyCommandOpenAskWindow() {
     this.spyFunction(this.step, 'commandOpenAskWindow', () => {
       const index = 0;
       this.step.selectAskWindowOption(index);
     });
-    this._scene.setStep(this.step);
-    this.step.start();
   }
 
   update() {
@@ -51,7 +77,7 @@ class ChallengedMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
   asserts() {
     this.describe('Desafiado deve fazer uma jogada quando for sua vez em fase de carregamento.');
     this.expectTrue('Desafiado tem cartões de poder para jogar?', CardBattleManager.isChallengedHasPowerCardInHand());
-    this.expectTrue('A proxima Etapa é ActivationSlotStep?', this.isStep(ActivationSlotStep));
+    this.expectTrue('A proxima etapa é ActivationSlotStep?', this.isStep(ActivationSlotStep));
     this.expectTrue('Jogada é de desafiado?', this.step.getPlayerInActivationSlotStep() === GameConst.CHALLENGED);
   }
 }

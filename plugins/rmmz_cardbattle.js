@@ -9481,7 +9481,6 @@ class ShouldShowChallengedBattleWindowLoadPhaseTest extends SceneTest {
   create() {
     this.createHandler();
     const handlers = {
-      challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
     this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
@@ -9505,15 +9504,6 @@ class ShouldShowChallengedBattleWindowLoadPhaseTest extends SceneTest {
   asserts() {
     this.describe('Deve apresentar janela de batalha do desafiado na etapa de turno na fase de carregamento.');
     this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
-    // this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
-    // this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
-    // this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
-    // this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
-    // this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
-    // this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
-    // this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    // this.expectTrue('Foi ativado com limite de 3?', CardBattleManager.getPowerfieldLength() === 3);
-    // this.expectTrue('A proxima Etapa é RunPowerfieldStep?', this.isStep(RunPowerfieldStep));
   }
 }
 class ShouldShowChallengedBoardWindowLoadPhaseTest extends SceneTest {
@@ -9522,7 +9512,6 @@ class ShouldShowChallengedBoardWindowLoadPhaseTest extends SceneTest {
   create() {
     this.createHandler();
     const handlers = {
-      challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
     this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
@@ -9554,7 +9543,6 @@ class ShouldShowChallengedScoreWindowLoadPhaseTest extends SceneTest {
   create() {
     this.createHandler();
     const handlers = {
-      challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
     this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
@@ -9586,7 +9574,6 @@ class ShouldShowChallengedTrashWindowLoadPhaseTest extends SceneTest {
   create() {
     this.createHandler();
     const handlers = {
-      challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
     this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
@@ -9618,7 +9605,6 @@ class ShouldShowChallengedCardsetLoadPhaseTest extends SceneTest {
   create() {
     this.createHandler();
     const handlers = {
-      challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
     this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
@@ -9661,7 +9647,6 @@ class ShouldShowPlayerBattleWindowLoadPhaseTest extends SceneTest {
   create() {
     this.createHandler();
     const handlers = {
-      challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
     this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
@@ -9693,7 +9678,6 @@ class ShouldShowPlayerBoardWindowLoadPhaseTest extends SceneTest {
   create() {
     this.createHandler();
     const handlers = {
-      challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
     this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
@@ -9725,7 +9709,6 @@ class ShouldShowPlayerScoreWindowLoadPhaseTest extends SceneTest {
   create() {
     this.createHandler();
     const handlers = {
-      challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
     this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
@@ -9757,7 +9740,6 @@ class ShouldShowPlayerTrashWindowLoadPhaseTest extends SceneTest {
   create() {
     this.createHandler();
     const handlers = {
-      challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
     this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
@@ -9789,7 +9771,6 @@ class ShouldShowPlayerCardsetLoadPhaseTest extends SceneTest {
   create() {
     this.createHandler();
     const handlers = {
-      challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
     this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
@@ -9832,7 +9813,6 @@ class ShouldShowTextWindowLoadPhaseTest extends SceneTest {
   create() {
     this.createHandler();
     const handlers = {
-      challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
     this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
@@ -9865,7 +9845,6 @@ class PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest extends SceneTest {
   create() {
     this.createHandler();
     const handlers = {
-      challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
     this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
@@ -9901,7 +9880,6 @@ class PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest extends SceneTest {
   create() {
     this.createHandler();
     const handlers = {
-      challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
     this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
@@ -9935,8 +9913,6 @@ class PlayerMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
   create() {
     this.createHandler();
     const handlers = {
-      playerPassedHandler: () => {},
-      challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
     this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
@@ -9995,7 +9971,6 @@ class PlayerMustPassedTurnYourTurnLoadPhaseTest extends SceneTest {
   create() {
     this.createHandler();
     const handlers = {
-      challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
     this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
@@ -10054,8 +10029,6 @@ class ChallengedMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
   create() {
     this.createHandler();
     const handlers = {
-      playerPassedHandler: () => {},
-      challengedPassedHandler: () => {},
       activePowerfieldHandler: () => {},
     };
     this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE, handlers);
@@ -10103,7 +10076,7 @@ class ChallengedMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
   asserts() {
     this.describe('Desafiado deve fazer uma jogada quando for sua vez em fase de carregamento.');
     this.expectTrue('Desafiado tem cartões de poder para jogar?', CardBattleManager.isChallengedHasPowerCardInHand());
-    this.expectTrue('A proxima Etapa é ActivationSlotStep?', this.isStep(ActivationSlotStep));
+    this.expectTrue('A proxima etapa é ActivationSlotStep?', this.isStep(ActivationSlotStep));
     this.expectTrue('Jogada é de desafiado?', this.step.getPlayerInActivationSlotStep() === GameConst.CHALLENGED);
   }
 }
@@ -10133,7 +10106,7 @@ class ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest extends SceneTest {
     };
     CardBattleManager.setPlayerDeck(0);
     CardBattleManager.setChallengedDeck(0);
-    const drawNumber = 3;
+    const drawNumber = 1;
     CardBattleManager.drawPlayerCards(drawNumber);
     CardBattleManager.drawChallengedCards(drawNumber);
     this.mockFunction(Input, 'isTriggered', () => true);
@@ -10149,6 +10122,61 @@ class ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest extends SceneTest {
     this.describe('Desafiado deve passar a jogada quando for sua vez em fase de carregamento.');
     this.expectTrue('O desafiado passou a jogada?', CardBattleManager.isChallengedPassed());
     this.expectTrue('A janela de tabuleiro do desafiado passou?', this.step.getChallengeBoardWindowHasPassed());
+  }
+}
+class ActivatePowerZoneWhenItHasCardLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    this.step = new TurnStep(this._scene, GameConst.LOAD_PHASE);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    const finish = this.getHandler();
+    this.spyFunction(this.step, 'commandActivePowerZone', () => {
+      finish();
+    });
+    CardBattleManager.folders[0] = {
+      name: 'Mock Folder',
+      energies: [0, 0, 0, 0, 0, 0],
+      set: [
+        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+      ]
+    };
+    CardBattleManager.setPlayerDeck(0);
+    CardBattleManager.setChallengedDeck(0);
+    const drawNumber = 1;
+    const putNumber = 1;
+    CardBattleManager.drawPlayerCards(drawNumber);
+    CardBattleManager.putPlayerCards(putNumber);
+    CardBattleManager.drawChallengedCards(drawNumber);
+    CardBattleManager.putChallengedCards(putNumber);
+    const powerCard = { 
+      type: GameConst.POWER, 
+      color: GameConst.BLACK, 
+      figureName: 'default', 
+      attack: 10, 
+      health: 10,
+    };
+    CardBattleManager.addPowerCardToPowerfield(powerCard);
+    this.mockFunction(Input, 'isTriggered', () => true);
+    this.spyFunction(this.step, 'commandOpenAskWindow', () => {
+      const index = 1;
+      this.step.selectAskWindowOption(index);
+    });
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve entrar em etapa de zona de poder quando não existirem jogadas e sim pelo menos um cartão de poder em fase de carregamento.');
+    this.expectTrue('A proxima etapa é PowerZoneStep?', this.isStep(PowerZoneStep));
   }
 }
 
@@ -11572,7 +11600,7 @@ class DisplayStep extends Step {
             CardBattleManager.challengedPassed();
           },
           activePowerfieldHandler: () => {
-            this.changeStep(RunPowerfieldStep);
+            this.changeStep(PowerZoneStep);
           },
         };
         this.changeStep(TurnStep, handlers);
@@ -12194,13 +12222,13 @@ class DrawStep extends Step {
     }
   }
 }
-class RunPowerfieldStep extends Step {
-  constructor(scene, phase, finish) {
+class PowerZoneStep extends Step {
+  constructor(scene, phase) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for DisplayStep.');
     }
-    super(scene, phase, finish);
+    super(scene, phase);
   }
 
   start(manager) {
@@ -12434,7 +12462,7 @@ class ActivationSlotStep extends Step {
             manager.challengedPassed();
           },
           activePowerfieldHandler: () => {
-            this.changeStep(RunPowerfieldStep);
+            this.changeStep(PowerZoneStep);
           },
         };
         this.changeStep(TurnStep, handlers);
@@ -12928,18 +12956,13 @@ class TurnStep extends Step {
   _askWindow = undefined;
   _startTurn = false;
   _awaitingDecision = false;
-  _activePowerfieldHandler = () => {};
 
-  constructor(scene, phase, handlers) {
+  constructor(scene, phase) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
       throw new Error('Invalid phase for TurnStep.');
     }
     super(scene, phase);
-    if (!handlers.activePowerfieldHandler || typeof handlers.activePowerfieldHandler !== 'function') {
-      throw new Error('Invalid activePowerfieldHandler for TurnStep.');
-    }
-    this._activePowerfieldHandler = handlers?.activePowerfieldHandler;
   }
 
   start(text = 'Begin Load Phase') {
@@ -13031,13 +13054,13 @@ class TurnStep extends Step {
     const limit = 3;
     const isPowerfieldFull = CardBattleManager.getPowerfieldLength() >= limit;
     if (isPowerfieldFull) {
-      this.addAction(this.commandActivePowerfield);
+      this.addAction(this.commandActivePowerZone);
       return true;
     }
   }
 
-  commandActivePowerfield() {
-    this._activePowerfieldHandler();
+  commandActivePowerZone() {
+    this.changeStep(PowerZoneStep);
   }
 
   updatePlayerTurn() {
@@ -13160,7 +13183,7 @@ class TurnStep extends Step {
 
   updateActivePowerfield() {
     if (CardBattleManager.getPowerfieldLength() > 0) {
-      this.addAction(this.commandActivePowerfield);
+      this.addAction(this.commandActivePowerZone);
       return true;
     }
   }
@@ -13475,8 +13498,9 @@ class CardBattleTestScene extends Scene_Message {
       // PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
       // PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
       // ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
-      PlayerMustPassedTurnYourTurnLoadPhaseTest,
-      ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
+      // PlayerMustPassedTurnYourTurnLoadPhaseTest,
+      // ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
+      ActivatePowerZoneWhenItHasCardLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,
