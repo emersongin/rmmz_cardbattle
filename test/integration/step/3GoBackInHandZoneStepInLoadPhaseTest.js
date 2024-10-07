@@ -53,6 +53,6 @@ class GoBackInHandZoneStepInLoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de descrição de cartão foi apresentado?', this.step.isCardDescriptionWindowVisible);
     this.expectWasTrue('A janela de propriedades de cartão foi apresentado?', this.step.isCardPropsWindowVisible);
     this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetSpriteVisible);
-    this.expectTrue('A proxima Etapa é TurnStep?', this.isStep(TurnStep));
+    this.expectTrue('A proxima etapa é TurnStep?', this.isStep(TurnStep));
   }
 }

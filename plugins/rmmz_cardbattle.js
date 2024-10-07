@@ -4198,11 +4198,10 @@ class CardsetSpriteSelectModeState {
 
   updateStatus() {
     const cardset = this._cardset;
-    // const keys = ['right', 'left'];
     if (cardset.isAvailable()) {
       this.updateCursor();
       if (this.isSelectable()) {
-        if (this._onCancelHandler && Input.isTriggered('cancel')) {
+        if (this._onCancelHandler && this.isTriggeredCancel()) {
           cardset.addCommand(this._onCancelHandler);
           return cardset.commandStaticMode();
         }
@@ -4213,6 +4212,10 @@ class CardsetSpriteSelectModeState {
         if (Input.isTriggered('ok')) this.selectSprite();
       }
     }
+  }
+
+  isTriggeredCancel() {
+    return Input.isRepeated('cancel');
   }
 
   updateCursor() {
@@ -8662,7 +8665,7 @@ class ShouldCloseWindowsWhenPressActionChallengePhaseTest extends SceneTest {
     this.describe('Deve fecha as janelas ao realizar ação e definir a proxima etap de pasta.');
     this.expectTrue('A janela de título foi fechada?', this.step.isTitleWindowClosed());
     this.expectTrue('A janela de descrição foi fechada?', this.step.isDescriptionWindowClosed());
-    this.expectTrue('A proxima Etapa é FolderStep?', this.isStep(FolderStep));
+    this.expectTrue('A proxima etapa é FolderStep?', this.isStep(FolderStep));
   }
 }
 class ShouldShowTitleWindowStartPhaseTest extends SceneTest {
@@ -8745,7 +8748,7 @@ class ShouldCloseWindowsWhenPressActionStartPhaseTest extends SceneTest {
     this.describe('Deve fecha as janelas ao realizar ação e definir a proxima etap de mini jogo.');
     this.expectTrue('A janela de título foi fechada?', this.step.isTitleWindowClosed());
     this.expectTrue('A janela de descrição foi fechada?', this.step.isDescriptionWindowClosed());
-    this.expectTrue('A proxima Etapa é MiniGameStep?', this.isStep(MiniGameStep));
+    this.expectTrue('A proxima etapa é MiniGameStep?', this.isStep(MiniGameStep));
   }
 }
 class ShouldShowTitleWindowDrawPhaseTest extends SceneTest {
@@ -8828,7 +8831,7 @@ class ShouldCloseWindowsWhenPressActionDrawPhaseTest extends SceneTest {
     this.describe('Deve fecha as janelas ao realizar ação e definir a proxima etap de saque.');
     this.expectTrue('A janela de título foi fechada?', this.step.isTitleWindowClosed());
     this.expectTrue('A janela de descrição foi fechada?', this.step.isDescriptionWindowClosed());
-    this.expectTrue('A proxima Etapa é DrawStep?', this.isStep(DrawStep));
+    this.expectTrue('A proxima etapa é DrawStep?', this.isStep(DrawStep));
   }
 }
 class ShouldShowTitleWindowLoadPhaseTest extends SceneTest {
@@ -8911,7 +8914,7 @@ class ShouldCloseWindowsWhenPressActionLoadPhaseTest extends SceneTest {
     this.describe('Deve fecha as janelas ao realizar ação e definir a proxima etap de turno.');
     this.expectTrue('A janela de título foi fechada?', this.step.isTitleWindowClosed());
     this.expectTrue('A janela de descrição foi fechada?', this.step.isDescriptionWindowClosed());
-    this.expectTrue('A proxima Etapa é TurnStep?', this.isStep(TurnStep));
+    this.expectTrue('A proxima etapa é TurnStep?', this.isStep(TurnStep));
   }
 }
 class ShouldShowPlayerBoardWindowDrawPhaseTest extends SceneTest {
@@ -9221,7 +9224,7 @@ class ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest extends SceneTest {
     this.expectTrue('A janela de pontuação do desafiado foi fechada?', this.step.isChallengedScoreWindowClosed());
     this.expectTrue('A janela de lixo do desafiado foi fechada?', this.step.isChallengedTrashWindowClosed());
     this.expectTrue('O conjunto de cartões do desafiado foi retirado?', this.step.allChallengedCardsAreClosed());
-    this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
+    this.expectTrue('A proxima etapa é DisplayStep?', this.isStep(DisplayStep));
     this.expectTrue('A proxima Fase é LOAD_PHASE?', this.step.getPhase() === GameConst.LOAD_PHASE);
   }
 }
@@ -9336,7 +9339,7 @@ class ShouldCloseFolderWindowWhenSelectedFolderTest extends SceneTest {
     this.describe('Deve escolher uma pasta e mudar para próxima etapa de apresentação da fase de início.');
     this.expectTrue('A janela de pastas do jogador foi fechada?', this.step.isFolderWindowClosed());
     this.expectTrue('A pasta foi escolhida?', CardBattleManager.folderIndex !== -1);
-    this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
+    this.expectTrue('A proxima etapa é DisplayStep?', this.isStep(DisplayStep));
     this.expectTrue('A proxima Fase é START_PHASE?', this.step.getPhase() === GameConst.START_PHASE);
   }
 }
@@ -9453,7 +9456,7 @@ class ShouldCloseMiniGameOnSelectedCardTest extends SceneTest {
   asserts() {
     this.describe('Deve escolher um cartão e mudar para próxima etapa de apresentação da fase de saque.');
     this.expectTrue('Tem um resultado?', typeof CardBattleManager.isPlayerStartTurn() === 'boolean');
-    this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
+    this.expectTrue('A proxima etapa é DisplayStep?', this.isStep(DisplayStep));
     this.expectTrue('A proxima Fase é DRAW_PHASE?', this.step.getPhase() === GameConst.DRAW_PHASE);
   }
 }
@@ -10618,7 +10621,7 @@ class ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest extends SceneTest 
     this._scene.setStep(this.step);
     this.step.start();
     this.step.addAction(() => {
-      this.mockFunction(this.step._cardsetSprite._status, 'isRepeatedOrLongPressedRight', () => {
+      this.mockFunction(this.step.getCardsetSpriteStatus(), 'isRepeatedOrLongPressedRight', () => {
         return true;
       });
     });
@@ -10656,6 +10659,65 @@ class ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest extends SceneTest 
     this.expectTrue(`A descrição da janela é: ${cardName}?`, this.step.isCardNameWindowText('card 2'));
     this.expectTrue(`A descrição da janela é: ${cardDescription}?`, this.step.isCardDescriptionWindowText('description 2'));
     this.expectTrue(`A descrição da janela é: ${cardProps}?`, this.step.isCardPropsWindowText('10/10'));
+  }
+}
+class ShouldCloseAndChangeStepWhenGoingBackInHandZoneLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const config = { location: GameConst.HAND, player: GameConst.PLAYER};
+    this.step = new ZoneStep(this._scene, GameConst.LOAD_PHASE, config);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.spyCommandMoveCursorLoadPhase();
+    this.mockFolders();
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    CardBattleManager.drawPlayerCards(3);
+    this._scene.setStep(this.step);
+    this.step.start();
+    this.step.addAction(() => {
+      this.mockFunction(this.step.getCardsetSpriteStatus(), 'isTriggeredCancel', () => {
+        return true;
+      });
+    });
+
+  }
+
+  spyCommandMoveCursorLoadPhase() {
+    const finish = this.getHandler();
+    this.spyFunction(this.step, 'commandGoBackLoadPhase', (cardIndex) => {
+      finish();
+    });
+  }
+
+  mockFolders() {
+    CardBattleManager.folders[0] = {
+      name: 'Mock Folder',
+      energies: [0, 0, 0, 0, 0, 0],
+      set: [
+        { name: 'card 1', description: 'description 1', type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { name: 'card 2', description: 'description 2', type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { name: 'card 3', description: 'description 3', type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+      ]
+    };
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Ao cancelar seleção deve fechar as janelas e o cardset e mudar a etapa na zona de mão em fase de carregamento.');
+    this.expectTrue('A janela de localização foi fechada?', this.step.isLocationWindowClosed());
+    this.expectTrue('A janela de nome de cartão foi fechada?', this.step.isCardNameWindowClosed());
+    this.expectTrue('A janela de descrição de cartão foi fechada?', this.step.isCardDescriptionWindowClosed());
+    this.expectTrue('A janela de propriedades de cartão foi fechada?', this.step.isCardPropsWindowClosed());
+    this.expectTrue('A janela de propriedades de cartão foi fechada?', this.step.allCardsAreClosed());
+    this.expectTrue('A proxima etapa é TurnStep?', this.isStep(TurnStep));
   }
 }
 
@@ -13177,9 +13239,7 @@ class ZoneStep extends Step {
   }
 
   createOnMoveCursorHandler() {
-    return cardIndex => {
-      this.commandMoveCursor(cardIndex);
-    };
+    return cardIndex => this.commandMoveCursor(cardIndex);
   }
 
   commandMoveCursor(cardIndex) {
@@ -13483,6 +13543,30 @@ class ZoneStep extends Step {
 
   allCardsAreOpen() {
     return this._cardsetSprite.allCardsAreOpen();
+  }
+
+  getCardsetSpriteStatus() {
+    return this._cardsetSprite.getStatus();
+  }
+
+  isLocationWindowClosed() {
+    return this._locationWindow.isClosed();
+  }
+
+  isCardNameWindowClosed() {
+    return this._cardNameWindow.isClosed();
+  }
+
+  isCardDescriptionWindowClosed() {
+    return this._cardDescriptionWindow.isClosed();
+  }
+
+  isCardPropsWindowClosed() {
+    return this._cardPropsWindow.isClosed();
+  }
+
+  allCardsAreClosed() {
+    return this._cardsetSprite.allCardsAreClosed();
   }
 }
 class TurnStep extends Step {
@@ -14042,7 +14126,8 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest,
       // ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest,
       // ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
-      ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest,
+      // ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest,
+      ShouldCloseAndChangeStepWhenGoingBackInHandZoneLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

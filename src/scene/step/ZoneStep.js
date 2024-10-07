@@ -215,9 +215,7 @@ class ZoneStep extends Step {
   }
 
   createOnMoveCursorHandler() {
-    return cardIndex => {
-      this.commandMoveCursor(cardIndex);
-    };
+    return cardIndex => this.commandMoveCursor(cardIndex);
   }
 
   commandMoveCursor(cardIndex) {
@@ -521,5 +519,29 @@ class ZoneStep extends Step {
 
   allCardsAreOpen() {
     return this._cardsetSprite.allCardsAreOpen();
+  }
+
+  getCardsetSpriteStatus() {
+    return this._cardsetSprite.getStatus();
+  }
+
+  isLocationWindowClosed() {
+    return this._locationWindow.isClosed();
+  }
+
+  isCardNameWindowClosed() {
+    return this._cardNameWindow.isClosed();
+  }
+
+  isCardDescriptionWindowClosed() {
+    return this._cardDescriptionWindow.isClosed();
+  }
+
+  isCardPropsWindowClosed() {
+    return this._cardPropsWindow.isClosed();
+  }
+
+  allCardsAreClosed() {
+    return this._cardsetSprite.allCardsAreClosed();
   }
 }

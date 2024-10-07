@@ -82,11 +82,10 @@ class CardsetSpriteSelectModeState {
 
   updateStatus() {
     const cardset = this._cardset;
-    // const keys = ['right', 'left'];
     if (cardset.isAvailable()) {
       this.updateCursor();
       if (this.isSelectable()) {
-        if (this._onCancelHandler && Input.isTriggered('cancel')) {
+        if (this._onCancelHandler && this.isTriggeredCancel()) {
           cardset.addCommand(this._onCancelHandler);
           return cardset.commandStaticMode();
         }
@@ -97,6 +96,10 @@ class CardsetSpriteSelectModeState {
         if (Input.isTriggered('ok')) this.selectSprite();
       }
     }
+  }
+
+  isTriggeredCancel() {
+    return Input.isRepeated('cancel');
   }
 
   updateCursor() {

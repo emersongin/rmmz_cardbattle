@@ -24,7 +24,7 @@ class ShouldCloseMiniGameOnSelectedCardTest extends SceneTest {
   asserts() {
     this.describe('Deve escolher um cartão e mudar para próxima etapa de apresentação da fase de saque.');
     this.expectTrue('Tem um resultado?', typeof CardBattleManager.isPlayerStartTurn() === 'boolean');
-    this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
+    this.expectTrue('A proxima etapa é DisplayStep?', this.isStep(DisplayStep));
     this.expectTrue('A proxima Fase é DRAW_PHASE?', this.step.getPhase() === GameConst.DRAW_PHASE);
   }
 }

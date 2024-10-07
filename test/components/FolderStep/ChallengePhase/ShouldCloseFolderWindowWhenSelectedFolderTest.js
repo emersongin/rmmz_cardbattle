@@ -28,7 +28,7 @@ class ShouldCloseFolderWindowWhenSelectedFolderTest extends SceneTest {
     this.describe('Deve escolher uma pasta e mudar para próxima etapa de apresentação da fase de início.');
     this.expectTrue('A janela de pastas do jogador foi fechada?', this.step.isFolderWindowClosed());
     this.expectTrue('A pasta foi escolhida?', CardBattleManager.folderIndex !== -1);
-    this.expectTrue('A proxima Etapa é DisplayStep?', this.isStep(DisplayStep));
+    this.expectTrue('A proxima etapa é DisplayStep?', this.isStep(DisplayStep));
     this.expectTrue('A proxima Fase é START_PHASE?', this.step.getPhase() === GameConst.START_PHASE);
   }
 }

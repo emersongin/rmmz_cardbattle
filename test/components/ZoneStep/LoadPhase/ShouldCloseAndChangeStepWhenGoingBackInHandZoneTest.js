@@ -1,4 +1,4 @@
-class ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest extends SceneTest {
+class ShouldCloseAndChangeStepWhenGoingBackInHandZoneLoadPhaseTest extends SceneTest {
   step;
 
   create() {
@@ -17,7 +17,7 @@ class ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest extends SceneTest 
     this._scene.setStep(this.step);
     this.step.start();
     this.step.addAction(() => {
-      this.mockFunction(this.step.getCardsetSpriteStatus(), 'isRepeatedOrLongPressedRight', () => {
+      this.mockFunction(this.step.getCardsetSpriteStatus(), 'isTriggeredCancel', () => {
         return true;
       });
     });
@@ -26,8 +26,8 @@ class ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest extends SceneTest 
 
   spyCommandMoveCursorLoadPhase() {
     const finish = this.getHandler();
-    this.spyFunction(this.step, 'commandMoveCursorLoadPhase', (cardIndex) => {
-      if (cardIndex) finish();
+    this.spyFunction(this.step, 'commandGoBackLoadPhase', (cardIndex) => {
+      finish();
     });
   }
 
@@ -48,12 +48,12 @@ class ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest extends SceneTest 
   }
   
   asserts() {
-    this.describe('Ao mover o cursor deve mudar cartão e dados das janelas na zona de mão em fase de carregamento.');
-    const cardName = this.step.getCardNameByCardIndex(1);
-    const cardDescription = this.step.getCardDescriptionByCardIndex(1);
-    const cardProps = this.step.getCardPropsByCardIndex(1);
-    this.expectTrue(`A descrição da janela é: ${cardName}?`, this.step.isCardNameWindowText('card 2'));
-    this.expectTrue(`A descrição da janela é: ${cardDescription}?`, this.step.isCardDescriptionWindowText('description 2'));
-    this.expectTrue(`A descrição da janela é: ${cardProps}?`, this.step.isCardPropsWindowText('10/10'));
+    this.describe('Ao cancelar seleção deve fechar as janelas e o cardset e mudar a etapa na zona de mão em fase de carregamento.');
+    this.expectTrue('A janela de localização foi fechada?', this.step.isLocationWindowClosed());
+    this.expectTrue('A janela de nome de cartão foi fechada?', this.step.isCardNameWindowClosed());
+    this.expectTrue('A janela de descrição de cartão foi fechada?', this.step.isCardDescriptionWindowClosed());
+    this.expectTrue('A janela de propriedades de cartão foi fechada?', this.step.isCardPropsWindowClosed());
+    this.expectTrue('A janela de propriedades de cartão foi fechada?', this.step.allCardsAreClosed());
+    this.expectTrue('A proxima etapa é TurnStep?', this.isStep(TurnStep));
   }
 }
