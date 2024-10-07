@@ -519,4 +519,8 @@ class ZoneStep extends Step {
   isCardPropsWindowText(text) {
     return this._cardPropsWindow.isTextWasDrawn('TEXT_0', text);
   }
+
+  allCardsAreOpen() {
+    return this._cardsetSprite.allCardsAreOpen();
+  }
 }

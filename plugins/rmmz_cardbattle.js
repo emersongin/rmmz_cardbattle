@@ -10597,9 +10597,6 @@ class ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest extends SceneTest {
     this.expectWasTrue('A janela de propriedades de cartão foi apresentado?', this.step.isCardPropsWindowVisible);
     const cardProps = this.step.getCardPropsByCardIndex(0);
     this.expectTrue(`A descrição da janela é: ${cardProps}?`, this.step.isCardPropsWindowText(cardProps));
-
-    // this.expectWasTrue('O set de cartas foi apresentado?', this.step.isCardsetSpriteVisible);
-    // this.expectTrue('O cursor foi movido?', this.cardIndex >= 0);
   }
 }
 
@@ -13424,6 +13421,10 @@ class ZoneStep extends Step {
 
   isCardPropsWindowText(text) {
     return this._cardPropsWindow.isTextWasDrawn('TEXT_0', text);
+  }
+
+  allCardsAreOpen() {
+    return this._cardsetSprite.allCardsAreOpen();
   }
 }
 class TurnStep extends Step {

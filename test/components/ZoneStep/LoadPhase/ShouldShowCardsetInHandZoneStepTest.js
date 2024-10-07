@@ -38,9 +38,8 @@ class ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve mostrar a janela de propriedades de cartão de etapa de zona de mão em fase de carregamento.');
-    this.expectWasTrue('A janela de propriedades de cartão foi apresentado?', this.step.isCardPropsWindowVisible);
-    const cardProps = this.step.getCardPropsByCardIndex(0);
-    this.expectTrue(`A descrição da janela é: ${cardProps}?`, this.step.isCardPropsWindowText(cardProps));
+    this.describe('Deve apresentar conjunto de cartões do jogador na etapa de zona de mão na fase de carregamento.');
+    this.expectWasTrue('O conjunto de cartões do jogador foi apresentado?', this.step.isCardsetSpriteVisible);
+    this.expectTrue('Todos os cartões estão abertos?', this.step.allCardsAreOpen());
   }
 }
