@@ -272,12 +272,12 @@ class ZoneStep extends Step {
   }
 
   createOnSelectHandler() {
-    return cardIndexs => {
-      const sprite = this.commandGetHandSprites(cardIndexs).shift();
+    return cardIndexes => {
+      const sprite = this.commandGetHandSprites(cardIndexes).shift();
       this.selectPowerCard(sprite);
       this.closeZone();
       this.leaveZone();
-      this.addAction(this.commandSelectHandler, cardIndexs);
+      this.addAction(this.commandSelectHandler, cardIndexes);
     };
   }
 
@@ -364,17 +364,17 @@ class ZoneStep extends Step {
     ]);
   }
 
-  commandSelectHandler(cardIndexs) {
+  commandSelectHandler(cardIndexes) {
     switch (this.getPhase()) {
       case GameConst.LOAD_PHASE:
-        this.commandSelectHandlerLoadPhase(cardIndexs);
+        this.commandSelectHandlerLoadPhase(cardIndexes);
         break;
       default:
         break;
     }
   }
 
-  commandSelectHandlerLoadPhase(cardIndexs) {
+  commandSelectHandlerLoadPhase(cardIndexes) {
     const powerConfig = { cardIndexes, player: GameConst.PLAYER };
     this.changeStep(ActivationSlotStep, powerConfig);
   }

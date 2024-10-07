@@ -239,7 +239,8 @@
 // include ../test/components/ZoneStep/LoadPhase/ShouldShowCardDescriptionWindowInHandZoneStepTest.js
 // include ../test/components/ZoneStep/LoadPhase/ShouldShowCardPropsWindowInHandZoneStepTest.js
 // include ../test/components/ZoneStep/LoadPhase/ShouldChangeCardOnMoveCursorInHandZoneStepTest.js
-// include ../test/components/ZoneStep/LoadPhase/ShouldCloseAndChangeStepWhenGoingBackInHandZoneTest.js
+// include ../test/components/ZoneStep/LoadPhase/ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepTest.js
+// include ../test/components/ZoneStep/LoadPhase/ShouldSelectCardToPlayHandZoneStepTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js

@@ -85,17 +85,21 @@ class CardsetSpriteSelectModeState {
     if (cardset.isAvailable()) {
       this.updateCursor();
       if (this.isSelectable()) {
-        if (this._onCancelHandler && this.isTriggeredCancel()) {
-          cardset.addCommand(this._onCancelHandler);
-          return cardset.commandStaticMode();
-        }
         if (this.selectIsFull()) {
           cardset.addCommand(this._onSelectHandler, this._selectedIndexs);
           return cardset.commandStaticMode();
         }
-        if (Input.isTriggered('ok')) this.selectSprite();
+        if (this.isTriggeredOk()) this.selectSprite();
+        if (this._onCancelHandler && this.isTriggeredCancel()) {
+          cardset.addCommand(this._onCancelHandler);
+          return cardset.commandStaticMode();
+        }
       }
     }
+  }
+
+  isTriggeredOk() {
+    return Input.isTriggered('ok');
   }
 
   isTriggeredCancel() {

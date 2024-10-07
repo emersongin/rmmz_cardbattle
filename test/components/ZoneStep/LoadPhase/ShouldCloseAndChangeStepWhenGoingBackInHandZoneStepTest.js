@@ -1,4 +1,4 @@
-class ShouldCloseAndChangeStepWhenGoingBackInHandZoneLoadPhaseTest extends SceneTest {
+class ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepLoadPhaseTest extends SceneTest {
   step;
 
   create() {
@@ -9,7 +9,7 @@ class ShouldCloseAndChangeStepWhenGoingBackInHandZoneLoadPhaseTest extends Scene
   }
 
   start() {
-    this.spyCommandMoveCursorLoadPhase();
+    this.spyCommandGoBackLoadPhase();
     this.mockFolders();
     CardBattleManager.setPlayerDeck();
     CardBattleManager.setChallengedDeck();
@@ -24,7 +24,7 @@ class ShouldCloseAndChangeStepWhenGoingBackInHandZoneLoadPhaseTest extends Scene
 
   }
 
-  spyCommandMoveCursorLoadPhase() {
+  spyCommandGoBackLoadPhase() {
     const finish = this.getHandler();
     this.spyFunction(this.step, 'commandGoBackLoadPhase', (cardIndex) => {
       finish();
