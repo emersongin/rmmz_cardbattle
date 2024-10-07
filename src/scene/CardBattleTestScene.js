@@ -279,7 +279,8 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldShowLocationWindowInHandZoneStepLoadPhaseTest,
       // ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest,
       // ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest,
-      ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
+      // ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
+      ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

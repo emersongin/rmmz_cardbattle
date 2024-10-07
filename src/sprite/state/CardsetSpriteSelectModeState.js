@@ -82,7 +82,7 @@ class CardsetSpriteSelectModeState {
 
   updateStatus() {
     const cardset = this._cardset;
-    const keys = ['right', 'left'];
+    // const keys = ['right', 'left'];
     if (cardset.isAvailable()) {
       this.updateCursor();
       if (this.isSelectable()) {

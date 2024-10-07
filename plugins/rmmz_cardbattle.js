@@ -4198,7 +4198,7 @@ class CardsetSpriteSelectModeState {
 
   updateStatus() {
     const cardset = this._cardset;
-    const keys = ['right', 'left'];
+    // const keys = ['right', 'left'];
     if (cardset.isAvailable()) {
       this.updateCursor();
       if (this.isSelectable()) {
@@ -5407,9 +5407,9 @@ class SceneTest {
 
   mockFunction(obj, fnName, fn, includeOriginal = false, ...params) {
     const originalFn = obj[fnName].bind(obj);
-    obj[fnName] = () => {
-      if (includeOriginal) originalFn(...params);
-      return fn();
+    obj[fnName] = (...args) => {
+      if (includeOriginal) originalFn(...args, ...params);
+      return fn(...args);
     };
     this._functionsMocked.push({ obj, fnName, originalFn });
   }
@@ -10599,6 +10599,65 @@ class ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest extends SceneTest {
     this.expectTrue(`A descrição da janela é: ${cardProps}?`, this.step.isCardPropsWindowText(cardProps));
   }
 }
+class ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const config = { location: GameConst.HAND, player: GameConst.PLAYER};
+    this.step = new ZoneStep(this._scene, GameConst.LOAD_PHASE, config);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    this.spyCommandMoveCursorLoadPhase();
+    this.mockFolders();
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    CardBattleManager.drawPlayerCards(3);
+    this._scene.setStep(this.step);
+    this.step.start();
+    this.step.addAction(() => {
+      this.mockFunction(this.step._cardsetSprite._status, 'isRepeatedOrLongPressedRight', () => {
+        return true;
+      });
+    });
+
+  }
+
+  spyCommandMoveCursorLoadPhase() {
+    const finish = this.getHandler();
+    this.spyFunction(this.step, 'commandMoveCursorLoadPhase', (cardIndex) => {
+      if (cardIndex) finish();
+    });
+  }
+
+  mockFolders() {
+    CardBattleManager.folders[0] = {
+      name: 'Mock Folder',
+      energies: [0, 0, 0, 0, 0, 0],
+      set: [
+        { name: 'card 1', description: 'description 1', type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        { name: 'card 2', description: 'description 2', type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        { name: 'card 3', description: 'description 3', type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+      ]
+    };
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Ao mover o cursor deve mudar cartão e dados das janelas na zona de mão em fase de carregamento.');
+    const cardName = this.step.getCardNameByCardIndex(1);
+    const cardDescription = this.step.getCardDescriptionByCardIndex(1);
+    const cardProps = this.step.getCardPropsByCardIndex(1);
+    this.expectTrue(`A descrição da janela é: ${cardName}?`, this.step.isCardNameWindowText('card 2'));
+    this.expectTrue(`A descrição da janela é: ${cardDescription}?`, this.step.isCardDescriptionWindowText('description 2'));
+    this.expectTrue(`A descrição da janela é: ${cardProps}?`, this.step.isCardPropsWindowText('10/10'));
+  }
+}
 
 class CardBattleManager {
   static folders = [
@@ -13108,7 +13167,7 @@ class ZoneStep extends Step {
   }
   
   openCardsetSprite() {
-    const onChangeCursor = this.createOnMoveCursor();
+    const onChangeCursor = this.createOnMoveCursorHandler();
     const onSelectHandler = this.createOnSelectHandler();
     const onCancelHandler = this.createGoBackHandler();
     this.addActions([
@@ -13117,13 +13176,31 @@ class ZoneStep extends Step {
     ]);
   }
 
-  createOnMoveCursor() {
-    return index => {
-      this.commandSetTextCardNameWindow(this.getCardNameByCardIndex(index));
-      this.commandSetTextCardDescriptionWindow(this.getCardDescriptionByCardIndex(index));
-      this.commandSetTextCardPropsWindow(this.getCardPropsByCardIndex(index));
-      this.addAction(this.commandMoveCursor, index);
+  createOnMoveCursorHandler() {
+    return cardIndex => {
+      this.commandMoveCursor(cardIndex);
     };
+  }
+
+  commandMoveCursor(cardIndex) {
+    switch (this.getPhase()) {
+      case GameConst.LOAD_PHASE:
+        this.commandMoveCursorLoadPhase(cardIndex);
+        break;
+      default:
+        break;
+    }
+  }
+
+  commandMoveCursorLoadPhase(cardIndex) {
+    this.commandSetTextCardNameWindow(this.getCardNameByCardIndex(cardIndex));
+    this.commandSetTextCardDescriptionWindow(this.getCardDescriptionByCardIndex(cardIndex));
+    this.commandSetTextCardPropsWindow(this.getCardPropsByCardIndex(cardIndex));
+  }
+
+  commandSetTextCardNameWindow(text) {
+    text = ArrayHelper.toArray(text);
+    this._cardNameWindow.refreshContent(text);
   }
 
   getCardNameByCardIndex(index) {
@@ -13132,30 +13209,15 @@ class ZoneStep extends Step {
     return cards[0].name;
   }
 
+  commandSetTextCardDescriptionWindow(text) {
+    text = ArrayHelper.toArray(text);
+    this._cardDescriptionWindow.refreshContent(text);
+  }
+
   getCardDescriptionByCardIndex(index) {
     const cards = this.getCards(index);
     if (cards.length === 0) return '';
     return cards[0].description;
-  }
-
-  getCardPropsByCardIndex(index) {
-    const cards = this.getCards(index);
-    if (cards.length === 0) return '';
-    const { type, attack, health } = cards[0];
-    if (type === GameConst.POWER) {
-      return `${attack}/${health}`;
-    }
-    return 'power card';
-  }
-
-  commandSetTextCardNameWindow(text) {
-    text = ArrayHelper.toArray(text);
-    this._cardNameWindow.refreshContent(text);
-  }
-
-  commandSetTextCardDescriptionWindow(text) {
-    text = ArrayHelper.toArray(text);
-    this._cardDescriptionWindow.refreshContent(text);
   }
 
   commandSetTextCardPropsWindow(text) {
@@ -13163,18 +13225,14 @@ class ZoneStep extends Step {
     this._cardPropsWindow.refreshContent(text);
   }
 
-  commandMoveCursor(index) {
-    switch (this.getPhase()) {
-      case GameConst.LOAD_PHASE:
-        this.commandMoveCursorLoadPhase(index);
-        break;
-      default:
-        break;
+  getCardPropsByCardIndex(index) {
+    const cards = this.getCards(index);
+    if (cards.length === 0) return '';
+    const { type, attack, health } = cards[0];
+    if (type === GameConst.BATTLE) {
+      return `${attack}/${health}`;
     }
-  }
-
-  commandMoveCursorLoadPhase(index) {
-    // evento que captura o movimento do cursor
+    return 'power card';
   }
 
   createOnSelectHandler() {
@@ -13983,7 +14041,8 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldShowLocationWindowInHandZoneStepLoadPhaseTest,
       // ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest,
       // ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest,
-      ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
+      // ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
+      ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

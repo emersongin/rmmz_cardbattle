@@ -205,7 +205,7 @@ class ZoneStep extends Step {
   }
   
   openCardsetSprite() {
-    const onChangeCursor = this.createOnMoveCursor();
+    const onChangeCursor = this.createOnMoveCursorHandler();
     const onSelectHandler = this.createOnSelectHandler();
     const onCancelHandler = this.createGoBackHandler();
     this.addActions([
@@ -214,13 +214,31 @@ class ZoneStep extends Step {
     ]);
   }
 
-  createOnMoveCursor() {
-    return index => {
-      this.commandSetTextCardNameWindow(this.getCardNameByCardIndex(index));
-      this.commandSetTextCardDescriptionWindow(this.getCardDescriptionByCardIndex(index));
-      this.commandSetTextCardPropsWindow(this.getCardPropsByCardIndex(index));
-      this.addAction(this.commandMoveCursor, index);
+  createOnMoveCursorHandler() {
+    return cardIndex => {
+      this.commandMoveCursor(cardIndex);
     };
+  }
+
+  commandMoveCursor(cardIndex) {
+    switch (this.getPhase()) {
+      case GameConst.LOAD_PHASE:
+        this.commandMoveCursorLoadPhase(cardIndex);
+        break;
+      default:
+        break;
+    }
+  }
+
+  commandMoveCursorLoadPhase(cardIndex) {
+    this.commandSetTextCardNameWindow(this.getCardNameByCardIndex(cardIndex));
+    this.commandSetTextCardDescriptionWindow(this.getCardDescriptionByCardIndex(cardIndex));
+    this.commandSetTextCardPropsWindow(this.getCardPropsByCardIndex(cardIndex));
+  }
+
+  commandSetTextCardNameWindow(text) {
+    text = ArrayHelper.toArray(text);
+    this._cardNameWindow.refreshContent(text);
   }
 
   getCardNameByCardIndex(index) {
@@ -229,30 +247,15 @@ class ZoneStep extends Step {
     return cards[0].name;
   }
 
+  commandSetTextCardDescriptionWindow(text) {
+    text = ArrayHelper.toArray(text);
+    this._cardDescriptionWindow.refreshContent(text);
+  }
+
   getCardDescriptionByCardIndex(index) {
     const cards = this.getCards(index);
     if (cards.length === 0) return '';
     return cards[0].description;
-  }
-
-  getCardPropsByCardIndex(index) {
-    const cards = this.getCards(index);
-    if (cards.length === 0) return '';
-    const { type, attack, health } = cards[0];
-    if (type === GameConst.POWER) {
-      return `${attack}/${health}`;
-    }
-    return 'power card';
-  }
-
-  commandSetTextCardNameWindow(text) {
-    text = ArrayHelper.toArray(text);
-    this._cardNameWindow.refreshContent(text);
-  }
-
-  commandSetTextCardDescriptionWindow(text) {
-    text = ArrayHelper.toArray(text);
-    this._cardDescriptionWindow.refreshContent(text);
   }
 
   commandSetTextCardPropsWindow(text) {
@@ -260,18 +263,14 @@ class ZoneStep extends Step {
     this._cardPropsWindow.refreshContent(text);
   }
 
-  commandMoveCursor(index) {
-    switch (this.getPhase()) {
-      case GameConst.LOAD_PHASE:
-        this.commandMoveCursorLoadPhase(index);
-        break;
-      default:
-        break;
+  getCardPropsByCardIndex(index) {
+    const cards = this.getCards(index);
+    if (cards.length === 0) return '';
+    const { type, attack, health } = cards[0];
+    if (type === GameConst.BATTLE) {
+      return `${attack}/${health}`;
     }
-  }
-
-  commandMoveCursorLoadPhase(index) {
-    // evento que captura o movimento do cursor
+    return 'power card';
   }
 
   createOnSelectHandler() {
