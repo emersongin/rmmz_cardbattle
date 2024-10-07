@@ -14,8 +14,10 @@ class PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest extends SceneTest {
     this.mockFunction(Input, 'isTriggered', () => true);
     const finish = this.getHandler();
     this.spyFunction(this.step, 'updateChallengedTurn', () => {
-      this.step.addAction(finish);
+      finish();
     });
+    CardBattleManager.setChallengedDeck();
+    CardBattleManager.drawPlayerCards(3);
     this._scene.setStep(this.step);
     this.step.start();
   }

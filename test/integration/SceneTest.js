@@ -40,13 +40,18 @@ class SceneTest {
     }
   }
 
-  mockFunction(obj, fnName, fn, includeOriginal = false, ...params) {
+  mockFunction(obj, fnName, fn, includeOriginal = false, ...params) {    
+    if (typeof obj[fnName] !== 'function') {
+      const originalProp = obj[fnName];
+      obj[fnName] = fn;
+      return this._functionsMocked.push({ obj, fnName, originalFn: originalProp }); 
+    }
     const originalFn = obj[fnName].bind(obj);
     obj[fnName] = (...args) => {
       if (includeOriginal) originalFn(...args, ...params);
       return fn(...args);
     };
-    this._functionsMocked.push({ obj, fnName, originalFn });
+    return this._functionsMocked.push({ obj, fnName, originalFn }); 
   }
 
   spyFunction(obj, fnName, fn, ...params) {

@@ -15,13 +15,15 @@ class ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest extends SceneTest {
     this.spyFunction(this.step, 'commandChallengedPassed', () => {
       finish();
     });
-    CardBattleManager.folders[0] = {
-      name: 'Mock Folder',
-      energies: [0, 0, 0, 0, 0, 0],
-      set: [
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-      ]
-    };
+    this.mockFunction(CardBattleManager, 'folders', [
+      {
+        name: 'Mock Folder',
+        energies: [0, 0, 0, 0, 0, 0],
+        set: [
+          { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        ]
+      }
+    ]);
     CardBattleManager.setPlayerDeck(0);
     CardBattleManager.setChallengedDeck(0);
     const drawNumber = 1;

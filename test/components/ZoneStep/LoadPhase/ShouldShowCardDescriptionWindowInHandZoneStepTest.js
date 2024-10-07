@@ -22,15 +22,17 @@ class ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest extends SceneTe
   }
 
   mockFolders() {
-    CardBattleManager.folders[0] = {
-      name: 'Mock Folder',
-      energies: [0, 0, 0, 0, 0, 0],
-      set: [
-        { name: 'card 1', description: 'description 1', type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { name: 'card 2', description: 'description 2', type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { name: 'card 3', description: 'description 3', type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-      ]
-    };
+    this.mockFunction(CardBattleManager, 'folders', [
+      {
+        name: 'Mock Folder',
+        energies: [0, 0, 0, 0, 0, 0],
+        set: [
+          { name: 'card 1', description: 'description 1', type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+          { name: 'card 2', description: 'description 2', type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { name: 'card 3', description: 'description 3', type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        ]
+      }
+    ]);
   }
 
   update() {

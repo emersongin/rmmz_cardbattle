@@ -215,7 +215,7 @@ class TurnStep extends Step {
   commandChallengedPlay() {
     // aqui provavelmente será a mudança de estado para jogada do 
     // desafiado e o final dela será a etapa de ativação de slot
-    const powerConfig = { cardIndex: 0, player: GameConst.CHALLENGED };
+    const powerConfig = { cardIndexes: [0], player: GameConst.CHALLENGED };
     this.changeStep(ActivationSlotStep, powerConfig);
   }
 

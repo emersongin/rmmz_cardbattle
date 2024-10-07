@@ -5412,13 +5412,18 @@ class SceneTest {
     }
   }
 
-  mockFunction(obj, fnName, fn, includeOriginal = false, ...params) {
+  mockFunction(obj, fnName, fn, includeOriginal = false, ...params) {    
+    if (typeof obj[fnName] !== 'function') {
+      const originalProp = obj[fnName];
+      obj[fnName] = fn;
+      return this._functionsMocked.push({ obj, fnName, originalFn: originalProp }); 
+    }
     const originalFn = obj[fnName].bind(obj);
     obj[fnName] = (...args) => {
       if (includeOriginal) originalFn(...args, ...params);
       return fn(...args);
     };
-    this._functionsMocked.push({ obj, fnName, originalFn });
+    return this._functionsMocked.push({ obj, fnName, originalFn }); 
   }
 
   spyFunction(obj, fnName, fn, ...params) {
@@ -9879,8 +9884,10 @@ class PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest extends SceneTest {
     this.mockFunction(Input, 'isTriggered', () => true);
     const finish = this.getHandler();
     this.spyFunction(this.step, 'updateChallengedTurn', () => {
-      this.step.addAction(finish);
+      finish();
     });
+    CardBattleManager.setChallengedDeck();
+    CardBattleManager.drawPlayerCards(3);
     this._scene.setStep(this.step);
     this.step.start();
   }
@@ -9929,18 +9936,20 @@ class PlayerMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
   }
 
   mockFolders() {
-    CardBattleManager.folders[0] = {
-      name: 'Mock Folder',
-      energies: [0, 0, 0, 0, 0, 0],
-      set: [
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-      ]
-    };
+    this.mockFunction(CardBattleManager, 'folders', [
+      {
+        name: 'Mock Folder',
+        energies: [0, 0, 0, 0, 0, 0],
+        set: [
+          { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+          { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+          { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        ]
+      }
+    ]);
   }
 
   setDecks() {
@@ -10013,18 +10022,20 @@ class PlayerMustPassedTurnYourTurnLoadPhaseTest extends SceneTest {
   }
 
   mockFolders() {
-    CardBattleManager.folders[0] = {
-      name: 'Mock Folder',
-      energies: [0, 0, 0, 0, 0, 0],
-      set: [
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-      ]
-    };
+    this.mockFunction(CardBattleManager, 'folders', [
+      {
+        name: 'Mock Folder',
+        energies: [0, 0, 0, 0, 0, 0],
+        set: [
+          { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+          { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+          { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        ]
+      }
+    ]);
   }
 
   setDecks() {
@@ -10096,18 +10107,20 @@ class ChallengedMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
   }
 
   mockFolders() {
-    CardBattleManager.folders[0] = {
-      name: 'Mock Folder',
-      energies: [0, 0, 0, 0, 0, 0],
-      set: [
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-      ]
-    };
+    this.mockFunction(CardBattleManager, 'folders', [
+      {
+        name: 'Mock Folder',
+        energies: [0, 0, 0, 0, 0, 0],
+        set: [
+          { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+          { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+          { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        ]
+      }
+    ]);
   }
 
   setDecks() {
@@ -10164,13 +10177,15 @@ class ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest extends SceneTest {
     this.spyFunction(this.step, 'commandChallengedPassed', () => {
       finish();
     });
-    CardBattleManager.folders[0] = {
-      name: 'Mock Folder',
-      energies: [0, 0, 0, 0, 0, 0],
-      set: [
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-      ]
-    };
+    this.mockFunction(CardBattleManager, 'folders', [
+      {
+        name: 'Mock Folder',
+        energies: [0, 0, 0, 0, 0, 0],
+        set: [
+          { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        ]
+      }
+    ]);
     CardBattleManager.setPlayerDeck(0);
     CardBattleManager.setChallengedDeck(0);
     const drawNumber = 1;
@@ -10221,13 +10236,15 @@ class ShouldActivatePowerZoneWhenItHasCardLoadPhaseTest extends SceneTest {
   }
 
   mockFolders() {
-    CardBattleManager.folders[0] = {
-      name: 'Mock Folder',
-      energies: [0, 0, 0, 0, 0, 0],
-      set: [
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-      ]
-    };
+    this.mockFunction(CardBattleManager, 'folders', [
+      {
+        name: 'Mock Folder',
+        energies: [0, 0, 0, 0, 0, 0],
+        set: [
+          { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        ]
+      }
+    ]);
   }
 
   setDecks() {
@@ -10305,18 +10322,20 @@ class ShouldActivatePowerZoneWhenReachLimiteLoadPhaseTest extends SceneTest {
   }
 
   mockFolders() {
-    CardBattleManager.folders[0] = {
-      name: 'Mock Folder',
-      energies: [0, 0, 0, 0, 0, 0],
-      set: [
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-      ]
-    };
+    this.mockFunction(CardBattleManager, 'folders', [
+      {
+        name: 'Mock Folder',
+        energies: [0, 0, 0, 0, 0, 0],
+        set: [
+          { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+          { type: GameConst.POWER, color: GameConst.BLACK, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+          { type: GameConst.POWER, color: GameConst.BROWN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+        ]
+      }
+    ]);
   }
 
   setDecks() {
@@ -10390,15 +10409,17 @@ class ShouldEndWhenThereAreMovesLoadPhaseTest extends SceneTest {
   }
 
   mockFolders() {
-    CardBattleManager.folders[0] = {
-      name: 'Mock Folder',
-      energies: [0, 0, 0, 0, 0, 0],
-      set: [
-        { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-      ]
-    };
+    this.mockFunction(CardBattleManager, 'folders', [
+      {
+        name: 'Mock Folder',
+        energies: [0, 0, 0, 0, 0, 0],
+        set: [
+          { type: GameConst.BATTLE, color: GameConst.RED, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { type: GameConst.BATTLE, color: GameConst.WHITE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        ]
+      }
+    ]);
   }
 
   setDecks() {
@@ -10492,15 +10513,17 @@ class ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest extends SceneTest {
   }
 
   mockFolders() {
-    CardBattleManager.folders[0] = {
-      name: 'Mock Folder',
-      energies: [0, 0, 0, 0, 0, 0],
-      set: [
-        { name: 'card 1', type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { name: 'card 2', type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { name: 'card 3', type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-      ]
-    };
+    this.mockFunction(CardBattleManager, 'folders', [
+      {
+        name: 'Mock Folder',
+        energies: [0, 0, 0, 0, 0, 0],
+        set: [
+          { name: 'card 1', type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+          { name: 'card 2', type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { name: 'card 3', type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        ]
+      }
+    ]);
   }
 
   update() {
@@ -10538,15 +10561,17 @@ class ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest extends SceneTe
   }
 
   mockFolders() {
-    CardBattleManager.folders[0] = {
-      name: 'Mock Folder',
-      energies: [0, 0, 0, 0, 0, 0],
-      set: [
-        { name: 'card 1', description: 'description 1', type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { name: 'card 2', description: 'description 2', type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { name: 'card 3', description: 'description 3', type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-      ]
-    };
+    this.mockFunction(CardBattleManager, 'folders', [
+      {
+        name: 'Mock Folder',
+        energies: [0, 0, 0, 0, 0, 0],
+        set: [
+          { name: 'card 1', description: 'description 1', type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+          { name: 'card 2', description: 'description 2', type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { name: 'card 3', description: 'description 3', type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        ]
+      }
+    ]);
   }
 
   update() {
@@ -10584,15 +10609,17 @@ class ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest extends SceneTest {
   }
 
   mockFolders() {
-    CardBattleManager.folders[0] = {
-      name: 'Mock Folder',
-      energies: [0, 0, 0, 0, 0, 0],
-      set: [
-        { name: 'card 1', description: 'description 1', type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { name: 'card 2', description: 'description 2', type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { name: 'card 3', description: 'description 3', type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-      ]
-    };
+    this.mockFunction(CardBattleManager, 'folders', [
+      {
+        name: 'Mock Folder',
+        energies: [0, 0, 0, 0, 0, 0],
+        set: [
+          { name: 'card 1', description: 'description 1', type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+          { name: 'card 2', description: 'description 2', type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { name: 'card 3', description: 'description 3', type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        ]
+      }
+    ]);
   }
 
   update() {
@@ -10640,15 +10667,17 @@ class ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest extends SceneTest 
   }
 
   mockFolders() {
-    CardBattleManager.folders[0] = {
-      name: 'Mock Folder',
-      energies: [0, 0, 0, 0, 0, 0],
-      set: [
-        { name: 'card 1', description: 'description 1', type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { name: 'card 2', description: 'description 2', type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { name: 'card 3', description: 'description 3', type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-      ]
-    };
+    this.mockFunction(CardBattleManager, 'folders', [
+      {
+        name: 'Mock Folder',
+        energies: [0, 0, 0, 0, 0, 0],
+        set: [
+          { name: 'card 1', description: 'description 1', type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+          { name: 'card 2', description: 'description 2', type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { name: 'card 3', description: 'description 3', type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        ]
+      }
+    ]);
   }
 
   update() {
@@ -10699,15 +10728,17 @@ class ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepLoadPhaseTest extends S
   }
 
   mockFolders() {
-    CardBattleManager.folders[0] = {
-      name: 'Mock Folder',
-      energies: [0, 0, 0, 0, 0, 0],
-      set: [
-        { name: 'card 1', description: 'description 1', type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { name: 'card 2', description: 'description 2', type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { name: 'card 3', description: 'description 3', type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-      ]
-    };
+    this.mockFunction(CardBattleManager, 'folders', [
+      {
+        name: 'Mock Folder',
+        energies: [0, 0, 0, 0, 0, 0],
+        set: [
+          { name: 'card 1', description: 'description 1', type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+          { name: 'card 2', description: 'description 2', type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { name: 'card 3', description: 'description 3', type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        ]
+      }
+    ]);
   }
 
   update() {
@@ -10758,15 +10789,17 @@ class ShouldSelectCardToPlayHandZoneStepLoadPhaseTest extends SceneTest {
   }
 
   mockFolders() {
-    CardBattleManager.folders[0] = {
-      name: 'Mock Folder',
-      energies: [0, 0, 0, 0, 0, 0],
-      set: [
-        { name: 'card 1', description: 'description 1', type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-        { name: 'card 2', description: 'description 2', type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-        { name: 'card 3', description: 'description 3', type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
-      ]
-    };
+    this.mockFunction(CardBattleManager, 'folders', [
+      {
+        name: 'Mock Folder',
+        energies: [0, 0, 0, 0, 0, 0],
+        set: [
+          { name: 'card 1', description: 'description 1', type: GameConst.POWER, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+          { name: 'card 2', description: 'description 2', type: GameConst.BATTLE, color: GameConst.GREEN, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+          { name: 'card 3', description: 'description 3', type: GameConst.BATTLE, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: false },
+        ]
+      }
+    ]);
   }
 
   update() {
@@ -13850,7 +13883,7 @@ class TurnStep extends Step {
   commandChallengedPlay() {
     // aqui provavelmente será a mudança de estado para jogada do 
     // desafiado e o final dela será a etapa de ativação de slot
-    const powerConfig = { cardIndex: 0, player: GameConst.CHALLENGED };
+    const powerConfig = { cardIndexes: [0], player: GameConst.CHALLENGED };
     this.changeStep(ActivationSlotStep, powerConfig);
   }
 
@@ -14125,73 +14158,73 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const stepsTests = [
-      // // DisplayStep
-      // ShouldShowTitleWindowChallengePhaseTest,
-      // ShouldShowDescriptionWindowChallengePhaseTest,
-      // ShouldCloseWindowsWhenPressActionChallengePhaseTest,
-      // ShouldShowTitleWindowStartPhaseTest,
-      // ShouldShowDescriptionWindowStartPhaseTest,
-      // ShouldCloseWindowsWhenPressActionStartPhaseTest,
-      // ShouldShowTitleWindowDrawPhaseTest,
-      // ShouldShowDescriptionWindowDrawPhaseTest,
-      // ShouldCloseWindowsWhenPressActionDrawPhaseTest,
-      // ShouldShowTitleWindowLoadPhaseTest,
-      // ShouldShowDescriptionWindowLoadPhaseTest,
-      // ShouldCloseWindowsWhenPressActionLoadPhaseTest,
+      // DisplayStep
+      ShouldShowTitleWindowChallengePhaseTest,
+      ShouldShowDescriptionWindowChallengePhaseTest,
+      ShouldCloseWindowsWhenPressActionChallengePhaseTest,
+      ShouldShowTitleWindowStartPhaseTest,
+      ShouldShowDescriptionWindowStartPhaseTest,
+      ShouldCloseWindowsWhenPressActionStartPhaseTest,
+      ShouldShowTitleWindowDrawPhaseTest,
+      ShouldShowDescriptionWindowDrawPhaseTest,
+      ShouldCloseWindowsWhenPressActionDrawPhaseTest,
+      ShouldShowTitleWindowLoadPhaseTest,
+      ShouldShowDescriptionWindowLoadPhaseTest,
+      ShouldCloseWindowsWhenPressActionLoadPhaseTest,
 
-      // // DrawStep
-      // ShouldShowPlayerBoardWindowDrawPhaseTest,
-      // ShouldShowPlayerBattleWindowDrawPhaseTest,
-      // ShouldShowPlayerTrashWindowDrawPhaseTest,
-      // ShouldShowPlayerScoreWindowDrawPhaseTest,
-      // ShouldShowPlayerCardsetDrawPhaseTest,
-      // ShouldShowChallengedBoardWindowDrawPhaseTest,
-      // ShouldShowChallengedBattleWindowDrawPhaseTest,
-      // ShouldShowChallengedTrashWindowDrawPhaseTest,
-      // ShouldShowChallengedScoreWindowDrawPhaseTest,
-      // ShouldShowChallengedCardsetDrawPhaseTest,
-      // ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
-      // ShouldLoadBattlefieldsDrawPhaseTest,
+      // DrawStep
+      ShouldShowPlayerBoardWindowDrawPhaseTest,
+      ShouldShowPlayerBattleWindowDrawPhaseTest,
+      ShouldShowPlayerTrashWindowDrawPhaseTest,
+      ShouldShowPlayerScoreWindowDrawPhaseTest,
+      ShouldShowPlayerCardsetDrawPhaseTest,
+      ShouldShowChallengedBoardWindowDrawPhaseTest,
+      ShouldShowChallengedBattleWindowDrawPhaseTest,
+      ShouldShowChallengedTrashWindowDrawPhaseTest,
+      ShouldShowChallengedScoreWindowDrawPhaseTest,
+      ShouldShowChallengedCardsetDrawPhaseTest,
+      ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
+      ShouldLoadBattlefieldsDrawPhaseTest,
 
-      // // FolderStep
-      // ShouldShowPlayerFolderWindowTest,
-      // ShouldCloseFolderWindowWhenSelectedFolderTest,
+      // FolderStep
+      ShouldShowPlayerFolderWindowTest,
+      ShouldCloseFolderWindowWhenSelectedFolderTest,
 
-      // // MiniGameStep
-      // ShouldShowMiniGameCardsetTest,
-      // ShouldShufflerCardsTest,
-      // ShouldShowGameResultWindowCardsTest,
-      // ShouldCloseMiniGameOnSelectedCardTest,
+      // MiniGameStep
+      ShouldShowMiniGameCardsetTest,
+      ShouldShufflerCardsTest,
+      ShouldShowGameResultWindowCardsTest,
+      ShouldCloseMiniGameOnSelectedCardTest,
 
-      // // TurnStep
-      // ShouldShowChallengedBoardWindowLoadPhaseTest,
-      // ShouldShowChallengedBattleWindowLoadPhaseTest,
-      // ShouldShowChallengedScoreWindowLoadPhaseTest,
-      // ShouldShowChallengedTrashWindowLoadPhaseTest,
-      // ShouldShowPlayerBoardWindowLoadPhaseTest,
-      // ShouldShowPlayerBattleWindowLoadPhaseTest,
-      // ShouldShowPlayerTrashWindowLoadPhaseTest,
-      // ShouldShowPlayerScoreWindowLoadPhaseTest,
-      // ShouldShowChallengedCardsetLoadPhaseTest,
-      // ShouldShowPlayerCardsetLoadPhaseTest,
-      // ShouldShowTextWindowLoadPhaseTest,
-      // PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
-      // PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
-      // PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
-      // ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
-      // PlayerMustPassedTurnYourTurnLoadPhaseTest,
-      // ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
-      // ShouldActivatePowerZoneWhenItHasCardLoadPhaseTest,
-      // ShouldActivatePowerZoneWhenReachLimiteLoadPhaseTest,
-      // ShouldEndWhenThereAreMovesLoadPhaseTest,
+      // TurnStep
+      ShouldShowChallengedBoardWindowLoadPhaseTest,
+      ShouldShowChallengedBattleWindowLoadPhaseTest,
+      ShouldShowChallengedScoreWindowLoadPhaseTest,
+      ShouldShowChallengedTrashWindowLoadPhaseTest,
+      ShouldShowPlayerBoardWindowLoadPhaseTest,
+      ShouldShowPlayerBattleWindowLoadPhaseTest,
+      ShouldShowPlayerTrashWindowLoadPhaseTest,
+      ShouldShowPlayerScoreWindowLoadPhaseTest,
+      ShouldShowChallengedCardsetLoadPhaseTest,
+      ShouldShowPlayerCardsetLoadPhaseTest,
+      ShouldShowTextWindowLoadPhaseTest,
+      PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
+      PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
+      PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
+      ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
+      PlayerMustPassedTurnYourTurnLoadPhaseTest,
+      ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
+      ShouldActivatePowerZoneWhenItHasCardLoadPhaseTest,
+      ShouldActivatePowerZoneWhenReachLimiteLoadPhaseTest,
+      ShouldEndWhenThereAreMovesLoadPhaseTest,
 
-      // // ZoneStep
-      // ShouldShowLocationWindowInHandZoneStepLoadPhaseTest,
-      // ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest,
-      // ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest,
-      // ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
-      // ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest,
-      // ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepLoadPhaseTest,
+      // ZoneStep
+      ShouldShowLocationWindowInHandZoneStepLoadPhaseTest,
+      ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest,
+      ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest,
+      ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
+      ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest,
+      ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepLoadPhaseTest,
       ShouldSelectCardToPlayHandZoneStepLoadPhaseTest,
     ];
     return [
