@@ -242,6 +242,13 @@
 // include ../test/components/ZoneStep/LoadPhase/ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepTest.js
 // include ../test/components/ZoneStep/LoadPhase/ShouldSelectCardToPlayHandZoneStepTest.js
 // include ../test/components/SlotStep/LoadPhase/ShouldShowChallengedTrashWindowTest.js
+// include ../test/components/SlotStep/LoadPhase/ShouldShowChallengedBattleWindowTest.js
+// include ../test/components/SlotStep/LoadPhase/ShouldShowChallengedBoardWindowTest.js
+// include ../test/components/SlotStep/LoadPhase/ShouldShowChallengedScoreWindowTest.js
+// include ../test/components/SlotStep/LoadPhase/ShouldShowPlayerTrashWindowTest.js
+// include ../test/components/SlotStep/LoadPhase/ShouldShowPlayerBattleWindowTest.js
+// include ../test/components/SlotStep/LoadPhase/ShouldShowPlayerBoardWindowTest.js
+// include ../test/components/SlotStep/LoadPhase/ShouldShowPlayerScoreWindowTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js

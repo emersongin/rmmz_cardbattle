@@ -285,7 +285,14 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldSelectCardToPlayHandZoneStepLoadPhaseTest,
 
       // // SlotStep
-      ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowChallengedBattleWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowChallengedBoardWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowChallengedScoreWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowPlayerTrashWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowPlayerBattleWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

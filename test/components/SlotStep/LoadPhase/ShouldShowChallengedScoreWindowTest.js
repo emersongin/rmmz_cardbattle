@@ -1,4 +1,4 @@
-class ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest extends SceneTest {
+class ShouldShowChallengedScoreWindowOnSlotStepInLoadPhaseTest extends SceneTest {
   step;
 
   create() {
@@ -29,7 +29,7 @@ class ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest extends SceneTest
   }
   
   asserts() {
-    this.describe('Deve apresentar janela de lixo do desafiado na etapa de slot na fase de carregamento.');
-    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
+    this.describe('Deve apresentar janela de pontuação do desafiado na etapa de slot na fase de carregamento.');
+    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
   }
 }

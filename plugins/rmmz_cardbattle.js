@@ -10835,12 +10835,6 @@ class ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest extends SceneTest
     CardBattleManager.setChallengedDeck();
     CardBattleManager.drawPlayerCards(6);
     CardBattleManager.drawChallengedCards(6);
-    // this.mockFunction(CardBattleManager, 'getCardsByPowerfield', () => {
-    //   return [
-    //     { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-    //     { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
-    //   ];
-    // });
     const finish = this.getHandler();
     this.mockFunction(this.step, 'updateStrategy', () => {
       finish();
@@ -10856,14 +10850,251 @@ class ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest extends SceneTest
   asserts() {
     this.describe('Deve apresentar janela de lixo do desafiado na etapa de slot na fase de carregamento.');
     this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
-    // this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
-    // this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
-    // this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
-    // this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
-    // this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
-    // this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
-    // this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
-    // this.expectWasTrue('O set de cartas de poder foi apresentado?', this.step.isPowerCardsetSpriteVisible);
+  }
+}
+class ShouldShowChallengedBattleWindowOnSlotStepInLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const powerConfig = {
+      cardIndexes: [1],
+      player: GameConst.PLAYER
+    };
+    this.step = new SlotStep(this._scene, GameConst.LOAD_PHASE, powerConfig);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    CardBattleManager.drawPlayerCards(6);
+    CardBattleManager.drawChallengedCards(6);
+    const finish = this.getHandler();
+    this.mockFunction(this.step, 'updateStrategy', () => {
+      finish();
+    });
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de lixo do desafiado na etapa de slot na fase de carregamento.');
+    this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
+  }
+}
+class ShouldShowChallengedBoardWindowOnSlotStepInLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const powerConfig = {
+      cardIndexes: [1],
+      player: GameConst.PLAYER
+    };
+    this.step = new SlotStep(this._scene, GameConst.LOAD_PHASE, powerConfig);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    CardBattleManager.drawPlayerCards(6);
+    CardBattleManager.drawChallengedCards(6);
+    const finish = this.getHandler();
+    this.mockFunction(this.step, 'updateStrategy', () => {
+      finish();
+    });
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de lixo do desafiado na etapa de slot na fase de carregamento.');
+    this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
+  }
+}
+class ShouldShowChallengedScoreWindowOnSlotStepInLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const powerConfig = {
+      cardIndexes: [1],
+      player: GameConst.PLAYER
+    };
+    this.step = new SlotStep(this._scene, GameConst.LOAD_PHASE, powerConfig);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    CardBattleManager.drawPlayerCards(6);
+    CardBattleManager.drawChallengedCards(6);
+    const finish = this.getHandler();
+    this.mockFunction(this.step, 'updateStrategy', () => {
+      finish();
+    });
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de lixo do desafiado na etapa de slot na fase de carregamento.');
+    this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
+  }
+}
+class ShouldShowPlayerTrashWindowOnSlotStepInLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const powerConfig = {
+      cardIndexes: [1],
+      player: GameConst.PLAYER
+    };
+    this.step = new SlotStep(this._scene, GameConst.LOAD_PHASE, powerConfig);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    CardBattleManager.drawPlayerCards(6);
+    CardBattleManager.drawChallengedCards(6);
+    const finish = this.getHandler();
+    this.mockFunction(this.step, 'updateStrategy', () => {
+      finish();
+    });
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de lixo do desafiado na etapa de slot na fase de carregamento.');
+    this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
+  }
+}
+class ShouldShowPlayerBattleWindowOnSlotStepInLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const powerConfig = {
+      cardIndexes: [1],
+      player: GameConst.PLAYER
+    };
+    this.step = new SlotStep(this._scene, GameConst.LOAD_PHASE, powerConfig);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    CardBattleManager.drawPlayerCards(6);
+    CardBattleManager.drawChallengedCards(6);
+    const finish = this.getHandler();
+    this.mockFunction(this.step, 'updateStrategy', () => {
+      finish();
+    });
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de lixo do desafiado na etapa de slot na fase de carregamento.');
+    this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
+  }
+}
+class ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const powerConfig = {
+      cardIndexes: [1],
+      player: GameConst.PLAYER
+    };
+    this.step = new SlotStep(this._scene, GameConst.LOAD_PHASE, powerConfig);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    CardBattleManager.drawPlayerCards(6);
+    CardBattleManager.drawChallengedCards(6);
+    const finish = this.getHandler();
+    this.mockFunction(this.step, 'updateStrategy', () => {
+      finish();
+    });
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de lixo do desafiado na etapa de slot na fase de carregamento.');
+    this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
+  }
+}
+class ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const powerConfig = {
+      cardIndexes: [1],
+      player: GameConst.PLAYER
+    };
+    this.step = new SlotStep(this._scene, GameConst.LOAD_PHASE, powerConfig);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    CardBattleManager.drawPlayerCards(6);
+    CardBattleManager.drawChallengedCards(6);
+    const finish = this.getHandler();
+    this.mockFunction(this.step, 'updateStrategy', () => {
+      finish();
+    });
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de lixo do desafiado na etapa de slot na fase de carregamento.');
+    this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
   }
 }
 
@@ -14223,77 +14454,84 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const stepsTests = [
-      // DisplayStep
-      ShouldShowTitleWindowChallengePhaseTest,
-      ShouldShowDescriptionWindowChallengePhaseTest,
-      ShouldCloseWindowsWhenPressActionChallengePhaseTest,
-      ShouldShowTitleWindowStartPhaseTest,
-      ShouldShowDescriptionWindowStartPhaseTest,
-      ShouldCloseWindowsWhenPressActionStartPhaseTest,
-      ShouldShowTitleWindowDrawPhaseTest,
-      ShouldShowDescriptionWindowDrawPhaseTest,
-      ShouldCloseWindowsWhenPressActionDrawPhaseTest,
-      ShouldShowTitleWindowLoadPhaseTest,
-      ShouldShowDescriptionWindowLoadPhaseTest,
-      ShouldCloseWindowsWhenPressActionLoadPhaseTest,
+      // // DisplayStep
+      // ShouldShowTitleWindowChallengePhaseTest,
+      // ShouldShowDescriptionWindowChallengePhaseTest,
+      // ShouldCloseWindowsWhenPressActionChallengePhaseTest,
+      // ShouldShowTitleWindowStartPhaseTest,
+      // ShouldShowDescriptionWindowStartPhaseTest,
+      // ShouldCloseWindowsWhenPressActionStartPhaseTest,
+      // ShouldShowTitleWindowDrawPhaseTest,
+      // ShouldShowDescriptionWindowDrawPhaseTest,
+      // ShouldCloseWindowsWhenPressActionDrawPhaseTest,
+      // ShouldShowTitleWindowLoadPhaseTest,
+      // ShouldShowDescriptionWindowLoadPhaseTest,
+      // ShouldCloseWindowsWhenPressActionLoadPhaseTest,
 
-      // DrawStep
-      ShouldShowPlayerBoardWindowDrawPhaseTest,
-      ShouldShowPlayerBattleWindowDrawPhaseTest,
-      ShouldShowPlayerTrashWindowDrawPhaseTest,
-      ShouldShowPlayerScoreWindowDrawPhaseTest,
-      ShouldShowPlayerCardsetDrawPhaseTest,
-      ShouldShowChallengedBoardWindowDrawPhaseTest,
-      ShouldShowChallengedBattleWindowDrawPhaseTest,
-      ShouldShowChallengedTrashWindowDrawPhaseTest,
-      ShouldShowChallengedScoreWindowDrawPhaseTest,
-      ShouldShowChallengedCardsetDrawPhaseTest,
-      ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
-      ShouldLoadBattlefieldsDrawPhaseTest,
+      // // DrawStep
+      // ShouldShowPlayerBoardWindowDrawPhaseTest,
+      // ShouldShowPlayerBattleWindowDrawPhaseTest,
+      // ShouldShowPlayerTrashWindowDrawPhaseTest,
+      // ShouldShowPlayerScoreWindowDrawPhaseTest,
+      // ShouldShowPlayerCardsetDrawPhaseTest,
+      // ShouldShowChallengedBoardWindowDrawPhaseTest,
+      // ShouldShowChallengedBattleWindowDrawPhaseTest,
+      // ShouldShowChallengedTrashWindowDrawPhaseTest,
+      // ShouldShowChallengedScoreWindowDrawPhaseTest,
+      // ShouldShowChallengedCardsetDrawPhaseTest,
+      // ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
+      // ShouldLoadBattlefieldsDrawPhaseTest,
 
-      // FolderStep
-      ShouldShowPlayerFolderWindowTest,
-      ShouldCloseFolderWindowWhenSelectedFolderTest,
+      // // FolderStep
+      // ShouldShowPlayerFolderWindowTest,
+      // ShouldCloseFolderWindowWhenSelectedFolderTest,
 
-      // MiniGameStep
-      ShouldShowMiniGameCardsetTest,
-      ShouldShufflerCardsTest,
-      ShouldShowGameResultWindowCardsTest,
-      ShouldCloseMiniGameOnSelectedCardTest,
+      // // MiniGameStep
+      // ShouldShowMiniGameCardsetTest,
+      // ShouldShufflerCardsTest,
+      // ShouldShowGameResultWindowCardsTest,
+      // ShouldCloseMiniGameOnSelectedCardTest,
 
-      // TurnStep
-      ShouldShowChallengedBoardWindowLoadPhaseTest,
-      ShouldShowChallengedBattleWindowLoadPhaseTest,
-      ShouldShowChallengedScoreWindowLoadPhaseTest,
-      ShouldShowChallengedTrashWindowLoadPhaseTest,
-      ShouldShowPlayerBoardWindowLoadPhaseTest,
-      ShouldShowPlayerBattleWindowLoadPhaseTest,
-      ShouldShowPlayerTrashWindowLoadPhaseTest,
-      ShouldShowPlayerScoreWindowLoadPhaseTest,
-      ShouldShowChallengedCardsetLoadPhaseTest,
-      ShouldShowPlayerCardsetLoadPhaseTest,
-      ShouldShowTextWindowLoadPhaseTest,
-      PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
-      PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
-      PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
-      ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
-      PlayerMustPassedTurnYourTurnLoadPhaseTest,
-      ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
-      ShouldActivatePowerZoneWhenItHasCardLoadPhaseTest,
-      ShouldActivatePowerZoneWhenReachLimiteLoadPhaseTest,
-      ShouldEndWhenThereAreMovesLoadPhaseTest,
+      // // TurnStep
+      // ShouldShowChallengedBoardWindowLoadPhaseTest,
+      // ShouldShowChallengedBattleWindowLoadPhaseTest,
+      // ShouldShowChallengedScoreWindowLoadPhaseTest,
+      // ShouldShowChallengedTrashWindowLoadPhaseTest,
+      // ShouldShowPlayerBoardWindowLoadPhaseTest,
+      // ShouldShowPlayerBattleWindowLoadPhaseTest,
+      // ShouldShowPlayerTrashWindowLoadPhaseTest,
+      // ShouldShowPlayerScoreWindowLoadPhaseTest,
+      // ShouldShowChallengedCardsetLoadPhaseTest,
+      // ShouldShowPlayerCardsetLoadPhaseTest,
+      // ShouldShowTextWindowLoadPhaseTest,
+      // PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
+      // PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
+      // PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
+      // ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
+      // PlayerMustPassedTurnYourTurnLoadPhaseTest,
+      // ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
+      // ShouldActivatePowerZoneWhenItHasCardLoadPhaseTest,
+      // ShouldActivatePowerZoneWhenReachLimiteLoadPhaseTest,
+      // ShouldEndWhenThereAreMovesLoadPhaseTest,
 
-      // ZoneStep
-      ShouldShowLocationWindowInHandZoneStepLoadPhaseTest,
-      ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest,
-      ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest,
-      ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
-      ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest,
-      ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepLoadPhaseTest,
-      ShouldSelectCardToPlayHandZoneStepLoadPhaseTest,
+      // // ZoneStep
+      // ShouldShowLocationWindowInHandZoneStepLoadPhaseTest,
+      // ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest,
+      // ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest,
+      // ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
+      // ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest,
+      // ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepLoadPhaseTest,
+      // ShouldSelectCardToPlayHandZoneStepLoadPhaseTest,
 
-      // SlotStep
-      ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest,
+      // // SlotStep
+      // ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowChallengedBattleWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowChallengedBoardWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowChallengedScoreWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerTrashWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerBattleWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,
