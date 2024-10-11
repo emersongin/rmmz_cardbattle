@@ -56,7 +56,7 @@ class ShouldSelectCardToPlayHandZoneStepLoadPhaseTest extends SceneTest {
     this.expectTrue('A janela de descrição de cartão foi fechada?', this.step.isCardDescriptionWindowClosed());
     this.expectTrue('A janela de propriedades de cartão foi fechada?', this.step.isCardPropsWindowClosed());
     this.expectTrue('A janela de propriedades de cartão foi fechada?', this.step.allCardsAreClosed());
-    this.expectTrue('A proxima etapa é ActivationSlotStep?', this.isStep(ActivationSlotStep));
-    this.expectTrue('Eh ActivationSlotStep de jogador?', this.step.getPlayer() === GameConst.PLAYER);
+    this.expectTrue('A proxima etapa é SlotStep?', this.isStep(SlotStep));
+    this.expectTrue('Eh SlotStep de jogador?', this.step.getPlayer() === GameConst.PLAYER);
   }
 }

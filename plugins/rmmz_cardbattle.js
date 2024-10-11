@@ -10156,8 +10156,8 @@ class ChallengedMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
   asserts() {
     this.describe('Desafiado deve fazer uma jogada quando for sua vez em fase de carregamento.');
     this.expectTrue('Desafiado tem cartões de poder para jogar?', CardBattleManager.isChallengedHasPowerCardInHand());
-    this.expectTrue('A proxima etapa é ActivationSlotStep?', this.isStep(ActivationSlotStep));
-    this.expectTrue('Jogada é de desafiado?', this.step.getPlayerInActivationSlotStep() === GameConst.CHALLENGED);
+    this.expectTrue('A proxima etapa é SlotStep?', this.isStep(SlotStep));
+    this.expectTrue('Jogada é de desafiado?', this.step.getPlayerInSlotStep() === GameConst.CHALLENGED);
   }
 }
 class ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest extends SceneTest {
@@ -10813,8 +10813,57 @@ class ShouldSelectCardToPlayHandZoneStepLoadPhaseTest extends SceneTest {
     this.expectTrue('A janela de descrição de cartão foi fechada?', this.step.isCardDescriptionWindowClosed());
     this.expectTrue('A janela de propriedades de cartão foi fechada?', this.step.isCardPropsWindowClosed());
     this.expectTrue('A janela de propriedades de cartão foi fechada?', this.step.allCardsAreClosed());
-    this.expectTrue('A proxima etapa é ActivationSlotStep?', this.isStep(ActivationSlotStep));
-    this.expectTrue('Eh ActivationSlotStep de jogador?', this.step.getPlayer() === GameConst.PLAYER);
+    this.expectTrue('A proxima etapa é SlotStep?', this.isStep(SlotStep));
+    this.expectTrue('Eh SlotStep de jogador?', this.step.getPlayer() === GameConst.PLAYER);
+  }
+}
+class ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const powerConfig = {
+      cardIndexes: [1],
+      player: GameConst.PLAYER
+    };
+    this.step = new SlotStep(this._scene, GameConst.LOAD_PHASE, powerConfig);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    CardBattleManager.drawPlayerCards(6);
+    CardBattleManager.drawChallengedCards(6);
+    // this.mockFunction(CardBattleManager, 'getCardsByPowerfield', () => {
+    //   return [
+    //     { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+    //     { type: GameConst.POWER, color: GameConst.BLUE, figureName: 'default', attack: 10, health: 10, isActiveInLoadPhase: true },
+    //   ];
+    // });
+    const finish = this.getHandler();
+    this.mockFunction(this.step, 'updateStrategy', () => {
+      finish();
+    });
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    this.describe('Deve apresentar janela de lixo do desafiado na etapa de slot na fase de carregamento.');
+    this.expectWasTrue('A janela de lixo do desafiado foi apresentada?', this.step.isChallengedTrashWindowVisible);
+    // this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
+    // this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
+    // this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
+    // this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
+    // this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
+    // this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
+    // this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
+    // this.expectWasTrue('O set de cartas de poder foi apresentado?', this.step.isPowerCardsetSpriteVisible);
   }
 }
 
@@ -12232,7 +12281,7 @@ class DisplayStep extends Step {
             CardBattleManager.playerPassed();
           },
           challengedPlayHandler: () => {
-            this.changeStep(ActivationSlotStep);
+            this.changeStep(SlotStep);
           },
           challengedPassedHandler: () => {
             CardBattleManager.challengedPassed();
@@ -12905,39 +12954,71 @@ class IncreaseEnergyStrategy {
   }
 }
 
-class ActivationSlotStep extends Step {
+class SlotStep extends Step {
   _powerActivation = undefined;
-  _powerActivationConfig = undefined;
+  _powerConfig = undefined;
   _powerActivationStrategy = undefined;
-  _end = false;
+  _isActive = false;
 
-  constructor(scene, phase, powerConfig, powerActivation = undefined) {
+  constructor(scene, phase, powerConfig) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
-      throw new Error('Invalid phase for ActivationSlotStep.');
+      throw new Error('Invalid phase for SlotStep.');
     }
     super(scene, phase);
-    if (!powerConfig || !(powerConfig.cardIndexes.length > 0) || !powerConfig.player) {
-      throw new Error('Invalid powerConfig for ActivationSlotStep.');
+    if (!powerConfig) {
+      throw new Error('Power Config must be defined.');
     }
-    this._powerActivationConfig = powerConfig;
-    this._powerActivation = powerActivation
-    // this._end = false;
+    if (!powerConfig.cardIndexes && powerConfig.cardIndexes.length === 0) {
+      throw new Error('Power Config must have cardIndexes.');
+    }
+    if (!powerConfig.player) {
+      throw new Error('Power Config must have player.');
+    }
+    this._powerConfig = powerConfig;
   }
 
-  start(manager) {
-    this.createPlayerGameBoard(manager);
-    this.createChallengedGameBoard(manager);
-    this.createPowerFieldCardsetSprite(manager);
+  start() {
+    this.createGameBoards();
+    this.createPowerFieldCardsetSprite();
     this.openGameBoards();
     this.openPowerfield();
     this.showPowerfieldDisplayOrdering();
   }
 
+  createPowerFieldCardsetSprite() {
+    const cardsInPowerfield = CardBattleManager.getCardsByPowerfield();
+    const powerCard = this.getPowerCard();
+    const cards = [...cardsInPowerfield, powerCard];
+    super.createPowerFieldCardsetSprite(cards);
+  }
+
+  getPowerCard() {
+    const cardIndex = this.getPowerCardIndex();
+    const card = this.getCard(cardIndex);
+    return card;
+  }
+
+  getPowerCardIndex() {
+    return this._powerConfig.cardIndexes[0];
+  }
+
+  getCard(index) {
+    const player = this.getPlayer();
+    const location = GameConst.HAND;
+    const config = { player, location };
+    const [card] = CardBattleManager.getCards(config, index);
+    return card;
+  }
+
+  getPlayer() {
+    return this._powerConfig.player;
+  }
+
   showPowerfieldDisplayOrdering() {
     this.addAction(this.showDisplayOrdering);
   }
-
+  
   showDisplayOrdering() {
     const powerfield = this.getPowerfieldCardsetSprite();
     const indexes = powerfield.getIndexes();
@@ -12945,179 +13026,163 @@ class ActivationSlotStep extends Step {
     powerfield.displayReverseOrdering(indexes);
   }
 
-  createPowerFieldCardsetSprite(manager) {
-    const cardsInPowerfield = manager.getCardsByPowerfield();
-    const powerCard = this.getPowerCard(manager);
-    const cards = [...cardsInPowerfield, powerCard];
-    super.createPowerFieldCardsetSprite(cards);
-  }
-
-  getPowerCard(manager) {
-    const cardIndex = this.getPowerCardIndex();
-    const card = this.getCard(manager, cardIndex);
-    return card;
-  }
-
-  getPowerCardIndex() {
-    return this._powerActivationConfig.cardIndexes[0];
-  }
-
-  getCard(manager, index) {
-    const player = this.getPlayer();
-    const location = GameConst.HAND;
-    const config = { player, location };
-    const [card] = manager.getCards(config, index);
-    return card;
-  }
-
-  getPlayer() {
-    return this._powerActivationConfig.player;
-  }
-  
-  update(manager) {
+  update() {
     super.update();
     if (this.isBusy() || this.hasActions()) return false;
-    // if (this.updateStrategy(manager)) return;
-    // this.updateActivation(manager);
-    // this.updateConfig(manager);
+    this.updateStrategy();
+    // if (this.updateStrategy()) return;
+    // this.updateActivation();
+    // this.updateConfig();
   }
 
-  updateStrategy(manager) {
-    if (this.isActive() && this.hasStrategy() && !this.hasActivation()) {
-      this._powerActivationStrategy?.update(manager);
-      return true;
-    }
-    return false;
-  }
-
-  hasStrategy() {
-    return (typeof this._powerActivationStrategy === 'object');
-  }
-
-  updateActivation(manager) {
-    if (this.isActive() && this.hasActivation() && !this.hasStrategy()) {
-      const cardIndex = this.getPowerCardIndex();
-      const player = this.getPlayer();
-      manager.moveCardToPowerField(cardIndex, player);
-      const number = manager.getPowerfieldLength();
-      const lastIndex = number - 1;
-      const sprite = this.getSpriteByIndex(lastIndex);
-      this.moveCardToPowerfield(sprite, number, player);
-      this.addAction(this.commandFinish, manager);
-      this.ending();
-    }
-  }
-
-  hasActivation() {
-    return (typeof this._powerActivation === 'object');
-  }
-
-  ending() {
-    this._end = true;
-  }
-
-  getSpriteByIndex(index) {
-    const powerfield = this.getPowerfieldCardsetSprite();
-    return powerfield.getSpriteByIndex(index);
-  }
-
-  moveCardToPowerfield(sprite, number, player) {
-    this.addAction(this.commandMoveCardToPowerfield, sprite, number, player);
-  }
-
-  commandMoveCardToPowerfield(sprite, number, player) {
-    const powerfield = this.getPowerfieldCardsetSprite();
-    powerfield.moveAllCardsInlist();
-    powerfield.flashCardsAnimate(sprite, 'white');
-    // powerfield.setNumberColor(number, (player === GameConst.PLAYER) ? GameColors.BLUE : GameColors.RED);
-    // powerfield.displayReverseOrdering();
-    powerfield.closeCards(sprite);
-    powerfield.openCards(sprite);
-  }
-
-  updateConfig(manager) {
-    if (this.isActive() && !this.hasActivation() && !this.hasStrategy()) {
-      const card = this.getPowerCard(manager);
-      const cardNumber = card.number;
-      const powerEffect = manager.getPowerEffect(cardNumber);
-      this.setPowerStrategy(powerEffect);
-    }
+  updateStrategy() {
+    // if (this.isActive() && this.hasStrategy() && !this.hasActivation()) {
+    //   this._powerActivationStrategy?.update();
+    //   return true;
+    // }
+    // return false;
   }
 
   isActive() {
-    return !this._end;
+    return this._isActive;
   }
 
 
 
-  setPowerStrategy(powerEffect) {
-    const { type } = powerEffect;
-    switch (type) {
-      case GameConst.INCRESASE_ENERGY:
-        this._powerActivationStrategy = new IncreaseEnergyStrategy(this, this.getPlayer());
-        break;
-      default:
-        this._powerActivationStrategy = undefined;
-        break;
-    }
-    if (this._powerActivationStrategy) this._powerActivationStrategy.start();
-  }
 
-  commandFinish(manager) {
-    const phase = this.getPhase();
-    switch (phase) {
-      case GameConst.LOAD_PHASE:
-        const handlers = {
-          playerPlayHandler: () => {
-            const handlers = {
-              goBackHandler: () => {},
-              selectHandler: () => {},
-              moveCursorHandler: () => {},
-            };
-            const config = {
-              location: GameConst.HAND,
-              player: GameConst.PLAYER,
-              blockBattleCards: true,
-              blockPowerCardsInLoadPhase: true,
-            };
-            this.changeStep(ZoneStep, config, handlers);
-          },
-          playerPassedHandler: () => {
-            manager.playerPassed();
-          },
-          challengedPlayHandler: () => {
-            this.changeStep(ActivationSlotStep);
-          },
-          challengedPassedHandler: () => {
-            manager.challengedPassed();
-          },
-          activePowerfieldHandler: () => {
-            this.changeStep(PowerZoneStep);
-          },
-        };
-        this.changeStep(TurnStep, handlers);
-        break;
-      default:
-        break;
-    }
-  }
 
-  isBusy() {
-    const children = [];
-    return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
-  }
 
-  setActivation(powerActivation) {
-    this._powerActivation = powerActivation;
-  }
 
-  endActivation() {
-    this._powerActivation = undefined;
-  }
 
-  endStrategy() {
-    this._powerActivationStrategy = undefined;
-  }
+
+
+
+ 
+
+  // hasStrategy() {
+  //   return (typeof this._powerActivationStrategy === 'object');
+  // }
+
+  // updateActivation() {
+  //   if (this.isActive() && this.hasActivation() && !this.hasStrategy()) {
+  //     const cardIndex = this.getPowerCardIndex();
+  //     const player = this.getPlayer();
+  //     CardBattleManager.moveCardToPowerField(cardIndex, player);
+  //     const number = CardBattleManager.getPowerfieldLength();
+  //     const lastIndex = number - 1;
+  //     const sprite = this.getSpriteByIndex(lastIndex);
+  //     this.moveCardToPowerfield(sprite, number, player);
+  //     this.addAction(this.commandFinish);
+  //     this.ending();
+  //   }
+  // }
+
+  // hasActivation() {
+  //   return (typeof this._powerActivation === 'object');
+  // }
+
+  // ending() {
+  //   this._end = true;
+  // }
+
+  // getSpriteByIndex(index) {
+  //   const powerfield = this.getPowerfieldCardsetSprite();
+  //   return powerfield.getSpriteByIndex(index);
+  // }
+
+  // moveCardToPowerfield(sprite, number, player) {
+  //   this.addAction(this.commandMoveCardToPowerfield, sprite, number, player);
+  // }
+
+  // commandMoveCardToPowerfield(sprite, number, player) {
+  //   const powerfield = this.getPowerfieldCardsetSprite();
+  //   powerfield.moveAllCardsInlist();
+  //   powerfield.flashCardsAnimate(sprite, 'white');
+  //   // powerfield.setNumberColor(number, (player === GameConst.PLAYER) ? GameColors.BLUE : GameColors.RED);
+  //   // powerfield.displayReverseOrdering();
+  //   powerfield.closeCards(sprite);
+  //   powerfield.openCards(sprite);
+  // }
+
+  // updateConfig() {
+  //   if (this.isActive() && !this.hasActivation() && !this.hasStrategy()) {
+  //     const card = this.getPowerCard();
+  //     const cardNumber = card.number;
+  //     const powerEffect = CardBattleManager.getPowerEffect(cardNumber);
+  //     this.setPowerStrategy(powerEffect);
+  //   }
+  // }
+
+ 
+
+  // setPowerStrategy(powerEffect) {
+  //   const { type } = powerEffect;
+  //   switch (type) {
+  //     case GameConst.INCRESASE_ENERGY:
+  //       this._powerActivationStrategy = new IncreaseEnergyStrategy(this, this.getPlayer());
+  //       break;
+  //     default:
+  //       this._powerActivationStrategy = undefined;
+  //       break;
+  //   }
+  //   if (this._powerActivationStrategy) this._powerActivationStrategy.start();
+  // }
+
+  // commandFinish() {
+  //   const phase = this.getPhase();
+  //   switch (phase) {
+  //     case GameConst.LOAD_PHASE:
+  //       const handlers = {
+  //         playerPlayHandler: () => {
+  //           const handlers = {
+  //             goBackHandler: () => {},
+  //             selectHandler: () => {},
+  //             moveCursorHandler: () => {},
+  //           };
+  //           const config = {
+  //             location: GameConst.HAND,
+  //             player: GameConst.PLAYER,
+  //             blockBattleCards: true,
+  //             blockPowerCardsInLoadPhase: true,
+  //           };
+  //           this.changeStep(ZoneStep, config, handlers);
+  //         },
+  //         playerPassedHandler: () => {
+  //           CardBattleManager.playerPassed();
+  //         },
+  //         challengedPlayHandler: () => {
+  //           this.changeStep(SlotStep);
+  //         },
+  //         challengedPassedHandler: () => {
+  //           CardBattleManager.challengedPassed();
+  //         },
+  //         activePowerfieldHandler: () => {
+  //           this.changeStep(PowerZoneStep);
+  //         },
+  //       };
+  //       this.changeStep(TurnStep, handlers);
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // }
+
+  // isBusy() {
+  //   const children = [];
+  //   return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
+  // }
+
+  // setActivation(powerActivation) {
+  //   this._powerActivation = powerActivation;
+  // }
+
+  // endActivation() {
+  //   this._powerActivation = undefined;
+  // }
+
+  // endStrategy() {
+  //   this._powerActivationStrategy = undefined;
+  // }
 }
 class ZoneStep extends Step {
   _config = undefined;
@@ -13497,7 +13562,7 @@ class ZoneStep extends Step {
 
   commandSelectHandlerLoadPhase(cardIndexes) {
     const powerConfig = { cardIndexes, player: GameConst.PLAYER };
-    this.changeStep(ActivationSlotStep, powerConfig);
+    this.changeStep(SlotStep, powerConfig);
   }
 
   createGoBackHandler() {
@@ -13884,7 +13949,7 @@ class TurnStep extends Step {
     // aqui provavelmente será a mudança de estado para jogada do 
     // desafiado e o final dela será a etapa de ativação de slot
     const powerConfig = { cardIndexes: [0], player: GameConst.CHALLENGED };
-    this.changeStep(ActivationSlotStep, powerConfig);
+    this.changeStep(SlotStep, powerConfig);
   }
 
   commandChallengedPasse() {
@@ -13946,7 +14011,7 @@ class TurnStep extends Step {
     return this._askWindow?.visible;
   }
 
-  getPlayerInActivationSlotStep() {
+  getPlayerInSlotStep() {
     return this._scene.getStep()?.getPlayer();
   }
 }
@@ -14226,6 +14291,9 @@ class CardBattleTestScene extends Scene_Message {
       ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest,
       ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepLoadPhaseTest,
       ShouldSelectCardToPlayHandZoneStepLoadPhaseTest,
+
+      // SlotStep
+      ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,

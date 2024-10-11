@@ -241,6 +241,7 @@
 // include ../test/components/ZoneStep/LoadPhase/ShouldChangeCardOnMoveCursorInHandZoneStepTest.js
 // include ../test/components/ZoneStep/LoadPhase/ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepTest.js
 // include ../test/components/ZoneStep/LoadPhase/ShouldSelectCardToPlayHandZoneStepTest.js
+// include ../test/components/SlotStep/LoadPhase/ShouldShowChallengedTrashWindowTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js

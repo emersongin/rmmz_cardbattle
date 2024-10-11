@@ -376,7 +376,7 @@ class ZoneStep extends Step {
 
   commandSelectHandlerLoadPhase(cardIndexes) {
     const powerConfig = { cardIndexes, player: GameConst.PLAYER };
-    this.changeStep(ActivationSlotStep, powerConfig);
+    this.changeStep(SlotStep, powerConfig);
   }
 
   createGoBackHandler() {

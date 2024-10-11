@@ -79,7 +79,7 @@ class ChallengedMustMakePlayWhenYourTurnLoadPhaseTest extends SceneTest {
   asserts() {
     this.describe('Desafiado deve fazer uma jogada quando for sua vez em fase de carregamento.');
     this.expectTrue('Desafiado tem cartões de poder para jogar?', CardBattleManager.isChallengedHasPowerCardInHand());
-    this.expectTrue('A proxima etapa é ActivationSlotStep?', this.isStep(ActivationSlotStep));
-    this.expectTrue('Jogada é de desafiado?', this.step.getPlayerInActivationSlotStep() === GameConst.CHALLENGED);
+    this.expectTrue('A proxima etapa é SlotStep?', this.isStep(SlotStep));
+    this.expectTrue('Jogada é de desafiado?', this.step.getPlayerInSlotStep() === GameConst.CHALLENGED);
   }
 }
