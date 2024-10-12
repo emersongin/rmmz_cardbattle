@@ -18,6 +18,7 @@ class CardBattleTestScene extends Scene_Message {
     this._finishWindow = null;
     this._startTestDate = new Date();
     this._endTestDate = null;
+    this._collisions = [];
   }
 
   create() {
@@ -446,8 +447,50 @@ class CardBattleTestScene extends Scene_Message {
       if (this._next) {
         this._next.update();
         this._next.updateTest();
+        this.updateCollisions();
       }
     }
+  }
+
+  updateCollisions() {
+    if (this.hasCollision()) {
+      this._collisions.forEach(collision => {
+        const { collider, target, react } = collision;
+        if (this.wasCollision(collider, target)) {
+          if (typeof react === 'function') {
+            const completed = react();
+            if (completed) this.removeCollision(collision);
+            return;
+          } 
+          this.removeCollision(collision);
+        }
+      });
+    }
+  }
+
+  hasCollision() {
+    return this._collisions.length > 0;
+  }
+
+  wasCollision(collider, target) {
+    const { x: xCollider, y: yCollider, width: widthCollider, height: heightCollider } = collider;
+    const { x: xTarget, y: yTarget, width: widthTarget, height: heightTarget } = target;
+    const widthBorderCollider = xCollider + widthCollider;
+    const heightBorderCollider = yCollider + heightCollider;
+    const widthBorderTarget = xTarget + widthTarget;
+    const heightBorderTarget = yTarget + heightTarget;
+    return xCollider <= widthBorderTarget && 
+      widthBorderCollider >= xTarget && 
+      yCollider <= heightBorderTarget && 
+      heightBorderCollider >= yTarget;
+  }
+
+  removeCollision(collision) {
+    this._collisions = this._collisions.filter(c => c !== collision);
+  }
+
+  addCollision(collider, target, react) {
+    this._collisions.push({ collider, target, react });
   }
 
   isActive() {
