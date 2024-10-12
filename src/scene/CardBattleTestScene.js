@@ -334,6 +334,7 @@ class CardBattleTestScene extends Scene_Message {
 
   clearScene() {
     return new Promise(async resolve => {
+      this.clearCollisions();
       await this.clearChildren();
       await this.clearWindowLayer();
       resolve(true);
@@ -365,6 +366,10 @@ class CardBattleTestScene extends Scene_Message {
       }
       resolve(true);
     });
+  }
+
+  clearCollisions() {
+    this._collisions = [];
   }
 
   openFinishWindow() {
@@ -447,8 +452,8 @@ class CardBattleTestScene extends Scene_Message {
       if (this._next) {
         this._next.update();
         this._next.updateTest();
-        this.updateCollisions();
       }
+      this.updateCollisions();
     }
   }
 
@@ -457,11 +462,7 @@ class CardBattleTestScene extends Scene_Message {
       this._collisions.forEach(collision => {
         const { collider, target, react } = collision;
         if (this.wasCollision(collider, target)) {
-          if (typeof react === 'function') {
-            const completed = react();
-            if (completed) this.removeCollision(collision);
-            return;
-          } 
+          react();
           this.removeCollision(collision);
         }
       });
@@ -490,6 +491,12 @@ class CardBattleTestScene extends Scene_Message {
   }
 
   addCollision(collider, target, react) {
+    if (instanceof collider !== Sprite || instanceof target !== Sprite) {
+      throw new Error('Collider and Target must be instance of Sprite');
+    }
+    if (typeof react !== 'function') {
+      throw new Error('React must be a function');
+    }
     this._collisions.push({ collider, target, react });
   }
 
