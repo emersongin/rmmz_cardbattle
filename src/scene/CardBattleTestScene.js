@@ -294,6 +294,7 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldShowPlayerBattleWindowOnSlotStepInLoadPhaseTest,
       // ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest,
       // ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowCardSpriteSelectedOnSlotStepInLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,
@@ -491,7 +492,7 @@ class CardBattleTestScene extends Scene_Message {
   }
 
   addCollision(collider, target, react) {
-    if (instanceof collider !== Sprite || instanceof target !== Sprite) {
+    if (!(collider instanceof Sprite) || !(target instanceof Sprite)) {
       throw new Error('Collider and Target must be instance of Sprite');
     }
     if (typeof react !== 'function') {
