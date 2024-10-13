@@ -1448,7 +1448,7 @@ class WindowStoppedState {
     // nothing
   }
 }
-class WindowUpdatedState {
+class WindowUpdateState {
   _window;
   _values = {};
   _interval = 0;
@@ -1618,7 +1618,7 @@ class StateWindow extends Window_Base {
   }
 
   isUpdating() {
-    return this.getStatus() instanceof WindowUpdatedState;
+    return this.getStatus() instanceof WindowUpdateState;
   }
 
   executeCommand() {
@@ -1870,7 +1870,7 @@ class ValuesWindow extends StateWindow {
 
   commandUpdateValues(updates, fps) {
     if (!(this.isOpen() && this.isStopped())) return false;
-    this.changeStatus(WindowUpdatedState, updates, fps);
+    this.changeStatus(WindowUpdateState, updates, fps);
   }
 
   addValue(name, value) {
@@ -2049,6 +2049,8 @@ class BoardWindow extends ValuesWindow {
   }
 }
 class BattlePointsWindow extends ValuesWindow {
+  _lastTextUpdate = '';
+
   static create(x, y) {
     const width = ScreenHelper.getOneFourthWidth();
     const height = StateWindow.minHeight();
@@ -2083,15 +2085,21 @@ class BattlePointsWindow extends ValuesWindow {
   drawPoints() {
     const attack = this.getValueAndConvertToDisplay(GameConst.ATTACK_POINTS);
     const health = this.getValueAndConvertToDisplay(GameConst.HEALTH_POINTS);
-    const points = `AP ${attack} HP ${health}`;
-    this.contents.drawText(
-      points, 
-      0, 
-      0, 
-      this.contents.width, 
-      this.contents.height,
-      'center'
-    );
+    const pointsText = `AP ${attack} HP ${health}`;
+    this.drawText(pointsText);
+    this.addTextLastUpdate(pointsText);
+  }
+
+  drawText(text) {
+    this.contents.drawText(text, 0, 0, this.contents.width, this.contents.height);
+  }
+
+  addTextLastUpdate(text) {
+    this._lastTextUpdate = text;
+  }
+
+  isTextLastUpdate(text) {
+    return this._lastTextUpdate === text;
   }
 }
 class TrashWindow extends ValuesWindow {
@@ -7725,12 +7733,17 @@ class UpdatingPointsBoardWindowTest extends SceneTest {
   }
 }
 // BATTLE POINTS WINDOW
-class UpdatingPointsBattlePointsWindowTest extends SceneTest {
+class ShouldUpdatePointsOfWindow extends SceneTest {
   create() {
-    this.subject = BattlePointsWindow.create(0, 0);
+    this.createHandler();
+    const battlePointsWindow = BattlePointsWindow.create(0, 0);
+    battlePointsWindow.alignCenterMiddle();
+    battlePointsWindow.refresh();
+    this.subject = battlePointsWindow;
     this.addWatched(this.subject);
-    this.subject.alignCenterMiddle();
-    this.subject.refresh();
+  }
+
+  start() {
     this.subject.open();
     const updateAttackPoints = BattlePointsWindow.createValueUpdate(GameConst.ATTACK_POINTS, 30);
     const updateHealtPoints = BattlePointsWindow.createValueUpdate(GameConst.HEALTH_POINTS, 30);
@@ -7740,11 +7753,20 @@ class UpdatingPointsBattlePointsWindowTest extends SceneTest {
     ];
     this.subject.reset();
     this.subject.updateValues(manyUpdates);
+    const finish = this.getHandler();
+    this.spyFunction(this.subject, 'stop', () => {
+      finish();
+    });    
   }
 
   asserts() {
-    this.describe('Deve atualizar os pontos de batalha!');
-    this.expectWasTrue('Foram atualizado?', this.subject.isUpdating);
+    this.describe('Deve atualizar os pontos da janelda de batalha!');
+    this.expectWasTrue('Os pontos foram atualizados?', this.subject.isUpdating);
+    const attackPoints = 30;
+    const healthPoints = 30;
+    const points = `AP ${attackPoints} HP ${healthPoints}`;
+    this.expectTrue('Os pontos foram atualizados corretamente?', this.subject.isTextLastUpdate(points));
+    this.expectTrue('O estado da janela está parado?', this.subject.isStopped());
   }
 }
 // TRASH WINDOW
@@ -11117,7 +11139,7 @@ class ShouldShowCardSpriteSelectedOnSlotStepInLoadPhaseTest extends SceneTest {
     CardBattleManager.drawChallengedCards(6);
     const finish = this.getHandler();
     this.mockFunction(this.step, 'updateStrategy', () => {
-      // finish();
+      finish();
     });
     this._scene.setStep(this.step);
     this.step.start();
@@ -14497,7 +14519,7 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsBoardWindowTest,
     ];
     const battlePointsWindowTests = [
-      UpdatingPointsBattlePointsWindowTest,
+      ShouldUpdatePointsOfWindow,
     ];
     const trashWindowTests = [
       UpdatingPointsTrashWindowTest,
@@ -14611,7 +14633,7 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldShowPlayerBattleWindowOnSlotStepInLoadPhaseTest,
       // ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest,
       // ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest,
-      ShouldShowCardSpriteSelectedOnSlotStepInLoadPhaseTest,
+      // ShouldShowCardSpriteSelectedOnSlotStepInLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,
@@ -14620,11 +14642,11 @@ class CardBattleTestScene extends Scene_Message {
       // ...StateWindowTests,
       // ...textWindowTests,
       // ...boardWindowTests,
-      // ...battlePointsWindowTests,
+      ...battlePointsWindowTests,
       // ...trashWindowTests,
       // ...scoreWindowTests,
       // ...folderWindowTests,
-      ...stepsTests,
+      // ...stepsTests,
     ];
   }
 

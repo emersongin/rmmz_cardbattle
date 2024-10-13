@@ -1,5 +1,5 @@
 // include ./state/WindowStoppedState.js
-// include ./state/WindowUpdatedState.js
+// include ./state/WindowUpdateState.js
 
 class StateWindow extends Window_Base {
   static createWindowOneFourthSize(x, y) {
@@ -87,7 +87,7 @@ class StateWindow extends Window_Base {
   }
 
   isUpdating() {
-    return this.getStatus() instanceof WindowUpdatedState;
+    return this.getStatus() instanceof WindowUpdateState;
   }
 
   executeCommand() {

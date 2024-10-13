@@ -1,4 +1,4 @@
-class WindowUpdatedState {
+class WindowUpdateState {
   _window;
   _values = {};
   _interval = 0;

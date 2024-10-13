@@ -126,7 +126,7 @@
 // include ../test/integration/boardwindow/NoPassBoardWindowTest.js
 // include ../test/integration/boardwindow/UpdatingPointsBoardWindowTest.js
 // BATTLE POINTS WINDOW
-// include ../test/integration/battlepointswindow/UpdatingPointsBattlePointsWindowTest.js
+// include ../test/components/BattlePointsWindow/ShouldUpdatePointsOfWindow.js
 // TRASH WINDOW
 // include ../test/integration/trashwindow/UpdatingPointsTrashWindowTest.js
 // include ../test/integration/trashwindow/OrderedIconsTrashWindowTest.js

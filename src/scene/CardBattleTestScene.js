@@ -180,7 +180,7 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsBoardWindowTest,
     ];
     const battlePointsWindowTests = [
-      UpdatingPointsBattlePointsWindowTest,
+      ShouldUpdatePointsOfWindowTest,
     ];
     const trashWindowTests = [
       UpdatingPointsTrashWindowTest,
@@ -294,7 +294,7 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldShowPlayerBattleWindowOnSlotStepInLoadPhaseTest,
       // ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest,
       // ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest,
-      ShouldShowCardSpriteSelectedOnSlotStepInLoadPhaseTest,
+      // ShouldShowCardSpriteSelectedOnSlotStepInLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,
@@ -303,11 +303,11 @@ class CardBattleTestScene extends Scene_Message {
       // ...StateWindowTests,
       // ...textWindowTests,
       // ...boardWindowTests,
-      // ...battlePointsWindowTests,
+      ...battlePointsWindowTests,
       // ...trashWindowTests,
       // ...scoreWindowTests,
       // ...folderWindowTests,
-      ...stepsTests,
+      // ...stepsTests,
     ];
   }
 

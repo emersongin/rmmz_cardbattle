@@ -1,4 +1,6 @@
 class BattlePointsWindow extends ValuesWindow {
+  _lastTextUpdate = '';
+
   static create(x, y) {
     const width = ScreenHelper.getOneFourthWidth();
     const height = StateWindow.minHeight();
@@ -33,14 +35,20 @@ class BattlePointsWindow extends ValuesWindow {
   drawPoints() {
     const attack = this.getValueAndConvertToDisplay(GameConst.ATTACK_POINTS);
     const health = this.getValueAndConvertToDisplay(GameConst.HEALTH_POINTS);
-    const points = `AP ${attack} HP ${health}`;
-    this.contents.drawText(
-      points, 
-      0, 
-      0, 
-      this.contents.width, 
-      this.contents.height,
-      'center'
-    );
+    const pointsText = `AP ${attack} HP ${health}`;
+    this.drawText(pointsText);
+    this.addTextLastUpdate(pointsText);
+  }
+
+  drawText(text) {
+    this.contents.drawText(text, 0, 0, this.contents.width, this.contents.height);
+  }
+
+  addTextLastUpdate(text) {
+    this._lastTextUpdate = text;
+  }
+
+  isTextLastUpdate(text) {
+    return this._lastTextUpdate === text;
   }
 }
