@@ -199,6 +199,7 @@ class Step {
   createGameBoards() {
     this.createPlayerGameBoard();
     this.createChallengedGameBoard();
+    this.createPowerFieldCardsetSprite();
   }
 
   createPlayerGameBoard() {
@@ -401,7 +402,8 @@ class Step {
     this.commandAddChild(cardsetSprite);
   }
 
-  createPowerFieldCardsetSprite(cards) {
+  createPowerFieldCardsetSprite() {
+    const cards = CardBattleManager.getCardsByPowerfield();
     const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
     const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
     const cardsetSprite = CardsetSprite.create(x, y);
@@ -410,13 +412,13 @@ class Step {
     const lastIndex = numCards - 1;
     const numInfield = numCards - 1;
     if (numCards) {
-      const cardX = CardsetSprite.contentOriginalWidth() - CardSprite.contentOriginalWidth();
-      const cardy = 0;
-      const lastPosition = CardsetSprite.createPosition(cardX, cardy, lastIndex);
-      const positionsCreated = CardsetSprite.createPositionsList(numInfield);
-      const positionsMerged = [...positionsCreated, lastPosition];
-      const sprites = cardsetSprite.setCards(cards, 0, 0);
-      cardsetSprite.setAllCardsInPositions(sprites, positionsMerged);
+      // const cardX = CardsetSprite.contentOriginalWidth() - CardSprite.contentOriginalWidth();
+      // const cardy = 0;
+      // const lastPosition = CardsetSprite.createPosition(cardX, cardy, lastIndex);
+      // const positionsCreated = CardsetSprite.createPositionsList(numInfield);
+      // const positionsMerged = [...positionsCreated, lastPosition];
+      const sprites = cardsetSprite.listCards(cards);
+      // cardsetSprite.setAllCardsInPositions(sprites, positionsMerged);
       cardsetSprite.startClosedCards(sprites);
     }
     this.addAction(this.commandCreatePowerfield, cardsetSprite);
@@ -480,6 +482,7 @@ class Step {
     this.addActions([
       this.commandOpenPlayerGameBoard,
       this.commandOpenChallengedGameBoard,
+      this.commandOpenPowerfield,
     ]);
   }
 
@@ -537,6 +540,10 @@ class Step {
 
   commandOpenChallengedCardsetSprite() {
     this._challenged.cardsetSprite.openCards();
+  }
+
+  commandOpenPowerfield() {
+    this._powerFieldCardsetSprite.openAllCards();
   }
 
   closeGameBoards() {
@@ -695,14 +702,6 @@ class Step {
 
   commandChallengedBoardWindowPass() {
     this._challenged.boardWindow.pass();
-  }
-
-  openPowerfield() {
-    this.addAction(this.commandOpenPowerfield);
-  }
-
-  commandOpenPowerfield() {
-    this._powerFieldCardsetSprite.openAllCards();
   }
 
   isPlayerBoardWindowVisible() {

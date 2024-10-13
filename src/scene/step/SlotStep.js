@@ -6,6 +6,8 @@ class SlotStep extends Step {
   _powerActivationStrategy = undefined;
   _isActive = false;
 
+  _slotCardsetSprite = undefined;
+
   constructor(scene, phase, powerConfig) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
@@ -26,17 +28,24 @@ class SlotStep extends Step {
 
   start() {
     this.createGameBoards();
-    this.createPowerFieldCardsetSprite();
+    this.createSlotCardset();
     this.openGameBoards();
-    this.openPowerfield();
-    this.showPowerfieldDisplayOrdering();
+    this.openSlotCardset();
+    // this.showPowerfieldDisplayOrdering();
   }
 
-  createPowerFieldCardsetSprite() {
-    const cardsInPowerfield = CardBattleManager.getCardsByPowerfield();
+  createSlotCardset() {
+    const contentWidth = CardsetSprite.contentOriginalWidth();
+    const cardSpriteWidth = CardSprite.contentOriginalWidth();
+    const x = ScreenHelper.getCenterPosition(contentWidth) + contentWidth - cardSpriteWidth;
+    const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
+    const cardsetSprite = CardsetSprite.create(x, y);
+    cardsetSprite.show();
     const powerCard = this.getPowerCard();
-    const cards = [...cardsInPowerfield, powerCard];
-    super.createPowerFieldCardsetSprite(cards);
+    const sprites = cardsetSprite.listCards([powerCard]);
+    cardsetSprite.startClosedCards(sprites);
+    this.addAction(this.commandCreateSlotCardset, cardsetSprite);
+    return cardsetSprite;
   }
 
   getPowerCard() {
@@ -61,16 +70,29 @@ class SlotStep extends Step {
     return this._powerConfig.player;
   }
 
-  showPowerfieldDisplayOrdering() {
-    this.addAction(this.showDisplayOrdering);
+  commandCreateSlotCardset(cardsetSprite) {
+    this._slotCardsetSprite = cardsetSprite;
+    this.commandAddChild(cardsetSprite);
   }
+
+  openSlotCardset() {
+    this.addAction(this.commandOpenSlotCardset);
+  }
+
+  commandOpenSlotCardset() {
+    this._slotCardsetSprite.openAllCards();
+  }
+
+  // showPowerfieldDisplayOrdering() {
+  //   this.addAction(this.showDisplayOrdering);
+  // }
   
-  showDisplayOrdering() {
-    const powerfield = this.getPowerfieldCardsetSprite();
-    const indexes = powerfield.getIndexes();
-    const removeLast = indexes.pop();
-    powerfield.displayReverseOrdering(indexes);
-  }
+  // showDisplayOrdering() {
+  //   const powerfield = this.getPowerfieldCardsetSprite();
+  //   const indexes = powerfield.getIndexes();
+  //   const removeLast = indexes.pop();
+  //   powerfield.displayReverseOrdering(indexes);
+  // }
 
   update() {
     super.update();
@@ -93,6 +115,21 @@ class SlotStep extends Step {
     return this._isActive;
   }
 
+  isSlotCardsetSpriteVisible() {
+    return this._slotCardsetSprite.isVisible();
+  }
+
+  isSlotCardsetSpriteOpen() {
+    return this._slotCardsetSprite.allCardsAreOpen();
+  }
+
+  isSlotCardsetSpriteX(x) {
+    return this._slotCardsetSprite.x === x;
+  }
+
+  isSlotCardsetSpriteY(y) {
+    return this._slotCardsetSprite.y === y;
+  }
 
 
 
