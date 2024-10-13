@@ -4,9 +4,10 @@ class SlotStep extends Step {
   _powerActivation = undefined;
   _powerConfig = undefined;
   _powerActivationStrategy = undefined;
-  _isActive = false;
+
 
   _slotCardsetSprite = undefined;
+  _status = undefined;
 
   constructor(scene, phase, powerConfig) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
@@ -24,6 +25,11 @@ class SlotStep extends Step {
       throw new Error('Power Config must have player.');
     }
     this._powerConfig = powerConfig;
+    this.none();
+  }
+
+  none() {
+    this._status = undefined;
   }
 
   start() {
@@ -97,22 +103,31 @@ class SlotStep extends Step {
   update() {
     super.update();
     if (this.isBusy() || this.hasActions()) return false;
-    this.updateStrategy();
-    // if (this.updateStrategy()) return;
-    // this.updateActivation();
-    // this.updateConfig();
+    if (this.updateStrategyStart()) return;
+    if (this.updateStrategyDuring()) return;
+    if (this.updateStrategyFinish()) return;
   }
 
-  updateStrategy() {
-    // if (this.isActive() && this.hasStrategy() && !this.hasActivation()) {
-    //   this._powerActivationStrategy?.update();
-    //   return true;
-    // }
-    // return false;
+  updateStrategyStart() {
+    if (this._status) return;
+    // aqui é onde a estratégia é selecionada e iniciada
   }
 
-  isActive() {
-    return this._isActive;
+  startStrategy() {
+    this._status = GameConst.START;
+  }
+
+  updateStrategyDuring() {
+    if (!this._status || this._status === GameConst.FINISH) return;
+    // aqui é onde a estratégia é executada e finalizada
+  }
+
+  finishStrategy() {
+    this._status = GameConst.FINISH;
+  }
+
+  updateStrategyFinish() {
+    if (!this._status || this._status !== GameConst.FINISH) return;
   }
 
   isSlotCardsetSpriteVisible() {
