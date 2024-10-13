@@ -7733,40 +7733,40 @@ class UpdatingPointsBoardWindowTest extends SceneTest {
   }
 }
 // BATTLE POINTS WINDOW
-class ShouldUpdatePointsOfWindow extends SceneTest {
+class ShouldUpdatePointsOfWindowTest extends SceneTest {
   create() {
     this.createHandler();
     const battlePointsWindow = BattlePointsWindow.create(0, 0);
     battlePointsWindow.alignCenterMiddle();
     battlePointsWindow.refresh();
-    this.subject = battlePointsWindow;
-    this.addWatched(this.subject);
+    this.window = battlePointsWindow;
+    this.addWatched(this.window);
   }
 
   start() {
-    this.subject.open();
+    this.window.open();
     const updateAttackPoints = BattlePointsWindow.createValueUpdate(GameConst.ATTACK_POINTS, 30);
     const updateHealtPoints = BattlePointsWindow.createValueUpdate(GameConst.HEALTH_POINTS, 30);
     const manyUpdates = [
       updateAttackPoints,
       updateHealtPoints
     ];
-    this.subject.reset();
-    this.subject.updateValues(manyUpdates);
+    this.window.reset();
+    this.window.updateValues(manyUpdates);
     const finish = this.getHandler();
-    this.spyFunction(this.subject, 'stop', () => {
+    this.spyFunction(this.window, 'stop', () => {
       finish();
     });    
   }
 
   asserts() {
     this.describe('Deve atualizar os pontos da janelda de batalha!');
-    this.expectWasTrue('Os pontos foram atualizados?', this.subject.isUpdating);
     const attackPoints = 30;
     const healthPoints = 30;
     const points = `AP ${attackPoints} HP ${healthPoints}`;
-    this.expectTrue('Os pontos foram atualizados corretamente?', this.subject.isTextLastUpdate(points));
-    this.expectTrue('O estado da janela está parado?', this.subject.isStopped());
+    this.expectWasTrue('Os pontos foram atualizados?', this.window.isUpdating);
+    this.expectTrue('Os pontos foram atualizados corretamente?', this.window.isTextLastUpdate(points));
+    this.expectTrue('O estado da janela está parado?', this.window.isStopped());
   }
 }
 // TRASH WINDOW
@@ -12999,8 +12999,7 @@ class DrawStep extends Step {
   }
 
   start() {
-    this.createPlayerGameBoard();
-    this.createChallengedGameBoard();
+    this.createGameBoards();
     this.openGameBoards();
     this.drawPlayersCardsAndMove();
     this.loadPlayersGameBoards();
@@ -14519,7 +14518,7 @@ class CardBattleTestScene extends Scene_Message {
       UpdatingPointsBoardWindowTest,
     ];
     const battlePointsWindowTests = [
-      ShouldUpdatePointsOfWindow,
+      ShouldUpdatePointsOfWindowTest,
     ];
     const trashWindowTests = [
       UpdatingPointsTrashWindowTest,
@@ -14555,85 +14554,85 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const stepsTests = [
-      // // DisplayStep
-      // ShouldShowTitleWindowChallengePhaseTest,
-      // ShouldShowDescriptionWindowChallengePhaseTest,
-      // ShouldCloseWindowsWhenPressActionChallengePhaseTest,
-      // ShouldShowTitleWindowStartPhaseTest,
-      // ShouldShowDescriptionWindowStartPhaseTest,
-      // ShouldCloseWindowsWhenPressActionStartPhaseTest,
-      // ShouldShowTitleWindowDrawPhaseTest,
-      // ShouldShowDescriptionWindowDrawPhaseTest,
-      // ShouldCloseWindowsWhenPressActionDrawPhaseTest,
-      // ShouldShowTitleWindowLoadPhaseTest,
-      // ShouldShowDescriptionWindowLoadPhaseTest,
-      // ShouldCloseWindowsWhenPressActionLoadPhaseTest,
+      // DisplayStep
+      ShouldShowTitleWindowChallengePhaseTest,
+      ShouldShowDescriptionWindowChallengePhaseTest,
+      ShouldCloseWindowsWhenPressActionChallengePhaseTest,
+      ShouldShowTitleWindowStartPhaseTest,
+      ShouldShowDescriptionWindowStartPhaseTest,
+      ShouldCloseWindowsWhenPressActionStartPhaseTest,
+      ShouldShowTitleWindowDrawPhaseTest,
+      ShouldShowDescriptionWindowDrawPhaseTest,
+      ShouldCloseWindowsWhenPressActionDrawPhaseTest,
+      ShouldShowTitleWindowLoadPhaseTest,
+      ShouldShowDescriptionWindowLoadPhaseTest,
+      ShouldCloseWindowsWhenPressActionLoadPhaseTest,
 
-      // // DrawStep
-      // ShouldShowPlayerBoardWindowDrawPhaseTest,
-      // ShouldShowPlayerBattleWindowDrawPhaseTest,
-      // ShouldShowPlayerTrashWindowDrawPhaseTest,
-      // ShouldShowPlayerScoreWindowDrawPhaseTest,
-      // ShouldShowPlayerCardsetDrawPhaseTest,
-      // ShouldShowChallengedBoardWindowDrawPhaseTest,
-      // ShouldShowChallengedBattleWindowDrawPhaseTest,
-      // ShouldShowChallengedTrashWindowDrawPhaseTest,
-      // ShouldShowChallengedScoreWindowDrawPhaseTest,
-      // ShouldShowChallengedCardsetDrawPhaseTest,
-      // ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
-      // ShouldLoadBattlefieldsDrawPhaseTest,
+      // DrawStep
+      ShouldShowPlayerBoardWindowDrawPhaseTest,
+      ShouldShowPlayerBattleWindowDrawPhaseTest,
+      ShouldShowPlayerTrashWindowDrawPhaseTest,
+      ShouldShowPlayerScoreWindowDrawPhaseTest,
+      ShouldShowPlayerCardsetDrawPhaseTest,
+      ShouldShowChallengedBoardWindowDrawPhaseTest,
+      ShouldShowChallengedBattleWindowDrawPhaseTest,
+      ShouldShowChallengedTrashWindowDrawPhaseTest,
+      ShouldShowChallengedScoreWindowDrawPhaseTest,
+      ShouldShowChallengedCardsetDrawPhaseTest,
+      ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
+      ShouldLoadBattlefieldsDrawPhaseTest,
 
-      // // FolderStep
-      // ShouldShowPlayerFolderWindowTest,
-      // ShouldCloseFolderWindowWhenSelectedFolderTest,
+      // FolderStep
+      ShouldShowPlayerFolderWindowTest,
+      ShouldCloseFolderWindowWhenSelectedFolderTest,
 
-      // // MiniGameStep
-      // ShouldShowMiniGameCardsetTest,
-      // ShouldShufflerCardsTest,
-      // ShouldShowGameResultWindowCardsTest,
-      // ShouldCloseMiniGameOnSelectedCardTest,
+      // MiniGameStep
+      ShouldShowMiniGameCardsetTest,
+      ShouldShufflerCardsTest,
+      ShouldShowGameResultWindowCardsTest,
+      ShouldCloseMiniGameOnSelectedCardTest,
 
-      // // TurnStep
-      // ShouldShowChallengedBoardWindowLoadPhaseTest,
-      // ShouldShowChallengedBattleWindowLoadPhaseTest,
-      // ShouldShowChallengedScoreWindowLoadPhaseTest,
-      // ShouldShowChallengedTrashWindowLoadPhaseTest,
-      // ShouldShowPlayerBoardWindowLoadPhaseTest,
-      // ShouldShowPlayerBattleWindowLoadPhaseTest,
-      // ShouldShowPlayerTrashWindowLoadPhaseTest,
-      // ShouldShowPlayerScoreWindowLoadPhaseTest,
-      // ShouldShowChallengedCardsetLoadPhaseTest,
-      // ShouldShowPlayerCardsetLoadPhaseTest,
-      // ShouldShowTextWindowLoadPhaseTest,
-      // PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
-      // PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
-      // PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
-      // ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
-      // PlayerMustPassedTurnYourTurnLoadPhaseTest,
-      // ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
-      // ShouldActivatePowerZoneWhenItHasCardLoadPhaseTest,
-      // ShouldActivatePowerZoneWhenReachLimiteLoadPhaseTest,
-      // ShouldEndWhenThereAreMovesLoadPhaseTest,
+      // TurnStep
+      ShouldShowChallengedBoardWindowLoadPhaseTest,
+      ShouldShowChallengedBattleWindowLoadPhaseTest,
+      ShouldShowChallengedScoreWindowLoadPhaseTest,
+      ShouldShowChallengedTrashWindowLoadPhaseTest,
+      ShouldShowPlayerBoardWindowLoadPhaseTest,
+      ShouldShowPlayerBattleWindowLoadPhaseTest,
+      ShouldShowPlayerTrashWindowLoadPhaseTest,
+      ShouldShowPlayerScoreWindowLoadPhaseTest,
+      ShouldShowChallengedCardsetLoadPhaseTest,
+      ShouldShowPlayerCardsetLoadPhaseTest,
+      ShouldShowTextWindowLoadPhaseTest,
+      PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
+      PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
+      PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
+      ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
+      PlayerMustPassedTurnYourTurnLoadPhaseTest,
+      ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
+      ShouldActivatePowerZoneWhenItHasCardLoadPhaseTest,
+      ShouldActivatePowerZoneWhenReachLimiteLoadPhaseTest,
+      ShouldEndWhenThereAreMovesLoadPhaseTest,
 
-      // // ZoneStep
-      // ShouldShowLocationWindowInHandZoneStepLoadPhaseTest,
-      // ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest,
-      // ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest,
-      // ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
-      // ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest,
-      // ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepLoadPhaseTest,
-      // ShouldSelectCardToPlayHandZoneStepLoadPhaseTest,
+      // ZoneStep
+      ShouldShowLocationWindowInHandZoneStepLoadPhaseTest,
+      ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest,
+      ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest,
+      ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
+      ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest,
+      ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepLoadPhaseTest,
+      ShouldSelectCardToPlayHandZoneStepLoadPhaseTest,
 
-      // // SlotStep
-      // ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowChallengedBattleWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowChallengedBoardWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowChallengedScoreWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowPlayerTrashWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowPlayerBattleWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowCardSpriteSelectedOnSlotStepInLoadPhaseTest,
+      // SlotStep
+      ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowChallengedBattleWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowChallengedBoardWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowChallengedScoreWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerTrashWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerBattleWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowCardSpriteSelectedOnSlotStepInLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,
@@ -14642,11 +14641,11 @@ class CardBattleTestScene extends Scene_Message {
       // ...StateWindowTests,
       // ...textWindowTests,
       // ...boardWindowTests,
-      ...battlePointsWindowTests,
+      // ...battlePointsWindowTests,
       // ...trashWindowTests,
       // ...scoreWindowTests,
       // ...folderWindowTests,
-      // ...stepsTests,
+      ...stepsTests,
     ];
   }
 
@@ -14669,7 +14668,7 @@ class CardBattleTestScene extends Scene_Message {
     this._endTestDate = new Date();
     this.printResults(testsResults);
     this.printTotals(testsResults);
-    this.openFinishWindow();
+    this.openFinishWindow(testsResults);
   }
 
   clearScene() {
@@ -14712,14 +14711,24 @@ class CardBattleTestScene extends Scene_Message {
     this._collisions = [];
   }
 
-  openFinishWindow() {
+  openFinishWindow(results) {
+    const success = this.getSuccesResultsTotal(results);
+    const failed = this.getFailedResultsTotal(results);
     const time = this.calculateDifferenceInMinutesAndSeconds(this._startTestDate, this._endTestDate);
     this._finishWindow.contents.clear();
     this._finishWindow.contents.fontSize = 24;
-    this._finishWindow.contents.drawText(`Testes finalizados em: ${time} segundos!`, 0, 0, Graphics.boxWidth, 48, 'center');
+    this._finishWindow.contents.drawText(`Testes finalizados em: ${time} segundos! S: ${success} F: ${failed}`, 0, 0, Graphics.boxWidth, 48, 'center');
     this.addWindow(this._finishWindow);
     this._finishWindow.show();
     this._finishWindow.open();
+  }
+
+  getSuccesResultsTotal(results) {
+    return results.filter(result => result.passed === true).length;
+  }
+
+  getFailedResultsTotal(results) {
+    return results.filter(result => result.passed === false).length;
   }
 
   calculateDifferenceInMinutesAndSeconds(startDate, endData) {
@@ -14759,8 +14768,8 @@ class CardBattleTestScene extends Scene_Message {
 
   printTotals(results) {
     const total = results.length;
-    const success = results.filter(result => result.passed === true).length;
-    const failed = total - success;
+    const success = this.getSuccesResultsTotal(results);
+    const failed = this.getFailedResultsTotal(results);
     this.printInfo(`Total de testes: ${total}`);
     this.printSuccess(`Testes passados: ${success}`);
     this.printError(`Testes falhados: ${failed}`);

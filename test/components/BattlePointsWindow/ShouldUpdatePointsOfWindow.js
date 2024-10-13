@@ -26,10 +26,10 @@ class ShouldUpdatePointsOfWindowTest extends SceneTest {
 
   asserts() {
     this.describe('Deve atualizar os pontos da janelda de batalha!');
-    this.expectWasTrue('Os pontos foram atualizados?', this.window.isUpdating);
     const attackPoints = 30;
     const healthPoints = 30;
     const points = `AP ${attackPoints} HP ${healthPoints}`;
+    this.expectWasTrue('Os pontos foram atualizados?', this.window.isUpdating);
     this.expectTrue('Os pontos foram atualizados corretamente?', this.window.isTextLastUpdate(points));
     this.expectTrue('O estado da janela está parado?', this.window.isStopped());
   }

@@ -8,8 +8,7 @@ class DrawStep extends Step {
   }
 
   start() {
-    this.createPlayerGameBoard();
-    this.createChallengedGameBoard();
+    this.createGameBoards();
     this.openGameBoards();
     this.drawPlayersCardsAndMove();
     this.loadPlayersGameBoards();

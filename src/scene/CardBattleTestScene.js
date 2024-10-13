@@ -216,98 +216,98 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const stepsTests = [
-      // // DisplayStep
-      // ShouldShowTitleWindowChallengePhaseTest,
-      // ShouldShowDescriptionWindowChallengePhaseTest,
-      // ShouldCloseWindowsWhenPressActionChallengePhaseTest,
-      // ShouldShowTitleWindowStartPhaseTest,
-      // ShouldShowDescriptionWindowStartPhaseTest,
-      // ShouldCloseWindowsWhenPressActionStartPhaseTest,
-      // ShouldShowTitleWindowDrawPhaseTest,
-      // ShouldShowDescriptionWindowDrawPhaseTest,
-      // ShouldCloseWindowsWhenPressActionDrawPhaseTest,
-      // ShouldShowTitleWindowLoadPhaseTest,
-      // ShouldShowDescriptionWindowLoadPhaseTest,
-      // ShouldCloseWindowsWhenPressActionLoadPhaseTest,
+      // DisplayStep
+      ShouldShowTitleWindowChallengePhaseTest,
+      ShouldShowDescriptionWindowChallengePhaseTest,
+      ShouldCloseWindowsWhenPressActionChallengePhaseTest,
+      ShouldShowTitleWindowStartPhaseTest,
+      ShouldShowDescriptionWindowStartPhaseTest,
+      ShouldCloseWindowsWhenPressActionStartPhaseTest,
+      ShouldShowTitleWindowDrawPhaseTest,
+      ShouldShowDescriptionWindowDrawPhaseTest,
+      ShouldCloseWindowsWhenPressActionDrawPhaseTest,
+      ShouldShowTitleWindowLoadPhaseTest,
+      ShouldShowDescriptionWindowLoadPhaseTest,
+      ShouldCloseWindowsWhenPressActionLoadPhaseTest,
 
-      // // DrawStep
-      // ShouldShowPlayerBoardWindowDrawPhaseTest,
-      // ShouldShowPlayerBattleWindowDrawPhaseTest,
-      // ShouldShowPlayerTrashWindowDrawPhaseTest,
-      // ShouldShowPlayerScoreWindowDrawPhaseTest,
-      // ShouldShowPlayerCardsetDrawPhaseTest,
-      // ShouldShowChallengedBoardWindowDrawPhaseTest,
-      // ShouldShowChallengedBattleWindowDrawPhaseTest,
-      // ShouldShowChallengedTrashWindowDrawPhaseTest,
-      // ShouldShowChallengedScoreWindowDrawPhaseTest,
-      // ShouldShowChallengedCardsetDrawPhaseTest,
-      // ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
-      // ShouldLoadBattlefieldsDrawPhaseTest,
+      // DrawStep
+      ShouldShowPlayerBoardWindowDrawPhaseTest,
+      ShouldShowPlayerBattleWindowDrawPhaseTest,
+      ShouldShowPlayerTrashWindowDrawPhaseTest,
+      ShouldShowPlayerScoreWindowDrawPhaseTest,
+      ShouldShowPlayerCardsetDrawPhaseTest,
+      ShouldShowChallengedBoardWindowDrawPhaseTest,
+      ShouldShowChallengedBattleWindowDrawPhaseTest,
+      ShouldShowChallengedTrashWindowDrawPhaseTest,
+      ShouldShowChallengedScoreWindowDrawPhaseTest,
+      ShouldShowChallengedCardsetDrawPhaseTest,
+      ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
+      ShouldLoadBattlefieldsDrawPhaseTest,
 
-      // // FolderStep
-      // ShouldShowPlayerFolderWindowTest,
-      // ShouldCloseFolderWindowWhenSelectedFolderTest,
+      // FolderStep
+      ShouldShowPlayerFolderWindowTest,
+      ShouldCloseFolderWindowWhenSelectedFolderTest,
 
-      // // MiniGameStep
-      // ShouldShowMiniGameCardsetTest,
-      // ShouldShufflerCardsTest,
-      // ShouldShowGameResultWindowCardsTest,
-      // ShouldCloseMiniGameOnSelectedCardTest,
+      // MiniGameStep
+      ShouldShowMiniGameCardsetTest,
+      ShouldShufflerCardsTest,
+      ShouldShowGameResultWindowCardsTest,
+      ShouldCloseMiniGameOnSelectedCardTest,
 
-      // // TurnStep
-      // ShouldShowChallengedBoardWindowLoadPhaseTest,
-      // ShouldShowChallengedBattleWindowLoadPhaseTest,
-      // ShouldShowChallengedScoreWindowLoadPhaseTest,
-      // ShouldShowChallengedTrashWindowLoadPhaseTest,
-      // ShouldShowPlayerBoardWindowLoadPhaseTest,
-      // ShouldShowPlayerBattleWindowLoadPhaseTest,
-      // ShouldShowPlayerTrashWindowLoadPhaseTest,
-      // ShouldShowPlayerScoreWindowLoadPhaseTest,
-      // ShouldShowChallengedCardsetLoadPhaseTest,
-      // ShouldShowPlayerCardsetLoadPhaseTest,
-      // ShouldShowTextWindowLoadPhaseTest,
-      // PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
-      // PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
-      // PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
-      // ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
-      // PlayerMustPassedTurnYourTurnLoadPhaseTest,
-      // ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
-      // ShouldActivatePowerZoneWhenItHasCardLoadPhaseTest,
-      // ShouldActivatePowerZoneWhenReachLimiteLoadPhaseTest,
-      // ShouldEndWhenThereAreMovesLoadPhaseTest,
+      // TurnStep
+      ShouldShowChallengedBoardWindowLoadPhaseTest,
+      ShouldShowChallengedBattleWindowLoadPhaseTest,
+      ShouldShowChallengedScoreWindowLoadPhaseTest,
+      ShouldShowChallengedTrashWindowLoadPhaseTest,
+      ShouldShowPlayerBoardWindowLoadPhaseTest,
+      ShouldShowPlayerBattleWindowLoadPhaseTest,
+      ShouldShowPlayerTrashWindowLoadPhaseTest,
+      ShouldShowPlayerScoreWindowLoadPhaseTest,
+      ShouldShowChallengedCardsetLoadPhaseTest,
+      ShouldShowPlayerCardsetLoadPhaseTest,
+      ShouldShowTextWindowLoadPhaseTest,
+      PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
+      PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
+      PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
+      ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
+      PlayerMustPassedTurnYourTurnLoadPhaseTest,
+      ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
+      ShouldActivatePowerZoneWhenItHasCardLoadPhaseTest,
+      ShouldActivatePowerZoneWhenReachLimiteLoadPhaseTest,
+      ShouldEndWhenThereAreMovesLoadPhaseTest,
 
-      // // ZoneStep
-      // ShouldShowLocationWindowInHandZoneStepLoadPhaseTest,
-      // ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest,
-      // ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest,
-      // ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
-      // ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest,
-      // ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepLoadPhaseTest,
-      // ShouldSelectCardToPlayHandZoneStepLoadPhaseTest,
+      // ZoneStep
+      ShouldShowLocationWindowInHandZoneStepLoadPhaseTest,
+      ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest,
+      ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest,
+      ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
+      ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest,
+      ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepLoadPhaseTest,
+      ShouldSelectCardToPlayHandZoneStepLoadPhaseTest,
 
-      // // SlotStep
-      // ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowChallengedBattleWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowChallengedBoardWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowChallengedScoreWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowPlayerTrashWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowPlayerBattleWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowCardSpriteSelectedOnSlotStepInLoadPhaseTest,
+      // SlotStep
+      ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowChallengedBattleWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowChallengedBoardWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowChallengedScoreWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerTrashWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerBattleWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowCardSpriteSelectedOnSlotStepInLoadPhaseTest,
     ];
     return [
-      // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
-      // ...commandWindowTests,
-      // ...StateWindowTests,
-      // ...textWindowTests,
-      // ...boardWindowTests,
+      ...cardSpriteTests,
+      ...cardsetSpriteTests,
+      ...commandWindowTests,
+      ...StateWindowTests,
+      ...textWindowTests,
+      ...boardWindowTests,
       ...battlePointsWindowTests,
-      // ...trashWindowTests,
-      // ...scoreWindowTests,
-      // ...folderWindowTests,
-      // ...stepsTests,
+      ...trashWindowTests,
+      ...scoreWindowTests,
+      ...folderWindowTests,
+      ...stepsTests,
     ];
   }
 
@@ -330,7 +330,7 @@ class CardBattleTestScene extends Scene_Message {
     this._endTestDate = new Date();
     this.printResults(testsResults);
     this.printTotals(testsResults);
-    this.openFinishWindow();
+    this.openFinishWindow(testsResults);
   }
 
   clearScene() {
@@ -373,14 +373,24 @@ class CardBattleTestScene extends Scene_Message {
     this._collisions = [];
   }
 
-  openFinishWindow() {
+  openFinishWindow(results) {
+    const success = this.getSuccesResultsTotal(results);
+    const failed = this.getFailedResultsTotal(results);
     const time = this.calculateDifferenceInMinutesAndSeconds(this._startTestDate, this._endTestDate);
     this._finishWindow.contents.clear();
     this._finishWindow.contents.fontSize = 24;
-    this._finishWindow.contents.drawText(`Testes finalizados em: ${time} segundos!`, 0, 0, Graphics.boxWidth, 48, 'center');
+    this._finishWindow.contents.drawText(`Testes finalizados em: ${time} segundos! S: ${success} F: ${failed}`, 0, 0, Graphics.boxWidth, 48, 'center');
     this.addWindow(this._finishWindow);
     this._finishWindow.show();
     this._finishWindow.open();
+  }
+
+  getSuccesResultsTotal(results) {
+    return results.filter(result => result.passed === true).length;
+  }
+
+  getFailedResultsTotal(results) {
+    return results.filter(result => result.passed === false).length;
   }
 
   calculateDifferenceInMinutesAndSeconds(startDate, endData) {
@@ -420,8 +430,8 @@ class CardBattleTestScene extends Scene_Message {
 
   printTotals(results) {
     const total = results.length;
-    const success = results.filter(result => result.passed === true).length;
-    const failed = total - success;
+    const success = this.getSuccesResultsTotal(results);
+    const failed = this.getFailedResultsTotal(results);
     this.printInfo(`Total de testes: ${total}`);
     this.printSuccess(`Testes passados: ${success}`);
     this.printError(`Testes falhados: ${failed}`);
