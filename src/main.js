@@ -249,6 +249,7 @@
 // include ../test/components/SlotStep/LoadPhase/ShouldShowPlayerBattleWindowTest.js
 // include ../test/components/SlotStep/LoadPhase/ShouldShowPlayerBoardWindowTest.js
 // include ../test/components/SlotStep/LoadPhase/ShouldShowPlayerScoreWindowTest.js
+// include ../test/components/SlotStep/LoadPhase/ShouldShowCardSpriteSelectedTest.js
 
 // include ./manager/CardBattleManager.js
 // include ./scene/CardBattleTestScene.js

@@ -10883,7 +10883,7 @@ class ShouldShowChallengedBattleWindowOnSlotStepInLoadPhaseTest extends SceneTes
   }
   
   asserts() {
-    this.describe('Deve apresentar janela de lixo do desafiado na etapa de slot na fase de carregamento.');
+    this.describe('Deve apresentar janela de batalha do desafiado na etapa de slot na fase de carregamento.');
     this.expectWasTrue('A janela de batalha do desafiado foi apresentada?', this.step.isChallengedBattleWindowVisible);
   }
 }
@@ -10918,7 +10918,7 @@ class ShouldShowChallengedBoardWindowOnSlotStepInLoadPhaseTest extends SceneTest
   }
   
   asserts() {
-    this.describe('Deve apresentar janela de lixo do desafiado na etapa de slot na fase de carregamento.');
+    this.describe('Deve apresentar janela de tabuleiro do desafiado na etapa de slot na fase de carregamento.');
     this.expectWasTrue('A janela de tabuleiro do desafiado foi apresentado?', this.step.isChallengedBoardWindowVisible);
   }
 }
@@ -10953,7 +10953,7 @@ class ShouldShowChallengedScoreWindowOnSlotStepInLoadPhaseTest extends SceneTest
   }
   
   asserts() {
-    this.describe('Deve apresentar janela de lixo do desafiado na etapa de slot na fase de carregamento.');
+    this.describe('Deve apresentar janela de pontuação do desafiado na etapa de slot na fase de carregamento.');
     this.expectWasTrue('A janela de pontuação do desafiado foi apresentada?', this.step.isChallengedScoreWindowVisible);
   }
 }
@@ -10988,7 +10988,7 @@ class ShouldShowPlayerTrashWindowOnSlotStepInLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve apresentar janela de lixo do desafiado na etapa de slot na fase de carregamento.');
+    this.describe('Deve apresentar janela de lixo do jogador na etapa de slot na fase de carregamento.');
     this.expectWasTrue('A janela de lixo do jogador foi apresentada?', this.step.isPlayerTrashWindowVisible);
   }
 }
@@ -11023,7 +11023,7 @@ class ShouldShowPlayerBattleWindowOnSlotStepInLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve apresentar janela de lixo do desafiado na etapa de slot na fase de carregamento.');
+    this.describe('Deve apresentar janela de batalha do jogador na etapa de slot na fase de carregamento.');
     this.expectWasTrue('A janela de batalha do jogador foi apresentada?', this.step.isPlayerBattleWindowVisible);
   }
 }
@@ -11058,7 +11058,7 @@ class ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve apresentar janela de lixo do desafiado na etapa de slot na fase de carregamento.');
+    this.describe('Deve apresentar janela de tabuleiro do jogador na etapa de slot na fase de carregamento.');
     this.expectWasTrue('A janela de tabuleiro do jogador foi apresentado?', this.step.isPlayerBoardWindowVisible);
   }
 }
@@ -11093,8 +11093,50 @@ class ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest extends SceneTest {
   }
   
   asserts() {
-    this.describe('Deve apresentar janela de lixo do desafiado na etapa de slot na fase de carregamento.');
+    this.describe('Deve apresentar janela de pontuação do jogador na etapa de slot na fase de carregamento.');
     this.expectWasTrue('A janela de pontuação do jogador foi apresentada?', this.step.isPlayerScoreWindowVisible);
+  }
+}
+class ShouldShowCardSpriteSelectedOnSlotStepInLoadPhaseTest extends SceneTest {
+  step;
+
+  create() {
+    this.createHandler();
+    const powerConfig = {
+      cardIndexes: [1],
+      player: GameConst.PLAYER
+    };
+    this.step = new SlotStep(this._scene, GameConst.LOAD_PHASE, powerConfig);
+    this.addAssistedHidden(this.step);
+  }
+
+  start() {
+    CardBattleManager.setPlayerDeck();
+    CardBattleManager.setChallengedDeck();
+    CardBattleManager.drawPlayerCards(6);
+    CardBattleManager.drawChallengedCards(6);
+    const finish = this.getHandler();
+    this.mockFunction(this.step, 'updateStrategy', () => {
+      // finish();
+    });
+    this._scene.setStep(this.step);
+    this.step.start();
+  }
+
+  update() {
+    this.step.update();
+  }
+  
+  asserts() {
+    const contentWidth = CardsetSprite.contentOriginalWidth();
+    const cardSpriteWidth = CardSprite.contentOriginalWidth();
+    const x = ScreenHelper.getCenterPosition(contentWidth) + contentWidth - cardSpriteWidth;
+    const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
+    this.describe('Deve apresentar cartão que foi selecionado para o slot na etapa de slot na fase de carregamento.');
+    this.expectWasTrue('O cartão foi apresentado?', this.step.isSlotCardsetSpriteVisible);
+    this.expectTrue('O cartão foi aberto?', this.step.isSlotCardsetSpriteOpen());
+    this.expectTrue('Está na posição x?', this.step.isSlotCardsetSpriteX(x));
+    this.expectTrue('Está na posição y?', this.step.isSlotCardsetSpriteY(y));
   }
 }
 
@@ -11718,6 +11760,7 @@ class Step {
   createGameBoards() {
     this.createPlayerGameBoard();
     this.createChallengedGameBoard();
+    this.createPowerFieldCardsetSprite();
   }
 
   createPlayerGameBoard() {
@@ -11920,7 +11963,8 @@ class Step {
     this.commandAddChild(cardsetSprite);
   }
 
-  createPowerFieldCardsetSprite(cards) {
+  createPowerFieldCardsetSprite() {
+    const cards = CardBattleManager.getCardsByPowerfield();
     const x = ScreenHelper.getCenterPosition(CardsetSprite.contentOriginalWidth());
     const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
     const cardsetSprite = CardsetSprite.create(x, y);
@@ -11929,13 +11973,13 @@ class Step {
     const lastIndex = numCards - 1;
     const numInfield = numCards - 1;
     if (numCards) {
-      const cardX = CardsetSprite.contentOriginalWidth() - CardSprite.contentOriginalWidth();
-      const cardy = 0;
-      const lastPosition = CardsetSprite.createPosition(cardX, cardy, lastIndex);
-      const positionsCreated = CardsetSprite.createPositionsList(numInfield);
-      const positionsMerged = [...positionsCreated, lastPosition];
-      const sprites = cardsetSprite.setCards(cards, 0, 0);
-      cardsetSprite.setAllCardsInPositions(sprites, positionsMerged);
+      // const cardX = CardsetSprite.contentOriginalWidth() - CardSprite.contentOriginalWidth();
+      // const cardy = 0;
+      // const lastPosition = CardsetSprite.createPosition(cardX, cardy, lastIndex);
+      // const positionsCreated = CardsetSprite.createPositionsList(numInfield);
+      // const positionsMerged = [...positionsCreated, lastPosition];
+      const sprites = cardsetSprite.listCards(cards);
+      // cardsetSprite.setAllCardsInPositions(sprites, positionsMerged);
       cardsetSprite.startClosedCards(sprites);
     }
     this.addAction(this.commandCreatePowerfield, cardsetSprite);
@@ -11999,6 +12043,7 @@ class Step {
     this.addActions([
       this.commandOpenPlayerGameBoard,
       this.commandOpenChallengedGameBoard,
+      this.commandOpenPowerfield,
     ]);
   }
 
@@ -12056,6 +12101,10 @@ class Step {
 
   commandOpenChallengedCardsetSprite() {
     this._challenged.cardsetSprite.openCards();
+  }
+
+  commandOpenPowerfield() {
+    this._powerFieldCardsetSprite.openAllCards();
   }
 
   closeGameBoards() {
@@ -12214,14 +12263,6 @@ class Step {
 
   commandChallengedBoardWindowPass() {
     this._challenged.boardWindow.pass();
-  }
-
-  openPowerfield() {
-    this.addAction(this.commandOpenPowerfield);
-  }
-
-  commandOpenPowerfield() {
-    this._powerFieldCardsetSprite.openAllCards();
   }
 
   isPlayerBoardWindowVisible() {
@@ -13191,6 +13232,8 @@ class SlotStep extends Step {
   _powerActivationStrategy = undefined;
   _isActive = false;
 
+  _slotCardsetSprite = undefined;
+
   constructor(scene, phase, powerConfig) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
@@ -13211,17 +13254,24 @@ class SlotStep extends Step {
 
   start() {
     this.createGameBoards();
-    this.createPowerFieldCardsetSprite();
+    this.createSlotCardset();
     this.openGameBoards();
-    this.openPowerfield();
-    this.showPowerfieldDisplayOrdering();
+    this.openSlotCardset();
+    // this.showPowerfieldDisplayOrdering();
   }
 
-  createPowerFieldCardsetSprite() {
-    const cardsInPowerfield = CardBattleManager.getCardsByPowerfield();
+  createSlotCardset() {
+    const contentWidth = CardsetSprite.contentOriginalWidth();
+    const cardSpriteWidth = CardSprite.contentOriginalWidth();
+    const x = ScreenHelper.getCenterPosition(contentWidth) + contentWidth - cardSpriteWidth;
+    const y = ScreenHelper.getMiddlePosition(CardsetSprite.contentOriginalHeight());
+    const cardsetSprite = CardsetSprite.create(x, y);
+    cardsetSprite.show();
     const powerCard = this.getPowerCard();
-    const cards = [...cardsInPowerfield, powerCard];
-    super.createPowerFieldCardsetSprite(cards);
+    const sprites = cardsetSprite.listCards([powerCard]);
+    cardsetSprite.startClosedCards(sprites);
+    this.addAction(this.commandCreateSlotCardset, cardsetSprite);
+    return cardsetSprite;
   }
 
   getPowerCard() {
@@ -13246,16 +13296,29 @@ class SlotStep extends Step {
     return this._powerConfig.player;
   }
 
-  showPowerfieldDisplayOrdering() {
-    this.addAction(this.showDisplayOrdering);
+  commandCreateSlotCardset(cardsetSprite) {
+    this._slotCardsetSprite = cardsetSprite;
+    this.commandAddChild(cardsetSprite);
   }
+
+  openSlotCardset() {
+    this.addAction(this.commandOpenSlotCardset);
+  }
+
+  commandOpenSlotCardset() {
+    this._slotCardsetSprite.openAllCards();
+  }
+
+  // showPowerfieldDisplayOrdering() {
+  //   this.addAction(this.showDisplayOrdering);
+  // }
   
-  showDisplayOrdering() {
-    const powerfield = this.getPowerfieldCardsetSprite();
-    const indexes = powerfield.getIndexes();
-    const removeLast = indexes.pop();
-    powerfield.displayReverseOrdering(indexes);
-  }
+  // showDisplayOrdering() {
+  //   const powerfield = this.getPowerfieldCardsetSprite();
+  //   const indexes = powerfield.getIndexes();
+  //   const removeLast = indexes.pop();
+  //   powerfield.displayReverseOrdering(indexes);
+  // }
 
   update() {
     super.update();
@@ -13278,6 +13341,21 @@ class SlotStep extends Step {
     return this._isActive;
   }
 
+  isSlotCardsetSpriteVisible() {
+    return this._slotCardsetSprite.isVisible();
+  }
+
+  isSlotCardsetSpriteOpen() {
+    return this._slotCardsetSprite.allCardsAreOpen();
+  }
+
+  isSlotCardsetSpriteX(x) {
+    return this._slotCardsetSprite.x === x;
+  }
+
+  isSlotCardsetSpriteY(y) {
+    return this._slotCardsetSprite.y === y;
+  }
 
 
 
@@ -14257,6 +14335,7 @@ class CardBattleTestScene extends Scene_Message {
     this._finishWindow = null;
     this._startTestDate = new Date();
     this._endTestDate = null;
+    this._collisions = [];
   }
 
   create() {
@@ -14525,13 +14604,14 @@ class CardBattleTestScene extends Scene_Message {
 
       // // SlotStep
       // ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest,
-      ShouldShowChallengedBattleWindowOnSlotStepInLoadPhaseTest,
-      ShouldShowChallengedBoardWindowOnSlotStepInLoadPhaseTest,
-      ShouldShowChallengedScoreWindowOnSlotStepInLoadPhaseTest,
-      ShouldShowPlayerTrashWindowOnSlotStepInLoadPhaseTest,
-      ShouldShowPlayerBattleWindowOnSlotStepInLoadPhaseTest,
-      ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest,
-      ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowChallengedBattleWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowChallengedBoardWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowChallengedScoreWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowPlayerTrashWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowPlayerBattleWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowCardSpriteSelectedOnSlotStepInLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,
@@ -14572,6 +14652,7 @@ class CardBattleTestScene extends Scene_Message {
 
   clearScene() {
     return new Promise(async resolve => {
+      this.clearCollisions();
       await this.clearChildren();
       await this.clearWindowLayer();
       resolve(true);
@@ -14603,6 +14684,10 @@ class CardBattleTestScene extends Scene_Message {
       }
       resolve(true);
     });
+  }
+
+  clearCollisions() {
+    this._collisions = [];
   }
 
   openFinishWindow() {
@@ -14686,7 +14771,51 @@ class CardBattleTestScene extends Scene_Message {
         this._next.update();
         this._next.updateTest();
       }
+      this.updateCollisions();
     }
+  }
+
+  updateCollisions() {
+    if (this.hasCollision()) {
+      this._collisions.forEach(collision => {
+        const { collider, target, react } = collision;
+        if (this.wasCollision(collider, target)) {
+          react();
+          this.removeCollision(collision);
+        }
+      });
+    }
+  }
+
+  hasCollision() {
+    return this._collisions.length > 0;
+  }
+
+  wasCollision(collider, target) {
+    const { x: xCollider, y: yCollider, width: widthCollider, height: heightCollider } = collider;
+    const { x: xTarget, y: yTarget, width: widthTarget, height: heightTarget } = target;
+    const widthBorderCollider = xCollider + widthCollider;
+    const heightBorderCollider = yCollider + heightCollider;
+    const widthBorderTarget = xTarget + widthTarget;
+    const heightBorderTarget = yTarget + heightTarget;
+    return xCollider <= widthBorderTarget && 
+      widthBorderCollider >= xTarget && 
+      yCollider <= heightBorderTarget && 
+      heightBorderCollider >= yTarget;
+  }
+
+  removeCollision(collision) {
+    this._collisions = this._collisions.filter(c => c !== collision);
+  }
+
+  addCollision(collider, target, react) {
+    if (!(collider instanceof Sprite) || !(target instanceof Sprite)) {
+      throw new Error('Collider and Target must be instance of Sprite');
+    }
+    if (typeof react !== 'function') {
+      throw new Error('React must be a function');
+    }
+    this._collisions.push({ collider, target, react });
   }
 
   isActive() {
