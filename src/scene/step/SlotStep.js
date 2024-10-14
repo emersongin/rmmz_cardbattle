@@ -1,5 +1,3 @@
-// include ./strategy/IncreaseEnergyStrategy.js
-
 class SlotStep extends Step {
   _powerConfig = undefined;
   _status = undefined;

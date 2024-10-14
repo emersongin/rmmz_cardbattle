@@ -1,5 +1,3 @@
-// include ../CardAnimationSprite.js
-
 class CardSpriteAnimatedBehavior {
   _card;
   _parent;

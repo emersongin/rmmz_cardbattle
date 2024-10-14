@@ -3033,10 +3033,6 @@ class CardSpriteZoomState {
   }
 
 }
-class CardAnimationSprite extends Sprite_Animation {}
-
-
-
 class CardSpriteAnimatedBehavior {
   _card;
   _parent;
@@ -5039,342 +5035,6 @@ class CardsetSprite extends ActionSprite {
 
   getIndexes() {
     return this._sprites.map((sprite, index) => index);
-  }
-}
-class BackgroundSprite extends Sprite {
-  initialize() {
-    super.initialize();
-    this._backgrounds = [];
-    this._direction = 0;
-    this.createBackgrounds();
-    this.createBackgroundsOriginPositions();
-  }
-
-  createBackgrounds() {
-    for (let i = 0; i < 4; i++) {
-      let bg = this.createBackgroundSprite();
-      this.addChild(bg);
-      this._backgrounds.push(bg);
-    }
-  }
-
-  createBackgroundSprite() {
-    const bg = new Sprite();
-    bg.bitmap = ImageManager.loadParallax('StarlitSky');
-    return bg;
-  }
-
-  createBackgroundsOriginPositions() {
-    this._backgrounds[0].move(0, 0);
-    this._backgrounds[1].move(Graphics.width, 0);
-    this._backgrounds[2].move(Graphics.width, Graphics.height);
-    this._backgrounds[3].move(0, Graphics.height);
-  }
-
-  update() {
-    super.update();
-    this.updateBackground();
-    this.updateResetPosition();
-  }
-
-  updateBackground() {
-    let xPlus = 0;
-    let yPlus = 0;
-    switch (this._direction) {
-      case 1:
-        xPlus = -1;
-        yPlus = 1;
-        break;
-      case 2:
-        xPlus = -1;
-        yPlus = -1;
-        break;
-      case 3:
-        xPlus = 1;
-        yPlus = -1;
-        break;
-      default:
-        xPlus = 1;
-        yPlus = 1;
-        break;
-    }
-    this._backgrounds.forEach(bg => {
-      bg.move(bg.x + xPlus,bg.y + yPlus);
-    });
-  }
-
-  updateResetPosition() {
-    this._backgrounds.forEach(bg => {
-      if (bg.x <= -Graphics.width) {
-        bg.x = Graphics.width;
-      }
-      if (bg.x >= Graphics.width) {
-        bg.x = -Graphics.width;
-      }
-      if (bg.y <= -Graphics.height) {
-        bg.y = Graphics.height;
-      }
-      if (bg.y >= Graphics.height) {
-        bg.y = -Graphics.height;
-      }
-    });
-  }
-}
-class StartBattleTransition extends Sprite {
-  initialize() {
-    super.initialize();
-    this._duration = 0.5;
-    this._started = false;
-    this._backgroundBitmap = null;
-    this._backgroundLayer = null;
-    this._blackLeftSideLayer = null;
-    this._blackRightSideLayer = null;
-    this.loadBackgroundContents();
-    this.createBackground();
-    this.createSideLayers();
-    this.setupTransitions();
-  }
-
-  loadBackgroundContents() {
-    this._backgroundBitmap = ImageManager.loadPicture('background1');
-  }
-
-  createBackground() {
-    this._backgroundLayer = new Sprite(this.createEmptyBitmap());
-    this.addChild(this._backgroundLayer);
-  }
-
-  createEmptyBitmap() {
-    return new Bitmap(Graphics.width, Graphics.height);
-  }
-
-  createSideLayers() { 
-    this._blackLeftSideLayer = new Sprite();
-    this._blackLeftSideLayer.bitmap = this.createBlackScreenImage();
-    this.addChild(this._blackLeftSideLayer);
-    this._blackRightSideLayer = new Sprite();
-    this._blackRightSideLayer.bitmap = this.createBlackScreenImage();
-    this.addChild(this._blackRightSideLayer);
-  }
-
-  createBlackScreenImage() {
-    const bitmap = new Bitmap(Graphics.width, Graphics.height);
-    bitmap.fillRect(0, 0, Graphics.width, Graphics.height, 'black');
-    return bitmap;
-  }
-
-  setupTransitions() {
-    this.setupBackgroundTransition();
-    this.setupLayerTransitions();
-    this.startTransition();
-  }
-
-  setupBackgroundTransition() {
-    const screenMiddle = Graphics.width / 2;
-    this._backgroundLayer.target = {
-      rect: {
-        x: this._backgroundLayer.x, 
-        y: this._backgroundLayer.y,
-        width: this._backgroundLayer.width, 
-        height: this._backgroundLayer.height
-      },
-      interval: this.calculateInterval(screenMiddle, 0, this._duration),
-    };
-  }
-
-  calculateInterval(origin, target, duration) {
-    return Math.floor(Math.abs(origin - target) / (duration * GameConst.FPS)) || 1;
-  }
-
-  setupLayerTransitions() {
-    const screenWidth = Graphics.width;
-    const screenMiddle = Graphics.width / 2;
-    this._blackLeftSideLayer.x = -Graphics.width;
-    this._blackRightSideLayer.x = Graphics.width;
-    this._blackLeftSideLayer.target = {
-      x: 0, 
-      y: 0,
-      interval: this.calculateInterval(-screenWidth, -screenMiddle, this._duration)
-    };
-    this._blackRightSideLayer.target = {
-      x: 0, 
-      y: 0,
-      interval: this.calculateInterval(screenWidth, screenMiddle, this._duration)
-    }
-  }
-
-  startTransition() {
-    this.visible = true;
-    this._started = true;
-  }
-
-  update() {
-    super.update();
-    if (this.isStartedTransition()) {
-      if (this.isBackgroundBusy()) this.updateBackgroundTransition();
-      if (!this.isBackgroundBusy() && this.isLayersBusy()) this.updateLayerTransitions();
-    }
-    if (!this.isBackgroundBusy() && !this.isLayersBusy()) {
-      if (this.isEndTransition() && this.isVisibled()) {
-        this.updateOpacity();
-      } else {
-        this.endTransition();
-        this.hideBackground();
-      }
-    }
-  }
-
-  isStartedTransition() {
-    return this._started;
-  }
-
-  isBackgroundBusy() {
-    const backgroundLayer = this._backgroundLayer;
-    const { x, y, width, height, target } = backgroundLayer;
-    const { rect } = target;
-    const { x: xRect, y: yRect, width: widthRect, height: heightRect } = rect;
-    return xRect < width || yRect < height || widthRect > x || heightRect > y;
-  }
-
-  updateBackgroundTransition() { 
-    const { x, y, width, height, target } = this._backgroundLayer;
-    const { rect, interval } = target;
-    const { x: xRect, y: yRect, width: widthRect, height: heightRect } = rect;
-    if (xRect < width) {
-      this._backgroundLayer.target.rect.x = xRect + interval;
-    }
-    if (yRect < height) {
-      this._backgroundLayer.target.rect.y = yRect + interval;
-    }
-    if (widthRect > x) {
-      this._backgroundLayer.target.rect.width = widthRect - (interval * 2);
-    }
-    if (heightRect > y) {
-      this._backgroundLayer.target.rect.height = heightRect - (interval * 2);
-    }
-    this._backgroundLayer.bitmap = this.createBackgroundBitmapWithRect(this._backgroundLayer.target.rect);
-  }
-
-  createBackgroundBitmapWithRect(rect) {
-    const bitmap = this.createEmptyBitmap();
-    bitmap.fillAll('red');
-    bitmap.blt(this._backgroundBitmap, 0, 0, Graphics.width, Graphics.height, 0, 0);
-    bitmap.clearRect(rect?.x || 0, rect?.y || 0, rect?.width || 0, rect?.height || 0);
-    return bitmap;
-  }
-
-  isLayersBusy() {
-    return this.isLayerInMoving(this._blackLeftSideLayer) || 
-      this.isLayerInMoving(this._blackRightSideLayer);
-  }
-
-  isLayerInMoving(layer) {
-    const { x, y, target } = layer;
-    const { x: targetX, y: targetY } = target;
-    return x != targetX || y != targetY;
-  }
-
-  updateLayerTransitions() {
-    this.updateLayerTransition(this._blackLeftSideLayer)
-    this.updateLayerTransition(this._blackRightSideLayer);
-  }
-
-  updateLayerTransition(layer) {
-    const { x, target } = layer;
-    const { x: targetX } = target;
-    if (targetX == x) return false; 
-    this.moveLayer(layer);
-  }
-
-  moveLayer(layer) {
-    const { x, target } = layer;
-    const { x: targetX, interval } = target;
-    if (targetX > x) {
-      layer.move(x + interval, 0);
-      if (!(targetX > layer.x)) layer.x = targetX;
-    } else if (targetX < x) {
-      layer.move(x - interval, 0);
-      if (!(targetX < layer.x)) layer.x = targetX;
-    }
-  }
-
-  isEndTransition() {
-    return !this._started;
-  }
-
-  isVisibled() {
-    return this.visible;
-  }
-
-  endTransition() {;
-    this._started = false;
-  }
-
-  hideBackground() {
-    this._backgroundLayer.hide();
-  }
-
-  updateOpacity() {
-    if (this.isStartedTransition()) {
-      if (this.opacity < 255) {
-        this.visible = true;
-        this.opacity = this.opacity + 8;
-      }
-    } else {
-      if (this.opacity > 0) this.opacity = this.opacity - 8;
-      if (this.opacity <= 0) this.visible = false;
-    }
-  }
-
-  isBusy() {
-    return this.isBackgroundBusy() || 
-      this.isLayersBusy() || 
-      this.opacity > 0;
-  }
-}
-
-class CardBattleSpriteset extends Spriteset_Base {
-  initialize() {
-    super.initialize();
-    this._backgroundSprite;
-    this._startBattleTransition;
-    this._luckGameSprite;
-    this._battleFieldSprite;
-    this._battlePainelSprite;
-
-    // this.createBackground();
-    // this.createStartBattleTransition();
-    // this.createLuckGame();
-    this.createBattleField();
-    // this.createBattlePainel();
-  }
-
-  loadSystemImages() {
-    super.loadSystemImages();
-  }
-
-  createBackground() {
-    this._backgroundSprite = new BackgroundSprite();
-    this.addChild(this._backgroundSprite);
-  }
-
-  createStartBattleTransition() {
-    this._startBattleTransition = new StartBattleTransition();
-    this.addChild(this._startBattleTransition);
-  }
-
-  createBattleField() {
-    this._battleFieldSprite = new Sprite();
-    this._battleFieldSprite.setFrame(0, 0, this.width, this.height);
-    this._effectsContainer = this._battleFieldSprite;
-  }
-
-  findTargetSprite = function(target) {
-    return target;
-  };
-
-  isBusy() {
-    return this._startBattleTransition.isBusy();
   }
 }
 
@@ -13285,25 +12945,6 @@ class PowerZoneStep extends Step {
     return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
   }
 }
-class IncreaseEnergyStrategy {
-  _step = null;
-  _player = null;
-  
-  constructor(step, player) {
-    this._step = step;
-    this._player = player;
-  }
-
-  start() {
-
-  }
-
-  update() {
-    this._step.setActivation({ player: this._player });
-    this._step.endStrategy();
-  }
-}
-
 class SlotStep extends Step {
   _powerConfig = undefined;
   _status = undefined;
@@ -14613,85 +14254,85 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const stepsTests = [
-      // // DisplayStep
-      // ShouldShowTitleWindowChallengePhaseTest,
-      // ShouldShowDescriptionWindowChallengePhaseTest,
-      // ShouldCloseWindowsWhenPressActionChallengePhaseTest,
-      // ShouldShowTitleWindowStartPhaseTest,
-      // ShouldShowDescriptionWindowStartPhaseTest,
-      // ShouldCloseWindowsWhenPressActionStartPhaseTest,
-      // ShouldShowTitleWindowDrawPhaseTest,
-      // ShouldShowDescriptionWindowDrawPhaseTest,
-      // ShouldCloseWindowsWhenPressActionDrawPhaseTest,
-      // ShouldShowTitleWindowLoadPhaseTest,
-      // ShouldShowDescriptionWindowLoadPhaseTest,
-      // ShouldCloseWindowsWhenPressActionLoadPhaseTest,
+      // DisplayStep
+      ShouldShowTitleWindowChallengePhaseTest,
+      ShouldShowDescriptionWindowChallengePhaseTest,
+      ShouldCloseWindowsWhenPressActionChallengePhaseTest,
+      ShouldShowTitleWindowStartPhaseTest,
+      ShouldShowDescriptionWindowStartPhaseTest,
+      ShouldCloseWindowsWhenPressActionStartPhaseTest,
+      ShouldShowTitleWindowDrawPhaseTest,
+      ShouldShowDescriptionWindowDrawPhaseTest,
+      ShouldCloseWindowsWhenPressActionDrawPhaseTest,
+      ShouldShowTitleWindowLoadPhaseTest,
+      ShouldShowDescriptionWindowLoadPhaseTest,
+      ShouldCloseWindowsWhenPressActionLoadPhaseTest,
 
-      // // DrawStep
-      // ShouldShowPlayerBoardWindowDrawPhaseTest,
-      // ShouldShowPlayerBattleWindowDrawPhaseTest,
-      // ShouldShowPlayerTrashWindowDrawPhaseTest,
-      // ShouldShowPlayerScoreWindowDrawPhaseTest,
-      // ShouldShowPlayerCardsetDrawPhaseTest,
-      // ShouldShowChallengedBoardWindowDrawPhaseTest,
-      // ShouldShowChallengedBattleWindowDrawPhaseTest,
-      // ShouldShowChallengedTrashWindowDrawPhaseTest,
-      // ShouldShowChallengedScoreWindowDrawPhaseTest,
-      // ShouldShowChallengedCardsetDrawPhaseTest,
-      // ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
-      // ShouldLoadBattlefieldsDrawPhaseTest,
+      // DrawStep
+      ShouldShowPlayerBoardWindowDrawPhaseTest,
+      ShouldShowPlayerBattleWindowDrawPhaseTest,
+      ShouldShowPlayerTrashWindowDrawPhaseTest,
+      ShouldShowPlayerScoreWindowDrawPhaseTest,
+      ShouldShowPlayerCardsetDrawPhaseTest,
+      ShouldShowChallengedBoardWindowDrawPhaseTest,
+      ShouldShowChallengedBattleWindowDrawPhaseTest,
+      ShouldShowChallengedTrashWindowDrawPhaseTest,
+      ShouldShowChallengedScoreWindowDrawPhaseTest,
+      ShouldShowChallengedCardsetDrawPhaseTest,
+      ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
+      ShouldLoadBattlefieldsDrawPhaseTest,
 
-      // // FolderStep
-      // ShouldShowPlayerFolderWindowTest,
-      // ShouldCloseFolderWindowWhenSelectedFolderTest,
+      // FolderStep
+      ShouldShowPlayerFolderWindowTest,
+      ShouldCloseFolderWindowWhenSelectedFolderTest,
 
-      // // MiniGameStep
-      // ShouldShowMiniGameCardsetTest,
-      // ShouldShufflerCardsTest,
-      // ShouldShowGameResultWindowCardsTest,
-      // ShouldCloseMiniGameOnSelectedCardTest,
+      // MiniGameStep
+      ShouldShowMiniGameCardsetTest,
+      ShouldShufflerCardsTest,
+      ShouldShowGameResultWindowCardsTest,
+      ShouldCloseMiniGameOnSelectedCardTest,
 
-      // // TurnStep
-      // ShouldShowChallengedBoardWindowLoadPhaseTest,
-      // ShouldShowChallengedBattleWindowLoadPhaseTest,
-      // ShouldShowChallengedScoreWindowLoadPhaseTest,
-      // ShouldShowChallengedTrashWindowLoadPhaseTest,
-      // ShouldShowPlayerBoardWindowLoadPhaseTest,
-      // ShouldShowPlayerBattleWindowLoadPhaseTest,
-      // ShouldShowPlayerTrashWindowLoadPhaseTest,
-      // ShouldShowPlayerScoreWindowLoadPhaseTest,
-      // ShouldShowChallengedCardsetLoadPhaseTest,
-      // ShouldShowPlayerCardsetLoadPhaseTest,
-      // ShouldShowTextWindowLoadPhaseTest,
-      // PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
-      // PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
-      // PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
-      // ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
-      // PlayerMustPassedTurnYourTurnLoadPhaseTest,
-      // ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
-      // ShouldActivatePowerZoneWhenItHasCardLoadPhaseTest,
-      // ShouldActivatePowerZoneWhenReachLimiteLoadPhaseTest,
-      // ShouldEndWhenThereAreMovesLoadPhaseTest,
+      // TurnStep
+      ShouldShowChallengedBoardWindowLoadPhaseTest,
+      ShouldShowChallengedBattleWindowLoadPhaseTest,
+      ShouldShowChallengedScoreWindowLoadPhaseTest,
+      ShouldShowChallengedTrashWindowLoadPhaseTest,
+      ShouldShowPlayerBoardWindowLoadPhaseTest,
+      ShouldShowPlayerBattleWindowLoadPhaseTest,
+      ShouldShowPlayerTrashWindowLoadPhaseTest,
+      ShouldShowPlayerScoreWindowLoadPhaseTest,
+      ShouldShowChallengedCardsetLoadPhaseTest,
+      ShouldShowPlayerCardsetLoadPhaseTest,
+      ShouldShowTextWindowLoadPhaseTest,
+      PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
+      PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
+      PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
+      ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
+      PlayerMustPassedTurnYourTurnLoadPhaseTest,
+      ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
+      ShouldActivatePowerZoneWhenItHasCardLoadPhaseTest,
+      ShouldActivatePowerZoneWhenReachLimiteLoadPhaseTest,
+      ShouldEndWhenThereAreMovesLoadPhaseTest,
 
-      // // ZoneStep
-      // ShouldShowLocationWindowInHandZoneStepLoadPhaseTest,
-      // ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest,
-      // ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest,
-      // ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
-      // ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest,
-      // ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepLoadPhaseTest,
-      // ShouldSelectCardToPlayHandZoneStepLoadPhaseTest,
+      // ZoneStep
+      ShouldShowLocationWindowInHandZoneStepLoadPhaseTest,
+      ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest,
+      ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest,
+      ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
+      ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest,
+      ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepLoadPhaseTest,
+      ShouldSelectCardToPlayHandZoneStepLoadPhaseTest,
 
-      // // SlotStep
-      // ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowChallengedBattleWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowChallengedBoardWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowChallengedScoreWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowPlayerTrashWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowPlayerBattleWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowCardSpriteSelectedOnSlotStepInLoadPhaseTest,
+      // SlotStep
+      ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowChallengedBattleWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowChallengedBoardWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowChallengedScoreWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerTrashWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerBattleWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowCardSpriteSelectedOnSlotStepInLoadPhaseTest,
       ShouldMoveCardToPowerFieldWhenFinishingStrategyOnSlotStepInLoadPhaseTest,
     ];
     return [

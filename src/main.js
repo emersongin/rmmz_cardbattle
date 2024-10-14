@@ -27,8 +27,6 @@
 // include ./sprite/ActionSprite.js
 // include ./sprite/CardSprite.js
 // include ./sprite/CardsetSprite.js
-// include ./sprite/BackgroundSprite.js
-// include ./sprite/CardBattleSpriteset.js
 
 // TESTS
 // include ../test/integration/SceneTest.js
