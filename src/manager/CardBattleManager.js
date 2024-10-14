@@ -378,10 +378,15 @@ class CardBattleManager {
     };
   }
 
-  static moveCardToPowerField(cardIndex, player) {
+  static moveCardToPowerField(cardIndex, player, powerStrategy) {
     const p = player === GameConst.PLAYER ? CardBattleManager.player : CardBattleManager.challenged;
     const card = p.hand.splice(cardIndex, 1);
-    CardBattleManager.powerfield.push(card);
+    const powerCard = {
+      player,
+      card: card[0],
+      powerStrategy,
+    };
+    CardBattleManager.powerfield.push(powerCard);
     return card;
   }
 

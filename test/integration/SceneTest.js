@@ -59,6 +59,11 @@ class SceneTest {
     this.mockFunction(obj, fnName, fn, includeOriginal, ...params);
   }
 
+  stubFunction(obj, fnName, returnData, ...params) {
+    const includeOriginal = false;
+    this.mockFunction(obj, fnName, () => returnData, includeOriginal, ...params);
+  }
+
   run() {
     return new Promise(async res => {
       if (this._errors.length) {

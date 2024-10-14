@@ -1,13 +1,9 @@
 // include ./strategy/IncreaseEnergyStrategy.js
 
 class SlotStep extends Step {
-  _powerActivation = undefined;
   _powerConfig = undefined;
-  _powerActivationStrategy = undefined;
-
-
-  _slotCardsetSprite = undefined;
   _status = undefined;
+  _slotCardsetSprite = undefined;
 
   constructor(scene, phase, powerConfig) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
@@ -102,10 +98,18 @@ class SlotStep extends Step {
 
   update() {
     super.update();
-    if (this.isBusy() || this.hasActions()) return false;
+    if (this.isBusy() || this.hasActions()) return;
     if (this.updateStrategyStart()) return;
     if (this.updateStrategyDuring()) return;
     if (this.updateStrategyFinish()) return;
+  }
+
+  isBusy() {
+    const children = [
+      this._slotCardsetSprite,
+    ];
+    return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false) ||
+      (obj?.hasActions ? obj.hasActions() : false));
   }
 
   updateStrategyStart() {
@@ -128,6 +132,21 @@ class SlotStep extends Step {
 
   updateStrategyFinish() {
     if (!this._status || this._status !== GameConst.FINISH) return;
+    this.moveCardToPowerField();
+    this.addAction(this.commandFinish);
+  }
+
+  moveCardToPowerField() {
+    let x = -600;
+    const y = 0;
+    const numberCardsInPowerfield = CardBattleManager.getPowerfieldLength();
+    this.addAction(this.commandMoveCardToPowerfield, x, y);
+  }
+
+  commandMoveCardToPowerfield(x, y) {
+    // const positions = CardsetSprite.createPositions(1, 0, x, y);
+    const sprites = this._slotCardsetSprite.getSprites();
+    this._slotCardsetSprite.moveAllCardsToPosition(sprites, x, y);
   }
 
   isSlotCardsetSpriteVisible() {
@@ -155,11 +174,6 @@ class SlotStep extends Step {
 
 
 
- 
-
-  // hasStrategy() {
-  //   return (typeof this._powerActivationStrategy === 'object');
-  // }
 
   // updateActivation() {
   //   if (this.isActive() && this.hasActivation() && !this.hasStrategy()) {
@@ -173,14 +187,6 @@ class SlotStep extends Step {
   //     this.addAction(this.commandFinish);
   //     this.ending();
   //   }
-  // }
-
-  // hasActivation() {
-  //   return (typeof this._powerActivation === 'object');
-  // }
-
-  // ending() {
-  //   this._end = true;
   // }
 
   // getSpriteByIndex(index) {
@@ -210,8 +216,6 @@ class SlotStep extends Step {
   //     this.setPowerStrategy(powerEffect);
   //   }
   // }
-
- 
 
   // setPowerStrategy(powerEffect) {
   //   const { type } = powerEffect;
@@ -263,22 +267,5 @@ class SlotStep extends Step {
   //     default:
   //       break;
   //   }
-  // }
-
-  // isBusy() {
-  //   const children = [];
-  //   return super.isBusy() || children.some(obj => (obj?.isBusy ? obj.isBusy() : false));
-  // }
-
-  // setActivation(powerActivation) {
-  //   this._powerActivation = powerActivation;
-  // }
-
-  // endActivation() {
-  //   this._powerActivation = undefined;
-  // }
-
-  // endStrategy() {
-  //   this._powerActivationStrategy = undefined;
   // }
 }

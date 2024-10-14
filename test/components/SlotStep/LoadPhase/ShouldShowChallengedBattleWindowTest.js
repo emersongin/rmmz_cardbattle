@@ -17,7 +17,7 @@ class ShouldShowChallengedBattleWindowOnSlotStepInLoadPhaseTest extends SceneTes
     CardBattleManager.drawPlayerCards(6);
     CardBattleManager.drawChallengedCards(6);
     const finish = this.getHandler();
-    this.mockFunction(this.step, 'updateStrategy', () => {
+    this.mockFunction(this.step, 'updateStrategyStart', () => {
       finish();
     });
     this._scene.setStep(this.step);

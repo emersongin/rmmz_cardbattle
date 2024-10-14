@@ -72,6 +72,7 @@ const GameConst = {
   WAITING_PHASE: 'WAITING_PHASE',
   ACTIVE_POWER_CARD: 'ACTIVE_POWER_CARD',
   TURN_PHASE: 'TURN_PHASE',
+  FINISH: 'FINISH',
 };
 
 const CardTypes = {
