@@ -648,6 +648,2631 @@ class ActionQueue {
   }
 
 }
+class SpriteMovementState {
+  _sprite;
+  _stateFinished;
+  _moves;
+  _x;
+  _y;
+  _xInterval;
+  _yInterval;
+  _duration = 0.3;
+  
+  constructor(sprite, moves, stateFinished) {
+    if (!(sprite instanceof ActionSprite)) {
+      throw new Error('sprite is not a ActionSprite instance!');
+    }
+    this._sprite = sprite;
+    this._x = this._sprite.x;
+    this._y = this._sprite.y;
+    this._moves = moves;
+    this._stateFinished = stateFinished
+  }
+
+  updateStatus() {
+    const that = this._sprite;
+    if (this.hasMoves() && this.isStopped()) this.startMove();
+    if (this.isToMove()) {
+      this.updateXPosition();
+      this.updateYPosition();
+    } else {
+      this.stop();
+    }
+  }
+
+  stop() {
+    this._sprite.changeStatus(this._stateFinished);
+  }
+
+  hasMoves() {
+    return this._moves.length > 0;
+  }
+
+  isStopped() {
+    return !this.isToMove();
+  }
+
+  startMove() {
+    const move = this._moves[0];
+    if (move) {
+      let { destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration } = move;
+      originXPosition = originXPosition || this._sprite.x;
+      originYPosition = originYPosition || this._sprite.y;
+      duration = duration >= 0 ? duration : this._duration;
+      this._x = destinyXPosition;
+      this._y = destinyYPosition;
+      this._xInterval = NumberHelper.calculateTimeInterval(originXPosition, destinyXPosition, duration);
+      this._yInterval = NumberHelper.calculateTimeInterval(originYPosition, destinyYPosition, duration);
+      this._moves.shift();
+    }
+  }
+
+  isToMove() {  
+    const that = this._sprite;
+    return this._x !== that.x || this._y !== that.y;
+  }
+
+  updateXPosition() {
+    const that = this._sprite;
+    const reached = that.x > this._x;
+    if (this._x !== that.x) {
+      that.x = reached ? that.x - this._xInterval : that.x + this._xInterval;
+    }
+    const limit = (reached && that.x < this._x || !reached && that.x > this._x);
+    if (limit) that.x = this._x;
+  }
+
+  updateYPosition() {
+    const that = this._sprite;
+    const reached = that.y > this._y;
+    if (this._y !== that.y) {
+      that.y = reached ? that.y - this._yInterval : that.y + this._yInterval;
+    }
+    const limit = (reached && that.y < this._y || !reached && that.y > this._y);
+    if (limit) that.y = this._y;
+  }
+
+}
+
+class ActionSprite extends Sprite {
+  initialize(x = 0, y = 0) { 
+    super.initialize();
+    this._actionQueue = new ActionQueue(this);
+    this._wait = 0;
+    this._status = null;
+    this._effects = {
+      opacity: 255,
+      intensity: {
+        value: 255,
+        positive: false
+      },
+    };
+    this.setPosition(x, y);
+  }
+
+  getPosition() {
+    return { x: this.x, y: this.y };
+  }
+
+  setPosition(xPosition = this.x, yPosition = this.y) {
+    this.x = xPosition;
+    this.y = yPosition;
+  }
+
+  changeStatus(status, ...params) {
+    this._status = new status(this, ...params);
+  }
+
+  removeStatus() {
+    this._status = null;
+  }
+
+  addAction(fn, ...params) {
+    this._actionQueue.addAction(fn, ...params);
+  }
+
+  addTriggerAction(fn, trigger, ...params) {
+    this._actionQueue.addTriggerAction(fn, trigger, ...params);
+  }
+
+  addActions(actions) {
+    this._actionQueue.pushActions(actions);
+  }
+
+  addDelayedActions(fn, delay, itemSet, triggerActions) {
+    return this._actionQueue.addDelayedActions(fn, delay, itemSet, triggerActions);
+  }
+
+  addWait(seconds = 0.6) {
+    this.addAction(this.commandWait, seconds);
+  }
+
+  commandWait(seconds) {
+    this._wait = seconds * GameConst.FPS;
+  }
+
+  show() {
+    this.addAction(this.commandShow);
+  }
+
+  commandShow() {
+    this.visible = true;
+  }
+
+  hide() {
+    this.addAction(this.commandHide);
+  }
+
+  commandHide() {
+    this.visible = false;
+  }
+
+  alignAboveOf(obj) {
+    const { y } = obj;
+    const receptorX = undefined;
+    const receptorY = ScreenHelper.getPositionAboveOf(y, this.height);
+    this.addAction(this.commandAlign, receptorX, receptorY);
+  }
+
+  alignBelowOf(obj) {
+    const { y, height } = obj;
+    const receptorX = undefined;
+    const receptorY = ScreenHelper.getPositionBelowOf(y, height);
+    this.addAction(this.commandAlign, receptorX, receptorY);
+  }
+
+  commandAlign(x = this.x, y = this.y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  update() {
+    super.update();
+    if (this._wait > 0) return this._wait--;
+    if (this.hasActions() && this.isAvailable()) this.executeAction();
+    if (this.isVisible()) {
+      this.updateStatus();
+      this.updateDelayCommands();
+      this.updateEffects();
+    }
+  }
+
+  hasActions() {
+    return this._actionQueue.hasActions();
+  }
+
+  isAvailable() {
+    return !this.isBusy();
+  }
+
+  isBusy() {
+    return this._wait > 0 || this.someDelayCommand();
+  }
+
+  getStatus() {
+    return this._status;
+  }
+
+  someDelayCommand() {
+    return this._actionQueue.someDelayedAction();
+  }
+
+  executeAction() {
+    this._actionQueue.executeAction();
+  }
+
+  isVisible() {
+    return this.visible;
+  }
+
+  isHidden() {
+    return !this.isVisible();
+  }
+
+  updateStatus() {
+    if (this._status) this._status?.updateStatus();
+  }
+
+  updateDelayCommands() {
+    this._actionQueue.updateDelayedActions();
+  }
+
+  updateEffects() {
+    this.updateIntensityEffect();
+    this.updateOpacityEffect();
+  }
+
+  updateIntensityEffect() {
+    if (this._effects.intensity.value <= 255 && !this._effects.intensity.positive) {
+      this._effects.intensity.value += 6;
+      if (this._effects.intensity.value >= 255) {
+        this._effects.intensity.positive = true;
+      }
+    }
+    if (this._effects.intensity.value >= 100 && this._effects.intensity.positive) {
+      this._effects.intensity.value -= 6;
+      if (this._effects.intensity.value <= 100) {
+        this._effects.intensity.positive = false;
+      }
+    }
+  }
+
+  updateOpacityEffect() {
+    this._effects.opacity -= 32;
+    if (this._effects.opacity <= 0) {
+      this._effects.opacity = 255;
+    }
+  }
+
+  hasChildren() {
+    return this.numberOfChildren() > 0;
+  }
+
+  numberOfChildren() {
+    return this.children.length;
+  }
+
+  indexOfSprite(sprite) {
+    for (let i = 0; i < this.numberOfChildren(); i++) {
+      if (ObjectHelper.compareObjects(this.children[i], sprite)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  clear() {
+    while (this.numberOfChildren()) {
+      this.children.forEach(async child => {
+        await this.removeChild(child);
+      });
+    }
+  }
+
+  alignCenterMiddle() {
+    const x = ScreenHelper.getCenterPosition(this.width);
+    const y = ScreenHelper.getMiddlePosition(this.height);
+    this.addAction(this.commandAlign, x, y);
+  }
+}
+class CardStoppedState {
+  _card;
+  
+  constructor(sprite) {
+    if (!(sprite instanceof CardSprite)) {
+      throw new Error('sprite is not a CardSprite instance!');
+    }
+    this._card = sprite;
+  }
+
+  stop() {
+    return false;
+  }
+
+  open() {
+    const that = this._card;
+    if (that.isOpened()) return false;
+    const xPositionOpening = that.x - (CardSprite.contentOriginalWidth() / 2);
+    const yPositionOpening = that.y;
+    that.changeStatus(CardOpennessState, xPositionOpening, yPositionOpening);
+  }
+
+  close() {
+    const that = this._card;
+    if (that.isClosed()) return false;
+    const xPositionClosing = that.x + (CardSprite.contentOriginalWidth() / 2);
+    const yPositionOpening = that.y;
+    that.changeStatus(CardOpennessState, xPositionClosing, yPositionOpening);
+  }
+  
+  toMove(moves) {
+    const that = this._card;
+    if (that.isClosed()) return false;
+    that.changeStatus(SpriteMovementState, moves, CardStoppedState);
+  }
+  
+  zoom() {
+    const that = this._card;
+    if (that.isClosed() || that.isZoom()) return false;
+    const destinyXPosition = that.x - ((that.width / 2) / 2);
+    const destinyYPosition = that.y - ((that.height / 2) / 2);
+    const destinyXScale = (that.scale.x / 2) * 3;
+    const destinyYScale = (that.scale.y / 2) * 3;
+    that.changeStatus(CardSpriteZoomState, destinyXPosition, destinyYPosition, destinyXScale, destinyYScale);
+  }
+  
+  zoomOut() {
+    const that = this._card;
+    if (that.isClosed() || that.isOriginalScale()) return false;
+    const destinyXPosition = that.x + ((that.width / 2) / 2);
+    const destinyYPosition = that.y + ((that.height / 2) / 2);
+    const destinyXScale = ((that.scale.x / 3) * 2);
+    const destinyYScale = ((that.scale.y / 3) * 2);
+    that.changeStatus(CardSpriteZoomState, destinyXPosition, destinyYPosition, destinyXScale, destinyYScale);
+  }
+  
+  leave() {
+    const that = this._card;
+    if (that.isClosed()) return false;
+    const xPositionClosing = that.x + (CardSprite.contentOriginalWidth() / 2);
+    const yPositionClosing = that.y + (CardSprite.contentOriginalHeight() / 2);
+    that.changeStatus(CardOpennessState, xPositionClosing, yPositionClosing);
+  }
+
+  updateStatus() {
+    // nothing
+  }
+}
+class CardOpennessState {
+  _card;
+  _x;
+  _y;
+  _isUpdateHorizontally;
+  _isUpdateVertically;
+  _isToOpenHorizontally;
+  _isToOpenVertically;
+  _interval;
+  _duration = 0.3;
+  
+  constructor(sprite, xPosition, yPosition) {
+    if (!(sprite instanceof CardSprite)) {
+      throw new Error('sprite is not a CardSprite instance!');
+    }
+    this._card = sprite;
+    const that = this._card;
+    this._x = xPosition;
+    this._y = yPosition;
+    this._isUpdateHorizontally = this._x !== that.x;
+    this._isUpdateVertically = this._y !== that.y;
+    this._isToOpenHorizontally = this._x < that.x;
+    this._isToOpenVertically = this._y < that.y;
+    this._interval = NumberHelper.calculateTimeInterval(0, CardSprite.contentOriginalWidth(), this._duration);
+  }
+
+  stop() {
+    this._card.changeStatus(CardStoppedState);
+  }
+
+  open() {
+    return false;
+  }
+
+  close() {
+    return false;
+  }
+  
+  toMove() {
+    return false;
+  }
+  
+  zoom() {
+    return false;
+  }
+  
+  zoomOut() {
+    return false;
+  }
+  
+  leave() {
+    return false;
+  }
+
+  updateStatus() {
+    const that = this._card;
+    if (this.isUpdatingPosition() || this.isUpdatingOpening()) {
+      this.updatePosition();
+      this.updateOpening();
+      that.refresh();
+      return false;
+    }
+    if (that.isOpened()) that.opened();
+    if (that.isClosed()) that.closed();
+    this.stop();
+  }
+
+  isUpdatingPosition() {
+    return this._x !== this._card.x || this._y !== this._card.y;
+  }
+
+  updatePosition() {
+    this.updatePositionHorizontally();
+    this.updatePositionVertically();
+  }
+
+  updatePositionHorizontally() {
+    const that = this._card;
+    if (this._isUpdateHorizontally) {
+      if (this.isToOpenHorizontally()) {
+        that.x = that.x - this._interval;
+        if (that.x < this._x) that.x = this._x;
+      }
+      if (this.isToCloseHorizontally()) {
+        that.x = that.x + this._interval;
+        if (that.x > this._x) that.x = this._x;
+      }
+    }
+  }
+
+  isToOpenHorizontally() {
+    return this._isToOpenHorizontally;
+  }
+
+  isToCloseHorizontally() {
+    return !this.isToOpenHorizontally();
+  }
+
+  updatePositionVertically() {
+    const that = this._card;
+    if (this._isUpdateVertically) {
+      if (this.isToOpenVertically()) {
+        that.y = that.y - this._interval;
+        if (that.y < this._y) that.y = this._y;
+      }
+      if (this.isToCloseVertically()) {
+        that.y = that.y + this._interval;
+        if (that.y > this._y) that.y = this._y;
+      }
+    }
+  }
+
+  isToOpenVertically() {
+    return this._isToOpenVertically;
+  }
+
+  isToCloseVertically() {
+    return !this.isToOpenVertically();
+  }
+
+  isUpdatingOpening() {
+    const that = this._card;
+    const width = that.width < CardSprite.contentOriginalWidth() && that.width > 0;
+    const height = that.height < CardSprite.contentOriginalHeight() && that.height > 0;
+    return width || height; 
+  }
+
+  updateOpening() {
+    this.updateOpeningHorizontally();
+    this.updateOpeningVertically();
+  }
+
+  updateOpeningHorizontally() {
+    const that = this._card;
+    if (this._isUpdateHorizontally) {
+      if (this.isToOpenHorizontally()) {
+        that.width += (this._interval * 2);
+        if (that.width > CardSprite.contentOriginalWidth()) that.width = CardSprite.contentOriginalWidth();
+      }
+      if (this.isToCloseHorizontally()) {
+        that.width -= (this._interval * 2);
+        if (that.width < 0) that.width = 0;
+      }
+    }
+  }
+
+  updateOpeningVertically() {
+    const that = this._card;
+    if (this._isUpdateVertically) {
+      if (this.isToOpenVertically()) {
+        that.height += (this._interval * 2);
+        if (that.height > that.contentOriginalHeight()) that.height = that.contentOriginalHeight();
+      }
+      if (this.isToCloseVertically()) {
+        that.height -= (this._interval * 2);
+        if (that.height < 0) that.height = 0;
+      }
+    }
+  }
+}
+class CardSpriteZoomState {
+  _card;
+  _xScale;
+  _yScale;
+  _x;
+  _y;
+  _xInterval;
+  _yInterval;
+  _xScaleInterval;
+  _yScaleInterval;
+  _duration = 0.3 / 2;
+  
+  constructor(sprite, destinyXPosition, destinyYPosition, destinyXScale, destinyYScale) {
+    if (!(sprite instanceof CardSprite)) {
+      throw new Error('sprite is not a CardSprite instance!');
+    }
+    this._card = sprite;
+    this._x = destinyXPosition;
+    this._y = destinyYPosition;
+    this._xScale = destinyXScale;
+    this._yScale = destinyYScale;
+    this.definePosition(this._duration);
+    this.defineScale(this._duration);
+  }
+
+  stop() {
+    this._card.changeStatus(CardStoppedState);
+  }
+
+  open() {
+    return false;
+  }
+
+  close() {
+    return false;
+  }
+  
+  toMove() {
+    return false;
+  }
+  
+  zoom() {
+    return false;
+  }
+  
+  zoomOut() {
+    return false;
+  }
+  
+  leave() {
+    return false;
+  }
+
+  definePosition(duration) {
+    const that = this._card;
+    const originXPosition = that.x;
+    const originYPosition = that.y;
+    const destinyXPosition = this._x;
+    const destinyYPosition = this._y;
+    this._xInterval = NumberHelper.calculateTimeInterval(originXPosition, destinyXPosition, duration);
+    this._yInterval = NumberHelper.calculateTimeInterval(originYPosition, destinyYPosition, duration);
+  }
+
+  defineScale(duration) {
+    const that = this._card;
+    const originXScale = that.scale.x;
+    const originYScale = that.scale.y;
+    const destinyXScale = this._xScale;
+    const destinyYScale = this._yScale;
+    this._xScaleInterval = NumberHelper.calculateTimeInterval(originXScale, destinyXScale, duration);
+    this._yScaleInterval = NumberHelper.calculateTimeInterval(originYScale, destinyYScale, duration);
+
+  }
+
+  updateStatus() {
+    const that = this._card;
+    if (
+        this.isXpositionDifferent() || 
+        this.isYpositionDifferent() || 
+        this.isXScaleDifferent() ||
+        this.isYScaleDifferent()
+    ) {
+      this.updateXPosition();
+      this.updateYPosition();
+      this.updateXScale();
+      this.updateYScale();
+    } else {
+      this.stop();
+    }
+  }
+
+  isXScaleDifferent() {
+    return this._xScale !== this._card.scale.x;
+  }
+
+  isYScaleDifferent() {
+    return this._yScale !== this._card.scale.y;
+  }
+
+  isXpositionDifferent() {
+    return this._x !== this._card.x;
+  }
+
+  isYpositionDifferent() {
+    return this._y !== this._card.y;
+  }
+
+  updateXScale() {
+    const that = this._card;
+    const reached = that.scale.x > this._xScale;
+    if (this._xScale !== that.scale.x) {
+      that.scale.x = reached ? that.scale.x - this._xScaleInterval : that.scale.x + this._xScaleInterval;
+    }
+    const limit = (reached && that.scale.x < this._xScale || !reached && that.scale.x > this._xScale);
+    if (limit) that.scale.x = this._xScale;
+  }
+
+  updateYScale() {
+    const that = this._card;
+    const reached = that.scale.y > this._yScale;
+    if (this._yScale !== that.scale.y) {
+      that.scale.y = reached ? that.scale.y - this._yScaleInterval : that.scale.y + this._yScaleInterval;
+    }
+    const limit = (reached && that.scale.y < this._yScale || !reached && that.scale.y > this._yScale);
+    if (limit) that.scale.y = this._yScale;
+  }
+
+  updateXPosition() {
+    const that = this._card;
+    const reached = that.x > this._x;
+    if (this._x !== that.x) {
+      that.x = reached ? that.x - this._xInterval : that.x + this._xInterval;
+    }
+    const limit = (reached && that.x < this._x || !reached && that.x > this._x);
+    if (limit) that.x = this._x;
+  }
+
+  updateYPosition() {
+    const that = this._card;
+    const reached = that.y > this._y;
+    if (this._y !== that.y) {
+      that.y = reached ? that.y - this._yInterval : that.y + this._yInterval;
+    }
+    const limit = (reached && that.y < this._y || !reached && that.y > this._y);
+    if (limit) that.y = this._y;
+  }
+
+}
+class AnimationBehavior {
+  _card;
+  _parent;
+  _animation;
+  _animationSprite;
+  _times;
+  
+  constructor(sprite, animation, times, anchorParent) {
+    this._card = sprite;
+    this._parent = anchorParent || sprite.parent;
+    this._animation = animation;
+    this._times = times;
+  }
+
+  updateBehavior() {
+    const that = this._card;
+    if (this.hasTimes() || this.isPlayingAnimation()) {
+      if (this.noHasAnimationSprite()) {
+        this.startAnimation();
+        this._times--;
+      }
+    } else {
+      that.removeBehavior(this);
+    }
+  }
+
+  startAnimation() {
+    const that = this._card;
+    this._animationSprite = new Sprite_Animation();
+    const targets = [that];
+    const mirror = true;
+    const delay = 8;
+    const previus = this._parent.getLastAnimationSprite() || null;
+    this._animationSprite.setup(targets, this._animation, mirror, delay, previus);
+    this._parent.addChild(this._animationSprite);
+    this._parent.addAnimationSprite(this._animationSprite);
+  }
+
+  isNoPlayingAnimation() {
+    return !this.isPlayingAnimation();
+  }
+
+  isPlayingAnimation() {
+    return this.hasAnimationSprite() && this._animationSprite.isPlaying();
+  }
+
+  hasAnimationSprite() {
+    return this._animationSprite;
+  }
+
+  noHasAnimationSprite() {
+    return !this.hasAnimationSprite();
+  }
+
+  hasTimes() {
+    return this._times > 0;
+  }
+}
+class FlashBehavior {
+  _sprite;
+  _duration;
+  _flashDuration = 0;
+  _times;
+  
+  constructor(sprite, color, duration, times) {
+    this._sprite = sprite;
+    this.drawFlash(color);
+    this._duration = duration;
+    this._times = times;
+  }
+
+  drawFlash(color = 'white') {
+    const layer = this._sprite._flashedLayer;
+    layer.bitmap.clear();
+    layer.bitmap.fillAll(color);
+  }
+
+  updateBehavior() {
+    const that = this._sprite;
+    if (this.isNoPlaying()) {
+      if (this.hasTimesOrInfinity()) {
+        if (this.hasTimes()) this._times--;
+        this._flashDuration = this._duration;
+      } else {
+        that.removeBehavior(this);
+      }
+    }
+    this.updateFlash();
+  }
+
+  hasTimesOrInfinity() {
+    const infinity = this._times === -1;
+    return this.hasTimes() || infinity;
+  }
+
+  hasTimes() {
+    return this._times > 0;
+  }
+
+  isNoPlaying() {
+    return this._flashDuration === 0;
+  }
+
+  updateFlash() {
+    const that = this._sprite;
+    const layer = this._sprite._flashedLayer;
+    if (this._flashDuration > 0) {
+      this._flashDuration--;
+      this.updateFlashOpacity();
+    } else {
+      that._flashedLayer.bitmap.clear();
+      that.removeBehavior(this);
+    }
+  }
+
+  updateFlashOpacity() {
+    const layer = this._sprite._flashedLayer;
+    layer.opacity = (this._flashDuration / this._duration) * 255;
+  }
+}
+class PointsUpdateBehavior {
+  _card;
+  _attack;
+  _health;
+  _interval = 0;
+  _counter = 0;
+  
+  constructor(sprite, attackPoints, healtPoints) {
+    this._card = sprite;
+    this._attack = attackPoints;
+    this._health = healtPoints;
+    this.calculateInterval();
+  }
+
+  calculateInterval() {
+    const that = this._card;
+    const atk = Math.abs(that._attackPoints - this._attack);
+    const hlt = Math.abs(that._healthPoints - this._health);
+    const points = atk > hlt ? atk : hlt;
+    const fps = 30;
+    this._interval = Math.floor(fps / (points || 1)) || 1;
+  }
+
+  updateBehavior() {
+    const that = this._card;
+    if (this._counter) return this._counter--;
+    if (that._attackPoints !== this._attack || that._healthPoints !== this._health) {
+      if (that._attackPoints !== this._attack) {
+        that._attackPoints = that._attackPoints > this._attack ? that._attackPoints - 1 : that._attackPoints + 1;
+      }
+      if (that._healthPoints !== this._health) {
+        that._healthPoints = that._healthPoints > this._health ? that._healthPoints - 1 : that._healthPoints + 1;
+      }
+      that.refresh();
+      this._counter = this._interval;
+    } else {
+      that.removeBehavior(this);
+    }
+  }
+}
+class MarkedBehavior {
+  _sprite;
+  _color;
+  _layer;
+  
+  constructor(sprite, layer, color = 'White') {
+    this._sprite = sprite;
+    this._layer = layer;
+    this._color = color;
+    this.fillLayer();
+  }
+
+  fillLayer() {
+    this._layer.bitmap.clear();
+    this._layer.bitmap.fillAll(this._color);
+    this._layer.bitmap.clearRect(4, 4, this._sprite.width - 8, this._sprite.height - 8);
+  }
+
+  updateBehavior() {
+    const parent = this._sprite.parent;
+    const opacity = parent?._effects?.opacity || this._sprite._effects.opacity;
+    this._layer.opacity = opacity;
+  }
+}
+class SelectedBehavior extends MarkedBehavior {  
+  constructor(sprite) {
+    super(sprite, sprite._selectedLayer, 'Coral');
+  }
+}
+class HoveredBehavior extends MarkedBehavior {
+  constructor(sprite) {
+    super(sprite, sprite._hoveredLayer, 'CornflowerBlue');
+  }
+}
+class IluminatedBehavior extends MarkedBehavior {
+  constructor(sprite) {
+    super(sprite, sprite._selectedLayer, 'White');
+  }
+}
+
+class CardSprite extends ActionSprite {
+  static create(type, color, figureName, attack, health, x, y) {
+    if (!type || !color || !figureName) {
+      throw new Error('Card inválido!');
+    }
+    const card = new CardSprite(x, y);
+    card.setCard(
+      type, 
+      color, 
+      figureName, 
+      attack, 
+      health
+    );
+    return card;
+  }
+
+  setCard(type, color, figureName, attack = 0, health = 0) {
+    this.setType(type);
+    this.setColor(color);
+    this.setFigure(figureName);
+    this.setBackImage();
+    this._attackPoints = attack;
+    this._healthPoints = health;
+  }
+
+  setType(type) {
+    if (!type) {
+      throw new Error('Card type is required');
+    }
+    this._type = type;
+  }
+
+  setColor(color) {
+    if (!color) {
+      throw new Error('Card color is required');
+    }
+    this._color = color;
+  }
+
+  setFigure(figureName = 'default') {
+    this._figure = ImageManager.loadCard(figureName);
+  }
+
+  setBackImage() {
+    this._backImage = new Bitmap(this.width, this.height);
+    this._backImage.gradientFillRect(0, 0, this.width, this.height, '#555', '#000');
+  }
+
+  initialize(x, y) {
+    super.initialize(x, y);
+    this._type = '';
+    this._color = '';
+    this._figure = {};
+    this._backImage = {};
+    this._behaviors = [];
+    this._turned = false;
+    this._disabled = false;
+    this._attackPoints = 0;
+    this._healthPoints = 0;
+    this._contentLayer = {};
+    this._disabledLayer = {};
+    this._flashedLayer = {};
+    this._hoveredLayer = {};
+    this._selectedLayer = {};
+    this._status = new CardStoppedState(this);
+    this.setup();
+  }
+
+  setup() {
+    this.hide();
+    this.enable();
+    this.setTurnToUp();
+    this.setOriginalSize();
+    this.createLayers();
+  }
+
+  stop() {
+    this.addAction(this.commandStop);
+  }
+
+  commandStop() {
+    return this._status?.stop();
+  }
+
+  setTurnToUp() {
+    this._turned = true;
+  }
+
+  setOriginalSize() {
+    this.width = CardSprite.contentOriginalWidth();
+    this.height = CardSprite.contentOriginalHeight();
+  }
+
+  static contentOriginalWidth() {
+    return 96;
+  }
+
+  static contentOriginalHeight() {
+    return 120;
+  }
+
+  createLayers() {
+    this.createContentLayer();
+    this.createSelectedLayer();
+    this.createHoveredLayer();
+  }
+
+  createContentLayer() {
+    this._contentLayer = new Sprite();
+    this._contentLayer.bitmap = new Bitmap(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight());
+    this.createDisableLayer();
+    this.createFlashLayer();
+    this.addChild(this._contentLayer);
+  }
+
+  createDisableLayer() {
+    this._disabledLayer = new Sprite();
+    this._disabledLayer.visible = false;
+    this._disabledLayer.opacity = 128;
+    this._disabledLayer.bitmap = new Bitmap(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight());
+    this._disabledLayer.bitmap.fillAll('black');
+    this._contentLayer.addChild(this._disabledLayer);
+  }
+
+  createFlashLayer() {
+    this._flashedLayer = new Sprite();
+    this._flashedLayer.bitmap = new Bitmap(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight());
+    this._contentLayer.addChild(this._flashedLayer);
+  }
+
+  createHoveredLayer() {
+    this._hoveredLayer = new Sprite();
+    this._hoveredLayer.bitmap = new Bitmap(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight());
+    this.addChild(this._hoveredLayer);
+  }
+
+  createSelectedLayer() {
+    this._selectedLayer = new Sprite();
+    this._selectedLayer.bitmap = new Bitmap(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight());
+    this.addChild(this._selectedLayer);
+  }
+
+  enable() {
+    this.addAction(this.commandEnable);
+  }
+
+  commandEnable() {
+    this._disabled = false;
+    this._disabledLayer.visible = false;
+    if (this.isVisible()) this.refresh();
+  }
+
+  disable() {
+    this.addAction(this.commandDisable);
+  }
+
+  commandDisable() {
+    this._disabled = true;
+    this._disabledLayer.visible = true;
+    if (this.isVisible()) this.refresh();
+  }
+
+  refresh() {
+    this.clearContent();
+    this.drawCard();
+    this.drawDisableFilter();
+  }
+
+  clearContent() {
+    this._contentLayer.bitmap.clear();
+  }
+
+  drawCard() {
+    if (this.isTurnedToUp()) {
+      this.drawBackground();
+      this.drawFigure();
+      this.drawDisplay();
+    } else {
+      this.drawBack();
+    }
+  }
+
+  isTurnedToUp() {
+    return this._turned;
+  }
+
+  drawBackground() {
+    const xPosition = 0;
+    const yPosition = 0;
+    const borderColor = this.getBorderColor();
+    this._contentLayer.bitmap.fillRect(xPosition, yPosition, this.width, this.height, borderColor);
+    const color = this.getBackgroundColor();
+    this._contentLayer.bitmap.fillRect(xPosition + 2, yPosition + 2, this.width - 4, this.height - 4, color);
+  }
+
+  getBorderColor() {
+    switch (this._color) {
+      case GameConst.RED:
+        return ColorHelper.getColorHex(GameColors.FADEDRED);
+        break;
+      case GameConst.GREEN:
+        return ColorHelper.getColorHex(GameColors.FADEDGREEN);
+        break;
+      case GameConst.BLUE:
+        return ColorHelper.getColorHex(GameColors.FADEDBLUE);
+        break;
+      case GameConst.WHITE:
+        return ColorHelper.getColorHex(GameColors.FADEDWHITE);
+        break;
+      case GameConst.BLACK:
+        return ColorHelper.getColorHex(GameColors.FADEDBLACK);
+        break;
+      default:
+        return ColorHelper.getColorHex(GameColors.FADEDBROWN);
+        break;
+    }
+  }
+
+  getBackgroundColor() {
+    switch (this._color) {
+      case GameConst.RED:
+        return ColorHelper.getColorHex(GameColors.RED);
+        break;
+      case GameConst.GREEN:
+        return ColorHelper.getColorHex(GameColors.GREEN);
+        break;
+      case GameConst.BLUE:
+        return ColorHelper.getColorHex(GameColors.BLUE);
+        break;
+      case GameConst.WHITE:
+        return ColorHelper.getColorHex(GameColors.WHITE);
+        break;
+      case GameConst.BLACK:
+        return ColorHelper.getColorHex(GameColors.BLACK);
+        break;
+      default:
+        return ColorHelper.getColorHex(GameColors.BROWN);
+        break;
+    }
+  }
+
+  drawFigure() {
+    const contentX = 4;
+    const contentY = 4;
+    const contentWidth = CardSprite.contentOriginalWidth() - 8;
+    const contentHeight = CardSprite.contentOriginalHeight() - 28;
+    const openWidthPercent = Math.floor((this.width / CardSprite.contentOriginalWidth()) * 100);
+    const openHeightPercent = Math.floor((this.height / CardSprite.contentOriginalHeight()) * 100);
+    const openWidth = Math.floor((contentWidth * openWidthPercent) / 100);
+    const openHeight = Math.floor((contentHeight * openHeightPercent) / 100);
+    const figureX = 0;
+    const figureY = 0;
+    const figureWidth = openWidth ? this._figure.width : 0;
+    const figureHeight = openHeight ? this._figure.height : 0;
+    this._contentLayer.bitmap.blt(
+      this._figure, 
+      figureX, 
+      figureY, 
+      figureWidth, 
+      figureHeight,
+      contentX,
+      contentY,
+      openWidth,
+      openHeight
+    );
+  }
+
+  drawDisplay() {
+    switch (this._type) {
+      case GameConst.BATTLE:
+          this.drawPoints();
+        break;
+      case GameConst.POWER:
+        this.drawPowerCaption();
+        break;
+      default:
+        this._contentLayer.bitmap.drawText(
+          '???', 
+          this.displayXPosition(), 
+          this.displayYPosition(), 
+          this.displayWidth(), 
+          this.displayHeight(), 
+          'center'
+        );
+        break;
+    }
+  }
+
+  drawPoints() {
+    const attack = StringHelper.convertPointsDisplay(this._attackPoints);
+    const health = StringHelper.convertPointsDisplay(this._healthPoints);
+    const points = `${attack} / ${health}`;
+    this._contentLayer.bitmap.drawText(
+      points, 
+      this.displayXPosition(), 
+      this.displayYPosition(), 
+      this.displayWidth(), 
+      this.displayHeight(),
+      'center'
+    );
+  }
+
+  displayXPosition() {
+    return 0;
+  }
+
+  displayYPosition() {
+    return this.height - 24;
+  }
+
+  displayWidth() {
+    return this.width;
+  }
+
+  displayHeight() {
+    return 20;
+  }
+
+  drawPowerCaption() {
+    this._contentLayer.bitmap.drawText(
+      '( P )', 
+      this.displayXPosition(), 
+      this.displayYPosition(), 
+      this.displayWidth(), 
+      this.displayHeight(), 
+      'center'
+    );
+  }
+
+  drawBack() {
+    this._contentLayer.bitmap.blt(this._backImage, 0, 0, this.width, this.height, 0, 0);
+  }
+
+  drawDisableFilter() {
+    if (this.isDisabled()) {
+      this._contentLayer.setColorTone([0, 0, 0, 255]);
+    } else {
+      this._contentLayer.setColorTone([0, 0, 0, 0]);
+    }
+  }
+
+  isEnabled() {
+    return !this.isDisabled();
+  }
+
+  isDisabled() {
+    return this._disabled;
+  }
+
+  startOpen(xPosition = this.x, yPosition = this.y) {
+    this.addAction(this.commandStartOpen, xPosition, yPosition);
+  }
+
+  commandStartOpen(xPosition, yPosition) {
+    if (this.isOpened()) return false;
+    this.setPosition(xPosition, yPosition);
+    this.opened();
+  }
+
+  setPosition(xPosition, yPosition) {
+    this.x = xPosition;
+    this.y = yPosition;
+  }
+
+  opened() {
+    this.visible = true;
+    this.setOriginalSize();
+  }
+
+  startClosed(xPosition = this.x, yPosition = this.y) {
+    this.addAction(this.commandStartClosed, xPosition, yPosition);
+  }
+
+  commandStartClosed(xPosition, yPosition) {
+    if (this.isClosed()) return false;
+    this.setPosition(xPosition, yPosition);
+    const cardWidthHalf = (CardSprite.contentOriginalWidth() / 2);
+    this.x = this.x + cardWidthHalf;
+    this.closed();
+  }
+
+  isClosed() {
+    return this.width === 0;
+  }
+
+  closed() {
+    this.visible = false;
+    this.width = 0;
+  }
+
+  commandShow() {
+    super.commandShow();
+    if (this.isOpened()) this.refresh();
+  }
+
+  isOpened() {
+    return this.width === CardSprite.contentOriginalWidth() && this.visible;
+  }
+
+  open() {
+    this.show();
+    this.addAction(this.commandOpen);
+  }
+
+  commandOpen() {
+    return this._status?.open();
+  }
+
+  isStopped() {
+    return this.getStatus() instanceof CardStoppedState;
+  }
+
+  close() {
+    this.addAction(this.commandClose);
+    this.hide();
+  }
+
+  commandClose() {
+    return this._status?.close();
+  }
+
+  static createMove(destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration) {
+    return { 
+      destinyXPosition, 
+      destinyYPosition, 
+      originXPosition, 
+      originYPosition, 
+      duration 
+    };
+  }
+
+  toMove(moves) {
+    moves = ArrayHelper.toArray(moves);
+    this.addAction(this.commandMoving, moves);
+  }
+
+  commandMoving(moves) {
+    return this._status?.toMove(moves);
+  }
+
+  hover() {
+    this.addAction(this.commandHover);
+  }
+
+  commandHover() {
+    if (!(this.isOpened() && this.isStopped())) return false;
+    if (this.isHovered()) return true;
+    this.addBehavior(HoveredBehavior);
+  }
+
+  addBehavior(behavior, ...params) {
+    this._behaviors.push(new behavior(this, ...params));
+  }
+
+  isHovered() {
+    return this.getBehavior(HoveredBehavior) instanceof HoveredBehavior;
+  }
+
+  getBehavior(behavior) {
+    if (typeof behavior === 'function') {
+      return this._behaviors.find(b => b.constructor === behavior) || false;
+    } else {
+      return this._behaviors.find(b => b === behavior) || false;
+    }
+  }
+
+  isUnhovered() {
+    return !this.isHovered();
+  }
+
+  unhover() {
+    this.addAction(this.commandUnhover);
+  }
+
+  commandUnhover() {
+    if (this.isUnhovered()) return true;
+    this._hoveredLayer.bitmap.clear();
+    this.removeBehavior(HoveredBehavior);
+  }
+
+  removeBehavior(behavior) {
+    behavior = this.getBehavior(behavior);
+    if (!behavior) return false;
+    this._behaviors = this._behaviors.filter(b => b !== behavior);
+  }
+
+  select() {
+    this.addAction(this.commandSelect);
+  }
+
+  commandSelect() {
+    if (!(this.isOpened() && this.isStopped())) return false; 
+    if (this.isSelected()) return true;
+    this.addBehavior(SelectedBehavior);
+  }
+
+  isSelected() {
+    return this.getBehavior(SelectedBehavior) instanceof SelectedBehavior;
+  }
+
+  unselect() {
+    this.addAction(this.commandUnselect);
+  }
+
+  commandUnselect() {
+    if (this.isUnselected()) return true;
+    this._selectedLayer.bitmap.clear();
+    this.removeBehavior(SelectedBehavior);
+  }
+
+  isUnselected() {
+    return !this.isSelected();
+  }
+
+  iluminate() {
+    this.addAction(this.commandIluminate);
+  }
+
+  commandIluminate() {
+    const isStatus = (this.isStopped() || this.isMoving() || this.isZooming());
+    if (!(this.isOpened() && isStatus)) return false;
+    if (this.isIluminated()) return true; 
+    this.addBehavior(IluminatedBehavior);
+  }
+
+  isMoving() {
+    return this.getStatus() instanceof SpriteMovementState;
+  }
+
+  isZooming() {
+    return this.getStatus() instanceof CardZoomState;
+  }
+
+  isIluminated() {
+    return this.getBehavior(IluminatedBehavior) instanceof IluminatedBehavior;
+  }
+
+  uniluminate() {
+    this.addAction(this.commandUniluminate);
+  }
+
+  commandUniluminate() {
+    if (this.isUniluminated()) return true;
+    this._selectedLayer.bitmap.clear();
+    this.removeBehavior(IluminatedBehavior);
+  }
+
+  isUniluminated() {
+    return !this.isIluminated();
+  }
+
+  flash(color = 'white', duration = 10, times = 1) {
+    this.addAction(this.commandFlash, color, duration, times);
+  }
+
+  commandFlash(color, duration, times) {
+    const isStatus = (this.isStopped() || this.isMoving() || this.isZooming());
+    if (!(this.isOpened() && isStatus) || this.isFlashPlaying()) return false; 
+    this.addBehavior(
+      FlashBehavior,
+      color, 
+      duration, 
+      times
+    );
+  }
+
+  isFlashPlaying() {
+    return this.getBehavior(FlashBehavior) instanceof FlashBehavior;
+  }
+
+  damage(times = 1, anchorParent = this.parent, trigger) {
+    const animation = this.damageAnimation();
+    this.addTriggerAction(this.commandAnimate, trigger, animation, times, anchorParent);
+  }
+
+  damageAnimation() {
+    return {
+      id: 45,
+      displayType: 0,
+      effectName: "CureOne1",
+      flashTimings:  [
+        {frame: 0, duration: 10, color: [0,255,0,102]},
+        {frame: 9, duration: 30, color: [102,255,0,102]},
+        {frame: 19, duration: 30, color: [136,255,0,102]},
+        {frame: 29, duration: 30, color: [136,255,0,102]}
+      ],
+      name: "Curar 1",
+      offsetX: 48,
+      offsetY: 128,
+      rotation:  { x: 0, y: 0, z: 0 },
+      scale: 100,
+      soundTimings:  [
+        // {frame: 1, se:  { name: "Ice1", pan: 0, pitch: 100, volume: 90}},
+        // {frame: 2, se:  { name: "Recovery", pan: 0, pitch: 70, volume: 90}},
+        // {frame: 6, se:  { name: "Ice4", pan: 0, pitch: 100, volume: 90}}
+      ],
+      speed: 100,
+      timings: [],
+      alignBottom: false,
+      quakeEffect: false
+    };
+  }
+
+  commandAnimate(animation, times, anchorParent) {
+    const isStatus = (this.isStopped() || this.isMoving() || this.isZooming());
+    if (!(this.isOpened() && isStatus) || this.isAnimationPlaying()) return false; 
+    this.addBehavior(
+      AnimationBehavior, 
+      animation,
+      times,
+      anchorParent
+    );
+  }
+
+  isAnimationPlaying() {
+    return this.getBehavior(AnimationBehavior) instanceof AnimationBehavior;
+  }
+
+  quake(times = 1, distance = 8, movements = null) {
+    this.addAction(this.commandQuake, times, distance, movements);
+  }
+
+  commandQuake(times, distance, movements) {
+    if (!this.isOpened() && this.isStopped()) return false;
+    const moves = movements || CardSprite.generateQuakeMoves(times, distance);
+    const cardXPosition = this.x;
+    const cardYPosition = this.y; 
+    const directionsMoves = moves.map((move, index) => {
+      const xMove = cardXPosition + move.x;
+      const yMove = cardYPosition + move.y;
+      const duration = 0;
+      const directionMove = CardSprite.createMove(xMove, yMove, cardXPosition, cardYPosition, duration);
+      return directionMove;
+    });
+    this.toMove(directionsMoves);
+  }
+
+  zoom() {
+    this.addAction(this.commandZoom);
+  }
+
+  commandZoom() {
+    return this._status?.zoom();
+  }
+
+  isOriginalScale() {
+    return this.scale.x === 1 && this.scale.y === 1;
+  }
+
+  zoomOut() {
+    this.addAction(this.commandZoomOut);
+  }
+
+  commandZoomOut() {
+    return this._status?.zoomOut();
+  }
+
+  isZoom() {
+    return this.scale.x > 1 || this.scale.y > 1;
+  }
+
+  leave() {
+    this.addAction(this.commandLeave);
+    this.hide();
+  }
+
+  commandLeave() {
+    return this._status?.leave();
+  }
+
+  flipTurnToUp() {
+    this.close();
+    this.addAction(this.commandFlipTurnToUp);
+    this.open();
+  }
+
+  commandFlipTurnToUp() {
+    if (!(this.isClosed() && this.isStopped() && this.isTurnedToDown())) return false;
+    this.setTurnToUp();
+    this.refresh();
+  }
+
+  isTurnedToDown() {
+    return !this._turned;
+  }
+
+  flipTurnToDown() {
+    this.close();
+    this.addAction(this.commandFlipTurnToDown);
+    this.open();
+  }
+
+  commandFlipTurnToDown() {
+    if (!(this.isClosed() && this.isStopped() && this.isTurnedToUp())) return false;
+    this._turned = false;
+    this.refresh();
+  }
+
+  setTurnToDown() {
+    this.addAction(this.commandSetTurnToDown);
+  }
+
+  commandSetTurnToDown() {
+    if (this.isTurnedToDown()) return true;
+    this._turned = false;
+    this.refresh();
+  }
+
+  changeAttackPoints(attackPoints) {
+    this.changePoints(attackPoints);
+  }
+
+  changeHealthPoints(healtPoints) {
+    this.changePoints(this._attackPoints, healtPoints);
+  }
+
+  changePoints(attackPoints = this._attackPoints, healtPoints = this._healthPoints) {
+    this.addAction(this.commandChangePoints, attackPoints, healtPoints);
+  }
+
+  commandChangePoints(attackPoints, healtPoints) {
+    if (!(this.isOpened() && this.isStopped())) return false;
+    this.addBehavior(
+      PointsUpdateBehavior, 
+      attackPoints,
+      healtPoints
+    );
+  }
+
+  update() {
+    super.update();
+    if (this.isVisible()) this.updateBehaviors();
+  }
+
+  updateBehaviors() {
+    if (Array.isArray(this._behaviors)) {
+      this._behaviors.forEach(behavior => {
+        if (behavior) behavior.updateBehavior();
+      });
+    }
+  }
+
+  static createPosition(x, y, index) {
+    return { x, y, index };
+  }
+
+  static generateQuakeMoves(times = 1, distance = 2) {
+    const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
+    const moves = [];
+    let direction = '';
+    for (let index = 0; index < (times * 3); index++) {
+      const dirs = directions.filter(dir => dir !== direction);
+      direction = dirs[Math.randomInt(3)];
+      switch (direction) {
+        case 'TOP':
+          moves.push({x: 0, y: -distance}, {x: 0, y: 0});
+          break;
+        case 'BOTTOM':
+          moves.push({x: 0, y: distance}, {x: 0, y: 0});
+          break;
+        case 'LEFT':
+          moves.push({x: -distance, y: 0}, {x: 0, y: 0});
+          break;
+        case 'RIGHT':
+          moves.push({x: distance, y: 0}, {x: 0, y: 0});
+          break;
+      }
+    }
+    return moves;
+  }
+
+  isOpening() {
+    return this.getStatus() instanceof CardOpennessState;
+  }
+
+  isBusy() {
+    return (this.getStatus() && this.isNotStopped()) || this.isAnimated() || this.someDelayCommand();
+  }
+
+  isNotStopped() {
+    return !this.isStopped();
+  }
+
+  isAnimated() {
+    return this.isAnimationPlaying() || this.isFlashPlaying() || this.isUpdatingPoints();
+  }
+
+  isUpdatingPoints() {
+    return this.getBehavior(PointsUpdateBehavior) instanceof PointsUpdateBehavior;
+  }
+}
+class StaticModeState {
+  _cardset;
+  
+  constructor(sprite) {
+    if (!(sprite instanceof CardsetSprite)) {
+      throw new Error('sprite is not a CardsetSprite instance!');
+    }
+    this._cardset = sprite;
+    this.unhouverSprites();
+  }
+
+  staticMode() {
+    return false;
+  }
+
+  select() {
+    return null;
+  }
+
+  cancel() {
+    return null;
+  }
+
+  change() {
+    return null;
+  }
+
+  selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
+    this._cardset.changeStatus(SelectionModeState, selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
+  }
+
+  unhouverSprites() {
+    const spritesHovered = this.getSpritesHovered();
+    spritesHovered.forEach(({ sprite, index }) => {
+      this.resetSprite(sprite);
+      this._cardset.removeChild(sprite);
+      this._cardset.addChildAt(sprite, index);
+    });
+  }
+
+  getSpritesHovered() {
+    const sprites = this._cardset._sprites.map((sprite, index) => {
+      return { sprite, index };
+    });
+    return sprites.filter(({ sprite, index }) => sprite.isHovered());
+  }
+
+  resetSprite(sprite) {
+    // const destinyXPosition = sprite.x;
+    // const destinyYPosition = 0;
+    // const duration = 0.03;
+    sprite.unhover();
+    sprite.unselect();
+    sprite.uniluminate();
+    // const move = CardSprite.createMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
+    // sprite.toMove(move);
+  }
+
+  updateStatus() {
+    // nothing
+  }
+}
+class SelectionModeState {
+  _cardset;
+  _cursorIndex;
+  _selectedIndexs;
+  _selectNumber;
+  _onSelectHandler;
+  _onMoveCursor;
+  _onCancelHandler;
+
+  constructor(sprite, selectNumber = -1, onSelectHandler, onMoveCursorHandler, onCancelHandler) {
+    if (!(sprite instanceof CardsetSprite)) {
+      throw new Error('sprite is not a CardsetSprite instance!');
+    }
+    if (typeof selectNumber !== 'number') {
+      throw new Error('selectNumber is not a number!');
+    }
+    if (onSelectHandler && typeof onSelectHandler !== 'function') {
+      throw new Error('onSelectHandler is not a function!');
+    }
+    if (onMoveCursorHandler && typeof onMoveCursorHandler !== 'function') {
+      throw new Error('onMoveCursorHandler is not a function!');
+    }
+    if (onCancelHandler && typeof onCancelHandler !== 'function') {
+      throw new Error('onCancelHandler is not a function!');
+    }
+    this._cardset = sprite;
+    this._cursorIndex = 0;
+    this._selectedIndexs = [];
+    this._selectNumber = selectNumber;
+    this._onSelectHandler = onSelectHandler;
+    this._onMoveCursor = onMoveCursorHandler;
+    this._onCancelHandler = onCancelHandler;
+    this.updateMoveCursor();
+    this.updateHoverSprites();
+  }
+
+  staticMode() {
+    this._cardset.changeStatus(StaticModeState);
+  }
+
+  selectMode() {
+    return false;
+  }
+
+  updateMoveCursor() {
+    if (this._onMoveCursor) {
+      const cardset = this._cardset;
+      cardset.addAction(this._onMoveCursor, this._cursorIndex);
+    }
+  }
+
+  updateHoverSprites() {
+    const cardset = this._cardset;
+    const sprites = cardset.getSprites();
+    const spriteToAdd = cardset.getSprites(this._cursorIndex).shift();
+    cardset.commandAddChildToEnd(spriteToAdd);
+    sprites.forEach((sprite, index) => {
+      if (spriteToAdd === sprite) {
+        return this.hoverSprite(sprite);
+      } 
+      this.unhoverSprite(sprite);
+    });
+  }
+
+  hoverSprite(sprite) {
+    const destinyXPosition = sprite.x;
+    const destinyYPosition = -10;
+    const duration = 0.03;
+    sprite.commandHover();
+    const move = CardSprite.createMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
+    sprite.commandMoving([move]);
+  }
+
+  unhoverSprite(sprite) {
+    const destinyXPosition = sprite.x;
+    const destinyYPosition = 0;
+    const duration = 0.03;
+    sprite.commandUnhover();
+    const move = CardSprite.createMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
+    sprite.commandMoving([move]);
+  }
+
+  updateStatus() {
+    const cardset = this._cardset;
+    if (cardset.isAvailable()) {
+      this.updateCursor();
+      if (this.isSelectable()) {
+        if (this.selectIsFull()) {
+          cardset.addAction(this._onSelectHandler, this._selectedIndexs);
+          return cardset.commandStaticMode();
+        }
+        if (this.isTriggeredOk()) this.selectSprite();
+        if (this._onCancelHandler && this.isTriggeredCancel()) {
+          cardset.addAction(this._onCancelHandler);
+          return cardset.commandStaticMode();
+        }
+      }
+    }
+  }
+
+  isTriggeredOk() {
+    return Input.isTriggered('ok');
+  }
+
+  isTriggeredCancel() {
+    return Input.isRepeated('cancel');
+  }
+
+  updateCursor() {
+    if (this.isRepeatedOrLongPressedRight()) {
+      this.moveCursorRight();
+    } else if (this.isRepeatedOrLongPressedLeft()) {
+      this.moveCursorLeft();
+    }
+    if (this.isRepeatedOrLongPressedRight() || this.isRepeatedOrLongPressedLeft()) {
+      this.updateMoveCursor();
+      this.updateHoverSprites();
+    }
+  }
+
+  isRepeatedOrLongPressedRight() {
+    return Input.isRepeated('right') || Input.isLongPressed('right');
+  }
+
+  isRepeatedOrLongPressedLeft() {
+    return Input.isRepeated('left') || Input.isLongPressed('left');
+  }
+
+  moveCursorRight(times = 1) {
+    const sprites = this._cardset.getSprites();
+    const indexsAmount = sprites.length - 1;
+    if (this._cursorIndex < indexsAmount) {
+      const nextIndex = this._cursorIndex + times;
+      this._cursorIndex = nextIndex > indexsAmount ? indexsAmount : nextIndex;
+    } else {
+      this._cursorIndex = 0;
+    }
+  }
+
+  moveCursorLeft(times = 1) {
+    const minIndex = 0;
+    const sprites = this._cardset.getSprites();
+    const indexsAmount = sprites.length - 1;
+    if (this._cursorIndex > minIndex) {
+      const nextIndex = this._cursorIndex - times;
+      this._cursorIndex = nextIndex < minIndex ? minIndex : nextIndex;
+    } else {
+      this._cursorIndex = indexsAmount;
+    }
+  }
+
+  isSelectable() {
+    return this._selectNumber !== 0;
+  }
+
+  selectSprite(cursorIndex = this._cursorIndex) {
+    const sprite = this._cardset.getSprites(cursorIndex).shift();
+    if (sprite && sprite.isDisabled()) return;
+    if (this._selectedIndexs.includes(cursorIndex)) {
+      this.removeSelectedIndex(cursorIndex);
+    } else {
+      this.addSelectedIndex(cursorIndex);
+    }
+    if (this.selectIsFull() === false) this.updateSelectSprites();
+  }
+
+  removeSelectedIndex(index) {
+    this._selectedIndexs = this._selectedIndexs.filter(spriteIndex => spriteIndex !== index);
+  }
+
+  addSelectedIndex(index) {
+    this._selectedIndexs.push(index);
+  }
+
+  updateSelectSprites() {
+    const sprites = this._cardset.getSprites();
+    sprites.forEach((sprite, index) => {
+      if (this._selectedIndexs.includes(index)) {
+        sprite.select();
+      } else {
+        sprite.unselect();
+      }
+    });
+  }
+
+  selectIsFull() {
+    const cardset = this._cardset;
+    const allowedAmount = cardset.getEnabledSpritesAmount();
+    const selectedAmount = this._selectedIndexs.length;
+    let limit = false;
+    let full = false;
+    if (this._selectNumber > 0) {
+      limit = selectedAmount >= this._selectNumber;
+    }
+    if (selectedAmount > 0) {
+      full = selectedAmount === allowedAmount;
+    }
+    return limit || full;
+  }
+
+  getSelectHandler() {
+    return this._onSelectHandler;
+  }
+
+  getCancelHandler() {
+    return this._onCancelHandler;
+  }
+}
+
+class CardsetSprite extends ActionSprite {
+  static create(x, y) {
+    const cardset = new CardsetSprite(x, y);
+    return cardset;
+  }
+
+  static createPositions(numCards = 1, padingLeftToAdd = 0, x, y) {
+    const positions = [];
+    let padingLeft = 0;
+    for (let i = 0; i < numCards; i++) {
+      positions.push(CardsetSprite.createPosition(x || padingLeft, y || 0, i));
+      padingLeft += padingLeftToAdd;
+    }
+    return positions;
+  }
+
+  static createPosition(x, y, index) {
+    return { x, y, index };
+  }
+
+  static contentOriginalWidth() {
+    const width = CardSprite.contentOriginalWidth() * 6;
+    const spaceBetween = 5;
+    return width + spaceBetween;
+  }
+
+  static contentOriginalHeight() {
+    return CardSprite.contentOriginalHeight();
+  }
+
+  static createPositionsList(numCards) {
+    if (numCards === 0) return [];
+    const padding = CardsetSprite.getPaddingByNumCards(numCards);
+    const positions = CardsetSprite.createPositions(numCards, padding);
+    return positions;
+  }
+
+  static getPaddingByNumCards(numCards) {
+    const maxWidth = CardsetSprite.contentOriginalWidth();
+    let padding = Math.ceil(maxWidth / numCards);
+    const spaceBetween = 1;
+    const cardWidth = CardSprite.contentOriginalWidth() + spaceBetween;
+    padding = Math.min(padding, cardWidth);
+    padding = Math.max(padding, 1);
+    return padding;
+  }
+
+  initialize(x, y) { 
+    super.initialize(x, y);
+    this._sprites = [];
+    this._orderingSprites = [];
+    this._status = new StaticModeState(this);
+    this.setup();
+  }
+
+  setup() {
+    this.setBackgroundColor('none');
+    this.setSize();
+    this.commandHide();
+  }
+
+  setBackgroundColor(color) {
+    this.bitmap = new Bitmap(CardsetSprite.contentOriginalWidth(), CardsetSprite.contentOriginalHeight());
+    if (color.toLowerCase() == 'none') return this.bitmap.clear();
+    this.bitmap.fillAll(color || 'white');
+  }
+
+  setSize() {
+    this.width = CardsetSprite.contentOriginalWidth();
+    this.height = CardsetSprite.contentOriginalHeight();
+  }
+
+  staticMode() {
+    this.addAction(this.commandStaticMode);
+  }
+
+  commandStaticMode() {
+    return this._status?.staticMode();
+  }
+
+  setCards(cards, x, y) {
+    cards = ArrayHelper.toArray(cards);
+    const sprites = cards.map(card => this.createCardSprite(card, x, y));
+    const orderingSprites = this.createOrderingNumbers(sprites);
+    this._sprites = sprites;
+    this._orderingSprites = orderingSprites;
+    this.addAction(this.commandSetCards, sprites, orderingSprites);
+    return sprites;
+  }
+
+  createCardSprite(card, x, y) {
+    const { type, color, figureName, attack, health } = card;
+    const sprite = CardSprite.create(type, color, figureName, attack, health, x, y);
+    return sprite;
+  }
+
+  createOrderingNumbers(sprites) {
+    return sprites.map((sprite, index) => {
+      const number = index + 1;
+      return this.createOrderingNumber(number, sprite);
+    });
+  }
+
+  createOrderingNumber(number, sprite) {
+    const { x: spriteX, y: spriteY, width: spriteWidth } = sprite;
+    const orderingSprite = new Sprite();
+    const width = 20;
+    const height = 20;
+    const x = (spriteX + spriteWidth) - width;
+    const y = (spriteY - height);
+    orderingSprite.x = x;
+    orderingSprite.y = y;
+    orderingSprite.bitmap = new Bitmap(width, height);
+    orderingSprite.bitmap.drawText(number, 0, 0, width, height, 'center');
+    orderingSprite.number = number;
+    orderingSprite.hide();
+    return orderingSprite;
+  }
+
+  commandSetCards(sprites, orderingSprites) {
+    if (this.isHidden()) return false;
+    this.clear();
+    this.addSprites(sprites);
+    this.addSprites(orderingSprites);
+  }
+
+  addSprites(sprites) {
+    sprites.forEach((sprite, index) => this.addChild(sprite));
+  }
+
+  setAllCardsInPositions(sprites = this._sprites, positions) {
+    sprites = ArrayHelper.toArray(sprites);
+    this.addAction(this.commandSetAllCardsPositions, sprites, positions);
+  }
+
+  commandSetAllCardsPositions(sprites, positions) {
+    if (this.isHidden()) return false;
+    positions.forEach(({ x, y, index }) => {
+      const sprite = sprites[index];
+      sprite.setPosition(x, y);
+    });
+  }
+
+  setAllCardsInPosition(sprites = this._sprites, x = 0, y = 0) {
+    sprites = ArrayHelper.toArray(sprites);
+    this.addAction(this.commandSetAllCardsPosition, sprites, x, y);
+  }
+
+  commandSetAllCardsPosition(sprites, x, y) {
+    if (this.isHidden()) return false;
+    sprites.forEach(sprite => sprite.setPosition(x, y));
+  }
+
+  showCards(sprites = this._sprites) {
+    sprites = ArrayHelper.toArray(sprites);
+    this.addAction(this.commandShowCards, sprites);
+  }
+
+  commandShowCards(sprites) {
+    if (this.isHidden()) return false;
+    sprites.forEach((sprite, index) => sprite.show());
+    return true;
+  }
+
+  allCardsAreVisible(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isVisible());
+  }
+
+  isSpritesPositions(positions, sprites = this._sprites) {
+    return sprites.length && sprites.every((sprite, index) => {
+      const position = positions.find(position => position.index === index);
+      if (!position) return true;
+      const { x, y } = position;
+      return sprite.x === x && sprite.y === y;
+    });
+  }
+
+  createCardSpritesPositions(positions, cards) {
+    return positions.map(({ x, y, index }) => {
+      const card = cards[index];
+      return this.createCardSprite(card, x, y);
+    });
+  }
+
+  listCards(cards) {
+    cards = ArrayHelper.toArray(cards);
+    const numCards = cards.length;
+    const positions = CardsetSprite.createPositionsList(numCards);
+    const sprites = this.createCardSpritesPositions(positions, cards);
+    const orderingSprites = this.createOrderingNumbers(sprites);
+    this._sprites = sprites;
+    this._orderingSprites = orderingSprites;
+    this.addAction(this.commandSetCards, sprites, orderingSprites);
+    return sprites;
+  }
+
+  startClosedCards(sprites = this._sprites) {
+    this.addAction(this.commandStartClosedCards, sprites);
+  }
+
+  commandStartClosedCards(sprites) {
+    if (this.isHidden()) return false;
+    sprites = ArrayHelper.toArray(sprites);
+    sprites.forEach((sprite, index) => sprite.startClosed());
+  }
+
+  allCardsAreOpen(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isOpened());
+  }
+
+  allCardsAreClosed(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isClosed());
+  }
+
+  openAllCards(sprites = this._sprites) {
+    sprites = ArrayHelper.toArray(sprites);
+    this.addAction(this.commandOpenAllCards, sprites);
+  }
+
+  commandOpenAllCards(sprites) {
+    if (this.isHidden()) return false;
+    sprites.forEach(sprite => sprite.open());
+  }
+
+  closeAllCards(sprites = this._sprites) {
+    sprites = ArrayHelper.toArray(sprites);
+    this.addAction(this.commandCloseAllCards, sprites);
+  }
+
+  commandCloseAllCards(sprites) {
+    if (this.isHidden()) return false;
+    sprites.forEach(sprite => {
+      const cardIndex = this.indexOfCardSprite(sprite);
+      const orderingSprite = this.getOrderingSpriteByIndex(cardIndex);
+      this.commandHideOrderingSprites([orderingSprite]);
+      sprite.close();
+    });
+  }
+
+  indexOfCardSprite(sprite) {
+    return this._sprites.indexOf(sprite);
+  }
+
+  getOrderingSpriteByIndex(index) {
+    return this._orderingSprites[index];
+  }
+
+  hideOrderingSprites(sprites) {
+    this.addAction(this.commandHideOrderingSprites, sprites);
+  }
+
+  commandHideOrderingSprites(sprites) {
+    if (this.isHidden()) return false;
+    sprites.forEach(sprite => sprite.hide());
+  }
+
+  openCards(sprites = this._sprites, delay = 6, reverse = false) {
+    if (this.noSprites()) return;
+    sprites = ArrayHelper.toArray(sprites);
+    sprites = sprites.map(sprite => [sprite]);
+    if (reverse) sprites.reverse();
+    this.addDelayedActions(this.commandOpenCard, delay, sprites);
+  }
+
+  noSprites() {
+    return this._sprites.length === 0;
+  }
+
+  commandOpenCard(sprite) {
+    if (this.isHidden()) return false;
+    sprite.open();
+  }
+
+  closeCards(sprites = this._sprites, delay = 6, reverse = false) {
+    if (this.noSprites()) return;
+    sprites = ArrayHelper.toArray(sprites);
+    sprites = sprites.map(sprite => [sprite]);
+    if (reverse) sprites.reverse();
+    this.addDelayedActions(this.commandCloseCard, delay, sprites);
+  }
+
+  commandCloseCard(sprite) {
+    if (this.isHidden()) return false;
+    const cardIndex = this.indexOfCardSprite(sprite);
+    const orderingSprite = this.getOrderingSpriteByIndex(cardIndex);
+    this.commandHideOrderingSprites([orderingSprite]);
+    sprite.close();
+  }
+
+  moveAllCardsInlist(sprites = this._sprites) {
+    sprites = ArrayHelper.toArray(sprites);
+    const numCards = sprites.length;
+    const positions = CardsetSprite.createPositionsList(numCards);
+    const moves = this.moveCardsPositions(positions, sprites);
+    this.addAction(this.commandMoveAllCards, moves);
+  }
+
+  moveCardsPositions(positions, sprites) {
+    return positions.map(({ x, y, index }) => {
+      const sprite = sprites[index];
+      return { sprite, x, y };
+    });
+  }
+
+  commandMoveAllCards(moves) {
+    if (this.isHidden()) return false;
+    moves.forEach(({ sprite, x, y }) => {
+      const move = CardSprite.createMove(x, y);
+      sprite.toMove(move);
+    });
+  }
+
+  moveCardsInlist(sprites = this._sprites, delay = 6, triggerActions) {
+    sprites = ArrayHelper.toArray(sprites);
+    const numCards = sprites.length;
+    const positions = CardsetSprite.createPositionsList(numCards);
+    let moves = this.moveCardsPositions(positions, sprites);
+    moves = moves.map(({ sprite, x, y }) => [sprite, x, y]);
+    this.addDelayedActions(this.commandMoveCard, delay, moves, triggerActions);
+  }
+
+  commandMoveCard(sprite, x, y) {
+    if (this.isHidden()) return false;
+    const move = CardSprite.createMove(x, y);
+    sprite.toMove(move);
+  }
+
+  moveAllCardsToPosition(sprites = this._sprites, x = 0, y = 0) {
+    sprites = ArrayHelper.toArray(sprites);
+    const numCards = sprites.length;
+    const noPading = 0;
+    const positions = CardsetSprite.createPositions(numCards, noPading, x, y);
+    const moves = this.moveCardsPositions(positions, sprites);
+    this.addAction(this.commandMoveAllCards, moves);
+  }
+
+  moveCardsToPosition(sprites = this._sprites, x = 0, y = 0, delay = 6) {
+    sprites = ArrayHelper.toArray(sprites);
+    const numCards = sprites.length;
+    const noPading = 0;
+    const positions = CardsetSprite.createPositions(numCards, noPading, x, y);
+    let moves = this.moveCardsPositions(positions, sprites);
+    moves = moves.map(({ sprite, x, y }) => [sprite, x, y]);
+    this.addDelayedActions(this.commandMoveCard, delay, moves);
+  }
+
+  moveAllCardsToPositions(sprites = this._sprites, positions) {
+    sprites = ArrayHelper.toArray(sprites);
+    const moves = this.moveCardsPositions(positions, sprites);
+    this.addAction(this.commandMoveAllCards, moves);
+  }
+
+  disableCards(sprites = this._sprites) {
+    sprites = ArrayHelper.toArray(sprites);
+    this.addAction(this.commandDisableCards, sprites);
+  }
+
+  commandDisableCards(sprites) {
+    if (this.isHidden()) return false;
+    sprites.forEach(sprite => {
+      sprite.disable();
+    });
+  }
+
+  isEnabledCardIndexs(indexs) {
+    return indexs.every(index => this.getCardIndex(index).isEnabled());
+  }
+
+  getCardIndex(index) {
+    return this._sprites[index || 0];
+  }
+
+  isDisabledCardIndexs(indexs) {
+    return indexs.every(index => this.getCardIndex(index).isDisabled());
+  }
+
+  selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
+    this.addAction(this.commandSelectMode, selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
+  }
+
+  commandSelectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
+    return this._status?.selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
+  }
+
+  isSelectMode() {
+    return this.getStatus() instanceof SelectionModeState;
+  }
+
+  isStaticMode() {
+    return this.getStatus() instanceof StaticModeState;
+  }
+
+  iluminateSelectedSprites(selectedIndexs) {
+    this.addAction(this.commandIluminateSelectedSprites, selectedIndexs);
+  }
+
+  commandIluminateSelectedSprites(selectedIndexs) {
+    if (this.isHidden() || this.isStaticMode()) return false;
+    const sprites = this._sprites;
+    sprites.forEach((sprite, index) => {
+      this.unhoverSprite(sprite, index);
+      if (selectedIndexs.includes(index)) {
+        sprite.unselect();
+        sprite.iluminate();
+      }
+    });
+  }
+
+  unhoverSprite(sprite, index) {
+    const destinyXPosition = sprite.x;
+    const destinyYPosition = 0;
+    const duration = 0.03;
+    sprite.unhover();
+    const move = CardSprite.createMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
+    sprite.toMove(move);
+    this.removeChild(sprite);
+    this.addChildAt(sprite, index);
+  }
+
+  flashCardsAnimate(sprites = this._sprites, color = 'white', duration = 10, times = 1, trigger) {
+    sprites = ArrayHelper.toArray(sprites);
+    this.addTriggerAction(this.commandAnimateCardsFlash, trigger, sprites, color, duration, times);
+  }
+
+  commandAnimateCardsFlash(sprites, color, duration, times) {
+    if (this.isHidden() || this.isBusy()) return false;
+    sprites.forEach(sprite => {
+      sprite.flash(color, duration, times);
+    });
+  }
+
+  someSpriteIsFlashPlaying() {
+    return this._sprites.some(sprite => sprite.isFlashPlaying());
+  }
+
+  quakeCardsAnimate(sprites = this._sprites, times = 2, distance = 3) {
+    sprites = ArrayHelper.toArray(sprites);
+    this.addAction(this.commandAnimateCardsQuake, sprites, times, distance);
+  }
+
+  commandAnimateCardsQuake(sprites, times, distance) {
+    if (this.isHidden() || this.isBusy()) return false;
+    const movements = CardSprite.generateQuakeMoves(times, distance);
+    sprites.forEach(sprite => {
+      sprite.quake(times, distance, movements);
+    });
+  }
+
+  someSpriteIsMoving() {
+    return this._sprites.some(sprite => sprite.isMoving());
+  }
+
+  damageCardsAnimate(times = 1, sprites = this._sprites, anchorParent = this.parent, trigger) {
+    sprites = ArrayHelper.toArray(sprites);
+    this.addTriggerAction(this.commandAnimateCardsDamage, trigger, times, sprites, anchorParent);
+  }
+
+  commandAnimateCardsDamage(times, sprites, anchorParent) {
+    if (this.isHidden() || this.isBusy()) return false;
+    sprites.forEach(sprite => {
+      sprite.damage(times, anchorParent);
+    });
+  }
+
+  someSpriteIsAnimationPlaying() {
+    return this._sprites.some(sprite => sprite.isAnimationPlaying());
+  }
+
+  update() {
+    super.update();
+    if (this.hasChildren() && this.isHidden()) this.commandShow();
+  }
+
+  isBusy() {
+    return super.isBusy() || this.someChildrenIsBusy();
+  }
+
+  someChildrenIsBusy() {
+    if (!this.children || this.hasChildren() === false) return false;
+    return this.children.some(sprite => {
+      return (sprite instanceof CardSprite) && (sprite.hasActions() || sprite.isBusy());
+    });
+  }
+
+  centralize() {
+    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
+    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
+    this.x = centerXPosition;
+    this.y = centerYPosition;
+  }
+
+  displayOrdering(indexes) {
+    this.addAction(this.commandDisplayOrdering, indexes);
+  }
+
+  commandDisplayOrdering(indexes = this._orderingSprites.map((sprite, index) => index)) {
+    if (this.isHidden() || this.hasOrderingNumbers() === false) return false;
+    indexes.forEach(index => this._orderingSprites[index].show());
+  }
+
+  hasOrderingNumbers() {
+    return this._orderingSprites.length;
+  }
+
+  setNumberColor(number, color) {
+    this.addAction(this.commandSetNumberColor, number, color);
+  }
+
+  commandSetNumberColor(number, color) {
+    const orderingSprite = this._orderingSprites[number - 1];
+    const cardSprite = this._sprites[number - 1];
+    if (orderingSprite) {
+      this.redrawOrderingNumber(orderingSprite, number, cardSprite, ColorHelper.getColorHex(color));
+    }
+  }
+
+  redrawOrderingNumber(orderingSprite, number, cardSprite, colorHex) {
+    orderingSprite.bitmap.textColor = colorHex || orderingSprite.bitmap.textColor;
+    orderingSprite.bitmap.clear();
+    orderingSprite.number = number;
+    orderingSprite.x = (cardSprite.x + cardSprite.width) - orderingSprite.width;
+    orderingSprite.y = (cardSprite.y) - orderingSprite.height;
+    orderingSprite.bitmap.drawText(number, 0, 0, orderingSprite.width, orderingSprite.height, 'center');
+  }
+
+  isOrderingDisplayed() {
+    return this._orderingSprites.every(sprite => sprite.visible);
+  }
+
+  isOrderingSpriteDisplayed(index) {
+    return this._orderingSprites[index].visible;
+  }
+
+  isOrdering() {
+    const ordering = this._orderingSprites.map(sprite => sprite.number);
+    return ordering.every((number, index) => number === index + 1);
+  }
+
+  displayReverseOrdering(indexes) {
+    this.addAction(this.commandDisplayReverseOrdering, indexes);
+  }
+
+  commandDisplayReverseOrdering(indexes = this._orderingSprites.map((sprite, index) => index)) {
+    if (this.isHidden() || this.hasOrderingNumbers() === false) return false;
+    const ordering = this._orderingSprites.filter((sprite, index) => indexes.includes(index));
+    ordering.forEach(sprite => {
+      const number = ordering.length - (sprite.number - 1);
+      const cardSprite = this._sprites[sprite.number - 1];
+      this.redrawOrderingNumber(sprite, number, cardSprite);
+    });
+    indexes.forEach(index => this._orderingSprites[index].show());
+  }
+
+  isOrderingSpriteDrawedByIndex(index, number) {
+    return this._orderingSprites[index].number === number;
+  }
+
+  isReverseOrdering() {
+    const ordering = this._orderingSprites.map(sprite => sprite.number);
+    return ordering.every((number, index) => number === this._orderingSprites.length - index);
+  }
+
+  getEnabledSpritesAmount() {
+    return this.getSprites().filter(sprite => sprite.isEnabled()).length;
+  }
+
+  getSprites(indexes) {
+    if (Array.isArray(indexes)) return this._sprites.filter((sprite, index) => indexes.includes(index));
+    if (typeof indexes === 'number') return [this._sprites[indexes]];
+    return this._sprites;
+  }
+
+  setTurnToDownCards(sprite = this._sprites) {
+    this.addAction(this.commandFlipTurnToDownCards, sprite);
+  }
+
+  commandFlipTurnToDownCards(sprite) {
+    if (this.isHidden()) return false;
+    sprite.forEach(sprite => sprite.setTurnToDown());
+  }
+
+  allCardsTurnedToDown(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isTurnedToDown());
+  }
+
+  zoomAllCards(sprites = this._sprites) {
+    sprites = ArrayHelper.toArray(sprites);
+    this.addAction(this.commandZoomAllCards, sprites);
+  }
+
+  commandZoomAllCards(sprites) {
+    if (this.isHidden()) return false;
+    sprites.forEach(sprite => sprite.zoom());
+  }
+
+  isCardsZoom(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isZoom());
+  }
+
+  zoomOutAllCards(sprites = this._sprites) {
+    sprites = ArrayHelper.toArray(sprites);
+    this.addAction(this.commandZoomOutAllCards, sprites);
+  }
+
+  commandZoomOutAllCards(sprites) {
+    if (this.isHidden()) return false;
+    sprites.forEach(sprite => sprite.zoomOut());
+  }
+
+  isCardsOriginalScale(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isOriginalScale());
+  }
+
+  getSpriteByIndex(index) {
+    return this._sprites[index];
+  }
+
+  flipTurnToUpAllCards(sprites = this._sprites) {
+    sprites = ArrayHelper.toArray(sprites);
+    this.addAction(this.commandFlipTurnToUpAllCards, sprites);
+  }
+
+  commandFlipTurnToUpAllCards(sprites) {
+    if (this.isHidden()) return false;
+    sprites.forEach(sprite => sprite.flipTurnToUp());
+  }
+
+  allCardsAreTurnToUp(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isTurnedToUp());
+  }
+
+  flipTurnToUpCards(sprites = this._sprites, delay = 6) {
+    sprites = ArrayHelper.toArray(sprites);
+    sprites = sprites.map(sprite => [sprite]);
+    this.addDelayedActions(this.commandFlipTurnToUpCard, delay, sprites);
+  }
+
+  commandFlipTurnToUpCard(sprite) {
+    if (this.isHidden()) return false;
+    sprite.flipTurnToUp();
+  }
+
+  addChildToEnd(sprites) {
+    this.addAction(this.commandAddChildToEnd, sprites);
+  }
+
+  commandAddChildToEnd(spritesToAdd) {
+    if (this.isHidden()) return false;
+    spritesToAdd = ArrayHelper.toArray(spritesToAdd);
+    const indexsAmount = this._sprites.length - 1;
+    this._sprites.forEach((sprite, index) => {
+      if (spritesToAdd.includes(sprite)) {
+        this.removeChild(sprite);
+        this.addChildAt(sprite, indexsAmount);
+      } else {
+        this.removeChild(sprite);
+        const fixLastCardIndex = (index === indexsAmount ? indexsAmount - 1 : index);
+        this.addChildAt(sprite, fixLastCardIndex);
+      }
+    });
+  }
+
+  leaveAllCards(sprites = this._sprites) {
+    sprites = ArrayHelper.toArray(sprites);
+    this.addAction(this.commandLeaveAllCards, sprites);
+  }
+
+  commandLeaveAllCards(sprites) {
+    if (this.isHidden()) return false;
+    sprites.forEach(sprite => sprite.leave());
+  }
+
+  isCardsHidden(sprites = this._sprites) {
+    return sprites.length && sprites.every(sprite => sprite.isHidden());
+  }
+
+  select(indexes) {
+    const commandSelectHandler = this.getSelectHandler();
+    this.addAction(commandSelectHandler, indexes);
+    this.commandStaticMode();
+  }
+
+  getSelectHandler() {
+    return this._status?.getSelectHandler();
+  }
+
+  cancel() {
+    const commandCancelHandler = this.getCancelHandler();
+    this.addAction(commandCancelHandler);
+    this.commandStaticMode();
+  }
+
+  getCancelHandler() {
+    return this._status?.getCancelHandler();
+  }
+
+  getIndexes() {
+    return this._sprites.map((sprite, index) => index);
+  }
+}
 
 // WINDOWS
 class TextWindow extends Window_Base {
@@ -2400,2686 +5025,7 @@ class ScoreWindow extends StateWindow {
   }
 }
 
-// SPRITES
-class ActionSprite extends Sprite {
-  initialize(x = 0, y = 0) { 
-    super.initialize();
-    this._actionQueue = new ActionQueue(this);
-    this._wait = 0;
-    this._status = null;
-    this._effects = {
-      opacity: 255,
-      intensity: {
-        value: 255,
-        positive: false
-      },
-    };
-    this.setPosition(x, y);
-  }
 
-  getPosition() {
-    return { x: this.x, y: this.y };
-  }
-
-  setPosition(xPosition = this.x, yPosition = this.y) {
-    this.x = xPosition;
-    this.y = yPosition;
-  }
-
-  changeStatus(status, ...params) {
-    this._status = new status(this, ...params);
-  }
-
-  removeStatus() {
-    this._status = null;
-  }
-
-  addAction(fn, ...params) {
-    this._actionQueue.addAction(fn, ...params);
-  }
-
-  addTriggerAction(fn, trigger, ...params) {
-    this._actionQueue.addTriggerAction(fn, trigger, ...params);
-  }
-
-  addActions(actions) {
-    this._actionQueue.pushActions(actions);
-  }
-
-  addDelayedActions(fn, delay, itemSet, triggerActions) {
-    return this._actionQueue.addDelayedActions(fn, delay, itemSet, triggerActions);
-  }
-
-  addWait(seconds = 0.6) {
-    this.addAction(this.commandWait, seconds);
-  }
-
-  commandWait(seconds) {
-    this._wait = seconds * GameConst.FPS;
-  }
-
-  show() {
-    this.addAction(this.commandShow);
-  }
-
-  commandShow() {
-    this.visible = true;
-  }
-
-  hide() {
-    this.addAction(this.commandHide);
-  }
-
-  commandHide() {
-    this.visible = false;
-  }
-
-  alignAboveOf(obj) {
-    const { y } = obj;
-    const receptorX = undefined;
-    const receptorY = ScreenHelper.getPositionAboveOf(y, this.height);
-    this.addAction(this.commandAlign, receptorX, receptorY);
-  }
-
-  alignBelowOf(obj) {
-    const { y, height } = obj;
-    const receptorX = undefined;
-    const receptorY = ScreenHelper.getPositionBelowOf(y, height);
-    this.addAction(this.commandAlign, receptorX, receptorY);
-  }
-
-  commandAlign(x = this.x, y = this.y) {
-    this.x = x;
-    this.y = y;
-  }
-
-  update() {
-    super.update();
-    if (this._wait > 0) return this._wait--;
-    if (this.hasActions() && this.isAvailable()) this.executeAction();
-    if (this.isVisible()) {
-      this.updateStatus();
-      this.updateDelayCommands();
-      this.updateEffects();
-    }
-  }
-
-  hasActions() {
-    return this._actionQueue.hasActions();
-  }
-
-  isAvailable() {
-    return !this.isBusy();
-  }
-
-  isBusy() {
-    return this._wait > 0 || this.someDelayCommand();
-  }
-
-  getStatus() {
-    return this._status;
-  }
-
-  someDelayCommand() {
-    return this._actionQueue.someDelayedAction();
-  }
-
-  executeAction() {
-    this._actionQueue.executeAction();
-  }
-
-  isVisible() {
-    return this.visible;
-  }
-
-  isHidden() {
-    return !this.isVisible();
-  }
-
-  updateStatus() {
-    if (this._status) this._status?.updateStatus();
-  }
-
-  updateDelayCommands() {
-    this._actionQueue.updateDelayedActions();
-  }
-
-  updateEffects() {
-    this.updateIntensityEffect();
-    this.updateOpacityEffect();
-  }
-
-  updateIntensityEffect() {
-    if (this._effects.intensity.value <= 255 && !this._effects.intensity.positive) {
-      this._effects.intensity.value += 6;
-      if (this._effects.intensity.value >= 255) {
-        this._effects.intensity.positive = true;
-      }
-    }
-    if (this._effects.intensity.value >= 100 && this._effects.intensity.positive) {
-      this._effects.intensity.value -= 6;
-      if (this._effects.intensity.value <= 100) {
-        this._effects.intensity.positive = false;
-      }
-    }
-  }
-
-  updateOpacityEffect() {
-    this._effects.opacity -= 32;
-    if (this._effects.opacity <= 0) {
-      this._effects.opacity = 255;
-    }
-  }
-
-  hasChildren() {
-    return this.numberOfChildren() > 0;
-  }
-
-  numberOfChildren() {
-    return this.children.length;
-  }
-
-  indexOfSprite(sprite) {
-    for (let i = 0; i < this.numberOfChildren(); i++) {
-      if (ObjectHelper.compareObjects(this.children[i], sprite)) {
-        return i;
-      }
-    }
-    return -1;
-  }
-
-  clear() {
-    while (this.numberOfChildren()) {
-      this.children.forEach(async child => {
-        await this.removeChild(child);
-      });
-    }
-  }
-
-  alignCenterMiddle() {
-    const x = ScreenHelper.getCenterPosition(this.width);
-    const y = ScreenHelper.getMiddlePosition(this.height);
-    this.addAction(this.commandAlign, x, y);
-  }
-}
-class CardSpriteStoppedState {
-  _card;
-  
-  constructor(sprite) {
-    if (!(sprite instanceof CardSprite)) {
-      throw new Error('sprite is not a CardSprite instance!');
-    }
-    this._card = sprite;
-  }
-
-  stop() {
-    return false;
-  }
-
-  open() {
-    const that = this._card;
-    if (that.isOpened()) return false;
-    const xPositionOpening = that.x - (CardSprite.contentOriginalWidth() / 2);
-    const yPositionOpening = that.y;
-    that.changeStatus(CardSpriteOpeningState, xPositionOpening, yPositionOpening);
-  }
-
-  close() {
-    const that = this._card;
-    if (that.isClosed()) return false;
-    const xPositionClosing = that.x + (CardSprite.contentOriginalWidth() / 2);
-    const yPositionOpening = that.y;
-    that.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionOpening);
-  }
-  
-  toMove(moves) {
-    const that = this._card;
-    if (that.isClosed()) return false;
-    that.changeStatus(CardSpriteMovingState, moves);
-  }
-  
-  zoom() {
-    const that = this._card;
-    if (that.isClosed() || that.isZoom()) return false;
-    const destinyXPosition = that.x - ((that.width / 2) / 2);
-    const destinyYPosition = that.y - ((that.height / 2) / 2);
-    const destinyXScale = (that.scale.x / 2) * 3;
-    const destinyYScale = (that.scale.y / 2) * 3;
-    that.changeStatus(CardSpriteZoomState, destinyXPosition, destinyYPosition, destinyXScale, destinyYScale);
-  }
-  
-  zoomOut() {
-    const that = this._card;
-    if (that.isClosed() || that.isOriginalScale()) return false;
-    const destinyXPosition = that.x + ((that.width / 2) / 2);
-    const destinyYPosition = that.y + ((that.height / 2) / 2);
-    const destinyXScale = ((that.scale.x / 3) * 2);
-    const destinyYScale = ((that.scale.y / 3) * 2);
-    that.changeStatus(CardSpriteZoomState, destinyXPosition, destinyYPosition, destinyXScale, destinyYScale);
-  }
-  
-  leave() {
-    const that = this._card;
-    if (that.isClosed()) return false;
-    const xPositionClosing = that.x + (CardSprite.contentOriginalWidth() / 2);
-    const yPositionClosing = that.y + (CardSprite.contentOriginalHeight() / 2);
-    that.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionClosing);
-  }
-
-  updateStatus() {
-    // nothing
-  }
-}
-class CardSpriteMovingState {
-  _card;
-  _moves;
-  _x;
-  _y;
-  _xInterval;
-  _yInterval;
-  _duration = 0.3;
-  
-  constructor(sprite, moves) {
-    if (!(sprite instanceof CardSprite)) {
-      throw new Error('sprite is not a CardSprite instance!');
-    }
-    this._card = sprite;
-    this._moves = moves;
-    this._x = this._card.x;
-    this._y = this._card.y;
-  }
-
-  stop() {
-    this._card.changeStatus(CardSpriteStoppedState);
-  }
-
-  open() {
-    return false;
-  }
-
-  close() {
-    return false;
-  }
-  
-  toMove() {
-    return false;
-  }
-  
-  zoom() {
-    return false;
-  }
-  
-  zoomOut() {
-    return false;
-  }
-  
-  leave() {
-    return false;
-  }
-
-  updateStatus() {
-    const that = this._card;
-    if (this.hasMoves() && this.isStopped()) this.startMove();
-    if (this.isToMove()) {
-      this.updateXPosition();
-      this.updateYPosition();
-    } else {
-      this.stop();
-    }
-  }
-
-  hasMoves() {
-    return this._moves.length > 0;
-  }
-
-  isStopped() {
-    return !this.isToMove();
-  }
-
-  startMove() {
-    const move = this._moves[0];
-    if (move) {
-      let { destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration } = move;
-      originXPosition = originXPosition || this._card.x;
-      originYPosition = originYPosition || this._card.y;
-      duration = duration >= 0 ? duration : this._duration;
-      this._x = destinyXPosition;
-      this._y = destinyYPosition;
-      this._xInterval = NumberHelper.calculateTimeInterval(originXPosition, destinyXPosition, duration);
-      this._yInterval = NumberHelper.calculateTimeInterval(originYPosition, destinyYPosition, duration);
-      this._moves.shift();
-    }
-  }
-
-  isToMove() {  
-    const that = this._card;
-    return this._x !== that.x || this._y !== that.y;
-  }
-
-  updateXPosition() {
-    const that = this._card;
-    const reached = that.x > this._x;
-    if (this._x !== that.x) {
-      that.x = reached ? that.x - this._xInterval : that.x + this._xInterval;
-    }
-    const limit = (reached && that.x < this._x || !reached && that.x > this._x);
-    if (limit) that.x = this._x;
-  }
-
-  updateYPosition() {
-    const that = this._card;
-    const reached = that.y > this._y;
-    if (this._y !== that.y) {
-      that.y = reached ? that.y - this._yInterval : that.y + this._yInterval;
-    }
-    const limit = (reached && that.y < this._y || !reached && that.y > this._y);
-    if (limit) that.y = this._y;
-  }
-
-}
-class CardSpriteOpeningState {
-  _card;
-  _x;
-  _y;
-  _isUpdateHorizontally;
-  _isUpdateVertically;
-  _isToOpenHorizontally;
-  _isToOpenVertically;
-  _interval;
-  _duration = 0.3;
-  
-  constructor(sprite, xPosition, yPosition) {
-    if (!(sprite instanceof CardSprite)) {
-      throw new Error('sprite is not a CardSprite instance!');
-    }
-    this._card = sprite;
-    const that = this._card;
-    this._x = xPosition;
-    this._y = yPosition;
-    this._isUpdateHorizontally = this._x !== that.x;
-    this._isUpdateVertically = this._y !== that.y;
-    this._isToOpenHorizontally = this._x < that.x;
-    this._isToOpenVertically = this._y < that.y;
-    this._interval = NumberHelper.calculateTimeInterval(0, CardSprite.contentOriginalWidth(), this._duration);
-  }
-
-  stop() {
-    this._card.changeStatus(CardSpriteStoppedState);
-  }
-
-  open() {
-    return false;
-  }
-
-  close() {
-    return false;
-  }
-  
-  toMove() {
-    return false;
-  }
-  
-  zoom() {
-    return false;
-  }
-  
-  zoomOut() {
-    return false;
-  }
-  
-  leave() {
-    return false;
-  }
-
-  updateStatus() {
-    const that = this._card;
-    if (this.isUpdatingPosition() || this.isUpdatingOpening()) {
-      this.updatePosition();
-      this.updateOpening();
-      that.refresh();
-      return false;
-    }
-    if (that.isOpened()) that.opened();
-    if (that.isClosed()) that.closed();
-    this.stop();
-  }
-
-  isUpdatingPosition() {
-    return this._x !== this._card.x || this._y !== this._card.y;
-  }
-
-  updatePosition() {
-    this.updatePositionHorizontally();
-    this.updatePositionVertically();
-  }
-
-  updatePositionHorizontally() {
-    const that = this._card;
-    if (this._isUpdateHorizontally) {
-      if (this.isToOpenHorizontally()) {
-        that.x = that.x - this._interval;
-        if (that.x < this._x) that.x = this._x;
-      }
-      if (this.isToCloseHorizontally()) {
-        that.x = that.x + this._interval;
-        if (that.x > this._x) that.x = this._x;
-      }
-    }
-  }
-
-  isToOpenHorizontally() {
-    return this._isToOpenHorizontally;
-  }
-
-  isToCloseHorizontally() {
-    return !this.isToOpenHorizontally();
-  }
-
-  updatePositionVertically() {
-    const that = this._card;
-    if (this._isUpdateVertically) {
-      if (this.isToOpenVertically()) {
-        that.y = that.y - this._interval;
-        if (that.y < this._y) that.y = this._y;
-      }
-      if (this.isToCloseVertically()) {
-        that.y = that.y + this._interval;
-        if (that.y > this._y) that.y = this._y;
-      }
-    }
-  }
-
-  isToOpenVertically() {
-    return this._isToOpenVertically;
-  }
-
-  isToCloseVertically() {
-    return !this.isToOpenVertically();
-  }
-
-  isUpdatingOpening() {
-    const that = this._card;
-    const width = that.width < CardSprite.contentOriginalWidth() && that.width > 0;
-    const height = that.height < CardSprite.contentOriginalHeight() && that.height > 0;
-    return width || height; 
-  }
-
-  updateOpening() {
-    this.updateOpeningHorizontally();
-    this.updateOpeningVertically();
-  }
-
-  updateOpeningHorizontally() {
-    const that = this._card;
-    if (this._isUpdateHorizontally) {
-      if (this.isToOpenHorizontally()) {
-        that.width += (this._interval * 2);
-        if (that.width > CardSprite.contentOriginalWidth()) that.width = CardSprite.contentOriginalWidth();
-      }
-      if (this.isToCloseHorizontally()) {
-        that.width -= (this._interval * 2);
-        if (that.width < 0) that.width = 0;
-      }
-    }
-  }
-
-  updateOpeningVertically() {
-    const that = this._card;
-    if (this._isUpdateVertically) {
-      if (this.isToOpenVertically()) {
-        that.height += (this._interval * 2);
-        if (that.height > that.contentOriginalHeight()) that.height = that.contentOriginalHeight();
-      }
-      if (this.isToCloseVertically()) {
-        that.height -= (this._interval * 2);
-        if (that.height < 0) that.height = 0;
-      }
-    }
-  }
-}
-class CardSpriteZoomState {
-  _card;
-  _xScale;
-  _yScale;
-  _x;
-  _y;
-  _xInterval;
-  _yInterval;
-  _xScaleInterval;
-  _yScaleInterval;
-  _duration = 0.3 / 2;
-  
-  constructor(sprite, destinyXPosition, destinyYPosition, destinyXScale, destinyYScale) {
-    if (!(sprite instanceof CardSprite)) {
-      throw new Error('sprite is not a CardSprite instance!');
-    }
-    this._card = sprite;
-    this._x = destinyXPosition;
-    this._y = destinyYPosition;
-    this._xScale = destinyXScale;
-    this._yScale = destinyYScale;
-    this.definePosition(this._duration);
-    this.defineScale(this._duration);
-  }
-
-  stop() {
-    this._card.changeStatus(CardSpriteStoppedState);
-  }
-
-  open() {
-    return false;
-  }
-
-  close() {
-    return false;
-  }
-  
-  toMove() {
-    return false;
-  }
-  
-  zoom() {
-    return false;
-  }
-  
-  zoomOut() {
-    return false;
-  }
-  
-  leave() {
-    return false;
-  }
-
-  definePosition(duration) {
-    const that = this._card;
-    const originXPosition = that.x;
-    const originYPosition = that.y;
-    const destinyXPosition = this._x;
-    const destinyYPosition = this._y;
-    this._xInterval = NumberHelper.calculateTimeInterval(originXPosition, destinyXPosition, duration);
-    this._yInterval = NumberHelper.calculateTimeInterval(originYPosition, destinyYPosition, duration);
-  }
-
-  defineScale(duration) {
-    const that = this._card;
-    const originXScale = that.scale.x;
-    const originYScale = that.scale.y;
-    const destinyXScale = this._xScale;
-    const destinyYScale = this._yScale;
-    this._xScaleInterval = NumberHelper.calculateTimeInterval(originXScale, destinyXScale, duration);
-    this._yScaleInterval = NumberHelper.calculateTimeInterval(originYScale, destinyYScale, duration);
-
-  }
-
-  updateStatus() {
-    const that = this._card;
-    if (
-        this.isXpositionDifferent() || 
-        this.isYpositionDifferent() || 
-        this.isXScaleDifferent() ||
-        this.isYScaleDifferent()
-    ) {
-      this.updateXPosition();
-      this.updateYPosition();
-      this.updateXScale();
-      this.updateYScale();
-    } else {
-      this.stop();
-    }
-  }
-
-  isXScaleDifferent() {
-    return this._xScale !== this._card.scale.x;
-  }
-
-  isYScaleDifferent() {
-    return this._yScale !== this._card.scale.y;
-  }
-
-  isXpositionDifferent() {
-    return this._x !== this._card.x;
-  }
-
-  isYpositionDifferent() {
-    return this._y !== this._card.y;
-  }
-
-  updateXScale() {
-    const that = this._card;
-    const reached = that.scale.x > this._xScale;
-    if (this._xScale !== that.scale.x) {
-      that.scale.x = reached ? that.scale.x - this._xScaleInterval : that.scale.x + this._xScaleInterval;
-    }
-    const limit = (reached && that.scale.x < this._xScale || !reached && that.scale.x > this._xScale);
-    if (limit) that.scale.x = this._xScale;
-  }
-
-  updateYScale() {
-    const that = this._card;
-    const reached = that.scale.y > this._yScale;
-    if (this._yScale !== that.scale.y) {
-      that.scale.y = reached ? that.scale.y - this._yScaleInterval : that.scale.y + this._yScaleInterval;
-    }
-    const limit = (reached && that.scale.y < this._yScale || !reached && that.scale.y > this._yScale);
-    if (limit) that.scale.y = this._yScale;
-  }
-
-  updateXPosition() {
-    const that = this._card;
-    const reached = that.x > this._x;
-    if (this._x !== that.x) {
-      that.x = reached ? that.x - this._xInterval : that.x + this._xInterval;
-    }
-    const limit = (reached && that.x < this._x || !reached && that.x > this._x);
-    if (limit) that.x = this._x;
-  }
-
-  updateYPosition() {
-    const that = this._card;
-    const reached = that.y > this._y;
-    if (this._y !== that.y) {
-      that.y = reached ? that.y - this._yInterval : that.y + this._yInterval;
-    }
-    const limit = (reached && that.y < this._y || !reached && that.y > this._y);
-    if (limit) that.y = this._y;
-  }
-
-}
-class CardSpriteAnimatedBehavior {
-  _card;
-  _parent;
-  _animation;
-  _animationSprite;
-  _times;
-  
-  constructor(sprite, animation, times, anchorParent) {
-    this._card = sprite;
-    this._parent = anchorParent || sprite.parent;
-    this._animation = animation;
-    this._times = times;
-  }
-
-  updateBehavior() {
-    const that = this._card;
-    if (this.hasTimes() || this.isPlayingAnimation()) {
-      if (this.noHasAnimationSprite()) {
-        this.startAnimation();
-        this._times--;
-      }
-    } else {
-      that.removeBehavior(this);
-    }
-  }
-
-  startAnimation() {
-    const that = this._card;
-    this._animationSprite = new Sprite_Animation();
-    const targets = [that];
-    const mirror = true;
-    const delay = 8;
-    const previus = this._parent.getLastAnimationSprite() || null;
-    this._animationSprite.setup(targets, this._animation, mirror, delay, previus);
-    this._parent.addChild(this._animationSprite);
-    this._parent.addAnimationSprite(this._animationSprite);
-  }
-
-  isNoPlayingAnimation() {
-    return !this.isPlayingAnimation();
-  }
-
-  isPlayingAnimation() {
-    return this.hasAnimationSprite() && this._animationSprite.isPlaying();
-  }
-
-  hasAnimationSprite() {
-    return this._animationSprite;
-  }
-
-  noHasAnimationSprite() {
-    return !this.hasAnimationSprite();
-  }
-
-  hasTimes() {
-    return this._times > 0;
-  }
-}
-class CardSpriteFlashedBehavior {
-  _card;
-  _duration;
-  _flashDuration = 0;
-  _times;
-  
-  constructor(sprite, color, duration, times) {
-    this._card = sprite;
-    this.drawFlash(color);
-    this._duration = duration;
-    this._times = times;
-  }
-
-  drawFlash(color = 'white') {
-    const layer = this._card._flashedLayer;
-    layer.bitmap.clear();
-    layer.bitmap.fillAll(color);
-  }
-
-  updateBehavior() {
-    const that = this._card;
-    if (this.isNoPlaying()) {
-      if (this.hasTimesOrInfinity()) {
-        if (this.hasTimes()) this._times--;
-        this._flashDuration = this._duration;
-      } else {
-        that.removeBehavior(this);
-      }
-    }
-    this.updateFlash();
-  }
-
-  hasTimesOrInfinity() {
-    const infinity = this._times === -1;
-    return this.hasTimes() || infinity;
-  }
-
-  hasTimes() {
-    return this._times > 0;
-  }
-
-  isNoPlaying() {
-    return this._flashDuration === 0;
-  }
-
-  updateFlash() {
-    const that = this._card;
-    const layer = this._card._flashedLayer;
-    if (this._flashDuration > 0) {
-      this._flashDuration--;
-      this.updateFlashOpacity();
-    } else {
-      that._flashedLayer.bitmap.clear();
-      that.removeBehavior(this);
-    }
-  }
-
-  updateFlashOpacity() {
-    const layer = this._card._flashedLayer;
-    layer.opacity = (this._flashDuration / this._duration) * 255;
-  }
-}
-class CardSpriteSelectedBehavior {
-  _card;
-  
-  constructor(sprite) {
-    this._card = sprite;
-    this.fillLayer();
-  }
-
-  fillLayer() {
-    const that = this._card;
-    const layer = this._card._selectedLayer;
-    layer.bitmap.clear();
-    layer.bitmap.fillAll('Coral');
-    layer.bitmap.clearRect(4, 4, that.width - 8, that.height - 8);
-  }
-
-  updateBehavior() {
-    const that = this._card;
-    const parent = that.parent;
-    const layer = that._selectedLayer;
-    const opacity = parent?._effects?.opacity || that._effects.opacity;
-    layer.opacity = opacity;
-  }
-}
-class CardSpriteHoveredBehavior {
-  _card;
-  
-  constructor(sprite) {
-    this._card = sprite;
-    this.fillLayer();
-  }
-
-  fillLayer() {
-    const that = this._card;
-    const layer = this._card._hoveredLayer;
-    layer.bitmap.clear();
-    layer.bitmap.fillAll('CornflowerBlue');
-    layer.bitmap.clearRect(4, 4, that.width - 8, that.height - 8);
-  }
-
-  updateBehavior() {
-    const that = this._card;
-    const parent = that.parent;
-    const layer = that._hoveredLayer;
-    const opacity = parent?._effects?.opacity || that._effects.opacity;
-    layer.opacity = opacity;
-  }
-}
-class CardSpriteUpdatedPointsBehavior {
-  _card;
-  _attack;
-  _health;
-  _interval = 0;
-  _counter = 0;
-  
-  constructor(sprite, attackPoints, healtPoints) {
-    this._card = sprite;
-    this._attack = attackPoints;
-    this._health = healtPoints;
-    this.calculateInterval();
-  }
-
-  calculateInterval() {
-    const that = this._card;
-    const atk = Math.abs(that._attackPoints - this._attack);
-    const hlt = Math.abs(that._healthPoints - this._health);
-    const points = atk > hlt ? atk : hlt;
-    const fps = 30;
-    this._interval = Math.floor(fps / (points || 1)) || 1;
-  }
-
-  updateBehavior() {
-    const that = this._card;
-    if (this._counter) return this._counter--;
-    if (that._attackPoints !== this._attack || that._healthPoints !== this._health) {
-      if (that._attackPoints !== this._attack) {
-        that._attackPoints = that._attackPoints > this._attack ? that._attackPoints - 1 : that._attackPoints + 1;
-      }
-      if (that._healthPoints !== this._health) {
-        that._healthPoints = that._healthPoints > this._health ? that._healthPoints - 1 : that._healthPoints + 1;
-      }
-      that.refresh();
-      this._counter = this._interval;
-    } else {
-      that.removeBehavior(this);
-    }
-  }
-}
-class CardSpriteIluminatedBehavior {
-  _card;
-  
-  constructor(sprite) {
-    this._card = sprite;
-    this.fillLayer();
-  }
-
-  fillLayer() {
-    const that = this._card;
-    const layer = this._card._selectedLayer;
-    layer.bitmap.clear();
-    layer.bitmap.fillAll('White');
-    layer.bitmap.clearRect(4, 4, that.width - 8, that.height - 8);
-  }
-
-  updateBehavior() {
-    const that = this._card;
-    const parent = that.parent;
-    const layer = that._selectedLayer;
-    const opacity = parent?._effects?.intensity.value || that._effects.intensity.value;
-    layer.opacity = opacity;
-  }
-}
-
-class CardSprite extends ActionSprite {
-  static create(type, color, figureName, attack, health, x, y) {
-    if (!type || !color || !figureName) {
-      throw new Error('Card inválido!');
-    }
-    const card = new CardSprite(x, y);
-    card.setCard(
-      type, 
-      color, 
-      figureName, 
-      attack, 
-      health
-    );
-    return card;
-  }
-
-  setCard(type, color, figureName, attack = 0, health = 0) {
-    this.setType(type);
-    this.setColor(color);
-    this.setFigure(figureName);
-    this.setBackImage();
-    this._attackPoints = attack;
-    this._healthPoints = health;
-  }
-
-  setType(type) {
-    if (!type) {
-      throw new Error('Card type is required');
-    }
-    this._type = type;
-  }
-
-  setColor(color) {
-    if (!color) {
-      throw new Error('Card color is required');
-    }
-    this._color = color;
-  }
-
-  setFigure(figureName = 'default') {
-    this._figure = ImageManager.loadCard(figureName);
-  }
-
-  setBackImage() {
-    this._backImage = new Bitmap(this.width, this.height);
-    this._backImage.gradientFillRect(0, 0, this.width, this.height, '#555', '#000');
-  }
-
-  initialize(x, y) {
-    super.initialize(x, y);
-    this._type = '';
-    this._color = '';
-    this._figure = {};
-    this._backImage = {};
-    this._behaviors = [];
-    this._turned = false;
-    this._disabled = false;
-    this._attackPoints = 0;
-    this._healthPoints = 0;
-    this._contentLayer = {};
-    this._disabledLayer = {};
-    this._flashedLayer = {};
-    this._hoveredLayer = {};
-    this._selectedLayer = {};
-    this._status = new CardSpriteStoppedState(this);
-    this.setup();
-  }
-
-  setup() {
-    this.hide();
-    this.enable();
-    this.setTurnToUp();
-    this.setOriginalSize();
-    this.createLayers();
-  }
-
-  stop() {
-    this.addAction(this.commandStop);
-  }
-
-  commandStop() {
-    return this._status.stop();
-  }
-
-  setTurnToUp() {
-    this._turned = true;
-  }
-
-  setOriginalSize() {
-    this.width = CardSprite.contentOriginalWidth();
-    this.height = CardSprite.contentOriginalHeight();
-  }
-
-  static contentOriginalWidth() {
-    return 96;
-  }
-
-  static contentOriginalHeight() {
-    return 120;
-  }
-
-  createLayers() {
-    this.createContentLayer();
-    this.createSelectedLayer();
-    this.createHoveredLayer();
-  }
-
-  createContentLayer() {
-    this._contentLayer = new Sprite();
-    this._contentLayer.bitmap = new Bitmap(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight());
-    this.createDisableLayer();
-    this.createFlashLayer();
-    this.addChild(this._contentLayer);
-  }
-
-  createDisableLayer() {
-    this._disabledLayer = new Sprite();
-    this._disabledLayer.visible = false;
-    this._disabledLayer.opacity = 128;
-    this._disabledLayer.bitmap = new Bitmap(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight());
-    this._disabledLayer.bitmap.fillAll('black');
-    this._contentLayer.addChild(this._disabledLayer);
-  }
-
-  createFlashLayer() {
-    this._flashedLayer = new Sprite();
-    this._flashedLayer.bitmap = new Bitmap(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight());
-    this._contentLayer.addChild(this._flashedLayer);
-  }
-
-  createHoveredLayer() {
-    this._hoveredLayer = new Sprite();
-    this._hoveredLayer.bitmap = new Bitmap(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight());
-    this.addChild(this._hoveredLayer);
-  }
-
-  createSelectedLayer() {
-    this._selectedLayer = new Sprite();
-    this._selectedLayer.bitmap = new Bitmap(CardSprite.contentOriginalWidth(), CardSprite.contentOriginalHeight());
-    this.addChild(this._selectedLayer);
-  }
-
-  enable() {
-    this.addAction(this.commandEnable);
-  }
-
-  commandEnable() {
-    this._disabled = false;
-    this._disabledLayer.visible = false;
-    if (this.isVisible()) this.refresh();
-  }
-
-  disable() {
-    this.addAction(this.commandDisable);
-  }
-
-  commandDisable() {
-    this._disabled = true;
-    this._disabledLayer.visible = true;
-    if (this.isVisible()) this.refresh();
-  }
-
-  refresh() {
-    this.clearContent();
-    this.drawCard();
-    this.drawDisableFilter();
-  }
-
-  clearContent() {
-    this._contentLayer.bitmap.clear();
-  }
-
-  drawCard() {
-    if (this.isTurnedToUp()) {
-      this.drawBackground();
-      this.drawFigure();
-      this.drawDisplay();
-    } else {
-      this.drawBack();
-    }
-  }
-
-  isTurnedToUp() {
-    return this._turned;
-  }
-
-  drawBackground() {
-    const xPosition = 0;
-    const yPosition = 0;
-    const borderColor = this.getBorderColor();
-    this._contentLayer.bitmap.fillRect(xPosition, yPosition, this.width, this.height, borderColor);
-    const color = this.getBackgroundColor();
-    this._contentLayer.bitmap.fillRect(xPosition + 2, yPosition + 2, this.width - 4, this.height - 4, color);
-  }
-
-  getBorderColor() {
-    switch (this._color) {
-      case GameConst.RED:
-        return ColorHelper.getColorHex(GameColors.FADEDRED);
-        break;
-      case GameConst.GREEN:
-        return ColorHelper.getColorHex(GameColors.FADEDGREEN);
-        break;
-      case GameConst.BLUE:
-        return ColorHelper.getColorHex(GameColors.FADEDBLUE);
-        break;
-      case GameConst.WHITE:
-        return ColorHelper.getColorHex(GameColors.FADEDWHITE);
-        break;
-      case GameConst.BLACK:
-        return ColorHelper.getColorHex(GameColors.FADEDBLACK);
-        break;
-      default:
-        return ColorHelper.getColorHex(GameColors.FADEDBROWN);
-        break;
-    }
-  }
-
-  getBackgroundColor() {
-    switch (this._color) {
-      case GameConst.RED:
-        return ColorHelper.getColorHex(GameColors.RED);
-        break;
-      case GameConst.GREEN:
-        return ColorHelper.getColorHex(GameColors.GREEN);
-        break;
-      case GameConst.BLUE:
-        return ColorHelper.getColorHex(GameColors.BLUE);
-        break;
-      case GameConst.WHITE:
-        return ColorHelper.getColorHex(GameColors.WHITE);
-        break;
-      case GameConst.BLACK:
-        return ColorHelper.getColorHex(GameColors.BLACK);
-        break;
-      default:
-        return ColorHelper.getColorHex(GameColors.BROWN);
-        break;
-    }
-  }
-
-  drawFigure() {
-    const contentX = 4;
-    const contentY = 4;
-    const contentWidth = CardSprite.contentOriginalWidth() - 8;
-    const contentHeight = CardSprite.contentOriginalHeight() - 28;
-    const openWidthPercent = Math.floor((this.width / CardSprite.contentOriginalWidth()) * 100);
-    const openHeightPercent = Math.floor((this.height / CardSprite.contentOriginalHeight()) * 100);
-    const openWidth = Math.floor((contentWidth * openWidthPercent) / 100);
-    const openHeight = Math.floor((contentHeight * openHeightPercent) / 100);
-    const figureX = 0;
-    const figureY = 0;
-    const figureWidth = openWidth ? this._figure.width : 0;
-    const figureHeight = openHeight ? this._figure.height : 0;
-    this._contentLayer.bitmap.blt(
-      this._figure, 
-      figureX, 
-      figureY, 
-      figureWidth, 
-      figureHeight,
-      contentX,
-      contentY,
-      openWidth,
-      openHeight
-    );
-  }
-
-  drawDisplay() {
-    switch (this._type) {
-      case GameConst.BATTLE:
-          this.drawPoints();
-        break;
-      case GameConst.POWER:
-        this.drawPowerCaption();
-        break;
-      default:
-        this._contentLayer.bitmap.drawText(
-          '???', 
-          this.displayXPosition(), 
-          this.displayYPosition(), 
-          this.displayWidth(), 
-          this.displayHeight(), 
-          'center'
-        );
-        break;
-    }
-  }
-
-  drawPoints() {
-    const attack = StringHelper.convertPointsDisplay(this._attackPoints);
-    const health = StringHelper.convertPointsDisplay(this._healthPoints);
-    const points = `${attack} / ${health}`;
-    this._contentLayer.bitmap.drawText(
-      points, 
-      this.displayXPosition(), 
-      this.displayYPosition(), 
-      this.displayWidth(), 
-      this.displayHeight(),
-      'center'
-    );
-  }
-
-  displayXPosition() {
-    return 0;
-  }
-
-  displayYPosition() {
-    return this.height - 24;
-  }
-
-  displayWidth() {
-    return this.width;
-  }
-
-  displayHeight() {
-    return 20;
-  }
-
-  drawPowerCaption() {
-    this._contentLayer.bitmap.drawText(
-      '( P )', 
-      this.displayXPosition(), 
-      this.displayYPosition(), 
-      this.displayWidth(), 
-      this.displayHeight(), 
-      'center'
-    );
-  }
-
-  drawBack() {
-    this._contentLayer.bitmap.blt(this._backImage, 0, 0, this.width, this.height, 0, 0);
-  }
-
-  drawDisableFilter() {
-    if (this.isDisabled()) {
-      this._contentLayer.setColorTone([0, 0, 0, 255]);
-    } else {
-      this._contentLayer.setColorTone([0, 0, 0, 0]);
-    }
-  }
-
-  isEnabled() {
-    return !this.isDisabled();
-  }
-
-  isDisabled() {
-    return this._disabled;
-  }
-
-  startOpen(xPosition = this.x, yPosition = this.y) {
-    this.addAction(this.commandStartOpen, xPosition, yPosition);
-  }
-
-  commandStartOpen(xPosition, yPosition) {
-    if (this.isOpened()) return false;
-    this.setPosition(xPosition, yPosition);
-    this.opened();
-  }
-
-  setPosition(xPosition, yPosition) {
-    this.x = xPosition;
-    this.y = yPosition;
-  }
-
-  opened() {
-    this.visible = true;
-    this.setOriginalSize();
-  }
-
-  startClosed(xPosition = this.x, yPosition = this.y) {
-    this.addAction(this.commandStartClosed, xPosition, yPosition);
-  }
-
-  commandStartClosed(xPosition, yPosition) {
-    if (this.isClosed()) return false;
-    this.setPosition(xPosition, yPosition);
-    const cardWidthHalf = (CardSprite.contentOriginalWidth() / 2);
-    this.x = this.x + cardWidthHalf;
-    this.closed();
-  }
-
-  isClosed() {
-    return this.width === 0;
-  }
-
-  closed() {
-    this.visible = false;
-    this.width = 0;
-  }
-
-  commandShow() {
-    super.commandShow();
-    if (this.isOpened()) this.refresh();
-  }
-
-  isOpened() {
-    return this.width === CardSprite.contentOriginalWidth() && this.visible;
-  }
-
-  open() {
-    this.show();
-    this.addAction(this.commandOpen);
-  }
-
-  commandOpen() {
-    return this._status.open();
-  }
-
-  isStopped() {
-    return this.getStatus() instanceof CardSpriteStoppedState;
-  }
-
-  close() {
-    this.addAction(this.commandClose);
-    this.hide();
-  }
-
-  commandClose() {
-    return this._status.close();
-  }
-
-  static createMove(destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration) {
-    return { 
-      destinyXPosition, 
-      destinyYPosition, 
-      originXPosition, 
-      originYPosition, 
-      duration 
-    };
-  }
-
-  toMove(moves) {
-    moves = ArrayHelper.toArray(moves);
-    this.addAction(this.commandMoving, moves);
-  }
-
-  commandMoving(moves) {
-    return this._status.toMove(moves);
-  }
-
-  hover() {
-    this.addAction(this.commandHover);
-  }
-
-  commandHover() {
-    if (!(this.isOpened() && this.isStopped())) return false;
-    if (this.isHovered()) return true;
-    this.addBehavior(CardSpriteHoveredBehavior);
-  }
-
-  addBehavior(behavior, ...params) {
-    this._behaviors.push(new behavior(this, ...params));
-  }
-
-  isHovered() {
-    return this.getBehavior(CardSpriteHoveredBehavior) instanceof CardSpriteHoveredBehavior;
-  }
-
-  getBehavior(behavior) {
-    if (typeof behavior === 'function') {
-      return this._behaviors.find(b => b.constructor === behavior) || false;
-    } else {
-      return this._behaviors.find(b => b === behavior) || false;
-    }
-  }
-
-  isUnhovered() {
-    return !this.isHovered();
-  }
-
-  unhover() {
-    this.addAction(this.commandUnhover);
-  }
-
-  commandUnhover() {
-    if (this.isUnhovered()) return true;
-    this._hoveredLayer.bitmap.clear();
-    this.removeBehavior(CardSpriteHoveredBehavior);
-  }
-
-  removeBehavior(behavior) {
-    behavior = this.getBehavior(behavior);
-    if (!behavior) return false;
-    this._behaviors = this._behaviors.filter(b => b !== behavior);
-  }
-
-  select() {
-    this.addAction(this.commandSelect);
-  }
-
-  commandSelect() {
-    if (!(this.isOpened() && this.isStopped())) return false; 
-    if (this.isSelected()) return true;
-    this.addBehavior(CardSpriteSelectedBehavior);
-  }
-
-  isSelected() {
-    return this.getBehavior(CardSpriteSelectedBehavior) instanceof CardSpriteSelectedBehavior;
-  }
-
-  unselect() {
-    this.addAction(this.commandUnselect);
-  }
-
-  commandUnselect() {
-    if (this.isUnselected()) return true;
-    this._selectedLayer.bitmap.clear();
-    this.removeBehavior(CardSpriteSelectedBehavior);
-  }
-
-  isUnselected() {
-    return !this.isSelected();
-  }
-
-  iluminate() {
-    this.addAction(this.commandIluminate);
-  }
-
-  commandIluminate() {
-    const isStatus = (this.isStopped() || this.isMoving() || this.isZooming());
-    if (!(this.isOpened() && isStatus)) return false;
-    if (this.isIluminated()) return true; 
-    this.addBehavior(CardSpriteIluminatedBehavior);
-  }
-
-  isMoving() {
-    return this.getStatus() instanceof CardSpriteMovingState;
-  }
-
-  isZooming() {
-    return this.getStatus() instanceof CardSpriteZoomState;
-  }
-
-  isIluminated() {
-    return this.getBehavior(CardSpriteIluminatedBehavior) instanceof CardSpriteIluminatedBehavior;
-  }
-
-  uniluminate() {
-    this.addAction(this.commandUniluminate);
-  }
-
-  commandUniluminate() {
-    if (this.isUniluminated()) return true;
-    this._selectedLayer.bitmap.clear();
-    this.removeBehavior(CardSpriteIluminatedBehavior);
-  }
-
-  isUniluminated() {
-    return !this.isIluminated();
-  }
-
-  flash(color = 'white', duration = 10, times = 1) {
-    this.addAction(this.commandFlash, color, duration, times);
-  }
-
-  commandFlash(color, duration, times) {
-    const isStatus = (this.isStopped() || this.isMoving() || this.isZooming());
-    if (!(this.isOpened() && isStatus) || this.isFlashPlaying()) return false; 
-    this.addBehavior(
-      CardSpriteFlashedBehavior,
-      color, 
-      duration, 
-      times
-    );
-  }
-
-  isFlashPlaying() {
-    return this.getBehavior(CardSpriteFlashedBehavior) instanceof CardSpriteFlashedBehavior;
-  }
-
-  damage(times = 1, anchorParent = this.parent, trigger) {
-    const animation = this.damageAnimation();
-    this.addTriggerAction(this.commandAnimate, trigger, animation, times, anchorParent);
-  }
-
-  damageAnimation() {
-    return {
-      id: 45,
-      displayType: 0,
-      effectName: "CureOne1",
-      flashTimings:  [
-        {frame: 0, duration: 10, color: [0,255,0,102]},
-        {frame: 9, duration: 30, color: [102,255,0,102]},
-        {frame: 19, duration: 30, color: [136,255,0,102]},
-        {frame: 29, duration: 30, color: [136,255,0,102]}
-      ],
-      name: "Curar 1",
-      offsetX: 48,
-      offsetY: 128,
-      rotation:  { x: 0, y: 0, z: 0 },
-      scale: 100,
-      soundTimings:  [
-        // {frame: 1, se:  { name: "Ice1", pan: 0, pitch: 100, volume: 90}},
-        // {frame: 2, se:  { name: "Recovery", pan: 0, pitch: 70, volume: 90}},
-        // {frame: 6, se:  { name: "Ice4", pan: 0, pitch: 100, volume: 90}}
-      ],
-      speed: 100,
-      timings: [],
-      alignBottom: false,
-      quakeEffect: false
-    };
-  }
-
-  commandAnimate(animation, times, anchorParent) {
-    const isStatus = (this.isStopped() || this.isMoving() || this.isZooming());
-    if (!(this.isOpened() && isStatus) || this.isAnimationPlaying()) return false; 
-    this.addBehavior(
-      CardSpriteAnimatedBehavior, 
-      animation,
-      times,
-      anchorParent
-    );
-  }
-
-  isAnimationPlaying() {
-    return this.getBehavior(CardSpriteAnimatedBehavior) instanceof CardSpriteAnimatedBehavior;
-  }
-
-  quake(times = 1, distance = 8, movements = null) {
-    this.addAction(this.commandQuake, times, distance, movements);
-  }
-
-  commandQuake(times, distance, movements) {
-    if (!this.isOpened() && this.isStopped()) return false;
-    const moves = movements || CardSprite.generateQuakeMoves(times, distance);
-    const cardXPosition = this.x;
-    const cardYPosition = this.y; 
-    const directionsMoves = moves.map((move, index) => {
-      const xMove = cardXPosition + move.x;
-      const yMove = cardYPosition + move.y;
-      const duration = 0;
-      const directionMove = CardSprite.createMove(xMove, yMove, cardXPosition, cardYPosition, duration);
-      return directionMove;
-    });
-    this.toMove(directionsMoves);
-  }
-
-  zoom() {
-    this.addAction(this.commandZoom);
-  }
-
-  commandZoom() {
-    return this._status.zoom();
-  }
-
-  isOriginalScale() {
-    return this.scale.x === 1 && this.scale.y === 1;
-  }
-
-  zoomOut() {
-    this.addAction(this.commandZoomOut);
-  }
-
-  commandZoomOut() {
-    return this._status.zoomOut();
-  }
-
-  isZoom() {
-    return this.scale.x > 1 || this.scale.y > 1;
-  }
-
-  leave() {
-    this.addAction(this.commandLeave);
-    this.hide();
-  }
-
-  commandLeave() {
-    return this._status.leave();
-  }
-
-  flipTurnToUp() {
-    this.close();
-    this.addAction(this.commandFlipTurnToUp);
-    this.open();
-  }
-
-  commandFlipTurnToUp() {
-    if (!(this.isClosed() && this.isStopped() && this.isTurnedToDown())) return false;
-    this.setTurnToUp();
-    this.refresh();
-  }
-
-  isTurnedToDown() {
-    return !this._turned;
-  }
-
-  flipTurnToDown() {
-    this.close();
-    this.addAction(this.commandFlipTurnToDown);
-    this.open();
-  }
-
-  commandFlipTurnToDown() {
-    if (!(this.isClosed() && this.isStopped() && this.isTurnedToUp())) return false;
-    this._turned = false;
-    this.refresh();
-  }
-
-  setTurnToDown() {
-    this.addAction(this.commandSetTurnToDown);
-  }
-
-  commandSetTurnToDown() {
-    if (this.isTurnedToDown()) return true;
-    this._turned = false;
-    this.refresh();
-  }
-
-  changeAttackPoints(attackPoints) {
-    this.changePoints(attackPoints);
-  }
-
-  changeHealthPoints(healtPoints) {
-    this.changePoints(this._attackPoints, healtPoints);
-  }
-
-  changePoints(attackPoints = this._attackPoints, healtPoints = this._healthPoints) {
-    this.addAction(this.commandChangePoints, attackPoints, healtPoints);
-  }
-
-  commandChangePoints(attackPoints, healtPoints) {
-    if (!(this.isOpened() && this.isStopped())) return false;
-    this.addBehavior(
-      CardSpriteUpdatedPointsBehavior, 
-      attackPoints,
-      healtPoints
-    );
-  }
-
-  update() {
-    super.update();
-    if (this.isVisible()) this.updateBehaviors();
-  }
-
-  updateBehaviors() {
-    if (Array.isArray(this._behaviors)) {
-      this._behaviors.forEach(behavior => {
-        if (behavior) behavior.updateBehavior();
-      });
-    }
-  }
-
-  static createPosition(x, y, index) {
-    return { x, y, index };
-  }
-
-  static generateQuakeMoves(times = 1, distance = 2) {
-    const directions = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
-    const moves = [];
-    let direction = '';
-    for (let index = 0; index < (times * 3); index++) {
-      const dirs = directions.filter(dir => dir !== direction);
-      direction = dirs[Math.randomInt(3)];
-      switch (direction) {
-        case 'TOP':
-          moves.push({x: 0, y: -distance}, {x: 0, y: 0});
-          break;
-        case 'BOTTOM':
-          moves.push({x: 0, y: distance}, {x: 0, y: 0});
-          break;
-        case 'LEFT':
-          moves.push({x: -distance, y: 0}, {x: 0, y: 0});
-          break;
-        case 'RIGHT':
-          moves.push({x: distance, y: 0}, {x: 0, y: 0});
-          break;
-      }
-    }
-    return moves;
-  }
-
-  isOpening() {
-    return this.getStatus() instanceof CardSpriteOpeningState;
-  }
-
-  isBusy() {
-    return (this.getStatus() && this.isNotStopped()) || this.isAnimated() || this.someDelayCommand();
-  }
-
-  isNotStopped() {
-    return !this.isStopped();
-  }
-
-  isAnimated() {
-    return this.isAnimationPlaying() || this.isFlashPlaying() || this.isUpdatingPoints();
-  }
-
-  isUpdatingPoints() {
-    return this.getBehavior(CardSpriteUpdatedPointsBehavior) instanceof CardSpriteUpdatedPointsBehavior;
-  }
-}
-class CardsetSpriteStaticModeState {
-  _cardset;
-  
-  constructor(sprite) {
-    if (!(sprite instanceof CardsetSprite)) {
-      throw new Error('sprite is not a CardsetSprite instance!');
-    }
-    this._cardset = sprite;
-    this.unhouverSprites();
-  }
-
-  staticMode() {
-    return false;
-  }
-
-  select() {
-    return null;
-  }
-
-  cancel() {
-    return null;
-  }
-
-  change() {
-    return null;
-  }
-
-  selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
-    this._cardset.changeStatus(CardsetSpriteSelectModeState, selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
-  }
-
-  unhouverSprites() {
-    const spritesHovered = this.getSpritesHovered();
-    spritesHovered.forEach(({ sprite, index }) => {
-      this.resetSprite(sprite);
-      this._cardset.removeChild(sprite);
-      this._cardset.addChildAt(sprite, index);
-    });
-  }
-
-  getSpritesHovered() {
-    const sprites = this._cardset._sprites.map((sprite, index) => {
-      return { sprite, index };
-    });
-    return sprites.filter(({ sprite, index }) => sprite.isHovered());
-  }
-
-  resetSprite(sprite) {
-    // const destinyXPosition = sprite.x;
-    // const destinyYPosition = 0;
-    // const duration = 0.03;
-    sprite.unhover();
-    sprite.unselect();
-    sprite.uniluminate();
-    // const move = CardSprite.createMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
-    // sprite.toMove(move);
-  }
-
-  updateStatus() {
-    // nothing
-  }
-}
-class CardsetSpriteSelectModeState {
-  _cardset;
-  _cursorIndex;
-  _selectedIndexs;
-  _selectNumber;
-  _onSelectHandler;
-  _onMoveCursor;
-  _onCancelHandler;
-
-  constructor(sprite, selectNumber = -1, onSelectHandler, onMoveCursorHandler, onCancelHandler) {
-    if (!(sprite instanceof CardsetSprite)) {
-      throw new Error('sprite is not a CardsetSprite instance!');
-    }
-    if (typeof selectNumber !== 'number') {
-      throw new Error('selectNumber is not a number!');
-    }
-    if (onSelectHandler && typeof onSelectHandler !== 'function') {
-      throw new Error('onSelectHandler is not a function!');
-    }
-    if (onMoveCursorHandler && typeof onMoveCursorHandler !== 'function') {
-      throw new Error('onMoveCursorHandler is not a function!');
-    }
-    if (onCancelHandler && typeof onCancelHandler !== 'function') {
-      throw new Error('onCancelHandler is not a function!');
-    }
-    this._cardset = sprite;
-    this._cursorIndex = 0;
-    this._selectedIndexs = [];
-    this._selectNumber = selectNumber;
-    this._onSelectHandler = onSelectHandler;
-    this._onMoveCursor = onMoveCursorHandler;
-    this._onCancelHandler = onCancelHandler;
-    this.updateMoveCursor();
-    this.updateHoverSprites();
-  }
-
-  staticMode() {
-    this._cardset.changeStatus(CardsetSpriteStaticModeState);
-  }
-
-  selectMode() {
-    return false;
-  }
-
-  updateMoveCursor() {
-    if (this._onMoveCursor) {
-      const cardset = this._cardset;
-      cardset.addAction(this._onMoveCursor, this._cursorIndex);
-    }
-  }
-
-  updateHoverSprites() {
-    const cardset = this._cardset;
-    const sprites = cardset.getSprites();
-    const spriteToAdd = cardset.getSprites(this._cursorIndex).shift();
-    cardset.commandAddChildToEnd(spriteToAdd);
-    sprites.forEach((sprite, index) => {
-      if (spriteToAdd === sprite) {
-        return this.hoverSprite(sprite);
-      } 
-      this.unhoverSprite(sprite);
-    });
-  }
-
-  hoverSprite(sprite) {
-    const destinyXPosition = sprite.x;
-    const destinyYPosition = -10;
-    const duration = 0.03;
-    sprite.commandHover();
-    const move = CardSprite.createMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
-    sprite.commandMoving([move]);
-  }
-
-  unhoverSprite(sprite) {
-    const destinyXPosition = sprite.x;
-    const destinyYPosition = 0;
-    const duration = 0.03;
-    sprite.commandUnhover();
-    const move = CardSprite.createMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
-    sprite.commandMoving([move]);
-  }
-
-  updateStatus() {
-    const cardset = this._cardset;
-    if (cardset.isAvailable()) {
-      this.updateCursor();
-      if (this.isSelectable()) {
-        if (this.selectIsFull()) {
-          cardset.addAction(this._onSelectHandler, this._selectedIndexs);
-          return cardset.commandStaticMode();
-        }
-        if (this.isTriggeredOk()) this.selectSprite();
-        if (this._onCancelHandler && this.isTriggeredCancel()) {
-          cardset.addAction(this._onCancelHandler);
-          return cardset.commandStaticMode();
-        }
-      }
-    }
-  }
-
-  isTriggeredOk() {
-    return Input.isTriggered('ok');
-  }
-
-  isTriggeredCancel() {
-    return Input.isRepeated('cancel');
-  }
-
-  updateCursor() {
-    if (this.isRepeatedOrLongPressedRight()) {
-      this.moveCursorRight();
-    } else if (this.isRepeatedOrLongPressedLeft()) {
-      this.moveCursorLeft();
-    }
-    if (this.isRepeatedOrLongPressedRight() || this.isRepeatedOrLongPressedLeft()) {
-      this.updateMoveCursor();
-      this.updateHoverSprites();
-    }
-  }
-
-  isRepeatedOrLongPressedRight() {
-    return Input.isRepeated('right') || Input.isLongPressed('right');
-  }
-
-  isRepeatedOrLongPressedLeft() {
-    return Input.isRepeated('left') || Input.isLongPressed('left');
-  }
-
-  moveCursorRight(times = 1) {
-    const sprites = this._cardset.getSprites();
-    const indexsAmount = sprites.length - 1;
-    if (this._cursorIndex < indexsAmount) {
-      const nextIndex = this._cursorIndex + times;
-      this._cursorIndex = nextIndex > indexsAmount ? indexsAmount : nextIndex;
-    } else {
-      this._cursorIndex = 0;
-    }
-  }
-
-  moveCursorLeft(times = 1) {
-    const minIndex = 0;
-    const sprites = this._cardset.getSprites();
-    const indexsAmount = sprites.length - 1;
-    if (this._cursorIndex > minIndex) {
-      const nextIndex = this._cursorIndex - times;
-      this._cursorIndex = nextIndex < minIndex ? minIndex : nextIndex;
-    } else {
-      this._cursorIndex = indexsAmount;
-    }
-  }
-
-  isSelectable() {
-    return this._selectNumber !== 0;
-  }
-
-  selectSprite(cursorIndex = this._cursorIndex) {
-    const sprite = this._cardset.getSprites(cursorIndex).shift();
-    if (sprite && sprite.isDisabled()) return;
-    if (this._selectedIndexs.includes(cursorIndex)) {
-      this.removeSelectedIndex(cursorIndex);
-    } else {
-      this.addSelectedIndex(cursorIndex);
-    }
-    if (this.selectIsFull() === false) this.updateSelectSprites();
-  }
-
-  removeSelectedIndex(index) {
-    this._selectedIndexs = this._selectedIndexs.filter(spriteIndex => spriteIndex !== index);
-  }
-
-  addSelectedIndex(index) {
-    this._selectedIndexs.push(index);
-  }
-
-  updateSelectSprites() {
-    const sprites = this._cardset.getSprites();
-    sprites.forEach((sprite, index) => {
-      if (this._selectedIndexs.includes(index)) {
-        sprite.select();
-      } else {
-        sprite.unselect();
-      }
-    });
-  }
-
-  selectIsFull() {
-    const cardset = this._cardset;
-    const allowedAmount = cardset.getEnabledSpritesAmount();
-    const selectedAmount = this._selectedIndexs.length;
-    let limit = false;
-    let full = false;
-    if (this._selectNumber > 0) {
-      limit = selectedAmount >= this._selectNumber;
-    }
-    if (selectedAmount > 0) {
-      full = selectedAmount === allowedAmount;
-    }
-    return limit || full;
-  }
-
-  getSelectHandler() {
-    return this._onSelectHandler;
-  }
-
-  getCancelHandler() {
-    return this._onCancelHandler;
-  }
-}
-
-class CardsetSprite extends ActionSprite {
-  static create(x, y) {
-    const cardset = new CardsetSprite(x, y);
-    return cardset;
-  }
-
-  static createPositions(numCards = 1, padingLeftToAdd = 0, x, y) {
-    const positions = [];
-    let padingLeft = 0;
-    for (let i = 0; i < numCards; i++) {
-      positions.push(CardsetSprite.createPosition(x || padingLeft, y || 0, i));
-      padingLeft += padingLeftToAdd;
-    }
-    return positions;
-  }
-
-  static createPosition(x, y, index) {
-    return { x, y, index };
-  }
-
-  static contentOriginalWidth() {
-    const width = CardSprite.contentOriginalWidth() * 6;
-    const spaceBetween = 5;
-    return width + spaceBetween;
-  }
-
-  static contentOriginalHeight() {
-    return CardSprite.contentOriginalHeight();
-  }
-
-  static createPositionsList(numCards) {
-    if (numCards === 0) return [];
-    const padding = CardsetSprite.getPaddingByNumCards(numCards);
-    const positions = CardsetSprite.createPositions(numCards, padding);
-    return positions;
-  }
-
-  static getPaddingByNumCards(numCards) {
-    const maxWidth = CardsetSprite.contentOriginalWidth();
-    let padding = Math.ceil(maxWidth / numCards);
-    const spaceBetween = 1;
-    const cardWidth = CardSprite.contentOriginalWidth() + spaceBetween;
-    padding = Math.min(padding, cardWidth);
-    padding = Math.max(padding, 1);
-    return padding;
-  }
-
-  initialize(x, y) { 
-    super.initialize(x, y);
-    this._sprites = [];
-    this._orderingSprites = [];
-    this._status = new CardsetSpriteStaticModeState(this);
-    this.setup();
-  }
-
-  setup() {
-    this.setBackgroundColor('none');
-    this.setSize();
-    this.commandHide();
-  }
-
-  setBackgroundColor(color) {
-    this.bitmap = new Bitmap(CardsetSprite.contentOriginalWidth(), CardsetSprite.contentOriginalHeight());
-    if (color.toLowerCase() == 'none') return this.bitmap.clear();
-    this.bitmap.fillAll(color || 'white');
-  }
-
-  setSize() {
-    this.width = CardsetSprite.contentOriginalWidth();
-    this.height = CardsetSprite.contentOriginalHeight();
-  }
-
-  staticMode() {
-    this.addAction(this.commandStaticMode);
-  }
-
-  commandStaticMode() {
-    return this._status.staticMode();
-  }
-
-  setCards(cards, x, y) {
-    cards = ArrayHelper.toArray(cards);
-    const sprites = cards.map(card => this.createCardSprite(card, x, y));
-    const orderingSprites = this.createOrderingNumbers(sprites);
-    this._sprites = sprites;
-    this._orderingSprites = orderingSprites;
-    this.addAction(this.commandSetCards, sprites, orderingSprites);
-    return sprites;
-  }
-
-  createCardSprite(card, x, y) {
-    const { type, color, figureName, attack, health } = card;
-    const sprite = CardSprite.create(type, color, figureName, attack, health, x, y);
-    return sprite;
-  }
-
-  createOrderingNumbers(sprites) {
-    return sprites.map((sprite, index) => {
-      const number = index + 1;
-      return this.createOrderingNumber(number, sprite);
-    });
-  }
-
-  createOrderingNumber(number, sprite) {
-    const { x: spriteX, y: spriteY, width: spriteWidth } = sprite;
-    const orderingSprite = new Sprite();
-    const width = 20;
-    const height = 20;
-    const x = (spriteX + spriteWidth) - width;
-    const y = (spriteY - height);
-    orderingSprite.x = x;
-    orderingSprite.y = y;
-    orderingSprite.bitmap = new Bitmap(width, height);
-    orderingSprite.bitmap.drawText(number, 0, 0, width, height, 'center');
-    orderingSprite.number = number;
-    orderingSprite.hide();
-    return orderingSprite;
-  }
-
-  commandSetCards(sprites, orderingSprites) {
-    if (this.isHidden()) return false;
-    this.clear();
-    this.addSprites(sprites);
-    this.addSprites(orderingSprites);
-  }
-
-  addSprites(sprites) {
-    sprites.forEach((sprite, index) => this.addChild(sprite));
-  }
-
-  setAllCardsInPositions(sprites = this._sprites, positions) {
-    sprites = ArrayHelper.toArray(sprites);
-    this.addAction(this.commandSetAllCardsPositions, sprites, positions);
-  }
-
-  commandSetAllCardsPositions(sprites, positions) {
-    if (this.isHidden()) return false;
-    positions.forEach(({ x, y, index }) => {
-      const sprite = sprites[index];
-      sprite.setPosition(x, y);
-    });
-  }
-
-  setAllCardsInPosition(sprites = this._sprites, x = 0, y = 0) {
-    sprites = ArrayHelper.toArray(sprites);
-    this.addAction(this.commandSetAllCardsPosition, sprites, x, y);
-  }
-
-  commandSetAllCardsPosition(sprites, x, y) {
-    if (this.isHidden()) return false;
-    sprites.forEach(sprite => sprite.setPosition(x, y));
-  }
-
-  showCards(sprites = this._sprites) {
-    sprites = ArrayHelper.toArray(sprites);
-    this.addAction(this.commandShowCards, sprites);
-  }
-
-  commandShowCards(sprites) {
-    if (this.isHidden()) return false;
-    sprites.forEach((sprite, index) => sprite.show());
-    return true;
-  }
-
-  allCardsAreVisible(sprites = this._sprites) {
-    return sprites.length && sprites.every(sprite => sprite.isVisible());
-  }
-
-  isSpritesPositions(positions, sprites = this._sprites) {
-    return sprites.length && sprites.every((sprite, index) => {
-      const position = positions.find(position => position.index === index);
-      if (!position) return true;
-      const { x, y } = position;
-      return sprite.x === x && sprite.y === y;
-    });
-  }
-
-  createCardSpritesPositions(positions, cards) {
-    return positions.map(({ x, y, index }) => {
-      const card = cards[index];
-      return this.createCardSprite(card, x, y);
-    });
-  }
-
-  listCards(cards) {
-    cards = ArrayHelper.toArray(cards);
-    const numCards = cards.length;
-    const positions = CardsetSprite.createPositionsList(numCards);
-    const sprites = this.createCardSpritesPositions(positions, cards);
-    const orderingSprites = this.createOrderingNumbers(sprites);
-    this._sprites = sprites;
-    this._orderingSprites = orderingSprites;
-    this.addAction(this.commandSetCards, sprites, orderingSprites);
-    return sprites;
-  }
-
-  startClosedCards(sprites = this._sprites) {
-    this.addAction(this.commandStartClosedCards, sprites);
-  }
-
-  commandStartClosedCards(sprites) {
-    if (this.isHidden()) return false;
-    sprites = ArrayHelper.toArray(sprites);
-    sprites.forEach((sprite, index) => sprite.startClosed());
-  }
-
-  allCardsAreOpen(sprites = this._sprites) {
-    return sprites.length && sprites.every(sprite => sprite.isOpened());
-  }
-
-  allCardsAreClosed(sprites = this._sprites) {
-    return sprites.length && sprites.every(sprite => sprite.isClosed());
-  }
-
-  openAllCards(sprites = this._sprites) {
-    sprites = ArrayHelper.toArray(sprites);
-    this.addAction(this.commandOpenAllCards, sprites);
-  }
-
-  commandOpenAllCards(sprites) {
-    if (this.isHidden()) return false;
-    sprites.forEach(sprite => sprite.open());
-  }
-
-  closeAllCards(sprites = this._sprites) {
-    sprites = ArrayHelper.toArray(sprites);
-    this.addAction(this.commandCloseAllCards, sprites);
-  }
-
-  commandCloseAllCards(sprites) {
-    if (this.isHidden()) return false;
-    sprites.forEach(sprite => {
-      const cardIndex = this.indexOfCardSprite(sprite);
-      const orderingSprite = this.getOrderingSpriteByIndex(cardIndex);
-      this.commandHideOrderingSprites([orderingSprite]);
-      sprite.close();
-    });
-  }
-
-  indexOfCardSprite(sprite) {
-    return this._sprites.indexOf(sprite);
-  }
-
-  getOrderingSpriteByIndex(index) {
-    return this._orderingSprites[index];
-  }
-
-  hideOrderingSprites(sprites) {
-    this.addAction(this.commandHideOrderingSprites, sprites);
-  }
-
-  commandHideOrderingSprites(sprites) {
-    if (this.isHidden()) return false;
-    sprites.forEach(sprite => sprite.hide());
-  }
-
-  openCards(sprites = this._sprites, delay = 6, reverse = false) {
-    if (this.noSprites()) return;
-    sprites = ArrayHelper.toArray(sprites);
-    sprites = sprites.map(sprite => [sprite]);
-    if (reverse) sprites.reverse();
-    this.addDelayedActions(this.commandOpenCard, delay, sprites);
-  }
-
-  noSprites() {
-    return this._sprites.length === 0;
-  }
-
-  commandOpenCard(sprite) {
-    if (this.isHidden()) return false;
-    sprite.open();
-  }
-
-  closeCards(sprites = this._sprites, delay = 6, reverse = false) {
-    if (this.noSprites()) return;
-    sprites = ArrayHelper.toArray(sprites);
-    sprites = sprites.map(sprite => [sprite]);
-    if (reverse) sprites.reverse();
-    this.addDelayedActions(this.commandCloseCard, delay, sprites);
-  }
-
-  commandCloseCard(sprite) {
-    if (this.isHidden()) return false;
-    const cardIndex = this.indexOfCardSprite(sprite);
-    const orderingSprite = this.getOrderingSpriteByIndex(cardIndex);
-    this.commandHideOrderingSprites([orderingSprite]);
-    sprite.close();
-  }
-
-  moveAllCardsInlist(sprites = this._sprites) {
-    sprites = ArrayHelper.toArray(sprites);
-    const numCards = sprites.length;
-    const positions = CardsetSprite.createPositionsList(numCards);
-    const moves = this.moveCardsPositions(positions, sprites);
-    this.addAction(this.commandMoveAllCards, moves);
-  }
-
-  moveCardsPositions(positions, sprites) {
-    return positions.map(({ x, y, index }) => {
-      const sprite = sprites[index];
-      return { sprite, x, y };
-    });
-  }
-
-  commandMoveAllCards(moves) {
-    if (this.isHidden()) return false;
-    moves.forEach(({ sprite, x, y }) => {
-      const move = CardSprite.createMove(x, y);
-      sprite.toMove(move);
-    });
-  }
-
-  moveCardsInlist(sprites = this._sprites, delay = 6, triggerActions) {
-    sprites = ArrayHelper.toArray(sprites);
-    const numCards = sprites.length;
-    const positions = CardsetSprite.createPositionsList(numCards);
-    let moves = this.moveCardsPositions(positions, sprites);
-    moves = moves.map(({ sprite, x, y }) => [sprite, x, y]);
-    this.addDelayedActions(this.commandMoveCard, delay, moves, triggerActions);
-  }
-
-  commandMoveCard(sprite, x, y) {
-    if (this.isHidden()) return false;
-    const move = CardSprite.createMove(x, y);
-    sprite.toMove(move);
-  }
-
-  moveAllCardsToPosition(sprites = this._sprites, x = 0, y = 0) {
-    sprites = ArrayHelper.toArray(sprites);
-    const numCards = sprites.length;
-    const noPading = 0;
-    const positions = CardsetSprite.createPositions(numCards, noPading, x, y);
-    const moves = this.moveCardsPositions(positions, sprites);
-    this.addAction(this.commandMoveAllCards, moves);
-  }
-
-  moveCardsToPosition(sprites = this._sprites, x = 0, y = 0, delay = 6) {
-    sprites = ArrayHelper.toArray(sprites);
-    const numCards = sprites.length;
-    const noPading = 0;
-    const positions = CardsetSprite.createPositions(numCards, noPading, x, y);
-    let moves = this.moveCardsPositions(positions, sprites);
-    moves = moves.map(({ sprite, x, y }) => [sprite, x, y]);
-    this.addDelayedActions(this.commandMoveCard, delay, moves);
-  }
-
-  moveAllCardsToPositions(sprites = this._sprites, positions) {
-    sprites = ArrayHelper.toArray(sprites);
-    const moves = this.moveCardsPositions(positions, sprites);
-    this.addAction(this.commandMoveAllCards, moves);
-  }
-
-  disableCards(sprites = this._sprites) {
-    sprites = ArrayHelper.toArray(sprites);
-    this.addAction(this.commandDisableCards, sprites);
-  }
-
-  commandDisableCards(sprites) {
-    if (this.isHidden()) return false;
-    sprites.forEach(sprite => {
-      sprite.disable();
-    });
-  }
-
-  isEnabledCardIndexs(indexs) {
-    return indexs.every(index => this.getCardIndex(index).isEnabled());
-  }
-
-  getCardIndex(index) {
-    return this._sprites[index || 0];
-  }
-
-  isDisabledCardIndexs(indexs) {
-    return indexs.every(index => this.getCardIndex(index).isDisabled());
-  }
-
-  selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
-    this.addAction(this.commandSelectMode, selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
-  }
-
-  commandSelectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
-    return this._status.selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
-  }
-
-  isSelectMode() {
-    return this.getStatus() instanceof CardsetSpriteSelectModeState;
-  }
-
-  isStaticMode() {
-    return this.getStatus() instanceof CardsetSpriteStaticModeState;
-  }
-
-  iluminateSelectedSprites(selectedIndexs) {
-    this.addAction(this.commandIluminateSelectedSprites, selectedIndexs);
-  }
-
-  commandIluminateSelectedSprites(selectedIndexs) {
-    if (this.isHidden() || this.isStaticMode()) return false;
-    const sprites = this._sprites;
-    sprites.forEach((sprite, index) => {
-      this.unhoverSprite(sprite, index);
-      if (selectedIndexs.includes(index)) {
-        sprite.unselect();
-        sprite.iluminate();
-      }
-    });
-  }
-
-  unhoverSprite(sprite, index) {
-    const destinyXPosition = sprite.x;
-    const destinyYPosition = 0;
-    const duration = 0.03;
-    sprite.unhover();
-    const move = CardSprite.createMove(destinyXPosition, destinyYPosition, sprite.x, sprite.y, duration);
-    sprite.toMove(move);
-    this.removeChild(sprite);
-    this.addChildAt(sprite, index);
-  }
-
-  flashCardsAnimate(sprites = this._sprites, color = 'white', duration = 10, times = 1, trigger) {
-    sprites = ArrayHelper.toArray(sprites);
-    this.addTriggerAction(this.commandAnimateCardsFlash, trigger, sprites, color, duration, times);
-  }
-
-  commandAnimateCardsFlash(sprites, color, duration, times) {
-    if (this.isHidden() || this.isBusy()) return false;
-    sprites.forEach(sprite => {
-      sprite.flash(color, duration, times);
-    });
-  }
-
-  someSpriteIsFlashPlaying() {
-    return this._sprites.some(sprite => sprite.isFlashPlaying());
-  }
-
-  quakeCardsAnimate(sprites = this._sprites, times = 2, distance = 3) {
-    sprites = ArrayHelper.toArray(sprites);
-    this.addAction(this.commandAnimateCardsQuake, sprites, times, distance);
-  }
-
-  commandAnimateCardsQuake(sprites, times, distance) {
-    if (this.isHidden() || this.isBusy()) return false;
-    const movements = CardSprite.generateQuakeMoves(times, distance);
-    sprites.forEach(sprite => {
-      sprite.quake(times, distance, movements);
-    });
-  }
-
-  someSpriteIsMoving() {
-    return this._sprites.some(sprite => sprite.isMoving());
-  }
-
-  damageCardsAnimate(times = 1, sprites = this._sprites, anchorParent = this.parent, trigger) {
-    sprites = ArrayHelper.toArray(sprites);
-    this.addTriggerAction(this.commandAnimateCardsDamage, trigger, times, sprites, anchorParent);
-  }
-
-  commandAnimateCardsDamage(times, sprites, anchorParent) {
-    if (this.isHidden() || this.isBusy()) return false;
-    sprites.forEach(sprite => {
-      sprite.damage(times, anchorParent);
-    });
-  }
-
-  someSpriteIsAnimationPlaying() {
-    return this._sprites.some(sprite => sprite.isAnimationPlaying());
-  }
-
-  update() {
-    super.update();
-    if (this.hasChildren() && this.isHidden()) this.commandShow();
-  }
-
-  isBusy() {
-    return super.isBusy() || this.someChildrenIsBusy();
-  }
-
-  someChildrenIsBusy() {
-    if (!this.children || this.hasChildren() === false) return false;
-    return this.children.some(sprite => {
-      return (sprite instanceof CardSprite) && (sprite.hasActions() || sprite.isBusy());
-    });
-  }
-
-  centralize() {
-    const centerXPosition = (Graphics.boxWidth / 2 - CardsetSprite.contentOriginalWidth() / 2);
-    const centerYPosition = (Graphics.boxHeight / 2 - CardsetSprite.contentOriginalHeight() / 2);
-    this.x = centerXPosition;
-    this.y = centerYPosition;
-  }
-
-  displayOrdering(indexes) {
-    this.addAction(this.commandDisplayOrdering, indexes);
-  }
-
-  commandDisplayOrdering(indexes = this._orderingSprites.map((sprite, index) => index)) {
-    if (this.isHidden() || this.hasOrderingNumbers() === false) return false;
-    indexes.forEach(index => this._orderingSprites[index].show());
-  }
-
-  hasOrderingNumbers() {
-    return this._orderingSprites.length;
-  }
-
-  setNumberColor(number, color) {
-    this.addAction(this.commandSetNumberColor, number, color);
-  }
-
-  commandSetNumberColor(number, color) {
-    const orderingSprite = this._orderingSprites[number - 1];
-    const cardSprite = this._sprites[number - 1];
-    if (orderingSprite) {
-      this.redrawOrderingNumber(orderingSprite, number, cardSprite, ColorHelper.getColorHex(color));
-    }
-  }
-
-  redrawOrderingNumber(orderingSprite, number, cardSprite, colorHex) {
-    orderingSprite.bitmap.textColor = colorHex || orderingSprite.bitmap.textColor;
-    orderingSprite.bitmap.clear();
-    orderingSprite.number = number;
-    orderingSprite.x = (cardSprite.x + cardSprite.width) - orderingSprite.width;
-    orderingSprite.y = (cardSprite.y) - orderingSprite.height;
-    orderingSprite.bitmap.drawText(number, 0, 0, orderingSprite.width, orderingSprite.height, 'center');
-  }
-
-  isOrderingDisplayed() {
-    return this._orderingSprites.every(sprite => sprite.visible);
-  }
-
-  isOrderingSpriteDisplayed(index) {
-    return this._orderingSprites[index].visible;
-  }
-
-  isOrdering() {
-    const ordering = this._orderingSprites.map(sprite => sprite.number);
-    return ordering.every((number, index) => number === index + 1);
-  }
-
-  displayReverseOrdering(indexes) {
-    this.addAction(this.commandDisplayReverseOrdering, indexes);
-  }
-
-  commandDisplayReverseOrdering(indexes = this._orderingSprites.map((sprite, index) => index)) {
-    if (this.isHidden() || this.hasOrderingNumbers() === false) return false;
-    const ordering = this._orderingSprites.filter((sprite, index) => indexes.includes(index));
-    ordering.forEach(sprite => {
-      const number = ordering.length - (sprite.number - 1);
-      const cardSprite = this._sprites[sprite.number - 1];
-      this.redrawOrderingNumber(sprite, number, cardSprite);
-    });
-    indexes.forEach(index => this._orderingSprites[index].show());
-  }
-
-  isOrderingSpriteDrawedByIndex(index, number) {
-    return this._orderingSprites[index].number === number;
-  }
-
-  isReverseOrdering() {
-    const ordering = this._orderingSprites.map(sprite => sprite.number);
-    return ordering.every((number, index) => number === this._orderingSprites.length - index);
-  }
-
-  getEnabledSpritesAmount() {
-    return this.getSprites().filter(sprite => sprite.isEnabled()).length;
-  }
-
-  getSprites(indexes) {
-    if (Array.isArray(indexes)) return this._sprites.filter((sprite, index) => indexes.includes(index));
-    if (typeof indexes === 'number') return [this._sprites[indexes]];
-    return this._sprites;
-  }
-
-  setTurnToDownCards(sprite = this._sprites) {
-    this.addAction(this.commandFlipTurnToDownCards, sprite);
-  }
-
-  commandFlipTurnToDownCards(sprite) {
-    if (this.isHidden()) return false;
-    sprite.forEach(sprite => sprite.setTurnToDown());
-  }
-
-  allCardsTurnedToDown(sprites = this._sprites) {
-    return sprites.length && sprites.every(sprite => sprite.isTurnedToDown());
-  }
-
-  zoomAllCards(sprites = this._sprites) {
-    sprites = ArrayHelper.toArray(sprites);
-    this.addAction(this.commandZoomAllCards, sprites);
-  }
-
-  commandZoomAllCards(sprites) {
-    if (this.isHidden()) return false;
-    sprites.forEach(sprite => sprite.zoom());
-  }
-
-  isCardsZoom(sprites = this._sprites) {
-    return sprites.length && sprites.every(sprite => sprite.isZoom());
-  }
-
-  zoomOutAllCards(sprites = this._sprites) {
-    sprites = ArrayHelper.toArray(sprites);
-    this.addAction(this.commandZoomOutAllCards, sprites);
-  }
-
-  commandZoomOutAllCards(sprites) {
-    if (this.isHidden()) return false;
-    sprites.forEach(sprite => sprite.zoomOut());
-  }
-
-  isCardsOriginalScale(sprites = this._sprites) {
-    return sprites.length && sprites.every(sprite => sprite.isOriginalScale());
-  }
-
-  getSpriteByIndex(index) {
-    return this._sprites[index];
-  }
-
-  flipTurnToUpAllCards(sprites = this._sprites) {
-    sprites = ArrayHelper.toArray(sprites);
-    this.addAction(this.commandFlipTurnToUpAllCards, sprites);
-  }
-
-  commandFlipTurnToUpAllCards(sprites) {
-    if (this.isHidden()) return false;
-    sprites.forEach(sprite => sprite.flipTurnToUp());
-  }
-
-  allCardsAreTurnToUp(sprites = this._sprites) {
-    return sprites.length && sprites.every(sprite => sprite.isTurnedToUp());
-  }
-
-  flipTurnToUpCards(sprites = this._sprites, delay = 6) {
-    sprites = ArrayHelper.toArray(sprites);
-    sprites = sprites.map(sprite => [sprite]);
-    this.addDelayedActions(this.commandFlipTurnToUpCard, delay, sprites);
-  }
-
-  commandFlipTurnToUpCard(sprite) {
-    if (this.isHidden()) return false;
-    sprite.flipTurnToUp();
-  }
-
-  addChildToEnd(sprites) {
-    this.addAction(this.commandAddChildToEnd, sprites);
-  }
-
-  commandAddChildToEnd(spritesToAdd) {
-    if (this.isHidden()) return false;
-    spritesToAdd = ArrayHelper.toArray(spritesToAdd);
-    const indexsAmount = this._sprites.length - 1;
-    this._sprites.forEach((sprite, index) => {
-      if (spritesToAdd.includes(sprite)) {
-        this.removeChild(sprite);
-        this.addChildAt(sprite, indexsAmount);
-      } else {
-        this.removeChild(sprite);
-        const fixLastCardIndex = (index === indexsAmount ? indexsAmount - 1 : index);
-        this.addChildAt(sprite, fixLastCardIndex);
-      }
-    });
-  }
-
-  leaveAllCards(sprites = this._sprites) {
-    sprites = ArrayHelper.toArray(sprites);
-    this.addAction(this.commandLeaveAllCards, sprites);
-  }
-
-  commandLeaveAllCards(sprites) {
-    if (this.isHidden()) return false;
-    sprites.forEach(sprite => sprite.leave());
-  }
-
-  isCardsHidden(sprites = this._sprites) {
-    return sprites.length && sprites.every(sprite => sprite.isHidden());
-  }
-
-  select(indexes) {
-    const commandSelectHandler = this.getSelectHandler();
-    this.addAction(commandSelectHandler, indexes);
-    this.commandStaticMode();
-  }
-
-  getSelectHandler() {
-    return this._status.getSelectHandler();
-  }
-
-  cancel() {
-    const commandCancelHandler = this.getCancelHandler();
-    this.addAction(commandCancelHandler);
-    this.commandStaticMode();
-  }
-
-  getCancelHandler() {
-    return this._status.getCancelHandler();
-  }
-
-  getIndexes() {
-    return this._sprites.map((sprite, index) => index);
-  }
-}
 
 // TESTS
 class SceneTest {

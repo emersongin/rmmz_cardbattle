@@ -1,4 +1,4 @@
-class CardSpriteStoppedState {
+class CardStoppedState {
   _card;
   
   constructor(sprite) {
@@ -17,7 +17,7 @@ class CardSpriteStoppedState {
     if (that.isOpened()) return false;
     const xPositionOpening = that.x - (CardSprite.contentOriginalWidth() / 2);
     const yPositionOpening = that.y;
-    that.changeStatus(CardSpriteOpeningState, xPositionOpening, yPositionOpening);
+    that.changeStatus(CardOpennessState, xPositionOpening, yPositionOpening);
   }
 
   close() {
@@ -25,13 +25,13 @@ class CardSpriteStoppedState {
     if (that.isClosed()) return false;
     const xPositionClosing = that.x + (CardSprite.contentOriginalWidth() / 2);
     const yPositionOpening = that.y;
-    that.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionOpening);
+    that.changeStatus(CardOpennessState, xPositionClosing, yPositionOpening);
   }
   
   toMove(moves) {
     const that = this._card;
     if (that.isClosed()) return false;
-    that.changeStatus(CardSpriteMovingState, moves);
+    that.changeStatus(SpriteMovementState, moves, CardStoppedState);
   }
   
   zoom() {
@@ -59,7 +59,7 @@ class CardSpriteStoppedState {
     if (that.isClosed()) return false;
     const xPositionClosing = that.x + (CardSprite.contentOriginalWidth() / 2);
     const yPositionClosing = that.y + (CardSprite.contentOriginalHeight() / 2);
-    that.changeStatus(CardSpriteOpeningState, xPositionClosing, yPositionClosing);
+    that.changeStatus(CardOpennessState, xPositionClosing, yPositionClosing);
   }
 
   updateStatus() {

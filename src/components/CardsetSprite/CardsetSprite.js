@@ -1,5 +1,5 @@
-// include ./state/CardsetSpriteStaticModeState.js
-// include ./state/CardsetSpriteSelectModeState.js
+// include ./StaticModeState.js
+// include ./SelectionModeState.js
 
 class CardsetSprite extends ActionSprite {
   static create(x, y) {
@@ -52,7 +52,7 @@ class CardsetSprite extends ActionSprite {
     super.initialize(x, y);
     this._sprites = [];
     this._orderingSprites = [];
-    this._status = new CardsetSpriteStaticModeState(this);
+    this._status = new StaticModeState(this);
     this.setup();
   }
 
@@ -78,7 +78,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandStaticMode() {
-    return this._status.staticMode();
+    return this._status?.staticMode();
   }
 
   setCards(cards, x, y) {
@@ -382,15 +382,15 @@ class CardsetSprite extends ActionSprite {
   }
 
   commandSelectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
-    return this._status.selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
+    return this._status?.selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
   }
 
   isSelectMode() {
-    return this.getStatus() instanceof CardsetSpriteSelectModeState;
+    return this.getStatus() instanceof SelectionModeState;
   }
 
   isStaticMode() {
-    return this.getStatus() instanceof CardsetSpriteStaticModeState;
+    return this.getStatus() instanceof StaticModeState;
   }
 
   iluminateSelectedSprites(selectedIndexs) {
@@ -684,7 +684,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   getSelectHandler() {
-    return this._status.getSelectHandler();
+    return this._status?.getSelectHandler();
   }
 
   cancel() {
@@ -694,7 +694,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   getCancelHandler() {
-    return this._status.getCancelHandler();
+    return this._status?.getCancelHandler();
   }
 
   getIndexes() {

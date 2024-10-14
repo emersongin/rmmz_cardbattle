@@ -1,4 +1,4 @@
-class CardsetSpriteSelectModeState {
+class SelectionModeState {
   _cardset;
   _cursorIndex;
   _selectedIndexs;
@@ -35,7 +35,7 @@ class CardsetSpriteSelectModeState {
   }
 
   staticMode() {
-    this._cardset.changeStatus(CardsetSpriteStaticModeState);
+    this._cardset.changeStatus(StaticModeState);
   }
 
   selectMode() {

@@ -1,4 +1,4 @@
-class CardSpriteOpeningState {
+class CardOpennessState {
   _card;
   _x;
   _y;
@@ -25,7 +25,7 @@ class CardSpriteOpeningState {
   }
 
   stop() {
-    this._card.changeStatus(CardSpriteStoppedState);
+    this._card.changeStatus(CardStoppedState);
   }
 
   open() {

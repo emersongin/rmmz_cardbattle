@@ -1,3 +1,5 @@
+// include ./SpriteMovementState.js
+
 class ActionSprite extends Sprite {
   initialize(x = 0, y = 0) { 
     super.initialize();

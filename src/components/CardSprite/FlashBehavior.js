@@ -1,24 +1,24 @@
-class CardSpriteFlashedBehavior {
-  _card;
+class FlashBehavior {
+  _sprite;
   _duration;
   _flashDuration = 0;
   _times;
   
   constructor(sprite, color, duration, times) {
-    this._card = sprite;
+    this._sprite = sprite;
     this.drawFlash(color);
     this._duration = duration;
     this._times = times;
   }
 
   drawFlash(color = 'white') {
-    const layer = this._card._flashedLayer;
+    const layer = this._sprite._flashedLayer;
     layer.bitmap.clear();
     layer.bitmap.fillAll(color);
   }
 
   updateBehavior() {
-    const that = this._card;
+    const that = this._sprite;
     if (this.isNoPlaying()) {
       if (this.hasTimesOrInfinity()) {
         if (this.hasTimes()) this._times--;
@@ -44,8 +44,8 @@ class CardSpriteFlashedBehavior {
   }
 
   updateFlash() {
-    const that = this._card;
-    const layer = this._card._flashedLayer;
+    const that = this._sprite;
+    const layer = this._sprite._flashedLayer;
     if (this._flashDuration > 0) {
       this._flashDuration--;
       this.updateFlashOpacity();
@@ -56,7 +56,7 @@ class CardSpriteFlashedBehavior {
   }
 
   updateFlashOpacity() {
-    const layer = this._card._flashedLayer;
+    const layer = this._sprite._flashedLayer;
     layer.opacity = (this._flashDuration / this._duration) * 255;
   }
 }

@@ -24,7 +24,7 @@ class CardSpriteZoomState {
   }
 
   stop() {
-    this._card.changeStatus(CardSpriteStoppedState);
+    this._card.changeStatus(CardStoppedState);
   }
 
   open() {

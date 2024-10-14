@@ -1,4 +1,4 @@
-class CardsetSpriteStaticModeState {
+class StaticModeState {
   _cardset;
   
   constructor(sprite) {
@@ -26,7 +26,7 @@ class CardsetSpriteStaticModeState {
   }
 
   selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
-    this._cardset.changeStatus(CardsetSpriteSelectModeState, selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
+    this._cardset.changeStatus(SelectionModeState, selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
   }
 
   unhouverSprites() {

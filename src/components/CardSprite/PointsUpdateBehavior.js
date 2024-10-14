@@ -1,4 +1,4 @@
-class CardSpriteUpdatedPointsBehavior {
+class PointsUpdateBehavior {
   _card;
   _attack;
   _health;

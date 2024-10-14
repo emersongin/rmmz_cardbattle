@@ -1,4 +1,4 @@
-class CardSpriteAnimatedBehavior {
+class AnimationBehavior {
   _card;
   _parent;
   _animation;

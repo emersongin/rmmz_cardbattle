@@ -1,5 +1,6 @@
-class CardSpriteMovingState {
-  _card;
+class SpriteMovementState {
+  _sprite;
+  _stateFinished;
   _moves;
   _x;
   _y;
@@ -7,46 +8,19 @@ class CardSpriteMovingState {
   _yInterval;
   _duration = 0.3;
   
-  constructor(sprite, moves) {
-    if (!(sprite instanceof CardSprite)) {
-      throw new Error('sprite is not a CardSprite instance!');
+  constructor(sprite, moves, stateFinished) {
+    if (!(sprite instanceof ActionSprite)) {
+      throw new Error('sprite is not a ActionSprite instance!');
     }
-    this._card = sprite;
+    this._sprite = sprite;
+    this._x = this._sprite.x;
+    this._y = this._sprite.y;
     this._moves = moves;
-    this._x = this._card.x;
-    this._y = this._card.y;
-  }
-
-  stop() {
-    this._card.changeStatus(CardSpriteStoppedState);
-  }
-
-  open() {
-    return false;
-  }
-
-  close() {
-    return false;
-  }
-  
-  toMove() {
-    return false;
-  }
-  
-  zoom() {
-    return false;
-  }
-  
-  zoomOut() {
-    return false;
-  }
-  
-  leave() {
-    return false;
+    this._stateFinished = stateFinished
   }
 
   updateStatus() {
-    const that = this._card;
+    const that = this._sprite;
     if (this.hasMoves() && this.isStopped()) this.startMove();
     if (this.isToMove()) {
       this.updateXPosition();
@@ -54,6 +28,10 @@ class CardSpriteMovingState {
     } else {
       this.stop();
     }
+  }
+
+  stop() {
+    this._sprite.changeStatus(this._stateFinished);
   }
 
   hasMoves() {
@@ -68,8 +46,8 @@ class CardSpriteMovingState {
     const move = this._moves[0];
     if (move) {
       let { destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration } = move;
-      originXPosition = originXPosition || this._card.x;
-      originYPosition = originYPosition || this._card.y;
+      originXPosition = originXPosition || this._sprite.x;
+      originYPosition = originYPosition || this._sprite.y;
       duration = duration >= 0 ? duration : this._duration;
       this._x = destinyXPosition;
       this._y = destinyYPosition;
@@ -80,12 +58,12 @@ class CardSpriteMovingState {
   }
 
   isToMove() {  
-    const that = this._card;
+    const that = this._sprite;
     return this._x !== that.x || this._y !== that.y;
   }
 
   updateXPosition() {
-    const that = this._card;
+    const that = this._sprite;
     const reached = that.x > this._x;
     if (this._x !== that.x) {
       that.x = reached ? that.x - this._xInterval : that.x + this._xInterval;
@@ -95,7 +73,7 @@ class CardSpriteMovingState {
   }
 
   updateYPosition() {
-    const that = this._card;
+    const that = this._sprite;
     const reached = that.y > this._y;
     if (this._y !== that.y) {
       that.y = reached ? that.y - this._yInterval : that.y + this._yInterval;

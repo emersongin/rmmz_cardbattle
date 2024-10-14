@@ -14,6 +14,9 @@
 
 // COMPONENTS
 // include ./components/ActionQueue/ActionQueue.js
+// include ./components/ActionSprite/ActionSprite.js
+// include ./components/CardSprite/CardSprite.js
+// include ./components/CardsetSprite/CardsetSprite.js
 
 // WINDOWS
 // include ./window/TextWindow.js
@@ -26,10 +29,7 @@
 // include ./window/TrashWindow.js
 // include ./window/ScoreWindow.js
 
-// SPRITES
-// include ./sprite/ActionSprite.js
-// include ./sprite/CardSprite.js
-// include ./sprite/CardsetSprite.js
+
 
 // TESTS
 // include ../test/integration/SceneTest.js

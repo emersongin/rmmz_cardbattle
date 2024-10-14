@@ -1,13 +1,13 @@
-// include ./state/CardSpriteStoppedState.js
-// include ./state/CardSpriteMovingState.js
-// include ./state/CardSpriteOpeningState.js
-// include ./state/CardSpriteZoomState.js
-// include ./behavior/CardSpriteAnimatedBehavior.js
-// include ./behavior/CardSpriteFlashedBehavior.js
-// include ./behavior/CardSpriteSelectedBehavior.js
-// include ./behavior/CardSpriteHoveredBehavior.js
-// include ./behavior/CardSpriteUpdatedPointsBehavior.js
-// include ./behavior/CardSpriteIluminatedBehavior.js
+// include ./CardStoppedState.js
+// include ./CardOpennessState.js
+// include ./CardZoomState.js
+// include ./AnimationBehavior.js
+// include ./FlashBehavior.js
+// include ./PointsUpdateBehavior.js
+// include ./MarkedBehavior.js
+// include ./SelectedBehavior.js
+// include ./HoveredBehavior.js
+// include ./IluminatedBehavior.js
 
 class CardSprite extends ActionSprite {
   static create(type, color, figureName, attack, health, x, y) {
@@ -73,7 +73,7 @@ class CardSprite extends ActionSprite {
     this._flashedLayer = {};
     this._hoveredLayer = {};
     this._selectedLayer = {};
-    this._status = new CardSpriteStoppedState(this);
+    this._status = new CardStoppedState(this);
     this.setup();
   }
 
@@ -90,7 +90,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandStop() {
-    return this._status.stop();
+    return this._status?.stop();
   }
 
   setTurnToUp() {
@@ -414,11 +414,11 @@ class CardSprite extends ActionSprite {
   }
 
   commandOpen() {
-    return this._status.open();
+    return this._status?.open();
   }
 
   isStopped() {
-    return this.getStatus() instanceof CardSpriteStoppedState;
+    return this.getStatus() instanceof CardStoppedState;
   }
 
   close() {
@@ -427,7 +427,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandClose() {
-    return this._status.close();
+    return this._status?.close();
   }
 
   static createMove(destinyXPosition, destinyYPosition, originXPosition, originYPosition, duration) {
@@ -446,7 +446,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandMoving(moves) {
-    return this._status.toMove(moves);
+    return this._status?.toMove(moves);
   }
 
   hover() {
@@ -456,7 +456,7 @@ class CardSprite extends ActionSprite {
   commandHover() {
     if (!(this.isOpened() && this.isStopped())) return false;
     if (this.isHovered()) return true;
-    this.addBehavior(CardSpriteHoveredBehavior);
+    this.addBehavior(HoveredBehavior);
   }
 
   addBehavior(behavior, ...params) {
@@ -464,7 +464,7 @@ class CardSprite extends ActionSprite {
   }
 
   isHovered() {
-    return this.getBehavior(CardSpriteHoveredBehavior) instanceof CardSpriteHoveredBehavior;
+    return this.getBehavior(HoveredBehavior) instanceof HoveredBehavior;
   }
 
   getBehavior(behavior) {
@@ -486,7 +486,7 @@ class CardSprite extends ActionSprite {
   commandUnhover() {
     if (this.isUnhovered()) return true;
     this._hoveredLayer.bitmap.clear();
-    this.removeBehavior(CardSpriteHoveredBehavior);
+    this.removeBehavior(HoveredBehavior);
   }
 
   removeBehavior(behavior) {
@@ -502,11 +502,11 @@ class CardSprite extends ActionSprite {
   commandSelect() {
     if (!(this.isOpened() && this.isStopped())) return false; 
     if (this.isSelected()) return true;
-    this.addBehavior(CardSpriteSelectedBehavior);
+    this.addBehavior(SelectedBehavior);
   }
 
   isSelected() {
-    return this.getBehavior(CardSpriteSelectedBehavior) instanceof CardSpriteSelectedBehavior;
+    return this.getBehavior(SelectedBehavior) instanceof SelectedBehavior;
   }
 
   unselect() {
@@ -516,7 +516,7 @@ class CardSprite extends ActionSprite {
   commandUnselect() {
     if (this.isUnselected()) return true;
     this._selectedLayer.bitmap.clear();
-    this.removeBehavior(CardSpriteSelectedBehavior);
+    this.removeBehavior(SelectedBehavior);
   }
 
   isUnselected() {
@@ -531,19 +531,19 @@ class CardSprite extends ActionSprite {
     const isStatus = (this.isStopped() || this.isMoving() || this.isZooming());
     if (!(this.isOpened() && isStatus)) return false;
     if (this.isIluminated()) return true; 
-    this.addBehavior(CardSpriteIluminatedBehavior);
+    this.addBehavior(IluminatedBehavior);
   }
 
   isMoving() {
-    return this.getStatus() instanceof CardSpriteMovingState;
+    return this.getStatus() instanceof SpriteMovementState;
   }
 
   isZooming() {
-    return this.getStatus() instanceof CardSpriteZoomState;
+    return this.getStatus() instanceof CardZoomState;
   }
 
   isIluminated() {
-    return this.getBehavior(CardSpriteIluminatedBehavior) instanceof CardSpriteIluminatedBehavior;
+    return this.getBehavior(IluminatedBehavior) instanceof IluminatedBehavior;
   }
 
   uniluminate() {
@@ -553,7 +553,7 @@ class CardSprite extends ActionSprite {
   commandUniluminate() {
     if (this.isUniluminated()) return true;
     this._selectedLayer.bitmap.clear();
-    this.removeBehavior(CardSpriteIluminatedBehavior);
+    this.removeBehavior(IluminatedBehavior);
   }
 
   isUniluminated() {
@@ -568,7 +568,7 @@ class CardSprite extends ActionSprite {
     const isStatus = (this.isStopped() || this.isMoving() || this.isZooming());
     if (!(this.isOpened() && isStatus) || this.isFlashPlaying()) return false; 
     this.addBehavior(
-      CardSpriteFlashedBehavior,
+      FlashBehavior,
       color, 
       duration, 
       times
@@ -576,7 +576,7 @@ class CardSprite extends ActionSprite {
   }
 
   isFlashPlaying() {
-    return this.getBehavior(CardSpriteFlashedBehavior) instanceof CardSpriteFlashedBehavior;
+    return this.getBehavior(FlashBehavior) instanceof FlashBehavior;
   }
 
   damage(times = 1, anchorParent = this.parent, trigger) {
@@ -616,7 +616,7 @@ class CardSprite extends ActionSprite {
     const isStatus = (this.isStopped() || this.isMoving() || this.isZooming());
     if (!(this.isOpened() && isStatus) || this.isAnimationPlaying()) return false; 
     this.addBehavior(
-      CardSpriteAnimatedBehavior, 
+      AnimationBehavior, 
       animation,
       times,
       anchorParent
@@ -624,7 +624,7 @@ class CardSprite extends ActionSprite {
   }
 
   isAnimationPlaying() {
-    return this.getBehavior(CardSpriteAnimatedBehavior) instanceof CardSpriteAnimatedBehavior;
+    return this.getBehavior(AnimationBehavior) instanceof AnimationBehavior;
   }
 
   quake(times = 1, distance = 8, movements = null) {
@@ -651,7 +651,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandZoom() {
-    return this._status.zoom();
+    return this._status?.zoom();
   }
 
   isOriginalScale() {
@@ -663,7 +663,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandZoomOut() {
-    return this._status.zoomOut();
+    return this._status?.zoomOut();
   }
 
   isZoom() {
@@ -676,7 +676,7 @@ class CardSprite extends ActionSprite {
   }
 
   commandLeave() {
-    return this._status.leave();
+    return this._status?.leave();
   }
 
   flipTurnToUp() {
@@ -732,7 +732,7 @@ class CardSprite extends ActionSprite {
   commandChangePoints(attackPoints, healtPoints) {
     if (!(this.isOpened() && this.isStopped())) return false;
     this.addBehavior(
-      CardSpriteUpdatedPointsBehavior, 
+      PointsUpdateBehavior, 
       attackPoints,
       healtPoints
     );
@@ -781,7 +781,7 @@ class CardSprite extends ActionSprite {
   }
 
   isOpening() {
-    return this.getStatus() instanceof CardSpriteOpeningState;
+    return this.getStatus() instanceof CardOpennessState;
   }
 
   isBusy() {
@@ -797,6 +797,6 @@ class CardSprite extends ActionSprite {
   }
 
   isUpdatingPoints() {
-    return this.getBehavior(CardSpriteUpdatedPointsBehavior) instanceof CardSpriteUpdatedPointsBehavior;
+    return this.getBehavior(PointsUpdateBehavior) instanceof PointsUpdateBehavior;
   }
 }
