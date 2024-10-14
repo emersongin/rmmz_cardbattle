@@ -528,6 +528,127 @@ class HashGenerator {
   }
 }
 
+// COMPONENTS
+class ActionQueue {
+  _subject = null;
+  _actions = [];
+  _delayedActions = [];
+
+  constructor(subject) {
+    this._subject = subject;
+    this._actions = [];
+    this._delayedActions = [];
+  }
+
+  hasActions() {
+    return this._actions.length > 0;
+  }
+
+  addAction(fn, ...params) {
+    const action = this.createAction({ fn, delay: 0, trigger: null }, ...params);
+    this.pushActions(action);
+  }
+
+  addTriggerAction(fn, trigger, ...params) {
+    const action = this.createAction({ fn, delay: 0, trigger }, ...params);
+    this.pushActions(action);
+  }
+
+  addActions(actions) {
+    actions = ArrayHelper.toArray(actions);
+    actions = actions.map(fn => {
+      if (Array.isArray(fn)) return this.createAction({fn: fn[0], delay: 0, trigger: null}, ...fn.slice(1));
+      return this.createAction({fn});
+    });
+    this.pushActions(actions);
+  }
+
+  addDelayedActions(fn, delay, itemSet, triggerActions) {
+    if (triggerActions && (itemSet.length !== triggerActions.length)) {
+      throw new Error('Item set and trigger actions must have the same length');
+    }
+    const hasTriggerActions = triggerActions && triggerActions.length > 0;
+    const actions = itemSet.map((params, index) => {
+      const appliedDelay = (index > 0) ? delay : 0;
+      const action = this.createAction({
+        fn,
+        delay: appliedDelay,
+        trigger: hasTriggerActions ? triggerActions[index] : undefined,
+      }, ...params);
+      return action;
+    });
+    this.pushActions(actions);
+  }
+
+  createAction(props, ...params) {
+    const { fn, delay, trigger } = props;
+    const action = { 
+      fn: fn.name || 'anonymous',
+      delay: delay || 0,
+      execute: () => {
+        const result = fn.call(this._subject, ...params);
+        if (typeof trigger === 'function') trigger();
+        return typeof result === 'boolean' ? result : true;
+      }
+    };
+    return action;
+  }
+
+  pushActions(actions) {
+    actions = ArrayHelper.toArray(actions);
+    this._actions.push(actions);
+  }
+
+  executeAction() {
+    const actions = this._actions[0];
+    if (actions.length > 0) {
+      const completed = this.processActions(actions);
+      if (completed) {
+        this._actions.shift();
+      }
+    }
+  }
+
+  processActions(actions) {
+    let processed = false;
+    for (const action of actions) {
+      if (action.delay > 0) {
+        this._delayedActions.push(action);
+        continue;
+      }
+      const completed = action.execute();
+      if (completed) {
+        processed = true;
+        continue;
+      }
+      break;
+    }
+    return processed;
+  }
+
+  someDelayedAction() {
+    if (this.hasDelayedActions()) {
+      return this._delayedActions.some(action => action.delay > 0);
+    }
+  }
+
+  hasDelayedActions() {
+    return this._delayedActions?.length > 0;
+  }
+
+  updateDelayedActions() {
+    if (this.hasDelayedActions()) {
+      const action = this._delayedActions[0];
+      action.delay -= 1;
+      if (action.delay <= 0) {
+        action.execute();
+        this._delayedActions.shift();
+      }
+    }
+  }
+
+}
+
 // WINDOWS
 class TextWindow extends Window_Base {
   static createWindowOneFourthSize(x, y, text) {
@@ -2283,8 +2404,7 @@ class ScoreWindow extends StateWindow {
 class ActionSprite extends Sprite {
   initialize(x = 0, y = 0) { 
     super.initialize();
-    this._commandQueue = [];
-    this._delayCommandQueue = [];
+    this._actionQueue = new ActionQueue(this);
     this._wait = 0;
     this._status = null;
     this._effects = {
@@ -2314,56 +2434,24 @@ class ActionSprite extends Sprite {
     this._status = null;
   }
 
-  addCommand(fn, ...params) {
-    const command = this.createCommand({ fn, delay: 0, trigger: null }, ...params);
-    this.addCommands(command);
+  addAction(fn, ...params) {
+    this._actionQueue.addAction(fn, ...params);
   }
 
-  addCommandTrigger(fn, trigger, ...params) {
-    const command = this.createCommand({ fn, delay: 0, trigger }, ...params);
-    this.addCommands(command);
+  addTriggerAction(fn, trigger, ...params) {
+    this._actionQueue.addTriggerAction(fn, trigger, ...params);
   }
 
-  createDelayCommand(fn, delay, ...params) {
-    const command = this.createCommand({ fn, delay, trigger: null }, ...params);
-    return command;
+  addActions(actions) {
+    this._actionQueue.pushActions(actions);
   }
 
-  createCommand(props, ...params) {
-    const { fn, delay, trigger } = props;
-    const command = { 
-      fn: fn.name || 'anonymous',
-      delay: delay || 0,
-      execute: () => {
-        const result = fn.call(this, ...params);
-        if (typeof trigger === 'function') trigger();
-        return typeof result === 'boolean' ? result : true;
-      }
-    };
-    return command;
-  }
-
-  addCommands(commands) {
-    commands = ArrayHelper.toArray(commands);
-    this._commandQueue.push(commands);
-  }
-
-  createDelayCommands(fn, delay, set, triggerActions) {
-    const hasTriggerActions = triggerActions && triggerActions.length > 0;
-    const commands = set.map((params, index) => {
-      const appliedDelay = (index > 0) ? delay : 0;
-      const command = this.createCommand({
-        fn,
-        delay: appliedDelay,
-        trigger: hasTriggerActions ? triggerActions[index] : undefined,
-      }, ...params);
-      return command;
-    });
-    return commands;
+  addDelayedActions(fn, delay, itemSet, triggerActions) {
+    return this._actionQueue.addDelayedActions(fn, delay, itemSet, triggerActions);
   }
 
   addWait(seconds = 0.6) {
-    this.addCommand(this.commandWait, seconds);
+    this.addAction(this.commandWait, seconds);
   }
 
   commandWait(seconds) {
@@ -2371,7 +2459,7 @@ class ActionSprite extends Sprite {
   }
 
   show() {
-    this.addCommand(this.commandShow);
+    this.addAction(this.commandShow);
   }
 
   commandShow() {
@@ -2379,7 +2467,7 @@ class ActionSprite extends Sprite {
   }
 
   hide() {
-    this.addCommand(this.commandHide);
+    this.addAction(this.commandHide);
   }
 
   commandHide() {
@@ -2390,14 +2478,14 @@ class ActionSprite extends Sprite {
     const { y } = obj;
     const receptorX = undefined;
     const receptorY = ScreenHelper.getPositionAboveOf(y, this.height);
-    this.addCommand(this.commandAlign, receptorX, receptorY);
+    this.addAction(this.commandAlign, receptorX, receptorY);
   }
 
   alignBelowOf(obj) {
     const { y, height } = obj;
     const receptorX = undefined;
     const receptorY = ScreenHelper.getPositionBelowOf(y, height);
-    this.addCommand(this.commandAlign, receptorX, receptorY);
+    this.addAction(this.commandAlign, receptorX, receptorY);
   }
 
   commandAlign(x = this.x, y = this.y) {
@@ -2408,7 +2496,7 @@ class ActionSprite extends Sprite {
   update() {
     super.update();
     if (this._wait > 0) return this._wait--;
-    if (this.hasCommands() && this.isAvailable()) this.executeCommand();
+    if (this.hasActions() && this.isAvailable()) this.executeAction();
     if (this.isVisible()) {
       this.updateStatus();
       this.updateDelayCommands();
@@ -2416,8 +2504,8 @@ class ActionSprite extends Sprite {
     }
   }
 
-  hasCommands() {
-    return this._commandQueue.length > 0;
+  hasActions() {
+    return this._actionQueue.hasActions();
   }
 
   isAvailable() {
@@ -2433,36 +2521,11 @@ class ActionSprite extends Sprite {
   }
 
   someDelayCommand() {
-    if (this.hasDelayCommands()) {
-      return this._delayCommandQueue.some(command => command.delay > 0);
-    }
+    return this._actionQueue.someDelayedAction();
   }
 
-  executeCommand() {
-    const commands = this._commandQueue[0];
-    if (commands.length > 0) {
-      const completed = this.processCommands(commands);
-      if (completed) {
-        this._commandQueue.shift();
-      }
-    }
-  }
-
-  processCommands(commands) {
-    let processed = false;
-    for (const command of commands) {
-      if (command.delay > 0) {
-        this._delayCommandQueue.push(command);
-        continue;
-      }
-      const completed = command.execute();
-      if (completed) {
-        processed = true;
-        continue;
-      }
-      break;
-    }
-    return processed;
+  executeAction() {
+    this._actionQueue.executeAction();
   }
 
   isVisible() {
@@ -2478,18 +2541,7 @@ class ActionSprite extends Sprite {
   }
 
   updateDelayCommands() {
-    if (this.hasDelayCommands()) {
-      const command = this._delayCommandQueue[0];
-      command.delay -= 1;
-      if (command.delay <= 0) {
-        command.execute();
-        this._delayCommandQueue.shift();
-      }
-    }
-  }
-
-  hasDelayCommands() {
-    return this._delayCommandQueue?.length > 0;
+    this._actionQueue.updateDelayedActions();
   }
 
   updateEffects() {
@@ -2547,7 +2599,7 @@ class ActionSprite extends Sprite {
   alignCenterMiddle() {
     const x = ScreenHelper.getCenterPosition(this.width);
     const y = ScreenHelper.getMiddlePosition(this.height);
-    this.addCommand(this.commandAlign, x, y);
+    this.addAction(this.commandAlign, x, y);
   }
 }
 class CardSpriteStoppedState {
@@ -3343,7 +3395,7 @@ class CardSprite extends ActionSprite {
   }
 
   stop() {
-    this.addCommand(this.commandStop);
+    this.addAction(this.commandStop);
   }
 
   commandStop() {
@@ -3409,7 +3461,7 @@ class CardSprite extends ActionSprite {
   }
 
   enable() {
-    this.addCommand(this.commandEnable);
+    this.addAction(this.commandEnable);
   }
 
   commandEnable() {
@@ -3419,7 +3471,7 @@ class CardSprite extends ActionSprite {
   }
 
   disable() {
-    this.addCommand(this.commandDisable);
+    this.addAction(this.commandDisable);
   }
 
   commandDisable() {
@@ -3616,7 +3668,7 @@ class CardSprite extends ActionSprite {
   }
 
   startOpen(xPosition = this.x, yPosition = this.y) {
-    this.addCommand(this.commandStartOpen, xPosition, yPosition);
+    this.addAction(this.commandStartOpen, xPosition, yPosition);
   }
 
   commandStartOpen(xPosition, yPosition) {
@@ -3636,7 +3688,7 @@ class CardSprite extends ActionSprite {
   }
 
   startClosed(xPosition = this.x, yPosition = this.y) {
-    this.addCommand(this.commandStartClosed, xPosition, yPosition);
+    this.addAction(this.commandStartClosed, xPosition, yPosition);
   }
 
   commandStartClosed(xPosition, yPosition) {
@@ -3667,7 +3719,7 @@ class CardSprite extends ActionSprite {
 
   open() {
     this.show();
-    this.addCommand(this.commandOpen);
+    this.addAction(this.commandOpen);
   }
 
   commandOpen() {
@@ -3679,7 +3731,7 @@ class CardSprite extends ActionSprite {
   }
 
   close() {
-    this.addCommand(this.commandClose);
+    this.addAction(this.commandClose);
     this.hide();
   }
 
@@ -3699,7 +3751,7 @@ class CardSprite extends ActionSprite {
 
   toMove(moves) {
     moves = ArrayHelper.toArray(moves);
-    this.addCommand(this.commandMoving, moves);
+    this.addAction(this.commandMoving, moves);
   }
 
   commandMoving(moves) {
@@ -3707,7 +3759,7 @@ class CardSprite extends ActionSprite {
   }
 
   hover() {
-    this.addCommand(this.commandHover);
+    this.addAction(this.commandHover);
   }
 
   commandHover() {
@@ -3737,7 +3789,7 @@ class CardSprite extends ActionSprite {
   }
 
   unhover() {
-    this.addCommand(this.commandUnhover);
+    this.addAction(this.commandUnhover);
   }
 
   commandUnhover() {
@@ -3753,7 +3805,7 @@ class CardSprite extends ActionSprite {
   }
 
   select() {
-    this.addCommand(this.commandSelect);
+    this.addAction(this.commandSelect);
   }
 
   commandSelect() {
@@ -3767,7 +3819,7 @@ class CardSprite extends ActionSprite {
   }
 
   unselect() {
-    this.addCommand(this.commandUnselect);
+    this.addAction(this.commandUnselect);
   }
 
   commandUnselect() {
@@ -3781,7 +3833,7 @@ class CardSprite extends ActionSprite {
   }
 
   iluminate() {
-    this.addCommand(this.commandIluminate);
+    this.addAction(this.commandIluminate);
   }
 
   commandIluminate() {
@@ -3804,7 +3856,7 @@ class CardSprite extends ActionSprite {
   }
 
   uniluminate() {
-    this.addCommand(this.commandUniluminate);
+    this.addAction(this.commandUniluminate);
   }
 
   commandUniluminate() {
@@ -3818,7 +3870,7 @@ class CardSprite extends ActionSprite {
   }
 
   flash(color = 'white', duration = 10, times = 1) {
-    this.addCommand(this.commandFlash, color, duration, times);
+    this.addAction(this.commandFlash, color, duration, times);
   }
 
   commandFlash(color, duration, times) {
@@ -3838,7 +3890,7 @@ class CardSprite extends ActionSprite {
 
   damage(times = 1, anchorParent = this.parent, trigger) {
     const animation = this.damageAnimation();
-    this.addCommandTrigger(this.commandAnimate, trigger, animation, times, anchorParent);
+    this.addTriggerAction(this.commandAnimate, trigger, animation, times, anchorParent);
   }
 
   damageAnimation() {
@@ -3885,7 +3937,7 @@ class CardSprite extends ActionSprite {
   }
 
   quake(times = 1, distance = 8, movements = null) {
-    this.addCommand(this.commandQuake, times, distance, movements);
+    this.addAction(this.commandQuake, times, distance, movements);
   }
 
   commandQuake(times, distance, movements) {
@@ -3904,7 +3956,7 @@ class CardSprite extends ActionSprite {
   }
 
   zoom() {
-    this.addCommand(this.commandZoom);
+    this.addAction(this.commandZoom);
   }
 
   commandZoom() {
@@ -3916,7 +3968,7 @@ class CardSprite extends ActionSprite {
   }
 
   zoomOut() {
-    this.addCommand(this.commandZoomOut);
+    this.addAction(this.commandZoomOut);
   }
 
   commandZoomOut() {
@@ -3928,7 +3980,7 @@ class CardSprite extends ActionSprite {
   }
 
   leave() {
-    this.addCommand(this.commandLeave);
+    this.addAction(this.commandLeave);
     this.hide();
   }
 
@@ -3938,7 +3990,7 @@ class CardSprite extends ActionSprite {
 
   flipTurnToUp() {
     this.close();
-    this.addCommand(this.commandFlipTurnToUp);
+    this.addAction(this.commandFlipTurnToUp);
     this.open();
   }
 
@@ -3954,7 +4006,7 @@ class CardSprite extends ActionSprite {
 
   flipTurnToDown() {
     this.close();
-    this.addCommand(this.commandFlipTurnToDown);
+    this.addAction(this.commandFlipTurnToDown);
     this.open();
   }
 
@@ -3965,7 +4017,7 @@ class CardSprite extends ActionSprite {
   }
 
   setTurnToDown() {
-    this.addCommand(this.commandSetTurnToDown);
+    this.addAction(this.commandSetTurnToDown);
   }
 
   commandSetTurnToDown() {
@@ -3983,7 +4035,7 @@ class CardSprite extends ActionSprite {
   }
 
   changePoints(attackPoints = this._attackPoints, healtPoints = this._healthPoints) {
-    this.addCommand(this.commandChangePoints, attackPoints, healtPoints);
+    this.addAction(this.commandChangePoints, attackPoints, healtPoints);
   }
 
   commandChangePoints(attackPoints, healtPoints) {
@@ -4166,7 +4218,7 @@ class CardsetSpriteSelectModeState {
   updateMoveCursor() {
     if (this._onMoveCursor) {
       const cardset = this._cardset;
-      cardset.addCommand(this._onMoveCursor, this._cursorIndex);
+      cardset.addAction(this._onMoveCursor, this._cursorIndex);
     }
   }
 
@@ -4207,12 +4259,12 @@ class CardsetSpriteSelectModeState {
       this.updateCursor();
       if (this.isSelectable()) {
         if (this.selectIsFull()) {
-          cardset.addCommand(this._onSelectHandler, this._selectedIndexs);
+          cardset.addAction(this._onSelectHandler, this._selectedIndexs);
           return cardset.commandStaticMode();
         }
         if (this.isTriggeredOk()) this.selectSprite();
         if (this._onCancelHandler && this.isTriggeredCancel()) {
-          cardset.addCommand(this._onCancelHandler);
+          cardset.addAction(this._onCancelHandler);
           return cardset.commandStaticMode();
         }
       }
@@ -4401,7 +4453,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   staticMode() {
-    this.addCommand(this.commandStaticMode);
+    this.addAction(this.commandStaticMode);
   }
 
   commandStaticMode() {
@@ -4414,7 +4466,7 @@ class CardsetSprite extends ActionSprite {
     const orderingSprites = this.createOrderingNumbers(sprites);
     this._sprites = sprites;
     this._orderingSprites = orderingSprites;
-    this.addCommand(this.commandSetCards, sprites, orderingSprites);
+    this.addAction(this.commandSetCards, sprites, orderingSprites);
     return sprites;
   }
 
@@ -4460,7 +4512,7 @@ class CardsetSprite extends ActionSprite {
 
   setAllCardsInPositions(sprites = this._sprites, positions) {
     sprites = ArrayHelper.toArray(sprites);
-    this.addCommand(this.commandSetAllCardsPositions, sprites, positions);
+    this.addAction(this.commandSetAllCardsPositions, sprites, positions);
   }
 
   commandSetAllCardsPositions(sprites, positions) {
@@ -4473,7 +4525,7 @@ class CardsetSprite extends ActionSprite {
 
   setAllCardsInPosition(sprites = this._sprites, x = 0, y = 0) {
     sprites = ArrayHelper.toArray(sprites);
-    this.addCommand(this.commandSetAllCardsPosition, sprites, x, y);
+    this.addAction(this.commandSetAllCardsPosition, sprites, x, y);
   }
 
   commandSetAllCardsPosition(sprites, x, y) {
@@ -4483,7 +4535,7 @@ class CardsetSprite extends ActionSprite {
 
   showCards(sprites = this._sprites) {
     sprites = ArrayHelper.toArray(sprites);
-    this.addCommand(this.commandShowCards, sprites);
+    this.addAction(this.commandShowCards, sprites);
   }
 
   commandShowCards(sprites) {
@@ -4520,12 +4572,12 @@ class CardsetSprite extends ActionSprite {
     const orderingSprites = this.createOrderingNumbers(sprites);
     this._sprites = sprites;
     this._orderingSprites = orderingSprites;
-    this.addCommand(this.commandSetCards, sprites, orderingSprites);
+    this.addAction(this.commandSetCards, sprites, orderingSprites);
     return sprites;
   }
 
   startClosedCards(sprites = this._sprites) {
-    this.addCommand(this.commandStartClosedCards, sprites);
+    this.addAction(this.commandStartClosedCards, sprites);
   }
 
   commandStartClosedCards(sprites) {
@@ -4544,7 +4596,7 @@ class CardsetSprite extends ActionSprite {
 
   openAllCards(sprites = this._sprites) {
     sprites = ArrayHelper.toArray(sprites);
-    this.addCommand(this.commandOpenAllCards, sprites);
+    this.addAction(this.commandOpenAllCards, sprites);
   }
 
   commandOpenAllCards(sprites) {
@@ -4554,7 +4606,7 @@ class CardsetSprite extends ActionSprite {
 
   closeAllCards(sprites = this._sprites) {
     sprites = ArrayHelper.toArray(sprites);
-    this.addCommand(this.commandCloseAllCards, sprites);
+    this.addAction(this.commandCloseAllCards, sprites);
   }
 
   commandCloseAllCards(sprites) {
@@ -4576,7 +4628,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   hideOrderingSprites(sprites) {
-    this.addCommand(this.commandHideOrderingSprites, sprites);
+    this.addAction(this.commandHideOrderingSprites, sprites);
   }
 
   commandHideOrderingSprites(sprites) {
@@ -4589,8 +4641,7 @@ class CardsetSprite extends ActionSprite {
     sprites = ArrayHelper.toArray(sprites);
     sprites = sprites.map(sprite => [sprite]);
     if (reverse) sprites.reverse();
-    const commands = this.createDelayCommands(this.commandOpenCard, delay, sprites);
-    this.addCommands(commands);
+    this.addDelayedActions(this.commandOpenCard, delay, sprites);
   }
 
   noSprites() {
@@ -4607,8 +4658,7 @@ class CardsetSprite extends ActionSprite {
     sprites = ArrayHelper.toArray(sprites);
     sprites = sprites.map(sprite => [sprite]);
     if (reverse) sprites.reverse();
-    const commands = this.createDelayCommands(this.commandCloseCard, delay, sprites);
-    this.addCommands(commands);
+    this.addDelayedActions(this.commandCloseCard, delay, sprites);
   }
 
   commandCloseCard(sprite) {
@@ -4624,7 +4674,7 @@ class CardsetSprite extends ActionSprite {
     const numCards = sprites.length;
     const positions = CardsetSprite.createPositionsList(numCards);
     const moves = this.moveCardsPositions(positions, sprites);
-    this.addCommand(this.commandMoveAllCards, moves);
+    this.addAction(this.commandMoveAllCards, moves);
   }
 
   moveCardsPositions(positions, sprites) {
@@ -4648,8 +4698,7 @@ class CardsetSprite extends ActionSprite {
     const positions = CardsetSprite.createPositionsList(numCards);
     let moves = this.moveCardsPositions(positions, sprites);
     moves = moves.map(({ sprite, x, y }) => [sprite, x, y]);
-    const commands = this.createDelayCommands(this.commandMoveCard, delay, moves, triggerActions);
-    this.addCommands(commands);
+    this.addDelayedActions(this.commandMoveCard, delay, moves, triggerActions);
   }
 
   commandMoveCard(sprite, x, y) {
@@ -4664,7 +4713,7 @@ class CardsetSprite extends ActionSprite {
     const noPading = 0;
     const positions = CardsetSprite.createPositions(numCards, noPading, x, y);
     const moves = this.moveCardsPositions(positions, sprites);
-    this.addCommand(this.commandMoveAllCards, moves);
+    this.addAction(this.commandMoveAllCards, moves);
   }
 
   moveCardsToPosition(sprites = this._sprites, x = 0, y = 0, delay = 6) {
@@ -4674,19 +4723,18 @@ class CardsetSprite extends ActionSprite {
     const positions = CardsetSprite.createPositions(numCards, noPading, x, y);
     let moves = this.moveCardsPositions(positions, sprites);
     moves = moves.map(({ sprite, x, y }) => [sprite, x, y]);
-    const commands = this.createDelayCommands(this.commandMoveCard, delay, moves);
-    this.addCommands(commands);
+    this.addDelayedActions(this.commandMoveCard, delay, moves);
   }
 
   moveAllCardsToPositions(sprites = this._sprites, positions) {
     sprites = ArrayHelper.toArray(sprites);
     const moves = this.moveCardsPositions(positions, sprites);
-    this.addCommand(this.commandMoveAllCards, moves);
+    this.addAction(this.commandMoveAllCards, moves);
   }
 
   disableCards(sprites = this._sprites) {
     sprites = ArrayHelper.toArray(sprites);
-    this.addCommand(this.commandDisableCards, sprites);
+    this.addAction(this.commandDisableCards, sprites);
   }
 
   commandDisableCards(sprites) {
@@ -4709,7 +4757,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   selectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
-    this.addCommand(this.commandSelectMode, selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
+    this.addAction(this.commandSelectMode, selectNumber, onSelectHandler, onChangeCursor, onCancelHandler);
   }
 
   commandSelectMode(selectNumber, onSelectHandler, onChangeCursor, onCancelHandler) {
@@ -4725,7 +4773,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   iluminateSelectedSprites(selectedIndexs) {
-    this.addCommand(this.commandIluminateSelectedSprites, selectedIndexs);
+    this.addAction(this.commandIluminateSelectedSprites, selectedIndexs);
   }
 
   commandIluminateSelectedSprites(selectedIndexs) {
@@ -4753,7 +4801,7 @@ class CardsetSprite extends ActionSprite {
 
   flashCardsAnimate(sprites = this._sprites, color = 'white', duration = 10, times = 1, trigger) {
     sprites = ArrayHelper.toArray(sprites);
-    this.addCommandTrigger(this.commandAnimateCardsFlash, trigger, sprites, color, duration, times);
+    this.addTriggerAction(this.commandAnimateCardsFlash, trigger, sprites, color, duration, times);
   }
 
   commandAnimateCardsFlash(sprites, color, duration, times) {
@@ -4769,7 +4817,7 @@ class CardsetSprite extends ActionSprite {
 
   quakeCardsAnimate(sprites = this._sprites, times = 2, distance = 3) {
     sprites = ArrayHelper.toArray(sprites);
-    this.addCommand(this.commandAnimateCardsQuake, sprites, times, distance);
+    this.addAction(this.commandAnimateCardsQuake, sprites, times, distance);
   }
 
   commandAnimateCardsQuake(sprites, times, distance) {
@@ -4786,7 +4834,7 @@ class CardsetSprite extends ActionSprite {
 
   damageCardsAnimate(times = 1, sprites = this._sprites, anchorParent = this.parent, trigger) {
     sprites = ArrayHelper.toArray(sprites);
-    this.addCommandTrigger(this.commandAnimateCardsDamage, trigger, times, sprites, anchorParent);
+    this.addTriggerAction(this.commandAnimateCardsDamage, trigger, times, sprites, anchorParent);
   }
 
   commandAnimateCardsDamage(times, sprites, anchorParent) {
@@ -4805,10 +4853,6 @@ class CardsetSprite extends ActionSprite {
     if (this.hasChildren() && this.isHidden()) this.commandShow();
   }
 
-  executeCommand() {
-    super.executeCommand();
-  }
-
   isBusy() {
     return super.isBusy() || this.someChildrenIsBusy();
   }
@@ -4816,7 +4860,7 @@ class CardsetSprite extends ActionSprite {
   someChildrenIsBusy() {
     if (!this.children || this.hasChildren() === false) return false;
     return this.children.some(sprite => {
-      return (sprite instanceof CardSprite) && (sprite.hasCommands() || sprite.isBusy());
+      return (sprite instanceof CardSprite) && (sprite.hasActions() || sprite.isBusy());
     });
   }
 
@@ -4828,7 +4872,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   displayOrdering(indexes) {
-    this.addCommand(this.commandDisplayOrdering, indexes);
+    this.addAction(this.commandDisplayOrdering, indexes);
   }
 
   commandDisplayOrdering(indexes = this._orderingSprites.map((sprite, index) => index)) {
@@ -4841,7 +4885,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   setNumberColor(number, color) {
-    this.addCommand(this.commandSetNumberColor, number, color);
+    this.addAction(this.commandSetNumberColor, number, color);
   }
 
   commandSetNumberColor(number, color) {
@@ -4875,7 +4919,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   displayReverseOrdering(indexes) {
-    this.addCommand(this.commandDisplayReverseOrdering, indexes);
+    this.addAction(this.commandDisplayReverseOrdering, indexes);
   }
 
   commandDisplayReverseOrdering(indexes = this._orderingSprites.map((sprite, index) => index)) {
@@ -4909,7 +4953,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   setTurnToDownCards(sprite = this._sprites) {
-    this.addCommand(this.commandFlipTurnToDownCards, sprite);
+    this.addAction(this.commandFlipTurnToDownCards, sprite);
   }
 
   commandFlipTurnToDownCards(sprite) {
@@ -4923,7 +4967,7 @@ class CardsetSprite extends ActionSprite {
 
   zoomAllCards(sprites = this._sprites) {
     sprites = ArrayHelper.toArray(sprites);
-    this.addCommand(this.commandZoomAllCards, sprites);
+    this.addAction(this.commandZoomAllCards, sprites);
   }
 
   commandZoomAllCards(sprites) {
@@ -4937,7 +4981,7 @@ class CardsetSprite extends ActionSprite {
 
   zoomOutAllCards(sprites = this._sprites) {
     sprites = ArrayHelper.toArray(sprites);
-    this.addCommand(this.commandZoomOutAllCards, sprites);
+    this.addAction(this.commandZoomOutAllCards, sprites);
   }
 
   commandZoomOutAllCards(sprites) {
@@ -4955,7 +4999,7 @@ class CardsetSprite extends ActionSprite {
 
   flipTurnToUpAllCards(sprites = this._sprites) {
     sprites = ArrayHelper.toArray(sprites);
-    this.addCommand(this.commandFlipTurnToUpAllCards, sprites);
+    this.addAction(this.commandFlipTurnToUpAllCards, sprites);
   }
 
   commandFlipTurnToUpAllCards(sprites) {
@@ -4970,8 +5014,7 @@ class CardsetSprite extends ActionSprite {
   flipTurnToUpCards(sprites = this._sprites, delay = 6) {
     sprites = ArrayHelper.toArray(sprites);
     sprites = sprites.map(sprite => [sprite]);
-    const commands = this.createDelayCommands(this.commandFlipTurnToUpCard, delay, sprites);
-    this.addCommands(commands);
+    this.addDelayedActions(this.commandFlipTurnToUpCard, delay, sprites);
   }
 
   commandFlipTurnToUpCard(sprite) {
@@ -4980,7 +5023,7 @@ class CardsetSprite extends ActionSprite {
   }
 
   addChildToEnd(sprites) {
-    this.addCommand(this.commandAddChildToEnd, sprites);
+    this.addAction(this.commandAddChildToEnd, sprites);
   }
 
   commandAddChildToEnd(spritesToAdd) {
@@ -5001,7 +5044,7 @@ class CardsetSprite extends ActionSprite {
 
   leaveAllCards(sprites = this._sprites) {
     sprites = ArrayHelper.toArray(sprites);
-    this.addCommand(this.commandLeaveAllCards, sprites);
+    this.addAction(this.commandLeaveAllCards, sprites);
   }
 
   commandLeaveAllCards(sprites) {
@@ -5015,7 +5058,7 @@ class CardsetSprite extends ActionSprite {
 
   select(indexes) {
     const commandSelectHandler = this.getSelectHandler();
-    this.addCommand(commandSelectHandler, indexes);
+    this.addAction(commandSelectHandler, indexes);
     this.commandStaticMode();
   }
 
@@ -5025,7 +5068,7 @@ class CardsetSprite extends ActionSprite {
 
   cancel() {
     const commandCancelHandler = this.getCancelHandler();
-    this.addCommand(commandCancelHandler);
+    this.addAction(commandCancelHandler);
     this.commandStaticMode();
   }
 
@@ -6539,7 +6582,7 @@ class SelectModeCardsetSpriteTest extends SceneTest {
       endTest();
     };
     this.subject.selectMode(unlimited, onSelectHandler);
-    this.subject.addCommand(() => {
+    this.subject.addAction(() => {
       this.subject._status.selectSprite(0);
       this.subject._status.selectSprite(1);
       this.subject._status.selectSprite(2);
@@ -6600,7 +6643,7 @@ class SelectModeLimitedCardsetSpriteTest extends SceneTest {
       endTest();
     };
     this.subject.selectMode(selectNumber, onSelectHandler);
-    this.subject.addCommand(() => {
+    this.subject.addAction(() => {
       this.subject._status.selectSprite(0);
     });
   }
@@ -14254,90 +14297,90 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const stepsTests = [
-      // DisplayStep
-      ShouldShowTitleWindowChallengePhaseTest,
-      ShouldShowDescriptionWindowChallengePhaseTest,
-      ShouldCloseWindowsWhenPressActionChallengePhaseTest,
-      ShouldShowTitleWindowStartPhaseTest,
-      ShouldShowDescriptionWindowStartPhaseTest,
-      ShouldCloseWindowsWhenPressActionStartPhaseTest,
-      ShouldShowTitleWindowDrawPhaseTest,
-      ShouldShowDescriptionWindowDrawPhaseTest,
-      ShouldCloseWindowsWhenPressActionDrawPhaseTest,
-      ShouldShowTitleWindowLoadPhaseTest,
-      ShouldShowDescriptionWindowLoadPhaseTest,
-      ShouldCloseWindowsWhenPressActionLoadPhaseTest,
+      // // DisplayStep
+      // ShouldShowTitleWindowChallengePhaseTest,
+      // ShouldShowDescriptionWindowChallengePhaseTest,
+      // ShouldCloseWindowsWhenPressActionChallengePhaseTest,
+      // ShouldShowTitleWindowStartPhaseTest,
+      // ShouldShowDescriptionWindowStartPhaseTest,
+      // ShouldCloseWindowsWhenPressActionStartPhaseTest,
+      // ShouldShowTitleWindowDrawPhaseTest,
+      // ShouldShowDescriptionWindowDrawPhaseTest,
+      // ShouldCloseWindowsWhenPressActionDrawPhaseTest,
+      // ShouldShowTitleWindowLoadPhaseTest,
+      // ShouldShowDescriptionWindowLoadPhaseTest,
+      // ShouldCloseWindowsWhenPressActionLoadPhaseTest,
 
-      // DrawStep
-      ShouldShowPlayerBoardWindowDrawPhaseTest,
-      ShouldShowPlayerBattleWindowDrawPhaseTest,
-      ShouldShowPlayerTrashWindowDrawPhaseTest,
-      ShouldShowPlayerScoreWindowDrawPhaseTest,
-      ShouldShowPlayerCardsetDrawPhaseTest,
-      ShouldShowChallengedBoardWindowDrawPhaseTest,
-      ShouldShowChallengedBattleWindowDrawPhaseTest,
-      ShouldShowChallengedTrashWindowDrawPhaseTest,
-      ShouldShowChallengedScoreWindowDrawPhaseTest,
-      ShouldShowChallengedCardsetDrawPhaseTest,
-      ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
-      ShouldLoadBattlefieldsDrawPhaseTest,
+      // // DrawStep
+      // ShouldShowPlayerBoardWindowDrawPhaseTest,
+      // ShouldShowPlayerBattleWindowDrawPhaseTest,
+      // ShouldShowPlayerTrashWindowDrawPhaseTest,
+      // ShouldShowPlayerScoreWindowDrawPhaseTest,
+      // ShouldShowPlayerCardsetDrawPhaseTest,
+      // ShouldShowChallengedBoardWindowDrawPhaseTest,
+      // ShouldShowChallengedBattleWindowDrawPhaseTest,
+      // ShouldShowChallengedTrashWindowDrawPhaseTest,
+      // ShouldShowChallengedScoreWindowDrawPhaseTest,
+      // ShouldShowChallengedCardsetDrawPhaseTest,
+      // ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
+      // ShouldLoadBattlefieldsDrawPhaseTest,
 
-      // FolderStep
-      ShouldShowPlayerFolderWindowTest,
-      ShouldCloseFolderWindowWhenSelectedFolderTest,
+      // // FolderStep
+      // ShouldShowPlayerFolderWindowTest,
+      // ShouldCloseFolderWindowWhenSelectedFolderTest,
 
-      // MiniGameStep
-      ShouldShowMiniGameCardsetTest,
-      ShouldShufflerCardsTest,
-      ShouldShowGameResultWindowCardsTest,
-      ShouldCloseMiniGameOnSelectedCardTest,
+      // // MiniGameStep
+      // ShouldShowMiniGameCardsetTest,
+      // ShouldShufflerCardsTest,
+      // ShouldShowGameResultWindowCardsTest,
+      // ShouldCloseMiniGameOnSelectedCardTest,
 
-      // TurnStep
-      ShouldShowChallengedBoardWindowLoadPhaseTest,
-      ShouldShowChallengedBattleWindowLoadPhaseTest,
-      ShouldShowChallengedScoreWindowLoadPhaseTest,
-      ShouldShowChallengedTrashWindowLoadPhaseTest,
-      ShouldShowPlayerBoardWindowLoadPhaseTest,
-      ShouldShowPlayerBattleWindowLoadPhaseTest,
-      ShouldShowPlayerTrashWindowLoadPhaseTest,
-      ShouldShowPlayerScoreWindowLoadPhaseTest,
-      ShouldShowChallengedCardsetLoadPhaseTest,
-      ShouldShowPlayerCardsetLoadPhaseTest,
-      ShouldShowTextWindowLoadPhaseTest,
-      PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
-      PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
-      PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
-      ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
-      PlayerMustPassedTurnYourTurnLoadPhaseTest,
-      ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
-      ShouldActivatePowerZoneWhenItHasCardLoadPhaseTest,
-      ShouldActivatePowerZoneWhenReachLimiteLoadPhaseTest,
-      ShouldEndWhenThereAreMovesLoadPhaseTest,
+      // // TurnStep
+      // ShouldShowChallengedBoardWindowLoadPhaseTest,
+      // ShouldShowChallengedBattleWindowLoadPhaseTest,
+      // ShouldShowChallengedScoreWindowLoadPhaseTest,
+      // ShouldShowChallengedTrashWindowLoadPhaseTest,
+      // ShouldShowPlayerBoardWindowLoadPhaseTest,
+      // ShouldShowPlayerBattleWindowLoadPhaseTest,
+      // ShouldShowPlayerTrashWindowLoadPhaseTest,
+      // ShouldShowPlayerScoreWindowLoadPhaseTest,
+      // ShouldShowChallengedCardsetLoadPhaseTest,
+      // ShouldShowPlayerCardsetLoadPhaseTest,
+      // ShouldShowTextWindowLoadPhaseTest,
+      // PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
+      // PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
+      // PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
+      // ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
+      // PlayerMustPassedTurnYourTurnLoadPhaseTest,
+      // ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
+      // ShouldActivatePowerZoneWhenItHasCardLoadPhaseTest,
+      // ShouldActivatePowerZoneWhenReachLimiteLoadPhaseTest,
+      // ShouldEndWhenThereAreMovesLoadPhaseTest,
 
-      // ZoneStep
-      ShouldShowLocationWindowInHandZoneStepLoadPhaseTest,
-      ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest,
-      ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest,
-      ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
-      ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest,
-      ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepLoadPhaseTest,
-      ShouldSelectCardToPlayHandZoneStepLoadPhaseTest,
+      // // ZoneStep
+      // ShouldShowLocationWindowInHandZoneStepLoadPhaseTest,
+      // ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest,
+      // ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest,
+      // ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
+      // ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest,
+      // ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepLoadPhaseTest,
+      // ShouldSelectCardToPlayHandZoneStepLoadPhaseTest,
 
-      // SlotStep
-      ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest,
-      ShouldShowChallengedBattleWindowOnSlotStepInLoadPhaseTest,
-      ShouldShowChallengedBoardWindowOnSlotStepInLoadPhaseTest,
-      ShouldShowChallengedScoreWindowOnSlotStepInLoadPhaseTest,
-      ShouldShowPlayerTrashWindowOnSlotStepInLoadPhaseTest,
-      ShouldShowPlayerBattleWindowOnSlotStepInLoadPhaseTest,
-      ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest,
-      ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest,
-      ShouldShowCardSpriteSelectedOnSlotStepInLoadPhaseTest,
-      ShouldMoveCardToPowerFieldWhenFinishingStrategyOnSlotStepInLoadPhaseTest,
+      // // SlotStep
+      // ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowChallengedBattleWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowChallengedBoardWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowChallengedScoreWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowPlayerTrashWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowPlayerBattleWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest,
+      // ShouldShowCardSpriteSelectedOnSlotStepInLoadPhaseTest,
+      // ShouldMoveCardToPowerFieldWhenFinishingStrategyOnSlotStepInLoadPhaseTest,
     ];
     return [
-      // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
+      ...cardSpriteTests,
+      ...cardsetSpriteTests,
       // ...commandWindowTests,
       // ...StateWindowTests,
       // ...textWindowTests,
@@ -14346,7 +14389,7 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindowTests,
       // ...scoreWindowTests,
       // ...folderWindowTests,
-      ...stepsTests,
+      // ...stepsTests,
     ];
   }
 

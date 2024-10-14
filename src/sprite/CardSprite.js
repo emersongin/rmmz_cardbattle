@@ -86,7 +86,7 @@ class CardSprite extends ActionSprite {
   }
 
   stop() {
-    this.addCommand(this.commandStop);
+    this.addAction(this.commandStop);
   }
 
   commandStop() {
@@ -152,7 +152,7 @@ class CardSprite extends ActionSprite {
   }
 
   enable() {
-    this.addCommand(this.commandEnable);
+    this.addAction(this.commandEnable);
   }
 
   commandEnable() {
@@ -162,7 +162,7 @@ class CardSprite extends ActionSprite {
   }
 
   disable() {
-    this.addCommand(this.commandDisable);
+    this.addAction(this.commandDisable);
   }
 
   commandDisable() {
@@ -359,7 +359,7 @@ class CardSprite extends ActionSprite {
   }
 
   startOpen(xPosition = this.x, yPosition = this.y) {
-    this.addCommand(this.commandStartOpen, xPosition, yPosition);
+    this.addAction(this.commandStartOpen, xPosition, yPosition);
   }
 
   commandStartOpen(xPosition, yPosition) {
@@ -379,7 +379,7 @@ class CardSprite extends ActionSprite {
   }
 
   startClosed(xPosition = this.x, yPosition = this.y) {
-    this.addCommand(this.commandStartClosed, xPosition, yPosition);
+    this.addAction(this.commandStartClosed, xPosition, yPosition);
   }
 
   commandStartClosed(xPosition, yPosition) {
@@ -410,7 +410,7 @@ class CardSprite extends ActionSprite {
 
   open() {
     this.show();
-    this.addCommand(this.commandOpen);
+    this.addAction(this.commandOpen);
   }
 
   commandOpen() {
@@ -422,7 +422,7 @@ class CardSprite extends ActionSprite {
   }
 
   close() {
-    this.addCommand(this.commandClose);
+    this.addAction(this.commandClose);
     this.hide();
   }
 
@@ -442,7 +442,7 @@ class CardSprite extends ActionSprite {
 
   toMove(moves) {
     moves = ArrayHelper.toArray(moves);
-    this.addCommand(this.commandMoving, moves);
+    this.addAction(this.commandMoving, moves);
   }
 
   commandMoving(moves) {
@@ -450,7 +450,7 @@ class CardSprite extends ActionSprite {
   }
 
   hover() {
-    this.addCommand(this.commandHover);
+    this.addAction(this.commandHover);
   }
 
   commandHover() {
@@ -480,7 +480,7 @@ class CardSprite extends ActionSprite {
   }
 
   unhover() {
-    this.addCommand(this.commandUnhover);
+    this.addAction(this.commandUnhover);
   }
 
   commandUnhover() {
@@ -496,7 +496,7 @@ class CardSprite extends ActionSprite {
   }
 
   select() {
-    this.addCommand(this.commandSelect);
+    this.addAction(this.commandSelect);
   }
 
   commandSelect() {
@@ -510,7 +510,7 @@ class CardSprite extends ActionSprite {
   }
 
   unselect() {
-    this.addCommand(this.commandUnselect);
+    this.addAction(this.commandUnselect);
   }
 
   commandUnselect() {
@@ -524,7 +524,7 @@ class CardSprite extends ActionSprite {
   }
 
   iluminate() {
-    this.addCommand(this.commandIluminate);
+    this.addAction(this.commandIluminate);
   }
 
   commandIluminate() {
@@ -547,7 +547,7 @@ class CardSprite extends ActionSprite {
   }
 
   uniluminate() {
-    this.addCommand(this.commandUniluminate);
+    this.addAction(this.commandUniluminate);
   }
 
   commandUniluminate() {
@@ -561,7 +561,7 @@ class CardSprite extends ActionSprite {
   }
 
   flash(color = 'white', duration = 10, times = 1) {
-    this.addCommand(this.commandFlash, color, duration, times);
+    this.addAction(this.commandFlash, color, duration, times);
   }
 
   commandFlash(color, duration, times) {
@@ -581,7 +581,7 @@ class CardSprite extends ActionSprite {
 
   damage(times = 1, anchorParent = this.parent, trigger) {
     const animation = this.damageAnimation();
-    this.addCommandTrigger(this.commandAnimate, trigger, animation, times, anchorParent);
+    this.addTriggerAction(this.commandAnimate, trigger, animation, times, anchorParent);
   }
 
   damageAnimation() {
@@ -628,7 +628,7 @@ class CardSprite extends ActionSprite {
   }
 
   quake(times = 1, distance = 8, movements = null) {
-    this.addCommand(this.commandQuake, times, distance, movements);
+    this.addAction(this.commandQuake, times, distance, movements);
   }
 
   commandQuake(times, distance, movements) {
@@ -647,7 +647,7 @@ class CardSprite extends ActionSprite {
   }
 
   zoom() {
-    this.addCommand(this.commandZoom);
+    this.addAction(this.commandZoom);
   }
 
   commandZoom() {
@@ -659,7 +659,7 @@ class CardSprite extends ActionSprite {
   }
 
   zoomOut() {
-    this.addCommand(this.commandZoomOut);
+    this.addAction(this.commandZoomOut);
   }
 
   commandZoomOut() {
@@ -671,7 +671,7 @@ class CardSprite extends ActionSprite {
   }
 
   leave() {
-    this.addCommand(this.commandLeave);
+    this.addAction(this.commandLeave);
     this.hide();
   }
 
@@ -681,7 +681,7 @@ class CardSprite extends ActionSprite {
 
   flipTurnToUp() {
     this.close();
-    this.addCommand(this.commandFlipTurnToUp);
+    this.addAction(this.commandFlipTurnToUp);
     this.open();
   }
 
@@ -697,7 +697,7 @@ class CardSprite extends ActionSprite {
 
   flipTurnToDown() {
     this.close();
-    this.addCommand(this.commandFlipTurnToDown);
+    this.addAction(this.commandFlipTurnToDown);
     this.open();
   }
 
@@ -708,7 +708,7 @@ class CardSprite extends ActionSprite {
   }
 
   setTurnToDown() {
-    this.addCommand(this.commandSetTurnToDown);
+    this.addAction(this.commandSetTurnToDown);
   }
 
   commandSetTurnToDown() {
@@ -726,7 +726,7 @@ class CardSprite extends ActionSprite {
   }
 
   changePoints(attackPoints = this._attackPoints, healtPoints = this._healthPoints) {
-    this.addCommand(this.commandChangePoints, attackPoints, healtPoints);
+    this.addAction(this.commandChangePoints, attackPoints, healtPoints);
   }
 
   commandChangePoints(attackPoints, healtPoints) {

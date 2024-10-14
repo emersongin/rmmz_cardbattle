@@ -19,7 +19,7 @@ class SelectModeLimitedCardsetSpriteTest extends SceneTest {
       endTest();
     };
     this.subject.selectMode(selectNumber, onSelectHandler);
-    this.subject.addCommand(() => {
+    this.subject.addAction(() => {
       this.subject._status.selectSprite(0);
     });
   }

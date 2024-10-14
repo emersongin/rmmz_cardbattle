@@ -295,11 +295,11 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest,
       // ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest,
       // ShouldShowCardSpriteSelectedOnSlotStepInLoadPhaseTest,
-      ShouldMoveCardToPowerFieldWhenFinishingStrategyOnSlotStepInLoadPhaseTest,
+      // ShouldMoveCardToPowerFieldWhenFinishingStrategyOnSlotStepInLoadPhaseTest,
     ];
     return [
-      // ...cardSpriteTests,
-      // ...cardsetSpriteTests,
+      ...cardSpriteTests,
+      ...cardsetSpriteTests,
       // ...commandWindowTests,
       // ...StateWindowTests,
       // ...textWindowTests,
@@ -308,7 +308,7 @@ class CardBattleTestScene extends Scene_Message {
       // ...trashWindowTests,
       // ...scoreWindowTests,
       // ...folderWindowTests,
-      ...stepsTests,
+      // ...stepsTests,
     ];
   }
 

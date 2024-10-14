@@ -12,6 +12,9 @@
 // include ./helper/Helpers.js
 // include ./helper/Generators.js
 
+// COMPONENTS
+// include ./components/ActionQueue/ActionQueue.js
+
 // WINDOWS
 // include ./window/TextWindow.js
 // include ./window/CommandWindow.js

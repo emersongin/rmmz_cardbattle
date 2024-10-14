@@ -1,8 +1,7 @@
 class ActionSprite extends Sprite {
   initialize(x = 0, y = 0) { 
     super.initialize();
-    this._commandQueue = [];
-    this._delayCommandQueue = [];
+    this._actionQueue = new ActionQueue(this);
     this._wait = 0;
     this._status = null;
     this._effects = {
@@ -32,56 +31,24 @@ class ActionSprite extends Sprite {
     this._status = null;
   }
 
-  addCommand(fn, ...params) {
-    const command = this.createCommand({ fn, delay: 0, trigger: null }, ...params);
-    this.addCommands(command);
+  addAction(fn, ...params) {
+    this._actionQueue.addAction(fn, ...params);
   }
 
-  addCommandTrigger(fn, trigger, ...params) {
-    const command = this.createCommand({ fn, delay: 0, trigger }, ...params);
-    this.addCommands(command);
+  addTriggerAction(fn, trigger, ...params) {
+    this._actionQueue.addTriggerAction(fn, trigger, ...params);
   }
 
-  createDelayCommand(fn, delay, ...params) {
-    const command = this.createCommand({ fn, delay, trigger: null }, ...params);
-    return command;
+  addActions(actions) {
+    this._actionQueue.pushActions(actions);
   }
 
-  createCommand(props, ...params) {
-    const { fn, delay, trigger } = props;
-    const command = { 
-      fn: fn.name || 'anonymous',
-      delay: delay || 0,
-      execute: () => {
-        const result = fn.call(this, ...params);
-        if (typeof trigger === 'function') trigger();
-        return typeof result === 'boolean' ? result : true;
-      }
-    };
-    return command;
-  }
-
-  addCommands(commands) {
-    commands = ArrayHelper.toArray(commands);
-    this._commandQueue.push(commands);
-  }
-
-  createDelayCommands(fn, delay, set, triggerActions) {
-    const hasTriggerActions = triggerActions && triggerActions.length > 0;
-    const commands = set.map((params, index) => {
-      const appliedDelay = (index > 0) ? delay : 0;
-      const command = this.createCommand({
-        fn,
-        delay: appliedDelay,
-        trigger: hasTriggerActions ? triggerActions[index] : undefined,
-      }, ...params);
-      return command;
-    });
-    return commands;
+  addDelayedActions(fn, delay, itemSet, triggerActions) {
+    return this._actionQueue.addDelayedActions(fn, delay, itemSet, triggerActions);
   }
 
   addWait(seconds = 0.6) {
-    this.addCommand(this.commandWait, seconds);
+    this.addAction(this.commandWait, seconds);
   }
 
   commandWait(seconds) {
@@ -89,7 +56,7 @@ class ActionSprite extends Sprite {
   }
 
   show() {
-    this.addCommand(this.commandShow);
+    this.addAction(this.commandShow);
   }
 
   commandShow() {
@@ -97,7 +64,7 @@ class ActionSprite extends Sprite {
   }
 
   hide() {
-    this.addCommand(this.commandHide);
+    this.addAction(this.commandHide);
   }
 
   commandHide() {
@@ -108,14 +75,14 @@ class ActionSprite extends Sprite {
     const { y } = obj;
     const receptorX = undefined;
     const receptorY = ScreenHelper.getPositionAboveOf(y, this.height);
-    this.addCommand(this.commandAlign, receptorX, receptorY);
+    this.addAction(this.commandAlign, receptorX, receptorY);
   }
 
   alignBelowOf(obj) {
     const { y, height } = obj;
     const receptorX = undefined;
     const receptorY = ScreenHelper.getPositionBelowOf(y, height);
-    this.addCommand(this.commandAlign, receptorX, receptorY);
+    this.addAction(this.commandAlign, receptorX, receptorY);
   }
 
   commandAlign(x = this.x, y = this.y) {
@@ -126,7 +93,7 @@ class ActionSprite extends Sprite {
   update() {
     super.update();
     if (this._wait > 0) return this._wait--;
-    if (this.hasCommands() && this.isAvailable()) this.executeCommand();
+    if (this.hasActions() && this.isAvailable()) this.executeAction();
     if (this.isVisible()) {
       this.updateStatus();
       this.updateDelayCommands();
@@ -134,8 +101,8 @@ class ActionSprite extends Sprite {
     }
   }
 
-  hasCommands() {
-    return this._commandQueue.length > 0;
+  hasActions() {
+    return this._actionQueue.hasActions();
   }
 
   isAvailable() {
@@ -151,36 +118,11 @@ class ActionSprite extends Sprite {
   }
 
   someDelayCommand() {
-    if (this.hasDelayCommands()) {
-      return this._delayCommandQueue.some(command => command.delay > 0);
-    }
+    return this._actionQueue.someDelayedAction();
   }
 
-  executeCommand() {
-    const commands = this._commandQueue[0];
-    if (commands.length > 0) {
-      const completed = this.processCommands(commands);
-      if (completed) {
-        this._commandQueue.shift();
-      }
-    }
-  }
-
-  processCommands(commands) {
-    let processed = false;
-    for (const command of commands) {
-      if (command.delay > 0) {
-        this._delayCommandQueue.push(command);
-        continue;
-      }
-      const completed = command.execute();
-      if (completed) {
-        processed = true;
-        continue;
-      }
-      break;
-    }
-    return processed;
+  executeAction() {
+    this._actionQueue.executeAction();
   }
 
   isVisible() {
@@ -196,18 +138,7 @@ class ActionSprite extends Sprite {
   }
 
   updateDelayCommands() {
-    if (this.hasDelayCommands()) {
-      const command = this._delayCommandQueue[0];
-      command.delay -= 1;
-      if (command.delay <= 0) {
-        command.execute();
-        this._delayCommandQueue.shift();
-      }
-    }
-  }
-
-  hasDelayCommands() {
-    return this._delayCommandQueue?.length > 0;
+    this._actionQueue.updateDelayedActions();
   }
 
   updateEffects() {
@@ -265,6 +196,6 @@ class ActionSprite extends Sprite {
   alignCenterMiddle() {
     const x = ScreenHelper.getCenterPosition(this.width);
     const y = ScreenHelper.getMiddlePosition(this.height);
-    this.addCommand(this.commandAlign, x, y);
+    this.addAction(this.commandAlign, x, y);
   }
 }

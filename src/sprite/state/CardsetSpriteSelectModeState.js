@@ -45,7 +45,7 @@ class CardsetSpriteSelectModeState {
   updateMoveCursor() {
     if (this._onMoveCursor) {
       const cardset = this._cardset;
-      cardset.addCommand(this._onMoveCursor, this._cursorIndex);
+      cardset.addAction(this._onMoveCursor, this._cursorIndex);
     }
   }
 
@@ -86,12 +86,12 @@ class CardsetSpriteSelectModeState {
       this.updateCursor();
       if (this.isSelectable()) {
         if (this.selectIsFull()) {
-          cardset.addCommand(this._onSelectHandler, this._selectedIndexs);
+          cardset.addAction(this._onSelectHandler, this._selectedIndexs);
           return cardset.commandStaticMode();
         }
         if (this.isTriggeredOk()) this.selectSprite();
         if (this._onCancelHandler && this.isTriggeredCancel()) {
-          cardset.addCommand(this._onCancelHandler);
+          cardset.addAction(this._onCancelHandler);
           return cardset.commandStaticMode();
         }
       }
