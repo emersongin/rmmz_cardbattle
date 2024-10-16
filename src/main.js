@@ -12,13 +12,14 @@
 // include ./helper/Helpers.js
 // include ./helper/Generators.js
 
+// MANAGERS
+// include ./manager/CardBattleManager.js
+
 // COMPONENTS
 // include ./components/ActionQueue/ActionQueue.js
 // include ./components/ActionSprite/ActionSprite.js
 // include ./components/CardSprite/CardSprite.js
 // include ./components/CardsetSprite/CardsetSprite.js
-
-// WINDOWS
 // include ./components/TextWindow/TextWindow.js
 // include ./components/CommandWindow/CommandWindow.js
 // include ./components/FolderWindow/FolderWindow.js
@@ -29,10 +30,11 @@
 // include ./components/TrashWindow/TrashWindow.js
 // include ./components/ScoreWindow/ScoreWindow.js
 
-
+// SCENE
+// include ./components/Scene/CardBattleScene.js
 
 // TESTS
-// include ../test/integration/SceneTest.js
+// include ../test/components/SceneTest/SceneTest.js
 // CARD SPRITE
 // include ../test/integration/card/SizeCardSpriteTest.js
 // include ../test/integration/card/StartOpenCardSpriteTest.js
@@ -253,7 +255,5 @@
 // include ../test/components/SlotStep/LoadPhase/ShouldShowCardSpriteSelectedTest.js
 // include ../test/components/SlotStep/LoadPhase/ShouldMoveCardToPowerFieldWhenFinishingStrategyTest.js
 
-// include ./manager/CardBattleManager.js
-// include ./components/Scene/CardBattleTestScene.js
-// include ./components/Scene/CardBattleScene.js
+// include ../test/components/CardBattleTestScene/CardBattleTestScene.js
 })();
