@@ -10,7 +10,7 @@ class ValuesWindow extends StateWindow {
 
   updateValues(updates, fps) {
     updates = Array.isArray(updates) ? updates : [updates];
-    this.addCommand(this.commandUpdateValues, updates, fps);
+    this.addAction(this.commandUpdateValues, updates, fps);
   }
 
   commandUpdateValues(updates, fps) {

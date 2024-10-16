@@ -36,7 +36,7 @@ class StateWindow extends Window_Base {
     super.initialize(rect);
     this._iconset = "IconSet";
     this._status = {};
-    this._commandQueue = [];
+    this._actionQueue = new ActionQueue(this);
     this._windowColor = GameConst.DEFAULT_COLOR;
     this.closed();
     this.stop();
@@ -65,13 +65,13 @@ class StateWindow extends Window_Base {
 
   update() {
     super.update();
-    if (this.hasCommands() && this.isStopped() && this.isAvailable()) this.executeCommand();
+    if (this.hasActions() && this.isStopped() && this.isAvailable()) this.executeAction();
     if (this.isOpen() && this.getStatus()) this._status.updateStatus();
     this.updateTone();
   }
 
-  hasCommands() {
-    return this._commandQueue.length > 0;
+  hasActions() {
+    return this._actionQueue.hasActions();
   }
 
   isStopped() {
@@ -90,12 +90,8 @@ class StateWindow extends Window_Base {
     return this.getStatus() instanceof WindowUpdateState;
   }
 
-  executeCommand() {
-    const command = this._commandQueue[0];
-    const executed = command.execute();
-    if (executed) {
-      this._commandQueue.shift();
-    }
+  executeAction() {
+    this._actionQueue.executeAction();
   }
 
   getStatus() {
@@ -116,23 +112,11 @@ class StateWindow extends Window_Base {
   }
 
   open() {
-    this.addCommand(this.commandOpen);
+    this.addAction(this.commandOpen);
   }
 
-  addCommand(fn, ...params) {
-    const command = this.createCommand(fn, ...params);
-    this._commandQueue.push(command);
-  }
-
-  createCommand(fn, ...params) {
-    const command = { 
-      fn: fn.name || 'anonymous',
-      execute: () => {
-        const result = fn.call(this, ...params);
-        return typeof result === 'boolean' ? result : true;
-      }
-    };
-    return command;
+  addAction(fn, ...params) {
+    this._actionQueue.addAction(fn, ...params);
   }
 
   commandOpen() {
@@ -142,7 +126,7 @@ class StateWindow extends Window_Base {
   }
 
   close() {
-    this.addCommand(this.commandClose);
+    this.addAction(this.commandClose);
   }
 
   commandClose() {
@@ -151,7 +135,7 @@ class StateWindow extends Window_Base {
   }
 
   changeBlueColor() {
-    this.addCommand(this.commandChangeBlueColor);
+    this.addAction(this.commandChangeBlueColor);
   }
 
   commandChangeBlueColor() {
@@ -160,7 +144,7 @@ class StateWindow extends Window_Base {
   }
 
   changeRedColor() {
-    this.addCommand(this.commandChangeRedColor);
+    this.addAction(this.commandChangeRedColor);
   }
 
   commandChangeRedColor() {
@@ -169,7 +153,7 @@ class StateWindow extends Window_Base {
   }
 
   changeDefaultColor() {
-    this.addCommand(this.commandChangeDefaultColor);
+    this.addAction(this.commandChangeDefaultColor);
   }
 
   commandChangeDefaultColor() {
@@ -180,93 +164,93 @@ class StateWindow extends Window_Base {
   alignStartTop() {
     const x = ScreenHelper.getStartPosition();
     const y = ScreenHelper.getTopPosition();
-    this.addCommand(this.commandAlign, x, y);
+    this.addAction(this.commandAlign, x, y);
   }
 
   alignCenterTop() {
     const x = ScreenHelper.getCenterPosition(this.width);
     const y = ScreenHelper.getTopPosition();
-    this.addCommand(this.commandAlign, x, y);
+    this.addAction(this.commandAlign, x, y);
   }
 
   alignEndTop() {
     const x = ScreenHelper.getEndPosition(this.width);
     const y = ScreenHelper.getTopPosition();
-    this.addCommand(this.commandAlign, x, y);
+    this.addAction(this.commandAlign, x, y);
   }
 
   alignStartMiddle() {
     const x = ScreenHelper.getStartPosition();
     const y = ScreenHelper.getMiddlePosition(this.height);
-    this.addCommand(this.commandAlign, x, y);
+    this.addAction(this.commandAlign, x, y);
   }
 
   alignCenterAboveMiddle() {
     const x = ScreenHelper.getCenterPosition(this.width);
     const y = ScreenHelper.getAboveMiddlePosition(this.height);
-    this.addCommand(this.commandAlign, x, y);
+    this.addAction(this.commandAlign, x, y);
   }
 
   alignEndAboveMiddle() {
     const x = ScreenHelper.getEndPosition(this.width);
     const y = ScreenHelper.getAboveMiddlePosition(this.height);
-    this.addCommand(this.commandAlign, x, y);
+    this.addAction(this.commandAlign, x, y);
   }
 
   alignCenterMiddle() {
     const x = ScreenHelper.getCenterPosition(this.width);
     const y = ScreenHelper.getMiddlePosition(this.height);
-    this.addCommand(this.commandAlign, x, y);
+    this.addAction(this.commandAlign, x, y);
   }
 
   alignCenterBelowMiddle() {
     const x = ScreenHelper.getCenterPosition(this.width);
     const y = ScreenHelper.getBelowMiddlePosition(this.height);
-    this.addCommand(this.commandAlign, x, y);
+    this.addAction(this.commandAlign, x, y);
   }
 
   alignEndBelowMiddle() {
     const x = ScreenHelper.getEndPosition(this.width);
     const y = ScreenHelper.getBelowMiddlePosition(this.height);
-    this.addCommand(this.commandAlign, x, y);
+    this.addAction(this.commandAlign, x, y);
   }
 
   alignEndMiddle() {
     const x = ScreenHelper.getEndPosition(this.width);
     const y = ScreenHelper.getMiddlePosition(this.height);
-    this.addCommand(this.commandAlign, x, y);
+    this.addAction(this.commandAlign, x, y);
   }
 
   alignStartBottom() {
     const x = ScreenHelper.getStartPosition();
     const y = ScreenHelper.getBottomPosition(this.height);
-    this.addCommand(this.commandAlign, x, y);
+    this.addAction(this.commandAlign, x, y);
   }
 
   alignCenterBottom() {
     const x = ScreenHelper.getCenterPosition(this.width);
     const y = ScreenHelper.getBottomPosition(this.height);
-    this.addCommand(this.commandAlign, x, y);
+    this.addAction(this.commandAlign, x, y);
   }
 
   alignEndBottom() {
     const x = ScreenHelper.getEndPosition(this.width);
     const y = ScreenHelper.getBottomPosition(this.height);
-    this.addCommand(this.commandAlign, x, y);
+    this.addAction(this.commandAlign, x, y);
   }
 
   alignAboveOf(obj) {
     const { y } = obj;
     const receptorX = undefined;
     const receptorY = ScreenHelper.getPositionAboveOf(y, this.height);
-    this.addCommand(this.commandAlign, receptorX, receptorY);
+    this.addAction(this.commandAlign, receptorX, receptorY);
   }
 
   alignBelowOf(obj) {
     const { y, height } = obj;
     const receptorX = undefined;
     const receptorY = ScreenHelper.getPositionBelowOf(y, height);
-    this.addCommand(this.commandAlign, receptorX, receptorY);
+    this.addAction(this.commandAlign, receptorX, receptorY);
   }
 
   commandAlign(x = this.x, y = this.y) {

@@ -298,16 +298,16 @@ class CardBattleTestScene extends Scene_Message {
       // ShouldMoveCardToPowerFieldWhenFinishingStrategyOnSlotStepInLoadPhaseTest,
     ];
     return [
-      ...cardSpriteTests,
-      ...cardsetSpriteTests,
-      // ...commandWindowTests,
-      // ...StateWindowTests,
-      // ...textWindowTests,
-      // ...boardWindowTests,
-      // ...battlePointsWindowTests,
-      // ...trashWindowTests,
-      // ...scoreWindowTests,
-      // ...folderWindowTests,
+      // ...cardSpriteTests,
+      // ...cardsetSpriteTests,
+      ...commandWindowTests,
+      ...StateWindowTests,
+      ...textWindowTests,
+      ...boardWindowTests,
+      ...battlePointsWindowTests,
+      ...trashWindowTests,
+      ...scoreWindowTests,
+      ...folderWindowTests,
       // ...stepsTests,
     ];
   }
