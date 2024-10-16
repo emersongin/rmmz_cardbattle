@@ -1,5 +1,5 @@
-// include ./state/WindowStoppedState.js
-// include ./state/WindowUpdateState.js
+// include ./WindowStoppedState.js
+// include ./WindowUpdateState.js
 
 class StateWindow extends Window_Base {
   static createWindowOneFourthSize(x, y) {

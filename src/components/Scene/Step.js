@@ -1,7 +1,7 @@
 class Step {
   _scene;
   _phase;
-  _actionsQueue = [];
+  _actionQueue = null;
   _wait = 0;
   _player = {
     boardWindow: undefined,
@@ -38,6 +38,7 @@ class Step {
     }
     this._scene = scene;
     this._phase = phase;
+    this._actionQueue = new ActionQueue(this);
   }
 
   start() {
@@ -50,7 +51,7 @@ class Step {
   }
 
   hasActions() {
-    return this._actionsQueue.length > 0;
+    return this._actionQueue.hasActions();
   }
 
   isAvailable() {
@@ -77,57 +78,20 @@ class Step {
   someChildrenIsBusy() {
     if (!this._scene.children || this._scene.children.length === 0) return false;
     return this._scene.children.some(sprite => {
-      return (sprite instanceof CardsetSprite) && (sprite.hasCommands() || sprite.isBusy());
+      return (sprite instanceof CardsetSprite) && (sprite.hasActions() || sprite.isBusy());
     });
   }
 
   executeAction() {
-    const actions = this._actionsQueue[0];
-    if (actions.length > 0) {
-      const completed = this.processActions(actions);
-      if (completed) {
-        this._actionsQueue.shift();
-      }
-    }
-  }
-
-  processActions(actions) {
-    let processed = false;
-    for (const action of actions) {
-      const completed = action.execute();
-      if (completed) {
-        processed = true;
-        continue;
-      }
-      break;
-    }
-    return processed;
+    this._actionQueue.executeAction();
   }
 
   addAction(fn, ...params) {
-    const action = this.createAction(fn, ...params);
-    const actions = ArrayHelper.toArray(action);
-    this._actionsQueue.push(actions);
-  }
-
-  createAction(fn, ...params) {
-    const action = { 
-      fn: fn.name || 'anonymous',
-      execute: () => {
-        const result = fn.call(this, ...params);
-        return typeof result === 'boolean' ? result : true;
-      }
-    };
-    return action;
+    this._actionQueue.addAction(fn, ...params);
   }
 
   addActions(actions) {
-    actions = ArrayHelper.toArray(actions);
-    actions = actions.map((fn, ...params) => {
-      if (Array.isArray(fn)) return this.createAction(fn[0], ...fn.slice(1));
-      return this.createAction(fn)
-    });
-    this._actionsQueue.push(actions);
+    this._actionQueue.addActions(actions);
   }
 
   addWait(seconds = 0.6) {
@@ -179,14 +143,6 @@ class Step {
     this._scene.setStep(step);
     return step;
   }
-
-  // destroy() {
-  //   this._actionsQueue = [];
-  //   this._wait = 0;
-  //   this._player = {};
-  //   this._challenged = {};
-  //   this._powerFieldCardsetSprite = {};
-  // }
 
   getPhase() {
     return this._phase;

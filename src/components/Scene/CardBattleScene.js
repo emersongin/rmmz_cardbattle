@@ -1,3 +1,13 @@
+// include ./Step.js
+// include ./DisplayStep.js
+// include ./FolderStep.js
+// include ./MiniGameStep.js
+// include ./DrawStep.js
+// include ./PowerStep.js
+// include ./SlotStep.js
+// include ./ZoneStep.js
+// include ./TurnStep.js
+
 class CardBattleScene extends Scene_Message {
   initialize() {
     super.initialize();

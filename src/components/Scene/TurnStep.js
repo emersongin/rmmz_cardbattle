@@ -107,7 +107,7 @@ class TurnStep extends Step {
   }
 
   commandActivePowerZone() {
-    this.changeStep(PowerZoneStep);
+    this.changeStep(PowerStep);
   }
 
   updatePlayerTurn() {

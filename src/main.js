@@ -19,15 +19,15 @@
 // include ./components/CardsetSprite/CardsetSprite.js
 
 // WINDOWS
-// include ./window/TextWindow.js
-// include ./window/CommandWindow.js
-// include ./window/FolderWindow.js
-// include ./window/StateWindow.js
-// include ./window/ValuesWindow.js
-// include ./window/BoardWindow.js
-// include ./window/BattlePointsWindow.js
-// include ./window/TrashWindow.js
-// include ./window/ScoreWindow.js
+// include ./components/TextWindow/TextWindow.js
+// include ./components/CommandWindow/CommandWindow.js
+// include ./components/FolderWindow/FolderWindow.js
+// include ./components/StateWindow/StateWindow.js
+// include ./components/ValuesWindow/ValuesWindow.js
+// include ./components/BoardWindow/BoardWindow.js
+// include ./components/BattlePointsWindow/BattlePointsWindow.js
+// include ./components/TrashWindow/TrashWindow.js
+// include ./components/ScoreWindow/ScoreWindow.js
 
 
 
@@ -254,6 +254,6 @@
 // include ../test/components/SlotStep/LoadPhase/ShouldMoveCardToPowerFieldWhenFinishingStrategyTest.js
 
 // include ./manager/CardBattleManager.js
-// include ./scene/CardBattleTestScene.js
-// include ./scene/CardBattleScene.js
+// include ./components/Scene/CardBattleTestScene.js
+// include ./components/Scene/CardBattleScene.js
 })();

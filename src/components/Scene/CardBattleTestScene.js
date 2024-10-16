@@ -1,13 +1,3 @@
-// include ./step/Step.js
-// include ./step/DisplayStep.js
-// include ./step/FolderStep.js
-// include ./step/MiniGameStep.js
-// include ./step/DrawStep.js
-// include ./step/PowerZoneStep.js
-// include ./step/SlotStep.js
-// include ./step/ZoneStep.js
-// include ./step/TurnStep.js
-
 class CardBattleTestScene extends Scene_Message {
   initialize() {
     super.initialize();
@@ -216,99 +206,99 @@ class CardBattleTestScene extends Scene_Message {
       CreateFolderWindowTest,
     ];
     const stepsTests = [
-      // // DisplayStep
-      // ShouldShowTitleWindowChallengePhaseTest,
-      // ShouldShowDescriptionWindowChallengePhaseTest,
-      // ShouldCloseWindowsWhenPressActionChallengePhaseTest,
-      // ShouldShowTitleWindowStartPhaseTest,
-      // ShouldShowDescriptionWindowStartPhaseTest,
-      // ShouldCloseWindowsWhenPressActionStartPhaseTest,
-      // ShouldShowTitleWindowDrawPhaseTest,
-      // ShouldShowDescriptionWindowDrawPhaseTest,
-      // ShouldCloseWindowsWhenPressActionDrawPhaseTest,
-      // ShouldShowTitleWindowLoadPhaseTest,
-      // ShouldShowDescriptionWindowLoadPhaseTest,
-      // ShouldCloseWindowsWhenPressActionLoadPhaseTest,
+      // DisplayStep
+      ShouldShowTitleWindowChallengePhaseTest,
+      ShouldShowDescriptionWindowChallengePhaseTest,
+      ShouldCloseWindowsWhenPressActionChallengePhaseTest,
+      ShouldShowTitleWindowStartPhaseTest,
+      ShouldShowDescriptionWindowStartPhaseTest,
+      ShouldCloseWindowsWhenPressActionStartPhaseTest,
+      ShouldShowTitleWindowDrawPhaseTest,
+      ShouldShowDescriptionWindowDrawPhaseTest,
+      ShouldCloseWindowsWhenPressActionDrawPhaseTest,
+      ShouldShowTitleWindowLoadPhaseTest,
+      ShouldShowDescriptionWindowLoadPhaseTest,
+      ShouldCloseWindowsWhenPressActionLoadPhaseTest,
 
-      // // DrawStep
-      // ShouldShowPlayerBoardWindowDrawPhaseTest,
-      // ShouldShowPlayerBattleWindowDrawPhaseTest,
-      // ShouldShowPlayerTrashWindowDrawPhaseTest,
-      // ShouldShowPlayerScoreWindowDrawPhaseTest,
-      // ShouldShowPlayerCardsetDrawPhaseTest,
-      // ShouldShowChallengedBoardWindowDrawPhaseTest,
-      // ShouldShowChallengedBattleWindowDrawPhaseTest,
-      // ShouldShowChallengedTrashWindowDrawPhaseTest,
-      // ShouldShowChallengedScoreWindowDrawPhaseTest,
-      // ShouldShowChallengedCardsetDrawPhaseTest,
-      // ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
-      // ShouldLoadBattlefieldsDrawPhaseTest,
+      // DrawStep
+      ShouldShowPlayerBoardWindowDrawPhaseTest,
+      ShouldShowPlayerBattleWindowDrawPhaseTest,
+      ShouldShowPlayerTrashWindowDrawPhaseTest,
+      ShouldShowPlayerScoreWindowDrawPhaseTest,
+      ShouldShowPlayerCardsetDrawPhaseTest,
+      ShouldShowChallengedBoardWindowDrawPhaseTest,
+      ShouldShowChallengedBattleWindowDrawPhaseTest,
+      ShouldShowChallengedTrashWindowDrawPhaseTest,
+      ShouldShowChallengedScoreWindowDrawPhaseTest,
+      ShouldShowChallengedCardsetDrawPhaseTest,
+      ShouldCloseBattlefieldsWhenPressActionDrawPhaseTest,
+      ShouldLoadBattlefieldsDrawPhaseTest,
 
-      // // FolderStep
-      // ShouldShowPlayerFolderWindowTest,
-      // ShouldCloseFolderWindowWhenSelectedFolderTest,
+      // FolderStep
+      ShouldShowPlayerFolderWindowTest,
+      ShouldCloseFolderWindowWhenSelectedFolderTest,
 
-      // // MiniGameStep
-      // ShouldShowMiniGameCardsetTest,
-      // ShouldShufflerCardsTest,
-      // ShouldShowGameResultWindowCardsTest,
-      // ShouldCloseMiniGameOnSelectedCardTest,
+      // MiniGameStep
+      ShouldShowMiniGameCardsetTest,
+      ShouldShufflerCardsTest,
+      ShouldShowGameResultWindowCardsTest,
+      ShouldCloseMiniGameOnSelectedCardTest,
 
-      // // TurnStep
-      // ShouldShowChallengedBoardWindowLoadPhaseTest,
-      // ShouldShowChallengedBattleWindowLoadPhaseTest,
-      // ShouldShowChallengedScoreWindowLoadPhaseTest,
-      // ShouldShowChallengedTrashWindowLoadPhaseTest,
-      // ShouldShowPlayerBoardWindowLoadPhaseTest,
-      // ShouldShowPlayerBattleWindowLoadPhaseTest,
-      // ShouldShowPlayerTrashWindowLoadPhaseTest,
-      // ShouldShowPlayerScoreWindowLoadPhaseTest,
-      // ShouldShowChallengedCardsetLoadPhaseTest,
-      // ShouldShowPlayerCardsetLoadPhaseTest,
-      // ShouldShowTextWindowLoadPhaseTest,
-      // PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
-      // PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
-      // PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
-      // ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
-      // PlayerMustPassedTurnYourTurnLoadPhaseTest,
-      // ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
-      // ShouldActivatePowerZoneWhenItHasCardLoadPhaseTest,
-      // ShouldActivatePowerZoneWhenReachLimiteLoadPhaseTest,
-      // ShouldEndWhenThereAreMovesLoadPhaseTest,
+      // TurnStep
+      ShouldShowChallengedBoardWindowLoadPhaseTest,
+      ShouldShowChallengedBattleWindowLoadPhaseTest,
+      ShouldShowChallengedScoreWindowLoadPhaseTest,
+      ShouldShowChallengedTrashWindowLoadPhaseTest,
+      ShouldShowPlayerBoardWindowLoadPhaseTest,
+      ShouldShowPlayerBattleWindowLoadPhaseTest,
+      ShouldShowPlayerTrashWindowLoadPhaseTest,
+      ShouldShowPlayerScoreWindowLoadPhaseTest,
+      ShouldShowChallengedCardsetLoadPhaseTest,
+      ShouldShowPlayerCardsetLoadPhaseTest,
+      ShouldShowTextWindowLoadPhaseTest,
+      PlayerMustPlayedFirstWhenWinningMiniGameLoadPhaseTest,
+      PlayerMustPlayedNextWhenLosingMiniGameLoadPhaseTest,
+      PlayerMustMakePlayWhenYourTurnLoadPhaseTest,
+      ChallengedMustMakePlayWhenYourTurnLoadPhaseTest,
+      PlayerMustPassedTurnYourTurnLoadPhaseTest,
+      ChallengeMustPassedTurnWhenYourTurnLoadPhaseTest,
+      ShouldActivatePowerZoneWhenItHasCardLoadPhaseTest,
+      ShouldActivatePowerZoneWhenReachLimiteLoadPhaseTest,
+      ShouldEndWhenThereAreMovesLoadPhaseTest,
 
-      // // ZoneStep
-      // ShouldShowLocationWindowInHandZoneStepLoadPhaseTest,
-      // ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest,
-      // ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest,
-      // ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
-      // ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest,
-      // ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepLoadPhaseTest,
-      // ShouldSelectCardToPlayHandZoneStepLoadPhaseTest,
+      // ZoneStep
+      ShouldShowLocationWindowInHandZoneStepLoadPhaseTest,
+      ShouldShowCardNameWindowInHandZoneStepLoadPhaseTest,
+      ShouldShowCardDescriptionWindowInHandZoneStepLoadPhaseTest,
+      ShouldShowCardPropsWindowInHandZoneStepLoadPhaseTest,
+      ShouldChangeCardOnMoveCursorInHandZoneStepLoadPhaseTest,
+      ShouldCloseAndChangeStepWhenGoingBackInHandZoneStepLoadPhaseTest,
+      ShouldSelectCardToPlayHandZoneStepLoadPhaseTest,
 
-      // // SlotStep
-      // ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowChallengedBattleWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowChallengedBoardWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowChallengedScoreWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowPlayerTrashWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowPlayerBattleWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest,
-      // ShouldShowCardSpriteSelectedOnSlotStepInLoadPhaseTest,
-      // ShouldMoveCardToPowerFieldWhenFinishingStrategyOnSlotStepInLoadPhaseTest,
+      // SlotStep
+      ShouldShowChallengedTrashWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowChallengedBattleWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowChallengedBoardWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowChallengedScoreWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerTrashWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerBattleWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerBoardWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowPlayerScoreWindowOnSlotStepInLoadPhaseTest,
+      ShouldShowCardSpriteSelectedOnSlotStepInLoadPhaseTest,
+      ShouldMoveCardToPowerFieldWhenFinishingStrategyOnSlotStepInLoadPhaseTest,
     ];
     return [
       // ...cardSpriteTests,
       // ...cardsetSpriteTests,
-      ...commandWindowTests,
-      ...StateWindowTests,
-      ...textWindowTests,
-      ...boardWindowTests,
-      ...battlePointsWindowTests,
-      ...trashWindowTests,
-      ...scoreWindowTests,
-      ...folderWindowTests,
-      // ...stepsTests,
+      // ...commandWindowTests,
+      // ...StateWindowTests,
+      // ...textWindowTests,
+      // ...boardWindowTests,
+      // ...battlePointsWindowTests,
+      // ...trashWindowTests,
+      // ...scoreWindowTests,
+      // ...folderWindowTests,
+      ...stepsTests,
     ];
   }
 

@@ -1,4 +1,4 @@
-// include ./state/WindowUpdatedScoreState.js
+// include ./WindowScoreUpdateState.js
 
 class ScoreWindow extends StateWindow {
   static create(x, y) {

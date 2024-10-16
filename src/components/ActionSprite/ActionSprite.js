@@ -41,10 +41,6 @@ class ActionSprite extends Sprite {
     this._actionQueue.addTriggerAction(fn, trigger, ...params);
   }
 
-  addActions(actions) {
-    this._actionQueue.pushActions(actions);
-  }
-
   addDelayedActions(fn, delay, itemSet, triggerActions) {
     return this._actionQueue.addDelayedActions(fn, delay, itemSet, triggerActions);
   }

@@ -82,6 +82,6 @@ class ShouldActivatePowerZoneWhenItHasCardLoadPhaseTest extends SceneTest {
   
   asserts() {
     this.describe('Deve entrar em etapa de zona de poder quando não existirem jogadas e sim pelo menos um cartão de poder em fase de carregamento.');
-    this.expectTrue('A proxima etapa é PowerZoneStep?', this.isStep(PowerZoneStep));
+    this.expectTrue('A proxima etapa é PowerStep?', this.isStep(PowerStep));
   }
 }

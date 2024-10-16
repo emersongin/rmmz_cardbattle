@@ -1,4 +1,4 @@
-class PowerZoneStep extends Step {
+class PowerStep extends Step {
   constructor(scene, phase) {
     const phasesEnabled = [GameConst.LOAD_PHASE];
     if (!phasesEnabled.some(p => p === phase)) {
